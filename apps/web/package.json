@@ -1,0 +1,32 @@
+{
+  "name": "@social-bounty/web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "@social-bounty/shared": "*",
+    "@tanstack/react-query": "^5.60.0",
+    "next": "^14.2.0",
+    "primereact": "^10.8.0",
+    "primeicons": "^7.0.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-hook-form": "^7.53.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.5.0"
+  }
+}

@@ -1,0 +1,81 @@
+'use client';
+
+import { useState } from 'react';
+import { Button } from 'primereact/button';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { Card } from 'primereact/card';
+import { ConfirmAction } from '@/components/common/ConfirmAction';
+import { PayoutStatus } from '@social-bounty/shared';
+
+interface PayoutActionBarProps {
+  currentPayoutStatus: PayoutStatus;
+  onAction: (newStatus: PayoutStatus, note?: string) => void;
+  loading?: boolean;
+}
+
+export function PayoutActionBar({ currentPayoutStatus, onAction, loading = false }: PayoutActionBarProps) {
+  const [note, setNote] = useState('');
+  const [showConfirmPaid, setShowConfirmPaid] = useState(false);
+
+  if (currentPayoutStatus === PayoutStatus.PAID) {
+    return null;
+  }
+
+  return (
+    <>
+      <Card className="mt-4">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-neutral-900">Payout Actions</h3>
+
+          <div>
+            <label htmlFor="payout-note" className="block text-sm font-medium text-neutral-700 mb-2">
+              Note (optional)
+            </label>
+            <InputTextarea
+              id="payout-note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={2}
+              className="w-full"
+              placeholder="Add a payout note..."
+            />
+          </div>
+
+          <div className="flex gap-3">
+            {currentPayoutStatus === PayoutStatus.NOT_PAID && (
+              <Button
+                label="Mark as Pending"
+                icon="pi pi-clock"
+                severity="warning"
+                onClick={() => onAction(PayoutStatus.PENDING, note || undefined)}
+                disabled={loading}
+                loading={loading}
+              />
+            )}
+            <Button
+              label="Mark as Paid"
+              icon="pi pi-check-circle"
+              severity="success"
+              onClick={() => setShowConfirmPaid(true)}
+              disabled={loading}
+            />
+          </div>
+        </div>
+      </Card>
+
+      <ConfirmAction
+        visible={showConfirmPaid}
+        onHide={() => setShowConfirmPaid(false)}
+        title="Confirm Payout"
+        message="Mark this submission as paid? Ensure the payment has been processed."
+        confirmLabel="Yes, Mark as Paid"
+        confirmSeverity="success"
+        onConfirm={() => {
+          onAction(PayoutStatus.PAID, note || undefined);
+          setShowConfirmPaid(false);
+        }}
+        loading={loading}
+      />
+    </>
+  );
+}

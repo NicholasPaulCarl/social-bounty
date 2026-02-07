@@ -1,0 +1,205 @@
+'use client';
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { adminApi } from '@/lib/api/admin';
+import { queryKeys } from '@/lib/query-keys';
+import type {
+  AdminUserListParams,
+  AdminUpdateUserStatusRequest,
+  AdminForcePasswordResetRequest,
+  AdminOrgListParams,
+  AdminCreateOrgRequest,
+  AdminUpdateOrgStatusRequest,
+  AdminOverrideBountyRequest,
+  AdminOverrideSubmissionRequest,
+  AuditLogListParams,
+  AdminRecentErrorsParams,
+  AdminUpdateSettingsRequest,
+  BountyListParams,
+} from '@social-bounty/shared';
+
+// Dashboard
+export function useAdminDashboard() {
+  return useQuery({
+    queryKey: queryKeys.admin.dashboard,
+    queryFn: () => adminApi.getDashboard(),
+  });
+}
+
+// Users
+export function useAdminUsers(params: AdminUserListParams) {
+  return useQuery({
+    queryKey: queryKeys.admin.users(params),
+    queryFn: () => adminApi.listUsers(params),
+  });
+}
+
+export function useAdminUserDetail(id: string) {
+  return useQuery({
+    queryKey: queryKeys.admin.userDetail(id),
+    queryFn: () => adminApi.getUserById(id),
+    enabled: !!id,
+  });
+}
+
+export function useUpdateUserStatus(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: AdminUpdateUserStatusRequest) => adminApi.updateUserStatus(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.userDetail(id) });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+    },
+  });
+}
+
+export function useForcePasswordReset(id: string) {
+  return useMutation({
+    mutationFn: (data: AdminForcePasswordResetRequest) => adminApi.forcePasswordReset(id, data),
+  });
+}
+
+// Organisations
+export function useAdminOrganisations(params: AdminOrgListParams) {
+  return useQuery({
+    queryKey: queryKeys.admin.organisations(params),
+    queryFn: () => adminApi.listOrganisations(params),
+  });
+}
+
+export function useAdminOrgDetail(id: string) {
+  return useQuery({
+    queryKey: queryKeys.admin.orgDetail(id),
+    queryFn: () => adminApi.getOrgById(id),
+    enabled: !!id,
+  });
+}
+
+export function useAdminCreateOrg() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: AdminCreateOrgRequest) => adminApi.createOrganisation(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'organisations'] });
+    },
+  });
+}
+
+export function useUpdateOrgStatus(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: AdminUpdateOrgStatusRequest) => adminApi.updateOrgStatus(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orgDetail(id) });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'organisations'] });
+    },
+  });
+}
+
+// Bounties (admin view)
+export function useAdminBounties(params: BountyListParams) {
+  return useQuery({
+    queryKey: queryKeys.bounties.list(params),
+    queryFn: () => adminApi.listBounties(params),
+  });
+}
+
+export function useAdminBountyDetail(id: string) {
+  return useQuery({
+    queryKey: queryKeys.bounties.detail(id),
+    queryFn: () => adminApi.getBountyById(id),
+    enabled: !!id,
+  });
+}
+
+export function useOverrideBountyStatus(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: AdminOverrideBountyRequest) => adminApi.overrideBountyStatus(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.bounties.detail(id) });
+      queryClient.invalidateQueries({ queryKey: ['bounties'] });
+    },
+  });
+}
+
+// Submissions (admin view)
+export function useAdminSubmissionDetail(id: string) {
+  return useQuery({
+    queryKey: queryKeys.submissions.detail(id),
+    queryFn: () => adminApi.getSubmissionById(id),
+    enabled: !!id,
+  });
+}
+
+export function useOverrideSubmissionStatus(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: AdminOverrideSubmissionRequest) => adminApi.overrideSubmissionStatus(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.submissions.detail(id) });
+      queryClient.invalidateQueries({ queryKey: ['submissions'] });
+    },
+  });
+}
+
+export function useOverridePayoutStatus(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { payoutStatus: string; reason: string }) => adminApi.overridePayoutStatus(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.submissions.detail(id) });
+      queryClient.invalidateQueries({ queryKey: ['submissions'] });
+    },
+  });
+}
+
+// Audit Logs
+export function useAuditLogs(params: AuditLogListParams) {
+  return useQuery({
+    queryKey: queryKeys.admin.auditLogs(params),
+    queryFn: () => adminApi.listAuditLogs(params),
+  });
+}
+
+export function useAuditLogDetail(id: string) {
+  return useQuery({
+    queryKey: queryKeys.admin.auditLogDetail(id),
+    queryFn: () => adminApi.getAuditLogById(id),
+    enabled: !!id,
+  });
+}
+
+// System Health
+export function useSystemHealth() {
+  return useQuery({
+    queryKey: queryKeys.admin.systemHealth,
+    queryFn: () => adminApi.getSystemHealth(),
+    refetchInterval: 30000,
+  });
+}
+
+export function useRecentErrors(params: AdminRecentErrorsParams) {
+  return useQuery({
+    queryKey: queryKeys.admin.recentErrors(params),
+    queryFn: () => adminApi.getRecentErrors(params),
+  });
+}
+
+// Settings
+export function useAdminSettings() {
+  return useQuery({
+    queryKey: queryKeys.admin.settings,
+    queryFn: () => adminApi.getSettings(),
+  });
+}
+
+export function useUpdateSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: AdminUpdateSettingsRequest) => adminApi.updateSettings(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.settings });
+    },
+  });
+}

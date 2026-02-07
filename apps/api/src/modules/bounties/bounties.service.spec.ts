@@ -1,0 +1,613 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import {
+  BadRequestException,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
+import { BountiesService } from './bounties.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
+import {
+  UserRole,
+  BountyStatus,
+  RewardType,
+} from '@social-bounty/shared';
+import { AuthenticatedUser } from '../auth/jwt.strategy';
+
+describe('BountiesService', () => {
+  let service: BountiesService;
+  let prisma: any;
+  let auditService: { log: jest.Mock };
+
+  const mockParticipant: AuthenticatedUser = {
+    sub: 'participant-id',
+    email: 'participant@test.com',
+    role: UserRole.PARTICIPANT,
+    organisationId: null,
+  };
+
+  const mockBA: AuthenticatedUser = {
+    sub: 'ba-id',
+    email: 'ba@test.com',
+    role: UserRole.BUSINESS_ADMIN,
+    organisationId: 'org-1',
+  };
+
+  const mockSA: AuthenticatedUser = {
+    sub: 'sa-id',
+    email: 'admin@test.com',
+    role: UserRole.SUPER_ADMIN,
+    organisationId: null,
+  };
+
+  const baseBounty = {
+    id: 'bounty-1',
+    title: 'Test Bounty',
+    shortDescription: 'A test bounty',
+    fullInstructions: 'Full instructions here',
+    category: 'Social Media',
+    rewardType: RewardType.CASH,
+    rewardValue: 25,
+    rewardDescription: null,
+    maxSubmissions: 100,
+    startDate: new Date('2026-02-01'),
+    endDate: new Date('2026-03-01'),
+    eligibilityRules: 'Must have account',
+    proofRequirements: 'Submit URL',
+    status: BountyStatus.DRAFT,
+    organisationId: 'org-1',
+    createdById: 'ba-id',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  beforeEach(async () => {
+    prisma = {
+      bounty: {
+        findMany: jest.fn(),
+        findUnique: jest.fn(),
+        count: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
+        delete: jest.fn(),
+      },
+      submission: {
+        findFirst: jest.fn(),
+      },
+    };
+
+    auditService = { log: jest.fn() };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        BountiesService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: AuditService, useValue: auditService },
+      ],
+    }).compile();
+
+    service = module.get<BountiesService>(BountiesService);
+  });
+
+  // ── create ──────────────────────────────────────────
+
+  describe('create', () => {
+    const createData = {
+      title: 'New Bounty',
+      shortDescription: 'Short desc',
+      fullInstructions: 'Full instructions',
+      category: 'Social Media',
+      rewardType: RewardType.CASH,
+      rewardValue: 25,
+      eligibilityRules: 'Must have account',
+      proofRequirements: 'Submit URL',
+    };
+
+    it('should create a bounty in DRAFT status', async () => {
+      prisma.bounty.create.mockResolvedValue({
+        ...baseBounty,
+        ...createData,
+        status: BountyStatus.DRAFT,
+      });
+
+      const result = await service.create(mockBA, createData);
+
+      expect(result.status).toBe(BountyStatus.DRAFT);
+      expect(result.title).toBe('New Bounty');
+      expect(prisma.bounty.create).toHaveBeenCalledTimes(1);
+      expect(auditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'bounty.create' }),
+      );
+    });
+
+    it('should throw if user has no organisationId', async () => {
+      const noOrgUser: AuthenticatedUser = {
+        ...mockBA,
+        organisationId: null,
+      };
+
+      await expect(service.create(noOrgUser, createData)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw if rewardType is CASH but no rewardValue', async () => {
+      await expect(
+        service.create(mockBA, { ...createData, rewardValue: undefined }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw if endDate is before startDate', async () => {
+      await expect(
+        service.create(mockBA, {
+          ...createData,
+          startDate: '2026-03-01T00:00:00.000Z',
+          endDate: '2026-02-01T00:00:00.000Z',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should allow creation without dates', async () => {
+      prisma.bounty.create.mockResolvedValue({
+        ...baseBounty,
+        startDate: null,
+        endDate: null,
+      });
+
+      const result = await service.create(mockBA, {
+        ...createData,
+        rewardValue: 25,
+      });
+
+      expect(result).toBeDefined();
+    });
+  });
+
+  // ── findById ────────────────────────────────────────
+
+  describe('findById', () => {
+    it('should return bounty for SA regardless of status', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.DRAFT,
+        organisation: { id: 'org-1', name: 'Test', logo: null },
+        createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        _count: { submissions: 5 },
+      });
+
+      const result = await service.findById('bounty-1', mockSA);
+      expect(result.id).toBe('bounty-1');
+    });
+
+    it('should throw NotFoundException for non-existent bounty', async () => {
+      prisma.bounty.findUnique.mockResolvedValue(null);
+
+      await expect(service.findById('non-existent', mockBA)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw ForbiddenException if participant views non-LIVE bounty', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.DRAFT,
+        organisation: { id: 'org-1', name: 'Test', logo: null },
+        createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        _count: { submissions: 0 },
+      });
+
+      await expect(
+        service.findById('bounty-1', mockParticipant),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw ForbiddenException if BA views other org bounty', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        organisationId: 'other-org',
+        organisation: { id: 'other-org', name: 'Other', logo: null },
+        createdBy: { id: 'other-ba', firstName: 'O', lastName: 'B' },
+        _count: { submissions: 0 },
+      });
+
+      await expect(service.findById('bounty-1', mockBA)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('should include userSubmission for participant who has submitted', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+        organisation: { id: 'org-1', name: 'Test', logo: null },
+        createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        _count: { submissions: 5 },
+      });
+      prisma.submission.findFirst.mockResolvedValue({
+        id: 'sub-1',
+        status: 'SUBMITTED',
+        payoutStatus: 'NOT_PAID',
+      });
+
+      const result = await service.findById('bounty-1', mockParticipant);
+      expect(result.userSubmission).toEqual({
+        id: 'sub-1',
+        status: 'SUBMITTED',
+        payoutStatus: 'NOT_PAID',
+      });
+    });
+  });
+
+  // ── updateStatus ────────────────────────────────────
+
+  describe('updateStatus', () => {
+    it('should allow DRAFT -> LIVE', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.DRAFT,
+      });
+      prisma.bounty.update.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+      });
+
+      const result = await service.updateStatus(
+        'bounty-1',
+        mockBA,
+        BountyStatus.LIVE,
+      );
+      expect(result.status).toBe(BountyStatus.LIVE);
+    });
+
+    it('should allow LIVE -> PAUSED', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+      });
+      prisma.bounty.update.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.PAUSED,
+      });
+
+      const result = await service.updateStatus(
+        'bounty-1',
+        mockBA,
+        BountyStatus.PAUSED,
+      );
+      expect(result.status).toBe(BountyStatus.PAUSED);
+    });
+
+    it('should allow PAUSED -> LIVE', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.PAUSED,
+      });
+      prisma.bounty.update.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+      });
+
+      const result = await service.updateStatus(
+        'bounty-1',
+        mockBA,
+        BountyStatus.LIVE,
+      );
+      expect(result.status).toBe(BountyStatus.LIVE);
+    });
+
+    it('should allow LIVE -> CLOSED', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+      });
+      prisma.bounty.update.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.CLOSED,
+      });
+
+      const result = await service.updateStatus(
+        'bounty-1',
+        mockBA,
+        BountyStatus.CLOSED,
+      );
+      expect(result.status).toBe(BountyStatus.CLOSED);
+    });
+
+    it('should allow PAUSED -> CLOSED', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.PAUSED,
+      });
+      prisma.bounty.update.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.CLOSED,
+      });
+
+      const result = await service.updateStatus(
+        'bounty-1',
+        mockBA,
+        BountyStatus.CLOSED,
+      );
+      expect(result.status).toBe(BountyStatus.CLOSED);
+    });
+
+    it('should reject CLOSED -> LIVE (terminal state)', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.CLOSED,
+      });
+
+      await expect(
+        service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should reject DRAFT -> PAUSED (invalid)', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.DRAFT,
+      });
+
+      await expect(
+        service.updateStatus('bounty-1', mockBA, BountyStatus.PAUSED),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should reject DRAFT -> CLOSED (invalid)', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.DRAFT,
+      });
+
+      await expect(
+        service.updateStatus('bounty-1', mockBA, BountyStatus.CLOSED),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw NotFoundException for non-existent bounty', async () => {
+      prisma.bounty.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.updateStatus('non-existent', mockBA, BountyStatus.LIVE),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw ForbiddenException if BA not in bounty org', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        organisationId: 'other-org',
+      });
+
+      await expect(
+        service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should create audit log on status change', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.DRAFT,
+      });
+      prisma.bounty.update.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+      });
+
+      await service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE);
+
+      expect(auditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'bounty.status_change',
+          beforeState: { status: BountyStatus.DRAFT },
+          afterState: { status: BountyStatus.LIVE },
+        }),
+      );
+    });
+  });
+
+  // ── update ──────────────────────────────────────────
+
+  describe('update', () => {
+    it('should allow all fields on DRAFT bounty', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.DRAFT,
+      });
+      prisma.bounty.update.mockResolvedValue({
+        ...baseBounty,
+        title: 'Updated Title',
+        organisation: { id: 'org-1', name: 'Test', logo: null },
+        createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        _count: { submissions: 0 },
+      });
+
+      const result = await service.update(
+        'bounty-1',
+        mockBA,
+        { title: 'Updated Title' },
+      );
+      expect(result.title).toBe('Updated Title');
+    });
+
+    it('should reject non-editable fields on LIVE bounty', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+      });
+
+      await expect(
+        service.update('bounty-1', mockBA, { title: 'New Title' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should allow editable fields on LIVE bounty', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+      });
+      prisma.bounty.update.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+        eligibilityRules: 'Updated rules',
+        organisation: { id: 'org-1', name: 'Test', logo: null },
+        createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        _count: { submissions: 0 },
+      });
+
+      const result = await service.update(
+        'bounty-1',
+        mockBA,
+        { eligibilityRules: 'Updated rules' },
+      );
+      expect(result).toBeDefined();
+    });
+
+    it('should reject editing CLOSED bounty', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.CLOSED,
+      });
+
+      await expect(
+        service.update('bounty-1', mockBA, { title: 'New Title' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw ForbiddenException if BA not in bounty org', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        organisationId: 'other-org',
+      });
+
+      await expect(
+        service.update('bounty-1', mockBA, { title: 'New Title' }),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should allow SA to update any org bounty', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        organisationId: 'other-org',
+        status: BountyStatus.DRAFT,
+      });
+      prisma.bounty.update.mockResolvedValue({
+        ...baseBounty,
+        title: 'SA Updated',
+        organisation: { id: 'other-org', name: 'Other', logo: null },
+        createdBy: { id: 'other-ba', firstName: 'O', lastName: 'B' },
+        _count: { submissions: 0 },
+      });
+
+      const result = await service.update(
+        'bounty-1',
+        mockSA,
+        { title: 'SA Updated' },
+      );
+      expect(result).toBeDefined();
+    });
+  });
+
+  // ── delete ──────────────────────────────────────────
+
+  describe('delete', () => {
+    it('should allow deleting DRAFT bounties', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.DRAFT,
+      });
+      prisma.bounty.delete.mockResolvedValue(undefined);
+
+      const result = await service.delete('bounty-1', mockBA);
+      expect(result.message).toBe('Bounty deleted.');
+      expect(auditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'bounty.delete' }),
+      );
+    });
+
+    it('should reject deleting non-DRAFT bounties', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+      });
+
+      await expect(service.delete('bounty-1', mockBA)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw NotFoundException for non-existent bounty', async () => {
+      prisma.bounty.findUnique.mockResolvedValue(null);
+
+      await expect(service.delete('non-existent', mockBA)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw ForbiddenException if BA not in bounty org', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        organisationId: 'other-org',
+        status: BountyStatus.DRAFT,
+      });
+
+      await expect(service.delete('bounty-1', mockBA)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+  });
+
+  // ── list ────────────────────────────────────────────
+
+  describe('list', () => {
+    it('should filter LIVE only for participants', async () => {
+      prisma.bounty.findMany.mockResolvedValue([]);
+      prisma.bounty.count.mockResolvedValue(0);
+
+      await service.list(mockParticipant, {});
+
+      expect(prisma.bounty.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ status: BountyStatus.LIVE }),
+        }),
+      );
+    });
+
+    it('should filter by org for BA', async () => {
+      prisma.bounty.findMany.mockResolvedValue([]);
+      prisma.bounty.count.mockResolvedValue(0);
+
+      await service.list(mockBA, {});
+
+      expect(prisma.bounty.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ organisationId: 'org-1' }),
+        }),
+      );
+    });
+
+    it('should not restrict for SA', async () => {
+      prisma.bounty.findMany.mockResolvedValue([]);
+      prisma.bounty.count.mockResolvedValue(0);
+
+      await service.list(mockSA, {});
+
+      const callArgs = prisma.bounty.findMany.mock.calls[0][0];
+      expect(callArgs.where.status).toBeUndefined();
+      expect(callArgs.where.organisationId).toBeUndefined();
+    });
+
+    it('should return correct pagination meta', async () => {
+      prisma.bounty.findMany.mockResolvedValue([]);
+      prisma.bounty.count.mockResolvedValue(45);
+
+      const result = await service.list(mockSA, { page: 2, limit: 10 });
+
+      expect(result.meta).toEqual({
+        page: 2,
+        limit: 10,
+        total: 45,
+        totalPages: 5,
+      });
+    });
+  });
+});

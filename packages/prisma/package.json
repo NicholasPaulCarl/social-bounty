@@ -1,0 +1,23 @@
+{
+  "name": "@social-bounty/prisma",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Prisma schema and migrations for Social Bounty",
+  "scripts": {
+    "generate": "prisma generate",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:reset": "prisma migrate reset",
+    "studio": "prisma studio",
+    "seed": "ts-node prisma/seed.ts",
+    "db:push": "prisma db push"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.0.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.0"
+  }
+}

@@ -1,0 +1,212 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared package
+        run: npm run build:shared
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Lint API
+        run: npm run lint --workspace=apps/api
+
+      - name: Lint Web
+        run: npm run lint --workspace=apps/web
+
+      - name: Type check API
+        run: npx tsc --noEmit --project apps/api/tsconfig.json
+
+      - name: Type check Web
+        run: npx tsc --noEmit --project apps/web/tsconfig.json
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared package
+        run: npm run build:shared
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Run API unit tests
+        run: npx jest --config apps/api/jest.config.ts --ci --coverage --forceExit
+        env:
+          JWT_SECRET: test-jwt-secret-for-ci-minimum-32-chars
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-ci-32chars
+          JWT_ACCESS_EXPIRY: 15m
+          JWT_REFRESH_EXPIRY: 7d
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: apps/api/coverage/
+          retention-days: 7
+
+  integration-tests:
+    name: API Integration Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: social_bounty_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared package
+        run: npm run build:shared
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Run database migrations
+        run: npx prisma migrate deploy --schema=packages/prisma/schema.prisma
+        env:
+          DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_test
+
+      - name: Run integration tests
+        run: npx jest --config apps/api/test/jest-e2e.json --ci --forceExit || true
+        env:
+          DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_test
+          JWT_SECRET: test-jwt-secret-for-ci-minimum-32-chars
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-ci-32chars
+          JWT_ACCESS_EXPIRY: 15m
+          JWT_REFRESH_EXPIRY: 7d
+          CORS_ORIGIN: http://localhost:3000
+          NODE_ENV: test
+
+  e2e-tests:
+    name: E2E UI Smoke Tests
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    if: github.event_name == 'pull_request'
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: social_bounty_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared package
+        run: npm run build:shared
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run database migrations
+        run: npx prisma migrate deploy --schema=packages/prisma/schema.prisma
+        env:
+          DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
+
+      - name: Seed test data
+        run: npm run db:seed || true
+        env:
+          DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
+
+      - name: Build applications
+        run: npm run build:all
+        env:
+          DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
+
+      - name: Run E2E tests
+        run: npx playwright test --project=chromium || true
+        env:
+          DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
+          JWT_SECRET: test-jwt-secret-for-ci-minimum-32-chars
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-ci-32chars
+          CORS_ORIGIN: http://localhost:3000
+          NODE_ENV: test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

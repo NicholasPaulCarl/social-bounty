@@ -1,0 +1,27 @@
+{
+  "name": "social-bounty",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Social Bounty MVP - bounty-based marketplace platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build:api": "npm run build --workspace=apps/api",
+    "build:web": "npm run build --workspace=apps/web",
+    "build:shared": "npm run build --workspace=packages/shared",
+    "build:all": "npm run build:shared && npm run build:api && npm run build:web",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "db:generate": "npm run generate --workspace=packages/prisma",
+    "db:migrate": "npm run migrate:dev --workspace=packages/prisma",
+    "db:seed": "npm run seed --workspace=packages/prisma",
+    "db:studio": "npm run studio --workspace=packages/prisma"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

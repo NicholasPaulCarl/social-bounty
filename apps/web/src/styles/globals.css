@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* PrimeReact theme import */
+@import 'primereact/resources/themes/lara-light-blue/theme.css';
+@import 'primereact/resources/primereact.min.css';
+@import 'primeicons/primeicons.css';
+
+/* Global overrides */
+body {
+  @apply bg-neutral-50 text-neutral-900 font-sans;
+}
+
+/* Skip navigation link */
+.sr-only-focusable:focus {
+  @apply not-sr-only absolute top-2 left-2 z-50 bg-white p-2 rounded shadow;
+}
