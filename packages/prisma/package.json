@@ -13,11 +13,16 @@
     "db:push": "prisma db push"
   },
   "dependencies": {
-    "@prisma/client": "^6.0.0"
+    "@prisma/client": "^6.0.0",
+    "bcrypt": "^5.1.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "prisma": "^6.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.0"
+  },
+  "prisma": {
+    "seed": "ts-node seed.ts"
   }
 }

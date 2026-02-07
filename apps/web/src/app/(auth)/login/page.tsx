@@ -10,12 +10,21 @@ import { Card } from 'primereact/card';
 import { useAuth } from '@/hooks/useAuth';
 import { ApiError } from '@/lib/api/client';
 
+const DEMO_ACCOUNTS = [
+  { label: 'Demo Participant', email: 'participant@demo.com', icon: 'pi pi-user', severity: 'info' as const },
+  { label: 'Demo Business Admin', email: 'admin@demo.com', icon: 'pi pi-briefcase', severity: 'success' as const },
+  { label: 'Demo Super Admin', email: 'superadmin@demo.com', icon: 'pi pi-shield', severity: 'warning' as const },
+];
+
+const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
 export default function LoginPage() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +41,23 @@ export default function LoginPage() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDemoLogin = async (demoEmail: string) => {
+    setError('');
+    setDemoLoading(demoEmail);
+
+    try {
+      await login(demoEmail, 'DemoPassword123!');
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setDemoLoading(null);
     }
   };
 
@@ -93,6 +119,35 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
+
+      {isDemoMode && (
+        <div className="mt-6">
+          <div className="relative flex items-center justify-center mb-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-neutral-300" />
+            </div>
+            <span className="relative bg-white px-3 text-sm text-neutral-500">
+              Or sign in as a demo user
+            </span>
+          </div>
+          <div className="space-y-2">
+            {DEMO_ACCOUNTS.map((account) => (
+              <Button
+                key={account.email}
+                type="button"
+                label={account.label}
+                icon={account.icon}
+                severity={account.severity}
+                outlined
+                loading={demoLoading === account.email}
+                disabled={loading || (demoLoading !== null && demoLoading !== account.email)}
+                onClick={() => handleDemoLogin(account.email)}
+                className="w-full"
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
