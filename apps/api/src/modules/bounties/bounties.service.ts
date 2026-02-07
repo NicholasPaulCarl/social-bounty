@@ -9,9 +9,26 @@ import {
   UserRole,
   BountyStatus,
   RewardType,
+  SocialChannel,
+  PostFormat,
+  PostVisibilityRule,
+  DurationUnit,
+  Currency,
+  PaymentStatus,
   AUDIT_ACTIONS,
   ENTITY_TYPES,
   PAGINATION_DEFAULTS,
+  CHANNEL_POST_FORMATS,
+  BOUNTY_REWARD_LIMITS,
+} from '@social-bounty/shared';
+import type {
+  ChannelSelection,
+  RewardLineInput,
+  StructuredEligibilityInput,
+  PostVisibilityInput,
+  EngagementRequirementsInput,
+  PayoutMetricsInput,
+  RewardLineResponse,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
@@ -36,6 +53,238 @@ export class BountiesService {
     private prisma: PrismaService,
     private auditService: AuditService,
   ) {}
+
+  // ── Validation helpers ─────────────────────────────────
+
+  private validateChannels(channels: ChannelSelection): void {
+    const entries = Object.entries(channels);
+    if (entries.length === 0) {
+      throw new BadRequestException('At least one channel must be selected');
+    }
+
+    for (const [channel, formats] of entries) {
+      if (!Object.values(SocialChannel).includes(channel as SocialChannel)) {
+        throw new BadRequestException(`Invalid channel: ${channel}`);
+      }
+
+      const allowedFormats = CHANNEL_POST_FORMATS[channel as SocialChannel];
+      if (!Array.isArray(formats) || formats.length === 0) {
+        throw new BadRequestException(
+          `At least one post format is required for channel ${channel}`,
+        );
+      }
+
+      for (const format of formats) {
+        if (!allowedFormats.includes(format as PostFormat)) {
+          throw new BadRequestException(
+            `Invalid post format "${format}" for channel ${channel}. Allowed: ${allowedFormats.join(', ')}`,
+          );
+        }
+      }
+    }
+  }
+
+  private static readonly DURATION_LIMITS: Record<string, { min: number; max: number }> = {
+    [DurationUnit.HOURS]: { min: 1, max: 168 },
+    [DurationUnit.DAYS]: { min: 1, max: 90 },
+    [DurationUnit.WEEKS]: { min: 1, max: 12 },
+  };
+
+  private static readonly TAG_ACCOUNT_REGEX = /^@[a-zA-Z0-9_.]{1,99}$/;
+
+  private validatePostVisibility(input: PostVisibilityInput): void {
+    if (!Object.values(PostVisibilityRule).includes(input.rule as PostVisibilityRule)) {
+      throw new BadRequestException(`Invalid post visibility rule: ${input.rule}`);
+    }
+
+    if (input.rule === PostVisibilityRule.MUST_NOT_REMOVE) {
+      if (input.minDurationValue != null || input.minDurationUnit != null) {
+        throw new BadRequestException(
+          'Duration fields must be null when rule is MUST_NOT_REMOVE',
+        );
+      }
+      return;
+    }
+
+    if (input.rule === PostVisibilityRule.MINIMUM_DURATION) {
+      if (!input.minDurationValue || input.minDurationValue <= 0) {
+        throw new BadRequestException(
+          'Duration value must be > 0 when rule is MINIMUM_DURATION',
+        );
+      }
+      if (!input.minDurationUnit) {
+        throw new BadRequestException(
+          'Duration unit is required when rule is MINIMUM_DURATION',
+        );
+      }
+      if (
+        !Object.values(DurationUnit).includes(
+          input.minDurationUnit as DurationUnit,
+        )
+      ) {
+        throw new BadRequestException(
+          `Invalid duration unit: ${input.minDurationUnit}`,
+        );
+      }
+      const limits = BountiesService.DURATION_LIMITS[input.minDurationUnit];
+      if (limits && (input.minDurationValue < limits.min || input.minDurationValue > limits.max)) {
+        throw new BadRequestException(
+          `Duration value for ${input.minDurationUnit} must be between ${limits.min} and ${limits.max}`,
+        );
+      }
+    }
+  }
+
+  private validateRewards(rewards: RewardLineInput[]): void {
+    if (!Array.isArray(rewards) || rewards.length === 0) {
+      throw new BadRequestException('At least one reward line is required');
+    }
+    if (rewards.length > BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES) {
+      throw new BadRequestException(
+        `Maximum ${BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES} reward lines allowed`,
+      );
+    }
+    for (const r of rewards) {
+      if (!Object.values(RewardType).includes(r.rewardType as RewardType)) {
+        throw new BadRequestException(`Invalid reward type: ${r.rewardType}`);
+      }
+      if (!r.name || r.name.trim().length === 0) {
+        throw new BadRequestException('Reward name is required');
+      }
+      if (r.name.length > BOUNTY_REWARD_LIMITS.REWARD_NAME_MAX) {
+        throw new BadRequestException(
+          `Reward name must be ${BOUNTY_REWARD_LIMITS.REWARD_NAME_MAX} characters or less`,
+        );
+      }
+      if (typeof r.monetaryValue !== 'number' || isNaN(r.monetaryValue) || r.monetaryValue <= 0) {
+        throw new BadRequestException('Reward monetary value must be a positive number');
+      }
+      // Check max 2 decimal places
+      const decimalStr = r.monetaryValue.toString();
+      const decimalPart = decimalStr.split('.')[1];
+      if (decimalPart && decimalPart.length > 2) {
+        throw new BadRequestException('Reward monetary value may have at most 2 decimal places');
+      }
+    }
+  }
+
+  private validateStructuredEligibility(input: StructuredEligibilityInput): void {
+    if (input.minFollowers != null) {
+      if (!Number.isInteger(input.minFollowers) || input.minFollowers <= 0) {
+        throw new BadRequestException('minFollowers must be a positive integer');
+      }
+    }
+    if (input.minAccountAgeDays != null) {
+      if (!Number.isInteger(input.minAccountAgeDays) || input.minAccountAgeDays <= 0) {
+        throw new BadRequestException('minAccountAgeDays must be a positive integer');
+      }
+    }
+    if (input.noCompetingBrandDays != null) {
+      if (!Number.isInteger(input.noCompetingBrandDays) || input.noCompetingBrandDays < 0) {
+        throw new BadRequestException('noCompetingBrandDays must be a non-negative integer');
+      }
+    }
+    if (input.locationRestriction != null && input.locationRestriction.length > 200) {
+      throw new BadRequestException('locationRestriction must be 200 characters or less');
+    }
+    if (input.customRules) {
+      if (input.customRules.length > BOUNTY_REWARD_LIMITS.MAX_CUSTOM_ELIGIBILITY_RULES) {
+        throw new BadRequestException(
+          `Maximum ${BOUNTY_REWARD_LIMITS.MAX_CUSTOM_ELIGIBILITY_RULES} custom eligibility rules allowed`,
+        );
+      }
+      for (const rule of input.customRules) {
+        if (typeof rule !== 'string') {
+          throw new BadRequestException('Each custom eligibility rule must be a string');
+        }
+        if (rule.trim().length === 0) {
+          throw new BadRequestException('Custom eligibility rules must not be empty');
+        }
+        if (rule.length > BOUNTY_REWARD_LIMITS.CUSTOM_RULE_MAX_LENGTH) {
+          throw new BadRequestException(
+            `Each custom rule must be ${BOUNTY_REWARD_LIMITS.CUSTOM_RULE_MAX_LENGTH} characters or less`,
+          );
+        }
+      }
+    }
+  }
+
+  private validateEngagementRequirements(input: EngagementRequirementsInput): void {
+    if (input.tagAccount != null) {
+      if (!BountiesService.TAG_ACCOUNT_REGEX.test(input.tagAccount)) {
+        throw new BadRequestException(
+          'tagAccount must start with @ followed by 1-99 alphanumeric characters, underscores, or dots',
+        );
+      }
+    }
+  }
+
+  private generateEligibilityText(
+    structured: StructuredEligibilityInput,
+  ): string {
+    const parts: string[] = [];
+
+    if (structured.minFollowers != null && structured.minFollowers > 0) {
+      parts.push(`Minimum ${structured.minFollowers} followers`);
+    }
+    if (structured.publicProfile) {
+      parts.push('Public profile required');
+    }
+    if (
+      structured.minAccountAgeDays != null &&
+      structured.minAccountAgeDays > 0
+    ) {
+      parts.push(`Account must be at least ${structured.minAccountAgeDays} days old`);
+    }
+    if (structured.locationRestriction) {
+      parts.push(`Location: ${structured.locationRestriction}`);
+    }
+    if (
+      structured.noCompetingBrandDays != null &&
+      structured.noCompetingBrandDays > 0
+    ) {
+      parts.push(
+        `No competing brand posts in last ${structured.noCompetingBrandDays} days`,
+      );
+    }
+    if (structured.customRules && structured.customRules.length > 0) {
+      for (const rule of structured.customRules) {
+        parts.push(rule);
+      }
+    }
+
+    return parts.length > 0 ? parts.join('. ') + '.' : 'No specific eligibility requirements.';
+  }
+
+  private mapRewards(
+    rewards: Array<{
+      id: string;
+      rewardType: string;
+      name: string;
+      monetaryValue: { toString(): string };
+      sortOrder: number;
+    }>,
+  ): RewardLineResponse[] {
+    return rewards.map((r) => ({
+      id: r.id,
+      rewardType: r.rewardType as RewardType,
+      name: r.name,
+      monetaryValue: r.monetaryValue.toString(),
+      sortOrder: r.sortOrder,
+    }));
+  }
+
+  private computeTotalRewardValue(
+    rewards: Array<{ monetaryValue: { toString(): string } }>,
+  ): string {
+    let total = 0;
+    for (const r of rewards) {
+      total += parseFloat(r.monetaryValue.toString());
+    }
+    return total.toFixed(2);
+  }
+
+  // ── List ───────────────────────────────────────────────
 
   async list(
     user: AuthenticatedUser,
@@ -95,6 +344,9 @@ export class BountiesService {
           organisation: {
             select: { id: true, name: true, logo: true },
           },
+          rewards: {
+            orderBy: { sortOrder: 'asc' },
+          },
           _count: { select: { submissions: true } },
         },
         skip: (page - 1) * limit,
@@ -119,6 +371,13 @@ export class BountiesService {
         status: b.status,
         submissionCount: b._count.submissions,
         organisation: b.organisation,
+        channels: b.channels as Record<string, string[]> | null,
+        currency: b.currency,
+        totalRewardValue:
+          b.rewards.length > 0 ? this.computeTotalRewardValue(b.rewards) : null,
+        rewards: this.mapRewards(b.rewards),
+        payoutMetrics: (b as any).payoutMetrics as PayoutMetricsInput | null ?? null,
+        paymentStatus: (b as any).paymentStatus ?? PaymentStatus.UNPAID,
         createdAt: b.createdAt.toISOString(),
       })),
       meta: {
@@ -130,6 +389,8 @@ export class BountiesService {
     };
   }
 
+  // ── Find by ID ─────────────────────────────────────────
+
   async findById(id: string, user: AuthenticatedUser) {
     const bounty = await this.prisma.bounty.findUnique({
       where: { id },
@@ -139,6 +400,9 @@ export class BountiesService {
         },
         createdBy: {
           select: { id: true, firstName: true, lastName: true },
+        },
+        rewards: {
+          orderBy: { sortOrder: 'asc' },
         },
         _count: { select: { submissions: true } },
       },
@@ -204,24 +468,77 @@ export class BountiesService {
       userSubmission,
       createdAt: bounty.createdAt.toISOString(),
       updatedAt: bounty.updatedAt.toISOString(),
+      // New fields
+      channels: bounty.channels as ChannelSelection | null,
+      currency: bounty.currency,
+      aiContentPermitted: bounty.aiContentPermitted,
+      engagementRequirements:
+        (bounty.engagementRequirements as EngagementRequirementsInput | null),
+      postVisibility: bounty.postVisibilityRule
+        ? {
+            rule: bounty.postVisibilityRule,
+            minDurationValue: bounty.postMinDurationValue,
+            minDurationUnit: bounty.postMinDurationUnit,
+          }
+        : null,
+      structuredEligibility:
+        (bounty.structuredEligibility as StructuredEligibilityInput | null),
+      visibilityAcknowledged: bounty.visibilityAcknowledged,
+      rewards: this.mapRewards(bounty.rewards),
+      totalRewardValue:
+        bounty.rewards.length > 0
+          ? this.computeTotalRewardValue(bounty.rewards)
+          : null,
+      payoutMetrics: (bounty as any).payoutMetrics as PayoutMetricsInput | null ?? null,
+      paymentStatus: (bounty as any).paymentStatus ?? PaymentStatus.UNPAID,
     };
+  }
+
+  // ── Create ─────────────────────────────────────────────
+
+  private validatePayoutMetrics(input: PayoutMetricsInput): void {
+    if (input.minViews != null) {
+      if (!Number.isInteger(input.minViews) || input.minViews < 0) {
+        throw new BadRequestException('minViews must be a non-negative integer');
+      }
+    }
+    if (input.minLikes != null) {
+      if (!Number.isInteger(input.minLikes) || input.minLikes < 0) {
+        throw new BadRequestException('minLikes must be a non-negative integer');
+      }
+    }
+    if (input.minComments != null) {
+      if (!Number.isInteger(input.minComments) || input.minComments < 0) {
+        throw new BadRequestException('minComments must be a non-negative integer');
+      }
+    }
   }
 
   async create(
     user: AuthenticatedUser,
     data: {
       title: string;
-      shortDescription: string;
-      fullInstructions: string;
-      category: string;
-      rewardType: RewardType;
-      rewardValue?: number | null;
-      rewardDescription?: string | null;
+      shortDescription?: string;
+      fullInstructions?: string;
+      category?: string;
+      proofRequirements?: string;
       maxSubmissions?: number | null;
       startDate?: string | null;
       endDate?: string | null;
-      eligibilityRules: string;
-      proofRequirements: string;
+      // New structured fields (optional for draft saves)
+      channels?: ChannelSelection;
+      rewards?: RewardLineInput[];
+      postVisibility?: PostVisibilityInput;
+      structuredEligibility?: StructuredEligibilityInput;
+      currency?: Currency;
+      aiContentPermitted?: boolean;
+      engagementRequirements?: EngagementRequirementsInput;
+      payoutMetrics?: PayoutMetricsInput;
+      // Legacy fields (optional)
+      rewardType?: RewardType;
+      rewardValue?: number | null;
+      rewardDescription?: string | null;
+      eligibilityRules?: string;
     },
     ipAddress?: string,
   ) {
@@ -229,65 +546,171 @@ export class BountiesService {
       throw new BadRequestException('You must belong to an organisation to create bounties');
     }
 
-    if (data.rewardType === RewardType.CASH && !data.rewardValue) {
-      throw new BadRequestException('Reward value is required for CASH reward type');
-    }
-
     if (data.startDate && data.endDate && new Date(data.endDate) <= new Date(data.startDate)) {
       throw new BadRequestException('End date must be after start date');
     }
 
-    const bounty = await this.prisma.bounty.create({
-      data: {
-        organisationId: user.organisationId,
-        createdById: user.sub,
-        title: data.title.trim(),
-        shortDescription: data.shortDescription.trim(),
-        fullInstructions: data.fullInstructions.trim(),
-        category: data.category.trim(),
-        rewardType: data.rewardType,
-        rewardValue: data.rewardValue ?? undefined,
-        rewardDescription: data.rewardDescription ?? undefined,
-        maxSubmissions: data.maxSubmissions ?? undefined,
-        startDate: data.startDate ? new Date(data.startDate) : undefined,
-        endDate: data.endDate ? new Date(data.endDate) : undefined,
-        eligibilityRules: data.eligibilityRules.trim(),
-        proofRequirements: data.proofRequirements.trim(),
-        status: BountyStatus.DRAFT,
-      },
+    // Validate maxSubmissions if provided
+    if (data.maxSubmissions != null) {
+      if (!Number.isInteger(data.maxSubmissions) || data.maxSubmissions <= 0) {
+        throw new BadRequestException('maxSubmissions must be a positive integer');
+      }
+    }
+
+    // Validate currency enum if provided
+    if (data.currency != null && !Object.values(Currency).includes(data.currency as Currency)) {
+      throw new BadRequestException(`Invalid currency: ${data.currency}`);
+    }
+
+    // Validate structured fields only if provided (allows draft saves with minimal data)
+    if (data.channels && Object.keys(data.channels).length > 0) {
+      this.validateChannels(data.channels);
+    }
+    if (data.rewards && data.rewards.length > 0) {
+      this.validateRewards(data.rewards);
+    }
+    if (data.postVisibility) {
+      this.validatePostVisibility(data.postVisibility);
+    }
+    if (data.structuredEligibility) {
+      this.validateStructuredEligibility(data.structuredEligibility);
+    }
+    if (data.engagementRequirements) {
+      this.validateEngagementRequirements(data.engagementRequirements);
+    }
+    if (data.payoutMetrics) {
+      this.validatePayoutMetrics(data.payoutMetrics);
+    }
+
+    // Compute legacy fields from structured data (if available)
+    const hasRewards = data.rewards && data.rewards.length > 0;
+    const legacyRewardType = data.rewardType ?? (hasRewards ? data.rewards![0].rewardType : RewardType.CASH);
+    const legacyRewardValue =
+      data.rewardValue ??
+      (hasRewards ? data.rewards!.reduce((sum, r) => sum + r.monetaryValue, 0) : undefined);
+    const legacyRewardDescription =
+      data.rewardDescription ?? (hasRewards ? data.rewards!.map((r) => r.name).join(', ') : undefined);
+    const legacyEligibilityRules =
+      data.eligibilityRules ?? (data.structuredEligibility ? this.generateEligibilityText(data.structuredEligibility) : undefined);
+
+    // Atomic transaction: create bounty + reward rows
+    const result = await this.prisma.$transaction(async (tx) => {
+      const bounty = await tx.bounty.create({
+        data: {
+          organisationId: user.organisationId!,
+          createdById: user.sub,
+          title: data.title.trim(),
+          shortDescription: data.shortDescription?.trim() ?? '',
+          fullInstructions: data.fullInstructions?.trim() ?? '',
+          category: data.category?.trim() ?? '',
+          proofRequirements: data.proofRequirements?.trim() ?? '',
+          maxSubmissions: data.maxSubmissions ?? undefined,
+          startDate: data.startDate ? new Date(data.startDate) : undefined,
+          endDate: data.endDate ? new Date(data.endDate) : undefined,
+          status: BountyStatus.DRAFT,
+          // Legacy fields (populated from structured data if available)
+          rewardType: legacyRewardType,
+          rewardValue: legacyRewardValue,
+          rewardDescription: legacyRewardDescription,
+          eligibilityRules: legacyEligibilityRules ?? '',
+          // New structured fields (conditionally set)
+          currency: data.currency ?? Currency.ZAR,
+          channels: data.channels ? data.channels as Prisma.InputJsonValue : undefined,
+          aiContentPermitted: data.aiContentPermitted ?? false,
+          engagementRequirements: data.engagementRequirements
+            ? data.engagementRequirements as Prisma.InputJsonValue
+            : undefined,
+          postVisibilityRule: data.postVisibility?.rule ?? undefined,
+          postMinDurationValue: data.postVisibility?.minDurationValue ?? null,
+          postMinDurationUnit: data.postVisibility?.minDurationUnit ?? null,
+          structuredEligibility: data.structuredEligibility
+            ? data.structuredEligibility as Prisma.InputJsonValue
+            : undefined,
+          payoutMetrics: data.payoutMetrics
+            ? data.payoutMetrics as Prisma.InputJsonValue
+            : undefined,
+          visibilityAcknowledged: false,
+        },
+      });
+
+      // Create reward rows (if any provided)
+      let rewards: any[] = [];
+      if (hasRewards) {
+        const rewardRows = data.rewards!.map((r, index) => ({
+          bountyId: bounty.id,
+          rewardType: r.rewardType,
+          name: r.name.trim(),
+          monetaryValue: r.monetaryValue,
+          sortOrder: index,
+        }));
+
+        await tx.bountyReward.createMany({ data: rewardRows });
+
+        rewards = await tx.bountyReward.findMany({
+          where: { bountyId: bounty.id },
+          orderBy: { sortOrder: 'asc' },
+        });
+      }
+
+      return { bounty, rewards };
     });
 
+    // Fire-and-forget audit log
     this.auditService.log({
       actorId: user.sub,
       actorRole: user.role as UserRole,
       action: AUDIT_ACTIONS.BOUNTY_CREATE,
       entityType: ENTITY_TYPES.BOUNTY,
-      entityId: bounty.id,
-      afterState: { title: bounty.title, status: bounty.status },
+      entityId: result.bounty.id,
+      afterState: { title: result.bounty.title, status: result.bounty.status },
       ipAddress,
     });
 
     return {
-      id: bounty.id,
-      title: bounty.title,
-      shortDescription: bounty.shortDescription,
-      fullInstructions: bounty.fullInstructions,
-      category: bounty.category,
-      rewardType: bounty.rewardType,
-      rewardValue: bounty.rewardValue?.toString() || null,
-      rewardDescription: bounty.rewardDescription,
-      maxSubmissions: bounty.maxSubmissions,
-      startDate: bounty.startDate?.toISOString() || null,
-      endDate: bounty.endDate?.toISOString() || null,
-      eligibilityRules: bounty.eligibilityRules,
-      proofRequirements: bounty.proofRequirements,
-      status: bounty.status,
-      organisationId: bounty.organisationId,
-      createdById: bounty.createdById,
-      createdAt: bounty.createdAt.toISOString(),
-      updatedAt: bounty.updatedAt.toISOString(),
+      id: result.bounty.id,
+      title: result.bounty.title,
+      shortDescription: result.bounty.shortDescription,
+      fullInstructions: result.bounty.fullInstructions,
+      category: result.bounty.category,
+      rewardType: result.bounty.rewardType,
+      rewardValue: result.bounty.rewardValue?.toString() || null,
+      rewardDescription: result.bounty.rewardDescription,
+      maxSubmissions: result.bounty.maxSubmissions,
+      startDate: result.bounty.startDate?.toISOString() || null,
+      endDate: result.bounty.endDate?.toISOString() || null,
+      eligibilityRules: result.bounty.eligibilityRules,
+      proofRequirements: result.bounty.proofRequirements,
+      status: result.bounty.status,
+      organisationId: result.bounty.organisationId,
+      createdById: result.bounty.createdById,
+      createdAt: result.bounty.createdAt.toISOString(),
+      updatedAt: result.bounty.updatedAt.toISOString(),
+      // New fields
+      channels: result.bounty.channels as ChannelSelection | null,
+      currency: result.bounty.currency,
+      aiContentPermitted: result.bounty.aiContentPermitted,
+      engagementRequirements:
+        result.bounty.engagementRequirements as EngagementRequirementsInput | null,
+      postVisibility: result.bounty.postVisibilityRule
+        ? {
+            rule: result.bounty.postVisibilityRule,
+            minDurationValue: result.bounty.postMinDurationValue,
+            minDurationUnit: result.bounty.postMinDurationUnit,
+          }
+        : null,
+      structuredEligibility:
+        result.bounty.structuredEligibility as StructuredEligibilityInput | null,
+      visibilityAcknowledged: result.bounty.visibilityAcknowledged,
+      rewards: this.mapRewards(result.rewards),
+      totalRewardValue: result.rewards.length > 0
+        ? this.computeTotalRewardValue(result.rewards)
+        : null,
+      payoutMetrics: (result.bounty as any).payoutMetrics as PayoutMetricsInput | null ?? null,
+      paymentStatus: (result.bounty as any).paymentStatus ?? PaymentStatus.UNPAID,
     };
   }
+
+  // ── Update ─────────────────────────────────────────────
 
   async update(
     id: string,
@@ -347,15 +770,98 @@ export class BountiesService {
     if (data.eligibilityRules !== undefined) updateData.eligibilityRules = data.eligibilityRules as string;
     if (data.proofRequirements !== undefined) updateData.proofRequirements = data.proofRequirements as string;
 
-    const updated = await this.prisma.bounty.update({
-      where: { id },
-      data: updateData,
-      include: {
-        organisation: { select: { id: true, name: true, logo: true } },
-        createdBy: { select: { id: true, firstName: true, lastName: true } },
-        _count: { select: { submissions: true } },
-      },
-    });
+    // New structured fields
+    if (data.currency !== undefined) updateData.currency = data.currency as Currency;
+    if (data.aiContentPermitted !== undefined) updateData.aiContentPermitted = data.aiContentPermitted as boolean;
+    if (data.channels !== undefined) {
+      const channels = data.channels as ChannelSelection;
+      this.validateChannels(channels);
+      updateData.channels = channels as Prisma.InputJsonValue;
+    }
+    if (data.engagementRequirements !== undefined) {
+      updateData.engagementRequirements = data.engagementRequirements as Prisma.InputJsonValue;
+    }
+    if (data.postVisibility !== undefined) {
+      const pv = data.postVisibility as PostVisibilityInput;
+      this.validatePostVisibility(pv);
+      updateData.postVisibilityRule = pv.rule;
+      updateData.postMinDurationValue = pv.minDurationValue ?? null;
+      updateData.postMinDurationUnit = pv.minDurationUnit ?? null;
+      // Reset acknowledgment when visibility rule changes
+      updateData.visibilityAcknowledged = false;
+    }
+    if (data.structuredEligibility !== undefined) {
+      const se = data.structuredEligibility as StructuredEligibilityInput;
+      updateData.structuredEligibility = se as Prisma.InputJsonValue;
+      // Update legacy eligibility text
+      updateData.eligibilityRules = this.generateEligibilityText(se);
+    }
+    if ((data as any).payoutMetrics !== undefined) {
+      const pm = (data as any).payoutMetrics as PayoutMetricsInput;
+      if (pm) this.validatePayoutMetrics(pm);
+      (updateData as any).payoutMetrics = pm ? pm as Prisma.InputJsonValue : Prisma.DbNull;
+    }
+
+    // Handle rewards update within a transaction if rewards are provided
+    let updatedBounty: any;
+    let rewards: any[] = [];
+
+    if (data.rewards !== undefined) {
+      const rewardInputs = data.rewards as RewardLineInput[];
+      const result = await this.prisma.$transaction(async (tx) => {
+        const updated = await tx.bounty.update({
+          where: { id },
+          data: {
+            ...updateData,
+            // Update legacy reward fields from new rewards
+            rewardType: rewardInputs[0].rewardType,
+            rewardValue: rewardInputs.reduce(
+              (sum, r) => sum + r.monetaryValue,
+              0,
+            ),
+            rewardDescription: rewardInputs.map((r) => r.name).join(', '),
+          },
+          include: {
+            organisation: { select: { id: true, name: true, logo: true } },
+            createdBy: { select: { id: true, firstName: true, lastName: true } },
+            _count: { select: { submissions: true } },
+          },
+        });
+
+        // Delete old rewards and insert new ones
+        await tx.bountyReward.deleteMany({ where: { bountyId: id } });
+        const rewardRows = rewardInputs.map((r, index) => ({
+          bountyId: id,
+          rewardType: r.rewardType,
+          name: r.name.trim(),
+          monetaryValue: r.monetaryValue,
+          sortOrder: index,
+        }));
+        await tx.bountyReward.createMany({ data: rewardRows });
+
+        const newRewards = await tx.bountyReward.findMany({
+          where: { bountyId: id },
+          orderBy: { sortOrder: 'asc' },
+        });
+
+        return { updated, newRewards };
+      });
+
+      updatedBounty = result.updated;
+      rewards = result.newRewards;
+    } else {
+      updatedBounty = await this.prisma.bounty.update({
+        where: { id },
+        data: updateData,
+        include: {
+          organisation: { select: { id: true, name: true, logo: true } },
+          createdBy: { select: { id: true, firstName: true, lastName: true } },
+          rewards: { orderBy: { sortOrder: 'asc' } },
+          _count: { select: { submissions: true } },
+        },
+      });
+      rewards = updatedBounty.rewards || [];
+    }
 
     this.auditService.log({
       actorId: user.sub,
@@ -364,36 +870,59 @@ export class BountiesService {
       entityType: ENTITY_TYPES.BOUNTY,
       entityId: id,
       beforeState,
-      afterState: { title: updated.title, status: updated.status },
+      afterState: { title: updatedBounty.title, status: updatedBounty.status },
       ipAddress,
     });
 
     return {
-      id: updated.id,
-      title: updated.title,
-      shortDescription: updated.shortDescription,
-      fullInstructions: updated.fullInstructions,
-      category: updated.category,
-      rewardType: updated.rewardType,
-      rewardValue: updated.rewardValue?.toString() || null,
-      rewardDescription: updated.rewardDescription,
-      maxSubmissions: updated.maxSubmissions,
-      remainingSubmissions: updated.maxSubmissions != null
-        ? updated.maxSubmissions - updated._count.submissions
+      id: updatedBounty.id,
+      title: updatedBounty.title,
+      shortDescription: updatedBounty.shortDescription,
+      fullInstructions: updatedBounty.fullInstructions,
+      category: updatedBounty.category,
+      rewardType: updatedBounty.rewardType,
+      rewardValue: updatedBounty.rewardValue?.toString() || null,
+      rewardDescription: updatedBounty.rewardDescription,
+      maxSubmissions: updatedBounty.maxSubmissions,
+      remainingSubmissions: updatedBounty.maxSubmissions != null
+        ? updatedBounty.maxSubmissions - updatedBounty._count.submissions
         : null,
-      startDate: updated.startDate?.toISOString() || null,
-      endDate: updated.endDate?.toISOString() || null,
-      eligibilityRules: updated.eligibilityRules,
-      proofRequirements: updated.proofRequirements,
-      status: updated.status,
-      submissionCount: updated._count.submissions,
-      organisation: updated.organisation,
-      createdBy: updated.createdBy,
+      startDate: updatedBounty.startDate?.toISOString() || null,
+      endDate: updatedBounty.endDate?.toISOString() || null,
+      eligibilityRules: updatedBounty.eligibilityRules,
+      proofRequirements: updatedBounty.proofRequirements,
+      status: updatedBounty.status,
+      submissionCount: updatedBounty._count.submissions,
+      organisation: updatedBounty.organisation,
+      createdBy: updatedBounty.createdBy,
       userSubmission: null,
-      createdAt: updated.createdAt.toISOString(),
-      updatedAt: updated.updatedAt.toISOString(),
+      createdAt: updatedBounty.createdAt.toISOString(),
+      updatedAt: updatedBounty.updatedAt.toISOString(),
+      // New fields
+      channels: updatedBounty.channels as ChannelSelection | null,
+      currency: updatedBounty.currency,
+      aiContentPermitted: updatedBounty.aiContentPermitted,
+      engagementRequirements:
+        updatedBounty.engagementRequirements as EngagementRequirementsInput | null,
+      postVisibility: updatedBounty.postVisibilityRule
+        ? {
+            rule: updatedBounty.postVisibilityRule,
+            minDurationValue: updatedBounty.postMinDurationValue,
+            minDurationUnit: updatedBounty.postMinDurationUnit,
+          }
+        : null,
+      structuredEligibility:
+        updatedBounty.structuredEligibility as StructuredEligibilityInput | null,
+      visibilityAcknowledged: updatedBounty.visibilityAcknowledged,
+      rewards: this.mapRewards(rewards),
+      totalRewardValue:
+        rewards.length > 0 ? this.computeTotalRewardValue(rewards) : null,
+      payoutMetrics: updatedBounty.payoutMetrics as PayoutMetricsInput | null ?? null,
+      paymentStatus: updatedBounty.paymentStatus ?? PaymentStatus.UNPAID,
     };
   }
+
+  // ── Update Status ──────────────────────────────────────
 
   async updateStatus(
     id: string,
@@ -421,6 +950,43 @@ export class BountiesService {
       );
     }
 
+    // For DRAFT -> LIVE, verify all required fields
+    if (bounty.status === BountyStatus.DRAFT && newStatus === BountyStatus.LIVE) {
+      const missing: string[] = [];
+
+      if (!bounty.visibilityAcknowledged) {
+        missing.push('visibilityAcknowledged');
+      }
+      if (!bounty.title) missing.push('title');
+      if (!bounty.shortDescription) missing.push('shortDescription');
+      if (!bounty.fullInstructions) missing.push('fullInstructions');
+      if (!bounty.category) missing.push('category');
+      if (!bounty.proofRequirements) missing.push('proofRequirements');
+      if (!bounty.channels) missing.push('channels');
+      if (!bounty.postVisibilityRule) missing.push('postVisibilityRule');
+      if (!bounty.structuredEligibility) missing.push('structuredEligibility');
+      if (!bounty.engagementRequirements) missing.push('engagementRequirements');
+
+      // Check for at least one reward
+      const rewards = await this.prisma.bountyReward.findMany({
+        where: { bountyId: id },
+      });
+      if (rewards.length === 0) missing.push('rewards');
+
+      if (missing.length > 0) {
+        throw new BadRequestException(
+          `Cannot publish bounty. Missing required fields: ${missing.join(', ')}`,
+        );
+      }
+
+      // Check payment status
+      if ((bounty as any).paymentStatus !== PaymentStatus.PAID) {
+        throw new BadRequestException(
+          'Payment must be completed before publishing',
+        );
+      }
+    }
+
     const beforeState = { status: bounty.status };
 
     const updated = await this.prisma.bounty.update({
@@ -445,6 +1011,55 @@ export class BountiesService {
       updatedAt: updated.updatedAt.toISOString(),
     };
   }
+
+  // ── Acknowledge Visibility ─────────────────────────────
+
+  async acknowledgeVisibility(
+    id: string,
+    user: AuthenticatedUser,
+    ipAddress?: string,
+  ) {
+    const bounty = await this.prisma.bounty.findUnique({ where: { id } });
+
+    if (!bounty || bounty.deletedAt) {
+      throw new NotFoundException('Bounty not found');
+    }
+
+    if (
+      user.role !== UserRole.SUPER_ADMIN &&
+      bounty.organisationId !== user.organisationId
+    ) {
+      throw new ForbiddenException('Not authorized');
+    }
+
+    if (
+      bounty.status !== BountyStatus.DRAFT &&
+      bounty.status !== BountyStatus.PAUSED
+    ) {
+      throw new BadRequestException(
+        'Visibility can only be acknowledged on DRAFT or PAUSED bounties',
+      );
+    }
+
+    if (!bounty.postVisibilityRule) {
+      throw new BadRequestException(
+        'Cannot acknowledge visibility when no post visibility rule is set',
+      );
+    }
+
+    const updated = await this.prisma.bounty.update({
+      where: { id },
+      data: { visibilityAcknowledged: true },
+    });
+
+    return {
+      id: updated.id,
+      visibilityAcknowledged: updated.visibilityAcknowledged,
+      updatedAt: updated.updatedAt.toISOString(),
+    };
+  }
+
+  // ── Delete ─────────────────────────────────────────────
 
   async delete(id: string, user: AuthenticatedUser, ipAddress?: string) {
     const bounty = await this.prisma.bounty.findUnique({ where: { id } });

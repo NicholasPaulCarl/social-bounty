@@ -1,0 +1,214 @@
+'use client';
+
+import { InputText } from 'primereact/inputtext';
+import { InputNumber } from 'primereact/inputnumber';
+import { Dropdown } from 'primereact/dropdown';
+import { Button } from 'primereact/button';
+import { Currency, RewardType, BOUNTY_REWARD_LIMITS } from '@social-bounty/shared';
+import type { RewardLineInput } from '@social-bounty/shared';
+import type { BountyFormAction } from './types';
+
+const REWARD_TYPE_OPTIONS = [
+  { label: 'Cash', value: RewardType.CASH, icon: 'pi pi-money-bill', iconColor: 'text-success-600' },
+  { label: 'Product', value: RewardType.PRODUCT, icon: 'pi pi-box', iconColor: 'text-primary-600' },
+  { label: 'Service', value: RewardType.SERVICE, icon: 'pi pi-wrench', iconColor: 'text-warning-600' },
+  { label: 'Other', value: RewardType.OTHER, icon: 'pi pi-gift', iconColor: 'text-neutral-600' },
+];
+
+const CURRENCY_OPTIONS = [
+  { label: 'ZAR (R)', value: Currency.ZAR },
+  { label: 'USD ($)', value: Currency.USD },
+  { label: 'GBP (\u00a3)', value: Currency.GBP },
+  { label: 'EUR (\u20ac)', value: Currency.EUR },
+];
+
+const CURRENCY_SYMBOLS: Record<Currency, string> = {
+  [Currency.ZAR]: 'R',
+  [Currency.USD]: '$',
+  [Currency.GBP]: '\u00a3',
+  [Currency.EUR]: '\u20ac',
+};
+
+interface RewardLinesSectionProps {
+  rewards: RewardLineInput[];
+  currency: Currency;
+  totalRewardValue: number;
+  dispatch: React.Dispatch<BountyFormAction>;
+  errors: Record<string, string>;
+  submitAttempted: boolean;
+}
+
+export function RewardLinesSection({
+  rewards,
+  currency,
+  totalRewardValue,
+  dispatch,
+  errors,
+  submitAttempted,
+}: RewardLinesSectionProps) {
+  const currencySymbol = CURRENCY_SYMBOLS[currency];
+
+  const rewardTypeTemplate = (option: typeof REWARD_TYPE_OPTIONS[number]) => (
+    <div className="flex items-center gap-2">
+      <i className={`${option.icon} ${option.iconColor}`} />
+      <span>{option.label}</span>
+    </div>
+  );
+
+  return (
+    <>
+      <div className="flex items-center gap-3 mb-4">
+        <label className="text-sm font-medium text-neutral-700">Currency</label>
+        <Dropdown
+          value={currency}
+          options={CURRENCY_OPTIONS}
+          onChange={(e) => dispatch({ type: 'SET_CURRENCY', payload: e.value })}
+          className="w-40"
+        />
+      </div>
+
+      {/* Desktop table layout */}
+      <div className="hidden md:block border border-neutral-200 rounded-lg overflow-hidden">
+        <div className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 bg-neutral-50 border-b border-neutral-200">
+          <span className="text-xs font-semibold text-neutral-600 uppercase">Type</span>
+          <span className="text-xs font-semibold text-neutral-600 uppercase">Name</span>
+          <span className="text-xs font-semibold text-neutral-600 uppercase">Value ({currencySymbol})</span>
+          <span />
+        </div>
+        {rewards.map((reward, index) => (
+          <div
+            key={index}
+            className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 border-b border-neutral-100 last:border-b-0 items-center"
+          >
+            <Dropdown
+              value={reward.rewardType}
+              options={REWARD_TYPE_OPTIONS}
+              onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'rewardType', value: e.value } })}
+              itemTemplate={rewardTypeTemplate}
+              className="w-full"
+            />
+            <div>
+              <InputText
+                value={reward.name}
+                onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'name', value: e.target.value } })}
+                className={`w-full ${submitAttempted && errors[`reward_${index}_name`] ? 'p-invalid' : ''}`}
+                placeholder="e.g. Cash reward"
+              />
+              {submitAttempted && errors[`reward_${index}_name`] && (
+                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                  <i className="pi pi-exclamation-circle text-xs" />
+                  {errors[`reward_${index}_name`]}
+                </small>
+              )}
+            </div>
+            <div>
+              <InputNumber
+                value={reward.monetaryValue || null}
+                onValueChange={(e) =>
+                  dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'monetaryValue', value: e.value ?? 0 } })
+                }
+                mode="decimal"
+                minFractionDigits={2}
+                maxFractionDigits={2}
+                min={0}
+                className={`w-full ${submitAttempted && errors[`reward_${index}_value`] ? 'p-invalid' : ''}`}
+                placeholder="0.00"
+              />
+              {submitAttempted && errors[`reward_${index}_value`] && (
+                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                  <i className="pi pi-exclamation-circle text-xs" />
+                  {errors[`reward_${index}_value`]}
+                </small>
+              )}
+            </div>
+            {rewards.length > 1 && (
+              <Button
+                icon="pi pi-trash"
+                text
+                severity="danger"
+                size="small"
+                onClick={() => dispatch({ type: 'REMOVE_REWARD', payload: index })}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Mobile card layout */}
+      <div className="md:hidden space-y-3">
+        {rewards.map((reward, index) => (
+          <div key={index} className="space-y-3 p-4 border border-neutral-200 rounded-lg">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-neutral-700">Reward {index + 1}</span>
+              {rewards.length > 1 && (
+                <Button
+                  icon="pi pi-trash"
+                  text
+                  severity="danger"
+                  size="small"
+                  onClick={() => dispatch({ type: 'REMOVE_REWARD', payload: index })}
+                />
+              )}
+            </div>
+            <Dropdown
+              value={reward.rewardType}
+              options={REWARD_TYPE_OPTIONS}
+              onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'rewardType', value: e.value } })}
+              itemTemplate={rewardTypeTemplate}
+              className="w-full"
+            />
+            <InputText
+              value={reward.name}
+              onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'name', value: e.target.value } })}
+              className={`w-full ${submitAttempted && errors[`reward_${index}_name`] ? 'p-invalid' : ''}`}
+              placeholder="e.g. Cash reward"
+            />
+            <InputNumber
+              value={reward.monetaryValue || null}
+              onValueChange={(e) =>
+                dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'monetaryValue', value: e.value ?? 0 } })
+              }
+              mode="decimal"
+              minFractionDigits={2}
+              maxFractionDigits={2}
+              min={0}
+              className={`w-full ${submitAttempted && errors[`reward_${index}_value`] ? 'p-invalid' : ''}`}
+              placeholder="0.00"
+            />
+          </div>
+        ))}
+      </div>
+
+      {submitAttempted && errors.rewards && (
+        <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+          <i className="pi pi-exclamation-circle text-xs" />
+          {errors.rewards}
+        </small>
+      )}
+
+      <div className="flex items-center justify-between mt-3">
+        <Button
+          label="Add Reward"
+          icon="pi pi-plus"
+          outlined
+          size="small"
+          disabled={rewards.length >= BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES}
+          onClick={() => dispatch({ type: 'ADD_REWARD' })}
+        />
+        {rewards.length >= BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES && (
+          <small className="text-xs text-neutral-500">Maximum {BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES} reward lines</small>
+        )}
+      </div>
+
+      <div className="flex justify-end mt-4 pt-3 border-t border-neutral-200">
+        <div className="text-right">
+          <span className="text-xs text-neutral-500 uppercase tracking-wider">Total Reward Value</span>
+          <p className="text-lg font-bold text-neutral-900 mt-0.5">
+            <span className="text-neutral-500 text-base font-normal mr-1">{currencySymbol}</span>
+            {totalRewardValue.toFixed(2)}
+          </p>
+        </div>
+      </div>
+    </>
+  );
+}

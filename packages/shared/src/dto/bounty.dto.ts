@@ -1,4 +1,15 @@
-import { BountyStatus, RewardType, SubmissionStatus, PayoutStatus } from '../enums';
+import {
+  BountyStatus,
+  RewardType,
+  SubmissionStatus,
+  PayoutStatus,
+  PaymentStatus,
+  SocialChannel,
+  PostFormat,
+  PostVisibilityRule,
+  DurationUnit,
+  Currency,
+} from '../enums';
 
 // ─────────────────────────────────────
 // Bounty DTOs
@@ -25,6 +36,57 @@ export interface BountyUserSubmissionInfo {
   payoutStatus: PayoutStatus;
 }
 
+// ─────────────────────────────────────
+// New structured input types
+// ─────────────────────────────────────
+
+export type ChannelSelection = Partial<Record<SocialChannel, PostFormat[]>>;
+
+export interface RewardLineInput {
+  rewardType: RewardType;
+  name: string;
+  monetaryValue: number;
+}
+
+export interface RewardLineResponse {
+  id: string;
+  rewardType: RewardType;
+  name: string;
+  monetaryValue: string;
+  sortOrder: number;
+}
+
+export interface StructuredEligibilityInput {
+  minFollowers?: number | null;
+  publicProfile?: boolean;
+  minAccountAgeDays?: number | null;
+  locationRestriction?: string | null;
+  noCompetingBrandDays?: number | null;
+  customRules?: string[];
+}
+
+export interface PostVisibilityInput {
+  rule: PostVisibilityRule;
+  minDurationValue?: number | null;
+  minDurationUnit?: DurationUnit | null;
+}
+
+export interface EngagementRequirementsInput {
+  tagAccount?: string | null;
+  mention?: boolean;
+  comment?: boolean;
+}
+
+export interface PayoutMetricsInput {
+  minViews?: number | null;
+  minLikes?: number | null;
+  minComments?: number | null;
+}
+
+// ─────────────────────────────────────
+// Request / Response DTOs
+// ─────────────────────────────────────
+
 // GET /bounties (list item)
 export interface BountyListItem {
   id: string;
@@ -41,6 +103,13 @@ export interface BountyListItem {
   submissionCount: number;
   organisation: BountyOrganisationInfo;
   createdAt: string;
+  // New fields
+  channels: ChannelSelection | null;
+  currency: Currency;
+  totalRewardValue: string | null;
+  rewards: RewardLineResponse[];
+  payoutMetrics: PayoutMetricsInput | null;
+  paymentStatus: PaymentStatus;
 }
 
 // GET /bounties (query params)
@@ -79,22 +148,45 @@ export interface BountyDetailResponse {
   userSubmission: BountyUserSubmissionInfo | null;
   createdAt: string;
   updatedAt: string;
+  // New fields
+  channels: ChannelSelection | null;
+  currency: Currency;
+  aiContentPermitted: boolean;
+  engagementRequirements: EngagementRequirementsInput | null;
+  postVisibility: PostVisibilityInput | null;
+  structuredEligibility: StructuredEligibilityInput | null;
+  visibilityAcknowledged: boolean;
+  rewards: RewardLineResponse[];
+  totalRewardValue: string | null;
+  payoutMetrics: PayoutMetricsInput | null;
+  paymentStatus: PaymentStatus;
 }
 
 // POST /bounties
 export interface CreateBountyRequest {
   title: string;
-  shortDescription: string;
-  fullInstructions: string;
-  category: string;
-  rewardType: RewardType;
-  rewardValue?: number | null;
-  rewardDescription?: string | null;
+  shortDescription?: string;
+  fullInstructions?: string;
+  category?: string;
+  proofRequirements?: string;
   maxSubmissions?: number | null;
   startDate?: string | null;
   endDate?: string | null;
-  eligibilityRules: string;
-  proofRequirements: string;
+  // New structured fields (optional for draft saves)
+  channels?: ChannelSelection;
+  rewards?: RewardLineInput[];
+  postVisibility?: PostVisibilityInput;
+  structuredEligibility?: StructuredEligibilityInput;
+  currency?: Currency;
+  aiContentPermitted?: boolean;
+  engagementRequirements?: EngagementRequirementsInput;
+  // Payout metrics (optional)
+  payoutMetrics?: PayoutMetricsInput;
+  // Legacy fields (optional, for backward compat)
+  rewardType?: RewardType;
+  rewardValue?: number | null;
+  rewardDescription?: string | null;
+  eligibilityRules?: string;
 }
 
 export interface CreateBountyResponse {
@@ -116,6 +208,18 @@ export interface CreateBountyResponse {
   createdById: string;
   createdAt: string;
   updatedAt: string;
+  // New fields
+  channels: ChannelSelection | null;
+  currency: Currency;
+  aiContentPermitted: boolean;
+  engagementRequirements: EngagementRequirementsInput | null;
+  postVisibility: PostVisibilityInput | null;
+  structuredEligibility: StructuredEligibilityInput | null;
+  visibilityAcknowledged: boolean;
+  rewards: RewardLineResponse[];
+  totalRewardValue: string | null;
+  payoutMetrics: PayoutMetricsInput | null;
+  paymentStatus: PaymentStatus;
 }
 
 // PATCH /bounties/:id
@@ -124,14 +228,25 @@ export interface UpdateBountyRequest {
   shortDescription?: string;
   fullInstructions?: string;
   category?: string;
-  rewardType?: RewardType;
-  rewardValue?: number | null;
-  rewardDescription?: string | null;
   maxSubmissions?: number | null;
   startDate?: string | null;
   endDate?: string | null;
-  eligibilityRules?: string;
   proofRequirements?: string;
+  // New structured fields (optional for partial updates)
+  channels?: ChannelSelection;
+  rewards?: RewardLineInput[];
+  postVisibility?: PostVisibilityInput;
+  structuredEligibility?: StructuredEligibilityInput;
+  currency?: Currency;
+  aiContentPermitted?: boolean;
+  engagementRequirements?: EngagementRequirementsInput;
+  // Payout metrics (optional)
+  payoutMetrics?: PayoutMetricsInput;
+  // Legacy fields (optional, for backward compat)
+  rewardType?: RewardType;
+  rewardValue?: number | null;
+  rewardDescription?: string | null;
+  eligibilityRules?: string;
 }
 
 // PATCH /bounties/:id/status

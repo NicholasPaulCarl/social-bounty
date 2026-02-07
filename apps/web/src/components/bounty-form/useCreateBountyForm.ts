@@ -1,0 +1,344 @@
+'use client';
+
+import { useReducer, useCallback, useMemo } from 'react';
+import {
+  PostVisibilityRule,
+  DurationUnit,
+  Currency,
+  RewardType,
+  SocialChannel,
+  PostFormat,
+  CHANNEL_POST_FORMATS,
+} from '@social-bounty/shared';
+import type {
+  CreateBountyRequest,
+  BountyDetailResponse,
+  RewardLineInput,
+} from '@social-bounty/shared';
+import type { BountyFormState, BountyFormAction } from './types';
+import { INITIAL_FORM_STATE } from './types';
+import { validateFull, validateDraft, validateField } from './validation';
+
+// ---------------------------------------------------------------------------
+// Reducer
+// ---------------------------------------------------------------------------
+
+function formReducer(state: BountyFormState, action: BountyFormAction): BountyFormState {
+  switch (action.type) {
+    // Section 1
+    case 'SET_TITLE':
+      return { ...state, title: action.payload };
+    case 'SET_SHORT_DESCRIPTION':
+      return { ...state, shortDescription: action.payload };
+    case 'SET_FULL_INSTRUCTIONS':
+      return { ...state, fullInstructions: action.payload };
+    case 'SET_CATEGORY':
+      return { ...state, category: action.payload };
+
+    // Section 2
+    case 'TOGGLE_CHANNEL': {
+      const ch = action.payload.channel as SocialChannel;
+      const current = { ...state.channels };
+      if (current[ch]) {
+        delete current[ch];
+      } else {
+        current[ch] = action.payload.formats as PostFormat[];
+      }
+      return { ...state, channels: current };
+    }
+    case 'TOGGLE_FORMAT': {
+      const ch = action.payload.channel as SocialChannel;
+      const fmt = action.payload.format as PostFormat;
+      const current = { ...state.channels };
+      const formats = [...(current[ch] || [])];
+      const idx = formats.indexOf(fmt);
+      if (idx >= 0) {
+        formats.splice(idx, 1);
+      } else {
+        formats.push(fmt);
+      }
+      current[ch] = formats;
+      return { ...state, channels: current };
+    }
+
+    // Section 3
+    case 'SET_AI_CONTENT_PERMITTED':
+      return { ...state, aiContentPermitted: action.payload };
+    case 'SET_TAG_ACCOUNT':
+      return {
+        ...state,
+        engagementRequirements: { ...state.engagementRequirements, tagAccount: action.payload || null },
+      };
+    case 'SET_MENTION':
+      return {
+        ...state,
+        engagementRequirements: { ...state.engagementRequirements, mention: action.payload },
+      };
+    case 'SET_COMMENT':
+      return {
+        ...state,
+        engagementRequirements: { ...state.engagementRequirements, comment: action.payload },
+      };
+
+    // Section 4
+    case 'SET_VISIBILITY_RULE': {
+      if (action.payload === null) {
+        return {
+          ...state,
+          postVisibility: null,
+          visibilityAcknowledged: false,
+        };
+      }
+      return {
+        ...state,
+        postVisibility: {
+          rule: action.payload,
+          minDurationValue: action.payload === PostVisibilityRule.MINIMUM_DURATION ? state.postVisibility?.minDurationValue ?? null : null,
+          minDurationUnit: action.payload === PostVisibilityRule.MINIMUM_DURATION ? state.postVisibility?.minDurationUnit ?? null : null,
+        },
+        visibilityAcknowledged: false,
+      };
+    }
+    case 'SET_DURATION_VALUE':
+      return {
+        ...state,
+        postVisibility: state.postVisibility
+          ? { ...state.postVisibility, minDurationValue: action.payload }
+          : null,
+        visibilityAcknowledged: false,
+      };
+    case 'SET_DURATION_UNIT':
+      return {
+        ...state,
+        postVisibility: state.postVisibility
+          ? { ...state.postVisibility, minDurationUnit: action.payload }
+          : null,
+        visibilityAcknowledged: false,
+      };
+    case 'SET_VISIBILITY_ACKNOWLEDGED':
+      return { ...state, visibilityAcknowledged: action.payload };
+
+    // Section 5
+    case 'SET_CURRENCY':
+      return { ...state, currency: action.payload };
+    case 'ADD_REWARD':
+      return {
+        ...state,
+        rewards: [...state.rewards, { rewardType: RewardType.CASH, name: '', monetaryValue: 0 }],
+      };
+    case 'REMOVE_REWARD': {
+      const rewards = state.rewards.filter((_, i) => i !== action.payload);
+      return { ...state, rewards };
+    }
+    case 'UPDATE_REWARD': {
+      const rewards = state.rewards.map((r, i) => {
+        if (i !== action.payload.index) return r;
+        return { ...r, [action.payload.field]: action.payload.value };
+      });
+      return { ...state, rewards };
+    }
+
+    // Section 6
+    case 'SET_MIN_FOLLOWERS':
+      return {
+        ...state,
+        structuredEligibility: { ...state.structuredEligibility, minFollowers: action.payload },
+      };
+    case 'SET_PUBLIC_PROFILE':
+      return {
+        ...state,
+        structuredEligibility: { ...state.structuredEligibility, publicProfile: action.payload },
+      };
+    case 'SET_MIN_ACCOUNT_AGE':
+      return {
+        ...state,
+        structuredEligibility: { ...state.structuredEligibility, minAccountAgeDays: action.payload },
+      };
+    case 'SET_LOCATION_RESTRICTION':
+      return {
+        ...state,
+        structuredEligibility: { ...state.structuredEligibility, locationRestriction: action.payload },
+      };
+    case 'SET_NO_COMPETING_BRAND_DAYS':
+      return {
+        ...state,
+        structuredEligibility: { ...state.structuredEligibility, noCompetingBrandDays: action.payload },
+      };
+    case 'ADD_CUSTOM_RULE':
+      return {
+        ...state,
+        structuredEligibility: {
+          ...state.structuredEligibility,
+          customRules: [...(state.structuredEligibility.customRules || []), ''],
+        },
+      };
+    case 'REMOVE_CUSTOM_RULE':
+      return {
+        ...state,
+        structuredEligibility: {
+          ...state.structuredEligibility,
+          customRules: (state.structuredEligibility.customRules || []).filter((_, i) => i !== action.payload),
+        },
+      };
+    case 'UPDATE_CUSTOM_RULE':
+      return {
+        ...state,
+        structuredEligibility: {
+          ...state.structuredEligibility,
+          customRules: (state.structuredEligibility.customRules || []).map((r, i) =>
+            i === action.payload.index ? action.payload.value : r,
+          ),
+        },
+      };
+
+    // Section 7
+    case 'SET_PROOF_REQUIREMENTS':
+      return { ...state, proofRequirements: action.payload };
+
+    // Section 8
+    case 'SET_MAX_SUBMISSIONS':
+      return { ...state, maxSubmissions: action.payload };
+
+    // Section 9
+    case 'SET_START_DATE':
+      return { ...state, startDate: action.payload };
+    case 'SET_END_DATE':
+      return { ...state, endDate: action.payload };
+
+    // Section 10
+    case 'SET_MIN_VIEWS':
+      return { ...state, payoutMetrics: { ...state.payoutMetrics, minViews: action.payload } };
+    case 'SET_MIN_LIKES':
+      return { ...state, payoutMetrics: { ...state.payoutMetrics, minLikes: action.payload } };
+    case 'SET_MIN_COMMENTS':
+      return { ...state, payoutMetrics: { ...state.payoutMetrics, minComments: action.payload } };
+
+    // Validation
+    case 'SET_TOUCHED':
+      return { ...state, touched: { ...state.touched, [action.payload]: true } };
+    case 'SET_ERRORS':
+      return { ...state, errors: action.payload };
+    case 'SET_SUBMIT_ATTEMPTED':
+      return { ...state, submitAttempted: true };
+
+    // Bulk load from existing bounty
+    case 'LOAD_BOUNTY': {
+      const b = action.payload;
+      return {
+        ...state,
+        title: b.title,
+        shortDescription: b.shortDescription,
+        fullInstructions: b.fullInstructions,
+        category: b.category,
+        channels: b.channels || {},
+        aiContentPermitted: b.aiContentPermitted,
+        engagementRequirements: b.engagementRequirements || { tagAccount: null, mention: false, comment: false },
+        postVisibility: b.postVisibility || null,
+        visibilityAcknowledged: b.visibilityAcknowledged,
+        currency: b.currency,
+        rewards: b.rewards.length > 0
+          ? b.rewards.map((r) => ({
+              rewardType: r.rewardType,
+              name: r.name,
+              monetaryValue: parseFloat(r.monetaryValue),
+            }))
+          : [{ rewardType: RewardType.CASH, name: '', monetaryValue: 0 }],
+        structuredEligibility: b.structuredEligibility || {
+          minFollowers: null,
+          publicProfile: false,
+          minAccountAgeDays: null,
+          locationRestriction: null,
+          noCompetingBrandDays: null,
+          customRules: [],
+        },
+        proofRequirements: b.proofRequirements,
+        maxSubmissions: b.maxSubmissions,
+        startDate: b.startDate ? new Date(b.startDate) : null,
+        endDate: b.endDate ? new Date(b.endDate) : null,
+        payoutMetrics: b.payoutMetrics || { minViews: null, minLikes: null, minComments: null },
+        errors: {},
+        touched: {},
+        submitAttempted: false,
+      };
+    }
+
+    default:
+      return state;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
+
+export function useCreateBountyForm(initialBounty?: BountyDetailResponse) {
+  const [state, dispatch] = useReducer(formReducer, INITIAL_FORM_STATE, (init) => {
+    if (initialBounty) {
+      return formReducer(init, { type: 'LOAD_BOUNTY', payload: initialBounty });
+    }
+    return init;
+  });
+
+  const totalRewardValue = useMemo(
+    () => state.rewards.reduce((sum, r) => sum + (r.monetaryValue || 0), 0),
+    [state.rewards],
+  );
+
+  const validate = useCallback(
+    (mode: 'full' | 'draft' = 'full') => {
+      const errors = mode === 'draft' ? validateDraft(state) : validateFull(state);
+      dispatch({ type: 'SET_ERRORS', payload: errors });
+      if (mode === 'full') {
+        dispatch({ type: 'SET_SUBMIT_ATTEMPTED' });
+      }
+      return Object.keys(errors).length === 0;
+    },
+    [state],
+  );
+
+  const handleBlur = useCallback(
+    (field: string) => {
+      dispatch({ type: 'SET_TOUCHED', payload: field });
+      const error = validateField(field, state);
+      if (error) {
+        dispatch({ type: 'SET_ERRORS', payload: { ...state.errors, [field]: error } });
+      } else {
+        const { [field]: _, ...rest } = state.errors;
+        dispatch({ type: 'SET_ERRORS', payload: rest });
+      }
+    },
+    [state],
+  );
+
+  const toRequest = useCallback((): CreateBountyRequest => {
+    return {
+      title: state.title.trim(),
+      shortDescription: state.shortDescription.trim(),
+      fullInstructions: state.fullInstructions.trim(),
+      category: state.category.trim(),
+      proofRequirements: state.proofRequirements.trim(),
+      maxSubmissions: state.maxSubmissions,
+      startDate: state.startDate?.toISOString() ?? null,
+      endDate: state.endDate?.toISOString() ?? null,
+      channels: state.channels,
+      rewards: state.rewards.filter((r) => r.name.trim() && r.monetaryValue > 0),
+      postVisibility: state.postVisibility || { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+      structuredEligibility: state.structuredEligibility,
+      currency: state.currency,
+      aiContentPermitted: state.aiContentPermitted,
+      engagementRequirements: state.engagementRequirements,
+      payoutMetrics: (state.payoutMetrics.minViews !== null || state.payoutMetrics.minLikes !== null || state.payoutMetrics.minComments !== null)
+        ? state.payoutMetrics
+        : undefined,
+    };
+  }, [state]);
+
+  return {
+    state,
+    dispatch,
+    totalRewardValue,
+    validate,
+    handleBlur,
+    toRequest,
+  };
+}

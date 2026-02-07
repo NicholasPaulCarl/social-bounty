@@ -64,6 +64,37 @@ enum PayoutStatus {
   PAID
 }
 
+enum SocialChannel {
+  INSTAGRAM
+  FACEBOOK
+  TIKTOK
+}
+
+enum PostVisibilityRule {
+  MUST_NOT_REMOVE
+  MINIMUM_DURATION
+}
+
+enum DurationUnit {
+  HOURS
+  DAYS
+  WEEKS
+}
+
+enum Currency {
+  ZAR
+  USD
+  GBP
+  EUR
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  REFUNDED
+}
+
 // ─────────────────────────────────────
 // Models
 // ─────────────────────────────────────
@@ -129,30 +160,45 @@ model OrganisationMember {
 }
 
 model Bounty {
-  id                String       @id @default(uuid())
-  organisationId    String
-  createdById       String
-  title             String
-  shortDescription  String
-  fullInstructions  String       @db.Text
-  category          String
-  rewardType        RewardType
-  rewardValue       Decimal?     @db.Decimal(12, 2)
-  rewardDescription String?
-  maxSubmissions    Int?
-  startDate         DateTime?
-  endDate           DateTime?
-  eligibilityRules  String       @db.Text
-  proofRequirements String       @db.Text
-  status            BountyStatus @default(DRAFT)
-  deletedAt         DateTime?
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  id                     String              @id @default(uuid())
+  organisationId         String
+  createdById            String
+  title                  String
+  shortDescription       String              @default("")
+  fullInstructions       String              @db.Text @default("")
+  category               String              @default("")
+  rewardType             RewardType          @default(CASH)
+  rewardValue            Decimal?            @db.Decimal(12, 2)
+  rewardDescription      String?
+  maxSubmissions         Int?
+  startDate              DateTime?
+  endDate                DateTime?
+  eligibilityRules       String              @db.Text @default("")
+  proofRequirements      String              @db.Text @default("")
+  status                 BountyStatus        @default(DRAFT)
+  deletedAt              DateTime?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  // New fields for create bounty redesign
+  currency               Currency            @default(ZAR)
+  channels               Json?
+  aiContentPermitted     Boolean             @default(false)
+  engagementRequirements Json?
+  postVisibilityRule     PostVisibilityRule?
+  postMinDurationValue   Int?
+  postMinDurationUnit    DurationUnit?
+  structuredEligibility  Json?
+  visibilityAcknowledged Boolean             @default(false)
+  payoutMetrics          Json?
+  stripePaymentIntentId  String?
+  paymentStatus          PaymentStatus       @default(UNPAID)
 
   // Relations
-  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  createdBy    User         @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  organisation Organisation  @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  createdBy    User          @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
   submissions  Submission[]
+  rewards      BountyReward[]
 
   @@index([organisationId])
   @@index([status])
@@ -160,6 +206,21 @@ model Bounty {
   @@index([createdById])
   @@index([startDate, endDate])
   @@map("bounties")
+}
+
+model BountyReward {
+  id            String     @id @default(uuid())
+  bountyId      String
+  rewardType    RewardType
+  name          String     @db.VarChar(200)
+  monetaryValue Decimal    @db.Decimal(12, 2)
+  sortOrder     Int        @default(0)
+  createdAt     DateTime   @default(now())
+
+  bounty Bounty @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+
+  @@index([bountyId])
+  @@map("bounty_rewards")
 }
 
 model Submission {
@@ -171,9 +232,11 @@ model Submission {
   status       SubmissionStatus @default(SUBMITTED)
   reviewerNote String?          @db.Text
   reviewedById String?
-  payoutStatus PayoutStatus     @default(NOT_PAID)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  payoutStatus         PayoutStatus     @default(NOT_PAID)
+  reportedMetrics      Json?
+  verificationDeadline DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 
   // Relations
   bounty      Bounty       @relation(fields: [bountyId], references: [id], onDelete: Cascade)

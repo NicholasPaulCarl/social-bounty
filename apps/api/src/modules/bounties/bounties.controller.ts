@@ -97,6 +97,16 @@ export class BountiesController {
     return this.bountiesService.updateStatus(id, user, dto.status, req.ip);
   }
 
+  @Post(':id/acknowledge-visibility')
+  @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  async acknowledgeVisibility(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Req() req: Request,
+  ) {
+    return this.bountiesService.acknowledgeVisibility(id, user, req.ip);
+  }
+
   @Delete(':id')
   @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
   async delete(

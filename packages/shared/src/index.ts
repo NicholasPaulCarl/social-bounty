@@ -12,6 +12,12 @@ export {
   RewardType,
   SubmissionStatus,
   PayoutStatus,
+  SocialChannel,
+  PostFormat,
+  PostVisibilityRule,
+  DurationUnit,
+  Currency,
+  PaymentStatus,
 } from './enums';
 
 // Common types
@@ -35,6 +41,11 @@ export {
   JWT_CONFIG,
   AUDIT_ACTIONS,
   ENTITY_TYPES,
+  CHANNEL_POST_FORMATS,
+  CHANNEL_URL_PATTERNS,
+  BOUNTY_REWARD_LIMITS,
+  PAYOUT_METRICS_LIMITS,
+  VERIFICATION_DEADLINE_HOURS,
 } from './constants';
 
 // Auth DTOs
@@ -80,6 +91,13 @@ export type {
   BountyOrganisationInfo,
   BountyCreatorInfo,
   BountyUserSubmissionInfo,
+  ChannelSelection,
+  RewardLineInput,
+  RewardLineResponse,
+  StructuredEligibilityInput,
+  PostVisibilityInput,
+  EngagementRequirementsInput,
+  PayoutMetricsInput,
   BountyListItem,
   BountyListParams,
   BountyDetailResponse,
@@ -92,6 +110,7 @@ export type {
 
 // Submission DTOs
 export type {
+  ReportedMetricsInput,
   FileUploadInfo,
   SubmissionBountyInfo,
   SubmissionBountyWithOrgInfo,

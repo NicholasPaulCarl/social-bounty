@@ -30,4 +30,10 @@ export const bountyApi = {
 
   delete: (id: string): Promise<MessageResponse> =>
     apiClient.delete(`/bounties/${id}`),
+
+  acknowledgeVisibility: (id: string): Promise<{ id: string; visibilityAcknowledged: boolean; updatedAt: string }> =>
+    apiClient.post(`/bounties/${id}/acknowledge-visibility`),
+
+  createPaymentIntent: (bountyId: string): Promise<{ clientSecret: string }> =>
+    apiClient.post(`/bounties/${bountyId}/payment-intent`),
 };

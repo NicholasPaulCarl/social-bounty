@@ -50,3 +50,41 @@ export enum PayoutStatus {
   PENDING = 'PENDING',
   PAID = 'PAID',
 }
+
+export enum SocialChannel {
+  INSTAGRAM = 'INSTAGRAM',
+  FACEBOOK = 'FACEBOOK',
+  TIKTOK = 'TIKTOK',
+}
+
+export enum PostFormat {
+  STORY = 'STORY',
+  REEL = 'REEL',
+  FEED_POST = 'FEED_POST',
+  VIDEO_POST = 'VIDEO_POST',
+}
+
+export enum PostVisibilityRule {
+  MUST_NOT_REMOVE = 'MUST_NOT_REMOVE',
+  MINIMUM_DURATION = 'MINIMUM_DURATION',
+}
+
+export enum DurationUnit {
+  HOURS = 'HOURS',
+  DAYS = 'DAYS',
+  WEEKS = 'WEEKS',
+}
+
+export enum Currency {
+  ZAR = 'ZAR',
+  USD = 'USD',
+  GBP = 'GBP',
+  EUR = 'EUR',
+}
+
+export enum PaymentStatus {
+  UNPAID = 'UNPAID',
+  PENDING = 'PENDING',
+  PAID = 'PAID',
+  REFUNDED = 'REFUNDED',
+}

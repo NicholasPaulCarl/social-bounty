@@ -1,6 +1,16 @@
 import { SubmissionStatus, PayoutStatus, RewardType } from '../enums';
 
 // ─────────────────────────────────────
+// Reported Metrics
+// ─────────────────────────────────────
+
+export interface ReportedMetricsInput {
+  views?: number | null;
+  likes?: number | null;
+  comments?: number | null;
+}
+
+// ─────────────────────────────────────
 // Submission DTOs
 // ─────────────────────────────────────
 
@@ -48,6 +58,7 @@ export interface SubmissionReviewerInfo {
 export interface CreateSubmissionRequest {
   proofText: string;
   proofLinks?: string[];
+  reportedMetrics?: ReportedMetricsInput;
 }
 
 export interface CreateSubmissionResponse {
@@ -59,6 +70,8 @@ export interface CreateSubmissionResponse {
   proofImages: FileUploadInfo[];
   status: SubmissionStatus;
   payoutStatus: PayoutStatus;
+  reportedMetrics: ReportedMetricsInput | null;
+  verificationDeadline: string | null;
   createdAt: string;
 }
 
@@ -73,6 +86,8 @@ export interface MySubmissionListItem {
   status: SubmissionStatus;
   reviewerNote: string | null;
   payoutStatus: PayoutStatus;
+  reportedMetrics: ReportedMetricsInput | null;
+  verificationDeadline: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -100,6 +115,8 @@ export interface SubmissionReviewListItem {
   reviewerNote: string | null;
   reviewedBy: SubmissionReviewerInfo | null;
   payoutStatus: PayoutStatus;
+  reportedMetrics: ReportedMetricsInput | null;
+  verificationDeadline: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -128,6 +145,8 @@ export interface SubmissionDetailResponse {
   reviewerNote: string | null;
   reviewedBy: SubmissionReviewerInfo | null;
   payoutStatus: PayoutStatus;
+  reportedMetrics: ReportedMetricsInput | null;
+  verificationDeadline: string | null;
   createdAt: string;
   updatedAt: string;
 }

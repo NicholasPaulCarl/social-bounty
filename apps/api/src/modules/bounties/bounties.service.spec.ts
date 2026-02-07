@@ -11,6 +11,11 @@ import {
   UserRole,
   BountyStatus,
   RewardType,
+  SocialChannel,
+  PostFormat,
+  PostVisibilityRule,
+  DurationUnit,
+  Currency,
 } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
@@ -57,23 +62,85 @@ describe('BountiesService', () => {
     status: BountyStatus.DRAFT,
     organisationId: 'org-1',
     createdById: 'ba-id',
+    deletedAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
+    // New fields
+    currency: Currency.ZAR,
+    channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
+    aiContentPermitted: false,
+    engagementRequirements: { tagAccount: '@acmecorp', mention: true, comment: false },
+    postVisibilityRule: PostVisibilityRule.MINIMUM_DURATION,
+    postMinDurationValue: 7,
+    postMinDurationUnit: DurationUnit.DAYS,
+    structuredEligibility: { minFollowers: 100 },
+    visibilityAcknowledged: false,
+  };
+
+  const baseReward = {
+    id: 'reward-1',
+    bountyId: 'bounty-1',
+    rewardType: RewardType.CASH,
+    name: 'Cash reward',
+    monetaryValue: { toString: () => '25.00' },
+    sortOrder: 0,
+    createdAt: new Date(),
+  };
+
+  const createData = {
+    title: 'New Bounty',
+    shortDescription: 'Short desc',
+    fullInstructions: 'Full instructions',
+    category: 'Social Media',
+    proofRequirements: 'Submit URL',
+    channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] } as Record<string, string[]>,
+    rewards: [
+      { rewardType: RewardType.CASH, name: 'Cash reward', monetaryValue: 25 },
+    ],
+    postVisibility: {
+      rule: PostVisibilityRule.MINIMUM_DURATION,
+      minDurationValue: 7,
+      minDurationUnit: DurationUnit.DAYS,
+    },
+    structuredEligibility: { minFollowers: 100, publicProfile: true },
+    currency: Currency.ZAR,
+    aiContentPermitted: false,
+    engagementRequirements: { tagAccount: '@acmecorp', mention: true, comment: false },
   };
 
   beforeEach(async () => {
+    const bountyCreate = jest.fn();
+    const bountyUpdate = jest.fn();
+    const rewardCreateMany = jest.fn();
+    const rewardFindMany = jest.fn().mockResolvedValue([baseReward]);
+
     prisma = {
       bounty: {
         findMany: jest.fn(),
         findUnique: jest.fn(),
         count: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
+        create: bountyCreate,
+        update: bountyUpdate,
         delete: jest.fn(),
+      },
+      bountyReward: {
+        createMany: rewardCreateMany,
+        deleteMany: jest.fn(),
+        findMany: rewardFindMany,
       },
       submission: {
         findFirst: jest.fn(),
       },
+      $transaction: jest.fn((fn: (tx: unknown) => Promise<unknown>) => {
+        return fn({
+          bounty: { create: bountyCreate, update: bountyUpdate },
+          bountyReward: {
+            createMany: rewardCreateMany,
+            deleteMany: jest.fn(),
+            findMany: rewardFindMany,
+          },
+        });
+      }),
     };
 
     auditService = { log: jest.fn() };
@@ -92,17 +159,6 @@ describe('BountiesService', () => {
   // ── create ──────────────────────────────────────────
 
   describe('create', () => {
-    const createData = {
-      title: 'New Bounty',
-      shortDescription: 'Short desc',
-      fullInstructions: 'Full instructions',
-      category: 'Social Media',
-      rewardType: RewardType.CASH,
-      rewardValue: 25,
-      eligibilityRules: 'Must have account',
-      proofRequirements: 'Submit URL',
-    };
-
     it('should create a bounty in DRAFT status', async () => {
       prisma.bounty.create.mockResolvedValue({
         ...baseBounty,
@@ -131,12 +187,6 @@ describe('BountiesService', () => {
       );
     });
 
-    it('should throw if rewardType is CASH but no rewardValue', async () => {
-      await expect(
-        service.create(mockBA, { ...createData, rewardValue: undefined }),
-      ).rejects.toThrow(BadRequestException);
-    });
-
     it('should throw if endDate is before startDate', async () => {
       await expect(
         service.create(mockBA, {
@@ -154,10 +204,7 @@ describe('BountiesService', () => {
         endDate: null,
       });
 
-      const result = await service.create(mockBA, {
-        ...createData,
-        rewardValue: 25,
-      });
+      const result = await service.create(mockBA, createData);
 
       expect(result).toBeDefined();
     });
@@ -172,6 +219,7 @@ describe('BountiesService', () => {
         status: BountyStatus.DRAFT,
         organisation: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        rewards: [baseReward],
         _count: { submissions: 5 },
       });
 
@@ -193,6 +241,7 @@ describe('BountiesService', () => {
         status: BountyStatus.DRAFT,
         organisation: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        rewards: [],
         _count: { submissions: 0 },
       });
 
@@ -207,6 +256,7 @@ describe('BountiesService', () => {
         organisationId: 'other-org',
         organisation: { id: 'other-org', name: 'Other', logo: null },
         createdBy: { id: 'other-ba', firstName: 'O', lastName: 'B' },
+        rewards: [],
         _count: { submissions: 0 },
       });
 
@@ -221,6 +271,7 @@ describe('BountiesService', () => {
         status: BountyStatus.LIVE,
         organisation: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        rewards: [baseReward],
         _count: { submissions: 5 },
       });
       prisma.submission.findFirst.mockResolvedValue({
@@ -241,11 +292,14 @@ describe('BountiesService', () => {
   // ── updateStatus ────────────────────────────────────
 
   describe('updateStatus', () => {
-    it('should allow DRAFT -> LIVE', async () => {
+    it('should allow DRAFT -> LIVE when all preconditions met', async () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
         status: BountyStatus.DRAFT,
+        visibilityAcknowledged: true,
+        paymentStatus: 'PAID',
       });
+      prisma.bountyReward.findMany.mockResolvedValue([baseReward]);
       prisma.bounty.update.mockResolvedValue({
         ...baseBounty,
         status: BountyStatus.LIVE,
@@ -386,22 +440,35 @@ describe('BountiesService', () => {
     it('should create audit log on status change', async () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
-        status: BountyStatus.DRAFT,
+        status: BountyStatus.LIVE,
       });
       prisma.bounty.update.mockResolvedValue({
         ...baseBounty,
-        status: BountyStatus.LIVE,
+        status: BountyStatus.PAUSED,
       });
 
-      await service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE);
+      await service.updateStatus('bounty-1', mockBA, BountyStatus.PAUSED);
 
       expect(auditService.log).toHaveBeenCalledWith(
         expect.objectContaining({
           action: 'bounty.status_change',
-          beforeState: { status: BountyStatus.DRAFT },
-          afterState: { status: BountyStatus.LIVE },
+          beforeState: { status: BountyStatus.LIVE },
+          afterState: { status: BountyStatus.PAUSED },
         }),
       );
+    });
+
+    it('should reject DRAFT -> LIVE without visibilityAcknowledged', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.DRAFT,
+        visibilityAcknowledged: false,
+      });
+      prisma.bountyReward.findMany.mockResolvedValue([baseReward]);
+
+      await expect(
+        service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -418,6 +485,7 @@ describe('BountiesService', () => {
         title: 'Updated Title',
         organisation: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        rewards: [baseReward],
         _count: { submissions: 0 },
       });
 
@@ -451,6 +519,7 @@ describe('BountiesService', () => {
         eligibilityRules: 'Updated rules',
         organisation: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        rewards: [baseReward],
         _count: { submissions: 0 },
       });
 
@@ -495,6 +564,7 @@ describe('BountiesService', () => {
         title: 'SA Updated',
         organisation: { id: 'other-org', name: 'Other', logo: null },
         createdBy: { id: 'other-ba', firstName: 'O', lastName: 'B' },
+        rewards: [baseReward],
         _count: { submissions: 0 },
       });
 

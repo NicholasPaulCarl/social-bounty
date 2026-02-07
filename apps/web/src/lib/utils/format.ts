@@ -16,12 +16,21 @@ export function formatDateTime(dateString: string): string {
   });
 }
 
-export function formatCurrency(value: string | number | null): string {
+const CURRENCY_LOCALE_MAP: Record<string, string> = {
+  ZAR: 'en-ZA',
+  USD: 'en-US',
+  GBP: 'en-GB',
+  EUR: 'de-DE',
+};
+
+export function formatCurrency(value: string | number | null, currency?: string): string {
   if (value === null || value === undefined) return '';
   const num = typeof value === 'string' ? parseFloat(value) : value;
-  return new Intl.NumberFormat('en-US', {
+  const curr = currency || 'USD';
+  const locale = CURRENCY_LOCALE_MAP[curr] || 'en-US';
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'USD',
+    currency: curr,
   }).format(num);
 }
 

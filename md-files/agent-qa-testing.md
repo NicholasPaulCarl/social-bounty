@@ -28,6 +28,7 @@ You receive all changes from Front-End and Back-End developers. Nothing ships wi
 8. **Return all bugs to development immediately** — with clear reproduction steps
 9. **Continue testing until all issues are resolved**
 10. **Do not approve release until 100% success is achieved**
+11. **Runtime smoke test required before sign-off** — start all services (API, Web, DB), verify login with each demo role, execute the happy-path flow for the feature under test, and confirm data persists. Automated test pass alone is not sufficient for release approval.
 
 ## Responsibilities
 
@@ -92,8 +93,23 @@ apps/api/src/
   modules/
     auth/auth.service.spec.ts      # AuthService unit tests
     admin/admin.service.spec.ts    # AdminService unit tests
-    bounties/bounties.service.spec.ts    # BountiesService unit tests
-    submissions/submissions.service.spec.ts  # SubmissionsService unit tests
+    bounties/
+      bounties.service.spec.ts           # BountiesService unit tests
+      __tests__/create-bounty.service.spec.ts   # Create bounty tests
+      __tests__/draft-save.service.spec.ts      # Draft save tests
+      __tests__/payout-metrics.service.spec.ts  # Payout metrics tests
+      __tests__/bounty-channels.service.spec.ts # Channel validation tests
+      __tests__/bounty-rewards.service.spec.ts  # Reward validation tests
+      __tests__/bounty-eligibility.service.spec.ts  # Eligibility tests
+      __tests__/bounty-engagement.service.spec.ts   # Engagement tests
+      __tests__/bounty-visibility.service.spec.ts   # Post visibility tests
+      __tests__/bounty-status.service.spec.ts       # Status transition tests
+      __tests__/bounty-abuse.service.spec.ts        # Abuse prevention tests
+      __tests__/update-bounty.service.spec.ts       # Update bounty tests
+    payments/payments.service.spec.ts    # Stripe payment tests
+    submissions/
+      submissions.service.spec.ts        # SubmissionsService unit tests
+      __tests__/reported-metrics.spec.ts # Reported metrics + verification tests
 ```
 
 ---
@@ -310,6 +326,10 @@ describe('RolesGuard', () => {
 | **Status transitions** | Only valid transitions allowed (e.g., can't go CLOSED → LIVE) |
 | **Edge cases** | Duplicate emails, missing entities, null optional fields |
 | **Audit logging** | Verify `auditService.log()` called with correct params for status changes |
+| **Runtime smoke** | Start full stack, login with each relevant role, execute feature happy path, verify data persists across page refresh |
+| **Draft saving** | Minimal draft (title only), partial draft, full draft, edit draft, defaults applied for missing fields |
+| **Payout metrics** | Create with thresholds, submit with reported values, threshold comparison, verification deadline, auto-payout after 48h |
+| **Stripe payments** | Payment intent creation, successful/failed payment, webhook handling, DRAFT→LIVE gate, payment status badge |
 
 ### For each guard:
 
@@ -319,6 +339,12 @@ describe('RolesGuard', () => {
 | **No user** | Unauthenticated requests handled correctly |
 | **Role match** | Correct role passes, wrong role blocked |
 | **Cache behavior** | UserStatusGuard uses cached values within TTL |
+
+---
+
+## CI vs Local QA Gate
+
+CI validates automated tests (unit, integration, E2E). **Local QA sign-off additionally requires a manual runtime smoke test.** Passing CI is necessary but not sufficient for release approval. The QA engineer must also complete the Runtime Smoke Testing checklist below before approving any release.
 
 ---
 
@@ -378,6 +404,101 @@ This means:
 4. **Reset mocks in `beforeEach`** — use `Test.createTestingModule()` in each `beforeEach` to get fresh mocks.
 5. **Test the public API** — test service methods, not private helper functions.
 6. **Don't test framework behavior** — don't test that NestJS correctly calls a guard; test the guard's `canActivate` logic directly.
+
+---
+
+## Runtime Smoke Testing
+
+> **Mandatory.** Automated tests with mocks verify logic in isolation. Runtime smoke tests verify the system actually works end-to-end. Both are required before release sign-off (see Rule #11).
+
+### Pre-flight Infrastructure Checklist
+
+Before running any smoke tests, verify all infrastructure is running:
+
+| Check | Command | Expected Result |
+|---|---|---|
+| Database running | `docker-compose ps` (or verify local PostgreSQL) | PostgreSQL container is `Up` / service is active |
+| Migrations applied | `npm run db:migrate` (from repo root) | "All migrations applied" or "Already up to date" |
+| Database seeded | `npm run db:seed` (from repo root) | Seed script completes without errors; demo users exist |
+| API server responding | `curl http://localhost:3001/api/v1/health` | `200 OK` with health response |
+| Web server responding | `curl http://localhost:3000` | `200 OK` with HTML content |
+
+**If any pre-flight check fails, stop.** Fix the infrastructure issue before proceeding. Do not run smoke tests against a partial stack.
+
+### Mandatory Smoke Test Flows
+
+Execute these flows manually after all automated tests pass:
+
+1. **Login with each demo role**
+   - Participant: `participant@demo.com` / demo password
+   - Business Admin: `admin@demo.com` / demo password
+   - Super Admin: `superadmin@demo.com` / demo password
+   - **Verify**: Each login succeeds, redirects to correct dashboard, and shows role-appropriate content
+
+2. **Navigate to the feature under test**
+   - From each role's dashboard, navigate to the feature being tested
+   - **Verify**: Page loads without errors, data displays correctly, no console errors
+
+3. **Execute primary happy path**
+   - Perform the core action of the feature (create, submit, approve, etc.)
+   - **Verify**: Action completes successfully, success feedback is shown, data is updated
+
+4. **Verify data persists across page refresh**
+   - After completing the happy path, refresh the browser
+   - **Verify**: Data created/modified in step 3 is still present and correct
+
+5. **Verify RBAC by switching roles**
+   - Log out, log in as a different role
+   - Attempt to access the same feature
+   - **Verify**: Unauthorized actions are blocked, role-specific views are correct
+
+6. **Draft save and retrieve**
+   - Login as Business Admin
+   - Create a new bounty with only a title → click Save Draft
+   - **Verify**: Success toast, bounty appears in the list with DRAFT status
+   - Click into the draft → click Edit → add more fields (description, channels, rewards) → Save Draft again
+   - **Verify**: All added fields are saved and appear on refresh
+   - Attempt to Go Live from the draft detail page
+   - **Verify**: Validation errors are shown for missing required fields
+
+7. **Bounty publishing with Stripe payment**
+   - Login as Business Admin
+   - Create a complete bounty with all required fields → Save Draft
+   - Navigate to the draft detail page → click Go Live
+   - **Verify**: Stripe payment dialog appears showing total reward amount
+   - Enter test card 4242 4242 4242 4242 → complete payment
+   - **Verify**: Payment succeeds, bounty status changes to LIVE, payment status badge shows PAID
+   - Login as Participant → navigate to bounties list
+   - **Verify**: The published bounty is visible to participants
+
+8. **Payout metrics**
+   - Login as Business Admin
+   - Create a bounty with payout metrics (e.g., 100 min views, 10 min likes) → Save Draft → Go Live (with payment)
+   - Login as Participant → submit to the bounty with reported metrics (views: 150, likes: 15)
+   - **Verify**: Reported metrics are saved and visible in submission detail
+   - Login as Business Admin → navigate to submission review
+   - **Verify**: Required vs reported metrics displayed side by side
+   - Approve the submission
+   - **Verify**: Verification deadline is set (48 hours from now), visible in submission detail
+
+9. **Stripe payment failure**
+   - Login as Business Admin
+   - Create a complete bounty → Save Draft → click Go Live
+   - Enter declining test card 4000 0000 0000 0002
+   - **Verify**: Error message shown, bounty stays in DRAFT status, payment status shows UNPAID
+   - Retry with valid test card 4242 4242 4242 4242
+   - **Verify**: Payment succeeds, bounty goes LIVE
+
+### Failure Protocol
+
+- **Runtime smoke failure = blocking bug** — no release approval can be given
+- The QA engineer must file the bug with:
+  - Steps to reproduce (starting from which service to start)
+  - Expected vs actual behavior
+  - Screenshots or console output
+  - Which pre-flight check or smoke test flow failed
+- **All smoke tests must be re-run after the fix** — not just the failing test
+- The fix-and-retest cycle continues until all 5 smoke test flows pass for all relevant roles
 
 ---
 

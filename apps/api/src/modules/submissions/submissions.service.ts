@@ -15,7 +15,9 @@ import {
   ENTITY_TYPES,
   PAGINATION_DEFAULTS,
   FILE_UPLOAD_LIMITS,
+  VERIFICATION_DEADLINE_HOURS,
 } from '@social-bounty/shared';
+import type { ReportedMetricsInput } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
@@ -44,7 +46,7 @@ export class SubmissionsService {
   async create(
     bountyId: string,
     user: AuthenticatedUser,
-    data: { proofText: string; proofLinks?: string[] },
+    data: { proofText: string; proofLinks?: string[]; reportedMetrics?: ReportedMetricsInput },
     ipAddress?: string,
   ) {
     const bounty = await this.prisma.bounty.findUnique({
@@ -85,6 +87,9 @@ export class SubmissionsService {
         proofLinks: data.proofLinks || [],
         status: SubmissionStatus.SUBMITTED,
         payoutStatus: PayoutStatus.NOT_PAID,
+        reportedMetrics: data.reportedMetrics
+          ? (data.reportedMetrics as any)
+          : undefined,
       },
       include: {
         proofImages: true,
@@ -116,6 +121,8 @@ export class SubmissionsService {
       })),
       status: submission.status,
       payoutStatus: submission.payoutStatus,
+      reportedMetrics: (submission as any).reportedMetrics as ReportedMetricsInput | null ?? null,
+      verificationDeadline: (submission as any).verificationDeadline?.toISOString() ?? null,
       createdAt: submission.createdAt.toISOString(),
     };
   }
@@ -190,6 +197,8 @@ export class SubmissionsService {
         status: s.status,
         reviewerNote: s.reviewerNote,
         payoutStatus: s.payoutStatus,
+        reportedMetrics: (s as any).reportedMetrics as ReportedMetricsInput | null ?? null,
+        verificationDeadline: (s as any).verificationDeadline?.toISOString() ?? null,
         createdAt: s.createdAt.toISOString(),
         updatedAt: s.updatedAt.toISOString(),
       })),
@@ -276,6 +285,8 @@ export class SubmissionsService {
         reviewerNote: s.reviewerNote,
         reviewedBy: s.reviewedBy,
         payoutStatus: s.payoutStatus,
+        reportedMetrics: (s as any).reportedMetrics as ReportedMetricsInput | null ?? null,
+        verificationDeadline: (s as any).verificationDeadline?.toISOString() ?? null,
         createdAt: s.createdAt.toISOString(),
         updatedAt: s.updatedAt.toISOString(),
       })),
@@ -351,6 +362,8 @@ export class SubmissionsService {
       reviewerNote: submission.reviewerNote,
       reviewedBy: submission.reviewedBy,
       payoutStatus: submission.payoutStatus,
+      reportedMetrics: (submission as any).reportedMetrics as ReportedMetricsInput | null ?? null,
+      verificationDeadline: (submission as any).verificationDeadline?.toISOString() ?? null,
       createdAt: submission.createdAt.toISOString(),
       updatedAt: submission.updatedAt.toISOString(),
     };
@@ -503,13 +516,21 @@ export class SubmissionsService {
       reviewerNote: submission.reviewerNote,
     };
 
+    // Set verification deadline when approving
+    const updatePayload: any = {
+      status: newStatus,
+      reviewerNote: reviewerNote ?? submission.reviewerNote,
+      reviewedById: user.sub,
+    };
+    if (newStatus === SubmissionStatus.APPROVED) {
+      const deadline = new Date();
+      deadline.setHours(deadline.getHours() + VERIFICATION_DEADLINE_HOURS);
+      updatePayload.verificationDeadline = deadline;
+    }
+
     const updated = await this.prisma.submission.update({
       where: { id },
-      data: {
-        status: newStatus,
-        reviewerNote: reviewerNote ?? submission.reviewerNote,
-        reviewedById: user.sub,
-      },
+      data: updatePayload,
       include: {
         reviewedBy: {
           select: { id: true, firstName: true, lastName: true },

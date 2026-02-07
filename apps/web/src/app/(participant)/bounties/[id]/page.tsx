@@ -5,13 +5,28 @@ import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { Divider } from 'primereact/divider';
+import { Tag } from 'primereact/tag';
 import { useBounty } from '@/hooks/useBounties';
 import { useAuth } from '@/hooks/useAuth';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
-import { formatCurrency, formatDate, timeRemaining } from '@/lib/utils/format';
+import { formatCurrency, formatDate, timeRemaining, formatEnumLabel } from '@/lib/utils/format';
+import { PostVisibilityRule } from '@social-bounty/shared';
+
+const CHANNEL_LABELS: Record<string, string> = {
+  INSTAGRAM: 'Instagram',
+  FACEBOOK: 'Facebook',
+  TIKTOK: 'TikTok',
+};
+
+const FORMAT_LABELS: Record<string, string> = {
+  STORY: 'Story',
+  REEL: 'Reel',
+  FEED_POST: 'Feed Post',
+  VIDEO_POST: 'Video',
+};
 
 export default function BountyDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +47,9 @@ export default function BountyDetailPage() {
     { label: 'Bounties', url: '/bounties' },
     { label: bounty.title },
   ];
+
+  const channels = bounty.channels || {};
+  const channelKeys = Object.keys(channels);
 
   return (
     <>
@@ -85,27 +103,95 @@ export default function BountyDetailPage() {
               </>
             )}
           </Card>
+
+          {/* Channels */}
+          {channelKeys.length > 0 && (
+            <Card>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Required Channels</h3>
+              <div className="space-y-3">
+                {channelKeys.map((ch) => (
+                  <div key={ch} className="flex items-center gap-3">
+                    <Tag value={CHANNEL_LABELS[ch] || ch} severity="info" />
+                    <div className="flex gap-2">
+                      {(channels[ch as keyof typeof channels] || []).map((fmt: string) => (
+                        <span key={fmt} className="text-sm text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">
+                          {FORMAT_LABELS[fmt] || fmt}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Post Visibility */}
+          {bounty.postVisibility && (
+            <Card>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Post Visibility Requirements</h3>
+              <div className="text-sm text-neutral-700">
+                {bounty.postVisibility.rule === PostVisibilityRule.MUST_NOT_REMOVE && (
+                  <p>Your post must never be removed after submission.</p>
+                )}
+                {bounty.postVisibility.rule === PostVisibilityRule.MINIMUM_DURATION && (
+                  <p>
+                    Your post must remain visible for at least{' '}
+                    <span className="font-medium">
+                      {bounty.postVisibility.minDurationValue} {bounty.postVisibility.minDurationUnit?.toLowerCase()}
+                    </span>
+                    .
+                  </p>
+                )}
+              </div>
+            </Card>
+          )}
         </div>
 
         <div className="space-y-4">
           <Card>
             <h3 className="text-lg font-semibold text-neutral-900 mb-4">Reward</h3>
             <div className="space-y-3">
-              {bounty.rewardValue && (
-                <div>
-                  <p className="text-sm text-neutral-500">Value</p>
-                  <p className="text-2xl font-bold text-success-700">{formatCurrency(bounty.rewardValue)}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-sm text-neutral-500">Type</p>
-                <p className="font-medium">{bounty.rewardType}</p>
-              </div>
-              {bounty.rewardDescription && (
-                <div>
-                  <p className="text-sm text-neutral-500">Description</p>
-                  <p className="text-neutral-700">{bounty.rewardDescription}</p>
-                </div>
+              {bounty.rewards && bounty.rewards.length > 0 ? (
+                <>
+                  {bounty.rewards.map((reward) => (
+                    <div key={reward.id} className="flex justify-between items-center py-1">
+                      <div>
+                        <span className="text-sm text-neutral-800">{reward.name}</span>
+                        <span className="text-xs text-neutral-500 ml-2">({formatEnumLabel(reward.rewardType)})</span>
+                      </div>
+                      <span className="text-sm font-medium">
+                        {formatCurrency(reward.monetaryValue, bounty.currency)}
+                      </span>
+                    </div>
+                  ))}
+                  {bounty.totalRewardValue && (
+                    <div className="pt-2 border-t border-neutral-200 flex justify-between">
+                      <span className="text-sm font-semibold text-neutral-700">Total</span>
+                      <span className="text-lg font-bold text-success-700">
+                        {formatCurrency(bounty.totalRewardValue, bounty.currency)}
+                      </span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  {bounty.rewardValue && (
+                    <div>
+                      <p className="text-sm text-neutral-500">Value</p>
+                      <p className="text-2xl font-bold text-success-700">{formatCurrency(bounty.rewardValue)}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm text-neutral-500">Type</p>
+                    <p className="font-medium">{formatEnumLabel(bounty.rewardType)}</p>
+                  </div>
+                  {bounty.rewardDescription && (
+                    <div>
+                      <p className="text-sm text-neutral-500">Description</p>
+                      <p className="text-neutral-700">{bounty.rewardDescription}</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </Card>
@@ -132,8 +218,30 @@ export default function BountyDetailPage() {
                   <p className="font-medium">{bounty.submissionCount ?? 0} / {bounty.maxSubmissions}</p>
                 </div>
               )}
+              <div>
+                <p className="text-sm text-neutral-500">AI Content</p>
+                <p className="font-medium">{bounty.aiContentPermitted ? 'Permitted' : 'Not permitted'}</p>
+              </div>
             </div>
           </Card>
+
+          {/* Engagement Requirements */}
+          {bounty.engagementRequirements && (
+            bounty.engagementRequirements.tagAccount ||
+            bounty.engagementRequirements.mention ||
+            bounty.engagementRequirements.comment
+          ) && (
+            <Card>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Engagement</h3>
+              <div className="space-y-2 text-sm text-neutral-700">
+                {bounty.engagementRequirements.tagAccount && (
+                  <p>Tag <span className="font-medium">{bounty.engagementRequirements.tagAccount}</span></p>
+                )}
+                {bounty.engagementRequirements.mention && <p>Mention the brand in your post</p>}
+                {bounty.engagementRequirements.comment && <p>Leave a comment on the post</p>}
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </>

@@ -1,3 +1,5 @@
+import { SocialChannel, PostFormat } from './enums';
+
 // ─────────────────────────────────────
 // Application constants
 // ─────────────────────────────────────
@@ -92,3 +94,30 @@ export const ENTITY_TYPES = {
   SUBMISSION: 'Submission',
   SETTINGS: 'Settings',
 } as const;
+
+export const CHANNEL_POST_FORMATS: Record<SocialChannel, PostFormat[]> = {
+  [SocialChannel.INSTAGRAM]: [PostFormat.STORY, PostFormat.REEL, PostFormat.FEED_POST],
+  [SocialChannel.FACEBOOK]: [PostFormat.FEED_POST, PostFormat.STORY, PostFormat.REEL],
+  [SocialChannel.TIKTOK]: [PostFormat.VIDEO_POST],
+};
+
+export const CHANNEL_URL_PATTERNS: Record<SocialChannel, RegExp> = {
+  [SocialChannel.INSTAGRAM]: /^https?:\/\/(www\.)?instagram\.com\//,
+  [SocialChannel.FACEBOOK]: /^https?:\/\/(www\.)?facebook\.com\//,
+  [SocialChannel.TIKTOK]: /^https?:\/\/(www\.)?tiktok\.com\//,
+};
+
+export const BOUNTY_REWARD_LIMITS = {
+  MAX_REWARD_LINES: 10,
+  REWARD_NAME_MAX: 200,
+  MAX_CUSTOM_ELIGIBILITY_RULES: 5,
+  CUSTOM_RULE_MAX_LENGTH: 500,
+} as const;
+
+export const PAYOUT_METRICS_LIMITS = {
+  MAX_VIEWS: 10_000_000,
+  MAX_LIKES: 10_000_000,
+  MAX_COMMENTS: 10_000_000,
+} as const;
+
+export const VERIFICATION_DEADLINE_HOURS = 48;
