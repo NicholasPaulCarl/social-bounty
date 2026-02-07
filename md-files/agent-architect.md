@@ -1,14 +1,18 @@
-# Architect Agent Reference
+# System Design Reference (Architect)
 
-> Database schema, API contracts, system design decisions
+> Database schema, API contracts, system design decisions — reference for all roles
 
-## Responsibilities
+## Purpose
 
-- Design and maintain the Prisma database schema (`packages/prisma/schema.prisma`)
-- Define API contracts (endpoints, request/response shapes, status codes)
-- Own the shared types package (`packages/shared/`)
-- Make cross-cutting architectural decisions (auth strategy, caching, error handling)
-- Enforce consistency between frontend and backend via shared DTOs
+This document is the **system design reference** for the Social Bounty MVP. It is not an active workflow role — it is a shared knowledge base that all roles (Team Lead, UX Designer, UI Designer, Front-End Developer, Back-End Developer, QA Testing Engineer) reference when they need to understand the data model, API contracts, or architectural decisions.
+
+## What's Documented Here
+
+- Prisma database schema (`packages/prisma/schema.prisma`)
+- API contracts (all endpoints, request/response shapes, status codes)
+- Shared types package (`packages/shared/`)
+- Architectural decisions (auth strategy, caching, error handling)
+- Security model and MVP scope boundaries
 
 ## Monorepo Structure
 

@@ -1,6 +1,10 @@
-# DevOps Agent Reference
+# DevOps Reference
 
-> Project scaffolding, CI/CD, environment config, deployment
+> Project scaffolding, CI/CD, environment config, deployment — infrastructure support for all roles
+
+## Purpose
+
+This document is the **infrastructure and tooling reference** for the Social Bounty MVP. DevOps is a support function that underpins the workflow (UX → UI → Development → QA) by providing the build pipeline, CI/CD, local dev environment, and deployment infrastructure. All roles reference this when they need to run the app, manage the database, or understand the CI pipeline.
 
 ## Responsibilities
 
