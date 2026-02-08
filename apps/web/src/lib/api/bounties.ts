@@ -10,6 +10,7 @@ import type {
   UpdateBountyStatusResponse,
   PaginatedResponse,
   MessageResponse,
+  BrandAssetInfo,
 } from '@social-bounty/shared';
 
 export const bountyApi = {
@@ -36,4 +37,13 @@ export const bountyApi = {
 
   createPaymentIntent: (bountyId: string): Promise<{ clientSecret: string }> =>
     apiClient.post(`/bounties/${bountyId}/payment-intent`),
+
+  uploadBrandAssets: (bountyId: string, files: File[]): Promise<BrandAssetInfo[]> => {
+    const formData = new FormData();
+    files.forEach((f) => formData.append('files', f));
+    return apiClient.post(`/bounties/${bountyId}/brand-assets`, formData);
+  },
+
+  deleteBrandAsset: (bountyId: string, assetId: string): Promise<MessageResponse> =>
+    apiClient.delete(`/bounties/${bountyId}/brand-assets/${assetId}`),
 };

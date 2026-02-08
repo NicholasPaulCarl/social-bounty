@@ -70,30 +70,32 @@ export class SubmissionsService {
       throw new BadRequestException('Bounty submission period has ended');
     }
 
-    // One submission per user per bounty
-    const existing = await this.prisma.submission.findFirst({
-      where: { bountyId, userId: user.sub },
-    });
+    // Atomic: check for existing + create in transaction
+    const submission = await this.prisma.$transaction(async (tx) => {
+      const existing = await tx.submission.findFirst({
+        where: { bountyId, userId: user.sub },
+      });
 
-    if (existing) {
-      throw new ConflictException('You already have a submission for this bounty');
-    }
+      if (existing) {
+        throw new ConflictException('You already have a submission for this bounty');
+      }
 
-    const submission = await this.prisma.submission.create({
-      data: {
-        bountyId,
-        userId: user.sub,
-        proofText: data.proofText.trim(),
-        proofLinks: data.proofLinks || [],
-        status: SubmissionStatus.SUBMITTED,
-        payoutStatus: PayoutStatus.NOT_PAID,
-        reportedMetrics: data.reportedMetrics
-          ? (data.reportedMetrics as any)
-          : undefined,
-      },
-      include: {
-        proofImages: true,
-      },
+      return tx.submission.create({
+        data: {
+          bountyId,
+          userId: user.sub,
+          proofText: data.proofText.trim(),
+          proofLinks: data.proofLinks || [],
+          status: SubmissionStatus.SUBMITTED,
+          payoutStatus: PayoutStatus.NOT_PAID,
+          reportedMetrics: data.reportedMetrics
+            ? (data.reportedMetrics as any)
+            : undefined,
+        },
+        include: {
+          proofImages: true,
+        },
+      });
     });
 
     this.auditService.log({

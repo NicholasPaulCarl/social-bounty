@@ -61,3 +61,23 @@ export function useDeleteBounty() {
     },
   });
 }
+
+export function useUploadBrandAssets(bountyId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (files: File[]) => bountyApi.uploadBrandAssets(bountyId, files),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.bounties.detail(bountyId) });
+    },
+  });
+}
+
+export function useDeleteBrandAsset(bountyId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (assetId: string) => bountyApi.deleteBrandAsset(bountyId, assetId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.bounties.detail(bountyId) });
+    },
+  });
+}

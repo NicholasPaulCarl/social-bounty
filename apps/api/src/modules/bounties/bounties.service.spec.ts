@@ -220,6 +220,7 @@ describe('BountiesService', () => {
         organisation: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
         rewards: [baseReward],
+        brandAssets: [],
         _count: { submissions: 5 },
       });
 
@@ -272,6 +273,7 @@ describe('BountiesService', () => {
         organisation: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
         rewards: [baseReward],
+        brandAssets: [],
         _count: { submissions: 5 },
       });
       prisma.submission.findFirst.mockResolvedValue({

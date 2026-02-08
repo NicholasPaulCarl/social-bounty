@@ -7,6 +7,8 @@ import { AdminService } from './admin.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
+import { AuthService } from '../auth/auth.service';
+import { SettingsService } from '../settings/settings.service';
 import {
   UserRole,
   UserStatus,
@@ -77,6 +79,21 @@ describe('AdminService', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: auditService },
         { provide: MailService, useValue: mailService },
+        { provide: AuthService, useValue: { storeResetToken: jest.fn() } },
+        {
+          provide: SettingsService,
+          useValue: {
+            isSignupEnabled: jest.fn().mockReturnValue(true),
+            isSubmissionEnabled: jest.fn().mockReturnValue(true),
+            getSettings: jest.fn().mockReturnValue({
+              signupsEnabled: true,
+              submissionsEnabled: true,
+              updatedAt: new Date(),
+              updatedById: null,
+            }),
+            updateSettings: jest.fn(),
+          },
+        },
       ],
     }).compile();
 

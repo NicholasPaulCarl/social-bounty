@@ -36,6 +36,15 @@ export interface BountyUserSubmissionInfo {
   payoutStatus: PayoutStatus;
 }
 
+// Brand asset info embedded in bounty detail
+export interface BrandAssetInfo {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  fileSize: number;
+  createdAt: string;
+}
+
 // ─────────────────────────────────────
 // New structured input types
 // ─────────────────────────────────────
@@ -160,6 +169,7 @@ export interface BountyDetailResponse {
   totalRewardValue: string | null;
   payoutMetrics: PayoutMetricsInput | null;
   paymentStatus: PaymentStatus;
+  brandAssets: BrandAssetInfo[];
 }
 
 // POST /bounties

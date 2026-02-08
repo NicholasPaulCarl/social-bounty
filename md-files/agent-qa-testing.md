@@ -1,6 +1,6 @@
 # QA Testing Engineer Agent Reference
 
-> Cypress-based testing, quality gates, and release validation
+> Testing, quality gates, and release validation
 
 ## Role Definition
 
@@ -18,8 +18,8 @@ You receive all changes from Front-End and Back-End developers. Nothing ships wi
 
 ## Mandatory Rules
 
-1. **Cypress is the single approved testing framework** — for all automated and unit tests
-2. **Do not introduce additional testing tools** without Team Lead approval
+1. **Approved testing frameworks** — **Jest** for backend unit tests (NestJS services, guards), **Jest** for frontend unit tests (validation logic, hooks, utility functions), **Playwright** for E2E tests (browser-based smoke tests)
+2. **Do not introduce additional testing tools** beyond Jest and Playwright without Team Lead approval
 3. **Receive and track all front-end and back-end updates** — nothing goes untested
 4. **Update or create tests for every change** — no exceptions
 5. **Run unit and integration tests after each update or deployment**
@@ -32,8 +32,8 @@ You receive all changes from Front-End and Back-End developers. Nothing ships wi
 
 ## Responsibilities
 
-- Write and maintain all automated tests in Cypress
-- Write and maintain unit tests for API services and guards (Jest for backend, Cypress for frontend)
+- Write and maintain all automated tests using Jest (unit) and Playwright (E2E)
+- Write and maintain unit tests for API services and guards (Jest)
 - Write integration tests for API endpoints
 - Define E2E smoke tests for critical user flows
 - Ensure 100% test pass rate before any release (hard rule)
@@ -77,6 +77,17 @@ npx jest --coverage                # With coverage report
 npx jest --config apps/api/test/jest-e2e.json  # Integration/E2E tests
 ```
 
+### Pre-Testing Build Verification
+
+Always run build and tests before manual testing:
+
+```bash
+npm run build          # Verify all packages compile
+npm test               # Run all unit tests
+```
+
+If either fails, fix the build/test issues before proceeding to manual testing.
+
 ### E2E Config (`apps/api/test/jest-e2e.json`)
 
 Used for integration tests that require a running database. CI provides a PostgreSQL service container.
@@ -92,7 +103,9 @@ apps/api/src/
     user-status.guard.spec.ts      # UserStatusGuard unit tests
   modules/
     auth/auth.service.spec.ts      # AuthService unit tests
-    admin/admin.service.spec.ts    # AdminService unit tests
+    admin/
+      admin.service.spec.ts              # AdminService unit tests
+      __tests__/admin-edge-cases.spec.ts # Force password reset, settings gates, self-suspension guard
     bounties/
       bounties.service.spec.ts           # BountiesService unit tests
       __tests__/create-bounty.service.spec.ts   # Create bounty tests
@@ -106,10 +119,17 @@ apps/api/src/
       __tests__/bounty-status.service.spec.ts       # Status transition tests
       __tests__/bounty-abuse.service.spec.ts        # Abuse prevention tests
       __tests__/update-bounty.service.spec.ts       # Update bounty tests
+      __tests__/create-bounty-edge-cases.spec.ts   # Edge cases: minimal data, empty rewards, DRAFT→LIVE
+      __tests__/brand-assets.service.spec.ts       # Brand assets upload/validation tests
     payments/payments.service.spec.ts    # Stripe payment tests
     submissions/
       submissions.service.spec.ts        # SubmissionsService unit tests
       __tests__/reported-metrics.spec.ts # Reported metrics + verification tests
+      __tests__/submission-edge-cases.spec.ts  # Duplicate submissions, status transitions, payout transitions
+apps/web/src/
+  components/bounty-form/
+    __tests__/validation.test.ts              # Form validation tests (93 tests)
+    __tests__/useCreateBountyForm.test.ts     # toRequest() conversion tests
 ```
 
 ---
@@ -313,6 +333,46 @@ describe('RolesGuard', () => {
 
 ---
 
+## Frontend Testing Patterns
+
+### Validation Logic Tests
+
+Test pure validation functions directly without React/DOM:
+
+```typescript
+import { validateDraft, validateFull } from '../validation';
+import { INITIAL_FORM_STATE } from '../types';
+
+function makeState(overrides = {}) {
+  return { ...INITIAL_FORM_STATE, ...overrides };
+}
+
+describe('validateDraft', () => {
+  it('should pass with just a title', () => {
+    const errors = validateDraft(makeState({ title: 'Test' }));
+    expect(Object.keys(errors)).toHaveLength(0);
+  });
+});
+```
+
+### Form State / Hook Tests
+
+Use React Testing Library's `renderHook` for testing custom hooks:
+
+```typescript
+import { renderHook, act } from '@testing-library/react';
+import { useCreateBountyForm } from '../useCreateBountyForm';
+
+describe('useCreateBountyForm', () => {
+  it('should initialize with default state', () => {
+    const { result } = renderHook(() => useCreateBountyForm());
+    expect(result.current.state.title).toBe('');
+  });
+});
+```
+
+---
+
 ## What to Test Per Feature
 
 ### For each service:
@@ -358,6 +418,8 @@ lint-and-typecheck
         └── integration-tests
               └── e2e-tests (PRs only)
 ```
+
+> **WARNING**: Some CI scripts may use `|| true` to suppress errors during development. This MUST be removed before production. All CI steps must fail the pipeline on error.
 
 ### Job 1: Lint & Type Check
 - `npm ci` → `build:shared` → `db:generate`
@@ -502,6 +564,25 @@ Execute these flows manually after all automated tests pass:
 
 ---
 
+## Functional Regression Checklist — Bounty Creation
+
+Run this checklist after ANY change to bounty creation, form validation, or draft saving:
+
+| # | Test Case | Expected Result |
+|---|-----------|----------------|
+| 1 | Draft save with title only | Succeeds, bounty appears as DRAFT |
+| 2 | Draft save with partial data (title + channels + rewards) | Succeeds, all fields persisted |
+| 3 | Edit existing draft, add fields, save | Fields persist on re-edit |
+| 4 | Publish draft (DRAFT→LIVE with payment) | Succeeds after payment |
+| 5 | Publish draft with missing required fields | Shows descriptive error listing missing fields |
+| 6 | Publish draft without optional fields (eligibility, engagement) | Should succeed (these are optional) |
+| 7 | UI: Checkboxes visible and interactive | Borders visible, can check/uncheck |
+| 8 | UI: Radio buttons visible and interactive | Can select options |
+| 9 | UI: InputText fields have visible borders | Not invisible/unstyled |
+| 10 | UI: Calendar picker opens and works | Can select dates |
+
+---
+
 ## Key Gotchas
 
 1. **Jest module mapper** — must map `@social-bounty/shared` to source, not dist
@@ -509,3 +590,18 @@ Execute these flows manually after all automated tests pass:
 3. **Enum imports in tests** — use `import { UserRole }` (value import) from `@social-bounty/shared`
 4. **Async exception testing** — use `await expect(...).rejects.toThrow(ExceptionType)`
 5. **Fire-and-forget audit** — AuditService.log() doesn't await, so tests should verify it was called but not await it
+
+---
+
+## Known MVP Limitations
+
+These are accepted limitations for the MVP that should be addressed before production:
+
+| Limitation | Impact | Production Fix |
+|-----------|--------|----------------|
+| Refresh tokens stored in-memory | Lost on API restart; all users must re-login | Use Redis for token storage |
+| Admin settings (signupsEnabled, submissionsEnabled) in-memory | Reset on restart | Store in database |
+| Password reset tokens in-memory | Lost on restart; pending resets fail | Store in database or Redis |
+| File uploads stored on local disk | Single-server only, lost on redeployment | Use S3 or cloud storage |
+| Error tracking in-memory | Limited to 1000 recent errors, lost on restart | Use Sentry |
+| No rate limiting persistence | Rate limit counters reset on restart | Use Redis-backed rate limiting |

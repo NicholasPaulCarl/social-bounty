@@ -12,7 +12,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
-import { formatCurrency, formatDate, timeRemaining, formatEnumLabel } from '@/lib/utils/format';
+import { formatCurrency, formatDate, timeRemaining, formatEnumLabel, formatBytes } from '@/lib/utils/format';
 import { PostVisibilityRule } from '@social-bounty/shared';
 
 const CHANNEL_LABELS: Record<string, string> = {
@@ -80,7 +80,6 @@ export default function BountyDetailPage() {
           <Card>
             <div className="flex items-center gap-3 mb-4">
               <StatusBadge type="bounty" value={bounty.status} />
-              <span className="text-sm text-neutral-500">{bounty.category}</span>
             </div>
 
             <p className="text-neutral-700 mb-4">{bounty.shortDescription}</p>
@@ -93,7 +92,19 @@ export default function BountyDetailPage() {
             <Divider />
 
             <h3 className="text-lg font-semibold text-neutral-900 mb-2">Proof Requirements</h3>
-            <div className="text-neutral-700 whitespace-pre-wrap">{bounty.proofRequirements}</div>
+            <div className="text-neutral-700">
+              {bounty.proofRequirements && (bounty.proofRequirements === 'url' || bounty.proofRequirements === 'screenshot' || bounty.proofRequirements === 'url,screenshot' || bounty.proofRequirements === 'screenshot,url') ? (
+                <ul className="list-disc list-inside space-y-1">
+                  {bounty.proofRequirements.split(',').map((req) => (
+                    <li key={req}>
+                      {req === 'url' ? 'Submit a URL link' : req === 'screenshot' ? 'Submit a screenshot' : req}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="whitespace-pre-wrap">{bounty.proofRequirements}</p>
+              )}
+            </div>
 
             {bounty.eligibilityRules && (
               <>
@@ -239,6 +250,33 @@ export default function BountyDetailPage() {
                 )}
                 {bounty.engagementRequirements.mention && <p>Mention the brand in your post</p>}
                 {bounty.engagementRequirements.comment && <p>Leave a comment on the post</p>}
+              </div>
+            </Card>
+          )}
+
+          {/* Brand Assets */}
+          {bounty.brandAssets && bounty.brandAssets.length > 0 && (
+            <Card>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Brand Assets</h3>
+              <div className="space-y-2">
+                {bounty.brandAssets.map((asset) => (
+                  <div key={asset.id} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-b-0">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <i className={`pi ${asset.mimeType === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-neutral-500 text-sm`} />
+                      <div className="min-w-0">
+                        <p className="text-sm text-neutral-800 truncate">{asset.fileName}</p>
+                        <p className="text-xs text-neutral-500">{formatBytes(asset.fileSize)}</p>
+                      </div>
+                    </div>
+                    <Button
+                      label="Download"
+                      icon="pi pi-download"
+                      outlined
+                      size="small"
+                      onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/files/brand-assets/${asset.id}/download`, '_blank')}
+                    />
+                  </div>
+                ))}
               </div>
             </Card>
           )}

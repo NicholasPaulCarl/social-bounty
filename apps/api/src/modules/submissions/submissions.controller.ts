@@ -19,6 +19,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Roles, CurrentUser } from '../../common/decorators';
 import { UserRole, SubmissionStatus, PayoutStatus, FILE_UPLOAD_LIMITS } from '@social-bounty/shared';
 import { SubmissionsService } from './submissions.service';
+import { SettingsService } from '../settings/settings.service';
 import {
   CreateSubmissionDto,
   UpdateSubmissionDto,
@@ -29,7 +30,10 @@ import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 @Controller()
 export class SubmissionsController {
-  constructor(private submissionsService: SubmissionsService) {}
+  constructor(
+    private submissionsService: SubmissionsService,
+    private settingsService: SettingsService,
+  ) {}
 
   @Post('bounties/:bountyId/submissions')
   @Roles(UserRole.PARTICIPANT)
@@ -39,6 +43,9 @@ export class SubmissionsController {
     @Body() dto: CreateSubmissionDto,
     @Req() req: Request,
   ) {
+    if (!this.settingsService.isSubmissionEnabled()) {
+      throw new BadRequestException('Submissions are currently disabled');
+    }
     return this.submissionsService.create(bountyId, user, dto, req.ip);
   }
 

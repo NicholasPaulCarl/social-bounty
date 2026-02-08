@@ -85,6 +85,7 @@ describe('SubmissionsService', () => {
       fileUpload: {
         deleteMany: jest.fn(),
       },
+      $transaction: jest.fn((fn: any) => fn(prisma)),
     };
 
     auditService = { log: jest.fn() };

@@ -12,11 +12,15 @@ import * as fs from 'fs';
 import { Roles, CurrentUser } from '../../common/decorators';
 import { UserRole } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
+import { BountiesService } from '../bounties/bounties.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 @Controller('files')
 export class FilesController {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private bountiesService: BountiesService,
+  ) {}
 
   @Get(':id')
   @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
@@ -63,6 +67,28 @@ export class FilesController {
     res.setHeader(
       'Content-Disposition',
       `inline; filename="${file.fileName}"`,
+    );
+    fs.createReadStream(filePath).pipe(res);
+  }
+
+  @Get('brand-assets/:id/download')
+  @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  async downloadBrandAsset(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Res() res: Response,
+  ) {
+    const asset = await this.bountiesService.getBrandAssetForDownload(id, user);
+
+    const filePath = path.resolve(asset.fileUrl);
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundException('File not found on disk');
+    }
+
+    res.setHeader('Content-Type', asset.mimeType);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${asset.fileName}"`,
     );
     fs.createReadStream(filePath).pipe(res);
   }

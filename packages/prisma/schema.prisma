@@ -118,6 +118,7 @@ model User {
   createdBounties         Bounty[]              @relation("BountyCreator")
   auditLogs               AuditLog[]            @relation("AuditActor")
   fileUploads             FileUpload[]          @relation("FileUploader")
+  brandAssets             BrandAsset[]          @relation("BrandAssetUploader")
 
   @@index([email])
   @@index([role])
@@ -199,6 +200,7 @@ model Bounty {
   createdBy    User          @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
   submissions  Submission[]
   rewards      BountyReward[]
+  brandAssets  BrandAsset[]
 
   @@index([organisationId])
   @@index([status])
@@ -292,4 +294,22 @@ model FileUpload {
   @@index([submissionId])
   @@index([userId])
   @@map("file_uploads")
+}
+
+model BrandAsset {
+  id        String   @id @default(uuid())
+  bountyId  String
+  userId    String
+  fileName  String
+  fileUrl   String
+  mimeType  String
+  fileSize  Int
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  bounty     Bounty @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+  uploadedBy User   @relation("BrandAssetUploader", fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([bountyId])
+  @@map("brand_assets")
 }

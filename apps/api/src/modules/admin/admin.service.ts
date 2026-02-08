@@ -18,7 +18,9 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
+import { AuthService } from '../auth/auth.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
+import { SettingsService } from '../settings/settings.service';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -27,6 +29,8 @@ export class AdminService {
     private prisma: PrismaService,
     private auditService: AuditService,
     private mailService: MailService,
+    private authService: AuthService,
+    private settingsService: SettingsService,
   ) {}
 
   // ── Users ──────────────────────────
@@ -192,6 +196,7 @@ export class AdminService {
     if (!user) throw new NotFoundException('User not found');
 
     const token = crypto.randomBytes(64).toString('hex');
+    this.authService.storeResetToken(token, user.id);
     await this.mailService.sendPasswordReset(user.email, token);
 
     this.auditService.log({
@@ -651,19 +656,20 @@ export class AdminService {
 
   // ── Settings ─────────────────────
 
-  // In-memory settings store for MVP (use database in production)
-  private settings = {
-    signupsEnabled: true,
-    submissionsEnabled: true,
-    updatedAt: new Date(),
-    updatedById: null as string | null,
-  };
+  isSignupEnabled(): boolean {
+    return this.settingsService.isSignupEnabled();
+  }
+
+  isSubmissionEnabled(): boolean {
+    return this.settingsService.isSubmissionEnabled();
+  }
 
   async getSettings() {
+    const settings = this.settingsService.getSettings();
     let updatedBy = null;
-    if (this.settings.updatedById) {
+    if (settings.updatedById) {
       const user = await this.prisma.user.findUnique({
-        where: { id: this.settings.updatedById },
+        where: { id: settings.updatedById },
         select: { id: true, email: true },
       });
       if (user) {
@@ -672,9 +678,9 @@ export class AdminService {
     }
 
     return {
-      signupsEnabled: this.settings.signupsEnabled,
-      submissionsEnabled: this.settings.submissionsEnabled,
-      updatedAt: this.settings.updatedAt.toISOString(),
+      signupsEnabled: settings.signupsEnabled,
+      submissionsEnabled: settings.submissionsEnabled,
+      updatedAt: settings.updatedAt.toISOString(),
       updatedBy,
     };
   }
@@ -684,23 +690,22 @@ export class AdminService {
     data: { signupsEnabled?: boolean; submissionsEnabled?: boolean },
     ipAddress?: string,
   ) {
+    const current = this.settingsService.getSettings();
     const beforeState = {
-      signupsEnabled: this.settings.signupsEnabled,
-      submissionsEnabled: this.settings.submissionsEnabled,
+      signupsEnabled: current.signupsEnabled,
+      submissionsEnabled: current.submissionsEnabled,
     };
 
-    if (data.signupsEnabled !== undefined) {
-      this.settings.signupsEnabled = data.signupsEnabled;
-    }
-    if (data.submissionsEnabled !== undefined) {
-      this.settings.submissionsEnabled = data.submissionsEnabled;
-    }
-    this.settings.updatedAt = new Date();
-    this.settings.updatedById = actor.sub;
+    this.settingsService.updateSettings({
+      signupsEnabled: data.signupsEnabled,
+      submissionsEnabled: data.submissionsEnabled,
+      updatedById: actor.sub,
+    });
 
+    const updated = this.settingsService.getSettings();
     const afterState = {
-      signupsEnabled: this.settings.signupsEnabled,
-      submissionsEnabled: this.settings.submissionsEnabled,
+      signupsEnabled: updated.signupsEnabled,
+      submissionsEnabled: updated.submissionsEnabled,
     };
 
     this.auditService.log({

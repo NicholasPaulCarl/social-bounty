@@ -5,6 +5,8 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   UserRole,
   BountyStatus,
@@ -20,7 +22,9 @@ import {
   PAGINATION_DEFAULTS,
   CHANNEL_POST_FORMATS,
   BOUNTY_REWARD_LIMITS,
+  BRAND_ASSET_LIMITS,
 } from '@social-bounty/shared';
+import type { BrandAssetInfo } from '@social-bounty/shared';
 import type {
   ChannelSelection,
   RewardLineInput,
@@ -274,6 +278,24 @@ export class BountiesService {
     }));
   }
 
+  private mapBrandAssets(
+    assets: Array<{
+      id: string;
+      fileName: string;
+      mimeType: string;
+      fileSize: number;
+      createdAt: Date;
+    }>,
+  ): BrandAssetInfo[] {
+    return assets.map((a) => ({
+      id: a.id,
+      fileName: a.fileName,
+      mimeType: a.mimeType,
+      fileSize: a.fileSize,
+      createdAt: a.createdAt.toISOString(),
+    }));
+  }
+
   private computeTotalRewardValue(
     rewards: Array<{ monetaryValue: { toString(): string } }>,
   ): string {
@@ -404,6 +426,10 @@ export class BountiesService {
         rewards: {
           orderBy: { sortOrder: 'asc' },
         },
+        brandAssets: {
+          select: { id: true, fileName: true, mimeType: true, fileSize: true, createdAt: true },
+          orderBy: { sortOrder: 'asc' },
+        },
         _count: { select: { submissions: true } },
       },
     });
@@ -491,6 +517,7 @@ export class BountiesService {
           : null,
       payoutMetrics: (bounty as any).payoutMetrics as PayoutMetricsInput | null ?? null,
       paymentStatus: (bounty as any).paymentStatus ?? PaymentStatus.UNPAID,
+      brandAssets: this.mapBrandAssets(bounty.brandAssets),
     };
   }
 
@@ -808,47 +835,60 @@ export class BountiesService {
 
     if (data.rewards !== undefined) {
       const rewardInputs = data.rewards as RewardLineInput[];
-      const result = await this.prisma.$transaction(async (tx) => {
-        const updated = await tx.bounty.update({
+      if (rewardInputs.length > 0) {
+        const result = await this.prisma.$transaction(async (tx) => {
+          const updated = await tx.bounty.update({
+            where: { id },
+            data: {
+              ...updateData,
+              rewardType: rewardInputs[0].rewardType,
+              rewardValue: rewardInputs.reduce(
+                (sum, r) => sum + r.monetaryValue,
+                0,
+              ),
+              rewardDescription: rewardInputs.map((r) => r.name).join(', '),
+            },
+            include: {
+              organisation: { select: { id: true, name: true, logo: true } },
+              createdBy: { select: { id: true, firstName: true, lastName: true } },
+              _count: { select: { submissions: true } },
+            },
+          });
+
+          await tx.bountyReward.deleteMany({ where: { bountyId: id } });
+          const rewardRows = rewardInputs.map((r, index) => ({
+            bountyId: id,
+            rewardType: r.rewardType,
+            name: r.name.trim(),
+            monetaryValue: r.monetaryValue,
+            sortOrder: index,
+          }));
+          await tx.bountyReward.createMany({ data: rewardRows });
+
+          const newRewards = await tx.bountyReward.findMany({
+            where: { bountyId: id },
+            orderBy: { sortOrder: 'asc' },
+          });
+
+          return { updated, newRewards };
+        });
+
+        updatedBounty = result.updated;
+        rewards = result.newRewards;
+      } else {
+        // Empty rewards array - just update without touching rewards
+        updatedBounty = await this.prisma.bounty.update({
           where: { id },
-          data: {
-            ...updateData,
-            // Update legacy reward fields from new rewards
-            rewardType: rewardInputs[0].rewardType,
-            rewardValue: rewardInputs.reduce(
-              (sum, r) => sum + r.monetaryValue,
-              0,
-            ),
-            rewardDescription: rewardInputs.map((r) => r.name).join(', '),
-          },
+          data: updateData,
           include: {
             organisation: { select: { id: true, name: true, logo: true } },
             createdBy: { select: { id: true, firstName: true, lastName: true } },
+            rewards: { orderBy: { sortOrder: 'asc' } },
             _count: { select: { submissions: true } },
           },
         });
-
-        // Delete old rewards and insert new ones
-        await tx.bountyReward.deleteMany({ where: { bountyId: id } });
-        const rewardRows = rewardInputs.map((r, index) => ({
-          bountyId: id,
-          rewardType: r.rewardType,
-          name: r.name.trim(),
-          monetaryValue: r.monetaryValue,
-          sortOrder: index,
-        }));
-        await tx.bountyReward.createMany({ data: rewardRows });
-
-        const newRewards = await tx.bountyReward.findMany({
-          where: { bountyId: id },
-          orderBy: { sortOrder: 'asc' },
-        });
-
-        return { updated, newRewards };
-      });
-
-      updatedBounty = result.updated;
-      rewards = result.newRewards;
+        rewards = updatedBounty.rewards || [];
+      }
     } else {
       updatedBounty = await this.prisma.bounty.update({
         where: { id },
@@ -960,12 +1000,9 @@ export class BountiesService {
       if (!bounty.title) missing.push('title');
       if (!bounty.shortDescription) missing.push('shortDescription');
       if (!bounty.fullInstructions) missing.push('fullInstructions');
-      if (!bounty.category) missing.push('category');
       if (!bounty.proofRequirements) missing.push('proofRequirements');
       if (!bounty.channels) missing.push('channels');
       if (!bounty.postVisibilityRule) missing.push('postVisibilityRule');
-      if (!bounty.structuredEligibility) missing.push('structuredEligibility');
-      if (!bounty.engagementRequirements) missing.push('engagementRequirements');
 
       // Check for at least one reward
       const rewards = await this.prisma.bountyReward.findMany({
@@ -1095,5 +1132,155 @@ export class BountiesService {
     });
 
     return { message: 'Bounty deleted.' };
+  }
+
+  // ── Brand Assets ────────────────────────────────────────
+
+  async uploadBrandAssets(
+    bountyId: string,
+    user: AuthenticatedUser,
+    files: Express.Multer.File[],
+    ipAddress?: string,
+  ) {
+    const bounty = await this.prisma.bounty.findUnique({ where: { id: bountyId } });
+
+    if (!bounty || bounty.deletedAt) {
+      throw new NotFoundException('Bounty not found');
+    }
+
+    if (
+      user.role !== UserRole.SUPER_ADMIN &&
+      bounty.organisationId !== user.organisationId
+    ) {
+      throw new ForbiddenException('Not authorized');
+    }
+
+    if (bounty.status !== BountyStatus.DRAFT) {
+      throw new BadRequestException('Brand assets can only be uploaded to DRAFT bounties');
+    }
+
+    // Check total file count limit
+    const existingCount = await this.prisma.brandAsset.count({
+      where: { bountyId },
+    });
+    if (existingCount + files.length > BRAND_ASSET_LIMITS.MAX_FILES_PER_BOUNTY) {
+      throw new BadRequestException(
+        `Maximum ${BRAND_ASSET_LIMITS.MAX_FILES_PER_BOUNTY} brand assets per bounty. Currently ${existingCount}, trying to add ${files.length}.`,
+      );
+    }
+
+    const assets = await this.prisma.brandAsset.createManyAndReturn({
+      data: files.map((file, index) => ({
+        bountyId,
+        userId: user.sub,
+        fileName: file.originalname,
+        fileUrl: file.path,
+        mimeType: file.mimetype,
+        fileSize: file.size,
+        sortOrder: existingCount + index,
+      })),
+    });
+
+    // Fire-and-forget audit log
+    this.auditService.log({
+      actorId: user.sub,
+      actorRole: user.role as UserRole,
+      action: AUDIT_ACTIONS.BRAND_ASSET_UPLOAD,
+      entityType: ENTITY_TYPES.BOUNTY,
+      entityId: bountyId,
+      afterState: { fileCount: files.length, fileNames: files.map((f) => f.originalname) },
+      ipAddress,
+    });
+
+    return assets.map((a) => ({
+      id: a.id,
+      fileName: a.fileName,
+      mimeType: a.mimeType,
+      fileSize: a.fileSize,
+      createdAt: a.createdAt.toISOString(),
+    }));
+  }
+
+  async deleteBrandAsset(
+    bountyId: string,
+    assetId: string,
+    user: AuthenticatedUser,
+    ipAddress?: string,
+  ) {
+    const bounty = await this.prisma.bounty.findUnique({ where: { id: bountyId } });
+
+    if (!bounty || bounty.deletedAt) {
+      throw new NotFoundException('Bounty not found');
+    }
+
+    if (
+      user.role !== UserRole.SUPER_ADMIN &&
+      bounty.organisationId !== user.organisationId
+    ) {
+      throw new ForbiddenException('Not authorized');
+    }
+
+    const asset = await this.prisma.brandAsset.findUnique({
+      where: { id: assetId },
+    });
+
+    if (!asset || asset.bountyId !== bountyId) {
+      throw new NotFoundException('Brand asset not found');
+    }
+
+    // Delete file from disk
+    try {
+      const filePath = path.resolve(asset.fileUrl);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    } catch {
+      // Log but don't fail if file deletion fails
+    }
+
+    await this.prisma.brandAsset.delete({ where: { id: assetId } });
+
+    // Fire-and-forget audit log
+    this.auditService.log({
+      actorId: user.sub,
+      actorRole: user.role as UserRole,
+      action: AUDIT_ACTIONS.BRAND_ASSET_DELETE,
+      entityType: ENTITY_TYPES.BRAND_ASSET,
+      entityId: assetId,
+      beforeState: { fileName: asset.fileName, bountyId },
+      ipAddress,
+    });
+
+    return { message: 'Brand asset deleted.' };
+  }
+
+  async getBrandAssetForDownload(assetId: string, user: AuthenticatedUser) {
+    const asset = await this.prisma.brandAsset.findUnique({
+      where: { id: assetId },
+      include: {
+        bounty: {
+          select: { organisationId: true, status: true, deletedAt: true },
+        },
+      },
+    });
+
+    if (!asset || asset.bounty.deletedAt) {
+      throw new NotFoundException('Brand asset not found');
+    }
+
+    // Participants can only download from LIVE bounties
+    if (user.role === UserRole.PARTICIPANT && asset.bounty.status !== BountyStatus.LIVE) {
+      throw new ForbiddenException('Brand asset not accessible');
+    }
+
+    // Business admins can only access their own org's assets
+    if (
+      user.role === UserRole.BUSINESS_ADMIN &&
+      asset.bounty.organisationId !== user.organisationId
+    ) {
+      throw new ForbiddenException('Not authorized');
+    }
+
+    return asset;
   }
 }

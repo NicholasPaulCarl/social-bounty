@@ -80,11 +80,7 @@ export function validateFull(state: BountyFormState): Record<string, string> {
     errors.fullInstructions = 'Full instructions are required';
   }
 
-  if (!state.category.trim()) {
-    errors.category = 'Category is required';
-  }
-
-  // --- Section 2: Channels ---
+  // --- Section 1 cont: Channels ---
   if (!hasChannelSelection(state)) {
     errors.channels = 'At least one channel with a post format is required';
   } else {
@@ -159,9 +155,9 @@ export function validateFull(state: BountyFormState): Record<string, string> {
     });
   }
 
-  // --- Section 7: Proof Requirements ---
-  if (!state.proofRequirements.trim()) {
-    errors.proofRequirements = 'Proof requirements are required';
+  // --- Section 3: Proof Requirements ---
+  if (state.proofRequirements.length === 0) {
+    errors.proofRequirements = 'At least one proof requirement is required';
   }
 
   // --- Section 8: Max Submissions ---
@@ -236,29 +232,25 @@ export function validateField(field: string, state: BountyFormState): string | n
 export function getSectionErrors(sectionKey: string, errors: Record<string, string>): string[] {
   const errorKeys = Object.keys(errors);
   switch (sectionKey) {
-    case 'basicInfo':
-      return errorKeys.filter((k) => ['title', 'shortDescription', 'fullInstructions', 'category'].includes(k));
-    case 'channels':
-      return errorKeys.filter((k) => k === 'channels' || k.startsWith('channel_'));
-    case 'contentRules':
-      return errorKeys.filter((k) => ['tagAccount'].includes(k));
-    case 'postVisibility':
-      return errorKeys.filter((k) => ['durationValue', 'durationUnit'].includes(k));
-    case 'rewards':
-      return errorKeys.filter((k) => k === 'rewards' || k.startsWith('reward_'));
-    case 'eligibility':
+    case 'bountyBasicInfo':
       return errorKeys.filter((k) =>
-        ['minFollowers', 'minAccountAgeDays', 'locationRestriction', 'customRules'].includes(k) ||
+        ['title', 'shortDescription', 'fullInstructions', 'channels'].includes(k) ||
+        k.startsWith('channel_'),
+      );
+    case 'bountyContent':
+      return errorKeys.filter((k) =>
+        ['tagAccount', 'durationValue', 'durationUnit', 'rewards'].includes(k) ||
+        k.startsWith('reward_'),
+      );
+    case 'bountyRules':
+      return errorKeys.filter((k) =>
+        ['minFollowers', 'minAccountAgeDays', 'locationRestriction', 'customRules',
+         'proofRequirements', 'maxSubmissions', 'startDate', 'endDate',
+         'minViews', 'minLikes', 'minComments'].includes(k) ||
         k.startsWith('customRule_'),
       );
-    case 'proofRequirements':
-      return errorKeys.filter((k) => k === 'proofRequirements');
-    case 'submissionLimits':
-      return errorKeys.filter((k) => k === 'maxSubmissions');
-    case 'schedule':
-      return errorKeys.filter((k) => ['startDate', 'endDate'].includes(k));
-    case 'payoutMetrics':
-      return errorKeys.filter((k) => ['minViews', 'minLikes', 'minComments'].includes(k));
+    case 'brandAssets':
+      return [];
     default:
       return [];
   }
@@ -266,25 +258,13 @@ export function getSectionErrors(sectionKey: string, errors: Record<string, stri
 
 export function isSectionComplete(sectionKey: string, state: BountyFormState): boolean {
   switch (sectionKey) {
-    case 'basicInfo':
-      return !!state.title.trim() && !!state.shortDescription.trim() && !!state.fullInstructions.trim() && !!state.category.trim();
-    case 'channels':
-      return hasChannelSelection(state);
-    case 'contentRules':
-      return true; // All optional
-    case 'postVisibility':
-      return true; // Optional
-    case 'rewards':
+    case 'bountyBasicInfo':
+      return !!state.title.trim() && !!state.shortDescription.trim() && !!state.fullInstructions.trim() && hasChannelSelection(state);
+    case 'bountyContent':
       return state.rewards.length > 0 && state.rewards.every((r) => r.name.trim() && r.monetaryValue > 0);
-    case 'eligibility':
-      return true; // All optional
-    case 'proofRequirements':
-      return !!state.proofRequirements.trim();
-    case 'submissionLimits':
-      return true; // Optional
-    case 'schedule':
-      return true; // Optional
-    case 'payoutMetrics':
+    case 'bountyRules':
+      return state.proofRequirements.length > 0;
+    case 'brandAssets':
       return true; // Optional
     default:
       return false;

@@ -84,6 +84,8 @@ export interface JwtPayload {
   email: string;
   role: UserRole;
   organisationId: string | null;
+  firstName?: string;
+  lastName?: string;
   type: 'access' | 'refresh';
   jti?: string;
   iat: number;

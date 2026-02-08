@@ -170,6 +170,21 @@ export function baseBountyRewardRecord(overrides: Record<string, unknown> = {}) 
 
 // ── Mock Prisma Factory ────────────────────────────
 
+export function baseBrandAssetRecord(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'asset-1',
+    bountyId: 'bounty-1',
+    userId: 'ba-id',
+    fileName: 'logo.png',
+    fileUrl: '/uploads/brand-assets/test-uuid.png',
+    mimeType: 'image/png',
+    fileSize: 1024,
+    sortOrder: 0,
+    createdAt: new Date(),
+    ...overrides,
+  };
+}
+
 export function createMockPrisma() {
   const bountyCreate = jest.fn();
   const bountyUpdate = jest.fn();
@@ -181,6 +196,10 @@ export function createMockPrisma() {
   const rewardDeleteMany = jest.fn();
   const rewardFindMany = jest.fn().mockResolvedValue([baseBountyRewardRecord()]);
   const submissionFindFirst = jest.fn();
+  const brandAssetCount = jest.fn();
+  const brandAssetCreateManyAndReturn = jest.fn();
+  const brandAssetFindUnique = jest.fn();
+  const brandAssetDelete = jest.fn();
 
   const prisma = {
     bounty: {
@@ -198,6 +217,12 @@ export function createMockPrisma() {
     },
     submission: {
       findFirst: submissionFindFirst,
+    },
+    brandAsset: {
+      count: brandAssetCount,
+      createManyAndReturn: brandAssetCreateManyAndReturn,
+      findUnique: brandAssetFindUnique,
+      delete: brandAssetDelete,
     },
     $transaction: jest.fn((fn: (tx: unknown) => Promise<unknown>) => {
       // The transaction callback receives a "tx" object that mirrors prisma

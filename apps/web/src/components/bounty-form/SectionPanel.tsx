@@ -9,7 +9,7 @@ interface SectionPanelProps {
   icon: string;
   isComplete: boolean;
   hasError: boolean;
-  helperText: string;
+  helperText?: string;
   children: ReactNode;
 }
 
@@ -28,7 +28,7 @@ export function SectionPanel({ number, title, icon, isComplete, hasError, helper
 
   return (
     <Panel header={header} className="shadow-sm">
-      <p className="text-sm text-neutral-500 mb-5">{helperText}</p>
+      {helperText && <p className="text-sm text-neutral-500 mb-5">{helperText}</p>}
       <div className="space-y-5">{children}</div>
     </Panel>
   );

@@ -19,12 +19,14 @@ export default function EditBountyPage() {
   const { data: bounty, isLoading, error, refetch } = useBounty(id);
   const updateBounty = useUpdateBounty(id);
   const [formError, setFormError] = useState('');
+  const [isDraftSave, setIsDraftSave] = useState(false);
 
   if (isLoading) return <LoadingState type="form" />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
   if (!bounty) return null;
 
   const handleSubmit = (data: UpdateBountyRequest) => {
+    setIsDraftSave(false);
     setFormError('');
     updateBounty.mutate(data, {
       onSuccess: () => {
@@ -38,6 +40,7 @@ export default function EditBountyPage() {
   };
 
   const handleSaveDraft = (data: UpdateBountyRequest) => {
+    setIsDraftSave(true);
     setFormError('');
     updateBounty.mutate(data, {
       onSuccess: () => {
@@ -63,8 +66,8 @@ export default function EditBountyPage() {
         initialBounty={bounty}
         onSubmit={handleSubmit as (data: unknown) => void}
         onSaveDraft={handleSaveDraft as (data: unknown) => void}
-        isSubmitting={updateBounty.isPending}
-        isSavingDraft={false}
+        isSubmitting={!isDraftSave && updateBounty.isPending}
+        isSavingDraft={isDraftSave && updateBounty.isPending}
         formError={formError}
       />
     </>

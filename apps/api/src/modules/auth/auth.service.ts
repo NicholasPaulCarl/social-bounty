@@ -127,6 +127,8 @@ export class AuthService {
       user.email,
       user.role,
       organisationId,
+      user.firstName,
+      user.lastName,
     );
 
     return {
@@ -299,6 +301,8 @@ export class AuthService {
         user.email,
         user.role,
         organisationId,
+        user.firstName,
+        user.lastName,
       );
     } catch (err) {
       if (err instanceof UnauthorizedException) throw err;
@@ -311,6 +315,8 @@ export class AuthService {
     email: string,
     role: string,
     organisationId: string | null,
+    firstName?: string,
+    lastName?: string,
   ) {
     const jti = uuidv4();
 
@@ -320,6 +326,8 @@ export class AuthService {
         email,
         role,
         organisationId,
+        firstName: firstName || '',
+        lastName: lastName || '',
         type: 'access',
       },
       {
@@ -347,6 +355,16 @@ export class AuthService {
       refreshToken,
       expiresIn: 900, // 15 minutes in seconds
     };
+  }
+
+  /**
+   * Store a password reset token (used by AdminService for force resets)
+   */
+  storeResetToken(token: string, userId: string): void {
+    this.resetTokens.set(token, {
+      userId,
+      expiresAt: new Date(Date.now() + 3600_000), // 1 hour
+    });
   }
 
   private invalidateAllUserTokens(userId: string) {

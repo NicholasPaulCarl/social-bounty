@@ -8,10 +8,17 @@ import {
   Param,
   Query,
   Req,
+  UseInterceptors,
+  UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import { Roles, CurrentUser } from '../../common/decorators';
-import { UserRole, BountyStatus, RewardType } from '@social-bounty/shared';
+import { UserRole, BountyStatus, RewardType, BRAND_ASSET_LIMITS } from '@social-bounty/shared';
 import { BountiesService } from './bounties.service';
 import {
   CreateBountyDto,
@@ -115,5 +122,57 @@ export class BountiesController {
     @Req() req: Request,
   ) {
     return this.bountiesService.delete(id, user, req.ip);
+  }
+
+  @Post(':id/brand-assets')
+  @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  @UseInterceptors(
+    FilesInterceptor('files', BRAND_ASSET_LIMITS.MAX_FILES_PER_BOUNTY, {
+      storage: diskStorage({
+        destination: path.resolve(process.cwd(), 'uploads', 'brand-assets'),
+        filename: (_req, file, cb) => {
+          const ext = path.extname(file.originalname).toLowerCase();
+          cb(null, `${uuidv4()}${ext}`);
+        },
+      }),
+      limits: {
+        fileSize: BRAND_ASSET_LIMITS.MAX_FILE_SIZE,
+      },
+      fileFilter: (_req, file, cb) => {
+        const allowed = BRAND_ASSET_LIMITS.ALLOWED_MIME_TYPES as readonly string[];
+        if (!allowed.includes(file.mimetype)) {
+          cb(
+            new BadRequestException(
+              `Invalid file type: ${file.mimetype}. Allowed: ${allowed.join(', ')}`,
+            ),
+            false,
+          );
+          return;
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async uploadBrandAssets(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @UploadedFiles() files: Express.Multer.File[],
+    @Req() req: Request,
+  ) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('At least one file is required');
+    }
+    return this.bountiesService.uploadBrandAssets(id, user, files, req.ip);
+  }
+
+  @Delete(':id/brand-assets/:assetId')
+  @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  async deleteBrandAsset(
+    @Param('id') id: string,
+    @Param('assetId') assetId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Req() req: Request,
+  ) {
+    return this.bountiesService.deleteBrandAsset(id, assetId, user, req.ip);
   }
 }

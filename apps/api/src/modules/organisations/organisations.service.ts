@@ -275,17 +275,16 @@ export class OrganisationsService {
       throw new BadRequestException('User not found');
     }
 
-    // Check user doesn't already belong to an org
-    const existingMembership = await this.prisma.organisationMember.findFirst({
-      where: { userId: targetUser.id },
-    });
-
-    if (existingMembership) {
-      throw new ConflictException('User already belongs to an organisation');
-    }
-
-    // Add user to org
+    // Add user to org (check + create in transaction to prevent race condition)
     const member = await this.prisma.$transaction(async (tx) => {
+      const existingMembership = await tx.organisationMember.findFirst({
+        where: { userId: targetUser.id },
+      });
+
+      if (existingMembership) {
+        throw new ConflictException('User already belongs to an organisation');
+      }
+
       const newMember = await tx.organisationMember.create({
         data: {
           userId: targetUser.id,

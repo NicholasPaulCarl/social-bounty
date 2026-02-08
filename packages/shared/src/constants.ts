@@ -32,6 +32,18 @@ export const FILE_UPLOAD_LIMITS = {
   ] as const,
 };
 
+export const BRAND_ASSET_LIMITS = {
+  MAX_FILES_PER_BOUNTY: 10,
+  MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
+  ALLOWED_MIME_TYPES: [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'application/pdf',
+  ] as const,
+};
+
 export const FIELD_LIMITS = {
   FIRST_NAME_MAX: 100,
   LAST_NAME_MAX: 100,
@@ -79,6 +91,8 @@ export const AUDIT_ACTIONS = {
   BOUNTY_STATUS_CHANGE: 'bounty.status_change',
   BOUNTY_DELETE: 'bounty.delete',
   BOUNTY_OVERRIDE: 'bounty.override',
+  BRAND_ASSET_UPLOAD: 'brand_asset.upload',
+  BRAND_ASSET_DELETE: 'brand_asset.delete',
   SUBMISSION_CREATE: 'submission.create',
   SUBMISSION_UPDATE: 'submission.update',
   SUBMISSION_REVIEW: 'submission.review',
@@ -93,6 +107,7 @@ export const ENTITY_TYPES = {
   BOUNTY: 'Bounty',
   SUBMISSION: 'Submission',
   SETTINGS: 'Settings',
+  BRAND_ASSET: 'BrandAsset',
 } as const;
 
 export const CHANNEL_POST_FORMATS: Record<SocialChannel, PostFormat[]> = {

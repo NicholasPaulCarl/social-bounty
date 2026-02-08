@@ -1,8 +1,9 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, BadRequestException } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { Public, CurrentUser, Roles } from '../../common/decorators';
 import { UserRole } from '@social-bounty/shared';
 import { AuthService } from './auth.service';
+import { SettingsService } from '../settings/settings.service';
 import {
   SignupDto,
   LoginDto,
@@ -16,12 +17,18 @@ import { AuthenticatedUser } from './jwt.strategy';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private settingsService: SettingsService,
+  ) {}
 
   @Post('signup')
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async signup(@Body() dto: SignupDto) {
+    if (!this.settingsService.isSignupEnabled()) {
+      throw new BadRequestException('Signups are currently disabled');
+    }
     return this.authService.signup(
       dto.email,
       dto.password,

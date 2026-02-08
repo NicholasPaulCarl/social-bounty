@@ -16,6 +16,7 @@ import { FilesModule } from './modules/files/files.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { MailModule } from './modules/mail/mail.module';
+import { SettingsModule } from './modules/settings/settings.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { UserStatusGuard } from './common/guards/user-status.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -35,6 +36,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     PrismaModule,
     AuditModule,
     MailModule,
+    SettingsModule,
     AuthModule,
     UsersModule,
     OrganisationsModule,

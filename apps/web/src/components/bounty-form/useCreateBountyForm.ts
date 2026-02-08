@@ -32,10 +32,8 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
       return { ...state, shortDescription: action.payload };
     case 'SET_FULL_INSTRUCTIONS':
       return { ...state, fullInstructions: action.payload };
-    case 'SET_CATEGORY':
-      return { ...state, category: action.payload };
 
-    // Section 2
+    // Section 1 cont: Channels
     case 'TOGGLE_CHANNEL': {
       const ch = action.payload.channel as SocialChannel;
       const current = { ...state.channels };
@@ -191,9 +189,15 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         },
       };
 
-    // Section 7
-    case 'SET_PROOF_REQUIREMENTS':
-      return { ...state, proofRequirements: action.payload };
+    // Section 3: Proof Requirements (checkbox toggle)
+    case 'TOGGLE_PROOF_REQUIREMENT': {
+      const val = action.payload;
+      const current = state.proofRequirements;
+      const newReqs = current.includes(val)
+        ? current.filter((r) => r !== val)
+        : [...current, val];
+      return { ...state, proofRequirements: newReqs };
+    }
 
     // Section 8
     case 'SET_MAX_SUBMISSIONS':
@@ -213,6 +217,12 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
     case 'SET_MIN_COMMENTS':
       return { ...state, payoutMetrics: { ...state.payoutMetrics, minComments: action.payload } };
 
+    // Section 4: Brand Assets staging
+    case 'STAGE_BRAND_ASSET_FILES':
+      return { ...state, stagedBrandAssetFiles: [...state.stagedBrandAssetFiles, ...action.payload] };
+    case 'REMOVE_STAGED_BRAND_ASSET':
+      return { ...state, stagedBrandAssetFiles: state.stagedBrandAssetFiles.filter((_, i) => i !== action.payload) };
+
     // Validation
     case 'SET_TOUCHED':
       return { ...state, touched: { ...state.touched, [action.payload]: true } };
@@ -229,7 +239,6 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         title: b.title,
         shortDescription: b.shortDescription,
         fullInstructions: b.fullInstructions,
-        category: b.category,
         channels: b.channels || {},
         aiContentPermitted: b.aiContentPermitted,
         engagementRequirements: b.engagementRequirements || { tagAccount: null, mention: false, comment: false },
@@ -251,11 +260,12 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
           noCompetingBrandDays: null,
           customRules: [],
         },
-        proofRequirements: b.proofRequirements,
+        proofRequirements: b.proofRequirements ? b.proofRequirements.split(',').filter(Boolean) : [],
         maxSubmissions: b.maxSubmissions,
         startDate: b.startDate ? new Date(b.startDate) : null,
         endDate: b.endDate ? new Date(b.endDate) : null,
         payoutMetrics: b.payoutMetrics || { minViews: null, minLikes: null, minComments: null },
+        stagedBrandAssetFiles: [],
         errors: {},
         touched: {},
         submitAttempted: false,
@@ -265,6 +275,73 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
     default:
       return state;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Pure conversion function (exported for testing)
+// ---------------------------------------------------------------------------
+
+export function buildCreateBountyRequest(
+  state: BountyFormState,
+  mode: 'draft' | 'full' = 'full',
+): CreateBountyRequest {
+  const filteredRewards = state.rewards.filter((r) => r.name.trim() && r.monetaryValue > 0);
+
+  const hasEligibility = state.structuredEligibility.minFollowers !== null ||
+    state.structuredEligibility.publicProfile ||
+    state.structuredEligibility.minAccountAgeDays !== null ||
+    state.structuredEligibility.locationRestriction !== null ||
+    state.structuredEligibility.noCompetingBrandDays !== null ||
+    (state.structuredEligibility.customRules && state.structuredEligibility.customRules.length > 0);
+
+  const hasEngagement = state.engagementRequirements.tagAccount !== null ||
+    state.engagementRequirements.mention ||
+    state.engagementRequirements.comment;
+
+  const hasPayoutMetrics = state.payoutMetrics.minViews !== null ||
+    state.payoutMetrics.minLikes !== null ||
+    state.payoutMetrics.minComments !== null;
+
+  if (mode === 'draft') {
+    // Draft mode: only include fields with meaningful data
+    const request: any = {
+      title: state.title.trim(),
+    };
+    if (state.shortDescription.trim()) request.shortDescription = state.shortDescription.trim();
+    if (state.fullInstructions.trim()) request.fullInstructions = state.fullInstructions.trim();
+    if (state.proofRequirements.length > 0) request.proofRequirements = state.proofRequirements.join(',');
+    if (state.maxSubmissions !== null) request.maxSubmissions = state.maxSubmissions;
+    if (state.startDate) request.startDate = state.startDate.toISOString();
+    if (state.endDate) request.endDate = state.endDate.toISOString();
+    if (Object.keys(state.channels).length > 0) request.channels = state.channels;
+    if (filteredRewards.length > 0) request.rewards = filteredRewards;
+    if (state.postVisibility !== null) request.postVisibility = state.postVisibility;
+    if (hasEligibility) request.structuredEligibility = state.structuredEligibility;
+    request.currency = state.currency;
+    request.aiContentPermitted = state.aiContentPermitted;
+    if (hasEngagement) request.engagementRequirements = state.engagementRequirements;
+    if (hasPayoutMetrics) request.payoutMetrics = state.payoutMetrics;
+    return request as CreateBountyRequest;
+  }
+
+  // Full mode: include everything
+  return {
+    title: state.title.trim(),
+    shortDescription: state.shortDescription.trim(),
+    fullInstructions: state.fullInstructions.trim(),
+    proofRequirements: state.proofRequirements.join(','),
+    maxSubmissions: state.maxSubmissions,
+    startDate: state.startDate?.toISOString() ?? null,
+    endDate: state.endDate?.toISOString() ?? null,
+    channels: state.channels,
+    rewards: filteredRewards.length > 0 ? filteredRewards : state.rewards,
+    postVisibility: state.postVisibility || { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+    structuredEligibility: state.structuredEligibility,
+    currency: state.currency,
+    aiContentPermitted: state.aiContentPermitted,
+    engagementRequirements: state.engagementRequirements,
+    payoutMetrics: hasPayoutMetrics ? state.payoutMetrics : undefined,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -310,28 +387,10 @@ export function useCreateBountyForm(initialBounty?: BountyDetailResponse) {
     [state],
   );
 
-  const toRequest = useCallback((): CreateBountyRequest => {
-    return {
-      title: state.title.trim(),
-      shortDescription: state.shortDescription.trim(),
-      fullInstructions: state.fullInstructions.trim(),
-      category: state.category.trim(),
-      proofRequirements: state.proofRequirements.trim(),
-      maxSubmissions: state.maxSubmissions,
-      startDate: state.startDate?.toISOString() ?? null,
-      endDate: state.endDate?.toISOString() ?? null,
-      channels: state.channels,
-      rewards: state.rewards.filter((r) => r.name.trim() && r.monetaryValue > 0),
-      postVisibility: state.postVisibility || { rule: PostVisibilityRule.MUST_NOT_REMOVE },
-      structuredEligibility: state.structuredEligibility,
-      currency: state.currency,
-      aiContentPermitted: state.aiContentPermitted,
-      engagementRequirements: state.engagementRequirements,
-      payoutMetrics: (state.payoutMetrics.minViews !== null || state.payoutMetrics.minLikes !== null || state.payoutMetrics.minComments !== null)
-        ? state.payoutMetrics
-        : undefined,
-    };
-  }, [state]);
+  const toRequest = useCallback(
+    (mode: 'draft' | 'full' = 'full'): CreateBountyRequest => buildCreateBountyRequest(state, mode),
+    [state],
+  );
 
   return {
     state,

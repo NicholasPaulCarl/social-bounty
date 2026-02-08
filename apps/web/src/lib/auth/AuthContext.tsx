@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (decoded) {
         setUser((prev) =>
           prev
-            ? { ...prev }
+            ? { ...prev, firstName: decoded.firstName || prev.firstName, lastName: decoded.lastName || prev.lastName }
             : null,
         );
       }
@@ -88,8 +88,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser({
               id: decoded.sub,
               email: decoded.email,
-              firstName: '',
-              lastName: '',
+              firstName: decoded.firstName || '',
+              lastName: decoded.lastName || '',
               role: decoded.role,
               status: UserStatus.ACTIVE,
               emailVerified: false,

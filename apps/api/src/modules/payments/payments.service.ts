@@ -17,7 +17,7 @@ import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 @Injectable()
 export class PaymentsService {
-  private readonly stripe: Stripe;
+  private readonly stripe: Stripe | null;
   private readonly logger = new Logger(PaymentsService.name);
 
   constructor(
@@ -27,10 +27,19 @@ export class PaymentsService {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     if (!secretKey) {
       this.logger.warn('STRIPE_SECRET_KEY not configured — payments will fail');
+      this.stripe = null;
+    } else {
+      this.stripe = new Stripe(secretKey, {
+        apiVersion: '2025-02-24.acacia',
+      });
     }
-    this.stripe = new Stripe(secretKey || '', {
-      apiVersion: '2025-02-24.acacia',
-    });
+  }
+
+  private getStripe(): Stripe {
+    if (!this.stripe) {
+      throw new BadRequestException('Stripe is not configured. Set STRIPE_SECRET_KEY.');
+    }
+    return this.stripe;
   }
 
   async createPaymentIntent(bountyId: string, user: AuthenticatedUser) {
@@ -87,7 +96,7 @@ export class PaymentsService {
     };
     const stripeCurrency = currencyMap[bounty.currency] || 'zar';
 
-    const paymentIntent = await this.stripe.paymentIntents.create({
+    const paymentIntent = await this.getStripe().paymentIntents.create({
       amount: totalCents,
       currency: stripeCurrency,
       metadata: {
@@ -122,7 +131,7 @@ export class PaymentsService {
 
     let event: Stripe.Event;
     try {
-      event = this.stripe.webhooks.constructEvent(
+      event = this.getStripe().webhooks.constructEvent(
         rawBody,
         signature,
         webhookSecret,
