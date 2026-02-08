@@ -94,7 +94,15 @@ export class PaymentsService {
       GBP: 'gbp',
       EUR: 'eur',
     };
-    const stripeCurrency = currencyMap[bounty.currency] || 'zar';
+    const stripeCurrency = currencyMap[bounty.currency];
+    if (!stripeCurrency) {
+      throw new BadRequestException(`Unsupported currency: ${bounty.currency}`);
+    }
+
+    // Prevent duplicate PaymentIntents
+    if (bounty.stripePaymentIntentId) {
+      throw new BadRequestException('A payment intent already exists for this bounty');
+    }
 
     const paymentIntent = await this.getStripe().paymentIntents.create({
       amount: totalCents,
@@ -146,7 +154,7 @@ export class PaymentsService {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         const bountyId = paymentIntent.metadata?.bountyId;
         if (bountyId) {
-          await this.prisma.bounty.update({
+          await this.prisma.bounty.updateMany({
             where: { id: bountyId },
             data: { paymentStatus: 'PAID' as any },
           });
@@ -158,7 +166,7 @@ export class PaymentsService {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         const bountyId = paymentIntent.metadata?.bountyId;
         if (bountyId) {
-          await this.prisma.bounty.update({
+          await this.prisma.bounty.updateMany({
             where: { id: bountyId },
             data: { paymentStatus: 'UNPAID' as any },
           });

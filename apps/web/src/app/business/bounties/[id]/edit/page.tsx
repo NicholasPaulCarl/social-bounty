@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { CreateBountyForm } from '@/components/bounty-form';
-import type { UpdateBountyRequest } from '@social-bounty/shared';
+import type { CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useState } from 'react';
 
 export default function EditBountyPage() {
@@ -25,10 +25,10 @@ export default function EditBountyPage() {
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
   if (!bounty) return null;
 
-  const handleSubmit = (data: UpdateBountyRequest) => {
+  const handleSubmit = (data: CreateBountyRequest | UpdateBountyRequest) => {
     setIsDraftSave(false);
     setFormError('');
-    updateBounty.mutate(data, {
+    updateBounty.mutate(data as UpdateBountyRequest, {
       onSuccess: () => {
         toast.showSuccess('Bounty updated successfully');
         router.push(`/business/bounties/${id}`);
@@ -39,10 +39,10 @@ export default function EditBountyPage() {
     });
   };
 
-  const handleSaveDraft = (data: UpdateBountyRequest) => {
+  const handleSaveDraft = (data: CreateBountyRequest | UpdateBountyRequest) => {
     setIsDraftSave(true);
     setFormError('');
-    updateBounty.mutate(data, {
+    updateBounty.mutate(data as UpdateBountyRequest, {
       onSuccess: () => {
         toast.showSuccess('Draft saved successfully');
         router.push(`/business/bounties/${id}`);
@@ -64,8 +64,8 @@ export default function EditBountyPage() {
       <PageHeader title="Edit Bounty" breadcrumbs={breadcrumbs} />
       <CreateBountyForm
         initialBounty={bounty}
-        onSubmit={handleSubmit as (data: unknown) => void}
-        onSaveDraft={handleSaveDraft as (data: unknown) => void}
+        onSubmit={handleSubmit}
+        onSaveDraft={handleSaveDraft}
         isSubmitting={!isDraftSave && updateBounty.isPending}
         isSavingDraft={isDraftSave && updateBounty.isPending}
         formError={formError}

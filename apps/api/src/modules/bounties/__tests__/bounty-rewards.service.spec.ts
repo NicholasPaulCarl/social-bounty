@@ -254,7 +254,8 @@ describe('BountiesService - Reward Validation', () => {
       });
 
       expect(result).toBeDefined();
-      // Implementation should deleteMany old rewards and createMany new ones
+      // Verify transaction was used to atomically replace rewards
+      expect(prisma.$transaction).toHaveBeenCalled();
     });
   });
 });

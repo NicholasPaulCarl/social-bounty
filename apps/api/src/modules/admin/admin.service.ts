@@ -196,7 +196,7 @@ export class AdminService {
     if (!user) throw new NotFoundException('User not found');
 
     const token = crypto.randomBytes(64).toString('hex');
-    this.authService.storeResetToken(token, user.id);
+    await this.authService.storeResetToken(token, user.id);
     await this.mailService.sendPasswordReset(user.email, token);
 
     this.auditService.log({

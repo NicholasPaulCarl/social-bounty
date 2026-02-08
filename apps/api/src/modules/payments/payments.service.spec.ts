@@ -47,6 +47,7 @@ describe('PaymentsService', () => {
       bounty: {
         findUnique: jest.fn(),
         update: jest.fn(),
+        updateMany: jest.fn(),
       },
     };
 
@@ -228,12 +229,12 @@ describe('PaymentsService', () => {
         },
       };
       stripeInstance._mockWebhooksConstructEvent.mockReturnValue(event);
-      prisma.bounty.update.mockResolvedValue({});
+      prisma.bounty.updateMany.mockResolvedValue({ count: 1 });
 
       const result = await service.handleWebhook(Buffer.from('body'), 'sig_test');
 
       expect(result).toEqual({ received: true });
-      expect(prisma.bounty.update).toHaveBeenCalledWith({
+      expect(prisma.bounty.updateMany).toHaveBeenCalledWith({
         where: { id: 'bounty-1' },
         data: { paymentStatus: 'PAID' },
       });
@@ -249,12 +250,12 @@ describe('PaymentsService', () => {
         },
       };
       stripeInstance._mockWebhooksConstructEvent.mockReturnValue(event);
-      prisma.bounty.update.mockResolvedValue({});
+      prisma.bounty.updateMany.mockResolvedValue({ count: 1 });
 
       const result = await service.handleWebhook(Buffer.from('body'), 'sig_test');
 
       expect(result).toEqual({ received: true });
-      expect(prisma.bounty.update).toHaveBeenCalledWith({
+      expect(prisma.bounty.updateMany).toHaveBeenCalledWith({
         where: { id: 'bounty-1' },
         data: { paymentStatus: 'UNPAID' },
       });

@@ -306,10 +306,7 @@ describe('BountiesService - Post Visibility Validation', () => {
 
       // The update call should include visibilityAcknowledged: false
       const updateCall = prisma.bounty.update.mock.calls[0][0];
-      expect(
-        updateCall.data.visibilityAcknowledged === false ||
-        result !== undefined,
-      ).toBe(true);
+      expect(updateCall.data).toHaveProperty('visibilityAcknowledged', false);
     });
 
     it('VE-33: should reject acknowledge-visibility when no postVisibilityRule is set', async () => {
@@ -320,12 +317,9 @@ describe('BountiesService - Post Visibility Validation', () => {
         }),
       );
 
-      // If acknowledgeVisibility method exists, test it
-      if (typeof (service as any).acknowledgeVisibility === 'function') {
-        await expect(
-          (service as any).acknowledgeVisibility('bounty-1', mockBA),
-        ).rejects.toThrow(BadRequestException);
-      }
+      await expect(
+        service.acknowledgeVisibility('bounty-1', mockBA),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('VE-34: should reject acknowledge-visibility on LIVE bounty', async () => {
@@ -336,11 +330,9 @@ describe('BountiesService - Post Visibility Validation', () => {
         }),
       );
 
-      if (typeof (service as any).acknowledgeVisibility === 'function') {
-        await expect(
-          (service as any).acknowledgeVisibility('bounty-1', mockBA),
-        ).rejects.toThrow(BadRequestException);
-      }
+      await expect(
+        service.acknowledgeVisibility('bounty-1', mockBA),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

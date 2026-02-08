@@ -34,13 +34,18 @@ export class SettingsService {
     submissionsEnabled?: boolean;
     updatedById: string;
   }) {
-    if (data.signupsEnabled !== undefined) {
+    let changed = false;
+    if (data.signupsEnabled !== undefined && data.signupsEnabled !== this.signupsEnabled) {
       this.signupsEnabled = data.signupsEnabled;
+      changed = true;
     }
-    if (data.submissionsEnabled !== undefined) {
+    if (data.submissionsEnabled !== undefined && data.submissionsEnabled !== this.submissionsEnabled) {
       this.submissionsEnabled = data.submissionsEnabled;
+      changed = true;
     }
-    this.updatedAt = new Date();
-    this.updatedById = data.updatedById;
+    if (changed) {
+      this.updatedAt = new Date();
+      this.updatedById = data.updatedById;
+    }
   }
 }

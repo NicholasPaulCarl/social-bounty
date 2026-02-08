@@ -303,13 +303,9 @@ describe('BountiesService - Abuse Prevention', () => {
       } as any;
       prisma.bounty.create.mockResolvedValue(baseBountyRecord());
 
-      // Should either reject or safely ignore the __proto__ property
-      try {
-        const result = await service.create(mockBA, data);
-        expect(result).toBeDefined();
-      } catch (e) {
-        expect(e).toBeInstanceOf(BadRequestException);
-      }
+      // Service should safely ignore __proto__ and create successfully
+      const result = await service.create(mockBA, data);
+      expect(result).toBeDefined();
     });
   });
 });

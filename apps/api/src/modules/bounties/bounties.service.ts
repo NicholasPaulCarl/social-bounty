@@ -78,12 +78,19 @@ export class BountiesService {
         );
       }
 
+      const seen = new Set<string>();
       for (const format of formats) {
         if (!allowedFormats.includes(format as PostFormat)) {
           throw new BadRequestException(
             `Invalid post format "${format}" for channel ${channel}. Allowed: ${allowedFormats.join(', ')}`,
           );
         }
+        if (seen.has(format)) {
+          throw new BadRequestException(
+            `Duplicate post format "${format}" for channel ${channel}`,
+          );
+        }
+        seen.add(format);
       }
     }
   }
@@ -163,10 +170,9 @@ export class BountiesService {
       if (typeof r.monetaryValue !== 'number' || isNaN(r.monetaryValue) || r.monetaryValue <= 0) {
         throw new BadRequestException('Reward monetary value must be a positive number');
       }
-      // Check max 2 decimal places
-      const decimalStr = r.monetaryValue.toString();
-      const decimalPart = decimalStr.split('.')[1];
-      if (decimalPart && decimalPart.length > 2) {
+      // Check max 2 decimal places using epsilon comparison
+      const cents = Math.round(r.monetaryValue * 100);
+      if (Math.abs(r.monetaryValue * 100 - cents) > 1e-9) {
         throw new BadRequestException('Reward monetary value may have at most 2 decimal places');
       }
     }
@@ -806,6 +812,8 @@ export class BountiesService {
       updateData.channels = channels as Prisma.InputJsonValue;
     }
     if (data.engagementRequirements !== undefined) {
+      const er = data.engagementRequirements as EngagementRequirementsInput;
+      if (er) this.validateEngagementRequirements(er);
       updateData.engagementRequirements = data.engagementRequirements as Prisma.InputJsonValue;
     }
     if (data.postVisibility !== undefined) {
@@ -819,6 +827,7 @@ export class BountiesService {
     }
     if (data.structuredEligibility !== undefined) {
       const se = data.structuredEligibility as StructuredEligibilityInput;
+      if (se) this.validateStructuredEligibility(se);
       updateData.structuredEligibility = se as Prisma.InputJsonValue;
       // Update legacy eligibility text
       updateData.eligibilityRules = this.generateEligibilityText(se);
@@ -836,6 +845,7 @@ export class BountiesService {
     if (data.rewards !== undefined) {
       const rewardInputs = data.rewards as RewardLineInput[];
       if (rewardInputs.length > 0) {
+        this.validateRewards(rewardInputs);
         const result = await this.prisma.$transaction(async (tx) => {
           const updated = await tx.bounty.update({
             where: { id },
@@ -1218,6 +1228,10 @@ export class BountiesService {
       bounty.organisationId !== user.organisationId
     ) {
       throw new ForbiddenException('Not authorized');
+    }
+
+    if (bounty.status !== BountyStatus.DRAFT) {
+      throw new BadRequestException('Brand assets can only be deleted from DRAFT bounties');
     }
 
     const asset = await this.prisma.brandAsset.findUnique({

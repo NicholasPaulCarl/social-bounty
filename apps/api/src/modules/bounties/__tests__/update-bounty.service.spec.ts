@@ -457,7 +457,7 @@ describe('BountiesService - Update Bounty', () => {
 
       // The update should include visibilityAcknowledged: false
       const updateCall = prisma.bounty.update.mock.calls[0][0];
-      expect(updateCall.data.visibilityAcknowledged === false || updateCall.data).toBeTruthy();
+      expect(updateCall.data).toHaveProperty('visibilityAcknowledged', false);
     });
   });
 });

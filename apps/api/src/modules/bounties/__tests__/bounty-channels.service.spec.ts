@@ -167,16 +167,9 @@ describe('BountiesService - Channel Selection Validation', () => {
         [SocialChannel.INSTAGRAM]: [PostFormat.REEL, PostFormat.REEL],
       };
 
-      // This should either deduplicate or reject
-      // Depending on implementation, either is acceptable
-      // The test verifies the service handles it
-      prisma.bounty.create.mockResolvedValue(baseBountyRecord());
-      try {
-        await service.create(mockBA, data);
-        // If accepted, it should have deduplicated
-      } catch (e) {
-        expect(e).toBeInstanceOf(BadRequestException);
-      }
+      await expect(service.create(mockBA, data)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

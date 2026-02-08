@@ -611,11 +611,13 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
       prisma.bounty.findUnique.mockResolvedValue(draftBounty);
       prisma.bountyReward.findMany.mockResolvedValue([]);
 
+      await expect(
+        service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE),
+      ).rejects.toThrow(BadRequestException);
+
       try {
         await service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE);
-        fail('Expected BadRequestException');
       } catch (e: any) {
-        expect(e).toBeInstanceOf(BadRequestException);
         const message = e.message;
         expect(message).toContain('title');
         expect(message).toContain('shortDescription');

@@ -129,9 +129,20 @@ export class BountiesController {
   @UseInterceptors(
     FilesInterceptor('files', BRAND_ASSET_LIMITS.MAX_FILES_PER_BOUNTY, {
       storage: diskStorage({
-        destination: path.resolve(process.cwd(), 'uploads', 'brand-assets'),
+        destination: (_req, _file, cb) => {
+          const dest = path.resolve(process.cwd(), 'uploads', 'brand-assets');
+          require('fs').mkdirSync(dest, { recursive: true });
+          cb(null, dest);
+        },
         filename: (_req, file, cb) => {
-          const ext = path.extname(file.originalname).toLowerCase();
+          const MIME_TO_EXT: Record<string, string> = {
+            'image/jpeg': '.jpg',
+            'image/png': '.png',
+            'image/gif': '.gif',
+            'image/webp': '.webp',
+            'application/pdf': '.pdf',
+          };
+          const ext = MIME_TO_EXT[file.mimetype] || '.bin';
           cb(null, `${uuidv4()}${ext}`);
         },
       }),

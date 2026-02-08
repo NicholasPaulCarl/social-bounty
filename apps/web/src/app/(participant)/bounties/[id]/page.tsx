@@ -144,11 +144,13 @@ export default function BountyDetailPage() {
                 {bounty.postVisibility.rule === PostVisibilityRule.MUST_NOT_REMOVE && (
                   <p>Your post must never be removed after submission.</p>
                 )}
-                {bounty.postVisibility.rule === PostVisibilityRule.MINIMUM_DURATION && (
+                {bounty.postVisibility.rule === PostVisibilityRule.MINIMUM_DURATION &&
+                  bounty.postVisibility.minDurationValue != null &&
+                  bounty.postVisibility.minDurationUnit && (
                   <p>
                     Your post must remain visible for at least{' '}
                     <span className="font-medium">
-                      {bounty.postVisibility.minDurationValue} {bounty.postVisibility.minDurationUnit?.toLowerCase()}
+                      {bounty.postVisibility.minDurationValue} {bounty.postVisibility.minDurationUnit.toLowerCase()}
                     </span>
                     .
                   </p>
@@ -189,7 +191,7 @@ export default function BountyDetailPage() {
                   {bounty.rewardValue && (
                     <div>
                       <p className="text-sm text-neutral-500">Value</p>
-                      <p className="text-2xl font-bold text-success-700">{formatCurrency(bounty.rewardValue)}</p>
+                      <p className="text-2xl font-bold text-success-700">{formatCurrency(bounty.rewardValue, bounty.currency)}</p>
                     </div>
                   )}
                   <div>
@@ -273,7 +275,7 @@ export default function BountyDetailPage() {
                       icon="pi pi-download"
                       outlined
                       size="small"
-                      onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/files/brand-assets/${asset.id}/download`, '_blank')}
+                      onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL}/files/brand-assets/${asset.id}/download`, '_blank')}
                     />
                   </div>
                 ))}

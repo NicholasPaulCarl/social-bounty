@@ -6,36 +6,49 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class PayoutSchedulerService {
   private readonly logger = new Logger(PayoutSchedulerService.name);
+  private isProcessing = false;
 
   constructor(private prisma: PrismaService) {}
 
   @Cron(CronExpression.EVERY_10_MINUTES)
   async processExpiredDeadlines() {
-    const now = new Date();
+    if (this.isProcessing) {
+      this.logger.warn('Skipping: previous run still in progress');
+      return;
+    }
 
-    const expired = await this.prisma.submission.findMany({
-      where: {
-        status: SubmissionStatus.APPROVED,
-        payoutStatus: PayoutStatus.NOT_PAID,
-        verificationDeadline: { lte: now },
-      },
-      select: { id: true },
-    });
+    this.isProcessing = true;
+    try {
+      const now = new Date();
 
-    if (expired.length === 0) return;
+      const expired = await this.prisma.submission.findMany({
+        where: {
+          status: SubmissionStatus.APPROVED,
+          payoutStatus: PayoutStatus.NOT_PAID,
+          verificationDeadline: { lte: now },
+        },
+        select: { id: true },
+      });
 
-    this.logger.log(`Processing ${expired.length} expired verification deadlines`);
+      if (expired.length === 0) return;
 
-    const result = await this.prisma.submission.updateMany({
-      where: {
-        id: { in: expired.map((s) => s.id) },
-        status: SubmissionStatus.APPROVED,
-        payoutStatus: PayoutStatus.NOT_PAID,
-        verificationDeadline: { lte: now },
-      },
-      data: { payoutStatus: PayoutStatus.PAID },
-    });
+      this.logger.log(`Processing ${expired.length} expired verification deadlines`);
 
-    this.logger.log(`Auto-paid ${result.count} submissions past verification deadline`);
+      const result = await this.prisma.submission.updateMany({
+        where: {
+          id: { in: expired.map((s) => s.id) },
+          status: SubmissionStatus.APPROVED,
+          payoutStatus: PayoutStatus.NOT_PAID,
+          verificationDeadline: { lte: now },
+        },
+        data: { payoutStatus: PayoutStatus.PAID },
+      });
+
+      this.logger.log(`Auto-paid ${result.count} submissions past verification deadline`);
+    } catch (error) {
+      this.logger.error('Failed to process expired deadlines', error);
+    } finally {
+      this.isProcessing = false;
+    }
   }
 }

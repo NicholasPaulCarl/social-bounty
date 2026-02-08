@@ -18,6 +18,9 @@ import {
   ArrayMaxSize,
   ValidateNested,
   ValidateIf,
+  registerDecorator,
+  ValidationOptions,
+  ValidationArguments,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import {
@@ -31,6 +34,38 @@ import {
   FIELD_LIMITS,
   BOUNTY_REWARD_LIMITS,
 } from '@social-bounty/shared';
+
+// ── Custom Validators ────────────────────────────────────
+
+const VALID_CHANNELS = Object.values(SocialChannel);
+const VALID_FORMATS = Object.values(PostFormat);
+
+function IsChannelRecord(validationOptions?: ValidationOptions) {
+  return function (object: object, propertyName: string) {
+    registerDecorator({
+      name: 'isChannelRecord',
+      target: object.constructor,
+      propertyName,
+      options: validationOptions,
+      validator: {
+        validate(value: any, _args: ValidationArguments) {
+          if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+          for (const [key, formats] of Object.entries(value)) {
+            if (!VALID_CHANNELS.includes(key as SocialChannel)) return false;
+            if (!Array.isArray(formats)) return false;
+            for (const fmt of formats) {
+              if (!VALID_FORMATS.includes(fmt as PostFormat)) return false;
+            }
+          }
+          return true;
+        },
+        defaultMessage(_args: ValidationArguments) {
+          return `channels must be a Record<SocialChannel, PostFormat[]> with valid channel keys and format values`;
+        },
+      },
+    });
+  };
+}
 
 // ── Nested DTOs ────────────────────────────────────────
 
@@ -177,7 +212,7 @@ export class CreateBountyDto {
   // ── New structured fields (all optional for draft saves) ──
 
   @IsOptional()
-  @IsObject()
+  @IsChannelRecord()
   channels?: Record<string, string[]>;
 
   @IsOptional()
@@ -281,7 +316,7 @@ export class UpdateBountyDto {
   // ── New structured fields (optional for partial updates) ──
 
   @IsOptional()
-  @IsObject()
+  @IsChannelRecord()
   channels?: Record<string, string[]>;
 
   @IsOptional()
@@ -328,6 +363,7 @@ export class UpdateBountyDto {
 
   @IsOptional()
   @IsNumber()
+  @IsPositive()
   rewardValue?: number | null;
 
   @IsOptional()

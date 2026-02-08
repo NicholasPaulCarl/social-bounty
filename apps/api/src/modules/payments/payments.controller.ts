@@ -5,6 +5,7 @@ import {
   Req,
   Headers,
   RawBodyRequest,
+  BadRequestException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { UserRole } from '@social-bounty/shared';
@@ -31,9 +32,12 @@ export class PaymentsController {
     @Req() req: RawBodyRequest<Request>,
     @Headers('stripe-signature') signature: string,
   ) {
+    if (!signature) {
+      throw new BadRequestException('Missing stripe-signature header');
+    }
     const rawBody = req.rawBody;
     if (!rawBody) {
-      throw new Error('Raw body not available');
+      throw new BadRequestException('Raw body not available');
     }
     return this.paymentsService.handleWebhook(rawBody, signature);
   }

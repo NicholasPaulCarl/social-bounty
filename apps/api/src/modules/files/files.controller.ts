@@ -5,6 +5,7 @@ import {
   Res,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import * as path from 'path';
@@ -15,12 +16,45 @@ import { PrismaService } from '../prisma/prisma.service';
 import { BountiesService } from '../bounties/bounties.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
+const UPLOADS_ROOT = path.resolve(process.cwd(), 'uploads');
+
+function resolveAndValidatePath(fileUrl: string): string {
+  const resolved = path.resolve(fileUrl);
+  if (!resolved.startsWith(UPLOADS_ROOT)) {
+    throw new BadRequestException('Invalid file path');
+  }
+  return resolved;
+}
+
 @Controller('files')
 export class FilesController {
   constructor(
     private prisma: PrismaService,
     private bountiesService: BountiesService,
   ) {}
+
+  // Specific route must come BEFORE the parameterized :id route
+  @Get('brand-assets/:id/download')
+  @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  async downloadBrandAsset(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Res() res: Response,
+  ) {
+    const asset = await this.bountiesService.getBrandAssetForDownload(id, user);
+
+    const filePath = resolveAndValidatePath(asset.fileUrl);
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundException('File not found on disk');
+    }
+
+    res.setHeader('Content-Type', asset.mimeType);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${asset.fileName}"`,
+    );
+    fs.createReadStream(filePath).pipe(res);
+  }
 
   @Get(':id')
   @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
@@ -58,7 +92,7 @@ export class FilesController {
       }
     }
 
-    const filePath = path.resolve(file.fileUrl);
+    const filePath = resolveAndValidatePath(file.fileUrl);
     if (!fs.existsSync(filePath)) {
       throw new NotFoundException('File not found on disk');
     }
@@ -67,28 +101,6 @@ export class FilesController {
     res.setHeader(
       'Content-Disposition',
       `inline; filename="${file.fileName}"`,
-    );
-    fs.createReadStream(filePath).pipe(res);
-  }
-
-  @Get('brand-assets/:id/download')
-  @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
-  async downloadBrandAsset(
-    @Param('id') id: string,
-    @CurrentUser() user: AuthenticatedUser,
-    @Res() res: Response,
-  ) {
-    const asset = await this.bountiesService.getBrandAssetForDownload(id, user);
-
-    const filePath = path.resolve(asset.fileUrl);
-    if (!fs.existsSync(filePath)) {
-      throw new NotFoundException('File not found on disk');
-    }
-
-    res.setHeader('Content-Type', asset.mimeType);
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="${asset.fileName}"`,
     );
     fs.createReadStream(filePath).pipe(res);
   }
