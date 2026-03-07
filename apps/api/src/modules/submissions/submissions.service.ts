@@ -518,11 +518,21 @@ export class SubmissionsService {
       reviewerNote: submission.reviewerNote,
     };
 
+    // Append to reviewHistory
+    const existingHistory = (submission as any).reviewHistory as any[] || [];
+    const historyEntry = {
+      status: newStatus,
+      changedAt: new Date().toISOString(),
+      changedBy: user.sub,
+      note: reviewerNote || null,
+    };
+
     // Set verification deadline when approving
     const updatePayload: any = {
       status: newStatus,
       reviewerNote: reviewerNote ?? submission.reviewerNote,
       reviewedById: user.sub,
+      reviewHistory: [...existingHistory, historyEntry] as any,
     };
     if (newStatus === SubmissionStatus.APPROVED) {
       const deadline = new Date();
@@ -631,6 +641,100 @@ export class SubmissionsService {
       payoutStatus: updated.payoutStatus,
       updatedAt: updated.updatedAt.toISOString(),
     };
+  }
+
+  async getReviewQueue(user: AuthenticatedUser, filters: {
+    orgId?: string;
+    status?: SubmissionStatus;
+    bountyId?: string;
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) {
+    const page = Number(filters.page) || 1;
+    const limit = Math.min(Number(filters.limit) || PAGINATION_DEFAULTS.LIMIT, PAGINATION_DEFAULTS.MAX_LIMIT);
+    const skip = (page - 1) * limit;
+
+    // Determine org scope
+    let organisationId = filters.orgId;
+    if (user.role === UserRole.BUSINESS_ADMIN) {
+      const membership = await this.prisma.organisationMember.findFirst({
+        where: { userId: user.sub },
+      });
+      if (!membership) throw new ForbiddenException('Not a member of any organisation');
+      organisationId = membership.organisationId;
+    }
+
+    const where: Prisma.SubmissionWhereInput = {
+      bounty: {
+        ...(organisationId ? { organisationId } : {}),
+        ...(filters.bountyId ? { id: filters.bountyId } : {}),
+        deletedAt: null,
+      },
+      ...(filters.status ? { status: filters.status } : {}),
+    };
+
+    const [submissions, total] = await Promise.all([
+      this.prisma.submission.findMany({
+        where,
+        include: {
+          bounty: { select: { id: true, title: true, rewardValue: true, rewardType: true, category: true, organisationId: true } },
+          user: { select: { id: true, firstName: true, lastName: true, email: true } },
+          reviewedBy: { select: { id: true, firstName: true, lastName: true } },
+        },
+        orderBy: { [filters.sortBy || 'createdAt']: filters.sortOrder || 'asc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.submission.count({ where }),
+    ]);
+
+    // Calculate summary stats
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const statsWhere: Prisma.SubmissionWhereInput = {
+      bounty: { ...(organisationId ? { organisationId } : {}), deletedAt: null },
+    };
+
+    const [pending, inReview, needsMoreInfo, approvedToday, rejectedToday] = await Promise.all([
+      this.prisma.submission.count({ where: { ...statsWhere, status: SubmissionStatus.SUBMITTED } }),
+      this.prisma.submission.count({ where: { ...statsWhere, status: SubmissionStatus.IN_REVIEW } }),
+      this.prisma.submission.count({ where: { ...statsWhere, status: SubmissionStatus.NEEDS_MORE_INFO } }),
+      this.prisma.submission.count({ where: { ...statsWhere, status: SubmissionStatus.APPROVED, updatedAt: { gte: today } } }),
+      this.prisma.submission.count({ where: { ...statsWhere, status: SubmissionStatus.REJECTED, updatedAt: { gte: today } } }),
+    ]);
+
+    return {
+      stats: { pending, inReview, needsMoreInfo, approvedToday, rejectedToday },
+      data: submissions,
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
+  async getMyEarnings(userId: string) {
+    const [totalSubmissions, approvedCount, earnings] = await Promise.all([
+      this.prisma.submission.count({ where: { userId } }),
+      this.prisma.submission.count({ where: { userId, status: SubmissionStatus.APPROVED } }),
+      this.prisma.submission.findMany({
+        where: { userId, status: SubmissionStatus.APPROVED },
+        include: { bounty: { select: { rewardValue: true } } },
+      }),
+    ]);
+
+    let totalEarned = 0;
+    let pendingPayout = 0;
+    for (const sub of earnings) {
+      const val = sub.bounty.rewardValue ? Number(sub.bounty.rewardValue) : 0;
+      if (sub.payoutStatus === PayoutStatus.PAID) {
+        totalEarned += val;
+      } else {
+        pendingPayout += val;
+      }
+    }
+
+    return { totalSubmissions, approvedCount, totalEarned, pendingPayout };
   }
 
   async uploadFiles(

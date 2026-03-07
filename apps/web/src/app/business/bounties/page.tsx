@@ -6,6 +6,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
+import { TabMenu } from 'primereact/tabmenu';
 import { useBounties, useDeleteBounty } from '@/hooks/useBounties';
 import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
@@ -17,16 +18,27 @@ import { StatusBadge } from '@/components/common/StatusBadge';
 import { BountyFilters } from '@/components/features/bounty/BountyFilters';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate, formatCurrency } from '@/lib/utils/format';
+import { BountyStatus } from '@social-bounty/shared';
 import type { BountyListParams, BountyListItem } from '@social-bounty/shared';
+
+const statusTabs = [
+  { label: 'All', value: undefined as BountyStatus | undefined },
+  { label: 'Draft', value: BountyStatus.DRAFT },
+  { label: 'Live', value: BountyStatus.LIVE },
+  { label: 'Paused', value: BountyStatus.PAUSED },
+  { label: 'Closed', value: BountyStatus.CLOSED },
+];
 
 export default function BusinessBountiesPage() {
   const router = useRouter();
   const toast = useToast();
   const { page, limit, first, onPageChange } = usePagination();
   const [filters, setFilters] = useState<BountyListParams>({ page, limit });
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const { data, isLoading, error, refetch } = useBounties({ ...filters, page, limit });
+  const statusFilter = statusTabs[activeTabIndex].value;
+  const { data, isLoading, error, refetch } = useBounties({ ...filters, page, limit, status: statusFilter });
   const deleteBounty = useDeleteBounty();
 
   const handleDelete = () => {
@@ -95,7 +107,14 @@ export default function BusinessBountiesPage() {
         }
       />
 
-      <BountyFilters filters={filters} onChange={setFilters} showStatusFilter />
+      <TabMenu
+        model={statusTabs.map((tab) => ({ label: tab.label }))}
+        activeIndex={activeTabIndex}
+        onTabChange={(e) => setActiveTabIndex(e.index)}
+        className="mb-4"
+      />
+
+      <BountyFilters filters={filters} onChange={setFilters} />
 
       {data && data.data.length > 0 ? (
         <>

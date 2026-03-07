@@ -29,6 +29,7 @@ enum UserStatus {
 enum OrgStatus {
   ACTIVE
   SUSPENDED
+  INACTIVE
 }
 
 enum OrgMemberRole {
@@ -194,6 +195,7 @@ model Bounty {
   payoutMetrics          Json?
   stripePaymentIntentId  String?
   paymentStatus          PaymentStatus       @default(UNPAID)
+  statusHistory          Json?
 
   // Relations
   organisation Organisation  @relation(fields: [organisationId], references: [id], onDelete: Cascade)
@@ -237,6 +239,7 @@ model Submission {
   payoutStatus         PayoutStatus     @default(NOT_PAID)
   reportedMetrics      Json?
   verificationDeadline DateTime?
+  reviewHistory        Json?
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
 
@@ -245,6 +248,7 @@ model Submission {
   user        User         @relation("UserSubmissions", fields: [userId], references: [id], onDelete: Restrict)
   reviewedBy  User?        @relation("ReviewerSubmissions", fields: [reviewedById], references: [id], onDelete: SetNull)
   proofImages FileUpload[]
+  payout      Payout?
 
   @@index([bountyId])
   @@index([userId])
@@ -252,6 +256,22 @@ model Submission {
   @@index([payoutStatus])
   @@index([reviewedById])
   @@map("submissions")
+}
+
+model Payout {
+  id           String       @id @default(uuid())
+  submissionId String       @unique
+  amount       Decimal      @db.Decimal(12, 2)
+  currency     Currency     @default(ZAR)
+  status       PayoutStatus @default(NOT_PAID)
+  paidAt       DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@map("payouts")
 }
 
 model AuditLog {

@@ -46,6 +46,17 @@ export interface BrandAssetInfo {
 }
 
 // ─────────────────────────────────────
+// Status History
+// ─────────────────────────────────────
+
+export interface StatusHistoryEntry {
+  status: string;
+  changedAt: string;
+  changedBy: string;
+  note?: string;
+}
+
+// ─────────────────────────────────────
 // New structured input types
 // ─────────────────────────────────────
 

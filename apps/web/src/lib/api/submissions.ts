@@ -13,6 +13,8 @@ import type {
   UpdatePayoutRequest,
   UpdatePayoutResponse,
   PaginatedResponse,
+  ReviewQueueResponse,
+  EarningsSummaryResponse,
 } from '@social-bounty/shared';
 
 export const submissionApi = {
@@ -59,4 +61,10 @@ export const submissionApi = {
 
   updatePayout: (id: string, data: UpdatePayoutRequest): Promise<UpdatePayoutResponse> =>
     apiClient.patch(`/submissions/${id}/payout`, data),
+
+  getReviewQueue: (params: Record<string, unknown>): Promise<ReviewQueueResponse> =>
+    apiClient.get('/submissions/queue', params),
+
+  getMyEarnings: (): Promise<EarningsSummaryResponse> =>
+    apiClient.get('/submissions/me/earnings'),
 };

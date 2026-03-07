@@ -1,4 +1,5 @@
 import { SubmissionStatus, PayoutStatus, RewardType } from '../enums';
+import type { PaginationMeta } from '../common';
 
 // ─────────────────────────────────────
 // Reported Metrics
@@ -8,6 +9,31 @@ export interface ReportedMetricsInput {
   views?: number | null;
   likes?: number | null;
   comments?: number | null;
+}
+
+// ─────────────────────────────────────
+// Payout DTOs
+// ─────────────────────────────────────
+
+export interface PayoutResponse {
+  id: string;
+  submissionId: string;
+  amount: number;
+  currency: string;
+  status: string;
+  paidAt: string | null;
+  createdAt: string;
+}
+
+// ─────────────────────────────────────
+// Review History
+// ─────────────────────────────────────
+
+export interface ReviewHistoryEntry {
+  status: string;
+  changedAt: string;
+  changedBy: string | null;
+  note: string | null;
 }
 
 // ─────────────────────────────────────
@@ -183,4 +209,33 @@ export interface UpdatePayoutResponse {
   id: string;
   payoutStatus: PayoutStatus;
   updatedAt: string;
+}
+
+// ─────────────────────────────────────
+// Review Queue DTOs
+// ─────────────────────────────────────
+
+export interface ReviewQueueStats {
+  pending: number;
+  inReview: number;
+  needsMoreInfo: number;
+  approvedToday: number;
+  rejectedToday: number;
+}
+
+export interface ReviewQueueResponse {
+  stats: ReviewQueueStats;
+  data: SubmissionReviewListItem[];
+  meta: PaginationMeta;
+}
+
+// ─────────────────────────────────────
+// Earnings Summary DTOs
+// ─────────────────────────────────────
+
+export interface EarningsSummaryResponse {
+  totalSubmissions: number;
+  approvedCount: number;
+  totalEarned: number;
+  pendingPayout: number;
 }

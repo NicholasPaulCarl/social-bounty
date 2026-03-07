@@ -94,6 +94,35 @@ export class SubmissionsController {
     });
   }
 
+  @Get('submissions/queue')
+  @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  async getReviewQueue(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('orgId') orgId?: string,
+    @Query('status') status?: SubmissionStatus,
+    @Query('bountyId') bountyId?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+  ) {
+    return this.submissionsService.getReviewQueue(user, {
+      orgId,
+      status,
+      bountyId,
+      page,
+      limit,
+      sortBy: sortBy || 'createdAt',
+      sortOrder: sortOrder || 'asc',
+    });
+  }
+
+  @Get('submissions/me/earnings')
+  @Roles(UserRole.PARTICIPANT)
+  async getMyEarnings(@CurrentUser() user: AuthenticatedUser) {
+    return this.submissionsService.getMyEarnings(user.sub);
+  }
+
   @Get('submissions/:id')
   @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
   async findById(

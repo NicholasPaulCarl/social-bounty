@@ -1,0 +1,179 @@
+{
+  "_meta": {
+    "models": {
+      "MarketplaceBounty": "A Live bounty visible to participants, including title, description, reward, organization, dates, and capacity limits.",
+      "Organization": "The business that posted the bounty, shown as context on bounty cards and detail pages.",
+      "Category": "A label grouping bounties by type (e.g., Social Media, Content Writing, Design).",
+      "UserSubmission": "A lightweight record of the current user's submission for a bounty, used to show status on the detail page instead of the submit CTA."
+    },
+    "relationships": [
+      "MarketplaceBounty belongs to an Organization (the poster)",
+      "MarketplaceBounty has one Category",
+      "UserSubmission belongs to a MarketplaceBounty (one per user per bounty)"
+    ]
+  },
+  "categories": [
+    { "id": "cat-social", "name": "Social Media" },
+    { "id": "cat-content", "name": "Content Writing" },
+    { "id": "cat-design", "name": "Design" },
+    { "id": "cat-survey", "name": "Survey & Feedback" },
+    { "id": "cat-testing", "name": "Product Testing" },
+    { "id": "cat-referral", "name": "Referral" }
+  ],
+  "organizations": [
+    { "id": "org-acme", "name": "AcmeLabs", "logoUrl": null },
+    { "id": "org-nova", "name": "NovaTech Group", "logoUrl": null },
+    { "id": "org-bloom", "name": "Bloom Studio", "logoUrl": null },
+    { "id": "org-pixel", "name": "Pixel & Code Agency", "logoUrl": null }
+  ],
+  "bounties": [
+    {
+      "id": "bounty-001",
+      "title": "Share Our Product Launch on Twitter/X",
+      "shortDescription": "Retweet our launch post with a genuine comment about why you're excited. Must have 100+ followers.",
+      "fullDescription": "We're launching AcmeLabs v2 and want real people sharing the news. Retweet our pinned launch post from @AcmeLabsHQ with a quote tweet that includes your honest take on why you're excited about the product. Screenshots of engagement metrics are required as proof.\n\nYour tweet must:\n- Be a quote retweet (not a plain retweet)\n- Include at least 2 sentences of genuine commentary\n- Stay live for at least 7 days after posting",
+      "rewardType": "cash",
+      "rewardAmount": 15.00,
+      "categoryId": "cat-social",
+      "organizationId": "org-acme",
+      "proofRequirements": ["link", "image"],
+      "eligibilityText": "Must have a Twitter/X account with at least 100 followers. Account must be at least 6 months old.",
+      "startDate": "2026-02-25T00:00:00Z",
+      "endDate": "2026-04-01T00:00:00Z",
+      "maxSubmissions": 100,
+      "currentSubmissions": 47,
+      "createdAt": "2026-02-25T10:00:00Z"
+    },
+    {
+      "id": "bounty-002",
+      "title": "Write a 500-Word Blog Review of Our SaaS Platform",
+      "shortDescription": "Write and publish an honest review on your blog or Medium. Must include pros, cons, and a comparison.",
+      "fullDescription": "We want authentic, detailed reviews from real users. Write a blog post of at least 500 words reviewing AcmeLabs after using it for at least one week. Your review should cover:\n\n1. **Onboarding experience** — How easy was it to get started?\n2. **Core features** — What worked well? What didn't?\n3. **Comparison** — How does it stack up against one competitor you've used?\n4. **Verdict** — Would you recommend it, and to whom?\n\nPublish on your personal blog, Medium, or Dev.to. The post must remain live for at least 30 days.",
+      "rewardType": "cash",
+      "rewardAmount": 50.00,
+      "categoryId": "cat-content",
+      "organizationId": "org-acme",
+      "proofRequirements": ["link", "text"],
+      "eligibilityText": "Open to anyone with a blog that receives at least 100 monthly visitors. Self-hosted blogs, Medium, and Dev.to are all accepted.",
+      "startDate": "2026-03-02T00:00:00Z",
+      "endDate": "2026-04-15T00:00:00Z",
+      "maxSubmissions": 25,
+      "currentSubmissions": 8,
+      "createdAt": "2026-03-02T09:00:00Z"
+    },
+    {
+      "id": "bounty-003",
+      "title": "Complete Our Product-Market Fit Survey",
+      "shortDescription": "Take a 5-minute survey about your experience with project management tools. Screenshot the completion page.",
+      "fullDescription": "Help us understand how project management tools are used in the wild. This is a 5-minute Google Forms survey covering:\n\n- Your current PM tool stack\n- Pain points with existing solutions\n- Feature priorities for your next tool\n- Team size and workflow preferences\n\nScreenshot the completion confirmation page as proof.",
+      "rewardType": "cash",
+      "rewardAmount": 10.00,
+      "categoryId": "cat-survey",
+      "organizationId": "org-acme",
+      "proofRequirements": ["image"],
+      "eligibilityText": "Anyone who currently uses a project management tool professionally.",
+      "startDate": "2026-03-01T00:00:00Z",
+      "endDate": null,
+      "maxSubmissions": null,
+      "currentSubmissions": 134,
+      "createdAt": "2026-03-01T12:00:00Z"
+    },
+    {
+      "id": "bounty-004",
+      "title": "Design 3 Instagram Story Templates for Our Brand",
+      "shortDescription": "Create three on-brand Story templates in Figma using our brand colors and guidelines.",
+      "fullDescription": "We need three Instagram Story templates for our ongoing social media campaigns. Each template should serve a different purpose:\n\n1. **Product Announcement** — For launching new features\n2. **Customer Testimonial** — For sharing quotes from happy users\n3. **Tips & Tricks** — For educational content with numbered lists\n\nBrand colors: #E91E63 (pink), #1E88E5 (blue), #FFFFFF (white)\nFont: Inter for body, Space Grotesk for headlines\n\nDeliver as a shared Figma file link. Include preview image exports.",
+      "rewardType": "cash",
+      "rewardAmount": 120.00,
+      "categoryId": "cat-design",
+      "organizationId": "org-bloom",
+      "proofRequirements": ["link", "image"],
+      "eligibilityText": "Must have a Figma portfolio with at least 3 completed design projects.",
+      "startDate": "2026-02-18T00:00:00Z",
+      "endDate": "2026-03-20T00:00:00Z",
+      "maxSubmissions": 10,
+      "currentSubmissions": 10,
+      "createdAt": "2026-02-18T08:00:00Z"
+    },
+    {
+      "id": "bounty-005",
+      "title": "Refer 5 Qualified Leads to Our Sales Team",
+      "shortDescription": "Introduce us to 5 companies that could benefit from our platform. Warm intros via email required.",
+      "fullDescription": "Help us grow by connecting us with companies that need a better project management solution. We're looking for warm introductions (not cold lists) to decision-makers at companies with 50+ employees.\n\nFor each referral, provide:\n- Company name and size\n- Contact name, title, and email\n- A brief note on why they'd be a good fit\n- Screenshot of your introduction email\n\nAll 5 referrals must be submitted together in one submission.",
+      "rewardType": "cash",
+      "rewardAmount": 200.00,
+      "categoryId": "cat-referral",
+      "organizationId": "org-acme",
+      "proofRequirements": ["text", "image"],
+      "eligibilityText": "Open to anyone with a professional network in the tech or SaaS space. Referrals must be unique — no duplicates with other participants.",
+      "startDate": "2026-02-28T00:00:00Z",
+      "endDate": "2026-05-01T00:00:00Z",
+      "maxSubmissions": 50,
+      "currentSubmissions": 3,
+      "createdAt": "2026-02-28T14:00:00Z"
+    },
+    {
+      "id": "bounty-006",
+      "title": "Record a 2-Minute Video Testimonial",
+      "shortDescription": "Share your experience with NovaTech in a short video testimonial. Authentic, unscripted preferred.",
+      "fullDescription": "We'd love to hear your story! Record a 2-minute (max) video testimonial about your experience using NovaTech's analytics platform. Keep it authentic and unscripted — we want your real thoughts.\n\nGuidelines:\n- 1–2 minutes long\n- Good lighting and clear audio\n- Mention at least one specific feature you love\n- Upload to YouTube (unlisted is fine) or Google Drive\n- Horizontal orientation preferred",
+      "rewardType": "cash",
+      "rewardAmount": 40.00,
+      "categoryId": "cat-content",
+      "organizationId": "org-nova",
+      "proofRequirements": ["link"],
+      "eligibilityText": "Must be a current or past NovaTech user with at least 30 days of usage.",
+      "startDate": "2026-03-06T00:00:00Z",
+      "endDate": "2026-03-31T00:00:00Z",
+      "maxSubmissions": 20,
+      "currentSubmissions": 0,
+      "createdAt": "2026-03-06T10:00:00Z"
+    },
+    {
+      "id": "bounty-007",
+      "title": "Beta Test Our Mobile App and Report Bugs",
+      "shortDescription": "Install our beta app, test core workflows, and report any bugs you find with screenshots.",
+      "fullDescription": "We're launching a mobile app and need real-world testing before going live. Install our TestFlight/Play Store beta build and test the following workflows:\n\n1. Sign up and onboarding\n2. Create a project and add 3 tasks\n3. Invite a team member\n4. Use the Kanban view to move tasks\n5. Export a report\n\nFor each bug found, document:\n- Steps to reproduce\n- Expected vs. actual behavior\n- Screenshot or screen recording\n- Device model and OS version\n\nMinimum 3 bugs to qualify. Submit all findings in one submission.",
+      "rewardType": "cash",
+      "rewardAmount": 75.00,
+      "categoryId": "cat-testing",
+      "organizationId": "org-pixel",
+      "proofRequirements": ["text", "image"],
+      "eligibilityText": "iOS 16+ or Android 13+ required. Must complete all 5 test workflows.",
+      "startDate": "2026-03-06T00:00:00Z",
+      "endDate": "2026-04-06T00:00:00Z",
+      "maxSubmissions": 15,
+      "currentSubmissions": 0,
+      "createdAt": "2026-03-06T11:00:00Z"
+    },
+    {
+      "id": "bounty-008",
+      "title": "Create a TikTok Explainer About Our Product",
+      "shortDescription": "Make a 30–60 second TikTok explaining what Bloom Studio does in a fun, engaging way.",
+      "fullDescription": "We want creative TikTok content that explains Bloom Studio's design collaboration platform to a non-technical audience. Your video should:\n\n- Be 30–60 seconds long\n- Use trending audio or your own voiceover\n- Clearly explain what Bloom Studio does and who it's for\n- Include our handle @bloomstudio in the caption\n- Stay live for at least 14 days\n\nBonus points for humor, storytelling, or creative editing. We're looking for authenticity over production value.",
+      "rewardType": "cash",
+      "rewardAmount": 30.00,
+      "categoryId": "cat-social",
+      "organizationId": "org-bloom",
+      "proofRequirements": ["link", "image"],
+      "eligibilityText": "Must have a TikTok account with at least 500 followers.",
+      "startDate": "2026-03-05T00:00:00Z",
+      "endDate": "2026-03-25T00:00:00Z",
+      "maxSubmissions": 30,
+      "currentSubmissions": 12,
+      "createdAt": "2026-03-05T09:00:00Z"
+    }
+  ],
+  "userSubmissions": [
+    {
+      "bountyId": "bounty-001",
+      "status": "approved",
+      "submittedAt": "2026-03-05T14:22:00Z"
+    },
+    {
+      "bountyId": "bounty-003",
+      "status": "submitted",
+      "submittedAt": "2026-03-06T22:10:00Z"
+    }
+  ]
+}

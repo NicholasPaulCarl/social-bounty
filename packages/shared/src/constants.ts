@@ -136,3 +136,14 @@ export const PAYOUT_METRICS_LIMITS = {
 } as const;
 
 export const VERIFICATION_DEADLINE_HOURS = 48;
+
+export const BOUNTY_CATEGORIES = [
+  { id: 'social-media', name: 'Social Media', slug: 'social-media' },
+  { id: 'content-creation', name: 'Content Creation', slug: 'content-creation' },
+  { id: 'reviews', name: 'Reviews', slug: 'reviews' },
+  { id: 'referrals', name: 'Referrals', slug: 'referrals' },
+  { id: 'surveys', name: 'Surveys', slug: 'surveys' },
+  { id: 'other', name: 'Other', slug: 'other' },
+] as const;
+
+export type CategoryInfo = (typeof BOUNTY_CATEGORIES)[number];

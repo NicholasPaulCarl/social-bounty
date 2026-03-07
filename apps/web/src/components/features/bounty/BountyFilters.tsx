@@ -30,6 +30,7 @@ const rewardTypeOptions = [
 const sortOptions = [
   { label: 'Newest', value: 'createdAt' },
   { label: 'Reward (High)', value: 'rewardValue' },
+  { label: 'Ending Soon', value: 'ending_soon' },
   { label: 'Title', value: 'title' },
 ];
 

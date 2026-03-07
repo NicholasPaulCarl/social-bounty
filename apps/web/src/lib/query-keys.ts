@@ -22,6 +22,8 @@ export const queryKeys = {
     forBounty: (bountyId: string, filters: SubmissionReviewListParams) =>
       [...queryKeys.submissions.all, 'forBounty', bountyId, filters] as const,
     detail: (id: string) => [...queryKeys.submissions.all, 'detail', id] as const,
+    reviewQueue: (filters: Record<string, unknown>) => [...queryKeys.submissions.all, 'reviewQueue', filters] as const,
+    myEarnings: () => [...queryKeys.submissions.all, 'myEarnings'] as const,
   },
   organisations: {
     all: ['organisations'] as const,

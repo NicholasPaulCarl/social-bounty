@@ -124,6 +124,13 @@ export function useOverrideBountyStatus(id: string) {
 }
 
 // Submissions (admin view)
+export function useAdminSubmissions(params: Record<string, unknown>) {
+  return useQuery({
+    queryKey: ['admin', 'submissions', params],
+    queryFn: () => adminApi.listSubmissions(params),
+  });
+}
+
 export function useAdminSubmissionDetail(id: string) {
   return useQuery({
     queryKey: queryKeys.submissions.detail(id),

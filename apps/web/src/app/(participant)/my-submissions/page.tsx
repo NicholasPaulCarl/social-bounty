@@ -6,7 +6,8 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Paginator } from 'primereact/paginator';
 import { Dropdown } from 'primereact/dropdown';
-import { useMySubmissions } from '@/hooks/useSubmissions';
+import { SelectButton } from 'primereact/selectbutton';
+import { useMySubmissions, useMyEarnings } from '@/hooks/useSubmissions';
 import { usePagination } from '@/hooks/usePagination';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -14,6 +15,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { formatDate } from '@/lib/utils/format';
+import { PayoutStatus } from '@social-bounty/shared';
 import type { MySubmissionListItem, SubmissionStatus } from '@social-bounty/shared';
 
 const statusOptions = [
@@ -25,22 +27,91 @@ const statusOptions = [
   { label: 'Rejected', value: 'REJECTED' },
 ];
 
+const payoutOptions = [
+  { label: 'All Payouts', value: '' },
+  { label: 'Not Paid', value: PayoutStatus.NOT_PAID },
+  { label: 'Pending', value: PayoutStatus.PENDING },
+  { label: 'Paid', value: PayoutStatus.PAID },
+];
+
+const sortOptions = [
+  { label: 'Newest', value: 'desc' },
+  { label: 'Oldest', value: 'asc' },
+];
+
 export default function MySubmissionsPage() {
   const router = useRouter();
   const { page, limit, first, onPageChange } = usePagination();
   const [statusFilter, setStatusFilter] = useState<SubmissionStatus | ''>('');
+  const [payoutFilter, setPayoutFilter] = useState<string>('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const { data, isLoading, error, refetch } = useMySubmissions({
     page,
     limit,
     status: statusFilter || undefined,
-  });
+    payoutStatus: payoutFilter || undefined,
+    sortOrder,
+  } as Parameters<typeof useMySubmissions>[0]);
+
+  const { data: earnings } = useMyEarnings();
 
   return (
     <>
       <PageHeader title="My Submissions" subtitle="Track your bounty submissions" />
 
-      <div className="flex gap-3 mb-4">
+      {/* Earnings Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
+              <i className="pi pi-send text-primary-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-heading font-bold text-neutral-900">{earnings?.totalSubmissions ?? 0}</p>
+              <p className="text-sm text-neutral-500">Total Submissions</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-success-100 flex items-center justify-center">
+              <i className="pi pi-check-circle text-success-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-heading font-bold text-neutral-900">{earnings?.approvedCount ?? 0}</p>
+              <p className="text-sm text-neutral-500">Approved</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
+              <i className="pi pi-wallet text-primary-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-heading font-bold text-neutral-900 font-mono">R{earnings?.totalEarned?.toFixed(2) ?? '0.00'}</p>
+              <p className="text-sm text-neutral-500">Total Earned</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-warning-100 flex items-center justify-center">
+              <i className="pi pi-clock text-warning-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-heading font-bold text-neutral-900 font-mono">R{earnings?.pendingPayout?.toFixed(2) ?? '0.00'}</p>
+              <p className="text-sm text-neutral-500">Pending Payout</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 mb-4">
         <Dropdown
           value={statusFilter}
           options={statusOptions}
@@ -48,6 +119,20 @@ export default function MySubmissionsPage() {
           placeholder="Filter by status"
           aria-label="Filter by status"
           className="w-48"
+        />
+        <Dropdown
+          value={payoutFilter}
+          options={payoutOptions}
+          onChange={(e) => setPayoutFilter(e.value)}
+          placeholder="Filter by payout"
+          aria-label="Filter by payout status"
+          className="w-44"
+        />
+        <SelectButton
+          value={sortOrder}
+          options={sortOptions}
+          onChange={(e) => { if (e.value) setSortOrder(e.value); }}
+          aria-label="Sort order"
         />
       </div>
 

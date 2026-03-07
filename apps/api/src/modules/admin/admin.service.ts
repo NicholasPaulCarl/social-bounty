@@ -383,6 +383,68 @@ export class AdminService {
     };
   }
 
+  // ── Submissions ──────────────────────
+
+  async listSubmissions(params: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    status?: SubmissionStatus;
+    payoutStatus?: string;
+    userId?: string;
+    organisationId?: string;
+    search?: string;
+  }) {
+    const page = params.page || PAGINATION_DEFAULTS.PAGE;
+    const limit = Math.min(params.limit || PAGINATION_DEFAULTS.LIMIT, PAGINATION_DEFAULTS.MAX_LIMIT);
+
+    const where: Prisma.SubmissionWhereInput = {};
+    if (params.status) where.status = params.status;
+    if (params.payoutStatus) where.payoutStatus = params.payoutStatus as any;
+    if (params.userId) where.userId = params.userId;
+    if (params.organisationId) {
+      where.bounty = { organisationId: params.organisationId };
+    }
+    if (params.search) {
+      where.OR = [
+        { bounty: { title: { contains: params.search, mode: 'insensitive' } } },
+        { user: { firstName: { contains: params.search, mode: 'insensitive' } } },
+        { user: { lastName: { contains: params.search, mode: 'insensitive' } } },
+        { user: { email: { contains: params.search, mode: 'insensitive' } } },
+      ];
+    }
+
+    const [submissions, total] = await Promise.all([
+      this.prisma.submission.findMany({
+        where,
+        include: {
+          bounty: { select: { id: true, title: true, organisationId: true } },
+          user: { select: { id: true, firstName: true, lastName: true, email: true } },
+          reviewedBy: { select: { id: true, firstName: true, lastName: true } },
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { [params.sortBy || 'createdAt']: params.sortOrder || 'desc' },
+      }),
+      this.prisma.submission.count({ where }),
+    ]);
+
+    return {
+      data: submissions.map((s) => ({
+        id: s.id,
+        bounty: s.bounty,
+        user: s.user,
+        status: s.status,
+        payoutStatus: s.payoutStatus,
+        reviewedBy: s.reviewedBy,
+        createdAt: s.createdAt.toISOString(),
+        updatedAt: s.updatedAt.toISOString(),
+      })),
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
   // ── Overrides ──────────────────────
 
   async overrideBounty(

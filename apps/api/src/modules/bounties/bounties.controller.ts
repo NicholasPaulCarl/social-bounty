@@ -114,6 +114,16 @@ export class BountiesController {
     return this.bountiesService.acknowledgeVisibility(id, user, req.ip);
   }
 
+  @Post(':id/duplicate')
+  @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  async duplicate(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Req() req: Request,
+  ) {
+    return this.bountiesService.duplicate(id, user, req.ip);
+  }
+
   @Delete(':id')
   @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
   async delete(

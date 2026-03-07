@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
@@ -28,9 +27,9 @@ const actionOptions = [
 ];
 
 export default function AdminAuditLogsPage() {
-  const router = useRouter();
   const { page, limit, first, onPageChange } = usePagination();
   const [filters, setFilters] = useState<AuditLogListParams>({ page, limit });
+  const [expandedRows, setExpandedRows] = useState<any>(null);
 
   const { data, isLoading, error, refetch } = useAuditLogs({ ...filters, page, limit });
 
@@ -41,15 +40,37 @@ export default function AdminAuditLogsPage() {
     <span>{formatDateTime(rowData.createdAt)}</span>
   );
 
-  const actionsTemplate = (rowData: AuditLogListItem) => (
-    <Button
-      icon="pi pi-eye"
-      rounded
-      text
-      severity="info"
-      onClick={() => router.push(`/admin/audit-logs/${rowData.id}`)}
-      tooltip="View Details"
-    />
+  const rowExpansionTemplate = (data: AuditLogListItem) => (
+    <div className="p-4 bg-neutral-50 space-y-3">
+      {data.reason && (
+        <div>
+          <span className="text-xs font-medium text-neutral-500 uppercase">Reason</span>
+          <p className="text-sm text-neutral-700 mt-1">{data.reason}</p>
+        </div>
+      )}
+      {data.beforeState && (
+        <div>
+          <span className="text-xs font-medium text-neutral-500 uppercase">Before</span>
+          <pre className="text-xs font-mono bg-white p-2 rounded border border-neutral-200 mt-1 overflow-auto">
+            {JSON.stringify(data.beforeState, null, 2)}
+          </pre>
+        </div>
+      )}
+      {data.afterState && (
+        <div>
+          <span className="text-xs font-medium text-neutral-500 uppercase">After</span>
+          <pre className="text-xs font-mono bg-white p-2 rounded border border-neutral-200 mt-1 overflow-auto">
+            {JSON.stringify(data.afterState, null, 2)}
+          </pre>
+        </div>
+      )}
+      {data.ipAddress && (
+        <p className="text-xs text-neutral-400">IP: <span className="font-mono">{data.ipAddress}</span></p>
+      )}
+      {!data.reason && !data.beforeState && !data.afterState && !data.ipAddress && (
+        <p className="text-sm text-neutral-400">No additional details available.</p>
+      )}
+    </div>
   );
 
   return (
@@ -83,13 +104,20 @@ export default function AdminAuditLogsPage() {
 
       {data && data.data.length > 0 ? (
         <>
-          <DataTable value={data.data} stripedRows>
+          <DataTable
+            value={data.data}
+            stripedRows
+            expandedRows={expandedRows}
+            onRowToggle={(e) => setExpandedRows(e.data)}
+            rowExpansionTemplate={rowExpansionTemplate}
+            dataKey="id"
+          >
+            <Column expander style={{ width: '3rem' }} />
             <Column field="action" header="Action" sortable />
             <Column field="entityType" header="Entity Type" />
             <Column field="entityId" header="Entity ID" style={{ maxWidth: '10rem' }} />
             <Column header="User" body={(rowData: AuditLogListItem) => rowData.actor?.email || rowData.actorId} />
             <Column header="Timestamp" body={dateTemplate} />
-            <Column header="" body={actionsTemplate} style={{ width: '4rem' }} />
           </DataTable>
           <Paginator
             first={first}

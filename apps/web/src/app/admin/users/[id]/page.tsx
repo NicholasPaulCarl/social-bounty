@@ -1,10 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
-import { useAdminUserDetail, useUpdateUserStatus, useForcePasswordReset } from '@/hooks/useAdmin';
+import { TabView, TabPanel } from 'primereact/tabview';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { useAdminUserDetail, useUpdateUserStatus, useForcePasswordReset, useAdminSubmissions, useAuditLogs } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
 import { UserStatus } from '@social-bounty/shared';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -13,11 +16,58 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate, formatDateTime } from '@/lib/utils/format';
+import type { AuditLogListItem } from '@social-bounty/shared';
+
+function UserSubmissionsTab({ userId }: { userId: string }) {
+  const router = useRouter();
+  const { data, isLoading } = useAdminSubmissions({ userId, limit: 20 });
+
+  if (isLoading) return <LoadingState type="table" />;
+
+  const submissions = data?.data ?? [];
+
+  if (submissions.length === 0) {
+    return <p className="text-sm text-neutral-400 p-4">No submissions found for this user.</p>;
+  }
+
+  return (
+    <DataTable value={submissions} stripedRows onRowClick={(e) => router.push(`/admin/submissions/${e.data.id}`)} className="cursor-pointer">
+      <Column header="ID" body={(row: any) => <span className="font-mono text-xs">{row.id?.slice(0, 8)}</span>} style={{ width: '8rem' }} />
+      <Column header="Bounty" body={(row: any) => row.bounty?.title || '-'} />
+      <Column header="Status" body={(row: any) => <StatusBadge type="submission" value={row.status} />} />
+      <Column header="Payout" body={(row: any) => <StatusBadge type="payout" value={row.payoutStatus} />} />
+      <Column header="Submitted" body={(row: any) => formatDateTime(row.createdAt)} />
+    </DataTable>
+  );
+}
+
+function UserAuditTab({ userId }: { userId: string }) {
+  const { data, isLoading } = useAuditLogs({ actorId: userId, limit: 20 });
+
+  if (isLoading) return <LoadingState type="table" />;
+
+  const logs: AuditLogListItem[] = data?.data ?? [];
+
+  if (logs.length === 0) {
+    return <p className="text-sm text-neutral-400 p-4">No audit activity found for this user.</p>;
+  }
+
+  return (
+    <DataTable value={logs} stripedRows>
+      <Column field="action" header="Action" />
+      <Column field="entityType" header="Entity Type" />
+      <Column header="Entity ID" body={(row: AuditLogListItem) => <span className="font-mono text-xs">{row.entityId?.slice(0, 8)}</span>} />
+      <Column header="Timestamp" body={(row: AuditLogListItem) => formatDateTime(row.createdAt)} />
+    </DataTable>
+  );
+}
 
 export default function AdminUserDetailPage() {
+  const router = useRouter();
   const params = useParams();
   const id = params.id as string;
   const toast = useToast();
+  const [activeTab, setActiveTab] = useState(0);
 
   const { data: user, isLoading, error, refetch } = useAdminUserDetail(id);
   const updateStatus = useUpdateUserStatus(id);
@@ -81,63 +131,79 @@ export default function AdminUserDetailPage() {
         }
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">User Information</h3>
-            <dl className="grid grid-cols-2 gap-4">
-              <div>
-                <dt className="text-sm text-neutral-500">Email</dt>
-                <dd className="text-sm font-medium text-neutral-900">{user.email}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-neutral-500">Name</dt>
-                <dd className="text-sm font-medium text-neutral-900">
-                  {`${user.firstName || '-'} ${user.lastName || ''}`.trim()}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-sm text-neutral-500">Role</dt>
-                <dd><StatusBadge type="role" value={user.role} /></dd>
-              </div>
-              <div>
-                <dt className="text-sm text-neutral-500">Status</dt>
-                <dd><StatusBadge type="user" value={user.status} /></dd>
-              </div>
-              <div>
-                <dt className="text-sm text-neutral-500">Email Verified</dt>
-                <dd className="text-sm font-medium text-neutral-900">{user.emailVerified ? 'Yes' : 'No'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-neutral-500">Created</dt>
-                <dd className="text-sm font-medium text-neutral-900">{formatDateTime(user.createdAt)}</dd>
-              </div>
-            </dl>
-          </Card>
-        </div>
+      <TabView activeIndex={activeTab} onTabChange={(e) => setActiveTab(e.index)}>
+        <TabPanel header="Overview">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+            <div className="lg:col-span-2">
+              <Card>
+                <h3 className="text-lg font-heading font-semibold text-neutral-900 mb-4">User Information</h3>
+                <dl className="grid grid-cols-2 gap-4">
+                  <div>
+                    <dt className="text-sm text-neutral-500">Email</dt>
+                    <dd className="text-sm font-medium text-neutral-900">{user.email}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-neutral-500">Name</dt>
+                    <dd className="text-sm font-medium text-neutral-900">
+                      {`${user.firstName || '-'} ${user.lastName || ''}`.trim()}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-neutral-500">Role</dt>
+                    <dd><StatusBadge type="role" value={user.role} /></dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-neutral-500">Status</dt>
+                    <dd><StatusBadge type="user" value={user.status} /></dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-neutral-500">Email Verified</dt>
+                    <dd className="text-sm font-medium text-neutral-900">{user.emailVerified ? 'Yes' : 'No'}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-neutral-500">Created</dt>
+                    <dd className="text-sm font-medium text-neutral-900">{formatDateTime(user.createdAt)}</dd>
+                  </div>
+                </dl>
+              </Card>
+            </div>
 
-        <div>
-          <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Activity</h3>
-            <dl className="space-y-3">
-              {user.organisation && (
-                <div>
-                  <dt className="text-sm text-neutral-500">Organisation</dt>
-                  <dd className="text-sm font-medium text-primary-600">{user.organisation.name}</dd>
-                </div>
-              )}
-              <div>
-                <dt className="text-sm text-neutral-500">Submissions</dt>
-                <dd className="text-sm font-medium text-neutral-900">{user.submissionCount ?? 0}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-neutral-500">Approved Submissions</dt>
-                <dd className="text-sm font-medium text-neutral-900">{user.approvedSubmissionCount ?? 0}</dd>
-              </div>
-            </dl>
-          </Card>
-        </div>
-      </div>
+            <div>
+              <Card>
+                <h3 className="text-lg font-heading font-semibold text-neutral-900 mb-4">Activity</h3>
+                <dl className="space-y-3">
+                  {user.organisation && (
+                    <div>
+                      <dt className="text-sm text-neutral-500">Organisation</dt>
+                      <dd className="text-sm font-medium text-primary-600">{user.organisation.name}</dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt className="text-sm text-neutral-500">Submissions</dt>
+                    <dd className="text-sm font-medium text-neutral-900">{user.submissionCount ?? 0}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-neutral-500">Approved Submissions</dt>
+                    <dd className="text-sm font-medium text-neutral-900">{user.approvedSubmissionCount ?? 0}</dd>
+                  </div>
+                </dl>
+              </Card>
+            </div>
+          </div>
+        </TabPanel>
+
+        <TabPanel header="Submissions">
+          <div className="mt-4">
+            <UserSubmissionsTab userId={id} />
+          </div>
+        </TabPanel>
+
+        <TabPanel header="Audit Activity">
+          <div className="mt-4">
+            <UserAuditTab userId={id} />
+          </div>
+        </TabPanel>
+      </TabView>
 
       <ConfirmAction
         visible={showSuspend}

@@ -1,0 +1,96 @@
+{
+  "_meta": {
+    "models": {
+      "DashboardStats": "Aggregated platform-wide counts for the dashboard overview: users, orgs, bounties, submissions, and payouts broken down by status.",
+      "AdminUser": "A platform user record as seen by the super admin, including role, status, org membership, and join date.",
+      "AdminOrganization": "An organisation record showing status, member count, bounty count, and contact information.",
+      "AdminBounty": "A bounty record visible to the super admin across all orgs, showing status and basic metadata.",
+      "AdminSubmission": "A submission record visible to the super admin across all bounties, with status override capability.",
+      "AuditLogEntry": "An immutable log record capturing every admin action with actor, timestamp, action type, entity, and before/after state.",
+      "HealthCheck": "A system health check result for a specific service (API, database, storage, etc.).",
+      "SystemError": "A recent system error entry from the error log feed."
+    },
+    "relationships": [
+      "AdminUser optionally belongs to an AdminOrganization",
+      "AdminOrganization has many AdminUser (members) and AdminBounty",
+      "AdminBounty has many AdminSubmission",
+      "AuditLogEntry references an actor (AdminUser) and a target entity"
+    ]
+  },
+  "dashboardStats": {
+    "users": { "total": 1284, "active": 1201, "suspended": 83 },
+    "organizations": { "total": 47, "active": 44, "inactive": 3 },
+    "bounties": { "draft": 12, "live": 31, "paused": 8, "closed": 64 },
+    "submissions": { "submitted": 89, "in_review": 34, "needs_more_info": 12, "approved": 412, "rejected": 67 },
+    "payouts": { "not_paid": 38, "pending": 15, "paid": 359 }
+  },
+  "users": [
+    { "id": "user-001", "name": "Jordan Rivera", "email": "jordan.r@email.com", "role": "participant", "status": "active", "organizationName": null, "joinedAt": "2025-11-02T00:00:00Z" },
+    { "id": "user-002", "name": "Samira Okafor", "email": "samira.o@email.com", "role": "participant", "status": "active", "organizationName": null, "joinedAt": "2025-12-15T00:00:00Z" },
+    { "id": "user-003", "name": "Alex Chen", "email": "alex.chen@email.com", "role": "participant", "status": "suspended", "organizationName": null, "joinedAt": "2026-01-08T00:00:00Z" },
+    { "id": "user-004", "name": "Priya Sharma", "email": "priya.s@email.com", "role": "participant", "status": "active", "organizationName": null, "joinedAt": "2026-01-20T00:00:00Z" },
+    { "id": "user-005", "name": "David Kim", "email": "david.k@acmelabs.io", "role": "business_admin", "status": "active", "organizationName": "AcmeLabs", "joinedAt": "2025-10-01T00:00:00Z" },
+    { "id": "user-006", "name": "Sarah Liu", "email": "sarah.l@bloomstudio.co", "role": "business_admin", "status": "active", "organizationName": "Bloom Studio", "joinedAt": "2025-10-15T00:00:00Z" },
+    { "id": "user-007", "name": "Marcus Webb", "email": "marcus.w@email.com", "role": "participant", "status": "active", "organizationName": null, "joinedAt": "2026-02-03T00:00:00Z" },
+    { "id": "user-008", "name": "Elena Vasquez", "email": "elena.v@email.com", "role": "participant", "status": "active", "organizationName": null, "joinedAt": "2025-10-18T00:00:00Z" },
+    { "id": "user-009", "name": "James Porter", "email": "james.p@novatech.co", "role": "business_admin", "status": "suspended", "organizationName": "NovaTech Group", "joinedAt": "2025-11-10T00:00:00Z" },
+    { "id": "user-010", "name": "Tomoko Hayashi", "email": "tomoko.h@email.com", "role": "participant", "status": "active", "organizationName": null, "joinedAt": "2026-02-14T00:00:00Z" }
+  ],
+  "organizations": [
+    { "id": "org-acme", "name": "AcmeLabs", "status": "active", "memberCount": 5, "bountyCount": 12, "contactEmail": "admin@acmelabs.io", "createdAt": "2025-10-01T00:00:00Z" },
+    { "id": "org-bloom", "name": "Bloom Studio", "status": "active", "memberCount": 3, "bountyCount": 6, "contactEmail": "hello@bloomstudio.co", "createdAt": "2025-10-15T00:00:00Z" },
+    { "id": "org-nova", "name": "NovaTech Group", "status": "suspended", "memberCount": 8, "bountyCount": 18, "contactEmail": "ops@novatech.co", "createdAt": "2025-11-01T00:00:00Z" },
+    { "id": "org-pixel", "name": "Pixel & Code Agency", "status": "active", "memberCount": 2, "bountyCount": 4, "contactEmail": "team@pixelcode.dev", "createdAt": "2026-01-05T00:00:00Z" },
+    { "id": "org-wave", "name": "WaveFront Analytics", "status": "active", "memberCount": 4, "bountyCount": 9, "contactEmail": "admin@wavefront.io", "createdAt": "2025-12-20T00:00:00Z" },
+    { "id": "org-draft", "name": "DraftHouse Media", "status": "inactive", "memberCount": 1, "bountyCount": 0, "contactEmail": "info@drafthouse.media", "createdAt": "2026-02-01T00:00:00Z" }
+  ],
+  "bounties": [
+    { "id": "bounty-001", "title": "Share Our Product Launch on Twitter/X", "organizationName": "AcmeLabs", "status": "live", "rewardAmount": 15.00, "submissionCount": 47, "createdAt": "2026-02-25T10:00:00Z" },
+    { "id": "bounty-002", "title": "Write a 500-Word Blog Review", "organizationName": "AcmeLabs", "status": "live", "rewardAmount": 50.00, "submissionCount": 8, "createdAt": "2026-03-02T09:00:00Z" },
+    { "id": "bounty-003", "title": "Product-Market Fit Survey", "organizationName": "AcmeLabs", "status": "live", "rewardAmount": 10.00, "submissionCount": 134, "createdAt": "2026-03-01T12:00:00Z" },
+    { "id": "bounty-004", "title": "Design Instagram Story Templates", "organizationName": "Bloom Studio", "status": "paused", "rewardAmount": 120.00, "submissionCount": 10, "createdAt": "2026-02-18T08:00:00Z" },
+    { "id": "bounty-005", "title": "Refer 5 Qualified Leads", "organizationName": "AcmeLabs", "status": "live", "rewardAmount": 200.00, "submissionCount": 3, "createdAt": "2026-02-28T14:00:00Z" },
+    { "id": "bounty-006", "title": "Record a Video Testimonial", "organizationName": "NovaTech Group", "status": "paused", "rewardAmount": 40.00, "submissionCount": 0, "createdAt": "2026-03-06T10:00:00Z" },
+    { "id": "bounty-007", "title": "Beta Test Mobile App", "organizationName": "Pixel & Code Agency", "status": "draft", "rewardAmount": 75.00, "submissionCount": 0, "createdAt": "2026-03-06T11:00:00Z" },
+    { "id": "bounty-008", "title": "Create TikTok Explainer", "organizationName": "Bloom Studio", "status": "live", "rewardAmount": 30.00, "submissionCount": 12, "createdAt": "2026-03-05T09:00:00Z" }
+  ],
+  "submissions": [
+    { "id": "sub-001", "bountyTitle": "Share Our Product Launch on Twitter/X", "participantName": "Jordan Rivera", "status": "approved", "submittedAt": "2026-03-02T11:30:00Z" },
+    { "id": "sub-002", "bountyTitle": "Share Our Product Launch on Twitter/X", "participantName": "Samira Okafor", "status": "submitted", "submittedAt": "2026-03-05T16:45:00Z" },
+    { "id": "sub-003", "bountyTitle": "Write a 500-Word Blog Review", "participantName": "Alex Chen", "status": "in_review", "submittedAt": "2026-03-04T09:10:00Z" },
+    { "id": "sub-004", "bountyTitle": "Share Our Product Launch on Twitter/X", "participantName": "Priya Sharma", "status": "needs_more_info", "submittedAt": "2026-03-03T20:15:00Z" },
+    { "id": "sub-005", "bountyTitle": "Share Our Product Launch on Twitter/X", "participantName": "Marcus Webb", "status": "approved", "submittedAt": "2026-03-02T11:30:00Z" },
+    { "id": "sub-006", "bountyTitle": "Write a 500-Word Blog Review", "participantName": "Elena Vasquez", "status": "approved", "submittedAt": "2026-03-01T08:00:00Z" },
+    { "id": "sub-007", "bountyTitle": "Share Our Product Launch on Twitter/X", "participantName": "Tomoko Hayashi", "status": "rejected", "submittedAt": "2026-03-02T19:00:00Z" },
+    { "id": "sub-008", "bountyTitle": "Design Instagram Story Templates", "participantName": "Elena Vasquez", "status": "approved", "submittedAt": "2026-02-28T15:30:00Z" }
+  ],
+  "auditLogs": [
+    { "id": "log-001", "timestamp": "2026-03-07T10:15:00Z", "actorName": "System Admin", "actorRole": "super_admin", "action": "user.suspended", "entityType": "User", "entityId": "user-003", "entityLabel": "Alex Chen", "beforeState": "active", "afterState": "suspended", "reason": "Multiple fraudulent submission attempts detected. Account suspended pending investigation." },
+    { "id": "log-002", "timestamp": "2026-03-07T09:30:00Z", "actorName": "System Admin", "actorRole": "super_admin", "action": "submission.status_override", "entityType": "Submission", "entityId": "sub-007", "entityLabel": "Tomoko Hayashi — Twitter/X Share", "beforeState": "in_review", "afterState": "rejected", "reason": "Plain retweet without comment. Does not meet bounty requirements." },
+    { "id": "log-003", "timestamp": "2026-03-06T16:00:00Z", "actorName": "System Admin", "actorRole": "super_admin", "action": "organization.suspended", "entityType": "Organization", "entityId": "org-nova", "entityLabel": "NovaTech Group", "beforeState": "active", "afterState": "suspended", "reason": "Non-payment of approved submission payouts. 12 overdue payouts totaling $480. Org suspended until payment verification." },
+    { "id": "log-004", "timestamp": "2026-03-06T14:00:00Z", "actorName": "System Admin", "actorRole": "super_admin", "action": "user.password_reset", "entityType": "User", "entityId": "user-009", "entityLabel": "James Porter", "beforeState": null, "afterState": null, "reason": "User reported compromised account. Password reset forced." },
+    { "id": "log-005", "timestamp": "2026-03-05T11:00:00Z", "actorName": "System Admin", "actorRole": "super_admin", "action": "user.reinstated", "entityType": "User", "entityId": "user-010", "entityLabel": "Tomoko Hayashi", "beforeState": "suspended", "afterState": "active", "reason": "Investigation complete. Suspension lifted — initial report was a false positive." },
+    { "id": "log-006", "timestamp": "2026-03-04T09:45:00Z", "actorName": "System Admin", "actorRole": "super_admin", "action": "submission.status_override", "entityType": "Submission", "entityId": "sub-005", "entityLabel": "Marcus Webb — Twitter/X Share", "beforeState": "in_review", "afterState": "approved", "reason": "Original reviewer missed engagement proof in second image. Overriding to approved." },
+    { "id": "log-007", "timestamp": "2026-03-03T15:30:00Z", "actorName": "System Admin", "actorRole": "super_admin", "action": "organization.reinstated", "entityType": "Organization", "entityId": "org-bloom", "entityLabel": "Bloom Studio", "beforeState": "suspended", "afterState": "active", "reason": "Payment verification complete. All outstanding payouts settled." },
+    { "id": "log-008", "timestamp": "2026-03-02T08:00:00Z", "actorName": "System Admin", "actorRole": "super_admin", "action": "system.kill_switch", "entityType": "System", "entityId": "system", "entityLabel": "New Signups", "beforeState": "enabled", "afterState": "disabled", "reason": "Temporary signup freeze during infrastructure migration. Expected duration: 2 hours." }
+  ],
+  "healthChecks": [
+    { "service": "API Server", "status": "healthy", "responseTime": 42, "lastChecked": "2026-03-07T12:00:00Z" },
+    { "service": "PostgreSQL Database", "status": "healthy", "responseTime": 8, "lastChecked": "2026-03-07T12:00:00Z" },
+    { "service": "Redis Cache", "status": "healthy", "responseTime": 2, "lastChecked": "2026-03-07T12:00:00Z" },
+    { "service": "File Storage (S3)", "status": "degraded", "responseTime": 890, "lastChecked": "2026-03-07T12:00:00Z" },
+    { "service": "Email Service", "status": "healthy", "responseTime": 156, "lastChecked": "2026-03-07T12:00:00Z" },
+    { "service": "Payment Gateway", "status": "healthy", "responseTime": 210, "lastChecked": "2026-03-07T12:00:00Z" }
+  ],
+  "systemErrors": [
+    { "id": "err-001", "timestamp": "2026-03-07T11:45:00Z", "level": "warning", "service": "File Storage (S3)", "message": "Elevated latency on file uploads. P95 response time: 890ms (threshold: 500ms). Monitoring.", "count": 23 },
+    { "id": "err-002", "timestamp": "2026-03-07T09:12:00Z", "level": "error", "service": "Payment Gateway", "message": "Timeout on payout batch processing. 3 payouts failed to process. Retrying in 5 minutes.", "count": 3 },
+    { "id": "err-003", "timestamp": "2026-03-06T22:30:00Z", "level": "error", "service": "Email Service", "message": "Bounce rate spike: 12% of submission confirmation emails bounced. Investigating sender reputation.", "count": 47 },
+    { "id": "err-004", "timestamp": "2026-03-06T14:15:00Z", "level": "info", "service": "API Server", "message": "Scheduled maintenance window completed. All services restored. Downtime: 4 minutes.", "count": 1 },
+    { "id": "err-005", "timestamp": "2026-03-05T08:00:00Z", "level": "warning", "service": "PostgreSQL Database", "message": "Slow query detected on submissions table join. Query time: 2.3s. Index recommended.", "count": 8 }
+  ],
+  "killSwitches": [
+    { "id": "ks-signups", "label": "New Signups", "description": "Disable new user registration", "enabled": true },
+    { "id": "ks-submissions", "label": "New Submissions", "description": "Disable new bounty submissions", "enabled": true }
+  ]
+}

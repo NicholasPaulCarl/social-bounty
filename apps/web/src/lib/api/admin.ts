@@ -75,6 +75,9 @@ export const adminApi = {
     apiClient.patch(`/admin/bounties/${id}/override`, data),
 
   // Submissions
+  listSubmissions: (params: Record<string, unknown>): Promise<PaginatedResponse<SubmissionDetailResponse>> =>
+    apiClient.get('/admin/submissions', params),
+
   getSubmissionById: (id: string): Promise<SubmissionDetailResponse> =>
     apiClient.get(`/submissions/${id}`),
 

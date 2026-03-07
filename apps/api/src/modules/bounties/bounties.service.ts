@@ -1036,9 +1036,20 @@ export class BountiesService {
 
     const beforeState = { status: bounty.status };
 
+    // Append to statusHistory
+    const existingHistory = (bounty as any).statusHistory as any[] || [];
+    const historyEntry = {
+      status: newStatus,
+      changedAt: new Date().toISOString(),
+      changedBy: user.sub,
+    };
+
     const updated = await this.prisma.bounty.update({
       where: { id },
-      data: { status: newStatus },
+      data: {
+        status: newStatus,
+        statusHistory: [...existingHistory, historyEntry] as any,
+      },
     });
 
     this.auditService.log({
@@ -1142,6 +1153,63 @@ export class BountiesService {
     });
 
     return { message: 'Bounty deleted.' };
+  }
+
+  // ── Duplicate ─────────────────────────────────────────
+
+  async duplicate(bountyId: string, user: AuthenticatedUser, ip?: string) {
+    const original = await this.prisma.bounty.findUnique({
+      where: { id: bountyId },
+    });
+    if (!original || original.deletedAt) {
+      throw new NotFoundException('Bounty not found');
+    }
+
+    // Verify user belongs to the same org (for BUSINESS_ADMIN)
+    if (user.role === UserRole.BUSINESS_ADMIN) {
+      if (original.organisationId !== user.organisationId) {
+        throw new ForbiddenException('Not authorized');
+      }
+    }
+
+    const newBounty = await this.prisma.bounty.create({
+      data: {
+        title: `Copy of ${original.title}`,
+        shortDescription: original.shortDescription,
+        fullInstructions: original.fullInstructions,
+        category: original.category,
+        rewardType: original.rewardType,
+        rewardValue: original.rewardValue,
+        rewardDescription: original.rewardDescription,
+        maxSubmissions: original.maxSubmissions,
+        eligibilityRules: original.eligibilityRules,
+        proofRequirements: original.proofRequirements,
+        currency: original.currency,
+        channels: original.channels as Prisma.InputJsonValue ?? undefined,
+        aiContentPermitted: original.aiContentPermitted,
+        engagementRequirements: original.engagementRequirements as Prisma.InputJsonValue ?? undefined,
+        postVisibilityRule: original.postVisibilityRule,
+        postMinDurationValue: original.postMinDurationValue,
+        postMinDurationUnit: original.postMinDurationUnit,
+        structuredEligibility: original.structuredEligibility as Prisma.InputJsonValue ?? undefined,
+        payoutMetrics: (original as any).payoutMetrics as Prisma.InputJsonValue ?? undefined,
+        organisationId: original.organisationId,
+        createdById: user.sub,
+        status: BountyStatus.DRAFT,
+      },
+    });
+
+    this.auditService.log({
+      actorId: user.sub,
+      actorRole: user.role as UserRole,
+      action: AUDIT_ACTIONS.BOUNTY_CREATE,
+      entityType: ENTITY_TYPES.BOUNTY,
+      entityId: newBounty.id,
+      afterState: { duplicatedFrom: bountyId },
+      ipAddress: ip,
+    });
+
+    return newBounty;
   }
 
   // ── Brand Assets ────────────────────────────────────────

@@ -1,0 +1,214 @@
+{
+  "_meta": {
+    "models": {
+      "Submission": "A participant's completed work for a specific bounty, including structured proof-of-completion. Submissions follow a review lifecycle: Submitted, In Review, Needs More Info, Approved, Rejected.",
+      "Participant": "A simplified user record representing the person who submitted work, shown in the review context.",
+      "BountySummary": "A lightweight bounty reference providing context for the reviewer without loading the full bounty record.",
+      "ProofItem": "An individual piece of evidence attached to a submission — text block, URL link, or uploaded image.",
+      "ReviewHistoryEntry": "A timestamped record of a review action (status change, note, or info request) on a submission.",
+      "Payout": "A financial record tracking payment status for an approved submission."
+    },
+    "relationships": [
+      "Submission belongs to a BountySummary (the bounty it was submitted for)",
+      "Submission belongs to a Participant (the user who submitted it)",
+      "Submission has many ProofItem records as evidence of completion",
+      "Submission has many ReviewHistoryEntry records forming its review timeline",
+      "Submission has one optional Payout (created when approved)"
+    ]
+  },
+  "participants": [
+    { "id": "user-p-01", "name": "Jordan Rivera", "email": "jordan.r@email.com", "avatarUrl": null, "joinedAt": "2025-11-02T00:00:00Z" },
+    { "id": "user-p-02", "name": "Samira Okafor", "email": "samira.o@email.com", "avatarUrl": null, "joinedAt": "2025-12-15T00:00:00Z" },
+    { "id": "user-p-03", "name": "Alex Chen", "email": "alex.chen@email.com", "avatarUrl": null, "joinedAt": "2026-01-08T00:00:00Z" },
+    { "id": "user-p-04", "name": "Priya Sharma", "email": "priya.s@email.com", "avatarUrl": null, "joinedAt": "2026-01-20T00:00:00Z" },
+    { "id": "user-p-05", "name": "Marcus Webb", "email": "marcus.w@email.com", "avatarUrl": null, "joinedAt": "2026-02-03T00:00:00Z" },
+    { "id": "user-p-06", "name": "Elena Vasquez", "email": "elena.v@email.com", "avatarUrl": null, "joinedAt": "2025-10-18T00:00:00Z" },
+    { "id": "user-p-07", "name": "Tomoko Hayashi", "email": "tomoko.h@email.com", "avatarUrl": null, "joinedAt": "2026-02-14T00:00:00Z" }
+  ],
+  "bounties": [
+    { "id": "bounty-001", "title": "Share Our Product Launch on Twitter/X", "rewardAmount": 15.00, "categoryName": "Social Media", "proofRequirements": ["image", "link"] },
+    { "id": "bounty-002", "title": "Write a 500-Word Blog Review of Our SaaS Platform", "rewardAmount": 50.00, "categoryName": "Content Writing", "proofRequirements": ["link", "text"] },
+    { "id": "bounty-004", "title": "Complete Our Product-Market Fit Survey", "rewardAmount": 10.00, "categoryName": "Survey & Feedback", "proofRequirements": ["image"] },
+    { "id": "bounty-005", "title": "Design 3 Instagram Story Templates for Our Brand", "rewardAmount": 120.00, "categoryName": "Design", "proofRequirements": ["link", "image"] },
+    { "id": "bounty-008", "title": "Refer 5 Qualified Leads to Our Sales Team", "rewardAmount": 200.00, "categoryName": "Survey & Feedback", "proofRequirements": ["text", "image"] }
+  ],
+  "submissions": [
+    {
+      "id": "sub-001",
+      "bountyId": "bounty-001",
+      "participantId": "user-p-01",
+      "status": "submitted",
+      "submittedAt": "2026-03-05T14:22:00Z",
+      "updatedAt": "2026-03-05T14:22:00Z",
+      "proof": [
+        { "type": "link", "value": "https://twitter.com/jordanr/status/1897654321098765432" },
+        { "type": "image", "url": "/proof/sub-001-screenshot.png", "alt": "Screenshot of retweet with 12 likes and 3 retweets", "filename": "retweet-screenshot.png" }
+      ],
+      "reviewHistory": [
+        { "status": "submitted", "changedAt": "2026-03-05T14:22:00Z", "changedBy": null, "note": null }
+      ],
+      "payout": null
+    },
+    {
+      "id": "sub-002",
+      "bountyId": "bounty-001",
+      "participantId": "user-p-02",
+      "status": "submitted",
+      "submittedAt": "2026-03-05T16:45:00Z",
+      "updatedAt": "2026-03-05T16:45:00Z",
+      "proof": [
+        { "type": "link", "value": "https://twitter.com/samiraokafor/status/1897654321098765999" },
+        { "type": "image", "url": "/proof/sub-002-screenshot.png", "alt": "Screenshot of retweet with 45 likes and 8 retweets", "filename": "launch-share-proof.png" }
+      ],
+      "reviewHistory": [
+        { "status": "submitted", "changedAt": "2026-03-05T16:45:00Z", "changedBy": null, "note": null }
+      ],
+      "payout": null
+    },
+    {
+      "id": "sub-003",
+      "bountyId": "bounty-002",
+      "participantId": "user-p-03",
+      "status": "in_review",
+      "submittedAt": "2026-03-04T09:10:00Z",
+      "updatedAt": "2026-03-06T11:30:00Z",
+      "proof": [
+        { "type": "link", "value": "https://medium.com/@alexchen/acmelabs-review-honest-take-after-30-days-abc123" },
+        { "type": "text", "value": "I used AcmeLabs for a month on our 12-person product team. The Kanban boards are solid — drag-and-drop feels snappy and the swimlane filtering saved us hours. The reporting dashboard needs work though; we couldn't get custom date ranges without exporting to CSV first. Overall a strong contender for mid-size teams who value simplicity over power-user features." }
+      ],
+      "reviewHistory": [
+        { "status": "submitted", "changedAt": "2026-03-04T09:10:00Z", "changedBy": null, "note": null },
+        { "status": "in_review", "changedAt": "2026-03-06T11:30:00Z", "changedBy": "user-admin-01", "note": null }
+      ],
+      "payout": null
+    },
+    {
+      "id": "sub-004",
+      "bountyId": "bounty-001",
+      "participantId": "user-p-04",
+      "status": "needs_more_info",
+      "submittedAt": "2026-03-03T20:15:00Z",
+      "updatedAt": "2026-03-06T09:00:00Z",
+      "proof": [
+        { "type": "link", "value": "https://twitter.com/priyasharma/status/1897654321098700001" },
+        { "type": "image", "url": "/proof/sub-004-screenshot.png", "alt": "Screenshot of tweet but engagement metrics are cropped out", "filename": "twitter-share.png" }
+      ],
+      "reviewHistory": [
+        { "status": "submitted", "changedAt": "2026-03-03T20:15:00Z", "changedBy": null, "note": null },
+        { "status": "in_review", "changedAt": "2026-03-04T10:00:00Z", "changedBy": "user-admin-01", "note": null },
+        { "status": "needs_more_info", "changedAt": "2026-03-06T09:00:00Z", "changedBy": "user-admin-01", "note": "Your screenshot doesn't show the engagement metrics (likes, retweets). Please resubmit with a full screenshot that includes the engagement numbers visible below your retweet." }
+      ],
+      "payout": null
+    },
+    {
+      "id": "sub-005",
+      "bountyId": "bounty-001",
+      "participantId": "user-p-05",
+      "status": "approved",
+      "submittedAt": "2026-03-02T11:30:00Z",
+      "updatedAt": "2026-03-04T15:20:00Z",
+      "proof": [
+        { "type": "link", "value": "https://twitter.com/marcuswebb/status/1897654321098700055" },
+        { "type": "image", "url": "/proof/sub-005-screenshot.png", "alt": "Screenshot of retweet with 89 likes and 22 retweets, account has 3.2K followers", "filename": "twitter-proof-full.png" }
+      ],
+      "reviewHistory": [
+        { "status": "submitted", "changedAt": "2026-03-02T11:30:00Z", "changedBy": null, "note": null },
+        { "status": "in_review", "changedAt": "2026-03-03T08:45:00Z", "changedBy": "user-admin-01", "note": null },
+        { "status": "approved", "changedAt": "2026-03-04T15:20:00Z", "changedBy": "user-admin-01", "note": "Great engagement numbers. Approved." }
+      ],
+      "payout": { "status": "paid", "amount": 15.00, "paidAt": "2026-03-05T10:00:00Z" }
+    },
+    {
+      "id": "sub-006",
+      "bountyId": "bounty-002",
+      "participantId": "user-p-06",
+      "status": "approved",
+      "submittedAt": "2026-03-01T08:00:00Z",
+      "updatedAt": "2026-03-03T14:10:00Z",
+      "proof": [
+        { "type": "link", "value": "https://elenavasquez.com/blog/acmelabs-project-management-review" },
+        { "type": "text", "value": "Published a 750-word review covering onboarding experience, team collaboration features, and the integrations ecosystem. Included comparison with two competitors I've used previously." }
+      ],
+      "reviewHistory": [
+        { "status": "submitted", "changedAt": "2026-03-01T08:00:00Z", "changedBy": null, "note": null },
+        { "status": "in_review", "changedAt": "2026-03-02T09:30:00Z", "changedBy": "user-admin-02", "note": null },
+        { "status": "approved", "changedAt": "2026-03-03T14:10:00Z", "changedBy": "user-admin-02", "note": "Thorough and well-written review. Excellent comparison section." }
+      ],
+      "payout": { "status": "not_paid", "amount": 50.00, "paidAt": null }
+    },
+    {
+      "id": "sub-007",
+      "bountyId": "bounty-001",
+      "participantId": "user-p-07",
+      "status": "rejected",
+      "submittedAt": "2026-03-02T19:00:00Z",
+      "updatedAt": "2026-03-04T16:00:00Z",
+      "proof": [
+        { "type": "link", "value": "https://twitter.com/tomokoh/status/1897654321098700077" },
+        { "type": "image", "url": "/proof/sub-007-screenshot.png", "alt": "Screenshot shows a plain retweet without any comment added", "filename": "retweet-no-comment.png" }
+      ],
+      "reviewHistory": [
+        { "status": "submitted", "changedAt": "2026-03-02T19:00:00Z", "changedBy": null, "note": null },
+        { "status": "in_review", "changedAt": "2026-03-03T10:00:00Z", "changedBy": "user-admin-01", "note": null },
+        { "status": "rejected", "changedAt": "2026-03-04T16:00:00Z", "changedBy": "user-admin-01", "note": "The bounty requires a retweet with a genuine comment about why you're excited. A plain retweet without any added text does not meet the requirements." }
+      ],
+      "payout": null
+    },
+    {
+      "id": "sub-008",
+      "bountyId": "bounty-005",
+      "participantId": "user-p-06",
+      "status": "approved",
+      "submittedAt": "2026-02-28T15:30:00Z",
+      "updatedAt": "2026-03-03T11:45:00Z",
+      "proof": [
+        { "type": "link", "value": "https://www.figma.com/file/abc123/acme-story-templates" },
+        { "type": "image", "url": "/proof/sub-008-template-1.png", "alt": "Instagram Story template for product announcements — pink gradient with logo placement", "filename": "template-announcement.png" },
+        { "type": "image", "url": "/proof/sub-008-template-2.png", "alt": "Instagram Story template for customer testimonials — clean white with quote marks", "filename": "template-testimonial.png" },
+        { "type": "image", "url": "/proof/sub-008-template-3.png", "alt": "Instagram Story template for tips — blue accent with numbered list layout", "filename": "template-tips.png" }
+      ],
+      "reviewHistory": [
+        { "status": "submitted", "changedAt": "2026-02-28T15:30:00Z", "changedBy": null, "note": null },
+        { "status": "in_review", "changedAt": "2026-03-01T09:00:00Z", "changedBy": "user-admin-01", "note": null },
+        { "status": "needs_more_info", "changedAt": "2026-03-01T09:20:00Z", "changedBy": "user-admin-01", "note": "The templates look great but we need them in our exact brand colors (#E91E63, #1E88E5, #FFFFFF). The pink in template 1 is close but not quite right. Can you update?" },
+        { "status": "submitted", "changedAt": "2026-03-02T10:00:00Z", "changedBy": null, "note": "Updated all templates with exact brand hex codes. Figma link is the same, version history shows changes." },
+        { "status": "in_review", "changedAt": "2026-03-03T11:00:00Z", "changedBy": "user-admin-01", "note": null },
+        { "status": "approved", "changedAt": "2026-03-03T11:45:00Z", "changedBy": "user-admin-01", "note": "Perfect. Colors match exactly now. Beautiful work." }
+      ],
+      "payout": { "status": "pending", "amount": 120.00, "paidAt": null }
+    },
+    {
+      "id": "sub-009",
+      "bountyId": "bounty-004",
+      "participantId": "user-p-03",
+      "status": "submitted",
+      "submittedAt": "2026-03-06T22:10:00Z",
+      "updatedAt": "2026-03-06T22:10:00Z",
+      "proof": [
+        { "type": "image", "url": "/proof/sub-009-survey-complete.png", "alt": "Screenshot of survey completion page showing 'Thank you for completing the Product-Market Fit survey'", "filename": "survey-completion.png" }
+      ],
+      "reviewHistory": [
+        { "status": "submitted", "changedAt": "2026-03-06T22:10:00Z", "changedBy": null, "note": null }
+      ],
+      "payout": null
+    },
+    {
+      "id": "sub-010",
+      "bountyId": "bounty-008",
+      "participantId": "user-p-02",
+      "status": "in_review",
+      "submittedAt": "2026-03-04T13:00:00Z",
+      "updatedAt": "2026-03-07T08:30:00Z",
+      "proof": [
+        { "type": "text", "value": "Referred the following 5 companies:\n1. Brightpath Solutions (CTO: Daniel Kim, daniel@brightpath.io) — 120 employees, currently using Monday.com\n2. NovaTech Group (VP Eng: Sarah Liu, sarah@novatech.co) — 85 employees, evaluating PM tools\n3. Streamline Digital (COO: James Porter, james@streamlinedigital.com) — 200 employees, unhappy with Asana\n4. CloudNine Analytics (Head of Product: Maria Santos, maria@cloudnine.io) — 65 employees, no PM tool yet\n5. Pixel & Code Agency (Founder: Tom Brennan, tom@pixelcode.dev) — 50 employees, outgrowing Trello" },
+        { "type": "image", "url": "/proof/sub-010-intro-1.png", "alt": "Email thread showing warm introduction to Brightpath Solutions CTO", "filename": "intro-brightpath.png" },
+        { "type": "image", "url": "/proof/sub-010-intro-2.png", "alt": "Email thread showing warm introduction to NovaTech VP of Engineering", "filename": "intro-novatech.png" }
+      ],
+      "reviewHistory": [
+        { "status": "submitted", "changedAt": "2026-03-04T13:00:00Z", "changedBy": null, "note": null },
+        { "status": "in_review", "changedAt": "2026-03-07T08:30:00Z", "changedBy": "user-admin-02", "note": null }
+      ],
+      "payout": null
+    }
+  ]
+}

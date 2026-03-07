@@ -14,6 +14,8 @@ import {
   UserRole,
   UserStatus,
   OrgStatus,
+  SubmissionStatus,
+  PayoutStatus,
 } from '@social-bounty/shared';
 import { AdminService } from './admin.service';
 import {
@@ -111,6 +113,25 @@ export class AdminController {
     return this.adminService.updateOrgStatus(
       id, actor, dto.status, dto.reason, req.ip,
     );
+  }
+
+  // ── Submissions ──────────────────────
+
+  @Get('submissions')
+  async listSubmissions(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query('status') status?: SubmissionStatus,
+    @Query('payoutStatus') payoutStatus?: PayoutStatus,
+    @Query('userId') userId?: string,
+    @Query('organisationId') organisationId?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.adminService.listSubmissions({
+      page, limit, sortBy, sortOrder, status, payoutStatus, userId, organisationId, search,
+    });
   }
 
   // ── Overrides ──────────────────────

@@ -16,6 +16,7 @@ export enum UserStatus {
 export enum OrgStatus {
   ACTIVE = 'ACTIVE',
   SUSPENDED = 'SUSPENDED',
+  INACTIVE = 'INACTIVE',
 }
 
 export enum OrgMemberRole {

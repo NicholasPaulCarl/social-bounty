@@ -47,7 +47,10 @@ export {
   BOUNTY_REWARD_LIMITS,
   PAYOUT_METRICS_LIMITS,
   VERIFICATION_DEADLINE_HOURS,
+  BOUNTY_CATEGORIES,
 } from './constants';
+
+export type { CategoryInfo } from './constants';
 
 // Auth DTOs
 export type {
@@ -93,6 +96,7 @@ export type {
   BountyCreatorInfo,
   BountyUserSubmissionInfo,
   BrandAssetInfo,
+  StatusHistoryEntry,
   ChannelSelection,
   RewardLineInput,
   RewardLineResponse,
@@ -112,6 +116,8 @@ export type {
 
 // Submission DTOs
 export type {
+  PayoutResponse,
+  ReviewHistoryEntry,
   ReportedMetricsInput,
   FileUploadInfo,
   SubmissionBountyInfo,
@@ -130,6 +136,9 @@ export type {
   ReviewSubmissionResponse,
   UpdatePayoutRequest,
   UpdatePayoutResponse,
+  ReviewQueueStats,
+  ReviewQueueResponse,
+  EarningsSummaryResponse,
 } from './dto/submission.dto';
 
 // Admin DTOs

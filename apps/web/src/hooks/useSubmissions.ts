@@ -79,3 +79,17 @@ export function useUpdatePayout(id: string) {
     },
   });
 }
+
+export function useReviewQueue(params: Record<string, unknown>) {
+  return useQuery({
+    queryKey: queryKeys.submissions.reviewQueue(params),
+    queryFn: () => submissionApi.getReviewQueue(params),
+  });
+}
+
+export function useMyEarnings() {
+  return useQuery({
+    queryKey: queryKeys.submissions.myEarnings(),
+    queryFn: () => submissionApi.getMyEarnings(),
+  });
+}
