@@ -93,26 +93,49 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
         <nav className="p-3 space-y-1 flex-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+            const hasChildren = item.children && item.children.length > 0;
+            const showChildren = hasChildren && isActive;
+
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                  ${
-                    isActive
-                      ? 'text-accent-cyan bg-accent-cyan/10'
-                      : 'text-text-muted hover:text-text-primary hover:bg-white/5'
-                  }`}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <i className={`${item.icon} text-base`} />
-                <span className="font-heading">{item.label}</span>
-                {item.badge != null && item.badge > 0 && (
-                  <span className="ml-auto bg-accent-cyan/20 text-accent-cyan text-xs rounded-full px-2 py-0.5 font-medium">
-                    {item.badge}
-                  </span>
+              <div key={item.href}>
+                <Link
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                    ${
+                      isActive
+                        ? 'text-accent-cyan bg-accent-cyan/10'
+                        : 'text-text-muted hover:text-text-primary hover:bg-white/5'
+                    }`}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <i className={`${item.icon} text-base`} />
+                  <span className="font-heading">{item.label}</span>
+                  {item.badge != null && item.badge > 0 && (
+                    <span className="ml-auto bg-accent-cyan/20 text-accent-cyan text-xs rounded-full px-2 py-0.5 font-medium">
+                      {item.badge}
+                    </span>
+                  )}
+                  {hasChildren && (
+                    <i className={`pi ${showChildren ? 'pi-chevron-down' : 'pi-chevron-right'} text-xs ml-auto text-text-muted`} />
+                  )}
+                </Link>
+
+                {/* Sub-navigation */}
+                {showChildren && (
+                  <div className="ml-4 mt-1 space-y-0.5 border-l border-glass-border pl-3">
+                    {item.children!.map((child) => (
+                      <a
+                        key={child.href}
+                        href={child.href}
+                        className="flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium text-text-muted hover:text-accent-cyan hover:bg-white/5 transition-colors"
+                      >
+                        <i className={`${child.icon} text-[6px]`} />
+                        <span>{child.label}</span>
+                      </a>
+                    ))}
+                  </div>
                 )}
-              </Link>
+              </div>
             );
           })}
         </nav>

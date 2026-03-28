@@ -5,6 +5,7 @@ export interface NavItem {
   icon: string;
   href: string;
   badge?: number;
+  children?: NavItem[];
 }
 
 const participantNav: NavItem[] = [
@@ -33,7 +34,19 @@ const adminNav: NavItem[] = [
   { label: 'Audit Logs', icon: 'pi pi-history', href: '/admin/audit-logs' },
   { label: 'System Health', icon: 'pi pi-server', href: '/admin/troubleshooting' },
   { label: 'Settings', icon: 'pi pi-cog', href: '/admin/settings' },
-  { label: 'Component Library', icon: 'pi pi-palette', href: '/admin/component-library' },
+  {
+    label: 'Component Library',
+    icon: 'pi pi-palette',
+    href: '/admin/component-library',
+    children: [
+      { label: 'Design Tokens', icon: 'pi pi-circle-fill', href: '/admin/component-library#design-tokens' },
+      { label: 'Atoms', icon: 'pi pi-circle-fill', href: '/admin/component-library#atoms' },
+      { label: 'Molecules', icon: 'pi pi-circle-fill', href: '/admin/component-library#molecules' },
+      { label: 'Organisms', icon: 'pi pi-circle-fill', href: '/admin/component-library#organisms' },
+      { label: 'Form Sections', icon: 'pi pi-circle-fill', href: '/admin/component-library#form-sections' },
+      { label: 'PrimeReact', icon: 'pi pi-circle-fill', href: '/admin/component-library#primereact' },
+    ],
+  },
   { label: 'Profile', icon: 'pi pi-user', href: '/admin/profile' },
 ];
 
