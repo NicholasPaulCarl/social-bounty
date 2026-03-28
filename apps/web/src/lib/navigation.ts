@@ -33,6 +33,7 @@ const adminNav: NavItem[] = [
   { label: 'Audit Logs', icon: 'pi pi-history', href: '/admin/audit-logs' },
   { label: 'System Health', icon: 'pi pi-server', href: '/admin/troubleshooting' },
   { label: 'Settings', icon: 'pi pi-cog', href: '/admin/settings' },
+  { label: 'Component Library', icon: 'pi pi-palette', href: '/admin/component-library' },
   { label: 'Profile', icon: 'pi pi-user', href: '/admin/profile' },
 ];
 
