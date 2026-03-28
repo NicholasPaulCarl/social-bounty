@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganisation } from '@/hooks/useOrganisation';
@@ -34,7 +33,7 @@ export default function BusinessOrganisationPage() {
   }
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader
         title="Organisation"
         actions={
@@ -47,46 +46,46 @@ export default function BusinessOrganisationPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card>
+          <div className="glass-card p-6">
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 {org.logo && (
-                  <img src={org.logo} alt={org.name} className="w-16 h-16 rounded-lg object-cover" />
+                  <img src={org.logo} alt={org.name} className="w-16 h-16 rounded-lg object-cover border border-glass-border" />
                 )}
                 <div>
-                  <h2 className="text-xl font-bold text-neutral-900">{org.name}</h2>
+                  <h2 className="text-xl font-bold text-text-primary">{org.name}</h2>
                   <StatusBadge type="organisation" value={org.status} />
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-neutral-500 mb-1">Contact Email</h3>
-                <p className="text-neutral-800">{org.contactEmail}</p>
+                <h3 className="text-sm font-medium text-text-muted mb-1">Contact Email</h3>
+                <p className="text-text-primary">{org.contactEmail}</p>
               </div>
             </div>
-          </Card>
+          </div>
         </div>
 
         <div>
-          <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Details</h3>
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-semibold text-text-primary mb-4">Details</h3>
             <dl className="space-y-3">
               <div>
-                <dt className="text-sm text-neutral-500">Status</dt>
+                <dt className="text-sm text-text-muted">Status</dt>
                 <dd><StatusBadge type="organisation" value={org.status} /></dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Created</dt>
-                <dd className="text-sm font-medium text-neutral-900">{formatDate(org.createdAt)}</dd>
+                <dt className="text-sm text-text-muted">Created</dt>
+                <dd className="text-sm font-medium text-text-primary">{formatDate(org.createdAt)}</dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Members</dt>
-                <dd className="text-sm font-medium text-neutral-900">{org.memberCount ?? '-'}</dd>
+                <dt className="text-sm text-text-muted">Members</dt>
+                <dd className="text-sm font-medium text-text-primary">{org.memberCount ?? '-'}</dd>
               </div>
             </dl>
-          </Card>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

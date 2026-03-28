@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
@@ -50,12 +49,12 @@ export default function AdminCreateOrganisationPage() {
     <>
       <PageHeader title="Create Organisation" breadcrumbs={breadcrumbs} />
 
-      <Card className="max-w-2xl">
+      <div className="glass-card p-6 max-w-2xl animate-fade-up">
         {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">
               Organisation Name *
             </label>
             <InputText
@@ -69,7 +68,7 @@ export default function AdminCreateOrganisationPage() {
           </div>
 
           <div>
-            <label htmlFor="contactEmail" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label htmlFor="contactEmail" className="block text-sm font-medium text-text-secondary mb-1">
               Contact Email *
             </label>
             <InputText
@@ -84,7 +83,7 @@ export default function AdminCreateOrganisationPage() {
           </div>
 
           <div>
-            <label htmlFor="ownerUserId" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label htmlFor="ownerUserId" className="block text-sm font-medium text-text-secondary mb-1">
               Owner User ID *
             </label>
             <InputText
@@ -95,7 +94,7 @@ export default function AdminCreateOrganisationPage() {
               placeholder="User UUID"
               required
             />
-            <p className="text-xs text-neutral-500 mt-1">
+            <p className="text-xs text-text-muted mt-1">
               The user ID of the person who will be assigned as organisation owner.
             </p>
           </div>
@@ -116,7 +115,7 @@ export default function AdminCreateOrganisationPage() {
             />
           </div>
         </form>
-      </Card>
+      </div>
     </>
   );
 }

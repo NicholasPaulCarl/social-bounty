@@ -4,8 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
-import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
 
@@ -36,33 +34,33 @@ export default function ForgotPasswordPage() {
 
   if (submitted) {
     return (
-      <Card>
+      <div className="glass-card p-8 animate-fade-up">
         <div className="text-center">
-          <i className="pi pi-envelope text-primary-500" style={{ fontSize: '3rem' }} />
-          <h2 className="text-xl font-semibold text-neutral-900 mt-4">Check your email</h2>
-          <p className="text-neutral-600 mt-2">
+          <i className="pi pi-envelope text-accent-cyan" style={{ fontSize: '3rem' }} />
+          <h2 className="text-2xl font-heading font-bold text-text-primary text-center mb-6 mt-4">Check your email</h2>
+          <p className="text-text-secondary text-sm mt-2">
             If an account exists with <strong>{email}</strong>, we have sent a password reset link.
           </p>
-          <Link href="/login" className="inline-block mt-6 text-primary-600 hover:text-primary-700 font-medium">
+          <Link href="/login" className="inline-block mt-6 text-accent-cyan hover:text-accent-cyan/80 font-medium">
             Back to Sign In
           </Link>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <h2 className="text-xl font-semibold text-neutral-900 text-center mb-2">Forgot Password</h2>
-      <p className="text-sm text-neutral-500 text-center mb-6">
+    <div className="glass-card p-8 animate-fade-up">
+      <h2 className="text-2xl font-heading font-bold text-text-primary text-center mb-6">Forgot Password</h2>
+      <p className="text-text-secondary text-sm text-center mb-6">
         Enter your email and we will send you a reset link.
       </p>
 
-      {error && <Message severity="error" text={error} className="w-full mb-4" />}
+      {error && <p className="text-accent-rose text-xs mt-1 mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="email" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
             Email
           </label>
           <InputText
@@ -85,11 +83,11 @@ export default function ForgotPasswordPage() {
         />
       </form>
 
-      <p className="text-sm text-neutral-500 text-center mt-6">
-        <Link href="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+      <p className="text-sm text-center mt-6">
+        <Link href="/login" className="text-accent-cyan hover:text-accent-cyan/80 font-medium">
           Back to Sign In
         </Link>
       </p>
-    </Card>
+    </div>
   );
 }

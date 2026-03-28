@@ -49,8 +49,8 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
               key={channel}
               className={`border rounded-lg p-4 cursor-pointer transition-colors ${
                 selected
-                  ? 'border-2 border-primary-500 bg-primary-50'
-                  : 'border-neutral-200 bg-white hover:border-primary-300'
+                  ? 'border-2 border-accent-cyan bg-accent-cyan/10'
+                  : 'border-glass-border bg-surface hover:border-accent-cyan'
               }`}
               onClick={() => toggleChannel(channel)}
             >
@@ -60,8 +60,8 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
                   onChange={() => toggleChannel(channel)}
                   onClick={(e) => e.stopPropagation()}
                 />
-                <i className={`pi ${icon} text-lg ${selected ? 'text-primary-600' : 'text-neutral-400'}`} />
-                <span className={`text-sm font-medium ${selected ? 'text-primary-700' : 'text-neutral-700'}`}>
+                <i className={`pi ${icon} text-lg ${selected ? 'text-accent-cyan' : 'text-text-muted'}`} />
+                <span className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>
                   {label}
                 </span>
               </div>
@@ -73,7 +73,7 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
                         checked={isFormatSelected(channel, fmt)}
                         onChange={() => toggleFormat(channel, fmt)}
                       />
-                      <label className="text-sm text-neutral-700">{FORMAT_LABELS[fmt]}</label>
+                      <label className="text-sm text-text-primary">{FORMAT_LABELS[fmt]}</label>
                     </div>
                   ))}
                 </div>
@@ -83,7 +83,7 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
         })}
       </div>
       {submitAttempted && errors.channels && (
-        <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+        <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
           <i className="pi pi-exclamation-circle text-xs" />
           {errors.channels}
         </small>

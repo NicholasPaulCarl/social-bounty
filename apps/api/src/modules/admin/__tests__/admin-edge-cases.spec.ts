@@ -91,15 +91,15 @@ describe('AdminService - Edge Cases', () => {
     mailService = { sendPasswordReset: jest.fn().mockResolvedValue(undefined) };
     authService = { storeResetToken: jest.fn() };
     settingsService = {
-      isSignupEnabled: jest.fn().mockReturnValue(true),
-      isSubmissionEnabled: jest.fn().mockReturnValue(true),
-      getSettings: jest.fn().mockReturnValue({
+      isSignupEnabled: jest.fn().mockResolvedValue(true),
+      isSubmissionEnabled: jest.fn().mockResolvedValue(true),
+      getSettings: jest.fn().mockResolvedValue({
         signupsEnabled: true,
         submissionsEnabled: true,
         updatedAt: new Date('2026-02-07T00:00:00Z'),
         updatedById: null,
       }),
-      updateSettings: jest.fn(),
+      updateSettings: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -195,24 +195,24 @@ describe('AdminService - Edge Cases', () => {
   // ── Settings Integration ──────────────────────────────────────
 
   describe('settings integration', () => {
-    it('isSignupEnabled should delegate to settingsService', () => {
-      settingsService.isSignupEnabled.mockReturnValue(false);
-      expect(service.isSignupEnabled()).toBe(false);
+    it('isSignupEnabled should delegate to settingsService', async () => {
+      settingsService.isSignupEnabled.mockResolvedValue(false);
+      expect(await service.isSignupEnabled()).toBe(false);
 
-      settingsService.isSignupEnabled.mockReturnValue(true);
-      expect(service.isSignupEnabled()).toBe(true);
+      settingsService.isSignupEnabled.mockResolvedValue(true);
+      expect(await service.isSignupEnabled()).toBe(true);
     });
 
-    it('isSubmissionEnabled should delegate to settingsService', () => {
-      settingsService.isSubmissionEnabled.mockReturnValue(false);
-      expect(service.isSubmissionEnabled()).toBe(false);
+    it('isSubmissionEnabled should delegate to settingsService', async () => {
+      settingsService.isSubmissionEnabled.mockResolvedValue(false);
+      expect(await service.isSubmissionEnabled()).toBe(false);
 
-      settingsService.isSubmissionEnabled.mockReturnValue(true);
-      expect(service.isSubmissionEnabled()).toBe(true);
+      settingsService.isSubmissionEnabled.mockResolvedValue(true);
+      expect(await service.isSubmissionEnabled()).toBe(true);
     });
 
     it('getSettings should return settings with updatedBy when updatedById exists', async () => {
-      settingsService.getSettings.mockReturnValue({
+      settingsService.getSettings.mockResolvedValue({
         signupsEnabled: false,
         submissionsEnabled: true,
         updatedAt: new Date('2026-02-07T12:00:00Z'),
@@ -231,7 +231,7 @@ describe('AdminService - Edge Cases', () => {
     });
 
     it('getSettings should return updatedBy as null when updatedById is null', async () => {
-      settingsService.getSettings.mockReturnValue({
+      settingsService.getSettings.mockResolvedValue({
         signupsEnabled: true,
         submissionsEnabled: true,
         updatedAt: new Date('2026-02-07T00:00:00Z'),
@@ -245,7 +245,7 @@ describe('AdminService - Edge Cases', () => {
     });
 
     it('getSettings should return updatedBy as null when updatedById user was deleted', async () => {
-      settingsService.getSettings.mockReturnValue({
+      settingsService.getSettings.mockResolvedValue({
         signupsEnabled: true,
         submissionsEnabled: true,
         updatedAt: new Date('2026-02-07T00:00:00Z'),
@@ -273,9 +273,9 @@ describe('AdminService - Edge Cases', () => {
       };
 
       settingsService.getSettings
-        .mockReturnValueOnce(beforeSettings)
-        .mockReturnValueOnce(afterSettings)
-        .mockReturnValueOnce(afterSettings);
+        .mockResolvedValueOnce(beforeSettings)
+        .mockResolvedValueOnce(afterSettings)
+        .mockResolvedValueOnce(afterSettings);
 
       prisma.user.findUnique.mockResolvedValue({
         id: 'sa-1',
@@ -321,9 +321,9 @@ describe('AdminService - Edge Cases', () => {
       };
 
       settingsService.getSettings
-        .mockReturnValueOnce(beforeSettings)
-        .mockReturnValueOnce(afterSettings)
-        .mockReturnValueOnce(afterSettings);
+        .mockResolvedValueOnce(beforeSettings)
+        .mockResolvedValueOnce(afterSettings)
+        .mockResolvedValueOnce(afterSettings);
 
       prisma.user.findUnique.mockResolvedValue({
         id: 'sa-1',

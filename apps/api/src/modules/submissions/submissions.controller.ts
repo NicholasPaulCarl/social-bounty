@@ -43,7 +43,7 @@ export class SubmissionsController {
     @Body() dto: CreateSubmissionDto,
     @Req() req: Request,
   ) {
-    if (!this.settingsService.isSubmissionEnabled()) {
+    if (!(await this.settingsService.isSubmissionEnabled())) {
       throw new BadRequestException('Submissions are currently disabled');
     }
     return this.submissionsService.create(bountyId, user, dto, req.ip);

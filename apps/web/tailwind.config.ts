@@ -1,18 +1,58 @@
 import type { Config } from 'tailwindcss';
 import defaultTheme from 'tailwindcss/defaultTheme';
+import plugin from 'tailwindcss/plugin';
 
 const config: Config = {
+  darkMode: ['class', '[data-theme="dark"]'],
   content: [
     './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    // Breakpoints (outside extend to define explicitly)
+    screens: {
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1536px',
+    },
+
     extend: {
-      fontFamily: {
-        heading: ['var(--font-heading)', ...defaultTheme.fontFamily.sans],
-        body: ['var(--font-body)', ...defaultTheme.fontFamily.sans],
-        mono: ['var(--font-mono)', ...defaultTheme.fontFamily.mono],
-      },
+      // ═══════════════════════════════════════════
+      // COLORS — NeoGlass Design System
+      // ═══════════════════════════════════════════
       colors: {
+        // --- Background layers ---
+        'bg-void': '#030712',
+        'bg-abyss': '#0a0f1e',
+        'bg-surface': '#111827',
+        'bg-elevated': '#1f2937',
+        'bg-hover': '#374151',
+
+        // --- Accent colors ---
+        'accent-cyan': '#06b6d4',
+        'accent-violet': '#8b5cf6',
+        'accent-amber': '#f59e0b',
+        'accent-emerald': '#10b981',
+        'accent-rose': '#f43f5e',
+        'accent-blue': '#3b82f6',
+
+        // --- Text ---
+        'text-primary': '#f1f5f9',
+        'text-secondary': '#94a3b8',
+        'text-muted': '#64748b',
+        'text-disabled': '#475569',
+
+        // --- Glass ---
+        glass: {
+          bg: 'rgba(255, 255, 255, 0.05)',
+          border: 'rgba(255, 255, 255, 0.10)',
+          hover: 'rgba(255, 255, 255, 0.08)',
+          active: 'rgba(255, 255, 255, 0.12)',
+          overlay: 'rgba(0, 0, 0, 0.60)',
+        },
+
+        // --- Legacy semantic colors (preserving for existing components) ---
         primary: {
           50: '#fdf2f8',
           100: '#fce7f3',
@@ -82,9 +122,212 @@ const config: Config = {
           900: '#0f172a',
         },
       },
+
+      // ═══════════════════════════════════════════
+      // TYPOGRAPHY
+      // ═══════════════════════════════════════════
+      fontFamily: {
+        heading: ['var(--font-heading)', ...defaultTheme.fontFamily.sans],
+        body: ['var(--font-body)', ...defaultTheme.fontFamily.sans],
+        mono: ['var(--font-mono)', ...defaultTheme.fontFamily.mono],
+      },
+
+      fontSize: {
+        xs: ['0.75rem', { lineHeight: '1rem' }],
+        sm: ['0.875rem', { lineHeight: '1.25rem' }],
+        base: ['1rem', { lineHeight: '1.5rem' }],
+        lg: ['1.125rem', { lineHeight: '1.75rem' }],
+        xl: ['1.25rem', { lineHeight: '1.75rem' }],
+        '2xl': ['1.5rem', { lineHeight: '2rem' }],
+        '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+        '5xl': ['3rem', { lineHeight: '3rem' }],
+        '6xl': ['3.75rem', { lineHeight: '3.75rem' }],
+      },
+
+      letterSpacing: {
+        tighter: '-0.03em',
+        tight: '-0.02em',
+        normal: '0em',
+        wide: '0.05em',
+        wider: '0.08em',
+      },
+
+      // ═══════════════════════════════════════════
+      // BORDER RADIUS
+      // ═══════════════════════════════════════════
+      borderRadius: {
+        sm: '4px',
+        DEFAULT: '8px',
+        md: '8px',
+        lg: '12px',
+        xl: '16px',
+        '2xl': '20px',
+        '3xl': '24px',
+      },
+
+      // ═══════════════════════════════════════════
+      // BACKDROP BLUR
+      // ═══════════════════════════════════════════
+      backdropBlur: {
+        xs: '4px',
+        sm: '8px',
+        DEFAULT: '12px',
+        md: '12px',
+        lg: '16px',
+        xl: '20px',
+        '2xl': '24px',
+      },
+
+      // ═══════════════════════════════════════════
+      // MAX WIDTH (Containers)
+      // ═══════════════════════════════════════════
+      maxWidth: {
+        'container-sm': '640px',
+        'container-md': '768px',
+        'container-lg': '1024px',
+        'container-xl': '1280px',
+        'container-2xl': '1536px',
+      },
+
+      // ═══════════════════════════════════════════
+      // BOX SHADOW — Elevation + Glow
+      // ═══════════════════════════════════════════
+      boxShadow: {
+        // Elevation levels
+        'level-0': 'none',
+        'level-1': '0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)',
+        'level-2': '0 4px 12px rgba(0, 0, 0, 0.4)',
+        'level-3': '0 8px 24px rgba(0, 0, 0, 0.5)',
+        'level-4': '0 16px 48px rgba(0, 0, 0, 0.6)',
+
+        // Glow effects
+        'glow-cyan': '0 0 20px rgba(6, 182, 212, 0.2)',
+        'glow-cyan-intense': '0 0 20px rgba(6, 182, 212, 0.3), 0 0 60px rgba(6, 182, 212, 0.1)',
+        'glow-violet': '0 0 20px rgba(139, 92, 246, 0.2)',
+        'glow-violet-intense': '0 0 20px rgba(139, 92, 246, 0.3), 0 0 60px rgba(139, 92, 246, 0.1)',
+        'glow-amber': '0 0 20px rgba(245, 158, 11, 0.2)',
+        'glow-emerald': '0 0 20px rgba(16, 185, 129, 0.2)',
+        'glow-rose': '0 0 20px rgba(244, 63, 94, 0.2)',
+        'glow-blue': '0 0 20px rgba(59, 130, 246, 0.2)',
+
+        // Focus ring glow
+        'ring-glow-cyan': '0 0 0 3px rgba(6, 182, 212, 0.15), 0 0 20px rgba(6, 182, 212, 0.1)',
+      },
+
+      // ═══════════════════════════════════════════
+      // ANIMATION
+      // ═══════════════════════════════════════════
+      animation: {
+        'fade-up': 'fade-up 300ms cubic-bezier(0, 0, 0.2, 1) forwards',
+        'fade-in': 'fade-in 200ms ease forwards',
+        'slide-in-right': 'slide-in-right 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'slide-in-left': 'slide-in-left 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'status-pulse': 'status-pulse 2s ease-in-out infinite',
+        shimmer: 'shimmer 1.5s ease-in-out infinite',
+        'mesh-drift': 'mesh-drift 20s ease-in-out infinite',
+        'shrink-width': 'shrink-width 5s linear forwards',
+      },
+
+      keyframes: {
+        'fade-up': {
+          from: { opacity: '0', transform: 'translateY(12px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'slide-in-right': {
+          from: { opacity: '0', transform: 'translateX(100%) scale(0.95)' },
+          to: { opacity: '1', transform: 'translateX(0) scale(1)' },
+        },
+        'slide-in-left': {
+          from: { opacity: '0', transform: 'translateX(-100%) scale(0.95)' },
+          to: { opacity: '1', transform: 'translateX(0) scale(1)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { opacity: '0.5' },
+          '50%': { opacity: '1' },
+        },
+        'status-pulse': {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(16, 185, 129, 0.4)' },
+          '50%': { boxShadow: '0 0 0 4px rgba(16, 185, 129, 0)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        'mesh-drift': {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+          '33%': { transform: 'translate(30px, -20px) scale(1.05)' },
+          '66%': { transform: 'translate(-20px, 30px) scale(0.95)' },
+        },
+        'shrink-width': {
+          from: { width: '100%' },
+          to: { width: '0%' },
+        },
+      },
+
+      // ═══════════════════════════════════════════
+      // TRANSITION
+      // ═══════════════════════════════════════════
+      transitionDuration: {
+        fast: '150ms',
+        normal: '250ms',
+        slow: '400ms',
+        dramatic: '600ms',
+      },
+
+      transitionTimingFunction: {
+        standard: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        decelerate: 'cubic-bezier(0, 0, 0.2, 1)',
+        accelerate: 'cubic-bezier(0.4, 0, 1, 1)',
+        spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      },
     },
   },
-  plugins: [],
+
+  plugins: [
+    // Custom plugin for NeoGlass utility classes
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        '.glass-card': {
+          background: 'rgba(255, 255, 255, 0.05)',
+          'backdrop-filter': 'blur(12px)',
+          '-webkit-backdrop-filter': 'blur(12px)',
+          border: '1px solid rgba(255, 255, 255, 0.10)',
+          'border-radius': '16px',
+        },
+        '.glass-panel': {
+          background: 'rgba(15, 23, 42, 0.80)',
+          'backdrop-filter': 'blur(20px)',
+          '-webkit-backdrop-filter': 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+        },
+        '.glass-input': {
+          background: 'rgba(255, 255, 255, 0.05)',
+          border: '1px solid rgba(255, 255, 255, 0.10)',
+          'border-radius': '8px',
+          color: '#f1f5f9',
+        },
+        '.glass-dropdown': {
+          background: 'rgba(15, 23, 42, 0.90)',
+          'backdrop-filter': 'blur(20px)',
+          '-webkit-backdrop-filter': 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.10)',
+          'border-radius': '12px',
+        },
+        '.skeleton': {
+          background:
+            'linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%)',
+          'background-size': '200% 100%',
+          'border-radius': '8px',
+        },
+      });
+    }),
+  ],
 };
 
 export default config;

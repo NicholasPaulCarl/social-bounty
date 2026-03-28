@@ -69,7 +69,7 @@ export default function CreateBountyPage() {
   ];
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader title="Create New Bounty" breadcrumbs={breadcrumbs} />
       <CreateBountyForm
         onSubmit={handleSubmit as (data: unknown) => void}
@@ -79,6 +79,6 @@ export default function CreateBountyPage() {
         formError={formError}
         onStagedFilesReady={handleStagedFilesReady}
       />
-    </>
+    </div>
   );
 }

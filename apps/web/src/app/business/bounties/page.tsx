@@ -98,7 +98,7 @@ export default function BusinessBountiesPage() {
   );
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader
         title="Bounties"
         subtitle="Manage your organisation's bounties"
@@ -111,21 +111,23 @@ export default function BusinessBountiesPage() {
         model={statusTabs.map((tab) => ({ label: tab.label }))}
         activeIndex={activeTabIndex}
         onTabChange={(e) => setActiveTabIndex(e.index)}
-        className="mb-4"
+        className="mb-6"
       />
 
       <BountyFilters filters={filters} onChange={setFilters} />
 
       {data && data.data.length > 0 ? (
         <>
-          <DataTable value={data.data} stripedRows>
-            <Column field="title" header="Title" sortable />
-            <Column header="Status" body={statusTemplate} />
-            <Column header="Reward" body={rewardTemplate} />
-            <Column field="submissionCount" header="Submissions" />
-            <Column header="Created" body={dateTemplate} />
-            <Column header="Actions" body={actionsTemplate} style={{ width: '12rem' }} />
-          </DataTable>
+          <div className="glass-card p-6">
+            <DataTable value={data.data} stripedRows>
+              <Column field="title" header="Title" sortable />
+              <Column header="Status" body={statusTemplate} />
+              <Column header="Reward" body={rewardTemplate} />
+              <Column field="submissionCount" header="Submissions" />
+              <Column header="Created" body={dateTemplate} />
+              <Column header="Actions" body={actionsTemplate} style={{ width: '12rem' }} />
+            </DataTable>
+          </div>
           <Paginator
             first={first}
             rows={limit}
@@ -154,6 +156,6 @@ export default function BusinessBountiesPage() {
         onConfirm={handleDelete}
         loading={deleteBounty.isPending}
       />
-    </>
+    </div>
   );
 }

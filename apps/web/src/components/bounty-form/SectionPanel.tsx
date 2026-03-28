@@ -17,18 +17,18 @@ export function SectionPanel({ number, title, icon, isComplete, hasError, helper
   const header = (
     <div className="flex items-center justify-between w-full">
       <div className="flex items-center gap-2">
-        <i className={`pi ${icon} text-primary-600 text-sm`} />
-        <span className="text-primary-600 font-bold">{number}.</span>
-        <span className="text-base font-semibold text-neutral-800">{title}</span>
+        <i className={`pi ${icon} text-accent-cyan text-sm`} />
+        <span className="text-accent-cyan font-heading font-bold">{number}.</span>
+        <span className="text-base font-heading font-semibold text-text-primary">{title}</span>
       </div>
-      {hasError && <i className="pi pi-exclamation-circle text-danger-500" />}
-      {isComplete && !hasError && <i className="pi pi-check-circle text-success-600" />}
+      {hasError && <i className="pi pi-exclamation-circle text-accent-rose" />}
+      {isComplete && !hasError && <i className="pi pi-check-circle text-accent-emerald" />}
     </div>
   );
 
   return (
-    <Panel header={header} className="shadow-sm">
-      {helperText && <p className="text-sm text-neutral-500 mb-5">{helperText}</p>}
+    <Panel header={header} className="glass-card !border-glass-border">
+      {helperText && <p className="text-sm text-text-secondary mb-5">{helperText}</p>}
       <div className="space-y-5">{children}</div>
     </Panel>
   );

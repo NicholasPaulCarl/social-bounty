@@ -3,7 +3,8 @@ import { BadRequestException, NotFoundException, ForbiddenException } from '@nes
 import { ConfigService } from '@nestjs/config';
 import { PaymentsService } from './payments.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserRole, BountyStatus } from '@social-bounty/shared';
+import { AuditService } from '../audit/audit.service';
+import { UserRole, BountyStatus, PaymentStatus } from '@social-bounty/shared';
 import type { AuthenticatedUser } from '../auth/jwt.strategy';
 
 // Mock Stripe module
@@ -40,6 +41,7 @@ const mockSA: AuthenticatedUser = {
 describe('PaymentsService', () => {
   let service: PaymentsService;
   let prisma: any;
+  let auditService: any;
   let stripeInstance: any;
 
   beforeEach(async () => {
@@ -51,10 +53,15 @@ describe('PaymentsService', () => {
       },
     };
 
+    auditService = {
+      log: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PaymentsService,
         { provide: PrismaService, useValue: prisma },
+        { provide: AuditService, useValue: auditService },
         {
           provide: ConfigService,
           useValue: {
@@ -109,6 +116,36 @@ describe('PaymentsService', () => {
           amount: 7500,
           currency: 'zar',
         }),
+        expect.objectContaining({
+          idempotencyKey: 'pi_bounty_bounty-1',
+        }),
+      );
+    });
+
+    it('should pass idempotency key based on bountyId', async () => {
+      const bounty = {
+        id: 'bounty-xyz',
+        organisationId: 'org-1',
+        status: BountyStatus.DRAFT,
+        paymentStatus: 'UNPAID',
+        currency: 'USD',
+        deletedAt: null,
+        rewardValue: { toString: () => '50.00' },
+        rewards: [],
+      };
+      prisma.bounty.findUnique.mockResolvedValue(bounty);
+      prisma.bounty.update.mockResolvedValue(bounty);
+
+      stripeInstance._mockPaymentIntentsCreate.mockResolvedValue({
+        id: 'pi_test_789',
+        client_secret: 'pi_test_789_secret',
+      });
+
+      await service.createPaymentIntent('bounty-xyz', mockBA);
+
+      expect(stripeInstance._mockPaymentIntentsCreate).toHaveBeenCalledWith(
+        expect.any(Object),
+        { idempotencyKey: 'pi_bounty_bounty-xyz' },
       );
     });
 
@@ -219,16 +256,23 @@ describe('PaymentsService', () => {
   });
 
   describe('handleWebhook', () => {
-    it('should handle payment_intent.succeeded', async () => {
+    it('should handle payment_intent.succeeded and transition DRAFT to LIVE', async () => {
       const event = {
+        id: 'evt_test_1',
         type: 'payment_intent.succeeded',
         data: {
           object: {
+            id: 'pi_test_123',
             metadata: { bountyId: 'bounty-1' },
           },
         },
       };
       stripeInstance._mockWebhooksConstructEvent.mockReturnValue(event);
+      prisma.bounty.findUnique.mockResolvedValue({
+        id: 'bounty-1',
+        status: BountyStatus.DRAFT,
+        paymentStatus: PaymentStatus.PENDING,
+      });
       prisma.bounty.updateMany.mockResolvedValue({ count: 1 });
 
       const result = await service.handleWebhook(Buffer.from('body'), 'sig_test');
@@ -236,20 +280,100 @@ describe('PaymentsService', () => {
       expect(result).toEqual({ received: true });
       expect(prisma.bounty.updateMany).toHaveBeenCalledWith({
         where: { id: 'bounty-1' },
-        data: { paymentStatus: 'PAID' },
+        data: {
+          paymentStatus: PaymentStatus.PAID,
+          status: BountyStatus.LIVE,
+        },
       });
+    });
+
+    it('should handle payment_intent.succeeded without status change for non-DRAFT bounty', async () => {
+      const event = {
+        id: 'evt_test_2',
+        type: 'payment_intent.succeeded',
+        data: {
+          object: {
+            id: 'pi_test_456',
+            metadata: { bountyId: 'bounty-2' },
+          },
+        },
+      };
+      stripeInstance._mockWebhooksConstructEvent.mockReturnValue(event);
+      prisma.bounty.findUnique.mockResolvedValue({
+        id: 'bounty-2',
+        status: BountyStatus.LIVE,
+        paymentStatus: PaymentStatus.PENDING,
+      });
+      prisma.bounty.updateMany.mockResolvedValue({ count: 1 });
+
+      const result = await service.handleWebhook(Buffer.from('body'), 'sig_test');
+
+      expect(result).toEqual({ received: true });
+      expect(prisma.bounty.updateMany).toHaveBeenCalledWith({
+        where: { id: 'bounty-2' },
+        data: {
+          paymentStatus: PaymentStatus.PAID,
+        },
+      });
+    });
+
+    it('should write audit log on payment success', async () => {
+      const event = {
+        id: 'evt_test_audit',
+        type: 'payment_intent.succeeded',
+        data: {
+          object: {
+            id: 'pi_test_audit',
+            metadata: { bountyId: 'bounty-audit' },
+          },
+        },
+      };
+      stripeInstance._mockWebhooksConstructEvent.mockReturnValue(event);
+      prisma.bounty.findUnique.mockResolvedValue({
+        id: 'bounty-audit',
+        status: BountyStatus.DRAFT,
+        paymentStatus: PaymentStatus.PENDING,
+      });
+      prisma.bounty.updateMany.mockResolvedValue({ count: 1 });
+
+      await service.handleWebhook(Buffer.from('body'), 'sig_test');
+
+      expect(auditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
+          actorId: 'stripe-webhook',
+          action: 'PAYMENT_SUCCEEDED',
+          entityType: 'Bounty',
+          entityId: 'bounty-audit',
+          beforeState: expect.objectContaining({
+            paymentStatus: PaymentStatus.PENDING,
+            status: BountyStatus.DRAFT,
+          }),
+          afterState: expect.objectContaining({
+            paymentStatus: PaymentStatus.PAID,
+            status: BountyStatus.LIVE,
+          }),
+        }),
+      );
     });
 
     it('should handle payment_intent.payment_failed', async () => {
       const event = {
+        id: 'evt_test_3',
         type: 'payment_intent.payment_failed',
         data: {
           object: {
+            id: 'pi_test_789',
             metadata: { bountyId: 'bounty-1' },
+            last_payment_error: { message: 'Card declined' },
           },
         },
       };
       stripeInstance._mockWebhooksConstructEvent.mockReturnValue(event);
+      prisma.bounty.findUnique.mockResolvedValue({
+        id: 'bounty-1',
+        status: BountyStatus.DRAFT,
+        paymentStatus: PaymentStatus.PENDING,
+      });
       prisma.bounty.updateMany.mockResolvedValue({ count: 1 });
 
       const result = await service.handleWebhook(Buffer.from('body'), 'sig_test');
@@ -257,8 +381,39 @@ describe('PaymentsService', () => {
       expect(result).toEqual({ received: true });
       expect(prisma.bounty.updateMany).toHaveBeenCalledWith({
         where: { id: 'bounty-1' },
-        data: { paymentStatus: 'UNPAID' },
+        data: { paymentStatus: PaymentStatus.UNPAID },
       });
+    });
+
+    it('should write audit log on payment failure with reason', async () => {
+      const event = {
+        id: 'evt_test_fail_audit',
+        type: 'payment_intent.payment_failed',
+        data: {
+          object: {
+            id: 'pi_test_fail_audit',
+            metadata: { bountyId: 'bounty-fail' },
+            last_payment_error: { message: 'Insufficient funds' },
+          },
+        },
+      };
+      stripeInstance._mockWebhooksConstructEvent.mockReturnValue(event);
+      prisma.bounty.findUnique.mockResolvedValue({
+        id: 'bounty-fail',
+        status: BountyStatus.DRAFT,
+        paymentStatus: PaymentStatus.PENDING,
+      });
+      prisma.bounty.updateMany.mockResolvedValue({ count: 1 });
+
+      await service.handleWebhook(Buffer.from('body'), 'sig_test');
+
+      expect(auditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'PAYMENT_FAILED',
+          entityId: 'bounty-fail',
+          reason: 'Insufficient funds',
+        }),
+      );
     });
 
     it('should throw BadRequestException for invalid signature', async () => {

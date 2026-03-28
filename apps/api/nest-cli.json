@@ -4,6 +4,12 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": false,
-    "builder": "tsc"
+    "builder": "tsc",
+    "assets": [
+      {
+        "include": "modules/mail/templates/**/*.hbs",
+        "watchAssets": true
+      }
+    ]
   }
 }

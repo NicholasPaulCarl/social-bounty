@@ -6,7 +6,6 @@ import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { useAuth } from '@/hooks/useAuth';
 import { ApiError } from '@/lib/api/client';
 
@@ -62,14 +61,27 @@ export default function LoginPage() {
   };
 
   return (
-    <Card>
-      <h2 className="text-xl font-semibold text-neutral-900 text-center mb-6">Sign In</h2>
+    <div className="glass-card p-8 shadow-level-3 animate-fade-up">
+      {/* ── Heading ── */}
+      <h2 className="text-xl font-heading font-semibold text-text-primary text-center mb-6">
+        Sign In
+      </h2>
 
-      {error && <Message severity="error" text={error} className="w-full mb-4" />}
+      {/* ── Error message ── */}
+      {error && (
+        <div className="mb-4 rounded-lg border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 text-sm text-accent-rose">
+          <i className="pi pi-exclamation-circle mr-2" />
+          {error}
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* ── Login form ── */}
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-text-secondary mb-1.5"
+          >
             Email
           </label>
           <InputText
@@ -78,13 +90,16 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full"
+            className="w-full glass-input !bg-glass-bg !border-glass-border !text-text-primary placeholder:!text-text-muted focus:!border-accent-cyan focus:!shadow-ring-glow-cyan"
             placeholder="you@example.com"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-text-secondary mb-1.5"
+          >
             Password
           </label>
           <Password
@@ -94,60 +109,86 @@ export default function LoginPage() {
             required
             feedback={false}
             toggleMask
-            className="w-full"
+            className="w-full [&_.p-password-input]:glass-input [&_.p-password-input]:!bg-glass-bg [&_.p-password-input]:!border-glass-border [&_.p-password-input]:!text-text-primary [&_.p-password-input]:placeholder:!text-text-muted [&_.p-password-input]:focus:!border-accent-cyan [&_.p-password-input]:focus:!shadow-ring-glow-cyan"
             inputClassName="w-full"
           />
         </div>
 
-        <Button
+        {/* ── Primary CTA ── */}
+        <button
           type="submit"
-          label="Sign In"
-          icon="pi pi-sign-in"
-          loading={loading}
-          className="w-full"
-        />
+          disabled={loading}
+          className="group relative w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white
+                     bg-gradient-to-r from-accent-cyan to-accent-blue
+                     shadow-glow-cyan hover:shadow-glow-cyan-intense
+                     transition-all duration-normal
+                     disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <i className="pi pi-spinner pi-spin" />
+          ) : (
+            <i className="pi pi-sign-in" />
+          )}
+          Sign In
+        </button>
       </form>
 
+      {/* ── Links ── */}
       <div className="mt-6 text-center space-y-2">
-        <Link href="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700">
+        <Link
+          href="/forgot-password"
+          className="text-sm text-accent-cyan hover:text-accent-cyan/80 transition-colors duration-fast"
+        >
           Forgot your password?
         </Link>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-text-muted">
           {"Don't have an account? "}
-          <Link href="/signup" className="text-primary-600 hover:text-primary-700 font-medium">
+          <Link
+            href="/signup"
+            className="text-accent-cyan hover:text-accent-cyan/80 font-medium transition-colors duration-fast"
+          >
             Sign Up
           </Link>
         </p>
       </div>
 
+      {/* ── Demo accounts ── */}
       {isDemoMode && (
-        <div className="mt-6">
-          <div className="relative flex items-center justify-center mb-4">
+        <div className="mt-8">
+          {/* Divider */}
+          <div className="relative flex items-center justify-center mb-5">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-neutral-300" />
+              <div className="w-full border-t border-glass-border" />
             </div>
-            <span className="relative bg-white px-3 text-sm text-neutral-500">
+            <span className="relative bg-bg-surface/80 px-3 text-xs uppercase tracking-wider text-text-muted">
               Or sign in as a demo user
             </span>
           </div>
-          <div className="space-y-2">
+
+          <div className="space-y-2.5">
             {DEMO_ACCOUNTS.map((account) => (
-              <Button
+              <button
                 key={account.email}
                 type="button"
-                label={account.label}
-                icon={account.icon}
-                severity={account.severity}
-                outlined
-                loading={demoLoading === account.email}
                 disabled={loading || (demoLoading !== null && demoLoading !== account.email)}
                 onClick={() => handleDemoLogin(account.email)}
-                className="w-full"
-              />
+                className="group w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium
+                           border border-glass-border bg-glass-bg text-text-secondary
+                           hover:bg-glass-hover hover:text-text-primary hover:border-accent-cyan/40 hover:shadow-glow-cyan
+                           transition-all duration-normal
+                           disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {demoLoading === account.email ? (
+                  <i className="pi pi-spinner pi-spin text-accent-cyan" />
+                ) : (
+                  <i className={`${account.icon} text-accent-cyan`} />
+                )}
+                {account.label}
+              </button>
             ))}
           </div>
         </div>
       )}
-    </Card>
+    </div>
   );
 }

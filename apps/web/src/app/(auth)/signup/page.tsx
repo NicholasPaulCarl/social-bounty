@@ -7,7 +7,6 @@ import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
 import { useToast } from '@/hooks/useToast';
@@ -77,15 +76,20 @@ export default function SignupPage() {
   };
 
   return (
-    <Card>
-      <h2 className="text-xl font-semibold text-neutral-900 text-center mb-6">Create Account</h2>
+    <div className="glass-card p-8 animate-fade-up">
+      <h2 className="text-2xl font-heading font-bold text-text-primary text-center mb-6">
+        Create Account
+      </h2>
 
       {error && <Message severity="error" text={error} className="w-full mb-4" />}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label
+              htmlFor="firstName"
+              className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
+            >
               First Name
             </label>
             <InputText
@@ -96,11 +100,14 @@ export default function SignupPage() {
               className={`w-full ${fieldErrors.firstName ? 'p-invalid' : ''}`}
             />
             {fieldErrors.firstName && (
-              <small className="text-danger-600">{fieldErrors.firstName}</small>
+              <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.firstName}</small>
             )}
           </div>
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label
+              htmlFor="lastName"
+              className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
+            >
               Last Name
             </label>
             <InputText
@@ -111,13 +118,16 @@ export default function SignupPage() {
               className={`w-full ${fieldErrors.lastName ? 'p-invalid' : ''}`}
             />
             {fieldErrors.lastName && (
-              <small className="text-danger-600">{fieldErrors.lastName}</small>
+              <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.lastName}</small>
             )}
           </div>
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label
+            htmlFor="email"
+            className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
+          >
             Email
           </label>
           <InputText
@@ -130,12 +140,15 @@ export default function SignupPage() {
             placeholder="you@example.com"
           />
           {fieldErrors.email && (
-            <small className="text-danger-600">{fieldErrors.email}</small>
+            <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.email}</small>
           )}
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label
+            htmlFor="password"
+            className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
+          >
             Password
           </label>
           <Password
@@ -148,12 +161,15 @@ export default function SignupPage() {
             inputClassName="w-full"
           />
           {fieldErrors.password && (
-            <small className="text-danger-600">{fieldErrors.password}</small>
+            <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.password}</small>
           )}
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label
+            htmlFor="confirmPassword"
+            className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
+          >
             Confirm Password
           </label>
           <Password
@@ -167,7 +183,7 @@ export default function SignupPage() {
             inputClassName="w-full"
           />
           {fieldErrors.confirmPassword && (
-            <small className="text-danger-600">{fieldErrors.confirmPassword}</small>
+            <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.confirmPassword}</small>
           )}
         </div>
 
@@ -180,12 +196,12 @@ export default function SignupPage() {
         />
       </form>
 
-      <p className="text-sm text-neutral-500 text-center mt-6">
+      <p className="text-sm text-text-muted text-center mt-6">
         Already have an account?{' '}
-        <Link href="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+        <Link href="/login" className="text-accent-cyan hover:text-accent-cyan/80 font-medium">
           Sign In
         </Link>
       </p>
-    </Card>
+    </div>
   );
 }

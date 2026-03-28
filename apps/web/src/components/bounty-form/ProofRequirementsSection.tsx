@@ -13,8 +13,8 @@ interface ProofRequirementsSectionProps {
 export function ProofRequirementsSection({ proofRequirements, dispatch, errors, submitAttempted }: ProofRequirementsSectionProps) {
   return (
     <div>
-      <label className="block text-sm font-medium text-neutral-700 mb-3">
-        Proof Requirements <span className="text-danger-500">*</span>
+      <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
+        Proof Requirements <span className="text-accent-rose">*</span>
       </label>
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
@@ -23,7 +23,7 @@ export function ProofRequirementsSection({ proofRequirements, dispatch, errors, 
             checked={proofRequirements.includes('url')}
             onChange={() => dispatch({ type: 'TOGGLE_PROOF_REQUIREMENT', payload: 'url' })}
           />
-          <label htmlFor="proof-url" className="text-sm text-neutral-700 cursor-pointer">
+          <label htmlFor="proof-url" className="text-sm text-text-primary cursor-pointer">
             URL link
           </label>
         </div>
@@ -33,13 +33,13 @@ export function ProofRequirementsSection({ proofRequirements, dispatch, errors, 
             checked={proofRequirements.includes('screenshot')}
             onChange={() => dispatch({ type: 'TOGGLE_PROOF_REQUIREMENT', payload: 'screenshot' })}
           />
-          <label htmlFor="proof-screenshot" className="text-sm text-neutral-700 cursor-pointer">
+          <label htmlFor="proof-screenshot" className="text-sm text-text-primary cursor-pointer">
             Screenshot
           </label>
         </div>
       </div>
       {submitAttempted && errors.proofRequirements && (
-        <small className="text-xs text-danger-600 mt-2 flex items-center gap-1">
+        <small className="text-xs text-accent-rose mt-2 flex items-center gap-1">
           <i className="pi pi-exclamation-circle text-xs" />
           {errors.proofRequirements}
         </small>

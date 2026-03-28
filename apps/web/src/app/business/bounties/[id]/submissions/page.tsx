@@ -58,7 +58,7 @@ export default function BountySubmissionsPage() {
   );
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader
         title="Submissions"
         subtitle={bounty ? `For: ${bounty.title}` : undefined}
@@ -67,13 +67,15 @@ export default function BountySubmissionsPage() {
 
       {data && data.data.length > 0 ? (
         <>
-          <DataTable value={data.data} stripedRows>
-            <Column header="Participant" body={(rowData: SubmissionReviewListItem) => `${rowData.user.firstName} ${rowData.user.lastName}`} />
-            <Column header="Status" body={statusTemplate} />
-            <Column header="Payout" body={payoutTemplate} />
-            <Column header="Submitted" body={dateTemplate} />
-            <Column header="Actions" body={actionsTemplate} style={{ width: '6rem' }} />
-          </DataTable>
+          <div className="glass-card p-6">
+            <DataTable value={data.data} stripedRows>
+              <Column header="Participant" body={(rowData: SubmissionReviewListItem) => `${rowData.user.firstName} ${rowData.user.lastName}`} />
+              <Column header="Status" body={statusTemplate} />
+              <Column header="Payout" body={payoutTemplate} />
+              <Column header="Submitted" body={dateTemplate} />
+              <Column header="Actions" body={actionsTemplate} style={{ width: '6rem' }} />
+            </DataTable>
+          </div>
           <Paginator
             first={first}
             rows={limit}
@@ -89,6 +91,6 @@ export default function BountySubmissionsPage() {
           message="No participants have submitted proof for this bounty yet."
         />
       )}
-    </>
+    </div>
   );
 }

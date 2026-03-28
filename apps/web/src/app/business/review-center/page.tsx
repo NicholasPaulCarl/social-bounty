@@ -35,20 +35,19 @@ interface StatCardProps {
   icon: string;
   count: number;
   label: string;
-  bgColor: string;
-  iconColor: string;
+  iconClass: string;
 }
 
-function StatCard({ icon, count, label, bgColor, iconColor }: StatCardProps) {
+function StatCard({ icon, count, label, iconClass }: StatCardProps) {
   return (
-    <div className="bg-white rounded-lg border border-neutral-200 p-4">
+    <div className="glass-card p-4">
       <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 rounded-lg ${bgColor} flex items-center justify-center`}>
-          <i className={`pi ${icon} ${iconColor}`} />
+        <div className="w-10 h-10 rounded-lg border border-glass-border flex items-center justify-center">
+          <i className={`pi ${icon} ${iconClass}`} />
         </div>
         <div>
-          <p className="text-2xl font-heading font-bold text-neutral-900">{count}</p>
-          <p className="text-sm text-neutral-500">{label}</p>
+          <p className="text-2xl font-heading font-bold text-text-primary">{count}</p>
+          <p className="text-sm text-text-muted">{label}</p>
         </div>
       </div>
     </div>
@@ -100,15 +99,15 @@ export default function ReviewCenterPage() {
 
   const participantTemplate = (rowData: QueueItem) => (
     <div>
-      <p className="text-sm font-medium text-neutral-900">
+      <p className="text-sm font-medium text-text-primary">
         {rowData.user.firstName} {rowData.user.lastName}
       </p>
-      <p className="text-xs text-neutral-500">{rowData.user.email}</p>
+      <p className="text-xs text-text-muted">{rowData.user.email}</p>
     </div>
   );
 
   const bountyTemplate = (rowData: QueueItem) => (
-    <span className="text-sm text-neutral-900">
+    <span className="text-sm text-text-primary">
       {rowData.bounty?.title ?? '-'}
     </span>
   );
@@ -118,7 +117,7 @@ export default function ReviewCenterPage() {
   );
 
   const dateTemplate = (rowData: QueueItem) => (
-    <span className="font-mono text-sm text-neutral-700">{formatDate(rowData.createdAt)}</span>
+    <span className="font-mono text-sm text-text-secondary">{formatDate(rowData.createdAt)}</span>
   );
 
   const actionsTemplate = (rowData: QueueItem) => (
@@ -133,7 +132,7 @@ export default function ReviewCenterPage() {
   );
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader
         title="Review Center"
         subtitle="Review and manage participant submissions"
@@ -142,11 +141,11 @@ export default function ReviewCenterPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-        <StatCard icon="pi-clock" count={stats.pending} label="Pending" bgColor="bg-amber-100" iconColor="text-amber-600" />
-        <StatCard icon="pi-eye" count={stats.inReview} label="In Review" bgColor="bg-blue-100" iconColor="text-blue-600" />
-        <StatCard icon="pi-exclamation-triangle" count={stats.needsMoreInfo} label="Needs More Info" bgColor="bg-orange-100" iconColor="text-orange-600" />
-        <StatCard icon="pi-check-circle" count={stats.approvedToday} label="Approved Today" bgColor="bg-emerald-100" iconColor="text-emerald-600" />
-        <StatCard icon="pi-times-circle" count={stats.rejectedToday} label="Rejected Today" bgColor="bg-red-100" iconColor="text-red-600" />
+        <StatCard icon="pi-clock"               count={stats.pending}        label="Pending"          iconClass="text-amber-400"   />
+        <StatCard icon="pi-eye"                  count={stats.inReview}       label="In Review"        iconClass="text-cyan-400"    />
+        <StatCard icon="pi-exclamation-triangle" count={stats.needsMoreInfo}  label="Needs More Info"  iconClass="text-violet-400"  />
+        <StatCard icon="pi-check-circle"         count={stats.approvedToday}  label="Approved Today"   iconClass="text-emerald-400" />
+        <StatCard icon="pi-times-circle"         count={stats.rejectedToday}  label="Rejected Today"   iconClass="text-red-400"     />
       </div>
 
       {/* Filters */}
@@ -205,6 +204,6 @@ export default function ReviewCenterPage() {
           />
         </>
       )}
-    </>
+    </div>
   );
 }

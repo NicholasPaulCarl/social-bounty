@@ -718,16 +718,16 @@ export class AdminService {
 
   // ── Settings ─────────────────────
 
-  isSignupEnabled(): boolean {
+  async isSignupEnabled(): Promise<boolean> {
     return this.settingsService.isSignupEnabled();
   }
 
-  isSubmissionEnabled(): boolean {
+  async isSubmissionEnabled(): Promise<boolean> {
     return this.settingsService.isSubmissionEnabled();
   }
 
   async getSettings() {
-    const settings = this.settingsService.getSettings();
+    const settings = await this.settingsService.getSettings();
     let updatedBy = null;
     if (settings.updatedById) {
       const user = await this.prisma.user.findUnique({
@@ -752,19 +752,19 @@ export class AdminService {
     data: { signupsEnabled?: boolean; submissionsEnabled?: boolean },
     ipAddress?: string,
   ) {
-    const current = this.settingsService.getSettings();
+    const current = await this.settingsService.getSettings();
     const beforeState = {
       signupsEnabled: current.signupsEnabled,
       submissionsEnabled: current.submissionsEnabled,
     };
 
-    this.settingsService.updateSettings({
+    await this.settingsService.updateSettings({
       signupsEnabled: data.signupsEnabled,
       submissionsEnabled: data.submissionsEnabled,
       updatedById: actor.sub,
     });
 
-    const updated = this.settingsService.getSettings();
+    const updated = await this.settingsService.getSettings();
     const afterState = {
       signupsEnabled: updated.signupsEnabled,
       submissionsEnabled: updated.submissionsEnabled,

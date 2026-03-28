@@ -39,7 +39,7 @@ export default function AdminOrganisationsPage() {
   );
 
   const dateTemplate = (rowData: AdminOrgListItem) => (
-    <span>{formatDate(rowData.createdAt)}</span>
+    <span className="text-text-secondary">{formatDate(rowData.createdAt)}</span>
   );
 
   const actionsTemplate = (rowData: AdminOrgListItem) => (
@@ -54,7 +54,7 @@ export default function AdminOrganisationsPage() {
   );
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader
         title="Organisations"
         subtitle="Manage platform organisations"
@@ -117,6 +117,6 @@ export default function AdminOrganisationsPage() {
           message="No organisations match your current filters."
         />
       )}
-    </>
+    </div>
   );
 }

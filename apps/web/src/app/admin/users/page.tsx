@@ -50,7 +50,7 @@ export default function AdminUsersPage() {
   );
 
   const dateTemplate = (rowData: AdminUserListItem) => (
-    <span>{formatDate(rowData.createdAt)}</span>
+    <span className="text-text-secondary">{formatDate(rowData.createdAt)}</span>
   );
 
   const actionsTemplate = (rowData: AdminUserListItem) => (
@@ -65,7 +65,7 @@ export default function AdminUsersPage() {
   );
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader title="Users" subtitle="Manage platform users" />
 
       <div className="flex flex-wrap gap-3 mb-6">
@@ -126,6 +126,6 @@ export default function AdminUsersPage() {
       ) : (
         <EmptyState icon="pi-users" title="No users found" message="No users match your current filters." />
       )}
-    </>
+    </div>
   );
 }

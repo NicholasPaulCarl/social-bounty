@@ -16,7 +16,12 @@ describe('SubmissionsService - Reported Metrics', () => {
   let service: SubmissionsService;
   let prisma: any;
   let auditService: { log: jest.Mock };
-  let mailService: { sendSubmissionStatusChange: jest.Mock };
+  let mailService: {
+    sendSubmissionStatusChange: jest.Mock;
+    sendSubmissionStatusEmail: jest.Mock;
+    sendPayoutNotificationEmail: jest.Mock;
+    sendBountyPublishedEmail: jest.Mock;
+  };
 
   const mockParticipant: AuthenticatedUser = {
     sub: 'participant-1',
@@ -57,6 +62,8 @@ describe('SubmissionsService - Reported Metrics', () => {
     reviewedById: null,
     createdAt: new Date(),
     updatedAt: new Date(),
+    user: { id: 'participant-1', email: 'participant@test.com', firstName: 'Test', lastName: 'User' },
+    bounty: { id: 'bounty-1', title: 'Test Bounty', organisationId: 'org-1', rewardValue: 100, currency: 'ZAR' },
   };
 
   beforeEach(async () => {
@@ -81,6 +88,9 @@ describe('SubmissionsService - Reported Metrics', () => {
     auditService = { log: jest.fn() };
     mailService = {
       sendSubmissionStatusChange: jest.fn().mockResolvedValue(undefined),
+      sendSubmissionStatusEmail: jest.fn().mockResolvedValue(undefined),
+      sendPayoutNotificationEmail: jest.fn().mockResolvedValue(undefined),
+      sendBountyPublishedEmail: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({

@@ -236,6 +236,7 @@ export interface ReviewQueueResponse {
 export interface EarningsSummaryResponse {
   totalSubmissions: number;
   approvedCount: number;
+  rejectedCount: number;
   totalEarned: number;
   pendingPayout: number;
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
@@ -35,21 +36,44 @@ const sortOptions = [
 ];
 
 export function BountyFilters({ filters, onChange, showStatusFilter = false }: BountyFiltersProps) {
-  const updateFilter = (key: string, value: unknown) => {
-    onChange({ ...filters, [key]: value || undefined, page: 1 });
-  };
+  const [searchInput, setSearchInput] = useState(filters.search || '');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const updateFilter = useCallback(
+    (key: string, value: unknown) => {
+      onChange({ ...filters, [key]: value || undefined, page: 1 });
+    },
+    [filters, onChange],
+  );
+
+  // Debounced search (300ms)
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      if (searchInput !== (filters.search || '')) {
+        updateFilter('search', searchInput);
+      }
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [searchInput, filters.search, updateFilter]);
 
   const clearFilters = () => {
+    setSearchInput('');
     onChange({ page: 1, limit: filters.limit });
   };
 
+  const hasActiveFilters =
+    !!filters.search || !!filters.status || !!filters.rewardType || (filters.sortBy && filters.sortBy !== 'createdAt');
+
   return (
-    <div className="flex flex-wrap gap-3 mb-6">
+    <div className="flex flex-wrap items-center gap-3 mb-6">
       <span className="p-input-icon-left">
         <i className="pi pi-search" />
         <InputText
-          value={filters.search || ''}
-          onChange={(e) => updateFilter('search', e.target.value)}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
           placeholder="Search bounties..."
           aria-label="Search bounties by title"
           className="w-64"
@@ -85,14 +109,17 @@ export function BountyFilters({ filters, onChange, showStatusFilter = false }: B
         className="w-40"
       />
 
-      <Button
-        icon="pi pi-filter-slash"
-        outlined
-        severity="secondary"
-        onClick={clearFilters}
-        tooltip="Clear filters"
-        aria-label="Clear all filters"
-      />
+      {hasActiveFilters && (
+        <Button
+          icon="pi pi-filter-slash"
+          outlined
+          severity="secondary"
+          onClick={clearFilters}
+          tooltip="Clear filters"
+          aria-label="Clear all filters"
+          className="text-text-muted"
+        />
+      )}
     </div>
   );
 }

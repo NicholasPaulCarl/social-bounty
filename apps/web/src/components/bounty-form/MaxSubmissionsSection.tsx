@@ -13,7 +13,7 @@ interface MaxSubmissionsSectionProps {
 export function MaxSubmissionsSection({ maxSubmissions, dispatch, errors, submitAttempted }: MaxSubmissionsSectionProps) {
   return (
     <div>
-      <label htmlFor="maxSubmissions" className="block text-sm font-medium text-neutral-700 mb-1.5">
+      <label htmlFor="maxSubmissions" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
         Maximum Submissions
       </label>
       <InputNumber
@@ -28,9 +28,9 @@ export function MaxSubmissionsSection({ maxSubmissions, dispatch, errors, submit
         className={`w-48 ${submitAttempted && errors.maxSubmissions ? 'p-invalid' : ''}`}
         placeholder="Unlimited"
       />
-      <small className="text-xs text-neutral-500 mt-1 block">Leave empty for unlimited submissions</small>
+      <small className="text-xs text-text-muted mt-1 block">Leave empty for unlimited submissions</small>
       {submitAttempted && errors.maxSubmissions && (
-        <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+        <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
           <i className="pi pi-exclamation-circle text-xs" />
           {errors.maxSubmissions}
         </small>

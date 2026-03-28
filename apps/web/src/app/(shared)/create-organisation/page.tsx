@@ -6,7 +6,6 @@ import { InputText } from 'primereact/inputtext';
 import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { useCreateOrganisation } from '@/hooks/useOrganisation';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -49,15 +48,15 @@ export default function CreateOrganisationPage() {
 
   return (
     <>
-      <PageHeader title="Create Organisation" />
+      <PageHeader title="Create Organisation" subtitle="Set up your business to start creating bounties" />
 
-      <Card className="max-w-2xl">
-        {error && <Message severity="error" text={error} className="w-full mb-4" />}
+      <div className="glass-card p-8 max-w-2xl animate-fade-up">
+        {error && <Message severity="error" text={error} className="w-full mb-6" />}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
-              Organisation Name <span className="text-danger-500">*</span>
+            <label htmlFor="name" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
+              Organisation Name <span className="text-accent-rose">*</span>
             </label>
             <InputText
               id="name"
@@ -65,11 +64,12 @@ export default function CreateOrganisationPage() {
               onChange={(e) => setName(e.target.value)}
               className="w-full"
               required
+              placeholder="Your company name"
             />
           </div>
           <div>
-            <label htmlFor="contactEmail" className="block text-sm font-medium text-neutral-700 mb-1">
-              Contact Email <span className="text-danger-500">*</span>
+            <label htmlFor="contactEmail" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
+              Contact Email <span className="text-accent-rose">*</span>
             </label>
             <InputText
               id="contactEmail"
@@ -78,11 +78,12 @@ export default function CreateOrganisationPage() {
               onChange={(e) => setContactEmail(e.target.value)}
               className="w-full"
               required
+              placeholder="contact@company.com"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">
-              Logo (optional)
+            <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
+              Logo <span className="text-text-disabled">(optional)</span>
             </label>
             <FileUpload
               mode="basic"
@@ -110,7 +111,7 @@ export default function CreateOrganisationPage() {
             />
           </div>
         </form>
-      </Card>
+      </div>
     </>
   );
 }

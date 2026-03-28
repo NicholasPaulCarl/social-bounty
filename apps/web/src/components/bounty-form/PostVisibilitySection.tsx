@@ -42,8 +42,8 @@ export function PostVisibilitySection({
             onChange={() => dispatch({ type: 'SET_VISIBILITY_RULE', payload: PostVisibilityRule.MUST_NOT_REMOVE })}
           />
           <label htmlFor="vis_must_not_remove" className="cursor-pointer">
-            <span className="text-sm font-medium text-neutral-700">Must not remove</span>
-            <span className="block text-xs text-neutral-500">Post must never be deleted</span>
+            <span className="text-sm font-medium text-text-primary">Must not remove</span>
+            <span className="block text-xs text-text-muted">Post must never be deleted</span>
           </label>
         </div>
 
@@ -55,8 +55,8 @@ export function PostVisibilitySection({
             onChange={() => dispatch({ type: 'SET_VISIBILITY_RULE', payload: PostVisibilityRule.MINIMUM_DURATION })}
           />
           <label htmlFor="vis_min_duration" className="cursor-pointer">
-            <span className="text-sm font-medium text-neutral-700">Minimum duration</span>
-            <span className="block text-xs text-neutral-500">Post must stay up for a set time</span>
+            <span className="text-sm font-medium text-text-primary">Minimum duration</span>
+            <span className="block text-xs text-text-muted">Post must stay up for a set time</span>
           </label>
         </div>
       </div>
@@ -64,8 +64,8 @@ export function PostVisibilitySection({
       {currentRule === PostVisibilityRule.MINIMUM_DURATION && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3 ml-6">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-              Duration Value <span className="text-danger-500">*</span>
+            <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
+              Duration Value <span className="text-accent-rose">*</span>
             </label>
             <InputNumber
               value={postVisibility?.minDurationValue ?? null}
@@ -75,15 +75,15 @@ export function PostVisibilitySection({
               placeholder="e.g. 7"
             />
             {submitAttempted && errors.durationValue && (
-              <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+              <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
                 <i className="pi pi-exclamation-circle text-xs" />
                 {errors.durationValue}
               </small>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-              Duration Unit <span className="text-danger-500">*</span>
+            <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
+              Duration Unit <span className="text-accent-rose">*</span>
             </label>
             <Dropdown
               value={postVisibility?.minDurationUnit ?? null}
@@ -93,7 +93,7 @@ export function PostVisibilitySection({
               placeholder="Select unit"
             />
             {submitAttempted && errors.durationUnit && (
-              <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+              <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
                 <i className="pi pi-exclamation-circle text-xs" />
                 {errors.durationUnit}
               </small>
@@ -109,9 +109,9 @@ export function PostVisibilitySection({
               checked={visibilityAcknowledged}
               onChange={(e) => dispatch({ type: 'SET_VISIBILITY_ACKNOWLEDGED', payload: e.checked ?? false })}
             />
-            <label className="text-sm text-neutral-700 cursor-pointer">
+            <label className="text-sm text-text-primary cursor-pointer">
               I understand and confirm the post visibility requirements above.
-              <span className="block text-xs text-neutral-500 mt-1">
+              <span className="block text-xs text-text-muted mt-1">
                 This must be acknowledged before the bounty can be published.
               </span>
             </label>

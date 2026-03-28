@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { DataTable } from 'primereact/datatable';
@@ -26,7 +25,7 @@ function OrgBountiesTab({ orgId }: { orgId: string }) {
   const bounties = data?.data ?? [];
 
   if (bounties.length === 0) {
-    return <p className="text-sm text-neutral-400 p-4">No bounties found for this organisation.</p>;
+    return <p className="text-sm text-text-muted p-4">No bounties found for this organisation.</p>;
   }
 
   return (
@@ -49,7 +48,7 @@ function OrgSubmissionsTab({ orgId }: { orgId: string }) {
   const submissions = data?.data ?? [];
 
   if (submissions.length === 0) {
-    return <p className="text-sm text-neutral-400 p-4">No submissions found for this organisation.</p>;
+    return <p className="text-sm text-text-muted p-4">No submissions found for this organisation.</p>;
   }
 
   return (
@@ -117,45 +116,45 @@ export default function AdminOrgDetailPage() {
 
       <TabView activeIndex={activeTab} onTabChange={(e) => setActiveTab(e.index)}>
         <TabPanel header="Overview">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4 animate-fade-up">
             <div className="lg:col-span-2">
-              <Card>
-                <h3 className="text-lg font-heading font-semibold text-neutral-900 mb-4">Organisation Information</h3>
+              <div className="glass-card p-6">
+                <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Organisation Information</h3>
                 <dl className="grid grid-cols-2 gap-4">
                   <div>
-                    <dt className="text-sm text-neutral-500">Name</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{org.name}</dd>
+                    <dt className="text-sm text-text-muted">Name</dt>
+                    <dd className="text-sm font-medium text-text-primary">{org.name}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Contact Email</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{org.contactEmail || '-'}</dd>
+                    <dt className="text-sm text-text-muted">Contact Email</dt>
+                    <dd className="text-sm font-medium text-text-primary">{org.contactEmail || '-'}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Status</dt>
+                    <dt className="text-sm text-text-muted">Status</dt>
                     <dd><StatusBadge type="organisation" value={org.status} /></dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Created</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{formatDateTime(org.createdAt)}</dd>
+                    <dt className="text-sm text-text-muted">Created</dt>
+                    <dd className="text-sm font-medium text-text-primary">{formatDateTime(org.createdAt)}</dd>
                   </div>
                 </dl>
-              </Card>
+              </div>
             </div>
 
             <div>
-              <Card>
-                <h3 className="text-lg font-heading font-semibold text-neutral-900 mb-4">Stats</h3>
+              <div className="glass-card p-6">
+                <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Stats</h3>
                 <dl className="space-y-3">
                   <div>
-                    <dt className="text-sm text-neutral-500">Members</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{org.memberCount ?? 0}</dd>
+                    <dt className="text-sm text-text-muted">Members</dt>
+                    <dd className="text-sm font-medium text-text-primary">{org.memberCount ?? 0}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Bounties</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{org.bountyCount ?? 0}</dd>
+                    <dt className="text-sm text-text-muted">Bounties</dt>
+                    <dd className="text-sm font-medium text-text-primary">{org.bountyCount ?? 0}</dd>
                   </div>
                 </dl>
-              </Card>
+              </div>
             </div>
           </div>
         </TabPanel>

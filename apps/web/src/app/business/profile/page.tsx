@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
@@ -82,17 +81,17 @@ export default function BusinessProfilePage() {
   };
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader title="Profile" />
 
       <div className="space-y-6 max-w-2xl">
-        <Card>
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Personal Information</h3>
+        <div className="glass-card p-6">
+          <h3 className="text-lg font-semibold text-text-primary mb-4">Personal Information</h3>
           {profileError && <Message severity="error" text={profileError} className="w-full mb-4" />}
 
           <form onSubmit={handleUpdateProfile} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="email" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                 Email
               </label>
               <InputText id="email" value={profile?.email || ''} disabled className="w-full" />
@@ -100,7 +99,7 @@ export default function BusinessProfilePage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-1">
+                <label htmlFor="firstName" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                   First Name
                 </label>
                 <InputText
@@ -111,7 +110,7 @@ export default function BusinessProfilePage() {
                 />
               </div>
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 mb-1">
+                <label htmlFor="lastName" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                   Last Name
                 </label>
                 <InputText
@@ -132,15 +131,15 @@ export default function BusinessProfilePage() {
               />
             </div>
           </form>
-        </Card>
+        </div>
 
-        <Card>
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Change Password</h3>
+        <div className="glass-card p-6">
+          <h3 className="text-lg font-semibold text-text-primary mb-4">Change Password</h3>
           {passwordError && <Message severity="error" text={passwordError} className="w-full mb-4" />}
 
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div>
-              <label htmlFor="currentPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="currentPassword" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                 Current Password
               </label>
               <Password
@@ -157,7 +156,7 @@ export default function BusinessProfilePage() {
             <Divider />
 
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="newPassword" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                 New Password
               </label>
               <Password
@@ -171,7 +170,7 @@ export default function BusinessProfilePage() {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="confirmPassword" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                 Confirm New Password
               </label>
               <Password
@@ -195,8 +194,8 @@ export default function BusinessProfilePage() {
               />
             </div>
           </form>
-        </Card>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -3,7 +3,6 @@
 import { useState, useCallback } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { Message } from 'primereact/message';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
@@ -52,15 +51,21 @@ function PaymentForm({ amount, currency, onSuccess, onCancel }: PaymentFormProps
   }, [stripe, elements, onSuccess]);
 
   return (
-    <div className="space-y-4">
-      <div className="bg-neutral-50 rounded-lg p-4 text-center">
-        <p className="text-sm text-neutral-500">Total Amount</p>
-        <p className="text-2xl font-bold text-neutral-900">{currency} {amount}</p>
+    <div className="space-y-5">
+      <div className="glass-card p-5 text-center">
+        <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Total Amount</p>
+        <p className="text-3xl font-heading font-bold text-accent-emerald">
+          {currency} {amount}
+        </p>
       </div>
 
       <PaymentElement />
 
-      {error && <Message severity="error" text={error} className="w-full" />}
+      {error && (
+        <div className="border border-accent-rose/30 bg-accent-rose/10 rounded-lg px-4 py-3">
+          <p className="text-accent-rose text-sm">{error}</p>
+        </div>
+      )}
 
       <div className="flex justify-end gap-3 pt-2">
         <Button
@@ -107,7 +112,17 @@ export function PaymentDialog({ visible, onHide, clientSecret, amount, currency,
         stripe={stripePromise}
         options={{
           clientSecret,
-          appearance: { theme: 'stripe' },
+          appearance: {
+            theme: 'night',
+            variables: {
+              colorPrimary: '#06b6d4',
+              colorBackground: '#111827',
+              colorText: '#f1f5f9',
+              colorDanger: '#f43f5e',
+              borderRadius: '8px',
+              fontFamily: 'Inter, system-ui, sans-serif',
+            },
+          },
         }}
       >
         <PaymentForm

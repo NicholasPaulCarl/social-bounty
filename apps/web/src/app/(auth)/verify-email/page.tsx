@@ -5,8 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Button } from 'primereact/button';
-import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -55,41 +53,41 @@ function VerifyEmailContent() {
 
   if (status === 'loading') {
     return (
-      <Card>
+      <div className="glass-card p-8 animate-fade-up">
         <div className="text-center py-8">
           <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-          <p className="text-neutral-600 mt-4">Verifying your email...</p>
+          <p className="text-text-secondary text-sm mt-4">Verifying your email...</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   if (status === 'success') {
     return (
-      <Card>
+      <div className="glass-card p-8 animate-fade-up">
         <div className="text-center">
-          <i className="pi pi-check-circle text-success-500" style={{ fontSize: '3rem' }} />
-          <h2 className="text-xl font-semibold text-neutral-900 mt-4">Email Verified</h2>
-          <p className="text-neutral-600 mt-2">
+          <i className="pi pi-check-circle text-accent-emerald" style={{ fontSize: '3rem' }} />
+          <h2 className="text-2xl font-heading font-bold text-text-primary text-center mb-6 mt-4">Email Verified</h2>
+          <p className="text-text-secondary text-sm mt-2">
             Your email has been verified. You can now sign in.
           </p>
           <Link
             href="/login"
-            className="inline-block mt-6 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+            className="inline-block mt-6 text-accent-cyan hover:text-accent-cyan/80 font-medium"
           >
             Sign In
           </Link>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card>
+    <div className="glass-card p-8 animate-fade-up">
       <div className="text-center">
-        <i className="pi pi-times-circle text-danger-500" style={{ fontSize: '3rem' }} />
-        <h2 className="text-xl font-semibold text-neutral-900 mt-4">Verification Failed</h2>
-        <Message severity="error" text={error} className="mt-4" />
+        <i className="pi pi-times-circle text-accent-rose" style={{ fontSize: '3rem' }} />
+        <h2 className="text-2xl font-heading font-bold text-text-primary text-center mb-6 mt-4">Verification Failed</h2>
+        <p className="text-accent-rose text-xs mt-1 mt-4">{error}</p>
         <div className="mt-6 space-y-3">
           <Button
             label="Resend Verification Email"
@@ -99,13 +97,13 @@ function VerifyEmailContent() {
             loading={resending}
           />
           <div>
-            <Link href="/login" className="text-sm text-primary-600 hover:text-primary-700">
+            <Link href="/login" className="text-accent-cyan hover:text-accent-cyan/80 font-medium">
               Back to Sign In
             </Link>
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 

@@ -21,15 +21,20 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
-      <i className={`pi ${icon} text-neutral-400`} style={{ fontSize: '3rem' }} />
-      <h3 className="text-lg font-semibold text-neutral-700 mt-4">{title}</h3>
-      {message && <p className="text-sm text-neutral-500 mt-2 text-center max-w-md">{message}</p>}
+      <div className="relative">
+        <div className="absolute inset-0 bg-accent-cyan/10 blur-2xl rounded-full" />
+        <i className={`pi ${icon} text-text-muted relative`} style={{ fontSize: '3rem' }} />
+      </div>
+      <h3 className="text-lg font-heading font-semibold text-text-primary mt-6">{title}</h3>
+      {message && (
+        <p className="text-sm text-text-secondary mt-2 text-center max-w-md">{message}</p>
+      )}
       {ctaLabel && ctaAction && (
         <Button
           label={ctaLabel}
           icon={ctaIcon ? `pi ${ctaIcon}` : undefined}
           outlined
-          className="mt-4"
+          className="mt-6"
           onClick={ctaAction}
         />
       )}

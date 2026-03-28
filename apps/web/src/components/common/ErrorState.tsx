@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from 'primereact/button';
-import { Message } from 'primereact/message';
 import { ApiError } from '@/lib/api/client';
 
 interface ErrorStateProps {
@@ -17,19 +16,34 @@ export function ErrorState({ error, onRetry }: ErrorStateProps) {
 
   const statusCode = error instanceof ApiError ? error.statusCode : undefined;
 
+  const title =
+    statusCode === 404
+      ? 'Not Found'
+      : statusCode === 403
+        ? 'Access Denied'
+        : 'Something went wrong';
+
+  const icon =
+    statusCode === 404
+      ? 'pi-search'
+      : statusCode === 403
+        ? 'pi-lock'
+        : 'pi-exclamation-circle';
+
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
-      <i className="pi pi-exclamation-circle text-danger-500" style={{ fontSize: '3rem' }} />
-      <h3 className="text-lg font-semibold text-neutral-700 mt-4">
-        {statusCode === 404 ? 'Not Found' : statusCode === 403 ? 'Access Denied' : 'Something went wrong'}
-      </h3>
-      <Message severity="error" text={message} className="mt-4" />
+      <div className="relative">
+        <div className="absolute inset-0 bg-accent-rose/20 blur-2xl rounded-full" />
+        <i className={`pi ${icon} text-accent-rose relative`} style={{ fontSize: '3rem' }} />
+      </div>
+      <h3 className="text-lg font-heading font-semibold text-text-primary mt-6">{title}</h3>
+      <p className="text-sm text-text-secondary mt-2 text-center max-w-md">{message}</p>
       {onRetry && (
         <Button
           label="Try Again"
           icon="pi pi-refresh"
           outlined
-          className="mt-4"
+          className="mt-6"
           onClick={onRetry}
         />
       )}

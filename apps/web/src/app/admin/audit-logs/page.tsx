@@ -37,44 +37,44 @@ export default function AdminAuditLogsPage() {
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
 
   const dateTemplate = (rowData: AuditLogListItem) => (
-    <span>{formatDateTime(rowData.createdAt)}</span>
+    <span className="text-text-secondary font-mono text-xs">{formatDateTime(rowData.createdAt)}</span>
   );
 
   const rowExpansionTemplate = (data: AuditLogListItem) => (
-    <div className="p-4 bg-neutral-50 space-y-3">
+    <div className="p-4 space-y-3 border-l-2 border-accent-violet">
       {data.reason && (
         <div>
-          <span className="text-xs font-medium text-neutral-500 uppercase">Reason</span>
-          <p className="text-sm text-neutral-700 mt-1">{data.reason}</p>
+          <span className="text-xs font-medium text-text-muted uppercase tracking-wider">Reason</span>
+          <p className="text-sm text-text-secondary mt-1">{data.reason}</p>
         </div>
       )}
       {data.beforeState && (
         <div>
-          <span className="text-xs font-medium text-neutral-500 uppercase">Before</span>
-          <pre className="text-xs font-mono bg-white p-2 rounded border border-neutral-200 mt-1 overflow-auto">
+          <span className="text-xs font-medium text-text-muted uppercase tracking-wider">Before</span>
+          <pre className="text-xs font-mono glass-card p-2 rounded border border-glass-border mt-1 overflow-auto text-text-secondary">
             {JSON.stringify(data.beforeState, null, 2)}
           </pre>
         </div>
       )}
       {data.afterState && (
         <div>
-          <span className="text-xs font-medium text-neutral-500 uppercase">After</span>
-          <pre className="text-xs font-mono bg-white p-2 rounded border border-neutral-200 mt-1 overflow-auto">
+          <span className="text-xs font-medium text-text-muted uppercase tracking-wider">After</span>
+          <pre className="text-xs font-mono glass-card p-2 rounded border border-glass-border mt-1 overflow-auto text-text-secondary">
             {JSON.stringify(data.afterState, null, 2)}
           </pre>
         </div>
       )}
       {data.ipAddress && (
-        <p className="text-xs text-neutral-400">IP: <span className="font-mono">{data.ipAddress}</span></p>
+        <p className="text-xs text-text-muted">IP: <span className="font-mono text-text-secondary">{data.ipAddress}</span></p>
       )}
       {!data.reason && !data.beforeState && !data.afterState && !data.ipAddress && (
-        <p className="text-sm text-neutral-400">No additional details available.</p>
+        <p className="text-sm text-text-muted">No additional details available.</p>
       )}
     </div>
   );
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader title="Audit Logs" subtitle="Track all platform actions and changes" />
 
       <div className="flex flex-wrap gap-3 mb-6">
@@ -116,7 +116,9 @@ export default function AdminAuditLogsPage() {
             <Column field="action" header="Action" sortable />
             <Column field="entityType" header="Entity Type" />
             <Column field="entityId" header="Entity ID" style={{ maxWidth: '10rem' }} />
-            <Column header="User" body={(rowData: AuditLogListItem) => rowData.actor?.email || rowData.actorId} />
+            <Column header="User" body={(rowData: AuditLogListItem) => (
+              <span className="text-text-secondary">{rowData.actor?.email || rowData.actorId}</span>
+            )} />
             <Column header="Timestamp" body={dateTemplate} />
           </DataTable>
           <Paginator
@@ -130,6 +132,6 @@ export default function AdminAuditLogsPage() {
       ) : (
         <EmptyState icon="pi-history" title="No audit logs found" message="No audit log entries match your current filters." />
       )}
-    </>
+    </div>
   );
 }

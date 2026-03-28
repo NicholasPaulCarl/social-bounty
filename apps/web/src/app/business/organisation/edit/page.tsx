@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
@@ -65,15 +64,15 @@ export default function EditOrganisationPage() {
   ];
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader title="Edit Organisation" breadcrumbs={breadcrumbs} />
 
-      <Card>
+      <div className="glass-card p-6">
         {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label htmlFor="name" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
               Organisation Name *
             </label>
             <InputText
@@ -86,7 +85,7 @@ export default function EditOrganisationPage() {
           </div>
 
           <div>
-            <label htmlFor="contactEmail" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label htmlFor="contactEmail" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
               Contact Email *
             </label>
             <InputText
@@ -100,7 +99,7 @@ export default function EditOrganisationPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">
+            <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
               Logo
             </label>
             {org.logo && (
@@ -116,7 +115,7 @@ export default function EditOrganisationPage() {
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t border-glass-border">
             <Button
               label="Cancel"
               type="button"
@@ -132,7 +131,7 @@ export default function EditOrganisationPage() {
             />
           </div>
         </form>
-      </Card>
-    </>
+      </div>
+    </div>
   );
 }

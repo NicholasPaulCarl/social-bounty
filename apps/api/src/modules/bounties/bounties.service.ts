@@ -3,6 +3,7 @@ import {
   BadRequestException,
   NotFoundException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import * as fs from 'fs';
@@ -53,6 +54,8 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
 
 @Injectable()
 export class BountiesService {
+  private readonly logger = new Logger(BountiesService.name);
+
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
@@ -1062,6 +1065,16 @@ export class BountiesService {
       afterState: { status: newStatus },
       ipAddress,
     });
+
+    // Log when a bounty goes live (audit trail, no mass email)
+    if (newStatus === BountyStatus.LIVE) {
+      this.logger.log({
+        message: 'Bounty published and now LIVE',
+        bountyId: id,
+        title: bounty.title,
+        publishedBy: user.sub,
+      });
+    }
 
     return {
       id: updated.id,

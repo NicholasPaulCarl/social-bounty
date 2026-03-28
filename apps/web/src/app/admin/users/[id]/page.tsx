@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { DataTable } from 'primereact/datatable';
@@ -27,7 +26,7 @@ function UserSubmissionsTab({ userId }: { userId: string }) {
   const submissions = data?.data ?? [];
 
   if (submissions.length === 0) {
-    return <p className="text-sm text-neutral-400 p-4">No submissions found for this user.</p>;
+    return <p className="text-sm text-text-muted p-4">No submissions found for this user.</p>;
   }
 
   return (
@@ -49,7 +48,7 @@ function UserAuditTab({ userId }: { userId: string }) {
   const logs: AuditLogListItem[] = data?.data ?? [];
 
   if (logs.length === 0) {
-    return <p className="text-sm text-neutral-400 p-4">No audit activity found for this user.</p>;
+    return <p className="text-sm text-text-muted p-4">No audit activity found for this user.</p>;
   }
 
   return (
@@ -133,61 +132,61 @@ export default function AdminUserDetailPage() {
 
       <TabView activeIndex={activeTab} onTabChange={(e) => setActiveTab(e.index)}>
         <TabPanel header="Overview">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4 animate-fade-up">
             <div className="lg:col-span-2">
-              <Card>
-                <h3 className="text-lg font-heading font-semibold text-neutral-900 mb-4">User Information</h3>
+              <div className="glass-card p-6">
+                <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">User Information</h3>
                 <dl className="grid grid-cols-2 gap-4">
                   <div>
-                    <dt className="text-sm text-neutral-500">Email</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{user.email}</dd>
+                    <dt className="text-sm text-text-muted">Email</dt>
+                    <dd className="text-sm font-medium text-text-primary">{user.email}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Name</dt>
-                    <dd className="text-sm font-medium text-neutral-900">
+                    <dt className="text-sm text-text-muted">Name</dt>
+                    <dd className="text-sm font-medium text-text-primary">
                       {`${user.firstName || '-'} ${user.lastName || ''}`.trim()}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Role</dt>
+                    <dt className="text-sm text-text-muted">Role</dt>
                     <dd><StatusBadge type="role" value={user.role} /></dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Status</dt>
+                    <dt className="text-sm text-text-muted">Status</dt>
                     <dd><StatusBadge type="user" value={user.status} /></dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Email Verified</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{user.emailVerified ? 'Yes' : 'No'}</dd>
+                    <dt className="text-sm text-text-muted">Email Verified</dt>
+                    <dd className="text-sm font-medium text-text-primary">{user.emailVerified ? 'Yes' : 'No'}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Created</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{formatDateTime(user.createdAt)}</dd>
+                    <dt className="text-sm text-text-muted">Created</dt>
+                    <dd className="text-sm font-medium text-text-primary">{formatDateTime(user.createdAt)}</dd>
                   </div>
                 </dl>
-              </Card>
+              </div>
             </div>
 
             <div>
-              <Card>
-                <h3 className="text-lg font-heading font-semibold text-neutral-900 mb-4">Activity</h3>
+              <div className="glass-card p-6">
+                <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Activity</h3>
                 <dl className="space-y-3">
                   {user.organisation && (
                     <div>
-                      <dt className="text-sm text-neutral-500">Organisation</dt>
+                      <dt className="text-sm text-text-muted">Organisation</dt>
                       <dd className="text-sm font-medium text-primary-600">{user.organisation.name}</dd>
                     </div>
                   )}
                   <div>
-                    <dt className="text-sm text-neutral-500">Submissions</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{user.submissionCount ?? 0}</dd>
+                    <dt className="text-sm text-text-muted">Submissions</dt>
+                    <dd className="text-sm font-medium text-text-primary">{user.submissionCount ?? 0}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Approved Submissions</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{user.approvedSubmissionCount ?? 0}</dd>
+                    <dt className="text-sm text-text-muted">Approved Submissions</dt>
+                    <dd className="text-sm font-medium text-text-primary">{user.approvedSubmissionCount ?? 0}</dd>
                   </div>
                 </dl>
-              </Card>
+              </div>
             </div>
           </div>
         </TabPanel>

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Paginator } from 'primereact/paginator';
-import { SelectButton } from 'primereact/selectbutton';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { useBounties } from '@/hooks/useBounties';
@@ -20,11 +19,6 @@ import { BountyStatus, BOUNTY_CATEGORIES } from '@social-bounty/shared';
 import type { BountyListParams, BountyListItem } from '@social-bounty/shared';
 
 type LayoutMode = 'grid' | 'list';
-
-const layoutOptions = [
-  { icon: 'pi pi-th-large', value: 'grid' },
-  { icon: 'pi pi-list', value: 'list' },
-];
 
 const categories = [
   { id: 'all', name: 'All' },
@@ -69,25 +63,21 @@ export default function BrowseBountiesPage() {
     return data.data;
   })();
 
-  const layoutTemplate = (option: { icon: string; value: string }) => (
-    <i className={option.icon} />
-  );
-
   return (
     <>
       <PageHeader title="Browse Bounties" subtitle="Find bounties and earn rewards" />
 
-      {/* Category chips */}
-      <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+      {/* Category filter chips */}
+      <div className="flex flex-wrap gap-3 mb-6 overflow-x-auto pb-2">
         {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => handleCategoryChange(cat.id)}
-            className={`whitespace-nowrap px-3 py-1.5 rounded-full text-sm font-medium transition-colors border
+            className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 border
               ${
                 selectedCategory === cat.id
-                  ? 'bg-primary-500 text-white border-primary-500'
-                  : 'bg-white text-neutral-600 border-neutral-300 hover:border-primary-300 hover:text-primary-600'
+                  ? 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan/40 shadow-glow-cyan'
+                  : 'bg-glass-bg border-glass-border text-text-secondary hover:bg-white/5 hover:text-text-primary hover:border-white/20'
               }`}
           >
             {cat.name}
@@ -95,78 +85,106 @@ export default function BrowseBountiesPage() {
         ))}
       </div>
 
+      {/* Filters + Layout toggle */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <div className="flex-1">
           <BountyFilters filters={filters} onChange={handleFilterChange} />
         </div>
-        <SelectButton
-          value={layout}
-          options={layoutOptions}
-          onChange={(e) => { if (e.value) setLayout(e.value); }}
-          itemTemplate={layoutTemplate}
-          aria-label="Layout toggle"
-        />
+
+        {/* Glass layout toggle buttons */}
+        <div className="flex items-center glass-card !rounded-lg overflow-hidden !p-0">
+          <button
+            onClick={() => setLayout('grid')}
+            aria-label="Grid view"
+            className={`flex items-center justify-center w-10 h-10 transition-all duration-200
+              ${
+                layout === 'grid'
+                  ? 'bg-accent-cyan/15 text-accent-cyan shadow-glow-cyan'
+                  : 'text-text-muted hover:text-text-primary hover:bg-white/5'
+              }`}
+          >
+            <i className="pi pi-th-large text-sm" />
+          </button>
+          <div className="w-px h-5 bg-glass-border" />
+          <button
+            onClick={() => setLayout('list')}
+            aria-label="List view"
+            className={`flex items-center justify-center w-10 h-10 transition-all duration-200
+              ${
+                layout === 'list'
+                  ? 'bg-accent-cyan/15 text-accent-cyan shadow-glow-cyan'
+                  : 'text-text-muted hover:text-text-primary hover:bg-white/5'
+              }`}
+          >
+            <i className="pi pi-list text-sm" />
+          </button>
+        </div>
       </div>
 
-      {isLoading && <LoadingState type={layout === 'grid' ? 'cards-grid' : 'table'} cards={6} />}
+      {/* Main content area with fade-up animation */}
+      <div className="animate-fade-up">
+        {isLoading && <LoadingState type={layout === 'grid' ? 'cards-grid' : 'table'} cards={6} />}
 
-      {error && <ErrorState error={error} onRetry={() => refetch()} />}
+        {error && <ErrorState error={error} onRetry={() => refetch()} />}
 
-      {!isLoading && !error && sortedData.length === 0 && (
-        <EmptyState
-          icon="pi-search"
-          title="No bounties match your filters"
-          message="Try adjusting your search criteria or check back later."
-          ctaLabel="Clear Filters"
-          ctaAction={() => {
-            setFilters({ page: 1, limit, status: BountyStatus.LIVE });
-            setSelectedCategory('all');
-          }}
-        />
-      )}
-
-      {!isLoading && !error && sortedData.length > 0 && (
-        <>
-          {layout === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {sortedData.map((bounty) => (
-                <BountyCard key={bounty.id} bounty={bounty} />
-              ))}
-            </div>
-          ) : (
-            <DataTable
-              value={sortedData}
-              onRowClick={(e) => router.push(`/bounties/${(e.data as BountyListItem).id}`)}
-              rowClassName={() => 'cursor-pointer'}
-              aria-label="Bounties table"
-            >
-              <Column field="title" header="Title" />
-              <Column
-                header="Status"
-                body={(row: BountyListItem) => <StatusBadge type="bounty" value={row.status} size="small" />}
-              />
-              <Column field="category" header="Category" />
-              <Column
-                header="Reward"
-                body={(row: BountyListItem) => row.rewardValue ? formatCurrency(row.rewardValue) : '-'}
-              />
-              <Column
-                header="Deadline"
-                body={(row: BountyListItem) => row.endDate ? timeRemaining(row.endDate) : 'No deadline'}
-              />
-              <Column field="submissionCount" header="Submissions" />
-            </DataTable>
-          )}
-
-          <Paginator
-            first={first}
-            rows={limit}
-            totalRecords={data?.meta.total ?? 0}
-            onPageChange={onPageChange}
-            className="mt-6"
+        {!isLoading && !error && sortedData.length === 0 && (
+          <EmptyState
+            icon="pi-search"
+            title="No bounties match your filters"
+            message="Try adjusting your search criteria or check back later."
+            ctaLabel="Clear Filters"
+            ctaAction={() => {
+              setFilters({ page: 1, limit, status: BountyStatus.LIVE });
+              setSelectedCategory('all');
+            }}
           />
-        </>
-      )}
+        )}
+
+        {!isLoading && !error && sortedData.length > 0 && (
+          <>
+            {layout === 'grid' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {sortedData.map((bounty) => (
+                  <BountyCard key={bounty.id} bounty={bounty} />
+                ))}
+              </div>
+            ) : (
+              <div className="glass-card overflow-hidden">
+                <DataTable
+                  value={sortedData}
+                  onRowClick={(e) => router.push(`/bounties/${(e.data as BountyListItem).id}`)}
+                  rowClassName={() => 'cursor-pointer'}
+                  aria-label="Bounties table"
+                >
+                  <Column field="title" header="Title" />
+                  <Column
+                    header="Status"
+                    body={(row: BountyListItem) => <StatusBadge type="bounty" value={row.status} size="small" />}
+                  />
+                  <Column field="category" header="Category" />
+                  <Column
+                    header="Reward"
+                    body={(row: BountyListItem) => row.rewardValue ? formatCurrency(row.rewardValue) : '-'}
+                  />
+                  <Column
+                    header="Deadline"
+                    body={(row: BountyListItem) => row.endDate ? timeRemaining(row.endDate) : 'No deadline'}
+                  />
+                  <Column field="submissionCount" header="Submissions" />
+                </DataTable>
+              </div>
+            )}
+
+            <Paginator
+              first={first}
+              rows={limit}
+              totalRecords={data?.meta.total ?? 0}
+              onPageChange={onPageChange}
+              className="mt-6"
+            />
+          </>
+        )}
+      </div>
     </>
   );
 }

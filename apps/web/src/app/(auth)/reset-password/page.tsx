@@ -5,8 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
-import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
 import { useToast } from '@/hooks/useToast';
@@ -25,19 +23,19 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <Card>
+      <div className="glass-card p-8 animate-fade-up">
         <div className="text-center">
-          <i className="pi pi-exclamation-circle text-danger-500" style={{ fontSize: '3rem' }} />
-          <h2 className="text-xl font-semibold text-neutral-900 mt-4">Invalid Reset Link</h2>
-          <p className="text-neutral-600 mt-2">This password reset link is invalid or has expired.</p>
+          <i className="pi pi-exclamation-circle text-accent-rose" style={{ fontSize: '3rem' }} />
+          <h2 className="text-2xl font-heading font-bold text-text-primary text-center mb-6 mt-4">Invalid Reset Link</h2>
+          <p className="text-text-secondary text-sm mt-2">This password reset link is invalid or has expired.</p>
           <Link
             href="/forgot-password"
-            className="inline-block mt-6 text-primary-600 hover:text-primary-700 font-medium"
+            className="inline-block mt-6 text-accent-cyan hover:text-accent-cyan/80 font-medium"
           >
             Request a new link
           </Link>
         </div>
-      </Card>
+      </div>
     );
   }
 
@@ -71,14 +69,14 @@ function ResetPasswordForm() {
   };
 
   return (
-    <Card>
-      <h2 className="text-xl font-semibold text-neutral-900 text-center mb-6">Reset Password</h2>
+    <div className="glass-card p-8 animate-fade-up">
+      <h2 className="text-2xl font-heading font-bold text-text-primary text-center mb-6">Reset Password</h2>
 
-      {error && <Message severity="error" text={error} className="w-full mb-4" />}
+      {error && <p className="text-accent-rose text-xs mt-1 mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="password" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
             New Password
           </label>
           <Password
@@ -93,7 +91,7 @@ function ResetPasswordForm() {
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="confirmPassword" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
             Confirm New Password
           </label>
           <Password
@@ -116,7 +114,7 @@ function ResetPasswordForm() {
           className="w-full"
         />
       </form>
-    </Card>
+    </div>
   );
 }
 

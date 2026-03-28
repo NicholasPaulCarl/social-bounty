@@ -26,7 +26,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async signup(@Body() dto: SignupDto) {
-    if (!this.settingsService.isSignupEnabled()) {
+    if (!(await this.settingsService.isSignupEnabled())) {
       throw new BadRequestException('Signups are currently disabled');
     }
     return this.authService.signup(

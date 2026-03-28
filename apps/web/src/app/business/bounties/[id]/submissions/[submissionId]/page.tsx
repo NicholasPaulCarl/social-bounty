@@ -1,7 +1,6 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { Image } from 'primereact/image';
 import { useSubmission, useReviewSubmission, useUpdatePayout } from '@/hooks/useSubmissions';
 import { useBounty } from '@/hooks/useBounties';
@@ -65,7 +64,7 @@ export default function BusinessSubmissionReviewPage() {
   ];
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader
         title="Review Submission"
         breadcrumbs={breadcrumbs}
@@ -79,17 +78,17 @@ export default function BusinessSubmissionReviewPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Proof of Completion</h3>
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-semibold text-text-primary mb-4">Proof of Completion</h3>
             <div className="space-y-4">
               <div>
-                <h4 className="text-sm font-medium text-neutral-500 mb-1">Text Proof</h4>
-                <p className="text-neutral-800 whitespace-pre-wrap">{submission.proofText}</p>
+                <h4 className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Text Proof</h4>
+                <p className="text-text-primary whitespace-pre-wrap">{submission.proofText}</p>
               </div>
 
               {submission.proofLinks && submission.proofLinks.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-neutral-500 mb-1">Links</h4>
+                  <h4 className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Links</h4>
                   <ul className="space-y-1">
                     {submission.proofLinks.map((link: string, i: number) => (
                       <li key={i}>
@@ -97,7 +96,7 @@ export default function BusinessSubmissionReviewPage() {
                           href={link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-primary-600 hover:text-primary-700 underline"
+                          className="text-accent-cyan hover:underline"
                         >
                           {link}
                         </a>
@@ -109,7 +108,7 @@ export default function BusinessSubmissionReviewPage() {
 
               {submission.proofImages && submission.proofImages.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-neutral-500 mb-2">Images</h4>
+                  <h4 className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Images</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {submission.proofImages.map((img) => (
                       <Image
@@ -125,7 +124,7 @@ export default function BusinessSubmissionReviewPage() {
                 </div>
               )}
             </div>
-          </Card>
+          </div>
 
           <ReviewActionBar
             currentStatus={submission.status}
@@ -143,39 +142,39 @@ export default function BusinessSubmissionReviewPage() {
         </div>
 
         <div className="space-y-6">
-          <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Details</h3>
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-semibold text-text-primary mb-4">Details</h3>
             <dl className="space-y-3">
               <div>
-                <dt className="text-sm text-neutral-500">Participant</dt>
-                <dd className="text-sm font-medium text-neutral-900">{submission.user ? `${submission.user.firstName} ${submission.user.lastName}` : 'Unknown'}</dd>
+                <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Participant</dt>
+                <dd className="text-sm font-medium text-text-primary">{submission.user ? `${submission.user.firstName} ${submission.user.lastName}` : 'Unknown'}</dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Submitted</dt>
-                <dd className="text-sm font-medium text-neutral-900">{formatDateTime(submission.createdAt)}</dd>
+                <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Submitted</dt>
+                <dd className="text-sm font-medium text-text-primary">{formatDateTime(submission.createdAt)}</dd>
               </div>
               {submission.reviewedBy && (
                 <div>
-                  <dt className="text-sm text-neutral-500">Reviewed By</dt>
-                  <dd className="text-sm font-medium text-neutral-900">{submission.reviewedBy.firstName} {submission.reviewedBy.lastName}</dd>
+                  <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Reviewed By</dt>
+                  <dd className="text-sm font-medium text-text-primary">{submission.reviewedBy.firstName} {submission.reviewedBy.lastName}</dd>
                 </div>
               )}
               {submission.reviewerNote && (
                 <div>
-                  <dt className="text-sm text-neutral-500">Review Note</dt>
-                  <dd className="text-sm text-neutral-800">{submission.reviewerNote}</dd>
+                  <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Review Note</dt>
+                  <dd className="text-sm text-text-secondary">{submission.reviewerNote}</dd>
                 </div>
               )}
             </dl>
-          </Card>
+          </div>
 
-          <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Bounty Info</h3>
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-semibold text-text-primary mb-4">Bounty Info</h3>
             <dl className="space-y-3">
               <div>
-                <dt className="text-sm text-neutral-500">Bounty</dt>
+                <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Bounty</dt>
                 <dd
-                  className="text-sm font-medium text-primary-600 hover:text-primary-700 cursor-pointer"
+                  className="text-sm font-medium text-accent-cyan hover:underline cursor-pointer"
                   onClick={() => router.push(`/business/bounties/${bountyId}`)}
                 >
                   {bounty?.title || 'Loading...'}
@@ -183,14 +182,14 @@ export default function BusinessSubmissionReviewPage() {
               </div>
               {bounty && (
                 <div>
-                  <dt className="text-sm text-neutral-500">Created</dt>
-                  <dd className="text-sm font-medium text-neutral-900">{formatDate(bounty.createdAt)}</dd>
+                  <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Created</dt>
+                  <dd className="text-sm font-medium text-text-primary">{formatDate(bounty.createdAt)}</dd>
                 </div>
               )}
             </dl>
-          </Card>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

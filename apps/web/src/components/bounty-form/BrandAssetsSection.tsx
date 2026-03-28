@@ -58,10 +58,10 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-text-secondary">
           Upload logos, banners, and brand guidelines for participants to download.
         </p>
-        <span className="text-sm text-neutral-500 whitespace-nowrap ml-4">
+        <span className="text-sm text-text-muted whitespace-nowrap ml-4">
           {totalFiles} / {BRAND_ASSET_LIMITS.MAX_FILES_PER_BOUNTY} files
         </span>
       </div>
@@ -83,7 +83,7 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
       )}
 
       {bountyId && upload.isPending && (
-        <div className="flex items-center gap-2 text-sm text-neutral-500">
+        <div className="flex items-center gap-2 text-sm text-text-muted">
           <ProgressSpinner style={{ width: '20px', height: '20px' }} strokeWidth="4" />
           <span>Uploading...</span>
         </div>
@@ -91,14 +91,14 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
 
       {/* Staged files (pending upload) */}
       {stagedFiles.length > 0 && (
-        <div className="border border-neutral-200 rounded-md divide-y divide-neutral-200">
+        <div className="border border-glass-border rounded-md divide-y divide-glass-border">
           {stagedFiles.map((file, index) => (
             <div key={`staged-${index}`} className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3 min-w-0">
-                <i className={`pi ${file.type === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-neutral-500`} />
+                <i className={`pi ${file.type === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-text-muted`} />
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-neutral-800 truncate">{file.name}</p>
-                  <p className="text-xs text-neutral-500">{formatBytes(file.size)}</p>
+                  <p className="text-sm font-medium text-text-primary truncate">{file.name}</p>
+                  <p className="text-xs text-text-muted">{formatBytes(file.size)}</p>
                 </div>
                 <Tag value="Pending" severity="warning" className="ml-2" />
               </div>
@@ -116,14 +116,14 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
 
       {/* Already-uploaded assets */}
       {brandAssets.length > 0 && (
-        <div className="border border-neutral-200 rounded-md divide-y divide-neutral-200">
+        <div className="border border-glass-border rounded-md divide-y divide-glass-border">
           {brandAssets.map((asset) => (
             <div key={asset.id} className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3 min-w-0">
-                <i className={`pi ${asset.mimeType === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-neutral-500`} />
+                <i className={`pi ${asset.mimeType === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-text-muted`} />
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-neutral-800 truncate">{asset.fileName}</p>
-                  <p className="text-xs text-neutral-500">{formatBytes(asset.fileSize)}</p>
+                  <p className="text-sm font-medium text-text-primary truncate">{asset.fileName}</p>
+                  <p className="text-xs text-text-muted">{formatBytes(asset.fileSize)}</p>
                 </div>
               </div>
               <Button
@@ -139,7 +139,7 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
         </div>
       )}
 
-      <small className="text-xs text-neutral-500 block">
+      <small className="text-xs text-text-muted block">
         Accepted: JPEG, PNG, GIF, WebP, PDF. Max {formatBytes(BRAND_ASSET_LIMITS.MAX_FILE_SIZE)} per file.
       </small>
     </div>

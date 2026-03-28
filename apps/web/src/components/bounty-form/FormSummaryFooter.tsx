@@ -34,22 +34,31 @@ export function FormSummaryFooter({
   isCreating,
 }: FormSummaryFooterProps) {
   const currencySymbol = CURRENCY_SYMBOLS[currency];
+  const progressPct = totalSections > 0 ? (completedSections / totalSections) * 100 : 0;
 
   return (
     <>
       {/* Desktop footer */}
-      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-neutral-200 shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
+      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 bg-surface/80 backdrop-blur-xl border-t border-glass-border">
         <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div>
-              <span className="text-xs text-neutral-500 uppercase tracking-wider">Total Reward</span>
-              <p className="text-base font-semibold text-neutral-900">
-                <span className="text-neutral-500 text-sm font-normal mr-1">{currencySymbol}</span>
+              <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
+              <p className="text-base font-heading font-semibold text-accent-emerald">
+                <span className="text-text-muted text-sm font-normal mr-1">{currencySymbol}</span>
                 {totalRewardValue.toFixed(2)}
               </p>
             </div>
-            <div className="text-sm text-neutral-500">
-              <span className="font-medium text-neutral-700">{completedSections}</span>/{totalSections} sections complete
+            <div className="flex items-center gap-2">
+              <div className="w-24 h-1.5 bg-elevated rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-accent-cyan rounded-full transition-all duration-500"
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+              <span className="text-sm text-text-muted">
+                <span className="font-medium text-text-secondary">{completedSections}</span>/{totalSections}
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -61,15 +70,15 @@ export function FormSummaryFooter({
       </div>
 
       {/* Mobile footer */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-neutral-200 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] p-4">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/80 backdrop-blur-xl border-t border-glass-border p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <span className="text-xs text-neutral-500">Total Reward</span>
-            <p className="text-sm font-semibold text-neutral-900">
+            <span className="text-xs text-text-muted">Total Reward</span>
+            <p className="text-sm font-heading font-semibold text-accent-emerald">
               {currencySymbol} {totalRewardValue.toFixed(2)}
             </p>
           </div>
-          <span className="text-xs text-neutral-500">
+          <span className="text-xs text-text-muted">
             {completedSections}/{totalSections} complete
           </span>
         </div>

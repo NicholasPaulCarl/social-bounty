@@ -209,6 +209,9 @@ model Bounty {
   @@index([category])
   @@index([createdById])
   @@index([startDate, endDate])
+  @@index([deletedAt])
+  @@index([status, deletedAt])
+  @@index([createdAt])
   @@map("bounties")
 }
 
@@ -250,11 +253,14 @@ model Submission {
   proofImages FileUpload[]
   payout      Payout?
 
+  @@unique([bountyId, userId])
   @@index([bountyId])
   @@index([userId])
   @@index([status])
   @@index([payoutStatus])
   @@index([reviewedById])
+  @@index([status, payoutStatus, verificationDeadline])
+  @@index([createdAt])
   @@map("submissions")
 }
 
@@ -332,4 +338,15 @@ model BrandAsset {
 
   @@index([bountyId])
   @@map("brand_assets")
+}
+
+model SystemSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  type      String   @default("string") // string, boolean, number, json
+  updatedAt DateTime @updatedAt
+  updatedBy String?  // userId of admin who last changed it
+
+  @@map("system_settings")
 }

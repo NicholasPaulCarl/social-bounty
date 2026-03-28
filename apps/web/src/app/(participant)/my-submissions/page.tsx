@@ -61,51 +61,51 @@ export default function MySubmissionsPage() {
       <PageHeader title="My Submissions" subtitle="Track your bounty submissions" />
 
       {/* Earnings Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-fade-up">
+        <div className="glass-card p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-              <i className="pi pi-send text-primary-600" />
+            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
+              <i className="pi pi-send text-accent-cyan" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-neutral-900">{earnings?.totalSubmissions ?? 0}</p>
-              <p className="text-sm text-neutral-500">Total Submissions</p>
+              <p className="text-2xl font-heading font-bold text-text-primary">{earnings?.totalSubmissions ?? 0}</p>
+              <p className="text-sm text-text-muted">Total Submissions</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+        <div className="glass-card p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-success-100 flex items-center justify-center">
-              <i className="pi pi-check-circle text-success-600" />
+            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
+              <i className="pi pi-check-circle text-accent-emerald" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-neutral-900">{earnings?.approvedCount ?? 0}</p>
-              <p className="text-sm text-neutral-500">Approved</p>
+              <p className="text-2xl font-heading font-bold text-text-primary">{earnings?.approvedCount ?? 0}</p>
+              <p className="text-sm text-text-muted">Approved</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+        <div className="glass-card p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-              <i className="pi pi-wallet text-primary-600" />
+            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
+              <i className="pi pi-wallet text-accent-emerald" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-neutral-900 font-mono">R{earnings?.totalEarned?.toFixed(2) ?? '0.00'}</p>
-              <p className="text-sm text-neutral-500">Total Earned</p>
+              <p className="text-2xl font-heading font-bold text-accent-emerald font-mono">R{earnings?.totalEarned?.toFixed(2) ?? '0.00'}</p>
+              <p className="text-sm text-text-muted">Total Earned</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+        <div className="glass-card p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-warning-100 flex items-center justify-center">
-              <i className="pi pi-clock text-warning-600" />
+            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
+              <i className="pi pi-clock text-accent-cyan" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-neutral-900 font-mono">R{earnings?.pendingPayout?.toFixed(2) ?? '0.00'}</p>
-              <p className="text-sm text-neutral-500">Pending Payout</p>
+              <p className="text-2xl font-heading font-bold text-accent-emerald font-mono">R{earnings?.pendingPayout?.toFixed(2) ?? '0.00'}</p>
+              <p className="text-sm text-text-muted">Pending Payout</p>
             </div>
           </div>
         </div>

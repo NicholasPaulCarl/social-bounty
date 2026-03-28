@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { useAdminBountyDetail, useOverrideBountyStatus } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
@@ -64,57 +63,57 @@ export default function AdminBountyDetailPage() {
         }
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-up">
         <div className="lg:col-span-2 space-y-6">
-          <Card>
+          <div className="glass-card p-6">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <StatusBadge type="bounty" value={bounty.status} size="large" />
-                <span className="text-lg font-semibold">{formatCurrency(bounty.rewardValue)}</span>
-                <span className="text-sm text-neutral-500">{formatEnumLabel(bounty.rewardType)}</span>
+                <span className="text-lg font-semibold text-text-primary">{formatCurrency(bounty.rewardValue)}</span>
+                <span className="text-sm text-text-muted">{formatEnumLabel(bounty.rewardType)}</span>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-neutral-500 mb-1">Description</h3>
-                <p className="text-neutral-800 whitespace-pre-wrap">{bounty.shortDescription}</p>
+                <h3 className="text-sm font-medium text-text-muted mb-1">Description</h3>
+                <p className="text-text-secondary whitespace-pre-wrap">{bounty.shortDescription}</p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-neutral-500 mb-1">Full Instructions</h3>
-                <p className="text-neutral-800 whitespace-pre-wrap">{bounty.fullInstructions}</p>
+                <h3 className="text-sm font-medium text-text-muted mb-1">Full Instructions</h3>
+                <p className="text-text-secondary whitespace-pre-wrap">{bounty.fullInstructions}</p>
               </div>
             </div>
-          </Card>
+          </div>
         </div>
 
         <div className="space-y-6">
-          <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Details</h3>
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-semibold text-text-primary mb-4">Details</h3>
             <dl className="space-y-3">
               <div>
-                <dt className="text-sm text-neutral-500">Organisation</dt>
-                <dd className="text-sm font-medium text-neutral-900">{bounty.organisation?.name || '-'}</dd>
+                <dt className="text-sm text-text-muted">Organisation</dt>
+                <dd className="text-sm font-medium text-text-primary">{bounty.organisation?.name || '-'}</dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Created By</dt>
-                <dd className="text-sm font-medium text-neutral-900">{bounty.createdBy ? `${bounty.createdBy.firstName} ${bounty.createdBy.lastName}` : '-'}</dd>
+                <dt className="text-sm text-text-muted">Created By</dt>
+                <dd className="text-sm font-medium text-text-primary">{bounty.createdBy ? `${bounty.createdBy.firstName} ${bounty.createdBy.lastName}` : '-'}</dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Created</dt>
-                <dd className="text-sm font-medium text-neutral-900">{formatDateTime(bounty.createdAt)}</dd>
+                <dt className="text-sm text-text-muted">Created</dt>
+                <dd className="text-sm font-medium text-text-primary">{formatDateTime(bounty.createdAt)}</dd>
               </div>
               {bounty.endDate && (
                 <div>
-                  <dt className="text-sm text-neutral-500">Ends</dt>
-                  <dd className="text-sm font-medium text-neutral-900">{formatDate(bounty.endDate)}</dd>
+                  <dt className="text-sm text-text-muted">Ends</dt>
+                  <dd className="text-sm font-medium text-text-primary">{formatDate(bounty.endDate)}</dd>
                 </div>
               )}
               <div>
-                <dt className="text-sm text-neutral-500">Total Submissions</dt>
-                <dd className="text-sm font-medium text-neutral-900">{bounty.submissionCount ?? 0}</dd>
+                <dt className="text-sm text-text-muted">Total Submissions</dt>
+                <dd className="text-sm font-medium text-text-primary">{bounty.submissionCount ?? 0}</dd>
               </div>
             </dl>
-          </Card>
+          </div>
         </div>
       </div>
 

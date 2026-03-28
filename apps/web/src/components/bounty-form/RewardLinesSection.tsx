@@ -9,10 +9,10 @@ import type { RewardLineInput } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
 
 const REWARD_TYPE_OPTIONS = [
-  { label: 'Cash', value: RewardType.CASH, icon: 'pi pi-money-bill', iconColor: 'text-success-600' },
-  { label: 'Product', value: RewardType.PRODUCT, icon: 'pi pi-box', iconColor: 'text-primary-600' },
+  { label: 'Cash', value: RewardType.CASH, icon: 'pi pi-money-bill', iconColor: 'text-accent-emerald' },
+  { label: 'Product', value: RewardType.PRODUCT, icon: 'pi pi-box', iconColor: 'text-accent-cyan' },
   { label: 'Service', value: RewardType.SERVICE, icon: 'pi pi-wrench', iconColor: 'text-warning-600' },
-  { label: 'Other', value: RewardType.OTHER, icon: 'pi pi-gift', iconColor: 'text-neutral-600' },
+  { label: 'Other', value: RewardType.OTHER, icon: 'pi pi-gift', iconColor: 'text-text-secondary' },
 ];
 
 const CURRENCY_OPTIONS = [
@@ -58,7 +58,7 @@ export function RewardLinesSection({
   return (
     <>
       <div className="flex items-center gap-3 mb-4">
-        <label className="text-sm font-medium text-neutral-700">Currency</label>
+        <label className="text-sm font-medium text-text-primary">Currency</label>
         <Dropdown
           value={currency}
           options={CURRENCY_OPTIONS}
@@ -68,17 +68,17 @@ export function RewardLinesSection({
       </div>
 
       {/* Desktop table layout */}
-      <div className="hidden md:block border border-neutral-200 rounded-lg overflow-hidden">
-        <div className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 bg-neutral-50 border-b border-neutral-200">
-          <span className="text-xs font-semibold text-neutral-600 uppercase">Type</span>
-          <span className="text-xs font-semibold text-neutral-600 uppercase">Name</span>
-          <span className="text-xs font-semibold text-neutral-600 uppercase">Value ({currencySymbol})</span>
+      <div className="hidden md:block border border-glass-border rounded-lg overflow-hidden">
+        <div className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 bg-elevated border-b border-glass-border">
+          <span className="text-xs font-semibold text-text-secondary uppercase">Type</span>
+          <span className="text-xs font-semibold text-text-secondary uppercase">Name</span>
+          <span className="text-xs font-semibold text-text-secondary uppercase">Value ({currencySymbol})</span>
           <span />
         </div>
         {rewards.map((reward, index) => (
           <div
             key={index}
-            className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 border-b border-neutral-100 last:border-b-0 items-center"
+            className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 border-b border-glass-border last:border-b-0 items-center"
           >
             <Dropdown
               value={reward.rewardType}
@@ -95,7 +95,7 @@ export function RewardLinesSection({
                 placeholder="e.g. Cash reward"
               />
               {submitAttempted && errors[`reward_${index}_name`] && (
-                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
                   <i className="pi pi-exclamation-circle text-xs" />
                   {errors[`reward_${index}_name`]}
                 </small>
@@ -115,7 +115,7 @@ export function RewardLinesSection({
                 placeholder="0.00"
               />
               {submitAttempted && errors[`reward_${index}_value`] && (
-                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
                   <i className="pi pi-exclamation-circle text-xs" />
                   {errors[`reward_${index}_value`]}
                 </small>
@@ -137,9 +137,9 @@ export function RewardLinesSection({
       {/* Mobile card layout */}
       <div className="md:hidden space-y-3">
         {rewards.map((reward, index) => (
-          <div key={index} className="space-y-3 p-4 border border-neutral-200 rounded-lg">
+          <div key={index} className="space-y-3 p-4 border border-glass-border rounded-lg">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-neutral-700">Reward {index + 1}</span>
+              <span className="text-sm font-medium text-text-primary">Reward {index + 1}</span>
               {rewards.length > 1 && (
                 <Button
                   icon="pi pi-trash"
@@ -180,7 +180,7 @@ export function RewardLinesSection({
       </div>
 
       {submitAttempted && errors.rewards && (
-        <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+        <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
           <i className="pi pi-exclamation-circle text-xs" />
           {errors.rewards}
         </small>
@@ -196,15 +196,15 @@ export function RewardLinesSection({
           onClick={() => dispatch({ type: 'ADD_REWARD' })}
         />
         {rewards.length >= BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES && (
-          <small className="text-xs text-neutral-500">Maximum {BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES} reward lines</small>
+          <small className="text-xs text-text-muted">Maximum {BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES} reward lines</small>
         )}
       </div>
 
-      <div className="flex justify-end mt-4 pt-3 border-t border-neutral-200">
+      <div className="flex justify-end mt-4 pt-3 border-t border-glass-border">
         <div className="text-right">
-          <span className="text-xs text-neutral-500 uppercase tracking-wider">Total Reward Value</span>
-          <p className="text-lg font-bold text-neutral-900 mt-0.5">
-            <span className="text-neutral-500 text-base font-normal mr-1">{currencySymbol}</span>
+          <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward Value</span>
+          <p className="text-lg font-bold text-text-primary mt-0.5">
+            <span className="text-text-muted text-base font-normal mr-1">{currencySymbol}</span>
             {totalRewardValue.toFixed(2)}
           </p>
         </div>

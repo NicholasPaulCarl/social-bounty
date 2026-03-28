@@ -24,13 +24,13 @@ export function LoadingState({ type, rows = 10, columns = 4, cards = 6 }: Loadin
       <div className="space-y-3" aria-busy="true">
         <div className="flex gap-4 mb-4">
           {Array.from({ length: columns }).map((_, i) => (
-            <Skeleton key={i} width="100%" height="2rem" />
+            <Skeleton key={i} width="100%" height="2rem" className="skeleton" />
           ))}
         </div>
         {Array.from({ length: rows }).map((_, i) => (
           <div key={i} className="flex gap-4">
             {Array.from({ length: columns }).map((_, j) => (
-              <Skeleton key={j} width="100%" height="1.5rem" />
+              <Skeleton key={j} width="100%" height="1.5rem" className="skeleton" />
             ))}
           </div>
         ))}
@@ -40,14 +40,14 @@ export function LoadingState({ type, rows = 10, columns = 4, cards = 6 }: Loadin
 
   if (type === 'card') {
     return (
-      <div className="p-4 space-y-3" aria-busy="true">
-        <Skeleton width="60%" height="1.5rem" />
-        <Skeleton width="100%" height="1rem" />
-        <Skeleton width="100%" height="1rem" />
-        <Skeleton width="80%" height="1rem" />
+      <div className="glass-card p-6 space-y-3" aria-busy="true">
+        <Skeleton width="60%" height="1.5rem" className="skeleton" />
+        <Skeleton width="100%" height="1rem" className="skeleton" />
+        <Skeleton width="100%" height="1rem" className="skeleton" />
+        <Skeleton width="80%" height="1rem" className="skeleton" />
         <div className="flex gap-2 mt-4">
-          <Skeleton width="5rem" height="2rem" />
-          <Skeleton width="5rem" height="2rem" />
+          <Skeleton width="5rem" height="2rem" className="skeleton" />
+          <Skeleton width="5rem" height="2rem" className="skeleton" />
         </div>
       </div>
     );
@@ -57,11 +57,11 @@ export function LoadingState({ type, rows = 10, columns = 4, cards = 6 }: Loadin
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-busy="true">
         {Array.from({ length: cards }).map((_, i) => (
-          <div key={i} className="border rounded-lg p-4 space-y-3">
-            <Skeleton width="60%" height="1.5rem" />
-            <Skeleton width="100%" height="1rem" />
-            <Skeleton width="100%" height="1rem" />
-            <Skeleton width="40%" height="1rem" />
+          <div key={i} className="glass-card p-6 space-y-3">
+            <Skeleton width="60%" height="1.5rem" className="skeleton" />
+            <Skeleton width="100%" height="1rem" className="skeleton" />
+            <Skeleton width="100%" height="1rem" className="skeleton" />
+            <Skeleton width="40%" height="1rem" className="skeleton" />
           </div>
         ))}
       </div>
@@ -73,13 +73,13 @@ export function LoadingState({ type, rows = 10, columns = 4, cards = 6 }: Loadin
       <div className="space-y-6 max-w-2xl" aria-busy="true">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="space-y-2">
-            <Skeleton width="8rem" height="1rem" />
-            <Skeleton width="100%" height="2.5rem" />
+            <Skeleton width="8rem" height="1rem" className="skeleton" />
+            <Skeleton width="100%" height="2.5rem" className="skeleton" />
           </div>
         ))}
         <div className="flex gap-3 pt-4">
-          <Skeleton width="6rem" height="2.5rem" />
-          <Skeleton width="6rem" height="2.5rem" />
+          <Skeleton width="6rem" height="2.5rem" className="skeleton" />
+          <Skeleton width="6rem" height="2.5rem" className="skeleton" />
         </div>
       </div>
     );
@@ -88,22 +88,22 @@ export function LoadingState({ type, rows = 10, columns = 4, cards = 6 }: Loadin
   if (type === 'detail') {
     return (
       <div className="space-y-6" aria-busy="true">
-        <Skeleton width="40%" height="2rem" />
+        <Skeleton width="40%" height="2rem" className="skeleton" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <Skeleton width="100%" height="1rem" />
-            <Skeleton width="100%" height="1rem" />
-            <Skeleton width="80%" height="1rem" />
+            <Skeleton width="100%" height="1rem" className="skeleton" />
+            <Skeleton width="100%" height="1rem" className="skeleton" />
+            <Skeleton width="80%" height="1rem" className="skeleton" />
           </div>
           <div className="space-y-3">
-            <Skeleton width="100%" height="1rem" />
-            <Skeleton width="100%" height="1rem" />
-            <Skeleton width="60%" height="1rem" />
+            <Skeleton width="100%" height="1rem" className="skeleton" />
+            <Skeleton width="100%" height="1rem" className="skeleton" />
+            <Skeleton width="60%" height="1rem" className="skeleton" />
           </div>
         </div>
         <div className="flex gap-3">
-          <Skeleton width="8rem" height="2.5rem" />
-          <Skeleton width="8rem" height="2.5rem" />
+          <Skeleton width="8rem" height="2.5rem" className="skeleton" />
+          <Skeleton width="8rem" height="2.5rem" className="skeleton" />
         </div>
       </div>
     );
@@ -112,8 +112,8 @@ export function LoadingState({ type, rows = 10, columns = 4, cards = 6 }: Loadin
   // type === 'page'
   return (
     <div className="space-y-6 p-6" aria-busy="true">
-      <Skeleton width="30%" height="2rem" />
-      <Skeleton width="100%" height="20rem" />
+      <Skeleton width="30%" height="2rem" className="skeleton" />
+      <Skeleton width="100%" height="20rem" className="skeleton" />
     </div>
   );
 }

@@ -92,7 +92,7 @@ export default function OrganisationMembersPage() {
   const members = data?.data || [];
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader
         title="Organisation Members"
         breadcrumbs={breadcrumbs}
@@ -102,13 +102,15 @@ export default function OrganisationMembersPage() {
       />
 
       {members.length > 0 ? (
-        <DataTable value={members} stripedRows>
-          <Column header="Name" body={(rowData: OrgMemberResponse) => `${rowData.user.firstName} ${rowData.user.lastName}`} />
-          <Column header="Email" body={(rowData: OrgMemberResponse) => rowData.user.email} />
-          <Column header="Role" body={roleTemplate} />
-          <Column header="Joined" body={dateTemplate} />
-          <Column header="Actions" body={actionsTemplate} style={{ width: '6rem' }} />
-        </DataTable>
+        <div className="glass-card p-6">
+          <DataTable value={members} stripedRows>
+            <Column header="Name" body={(rowData: OrgMemberResponse) => `${rowData.user.firstName} ${rowData.user.lastName}`} />
+            <Column header="Email" body={(rowData: OrgMemberResponse) => rowData.user.email} />
+            <Column header="Role" body={roleTemplate} />
+            <Column header="Joined" body={dateTemplate} />
+            <Column header="Actions" body={actionsTemplate} style={{ width: '6rem' }} />
+          </DataTable>
+        </div>
       ) : (
         <EmptyState
           icon="pi-users"
@@ -139,7 +141,7 @@ export default function OrganisationMembersPage() {
         }
       >
         <div>
-          <label htmlFor="invite-email" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="invite-email" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
             Email Address
           </label>
           <InputText
@@ -163,6 +165,6 @@ export default function OrganisationMembersPage() {
         onConfirm={handleRemove}
         loading={removeMember.isPending}
       />
-    </>
+    </div>
   );
 }

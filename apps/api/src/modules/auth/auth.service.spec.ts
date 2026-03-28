@@ -6,6 +6,8 @@ import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
+import { RedisService } from '../redis/redis.service';
+import { TokenStoreService } from './token-store.service';
 import { UserRole, UserStatus } from '@social-bounty/shared';
 import * as bcrypt from 'bcrypt';
 
@@ -13,6 +15,7 @@ describe('AuthService', () => {
   let service: AuthService;
   let prisma: { user: { findUnique: jest.Mock; create: jest.Mock } };
   let jwtService: { sign: jest.Mock; verify: jest.Mock };
+  let redisService: { get: jest.Mock; incr: jest.Mock; expire: jest.Mock; del: jest.Mock };
 
   beforeEach(async () => {
     prisma = {
@@ -25,6 +28,13 @@ describe('AuthService', () => {
     jwtService = {
       sign: jest.fn().mockReturnValue('mock-token'),
       verify: jest.fn(),
+    };
+
+    redisService = {
+      get: jest.fn().mockResolvedValue(null),
+      incr: jest.fn().mockResolvedValue(1),
+      expire: jest.fn().mockResolvedValue(true),
+      del: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -56,6 +66,23 @@ describe('AuthService', () => {
           useValue: {
             sendPasswordReset: jest.fn().mockResolvedValue(undefined),
             sendEmailVerification: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: RedisService,
+          useValue: redisService,
+        },
+        {
+          provide: TokenStoreService,
+          useValue: {
+            storeRefreshToken: jest.fn().mockResolvedValue(undefined),
+            getRefreshToken: jest.fn().mockResolvedValue(null),
+            deleteRefreshToken: jest.fn().mockResolvedValue(undefined),
+            invalidateAllUserTokens: jest.fn().mockResolvedValue(undefined),
+            storeResetToken: jest.fn().mockResolvedValue(undefined),
+            getAndDeleteResetToken: jest.fn().mockResolvedValue(null),
+            storeVerificationToken: jest.fn().mockResolvedValue(undefined),
+            getAndDeleteVerificationToken: jest.fn().mockResolvedValue(null),
           },
         },
       ],
@@ -140,6 +167,62 @@ describe('AuthService', () => {
 
       expect(result.accessToken).toBe('mock-token');
       expect(result.user.email).toBe('test@example.com');
+      expect(redisService.del).toHaveBeenCalledWith('login_attempts:test@example.com');
+    });
+
+    it('should include remaining attempts in error message on failed login', async () => {
+      redisService.incr.mockResolvedValue(2); // 2nd attempt
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-id',
+        email: 'test@example.com',
+        passwordHash: await bcrypt.hash('correct-password', 10),
+        status: UserStatus.ACTIVE,
+        role: UserRole.PARTICIPANT,
+        organisationMemberships: [],
+      });
+
+      await expect(
+        service.login('test@example.com', 'wrong-password'),
+      ).rejects.toThrow('Invalid credentials. 3 attempts remaining before temporary lockout.');
+      expect(redisService.incr).toHaveBeenCalledWith('login_attempts:test@example.com');
+      expect(redisService.expire).toHaveBeenCalledWith('login_attempts:test@example.com', 900);
+    });
+
+    it('should throw ForbiddenException when account is locked', async () => {
+      redisService.get.mockResolvedValue('5'); // 5 failed attempts already
+
+      await expect(
+        service.login('test@example.com', 'any-password'),
+      ).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.login('test@example.com', 'any-password'),
+      ).rejects.toThrow('Account temporarily locked. Try again in 15 minutes.');
+    });
+
+    it('should record failed attempt for non-existent user', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.login('nonexistent@example.com', 'password'),
+      ).rejects.toThrow(UnauthorizedException);
+      expect(redisService.incr).toHaveBeenCalledWith('login_attempts:nonexistent@example.com');
+      expect(redisService.expire).toHaveBeenCalledWith('login_attempts:nonexistent@example.com', 900);
+    });
+
+    it('should show singular "attempt" when only 1 remaining', async () => {
+      redisService.incr.mockResolvedValue(4); // 4th attempt, 1 remaining
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-id',
+        email: 'test@example.com',
+        passwordHash: await bcrypt.hash('correct-password', 10),
+        status: UserStatus.ACTIVE,
+        role: UserRole.PARTICIPANT,
+        organisationMemberships: [],
+      });
+
+      await expect(
+        service.login('test@example.com', 'wrong-password'),
+      ).rejects.toThrow('Invalid credentials. 1 attempt remaining before temporary lockout.');
     });
   });
 });

@@ -76,6 +76,8 @@ jobs:
           JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-ci-32chars
           JWT_ACCESS_EXPIRY: 15m
           JWT_REFRESH_EXPIRY: 7d
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
 
       - name: Upload coverage report
         if: always()
@@ -100,6 +102,15 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -136,6 +147,8 @@ jobs:
           JWT_ACCESS_EXPIRY: 15m
           JWT_REFRESH_EXPIRY: 7d
           CORS_ORIGIN: http://localhost:3000
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
           NODE_ENV: test
 
   e2e-tests:
@@ -154,6 +167,15 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -201,6 +223,8 @@ jobs:
           JWT_SECRET: test-jwt-secret-for-ci-minimum-32-chars
           JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-ci-32chars
           CORS_ORIGIN: http://localhost:3000
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
           NODE_ENV: test
 
       - name: Upload Playwright report

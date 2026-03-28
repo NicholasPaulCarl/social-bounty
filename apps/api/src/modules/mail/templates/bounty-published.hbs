@@ -1,0 +1,44 @@
+<h2 style="margin:0 0 16px;font-size:20px;color:#1a1a2e;">
+  New Bounty Live
+</h2>
+
+<p style="margin:0 0 16px;font-size:15px;color:#333333;line-height:1.6;">
+  A new bounty is now live and ready for submissions!
+</p>
+
+<!-- Bounty Card -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;">
+  <tr>
+    <td style="padding:20px;background-color:#fafafa;">
+      <h3 style="margin:0 0 8px;font-size:18px;color:#1a1a2e;">
+        {{bountyTitle}}
+      </h3>
+      <p style="margin:0 0 16px;font-size:14px;color:#555555;line-height:1.5;">
+        {{shortDescription}}
+      </p>
+      <table role="presentation" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding:6px 12px;background-color:#e8f5e9;border-radius:4px;font-size:14px;font-weight:600;color:#2e7d32;">
+            Reward: {{currency}} {{rewardValue}}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+{{#if bountyUrl}}
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
+  <tr>
+    <td style="background-color:#6c63ff;border-radius:6px;">
+      <a href="{{bountyUrl}}" style="display:inline-block;padding:12px 24px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">
+        View Bounty
+      </a>
+    </td>
+  </tr>
+</table>
+{{/if}}
+
+<p style="margin:16px 0 0;font-size:13px;color:#999999;">
+  Get started by reviewing the bounty requirements and submitting your proof.
+</p>

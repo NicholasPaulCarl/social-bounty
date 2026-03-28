@@ -1,7 +1,6 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { Image } from 'primereact/image';
@@ -53,9 +52,9 @@ export default function SubmissionDetailPage() {
         />
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-up">
         <div className="lg:col-span-2 space-y-6">
-          <Card>
+          <div className="glass-card p-6">
             <div className="flex items-center gap-3 mb-4">
               <StatusBadge type="submission" value={submission.status} />
               {submission.payoutStatus && (
@@ -63,13 +62,13 @@ export default function SubmissionDetailPage() {
               )}
             </div>
 
-            <h3 className="text-lg font-semibold text-neutral-900 mb-2">Proof</h3>
-            <div className="text-neutral-700 whitespace-pre-wrap">{submission.proofText}</div>
+            <h3 className="text-lg font-semibold text-text-primary mb-2">Proof</h3>
+            <div className="text-text-secondary whitespace-pre-wrap">{submission.proofText}</div>
 
             {submission.proofLinks && submission.proofLinks.length > 0 && (
               <>
                 <Divider />
-                <h3 className="text-lg font-semibold text-neutral-900 mb-2">Links</h3>
+                <h3 className="text-lg font-semibold text-text-primary mb-2">Links</h3>
                 <ul className="space-y-1">
                   {submission.proofLinks.map((link, i) => (
                     <li key={i}>
@@ -77,7 +76,7 @@ export default function SubmissionDetailPage() {
                         href={link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary-600 hover:underline text-sm"
+                        className="text-accent-cyan hover:text-accent-cyan/80 text-sm"
                       >
                         {link}
                       </a>
@@ -90,49 +89,51 @@ export default function SubmissionDetailPage() {
             {submission.proofImages && submission.proofImages.length > 0 && (
               <>
                 <Divider />
-                <h3 className="text-lg font-semibold text-neutral-900 mb-2">Images</h3>
-                <div className="flex flex-wrap gap-4">
-                  {submission.proofImages.map((img, i) => (
-                    <Image
-                      key={img.id || i}
-                      src={img.fileUrl}
-                      alt={`Proof image ${i + 1} of ${submission.proofImages.length}`}
-                      width="200"
-                      preview
-                    />
-                  ))}
+                <h3 className="text-lg font-semibold text-text-primary mb-2">Images</h3>
+                <div className="glass-card rounded-lg overflow-hidden p-4">
+                  <div className="flex flex-wrap gap-4">
+                    {submission.proofImages.map((img, i) => (
+                      <Image
+                        key={img.id || i}
+                        src={img.fileUrl}
+                        alt={`Proof image ${i + 1} of ${submission.proofImages.length}`}
+                        width="200"
+                        preview
+                      />
+                    ))}
+                  </div>
                 </div>
               </>
             )}
-          </Card>
+          </div>
         </div>
 
         <div className="space-y-4">
-          <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Timeline</h3>
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-semibold text-text-primary mb-4">Timeline</h3>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-neutral-500">Submitted</p>
-                <p className="font-medium">{formatDate(submission.createdAt)}</p>
+                <p className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Submitted</p>
+                <p className="font-medium text-text-primary">{formatDate(submission.createdAt)}</p>
               </div>
               {submission.reviewedBy && (
                 <div>
-                  <p className="text-sm text-neutral-500">Reviewed By</p>
-                  <p className="font-medium">{submission.reviewedBy.firstName} {submission.reviewedBy.lastName}</p>
+                  <p className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Reviewed By</p>
+                  <p className="font-medium text-text-primary">{submission.reviewedBy.firstName} {submission.reviewedBy.lastName}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-neutral-500">Last Updated</p>
-                <p className="font-medium">{formatDate(submission.updatedAt)}</p>
+                <p className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Last Updated</p>
+                <p className="font-medium text-text-primary">{formatDate(submission.updatedAt)}</p>
               </div>
             </div>
-          </Card>
+          </div>
 
           {submission.reviewerNote && (
-            <Card>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-2">Reviewer Note</h3>
-              <p className="text-neutral-700">{submission.reviewerNote}</p>
-            </Card>
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-semibold text-text-primary mb-2">Reviewer Note</h3>
+              <p className="text-text-secondary">{submission.reviewerNote}</p>
+            </div>
           )}
         </div>
       </div>

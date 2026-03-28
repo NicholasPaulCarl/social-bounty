@@ -18,22 +18,23 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
+import { RedisService } from '../redis/redis.service';
+import { TokenStoreService } from './token-store.service';
 
 const BCRYPT_ROUNDS = 12;
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOGIN_LOCKOUT_TTL = 900; // 15 minutes in seconds
 
 @Injectable()
 export class AuthService {
-  // In-memory store for refresh tokens and reset tokens (use Redis in production)
-  private refreshTokens = new Map<string, { userId: string; jti: string }>();
-  private resetTokens = new Map<string, { userId: string; expiresAt: Date }>();
-  private verificationTokens = new Map<string, { userId: string; expiresAt: Date }>();
-
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
     private config: ConfigService,
     private auditService: AuditService,
     private mailService: MailService,
+    private tokenStore: TokenStoreService,
+    private redis: RedisService,
   ) {}
 
   async signup(
@@ -68,13 +69,11 @@ export class AuthService {
 
     // Send verification email
     const verificationToken = uuidv4();
-    this.verificationTokens.set(verificationToken, {
-      userId: user.id,
-      expiresAt: new Date(Date.now() + 86400_000), // 24 hours
-    });
-
-    this.mailService
-      .sendEmailVerification(user.email, verificationToken)
+    this.tokenStore
+      .storeVerificationToken(verificationToken, user.id)
+      .then(() =>
+        this.mailService.sendEmailVerification(user.email, verificationToken),
+      )
       .catch((err) => {
         console.error('Failed to send verification email:', err);
       });
@@ -93,6 +92,9 @@ export class AuthService {
   async login(email: string, password: string) {
     const normalizedEmail = email.toLowerCase().trim();
 
+    // Check if account is temporarily locked due to too many failed attempts
+    await this.checkLoginAttempts(normalizedEmail);
+
     const user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
       include: {
@@ -104,6 +106,7 @@ export class AuthService {
     });
 
     if (!user) {
+      await this.recordFailedAttempt(normalizedEmail);
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -114,15 +117,25 @@ export class AuthService {
     const passwordValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!passwordValid) {
+      const attempts = await this.recordFailedAttempt(normalizedEmail);
+      const remaining = MAX_LOGIN_ATTEMPTS - attempts;
+      if (remaining > 0) {
+        throw new UnauthorizedException(
+          `Invalid credentials. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining before temporary lockout.`,
+        );
+      }
       throw new UnauthorizedException('Invalid credentials');
     }
+
+    // Successful login — clear any tracked failed attempts
+    await this.clearLoginAttempts(normalizedEmail);
 
     const organisationId =
       user.organisationMemberships.length > 0
         ? user.organisationMemberships[0].organisationId
         : null;
 
-    const tokens = this.generateTokens(
+    const tokens = await this.generateTokens(
       user.id,
       user.email,
       user.role,
@@ -147,12 +160,14 @@ export class AuthService {
   }
 
   async logout(refreshToken: string) {
-    // Invalidate the refresh token
-    for (const [key, value] of this.refreshTokens.entries()) {
-      if (key === refreshToken) {
-        this.refreshTokens.delete(key);
-        break;
-      }
+    // Invalidate the refresh token -- decode to get userId for the key
+    try {
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: this.config.get<string>('JWT_REFRESH_SECRET'),
+      });
+      await this.tokenStore.deleteRefreshToken(refreshToken, payload.sub);
+    } catch {
+      // Token may be expired/invalid, but logout should always succeed
     }
 
     return { message: 'Logged out successfully.' };
@@ -167,11 +182,7 @@ export class AuthService {
     // Always return success to prevent email enumeration
     if (user) {
       const token = uuidv4();
-      this.resetTokens.set(token, {
-        userId: user.id,
-        expiresAt: new Date(Date.now() + 3600_000), // 1 hour
-      });
-
+      await this.tokenStore.storeResetToken(token, user.id);
       await this.mailService.sendPasswordReset(user.email, token);
     }
 
@@ -182,10 +193,9 @@ export class AuthService {
   }
 
   async resetPassword(token: string, newPassword: string) {
-    const resetEntry = this.resetTokens.get(token);
+    const resetEntry = await this.tokenStore.getAndDeleteResetToken(token);
 
-    if (!resetEntry || resetEntry.expiresAt < new Date()) {
-      this.resetTokens.delete(token);
+    if (!resetEntry) {
       throw new BadRequestException('Invalid or expired reset token');
     }
 
@@ -195,8 +205,6 @@ export class AuthService {
       where: { id: resetEntry.userId },
       data: { passwordHash },
     });
-
-    this.resetTokens.delete(token);
 
     const user = await this.prisma.user.findUnique({
       where: { id: resetEntry.userId },
@@ -216,10 +224,9 @@ export class AuthService {
   }
 
   async verifyEmail(token: string) {
-    const entry = this.verificationTokens.get(token);
+    const entry = await this.tokenStore.getAndDeleteVerificationToken(token);
 
-    if (!entry || entry.expiresAt < new Date()) {
-      this.verificationTokens.delete(token);
+    if (!entry) {
       throw new BadRequestException('Invalid or expired verification token');
     }
 
@@ -227,8 +234,6 @@ export class AuthService {
       where: { id: entry.userId },
       data: { emailVerified: true },
     });
-
-    this.verificationTokens.delete(token);
 
     return { message: 'Email verified successfully.' };
   }
@@ -247,11 +252,7 @@ export class AuthService {
     }
 
     const token = uuidv4();
-    this.verificationTokens.set(token, {
-      userId: user.id,
-      expiresAt: new Date(Date.now() + 86400_000), // 24 hours
-    });
-
+    await this.tokenStore.storeVerificationToken(token, user.id);
     await this.mailService.sendEmailVerification(user.email, token);
 
     return { message: 'Verification email sent.' };
@@ -267,15 +268,18 @@ export class AuthService {
         throw new UnauthorizedException('Invalid token type');
       }
 
-      const stored = this.refreshTokens.get(refreshToken);
+      const stored = await this.tokenStore.getRefreshToken(
+        refreshToken,
+        payload.sub,
+      );
       if (!stored) {
         // Potential token theft -- invalidate all tokens for user
-        this.invalidateAllUserTokens(payload.sub);
+        await this.tokenStore.invalidateAllUserTokens(payload.sub);
         throw new UnauthorizedException('Invalid refresh token');
       }
 
       // Invalidate old refresh token
-      this.refreshTokens.delete(refreshToken);
+      await this.tokenStore.deleteRefreshToken(refreshToken, payload.sub);
 
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
@@ -310,7 +314,42 @@ export class AuthService {
     }
   }
 
-  private generateTokens(
+  /**
+   * Check if the account is temporarily locked due to excessive failed login attempts.
+   * Throws ForbiddenException if the attempt count has reached the maximum.
+   */
+  private async checkLoginAttempts(email: string): Promise<void> {
+    const key = `login_attempts:${email}`;
+    const attempts = await this.redis.get(key);
+    if (attempts !== null && parseInt(attempts, 10) >= MAX_LOGIN_ATTEMPTS) {
+      throw new ForbiddenException(
+        'Account temporarily locked. Try again in 15 minutes.',
+      );
+    }
+  }
+
+  /**
+   * Record a failed login attempt. Increments the counter and sets a 15-minute TTL.
+   * Returns the current attempt count after incrementing.
+   */
+  private async recordFailedAttempt(email: string): Promise<number> {
+    const key = `login_attempts:${email}`;
+    const attempts = await this.redis.incr(key);
+    // Set/reset TTL on every failed attempt so the window is always 15 minutes
+    // from the most recent failure
+    await this.redis.expire(key, LOGIN_LOCKOUT_TTL);
+    return attempts;
+  }
+
+  /**
+   * Clear login attempt tracking on successful login.
+   */
+  private async clearLoginAttempts(email: string): Promise<void> {
+    const key = `login_attempts:${email}`;
+    await this.redis.del(key);
+  }
+
+  private async generateTokens(
     userId: string,
     email: string,
     role: string,
@@ -348,7 +387,7 @@ export class AuthService {
       },
     );
 
-    this.refreshTokens.set(refreshToken, { userId, jti });
+    await this.tokenStore.storeRefreshToken(refreshToken, userId, jti);
 
     return {
       accessToken,
@@ -360,18 +399,7 @@ export class AuthService {
   /**
    * Store a password reset token (used by AdminService for force resets)
    */
-  storeResetToken(token: string, userId: string): void {
-    this.resetTokens.set(token, {
-      userId,
-      expiresAt: new Date(Date.now() + 3600_000), // 1 hour
-    });
-  }
-
-  private invalidateAllUserTokens(userId: string) {
-    for (const [key, value] of this.refreshTokens.entries()) {
-      if (value.userId === userId) {
-        this.refreshTokens.delete(key);
-      }
-    }
+  async storeResetToken(token: string, userId: string): Promise<void> {
+    await this.tokenStore.storeResetToken(token, userId);
   }
 }

@@ -23,10 +23,10 @@ export function ContentRulesSection({
 }: ContentRulesSectionProps) {
   return (
     <>
-      <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+      <div className="flex items-center justify-between p-3 bg-elevated rounded-lg">
         <div>
-          <span className="text-sm font-medium text-neutral-700">AI-Generated Content</span>
-          <p className="text-xs text-neutral-500 mt-0.5">Allow participants to use AI-generated content</p>
+          <span className="text-sm font-medium text-text-primary">AI-Generated Content</span>
+          <p className="text-xs text-text-muted mt-0.5">Allow participants to use AI-generated content</p>
         </div>
         <InputSwitch
           checked={aiContentPermitted}
@@ -34,11 +34,11 @@ export function ContentRulesSection({
         />
       </div>
 
-      <div className="mt-4 pt-4 border-t border-neutral-200">
-        <h4 className="text-sm font-semibold text-neutral-700 mb-3">Engagement Requirements</h4>
+      <div className="mt-4 pt-4 border-t border-glass-border">
+        <h4 className="text-sm font-semibold text-text-primary mb-3">Engagement Requirements</h4>
         <div className="space-y-4">
           <div>
-            <label htmlFor="tagAccount" className="block text-sm font-medium text-neutral-700 mb-1.5">
+            <label htmlFor="tagAccount" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
               Tag Account
             </label>
             <InputText
@@ -50,7 +50,7 @@ export function ContentRulesSection({
               placeholder="@brandhandle"
             />
             {errors.tagAccount && (
-              <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+              <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
                 <i className="pi pi-exclamation-circle text-xs" />
                 {errors.tagAccount}
               </small>
@@ -63,14 +63,14 @@ export function ContentRulesSection({
                 checked={engagementRequirements.mention || false}
                 onChange={(e) => dispatch({ type: 'SET_MENTION', payload: e.checked ?? false })}
               />
-              <label className="text-sm text-neutral-700">Participant must mention brand</label>
+              <label className="text-sm text-text-primary">Participant must mention brand</label>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={engagementRequirements.comment || false}
                 onChange={(e) => dispatch({ type: 'SET_COMMENT', payload: e.checked ?? false })}
               />
-              <label className="text-sm text-neutral-700">Participant must leave a comment</label>
+              <label className="text-sm text-text-primary">Participant must leave a comment</label>
             </div>
           </div>
         </div>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { useAuditLogDetail } from '@/hooks/useAdmin';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -27,67 +26,67 @@ export default function AdminAuditLogDetailPage() {
     <>
       <PageHeader title={`Audit Log #${id.slice(0, 8)}`} breadcrumbs={breadcrumbs} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Log Details</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-up">
+        <div className="glass-card p-6">
+          <h3 className="text-lg font-semibold text-text-primary mb-4">Log Details</h3>
           <dl className="space-y-3">
             <div>
-              <dt className="text-sm text-neutral-500">Action</dt>
-              <dd className="text-sm font-medium text-neutral-900">{log.action}</dd>
+              <dt className="text-sm text-text-muted">Action</dt>
+              <dd className="text-sm font-medium text-text-primary">{log.action}</dd>
             </div>
             <div>
-              <dt className="text-sm text-neutral-500">Entity Type</dt>
-              <dd className="text-sm font-medium text-neutral-900">{log.entityType}</dd>
+              <dt className="text-sm text-text-muted">Entity Type</dt>
+              <dd className="text-sm font-medium text-text-primary">{log.entityType}</dd>
             </div>
             <div>
-              <dt className="text-sm text-neutral-500">Entity ID</dt>
-              <dd className="text-sm font-medium text-neutral-900 font-mono text-xs">{log.entityId}</dd>
+              <dt className="text-sm text-text-muted">Entity ID</dt>
+              <dd className="text-sm font-medium text-text-primary font-mono text-xs">{log.entityId}</dd>
             </div>
             <div>
-              <dt className="text-sm text-neutral-500">Performed By</dt>
-              <dd className="text-sm font-medium text-neutral-900">{log.actor?.email || log.actorId}</dd>
+              <dt className="text-sm text-text-muted">Performed By</dt>
+              <dd className="text-sm font-medium text-text-primary">{log.actor?.email || log.actorId}</dd>
             </div>
             <div>
-              <dt className="text-sm text-neutral-500">Timestamp</dt>
-              <dd className="text-sm font-medium text-neutral-900">{formatDateTime(log.createdAt)}</dd>
+              <dt className="text-sm text-text-muted">Timestamp</dt>
+              <dd className="text-sm font-medium text-text-primary">{formatDateTime(log.createdAt)}</dd>
             </div>
             {log.ipAddress && (
               <div>
-                <dt className="text-sm text-neutral-500">IP Address</dt>
-                <dd className="text-sm font-medium text-neutral-900 font-mono">{log.ipAddress}</dd>
+                <dt className="text-sm text-text-muted">IP Address</dt>
+                <dd className="text-sm font-medium text-text-primary font-mono">{log.ipAddress}</dd>
               </div>
             )}
           </dl>
-        </Card>
+        </div>
 
-        <Card>
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Changes</h3>
+        <div className="glass-card p-6">
+          <h3 className="text-lg font-semibold text-text-primary mb-4">Changes</h3>
           {log.beforeState && (
             <div className="mb-4">
-              <h4 className="text-sm font-medium text-neutral-500 mb-2">Before</h4>
-              <pre className="bg-neutral-50 rounded-lg p-4 text-sm text-neutral-800 overflow-x-auto whitespace-pre-wrap">
+              <h4 className="text-sm font-medium text-text-muted mb-2">Before</h4>
+              <pre className="border border-glass-border rounded-lg p-4 text-sm text-text-secondary overflow-x-auto whitespace-pre-wrap">
                 {JSON.stringify(log.beforeState, null, 2)}
               </pre>
             </div>
           )}
           {log.afterState && (
             <div className="mb-4">
-              <h4 className="text-sm font-medium text-neutral-500 mb-2">After</h4>
-              <pre className="bg-neutral-50 rounded-lg p-4 text-sm text-neutral-800 overflow-x-auto whitespace-pre-wrap">
+              <h4 className="text-sm font-medium text-text-muted mb-2">After</h4>
+              <pre className="border border-glass-border rounded-lg p-4 text-sm text-text-secondary overflow-x-auto whitespace-pre-wrap">
                 {JSON.stringify(log.afterState, null, 2)}
               </pre>
             </div>
           )}
           {log.reason && (
             <div>
-              <h4 className="text-sm font-medium text-neutral-500 mb-2">Reason</h4>
-              <p className="text-neutral-800">{log.reason}</p>
+              <h4 className="text-sm font-medium text-text-muted mb-2">Reason</h4>
+              <p className="text-text-secondary">{log.reason}</p>
             </div>
           )}
           {!log.beforeState && !log.afterState && !log.reason && (
-            <p className="text-sm text-neutral-500">No additional details recorded.</p>
+            <p className="text-sm text-text-muted">No additional details recorded.</p>
           )}
-        </Card>
+        </div>
       </div>
     </>
   );

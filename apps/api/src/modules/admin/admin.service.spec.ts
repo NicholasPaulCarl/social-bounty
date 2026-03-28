@@ -83,15 +83,15 @@ describe('AdminService', () => {
         {
           provide: SettingsService,
           useValue: {
-            isSignupEnabled: jest.fn().mockReturnValue(true),
-            isSubmissionEnabled: jest.fn().mockReturnValue(true),
-            getSettings: jest.fn().mockReturnValue({
+            isSignupEnabled: jest.fn().mockResolvedValue(true),
+            isSubmissionEnabled: jest.fn().mockResolvedValue(true),
+            getSettings: jest.fn().mockResolvedValue({
               signupsEnabled: true,
               submissionsEnabled: true,
               updatedAt: new Date(),
               updatedById: null,
             }),
-            updateSettings: jest.fn(),
+            updateSettings: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],

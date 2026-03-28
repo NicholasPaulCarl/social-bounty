@@ -77,11 +77,25 @@ async function main() {
     },
   });
 
+  // Upsert default system settings
+  await prisma.systemSetting.upsert({
+    where: { key: 'signupsEnabled' },
+    update: {},
+    create: { key: 'signupsEnabled', value: 'true', type: 'boolean' },
+  });
+
+  await prisma.systemSetting.upsert({
+    where: { key: 'submissionsEnabled' },
+    update: {},
+    create: { key: 'submissionsEnabled', value: 'true', type: 'boolean' },
+  });
+
   console.log('Demo seed data created:');
   console.log(`  Participant: participant@demo.com`);
   console.log(`  Business Admin: admin@demo.com (org: ${org.name})`);
   console.log(`  Super Admin: superadmin@demo.com`);
   console.log(`  Password: ${DEMO_PASSWORD}`);
+  console.log(`  System settings: signupsEnabled=true, submissionsEnabled=true`);
 }
 
 main()

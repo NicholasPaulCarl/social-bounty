@@ -13,6 +13,7 @@ import {
   PaymentStatus,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 @Injectable()
@@ -23,6 +24,7 @@ export class PaymentsService {
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
+    private auditService: AuditService,
   ) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     if (!secretKey) {
@@ -104,24 +106,36 @@ export class PaymentsService {
       throw new BadRequestException('A payment intent already exists for this bounty');
     }
 
-    const paymentIntent = await this.getStripe().paymentIntents.create({
-      amount: totalCents,
-      currency: stripeCurrency,
-      metadata: {
-        bountyId: bounty.id,
-        organisationId: bounty.organisationId,
-        userId: user.sub,
+    // Use bountyId-based idempotency key to prevent duplicate intents on retries
+    const idempotencyKey = `pi_bounty_${bountyId}`;
+
+    const paymentIntent = await this.getStripe().paymentIntents.create(
+      {
+        amount: totalCents,
+        currency: stripeCurrency,
+        metadata: {
+          bountyId: bounty.id,
+          organisationId: bounty.organisationId,
+          userId: user.sub,
+        },
       },
-    });
+      {
+        idempotencyKey,
+      },
+    );
 
     // Store the payment intent ID on the bounty
     await this.prisma.bounty.update({
       where: { id: bountyId },
       data: {
         stripePaymentIntentId: paymentIntent.id,
-        paymentStatus: 'PENDING' as any,
+        paymentStatus: PaymentStatus.PENDING as any,
       },
     });
+
+    this.logger.log(
+      `Payment intent ${paymentIntent.id} created for bounty ${bountyId} (idempotencyKey: ${idempotencyKey})`,
+    );
 
     return {
       clientSecret: paymentIntent.client_secret,
@@ -149,16 +163,57 @@ export class PaymentsService {
       throw new BadRequestException('Webhook signature verification failed');
     }
 
+    this.logger.log(`Received Stripe webhook event: ${event.type} (id: ${event.id})`);
+
     switch (event.type) {
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         const bountyId = paymentIntent.metadata?.bountyId;
         if (bountyId) {
+          // Fetch the bounty's current state before updating
+          const bounty = await this.prisma.bounty.findUnique({
+            where: { id: bountyId },
+          });
+
+          const beforeStatus = bounty?.status;
+          const beforePaymentStatus = bounty?.paymentStatus;
+
+          // Update paymentStatus to PAID and transition DRAFT bounties to LIVE
+          const updateData: Record<string, any> = {
+            paymentStatus: PaymentStatus.PAID as any,
+          };
+
+          if (bounty && bounty.status === BountyStatus.DRAFT) {
+            updateData.status = BountyStatus.LIVE;
+          }
+
           await this.prisma.bounty.updateMany({
             where: { id: bountyId },
-            data: { paymentStatus: 'PAID' as any },
+            data: updateData,
           });
-          this.logger.log(`Payment succeeded for bounty ${bountyId}`);
+
+          this.logger.log(
+            `Payment succeeded for bounty ${bountyId} — paymentStatus: ${beforePaymentStatus} -> PAID` +
+              (updateData.status ? `, status: ${beforeStatus} -> LIVE` : ''),
+          );
+
+          // Audit log for payment success
+          this.auditService.log({
+            actorId: 'stripe-webhook',
+            actorRole: UserRole.SUPER_ADMIN,
+            action: 'PAYMENT_SUCCEEDED',
+            entityType: 'Bounty',
+            entityId: bountyId,
+            beforeState: {
+              paymentStatus: beforePaymentStatus,
+              status: beforeStatus,
+            },
+            afterState: {
+              paymentStatus: PaymentStatus.PAID,
+              status: updateData.status ?? beforeStatus,
+              stripePaymentIntentId: paymentIntent.id,
+            },
+          });
         }
         break;
       }
@@ -166,11 +221,40 @@ export class PaymentsService {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         const bountyId = paymentIntent.metadata?.bountyId;
         if (bountyId) {
+          const bounty = await this.prisma.bounty.findUnique({
+            where: { id: bountyId },
+          });
+
+          const beforePaymentStatus = bounty?.paymentStatus;
+
           await this.prisma.bounty.updateMany({
             where: { id: bountyId },
-            data: { paymentStatus: 'UNPAID' as any },
+            data: { paymentStatus: PaymentStatus.UNPAID as any },
           });
-          this.logger.warn(`Payment failed for bounty ${bountyId}`);
+
+          const failureMessage =
+            (paymentIntent as any).last_payment_error?.message ?? 'Unknown failure reason';
+
+          this.logger.warn(
+            `Payment failed for bounty ${bountyId}: ${failureMessage}`,
+          );
+
+          // Audit log for payment failure
+          this.auditService.log({
+            actorId: 'stripe-webhook',
+            actorRole: UserRole.SUPER_ADMIN,
+            action: 'PAYMENT_FAILED',
+            entityType: 'Bounty',
+            entityId: bountyId,
+            beforeState: {
+              paymentStatus: beforePaymentStatus,
+            },
+            afterState: {
+              paymentStatus: PaymentStatus.UNPAID,
+              stripePaymentIntentId: paymentIntent.id,
+            },
+            reason: failureMessage,
+          });
         }
         break;
       }

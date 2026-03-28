@@ -5,15 +5,30 @@ import {
   PayoutStatus,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
+
+// Cache dashboard results for 5 minutes to avoid repeated DB roundtrips
+const DASHBOARD_CACHE_TTL = 300;
 
 @Injectable()
 export class BusinessService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private redis: RedisService,
+  ) {}
 
   async getDashboard(user: AuthenticatedUser) {
     if (!user.organisationId) {
       throw new BadRequestException('You do not belong to an organisation');
+    }
+
+    const cacheKey = `dashboard:${user.organisationId}`;
+
+    // Return cached result if available
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
     }
 
     const org = await this.prisma.organisation.findUnique({
@@ -25,82 +40,86 @@ export class BusinessService {
       throw new BadRequestException('Organisation not found');
     }
 
-    const bountyWhere = { organisationId: user.organisationId };
+    const orgId = user.organisationId;
 
-    const [
-      totalBounties,
-      draftBounties,
-      liveBounties,
-      pausedBounties,
-      closedBounties,
-    ] = await Promise.all([
-      this.prisma.bounty.count({ where: bountyWhere }),
-      this.prisma.bounty.count({ where: { ...bountyWhere, status: BountyStatus.DRAFT } }),
-      this.prisma.bounty.count({ where: { ...bountyWhere, status: BountyStatus.LIVE } }),
-      this.prisma.bounty.count({ where: { ...bountyWhere, status: BountyStatus.PAUSED } }),
-      this.prisma.bounty.count({ where: { ...bountyWhere, status: BountyStatus.CLOSED } }),
-    ]);
+    // Run bounty status counts and submission status/payout counts in parallel.
+    // Each group uses a single groupBy query instead of N individual count queries,
+    // reducing the total DB roundtrips from 15+ down to 4.
+    const [bountyGroups, submissionStatusGroups, submissionPayoutGroups] =
+      await Promise.all([
+        // One query returns counts for every bounty status
+        this.prisma.bounty.groupBy({
+          by: ['status'],
+          where: { organisationId: orgId },
+          _count: { _all: true },
+        }),
+        // One query returns submission counts for every submission status,
+        // scoped to this org's bounties via a relation filter
+        this.prisma.submission.groupBy({
+          by: ['status'],
+          where: { bounty: { organisationId: orgId } },
+          _count: { _all: true },
+        }),
+        // One query returns submission counts for every payout status
+        this.prisma.submission.groupBy({
+          by: ['payoutStatus'],
+          where: { bounty: { organisationId: orgId } },
+          _count: { _all: true },
+        }),
+      ]);
 
-    // Get all bounty IDs for submission queries
-    const bountyIds = await this.prisma.bounty.findMany({
-      where: bountyWhere,
-      select: { id: true },
-    });
-    const ids = bountyIds.map((b) => b.id);
+    // Helper: turn groupBy rows into a lookup map
+    const toStatusMap = <T extends string>(
+      groups: { _count: { _all: number } }[],
+      key: string,
+    ): Record<string, number> =>
+      Object.fromEntries(
+        groups.map((g) => [(g as Record<string, unknown>)[key] as string, g._count._all]),
+      );
 
-    const submissionWhere = { bountyId: { in: ids } };
+    const bountyByStatus = toStatusMap(bountyGroups, 'status');
+    const submissionByStatus = toStatusMap(submissionStatusGroups, 'status');
+    const submissionByPayout = toStatusMap(submissionPayoutGroups, 'payoutStatus');
 
-    const [
-      totalSubmissions,
-      submittedCount,
-      inReviewCount,
-      needsMoreInfoCount,
-      approvedCount,
-      rejectedCount,
-      notPaidCount,
-      pendingPayoutCount,
-      paidCount,
-    ] = await Promise.all([
-      this.prisma.submission.count({ where: submissionWhere }),
-      this.prisma.submission.count({ where: { ...submissionWhere, status: SubmissionStatus.SUBMITTED } }),
-      this.prisma.submission.count({ where: { ...submissionWhere, status: SubmissionStatus.IN_REVIEW } }),
-      this.prisma.submission.count({ where: { ...submissionWhere, status: SubmissionStatus.NEEDS_MORE_INFO } }),
-      this.prisma.submission.count({ where: { ...submissionWhere, status: SubmissionStatus.APPROVED } }),
-      this.prisma.submission.count({ where: { ...submissionWhere, status: SubmissionStatus.REJECTED } }),
-      this.prisma.submission.count({ where: { ...submissionWhere, payoutStatus: PayoutStatus.NOT_PAID } }),
-      this.prisma.submission.count({ where: { ...submissionWhere, payoutStatus: PayoutStatus.PENDING } }),
-      this.prisma.submission.count({ where: { ...submissionWhere, payoutStatus: PayoutStatus.PAID } }),
-    ]);
+    const totalBounties = Object.values(bountyByStatus).reduce((a, b) => a + b, 0);
+    const totalSubmissions = Object.values(submissionByStatus).reduce((a, b) => a + b, 0);
 
-    const pendingReview = submittedCount + inReviewCount;
+    const pendingReview =
+      (submissionByStatus[SubmissionStatus.SUBMITTED] ?? 0) +
+      (submissionByStatus[SubmissionStatus.IN_REVIEW] ?? 0);
 
-    return {
+    const result = {
       organisation: org,
       bounties: {
         total: totalBounties,
         byStatus: {
-          DRAFT: draftBounties,
-          LIVE: liveBounties,
-          PAUSED: pausedBounties,
-          CLOSED: closedBounties,
+          DRAFT: bountyByStatus[BountyStatus.DRAFT] ?? 0,
+          LIVE: bountyByStatus[BountyStatus.LIVE] ?? 0,
+          PAUSED: bountyByStatus[BountyStatus.PAUSED] ?? 0,
+          CLOSED: bountyByStatus[BountyStatus.CLOSED] ?? 0,
         },
       },
       submissions: {
         total: totalSubmissions,
         pendingReview,
         byStatus: {
-          SUBMITTED: submittedCount,
-          IN_REVIEW: inReviewCount,
-          NEEDS_MORE_INFO: needsMoreInfoCount,
-          APPROVED: approvedCount,
-          REJECTED: rejectedCount,
+          SUBMITTED: submissionByStatus[SubmissionStatus.SUBMITTED] ?? 0,
+          IN_REVIEW: submissionByStatus[SubmissionStatus.IN_REVIEW] ?? 0,
+          NEEDS_MORE_INFO: submissionByStatus[SubmissionStatus.NEEDS_MORE_INFO] ?? 0,
+          APPROVED: submissionByStatus[SubmissionStatus.APPROVED] ?? 0,
+          REJECTED: submissionByStatus[SubmissionStatus.REJECTED] ?? 0,
         },
         byPayoutStatus: {
-          NOT_PAID: notPaidCount,
-          PENDING: pendingPayoutCount,
-          PAID: paidCount,
+          NOT_PAID: submissionByPayout[PayoutStatus.NOT_PAID] ?? 0,
+          PENDING: submissionByPayout[PayoutStatus.PENDING] ?? 0,
+          PAID: submissionByPayout[PayoutStatus.PAID] ?? 0,
         },
       },
     };
+
+    // Persist result to Redis so subsequent calls within the TTL window skip the DB
+    await this.redis.set(cacheKey, JSON.stringify(result), DASHBOARD_CACHE_TTL);
+
+    return result;
   }
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card } from 'primereact/card';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
@@ -46,48 +45,48 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader title="Platform Settings" subtitle="Configure platform-wide settings" />
 
       <div className="max-w-2xl space-y-6">
         {formError && <Message severity="error" text={formError} className="w-full" />}
 
-        <Card>
-          <h3 className="text-lg font-semibold text-neutral-900 mb-6">Feature Toggles</h3>
+        <div className="glass-card p-6">
+          <h3 className="text-lg font-semibold text-text-primary mb-6">Feature Toggles</h3>
 
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-neutral-900">User Signups</p>
-                <p className="text-sm text-neutral-500">Allow new users to create accounts.</p>
+                <p className="font-medium text-text-primary">User Signups</p>
+                <p className="text-sm text-text-muted">Allow new users to create accounts.</p>
               </div>
               <InputSwitch checked={signupsEnabled} onChange={(e) => setSignupsEnabled(e.value ?? false)} />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-t border-glass-border pt-6">
               <div>
-                <p className="font-medium text-neutral-900">Submissions</p>
-                <p className="text-sm text-neutral-500">Allow participants to submit proof for bounties.</p>
+                <p className="font-medium text-text-primary">Submissions</p>
+                <p className="text-sm text-text-muted">Allow participants to submit proof for bounties.</p>
               </div>
               <InputSwitch checked={submissionsEnabled} onChange={(e) => setSubmissionsEnabled(e.value ?? false)} />
             </div>
           </div>
-        </Card>
+        </div>
 
         {settings && (
-          <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Last Updated</h3>
-            <dl className="space-y-2">
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-semibold text-text-primary mb-4">Last Updated</h3>
+            <dl className="space-y-3">
               <div>
-                <dt className="text-sm text-neutral-500">Timestamp</dt>
-                <dd className="text-sm font-medium text-neutral-900">{formatDateTime(settings.updatedAt)}</dd>
+                <dt className="text-sm text-text-muted">Timestamp</dt>
+                <dd className="text-sm font-medium text-text-secondary mt-0.5">{formatDateTime(settings.updatedAt)}</dd>
               </div>
-              <div>
-                <dt className="text-sm text-neutral-500">Updated By</dt>
-                <dd className="text-sm font-medium text-neutral-900">{settings.updatedBy.email}</dd>
+              <div className="border-t border-glass-border pt-3">
+                <dt className="text-sm text-text-muted">Updated By</dt>
+                <dd className="text-sm font-medium text-text-secondary mt-0.5">{settings.updatedBy.email}</dd>
               </div>
             </dl>
-          </Card>
+          </div>
         )}
 
         <div className="flex justify-end">
@@ -99,6 +98,6 @@ export default function AdminSettingsPage() {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }

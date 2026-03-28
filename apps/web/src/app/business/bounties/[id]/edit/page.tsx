@@ -60,7 +60,7 @@ export default function EditBountyPage() {
   ];
 
   return (
-    <>
+    <div className="animate-fade-up">
       <PageHeader title="Edit Bounty" breadcrumbs={breadcrumbs} />
       <CreateBountyForm
         initialBounty={bounty}
@@ -70,6 +70,6 @@ export default function EditBountyPage() {
         isSavingDraft={isDraftSave && updateBounty.isPending}
         formError={formError}
       />
-    </>
+    </div>
   );
 }

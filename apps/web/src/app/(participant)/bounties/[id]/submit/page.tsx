@@ -7,7 +7,6 @@ import { InputText } from 'primereact/inputtext';
 import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { useBounty } from '@/hooks/useBounties';
 import { useCreateSubmission } from '@/hooks/useSubmissions';
 import { useToast } from '@/hooks/useToast';
@@ -80,15 +79,15 @@ export default function SubmitProofPage() {
     <>
       <PageHeader title="Submit Proof" breadcrumbs={breadcrumbs} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-up">
         <div className="lg:col-span-2">
-          <Card>
+          <div className="glass-card p-6">
             {error && <Message severity="error" text={error} className="w-full mb-4" />}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="proofText" className="block text-sm font-medium text-neutral-700 mb-2">
-                  Proof Description <span className="text-danger-500">*</span>
+                <label htmlFor="proofText" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
+                  Proof Description <span className="text-accent-rose">*</span>
                 </label>
                 <InputTextarea
                   id="proofText"
@@ -100,11 +99,11 @@ export default function SubmitProofPage() {
                   autoFocus
                   maxLength={10000}
                 />
-                <p className="text-xs text-neutral-500 mt-1">{proofText.length}/10000 characters</p>
+                <p className="text-xs text-text-muted mt-1">{proofText.length}/10000 characters</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                   Proof Links (optional)
                 </label>
                 {proofLinks.map((link, index) => (
@@ -138,31 +137,33 @@ export default function SubmitProofPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                   Proof Images (optional)
                 </label>
-                <FileUpload
-                  mode="advanced"
-                  name="proofImages"
-                  accept="image/*"
-                  maxFileSize={5000000}
-                  multiple
-                  auto={false}
-                  chooseLabel="Choose Images"
-                  customUpload
-                  uploadHandler={(e) => {
-                    setImages(e.files as File[]);
-                  }}
-                  onSelect={(e) => setImages(e.files as File[])}
-                  onRemove={(e) => setImages((prev) => prev.filter((f) => f !== e.file))}
-                  onClear={() => setImages([])}
-                  emptyTemplate={
-                    <p className="text-neutral-500 text-center py-4">
-                      Drag and drop images here, or click to browse. Max 5MB per image.
-                    </p>
-                  }
-                  aria-label="Upload proof images, accepts JPEG, PNG, GIF, WebP"
-                />
+                <div className="glass-card rounded-lg overflow-hidden">
+                  <FileUpload
+                    mode="advanced"
+                    name="proofImages"
+                    accept="image/*"
+                    maxFileSize={5000000}
+                    multiple
+                    auto={false}
+                    chooseLabel="Choose Images"
+                    customUpload
+                    uploadHandler={(e) => {
+                      setImages(e.files as File[]);
+                    }}
+                    onSelect={(e) => setImages(e.files as File[])}
+                    onRemove={(e) => setImages((prev) => prev.filter((f) => f !== e.file))}
+                    onClear={() => setImages([])}
+                    emptyTemplate={
+                      <p className="text-text-muted text-center py-4">
+                        Drag and drop images here, or click to browse. Max 5MB per image.
+                      </p>
+                    }
+                    aria-label="Upload proof images, accepts JPEG, PNG, GIF, WebP"
+                  />
+                </div>
               </div>
 
               <div className="flex gap-3 pt-4">
@@ -181,14 +182,14 @@ export default function SubmitProofPage() {
                 />
               </div>
             </form>
-          </Card>
+          </div>
         </div>
 
         <div>
-          <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-3">Bounty Requirements</h3>
-            <p className="text-sm text-neutral-700 whitespace-pre-wrap">{bounty.proofRequirements}</p>
-          </Card>
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-semibold text-text-primary mb-3">Bounty Requirements</h3>
+            <p className="text-sm text-text-secondary whitespace-pre-wrap">{bounty.proofRequirements}</p>
+          </div>
         </div>
       </div>
     </>

@@ -491,7 +491,7 @@ export class SubmissionsService {
         bounty: {
           select: { organisationId: true, title: true },
         },
-        user: { select: { email: true } },
+        user: { select: { email: true, firstName: true } },
       },
     });
 
@@ -561,16 +561,25 @@ export class SubmissionsService {
       ipAddress,
     });
 
-    // Send email notification for status change
-    this.mailService
-      .sendSubmissionStatusChange(
-        submission.user.email,
-        submission.bounty.title,
-        newStatus,
-      )
-      .catch((err) => {
-        console.error('Failed to send status change email:', err);
-      });
+    // Send templated email notification for status change
+    const notifiableStatuses = [
+      SubmissionStatus.APPROVED,
+      SubmissionStatus.REJECTED,
+      SubmissionStatus.NEEDS_MORE_INFO,
+    ];
+    if (notifiableStatuses.includes(newStatus)) {
+      this.mailService
+        .sendSubmissionStatusEmail(submission.user.email, {
+          userName: submission.user.firstName || 'Participant',
+          bountyTitle: submission.bounty.title,
+          status: newStatus as 'APPROVED' | 'REJECTED' | 'NEEDS_MORE_INFO',
+          reviewerNote: reviewerNote || undefined,
+          actionUrl: undefined,
+        })
+        .catch((err) => {
+          console.error('Failed to send submission status email:', err);
+        });
+    }
 
     return {
       id: updated.id,
@@ -592,7 +601,17 @@ export class SubmissionsService {
     const submission = await this.prisma.submission.findUnique({
       where: { id },
       include: {
-        bounty: { select: { organisationId: true } },
+        bounty: {
+          select: {
+            organisationId: true,
+            title: true,
+            rewardValue: true,
+            rewardType: true,
+          },
+        },
+        user: {
+          select: { email: true, firstName: true },
+        },
       },
     });
 
@@ -635,6 +654,22 @@ export class SubmissionsService {
       afterState: { payoutStatus: newPayoutStatus, note: note || null },
       ipAddress,
     });
+
+    // Send payout notification email when payout is marked as PAID
+    if (newPayoutStatus === PayoutStatus.PAID) {
+      this.mailService
+        .sendPayoutNotificationEmail(submission.user.email, {
+          userName: submission.user.firstName || 'Participant',
+          bountyTitle: submission.bounty.title,
+          amount: submission.bounty.rewardValue
+            ? submission.bounty.rewardValue.toString()
+            : '0',
+          currency: 'USD',
+        })
+        .catch((err) => {
+          console.error('Failed to send payout notification email:', err);
+        });
+    }
 
     return {
       id: updated.id,
@@ -714,27 +749,55 @@ export class SubmissionsService {
   }
 
   async getMyEarnings(userId: string) {
-    const [totalSubmissions, approvedCount, earnings] = await Promise.all([
-      this.prisma.submission.count({ where: { userId } }),
-      this.prisma.submission.count({ where: { userId, status: SubmissionStatus.APPROVED } }),
+    // Single groupBy query to get counts per status, avoiding N+1
+    const [statusCounts, paidAggregate, pendingAggregate] = await Promise.all([
+      this.prisma.submission.groupBy({
+        by: ['status'],
+        where: { userId },
+        _count: { id: true },
+      }),
+      // Sum reward values for approved+paid submissions
       this.prisma.submission.findMany({
-        where: { userId, status: SubmissionStatus.APPROVED },
-        include: { bounty: { select: { rewardValue: true } } },
+        where: {
+          userId,
+          status: SubmissionStatus.APPROVED,
+          payoutStatus: PayoutStatus.PAID,
+        },
+        select: { bounty: { select: { rewardValue: true } } },
+      }),
+      // Sum reward values for approved but not-yet-paid submissions
+      this.prisma.submission.findMany({
+        where: {
+          userId,
+          status: SubmissionStatus.APPROVED,
+          payoutStatus: { not: PayoutStatus.PAID },
+        },
+        select: { bounty: { select: { rewardValue: true } } },
       }),
     ]);
 
-    let totalEarned = 0;
-    let pendingPayout = 0;
-    for (const sub of earnings) {
-      const val = sub.bounty.rewardValue ? Number(sub.bounty.rewardValue) : 0;
-      if (sub.payoutStatus === PayoutStatus.PAID) {
-        totalEarned += val;
-      } else {
-        pendingPayout += val;
-      }
+    // Derive counts from groupBy result
+    const countMap = new Map<string, number>();
+    for (const row of statusCounts) {
+      countMap.set(row.status, row._count.id);
     }
 
-    return { totalSubmissions, approvedCount, totalEarned, pendingPayout };
+    const totalSubmissions = statusCounts.reduce((sum, r) => sum + r._count.id, 0);
+    const approvedCount = countMap.get(SubmissionStatus.APPROVED) || 0;
+    const rejectedCount = countMap.get(SubmissionStatus.REJECTED) || 0;
+
+    // Compute monetary totals from selected reward values
+    let totalEarned = 0;
+    for (const sub of paidAggregate) {
+      totalEarned += sub.bounty.rewardValue ? Number(sub.bounty.rewardValue) : 0;
+    }
+
+    let pendingPayout = 0;
+    for (const sub of pendingAggregate) {
+      pendingPayout += sub.bounty.rewardValue ? Number(sub.bounty.rewardValue) : 0;
+    }
+
+    return { totalSubmissions, approvedCount, rejectedCount, totalEarned, pendingPayout };
   }
 
   async uploadFiles(
