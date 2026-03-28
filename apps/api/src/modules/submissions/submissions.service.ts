@@ -43,6 +43,16 @@ export class SubmissionsService {
     private mailService: MailService,
   ) {}
 
+  private formatProofImages(images: any[]) {
+    return images.map((f) => ({
+      id: f.id,
+      fileName: f.fileName,
+      fileUrl: `/api/v1/files/${f.id}`,
+      mimeType: f.mimeType,
+      fileSize: f.fileSize,
+    }));
+  }
+
   async create(
     bountyId: string,
     user: AuthenticatedUser,
@@ -114,13 +124,7 @@ export class SubmissionsService {
       userId: submission.userId,
       proofText: submission.proofText,
       proofLinks: submission.proofLinks,
-      proofImages: submission.proofImages.map((f) => ({
-        id: f.id,
-        fileName: f.fileName,
-        fileUrl: `/api/v1/files/${f.id}`,
-        mimeType: f.mimeType,
-        fileSize: f.fileSize,
-      })),
+      proofImages: this.formatProofImages(submission.proofImages),
       status: submission.status,
       payoutStatus: submission.payoutStatus,
       reportedMetrics: (submission as any).reportedMetrics as ReportedMetricsInput | null ?? null,
@@ -191,13 +195,7 @@ export class SubmissionsService {
         },
         proofText: s.proofText,
         proofLinks: s.proofLinks,
-        proofImages: s.proofImages.map((f) => ({
-          id: f.id,
-          fileName: f.fileName,
-          fileUrl: `/api/v1/files/${f.id}`,
-          mimeType: f.mimeType,
-          fileSize: f.fileSize,
-        })),
+        proofImages: this.formatProofImages(s.proofImages),
         status: s.status,
         reviewerNote: s.reviewerNote,
         payoutStatus: s.payoutStatus,
@@ -278,13 +276,7 @@ export class SubmissionsService {
         user: s.user,
         proofText: s.proofText,
         proofLinks: s.proofLinks,
-        proofImages: s.proofImages.map((f) => ({
-          id: f.id,
-          fileName: f.fileName,
-          fileUrl: `/api/v1/files/${f.id}`,
-          mimeType: f.mimeType,
-          fileSize: f.fileSize,
-        })),
+        proofImages: this.formatProofImages(s.proofImages),
         status: s.status,
         reviewerNote: s.reviewerNote,
         reviewedBy: s.reviewedBy,
@@ -357,13 +349,7 @@ export class SubmissionsService {
       user: submission.user,
       proofText: submission.proofText,
       proofLinks: submission.proofLinks,
-      proofImages: submission.proofImages.map((f) => ({
-        id: f.id,
-        fileName: f.fileName,
-        fileUrl: `/api/v1/files/${f.id}`,
-        mimeType: f.mimeType,
-        fileSize: f.fileSize,
-      })),
+      proofImages: this.formatProofImages(submission.proofImages),
       status: submission.status,
       reviewerNote: submission.reviewerNote,
       reviewedBy: submission.reviewedBy,
@@ -468,13 +454,7 @@ export class SubmissionsService {
       user: updated.user,
       proofText: updated.proofText,
       proofLinks: updated.proofLinks,
-      proofImages: updated.proofImages.map((f) => ({
-        id: f.id,
-        fileName: f.fileName,
-        fileUrl: `/api/v1/files/${f.id}`,
-        mimeType: f.mimeType,
-        fileSize: f.fileSize,
-      })),
+      proofImages: this.formatProofImages(updated.proofImages),
       status: updated.status,
       reviewerNote: updated.reviewerNote,
       reviewedBy: updated.reviewedBy,
@@ -892,12 +872,6 @@ export class SubmissionsService {
       ),
     );
 
-    return fileRecords.map((f) => ({
-      id: f.id,
-      fileName: f.fileName,
-      fileUrl: `/api/v1/files/${f.id}`,
-      mimeType: f.mimeType,
-      fileSize: f.fileSize,
-    }));
+    return this.formatProofImages(fileRecords);
   }
 }

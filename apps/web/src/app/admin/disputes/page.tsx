@@ -17,31 +17,17 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDate, formatEnumLabel } from '@/lib/utils/format';
+import { DISPUTE_STATUS_OPTIONS, DISPUTE_CATEGORY_OPTIONS } from '@/lib/constants/disputes';
 import { DisputeStatus, DisputeCategory } from '@social-bounty/shared';
 import type { DisputeListItem } from '@social-bounty/shared';
 
-const statusOptions = [
-  { label: 'All Statuses', value: '' },
-  { label: 'Open', value: DisputeStatus.OPEN },
-  { label: 'Under Review', value: DisputeStatus.UNDER_REVIEW },
-  { label: 'Awaiting Response', value: DisputeStatus.AWAITING_RESPONSE },
-  { label: 'Escalated', value: DisputeStatus.ESCALATED },
-  { label: 'Resolved', value: DisputeStatus.RESOLVED },
-  { label: 'Closed', value: DisputeStatus.CLOSED },
-  { label: 'Withdrawn', value: DisputeStatus.WITHDRAWN },
-];
+const statusOptions = DISPUTE_STATUS_OPTIONS.filter((o) => o.value !== 'DRAFT');
+const categoryOptions = DISPUTE_CATEGORY_OPTIONS;
 
-const categoryOptions = [
-  { label: 'All Categories', value: '' },
-  { label: 'Non Payment', value: DisputeCategory.NON_PAYMENT },
-  { label: 'Post Quality', value: DisputeCategory.POST_QUALITY },
-  { label: 'Post Non Compliance', value: DisputeCategory.POST_NON_COMPLIANCE },
-];
-
-const categoryColors: Record<DisputeCategory, string> = {
-  [DisputeCategory.NON_PAYMENT]: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30',
-  [DisputeCategory.POST_QUALITY]: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30',
-  [DisputeCategory.POST_NON_COMPLIANCE]: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30',
+const categoryColors: Record<string, string> = {
+  NON_PAYMENT: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30',
+  POST_QUALITY: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30',
+  POST_NON_COMPLIANCE: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30',
 };
 
 const kpiConfig = [
@@ -178,6 +164,7 @@ export default function AdminDisputesPage() {
           onChange={(e) => setStatusFilter(e.value)}
           placeholder="Status"
           className="w-52"
+          aria-label="Filter by status"
         />
         <Dropdown
           value={categoryFilter}
@@ -185,6 +172,7 @@ export default function AdminDisputesPage() {
           onChange={(e) => setCategoryFilter(e.value)}
           placeholder="Category"
           className="w-56"
+          aria-label="Filter by category"
         />
         {(statusFilter || categoryFilter || search) && (
           <Button

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password', '/reset-password', '/verify-email'];
 const BUSINESS_ROUTES_PREFIX = '/business';
 const ADMIN_ROUTES_PREFIX = '/admin';
+const MY_DISPUTES_PREFIX = '/my-disputes';
 
 function decodeTokenPayload(token: string): { sub: string; role: string; email: string } | null {
   try {
@@ -71,6 +72,11 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith(BUSINESS_ROUTES_PREFIX) && user.role !== 'BUSINESS_ADMIN') {
+    return NextResponse.redirect(new URL(getDashboardUrl(user.role), request.url));
+  }
+
+  // Dispute route protection
+  if (pathname.startsWith(MY_DISPUTES_PREFIX) && user.role !== 'PARTICIPANT') {
     return NextResponse.redirect(new URL(getDashboardUrl(user.role), request.url));
   }
 

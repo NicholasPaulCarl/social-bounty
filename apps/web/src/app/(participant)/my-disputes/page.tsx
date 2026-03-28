@@ -14,30 +14,21 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { formatDate, formatEnumLabel } from '@/lib/utils/format';
+import { DISPUTE_STATUS_OPTIONS } from '@/lib/constants/disputes';
 import { DisputeStatus } from '@social-bounty/shared';
 import type { DisputeListItem } from '@social-bounty/shared';
 
-const statusFilters: { label: string; value: DisputeStatus | '' }[] = [
-  { label: 'All', value: '' },
-  { label: 'Draft', value: DisputeStatus.DRAFT },
-  { label: 'Open', value: DisputeStatus.OPEN },
-  { label: 'Under Review', value: DisputeStatus.UNDER_REVIEW },
-  { label: 'Awaiting Response', value: DisputeStatus.AWAITING_RESPONSE },
-  { label: 'Escalated', value: DisputeStatus.ESCALATED },
-  { label: 'Resolved', value: DisputeStatus.RESOLVED },
-  { label: 'Closed', value: DisputeStatus.CLOSED },
-  { label: 'Withdrawn', value: DisputeStatus.WITHDRAWN },
-];
+const statusFilters = DISPUTE_STATUS_OPTIONS.map((o) => ({ label: o.label === 'All Statuses' ? 'All' : o.label, value: o.value }));
 
 export default function MyDisputesPage() {
   const router = useRouter();
   const { page, limit, first, onPageChange } = usePagination();
-  const [statusFilter, setStatusFilter] = useState<DisputeStatus | ''>('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   const { data, isLoading, error, refetch } = useMyDisputes({
     page,
     limit,
-    status: statusFilter || undefined,
+    status: (statusFilter as DisputeStatus) || undefined,
     sortOrder: 'desc',
   });
 

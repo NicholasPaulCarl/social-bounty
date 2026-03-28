@@ -37,11 +37,12 @@ import type {
   DisputeEvidenceResponse,
   DisputeStatusHistoryResponse,
 } from '@social-bounty/shared';
+import { DISPUTE_CATEGORY_COLORS } from '@/lib/constants/disputes';
 
-const categoryColors: Record<DisputeCategory, string> = {
-  [DisputeCategory.NON_PAYMENT]: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30',
-  [DisputeCategory.POST_QUALITY]: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30',
-  [DisputeCategory.POST_NON_COMPLIANCE]: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30',
+const categoryColors: Record<string, string> = {
+  NON_PAYMENT: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30',
+  POST_QUALITY: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30',
+  POST_NON_COMPLIANCE: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30',
 };
 
 const transitionableStatuses = [
@@ -94,7 +95,7 @@ function MessageBubble({ message, isAdmin }: { message: DisputeMessageResponse; 
             isInternal ? 'text-accent-amber' : isSelf ? 'text-accent-cyan' : 'text-accent-violet'
           }`} />
         </div>
-        <div className={`flex-1 max-w-[80%] ${isSelf ? 'items-end flex flex-col' : ''}`}>
+        <div className={`flex-1 max-w-[90%] sm:max-w-[80%] ${isSelf ? 'items-end flex flex-col' : ''}`}>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-medium text-text-primary">{message.authorName}</span>
             <span className="text-xs text-text-muted">{formatDateTime(message.createdAt)}</span>
@@ -367,6 +368,7 @@ export default function AdminDisputeDetailPage() {
                 rows={3}
                 placeholder={isInternalNote ? 'Internal note (not visible to parties)...' : 'Type a message...'}
                 className={`w-full ${isInternalNote ? 'border-accent-amber/40' : ''}`}
+                aria-label="Type your response"
               />
               <div className="flex justify-end">
                 <Button

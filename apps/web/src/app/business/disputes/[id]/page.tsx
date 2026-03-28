@@ -15,11 +15,12 @@ import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate, formatDateTime, formatEnumLabel } from '@/lib/utils/format';
 import { DisputeCategory, DisputeMessageType, EvidenceType } from '@social-bounty/shared';
 import type { DisputeDetailResponse, DisputeMessageResponse, DisputeEvidenceResponse } from '@social-bounty/shared';
+import { DISPUTE_CATEGORY_COLORS } from '@/lib/constants/disputes';
 
-const categoryColors: Record<DisputeCategory, string> = {
-  [DisputeCategory.NON_PAYMENT]: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30',
-  [DisputeCategory.POST_QUALITY]: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30',
-  [DisputeCategory.POST_NON_COMPLIANCE]: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30',
+const categoryColors: Record<string, string> = {
+  NON_PAYMENT: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30',
+  POST_QUALITY: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30',
+  POST_NON_COMPLIANCE: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30',
 };
 
 function MessageBubble({ message }: { message: DisputeMessageResponse }) {
@@ -41,7 +42,7 @@ function MessageBubble({ message }: { message: DisputeMessageResponse }) {
       <div className="w-8 h-8 rounded-full bg-accent-violet/10 border border-accent-violet/30 flex items-center justify-center flex-shrink-0">
         <i className="pi pi-user text-accent-violet text-xs" />
       </div>
-      <div className={`flex-1 max-w-[80%] ${isUser ? '' : 'items-end flex flex-col'}`}>
+      <div className={`flex-1 max-w-[90%] sm:max-w-[80%] ${isUser ? '' : 'items-end flex flex-col'}`}>
         <div className="flex items-center gap-2 mb-1">
           <span className="text-xs font-medium text-text-primary">{message.authorName}</span>
           <span className="text-xs text-text-muted">{formatDateTime(message.createdAt)}</span>
@@ -215,6 +216,7 @@ export default function BusinessDisputeDetailPage() {
                 rows={3}
                 placeholder="Type your response..."
                 className="w-full"
+                aria-label="Type your response"
               />
               <div className="flex justify-end">
                 <Button

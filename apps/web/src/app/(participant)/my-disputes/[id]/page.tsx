@@ -250,6 +250,7 @@ export default function DisputeDetailPage() {
                     placeholder="Type your message..."
                     className="w-full"
                     autoResize
+                    aria-label="Type your response"
                   />
                   <div className="flex justify-end mt-2">
                     <Button

@@ -4,6 +4,7 @@ import {
   NotFoundException,
   ForbiddenException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import {
@@ -13,12 +14,14 @@ import {
   DisputeReason,
   DisputeResolution,
   DisputeMessageType,
+  EvidenceType,
   SubmissionStatus,
   PayoutStatus,
   AUDIT_ACTIONS,
   ENTITY_TYPES,
   PAGINATION_DEFAULTS,
   DISPUTE_LIMITS,
+  DISPUTE_EVIDENCE_LIMITS,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
@@ -59,6 +62,8 @@ const CATEGORY_REASONS: Record<string, string[]> = {
 
 @Injectable()
 export class DisputesService {
+  private readonly logger = new Logger(DisputesService.name);
+
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
@@ -258,7 +263,7 @@ export class DisputesService {
         submission: {
           include: {
             bounty: {
-              select: { id: true, title: true, organisationId: true },
+              select: { id: true, title: true, organisationId: true, organisation: { select: { name: true } } },
             },
           },
         },
@@ -354,7 +359,7 @@ export class DisputesService {
       },
       openedByRole: dispute.openedByRole,
       organisationId: dispute.organisationId,
-      organisationName: '', // populated below
+      organisationName: dispute.submission.bounty.organisation.name,
       assignedTo: dispute.assignedTo
         ? {
             id: dispute.assignedTo.id,
@@ -430,6 +435,9 @@ export class DisputesService {
       PAGINATION_DEFAULTS.MAX_LIMIT,
     );
 
+    const ALLOWED_SORT_FIELDS = ['createdAt', 'updatedAt', 'status', 'category'];
+    const sortBy: string = params.sortBy && ALLOWED_SORT_FIELDS.includes(params.sortBy) ? params.sortBy : 'createdAt';
+
     const where: Prisma.DisputeWhereInput = { openedByUserId: user.sub };
     if (params.status) where.status = params.status;
     if (params.category) where.category = params.category;
@@ -447,14 +455,14 @@ export class DisputesService {
           submission: {
             include: {
               bounty: {
-                select: { title: true },
-                },
+                select: { title: true, organisation: { select: { name: true } } },
+              },
             },
           },
         },
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { [params.sortBy || 'createdAt']: params.sortOrder || 'desc' },
+        orderBy: { [sortBy]: params.sortOrder || 'desc' },
       }),
       this.prisma.dispute.count({ where }),
     ]);
@@ -470,7 +478,7 @@ export class DisputesService {
         submissionId: d.submissionId,
         bountyTitle: d.submission.bounty.title,
         openedBy: d.openedBy,
-        organisationName: '',
+        organisationName: d.submission.bounty.organisation.name,
         assignedTo: d.assignedTo,
         createdAt: d.createdAt.toISOString(),
         updatedAt: d.updatedAt.toISOString(),
@@ -507,6 +515,9 @@ export class DisputesService {
       PAGINATION_DEFAULTS.MAX_LIMIT,
     );
 
+    const ALLOWED_SORT_FIELDS = ['createdAt', 'updatedAt', 'status', 'category'];
+    const sortBy: string = params.sortBy && ALLOWED_SORT_FIELDS.includes(params.sortBy) ? params.sortBy : 'createdAt';
+
     const where: Prisma.DisputeWhereInput = {
       organisationId: user.organisationId,
     };
@@ -526,14 +537,14 @@ export class DisputesService {
           submission: {
             include: {
               bounty: {
-                select: { title: true },
+                select: { title: true, organisation: { select: { name: true } } },
               },
             },
           },
         },
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { [params.sortBy || 'createdAt']: params.sortOrder || 'desc' },
+        orderBy: { [sortBy]: params.sortOrder || 'desc' },
       }),
       this.prisma.dispute.count({ where }),
     ]);
@@ -549,7 +560,7 @@ export class DisputesService {
         submissionId: d.submissionId,
         bountyTitle: d.submission.bounty.title,
         openedBy: d.openedBy,
-        organisationName: '',
+        organisationName: d.submission.bounty.organisation.name,
         assignedTo: d.assignedTo,
         createdAt: d.createdAt.toISOString(),
         updatedAt: d.updatedAt.toISOString(),
@@ -583,6 +594,9 @@ export class DisputesService {
       PAGINATION_DEFAULTS.MAX_LIMIT,
     );
 
+    const ALLOWED_SORT_FIELDS = ['createdAt', 'updatedAt', 'status', 'category'];
+    const sortBy: string = params.sortBy && ALLOWED_SORT_FIELDS.includes(params.sortBy) ? params.sortBy : 'createdAt';
+
     const where: Prisma.DisputeWhereInput = {};
     if (params.status) where.status = params.status;
     if (params.category) where.category = params.category;
@@ -609,14 +623,14 @@ export class DisputesService {
           submission: {
             include: {
               bounty: {
-                select: { title: true },
+                select: { title: true, organisation: { select: { name: true } } },
               },
             },
           },
         },
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { [params.sortBy || 'createdAt']: params.sortOrder || 'desc' },
+        orderBy: { [sortBy]: params.sortOrder || 'desc' },
       }),
       this.prisma.dispute.count({ where }),
     ]);
@@ -632,7 +646,7 @@ export class DisputesService {
         submissionId: d.submissionId,
         bountyTitle: d.submission.bounty.title,
         openedBy: d.openedBy,
-        organisationName: '',
+        organisationName: d.submission.bounty.organisation.name,
         assignedTo: d.assignedTo,
         createdAt: d.createdAt.toISOString(),
         updatedAt: d.updatedAt.toISOString(),
@@ -781,7 +795,7 @@ export class DisputesService {
             disputeUrl,
           })
           .catch((err) => {
-            console.error('Failed to send dispute opened email:', err);
+            this.logger.error('Failed to send dispute opened email:', err);
           });
       }
     } else {
@@ -794,7 +808,7 @@ export class DisputesService {
           disputeUrl,
         })
         .catch((err) => {
-          console.error('Failed to send dispute opened email:', err);
+          this.logger.error('Failed to send dispute opened email:', err);
         });
     }
 
@@ -970,13 +984,13 @@ export class DisputesService {
     this.mailService
       .sendDisputeStatusChangeEmail(dispute.openedBy.email, emailData)
       .catch((err) => {
-        console.error('Failed to send dispute status change email:', err);
+        this.logger.error('Failed to send dispute status change email:', err);
       });
 
     this.mailService
       .sendDisputeStatusChangeEmail(dispute.submission.user.email, emailData)
       .catch((err) => {
-        console.error('Failed to send dispute status change email:', err);
+        this.logger.error('Failed to send dispute status change email:', err);
       });
 
     return {
@@ -1141,13 +1155,13 @@ export class DisputesService {
     this.mailService
       .sendDisputeResolvedEmail(dispute.openedBy.email, emailData)
       .catch((err) => {
-        console.error('Failed to send dispute resolved email:', err);
+        this.logger.error('Failed to send dispute resolved email:', err);
       });
 
     this.mailService
       .sendDisputeResolvedEmail(dispute.submission.user.email, emailData)
       .catch((err) => {
-        console.error('Failed to send dispute resolved email:', err);
+        this.logger.error('Failed to send dispute resolved email:', err);
       });
 
     return {
@@ -1297,6 +1311,113 @@ export class DisputesService {
       status: updated.status,
       updatedAt: updated.updatedAt.toISOString(),
     };
+  }
+
+  // ── Upload Evidence ──────────────────────────────────
+
+  async uploadEvidence(
+    disputeId: string,
+    user: AuthenticatedUser,
+    files: Express.Multer.File[],
+    descriptions: string[],
+    ipAddress?: string,
+  ) {
+    const dispute = await this.prisma.dispute.findUnique({
+      where: { id: disputeId },
+      include: {
+        evidence: { select: { id: true } },
+      },
+    });
+
+    if (!dispute) {
+      throw new NotFoundException('Dispute not found');
+    }
+
+    // Cannot upload to closed/withdrawn disputes
+    if (
+      dispute.status === DisputeStatus.CLOSED ||
+      dispute.status === DisputeStatus.WITHDRAWN
+    ) {
+      throw new BadRequestException(
+        'Cannot upload evidence to a closed or withdrawn dispute',
+      );
+    }
+
+    // Validate caller is involved party or admin
+    const isOpener = dispute.openedByUserId === user.sub;
+    const isOrgAdmin =
+      user.role === UserRole.BUSINESS_ADMIN &&
+      dispute.organisationId === user.organisationId;
+    const isSuperAdmin = user.role === UserRole.SUPER_ADMIN;
+
+    if (!isOpener && !isOrgAdmin && !isSuperAdmin) {
+      throw new ForbiddenException(
+        'Only involved parties or admins can upload evidence',
+      );
+    }
+
+    // Check total file count
+    const existingCount = dispute.evidence.length;
+    if (existingCount + files.length > DISPUTE_EVIDENCE_LIMITS.MAX_FILES_PER_DISPUTE) {
+      throw new BadRequestException(
+        `Cannot upload ${files.length} files. Maximum ${DISPUTE_EVIDENCE_LIMITS.MAX_FILES_PER_DISPUTE} files per dispute (${existingCount} already uploaded).`,
+      );
+    }
+
+    // Determine evidence type from mime type
+    const getEvidenceType = (mimeType: string): EvidenceType => {
+      if (mimeType === 'application/pdf') return EvidenceType.DOCUMENT;
+      return EvidenceType.SCREENSHOT;
+    };
+
+    // Create evidence records
+    const evidenceRecords = await this.prisma.$transaction(
+      files.map((file, index) =>
+        this.prisma.disputeEvidence.create({
+          data: {
+            disputeId,
+            uploadedByUserId: user.sub,
+            evidenceType: getEvidenceType(file.mimetype),
+            fileUrl: file.path,
+            fileName: file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_'),
+            mimeType: file.mimetype,
+            fileSize: file.size,
+            description: descriptions[index] || null,
+          },
+          include: {
+            uploadedBy: {
+              select: { id: true, firstName: true, lastName: true },
+            },
+          },
+        }),
+      ),
+    );
+
+    this.auditService.log({
+      actorId: user.sub,
+      actorRole: user.role as UserRole,
+      action: AUDIT_ACTIONS.DISPUTE_EVIDENCE_UPLOAD,
+      entityType: ENTITY_TYPES.DISPUTE,
+      entityId: disputeId,
+      afterState: {
+        fileCount: files.length,
+        evidenceIds: evidenceRecords.map((e) => e.id),
+      },
+      ipAddress,
+    });
+
+    return evidenceRecords.map((e) => ({
+      id: e.id,
+      disputeId: e.disputeId,
+      evidenceType: e.evidenceType,
+      fileUrl: e.fileUrl,
+      fileName: e.fileName,
+      mimeType: e.mimeType,
+      fileSize: e.fileSize,
+      description: e.description,
+      uploadedBy: e.uploadedBy,
+      createdAt: e.createdAt.toISOString(),
+    }));
   }
 
   // ── Stats ─────────────────────────────────────────────

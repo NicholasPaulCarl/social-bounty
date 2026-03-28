@@ -7,11 +7,18 @@ import {
   Param,
   Query,
   Req,
+  UseInterceptors,
+  UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
+import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 import { Roles, CurrentUser } from '../../common/decorators';
-import { UserRole, DisputeStatus, DisputeCategory } from '@social-bounty/shared';
+import { UserRole, DisputeStatus, DisputeCategory, DISPUTE_EVIDENCE_LIMITS } from '@social-bounty/shared';
 import { DisputesService } from './disputes.service';
 import {
   CreateDisputeDto,
@@ -144,6 +151,54 @@ export class DisputesController {
     @Req() req: Request,
   ) {
     return this.disputesService.withdraw(id, user, dto, req.ip);
+  }
+
+  @Post('disputes/:id/evidence')
+  @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  @UseInterceptors(
+    FilesInterceptor('files', DISPUTE_EVIDENCE_LIMITS.MAX_FILES_PER_DISPUTE, {
+      storage: diskStorage({
+        destination: path.resolve(process.cwd(), 'uploads'),
+        filename: (_req, file, cb) => {
+          const ext = path.extname(file.originalname).toLowerCase();
+          cb(null, `${uuidv4()}${ext}`);
+        },
+      }),
+      limits: {
+        fileSize: DISPUTE_EVIDENCE_LIMITS.MAX_FILE_SIZE,
+      },
+      fileFilter: (_req, file, cb) => {
+        const allowed = DISPUTE_EVIDENCE_LIMITS.ALLOWED_MIME_TYPES as readonly string[];
+        if (!allowed.includes(file.mimetype)) {
+          cb(
+            new BadRequestException(
+              `Invalid file type: ${file.mimetype}. Allowed: ${allowed.join(', ')}`,
+            ),
+            false,
+          );
+          return;
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async uploadEvidence(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body('descriptions') descriptions: string[] | string,
+    @Req() req: Request,
+  ) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('At least one file is required');
+    }
+    // Normalize descriptions: may come as single string or array
+    const descs = Array.isArray(descriptions)
+      ? descriptions
+      : descriptions
+        ? [descriptions]
+        : [];
+    return this.disputesService.uploadEvidence(id, user, files, descs, req.ip);
   }
 
   // ── Admin endpoints ───────────────────────────────────

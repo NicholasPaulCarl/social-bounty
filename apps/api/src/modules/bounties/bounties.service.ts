@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import * as fs from 'fs';
+import { promises as fsPromises } from 'fs';
 import * as path from 'path';
 import {
   UserRole,
@@ -1336,8 +1336,9 @@ export class BountiesService {
     // Delete file from disk
     try {
       const filePath = path.resolve(asset.fileUrl);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+      const fileExists = await fsPromises.access(filePath).then(() => true).catch(() => false);
+      if (fileExists) {
+        await fsPromises.unlink(filePath).catch(() => {});
       }
     } catch {
       // Log but don't fail if file deletion fails

@@ -358,7 +358,7 @@ describe('DisputesService', () => {
         bountyId: 'bounty-1',
         status: SubmissionStatus.APPROVED,
         payoutStatus: PayoutStatus.NOT_PAID,
-        bounty: { id: 'bounty-1', title: 'Test Bounty', organisationId: 'org-1' },
+        bounty: { id: 'bounty-1', title: 'Test Bounty', organisationId: 'org-1', organisation: { name: 'Test Org' } },
       },
     };
 
