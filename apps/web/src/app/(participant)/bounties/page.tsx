@@ -164,7 +164,7 @@ export default function BrowseBountiesPage() {
                   <Column field="category" header="Category" />
                   <Column
                     header="Reward"
-                    body={(row: BountyListItem) => row.rewardValue ? formatCurrency(row.rewardValue) : '-'}
+                    body={(row: BountyListItem) => row.rewardValue ? formatCurrency(row.rewardValue, row.currency) : '-'}
                   />
                   <Column
                     header="Deadline"

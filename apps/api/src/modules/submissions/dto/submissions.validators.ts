@@ -65,4 +65,12 @@ export class UpdatePayoutDto {
   @IsString()
   @MaxLength(FIELD_LIMITS.PAYOUT_NOTE_MAX)
   note?: string;
+
+  @IsOptional()
+  @IsString()
+  proofOfPaymentUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  proofOfPaymentName?: string;
 }

@@ -1,4 +1,4 @@
-import { SubmissionStatus, PayoutStatus, RewardType } from '../enums';
+import { SubmissionStatus, PayoutStatus, RewardType, Currency } from '../enums';
 import type { PaginationMeta } from '../common';
 
 // ─────────────────────────────────────
@@ -22,6 +22,8 @@ export interface PayoutResponse {
   currency: string;
   status: string;
   paidAt: string | null;
+  proofOfPaymentUrl: string | null;
+  proofOfPaymentName: string | null;
   createdAt: string;
 }
 
@@ -55,6 +57,7 @@ export interface SubmissionBountyInfo {
   title: string;
   rewardType: RewardType;
   rewardValue: string | null;
+  currency: Currency;
 }
 
 // Bounty summary with org info for "my submissions"
@@ -203,11 +206,15 @@ export interface ReviewSubmissionResponse {
 export interface UpdatePayoutRequest {
   payoutStatus: PayoutStatus;
   note?: string;
+  proofOfPaymentUrl?: string;
+  proofOfPaymentName?: string;
 }
 
 export interface UpdatePayoutResponse {
   id: string;
   payoutStatus: PayoutStatus;
+  proofOfPaymentUrl: string | null;
+  proofOfPaymentName: string | null;
   updatedAt: string;
 }
 

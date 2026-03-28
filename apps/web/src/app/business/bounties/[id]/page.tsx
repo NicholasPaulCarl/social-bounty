@@ -176,7 +176,7 @@ export default function BusinessBountyDetailPage() {
                   </span>
                 )}
                 {!bounty.totalRewardValue && bounty.rewardValue && (
-                  <span className="text-lg font-semibold text-text-primary">{formatCurrency(bounty.rewardValue)}</span>
+                  <span className="text-lg font-semibold text-text-primary">{formatCurrency(bounty.rewardValue, bounty.currency)}</span>
                 )}
                 <span className="text-sm text-text-muted">{formatEnumLabel(bounty.rewardType)}</span>
               </div>

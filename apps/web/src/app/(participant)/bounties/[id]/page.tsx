@@ -12,6 +12,31 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { formatCurrency, formatDate, timeRemaining, formatEnumLabel, formatBytes } from '@/lib/utils/format';
 import { PostVisibilityRule } from '@social-bounty/shared';
 
+// Local enum until shared package exports PayoutMethod
+enum PayoutMethod {
+  PAYPAL = 'PAYPAL',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+  E_WALLET = 'E_WALLET',
+}
+
+const PAYOUT_METHOD_CONFIG: Record<string, { label: string; icon: string; colorClass: string }> = {
+  [PayoutMethod.PAYPAL]: {
+    label: 'PayPal',
+    icon: 'pi-paypal',
+    colorClass: 'bg-accent-blue/15 text-accent-blue border-accent-blue/30',
+  },
+  [PayoutMethod.BANK_TRANSFER]: {
+    label: 'Bank Transfer',
+    icon: 'pi-building',
+    colorClass: 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan/30',
+  },
+  [PayoutMethod.E_WALLET]: {
+    label: 'E-Wallet',
+    icon: 'pi-wallet',
+    colorClass: 'bg-accent-violet/15 text-accent-violet border-accent-violet/30',
+  },
+};
+
 const CHANNEL_LABELS: Record<string, string> = {
   INSTAGRAM: 'Instagram',
   FACEBOOK: 'Facebook',
@@ -220,6 +245,22 @@ export default function BountyDetailPage() {
               )}
             </div>
           </div>
+
+          {/* Payment Method card */}
+          {bounty.payoutMethod && PAYOUT_METHOD_CONFIG[bounty.payoutMethod] && (() => {
+            const config = PAYOUT_METHOD_CONFIG[bounty.payoutMethod as string];
+            return (
+              <div className="glass-card p-6">
+                <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Payment Method</h3>
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border ${config.colorClass}`}>
+                    <i className={`pi ${config.icon} text-sm`} />
+                    {config.label}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Details card */}
           <div className="glass-card p-6">

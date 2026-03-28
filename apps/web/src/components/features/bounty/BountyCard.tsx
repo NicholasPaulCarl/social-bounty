@@ -24,7 +24,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
         <StatusBadge type="bounty" value={bounty.status} size="small" />
         {bounty.rewardValue && (
           <span className="text-lg font-heading font-bold text-accent-emerald">
-            {formatCurrency(bounty.rewardValue)}
+            {formatCurrency(bounty.rewardValue, bounty.currency)}
           </span>
         )}
       </div>

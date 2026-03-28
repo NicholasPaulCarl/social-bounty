@@ -6,6 +6,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Currency, RewardType, BOUNTY_REWARD_LIMITS } from '@social-bounty/shared';
 import type { RewardLineInput } from '@social-bounty/shared';
+import { PayoutMethod } from './types';
 import type { BountyFormAction } from './types';
 
 const REWARD_TYPE_OPTIONS = [
@@ -29,10 +30,17 @@ const CURRENCY_SYMBOLS: Record<Currency, string> = {
   [Currency.EUR]: '\u20ac',
 };
 
+const PAYOUT_METHOD_OPTIONS = [
+  { label: 'PayPal', value: PayoutMethod.PAYPAL, icon: 'pi-paypal', iconColor: 'text-accent-blue' },
+  { label: 'Bank Transfer', value: PayoutMethod.BANK_TRANSFER, icon: 'pi-building', iconColor: 'text-accent-cyan' },
+  { label: 'E-Wallet', value: PayoutMethod.E_WALLET, icon: 'pi-wallet', iconColor: 'text-accent-violet' },
+];
+
 interface RewardLinesSectionProps {
   rewards: RewardLineInput[];
   currency: Currency;
   totalRewardValue: number;
+  payoutMethod: PayoutMethod | null;
   dispatch: React.Dispatch<BountyFormAction>;
   errors: Record<string, string>;
   submitAttempted: boolean;
@@ -42,6 +50,7 @@ export function RewardLinesSection({
   rewards,
   currency,
   totalRewardValue,
+  payoutMethod,
   dispatch,
   errors,
   submitAttempted,
@@ -51,6 +60,13 @@ export function RewardLinesSection({
   const rewardTypeTemplate = (option: typeof REWARD_TYPE_OPTIONS[number]) => (
     <div className="flex items-center gap-2">
       <i className={`${option.icon} ${option.iconColor}`} />
+      <span>{option.label}</span>
+    </div>
+  );
+
+  const payoutMethodTemplate = (option: typeof PAYOUT_METHOD_OPTIONS[number]) => (
+    <div className="flex items-center gap-2">
+      <i className={`pi ${option.icon} ${option.iconColor}`} />
       <span>{option.label}</span>
     </div>
   );
@@ -198,6 +214,26 @@ export function RewardLinesSection({
         {rewards.length >= BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES && (
           <small className="text-xs text-text-muted">Maximum {BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES} reward lines</small>
         )}
+      </div>
+
+      {/* Payout Method */}
+      <div className="mt-5 pt-4 border-t border-glass-border">
+        <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
+          Payout Method
+        </label>
+        <Dropdown
+          value={payoutMethod}
+          options={PAYOUT_METHOD_OPTIONS}
+          onChange={(e) => dispatch({ type: 'SET_PAYOUT_METHOD', payload: e.value ?? null })}
+          itemTemplate={payoutMethodTemplate}
+          valueTemplate={payoutMethod ? payoutMethodTemplate : undefined}
+          placeholder="Select a payout method"
+          showClear
+          className="w-full sm:w-64"
+        />
+        <small className="text-xs text-text-muted mt-1.5 block">
+          How rewards will be paid out to participants
+        </small>
       </div>
 
       <div className="flex justify-end mt-4 pt-3 border-t border-glass-border">

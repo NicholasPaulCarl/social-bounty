@@ -16,7 +16,7 @@ import type {
   RewardLineInput,
 } from '@social-bounty/shared';
 import type { BountyFormState, BountyFormAction } from './types';
-import { INITIAL_FORM_STATE } from './types';
+import { INITIAL_FORM_STATE, PayoutMethod } from './types';
 import { validateFull, validateDraft, validateField } from './validation';
 
 // ---------------------------------------------------------------------------
@@ -119,6 +119,8 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
     // Section 5
     case 'SET_CURRENCY':
       return { ...state, currency: action.payload };
+    case 'SET_PAYOUT_METHOD':
+      return { ...state, payoutMethod: action.payload };
     case 'ADD_REWARD':
       return {
         ...state,
@@ -252,6 +254,9 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
               monetaryValue: parseFloat(r.monetaryValue),
             }))
           : [{ rewardType: RewardType.CASH, name: '', monetaryValue: 0 }],
+        payoutMethod: (b as unknown as { payoutMethod?: string }).payoutMethod
+          ? ((b as unknown as { payoutMethod: string }).payoutMethod as PayoutMethod)
+          : null,
         structuredEligibility: b.structuredEligibility || {
           minFollowers: null,
           publicProfile: false,
@@ -321,6 +326,7 @@ export function buildCreateBountyRequest(
     request.aiContentPermitted = state.aiContentPermitted;
     if (hasEngagement) request.engagementRequirements = state.engagementRequirements;
     if (hasPayoutMetrics) request.payoutMetrics = state.payoutMetrics;
+    if (state.payoutMethod !== null) request.payoutMethod = state.payoutMethod;
     return request as CreateBountyRequest;
   }
 
@@ -341,7 +347,8 @@ export function buildCreateBountyRequest(
     aiContentPermitted: state.aiContentPermitted,
     engagementRequirements: state.engagementRequirements,
     payoutMetrics: hasPayoutMetrics ? state.payoutMetrics : undefined,
-  };
+    ...(state.payoutMethod !== null ? { payoutMethod: state.payoutMethod } : {}),
+  } as CreateBountyRequest;
 }
 
 // ---------------------------------------------------------------------------

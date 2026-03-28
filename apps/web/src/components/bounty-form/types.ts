@@ -9,6 +9,13 @@ import type {
 } from '@social-bounty/shared';
 import { Currency, RewardType, PostVisibilityRule, DurationUnit } from '@social-bounty/shared';
 
+// Local enum until shared package exports PayoutMethod
+export enum PayoutMethod {
+  PAYPAL = 'PAYPAL',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+  E_WALLET = 'E_WALLET',
+}
+
 // ---------------------------------------------------------------------------
 // Form state
 // ---------------------------------------------------------------------------
@@ -27,6 +34,7 @@ export interface BountyFormState {
   visibilityAcknowledged: boolean;
   currency: Currency;
   rewards: RewardLineInput[];
+  payoutMethod: PayoutMethod | null;
 
   // Section 3: Bounty Rules
   structuredEligibility: StructuredEligibilityInput;
@@ -66,6 +74,7 @@ export type BountyFormAction =
   | { type: 'SET_DURATION_UNIT'; payload: DurationUnit | null }
   | { type: 'SET_VISIBILITY_ACKNOWLEDGED'; payload: boolean }
   | { type: 'SET_CURRENCY'; payload: Currency }
+  | { type: 'SET_PAYOUT_METHOD'; payload: PayoutMethod | null }
   | { type: 'ADD_REWARD' }
   | { type: 'REMOVE_REWARD'; payload: number }
   | { type: 'UPDATE_REWARD'; payload: { index: number; field: keyof RewardLineInput; value: RewardType | string | number } }
@@ -114,6 +123,7 @@ export const INITIAL_FORM_STATE: BountyFormState = {
   visibilityAcknowledged: false,
   currency: Currency.ZAR,
   rewards: [{ rewardType: RewardType.CASH, name: '', monetaryValue: 0 }],
+  payoutMethod: null,
   structuredEligibility: {
     minFollowers: null,
     publicProfile: false,

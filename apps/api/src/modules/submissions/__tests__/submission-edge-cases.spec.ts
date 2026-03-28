@@ -113,6 +113,10 @@ describe('SubmissionsService - Submission Edge Cases', () => {
         create: jest.fn(),
         deleteMany: jest.fn(),
       },
+      payout: {
+        create: jest.fn().mockResolvedValue({}),
+        update: jest.fn().mockResolvedValue({}),
+      },
       $transaction: jest.fn((fn: any) => {
         if (typeof fn === 'function') {
           return fn(prisma);
@@ -617,6 +621,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       status: SubmissionStatus.APPROVED,
       payoutStatus: PayoutStatus.NOT_PAID,
       bounty: { ...baseSubmission.bounty, organisationId: 'org-1' },
+      payout: null,
     };
 
     const payoutUpdateResult = (payoutStatus: PayoutStatus) => ({
@@ -1050,6 +1055,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
         status: SubmissionStatus.APPROVED,
         payoutStatus: PayoutStatus.NOT_PAID,
         bounty: { ...baseSubmission.bounty, organisationId: 'org-2' },
+        payout: null,
       };
 
       it('should throw ForbiddenException when BA updates payout for other org', async () => {

@@ -199,6 +199,7 @@ export function CreateBountyForm({
               rewards={state.rewards}
               currency={state.currency}
               totalRewardValue={totalRewardValue}
+              payoutMethod={state.payoutMethod}
               dispatch={dispatch}
               errors={state.errors}
               submitAttempted={state.submitAttempted}

@@ -92,6 +92,10 @@ describe('SubmissionsService', () => {
       fileUpload: {
         deleteMany: jest.fn(),
       },
+      payout: {
+        create: jest.fn().mockResolvedValue({}),
+        update: jest.fn().mockResolvedValue({}),
+      },
       $transaction: jest.fn((fn: any) => fn(prisma)),
     };
 
@@ -452,6 +456,7 @@ describe('SubmissionsService', () => {
       status: SubmissionStatus.APPROVED,
       payoutStatus: PayoutStatus.NOT_PAID,
       bounty: { ...baseSubmission.bounty, organisationId: 'org-1' },
+      payout: null,
     };
 
     it('should allow NOT_PAID -> PENDING', async () => {

@@ -69,7 +69,7 @@ export default function AdminBountyDetailPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <StatusBadge type="bounty" value={bounty.status} size="large" />
-                <span className="text-lg font-semibold text-text-primary">{formatCurrency(bounty.rewardValue)}</span>
+                <span className="text-lg font-semibold text-text-primary">{formatCurrency(bounty.rewardValue, bounty.currency)}</span>
                 <span className="text-sm text-text-muted">{formatEnumLabel(bounty.rewardType)}</span>
               </div>
 

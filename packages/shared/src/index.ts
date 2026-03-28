@@ -18,6 +18,13 @@ export {
   DurationUnit,
   Currency,
   PaymentStatus,
+  PayoutMethod,
+  DisputeStatus,
+  DisputeCategory,
+  DisputeReason,
+  DisputeResolution,
+  DisputeMessageType,
+  EvidenceType,
 } from './enums';
 
 // Common types
@@ -48,6 +55,9 @@ export {
   PAYOUT_METRICS_LIMITS,
   VERIFICATION_DEADLINE_HOURS,
   BOUNTY_CATEGORIES,
+  DISPUTE_LIMITS,
+  DISPUTE_EVIDENCE_LIMITS,
+  DISPUTE_REASON_CATEGORIES,
 } from './constants';
 
 export type { CategoryInfo } from './constants';
@@ -182,3 +192,26 @@ export type {
 export type {
   HealthCheckResponse,
 } from './dto/health.dto';
+
+// Dispute DTOs
+export type {
+  CreateDisputeRequest,
+  UpdateDisputeRequest,
+  SendDisputeMessageRequest,
+  AdminResolveDisputeRequest,
+  AdminAssignDisputeRequest,
+  AdminTransitionDisputeRequest,
+  EscalateDisputeRequest,
+  WithdrawDisputeRequest,
+  DisputeUserInfo,
+  DisputeSubmissionInfo,
+  DisputeListItem,
+  DisputeDetailResponse,
+  DisputeMessageResponse,
+  DisputeEvidenceResponse,
+  DisputeStatusHistoryResponse,
+  DisputeListParams,
+  AdminDisputeListParams,
+  DisputeStatsResponse,
+  PaginatedDisputeListResponse,
+} from './dto/dispute.dto';

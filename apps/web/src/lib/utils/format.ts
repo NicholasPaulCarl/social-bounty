@@ -26,12 +26,23 @@ const CURRENCY_LOCALE_MAP: Record<string, string> = {
 export function formatCurrency(value: string | number | null, currency?: string): string {
   if (value === null || value === undefined) return '';
   const num = typeof value === 'string' ? parseFloat(value) : value;
-  const curr = currency || 'USD';
-  const locale = CURRENCY_LOCALE_MAP[curr] || 'en-US';
+  if (isNaN(num)) return '';
+  const curr = currency || 'ZAR'; // Default to ZAR (platform default currency)
+  const locale = CURRENCY_LOCALE_MAP[curr] || 'en-ZA';
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: curr,
   }).format(num);
+}
+
+export function formatPayoutMethod(method: string | null | undefined): string {
+  if (!method) return '';
+  const labels: Record<string, string> = {
+    PAYPAL: 'PayPal',
+    BANK_TRANSFER: 'Bank Transfer',
+    E_WALLET: 'E-Wallet',
+  };
+  return labels[method] || formatEnumLabel(method);
 }
 
 export function formatEnumLabel(value: string): string {

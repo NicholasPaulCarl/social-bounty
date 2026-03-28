@@ -4,6 +4,7 @@ import {
   SubmissionStatus,
   PayoutStatus,
   PaymentStatus,
+  PayoutMethod,
   SocialChannel,
   PostFormat,
   PostVisibilityRule,
@@ -130,6 +131,7 @@ export interface BountyListItem {
   rewards: RewardLineResponse[];
   payoutMetrics: PayoutMetricsInput | null;
   paymentStatus: PaymentStatus;
+  payoutMethod?: PayoutMethod | null;
 }
 
 // GET /bounties (query params)
@@ -180,6 +182,7 @@ export interface BountyDetailResponse {
   totalRewardValue: string | null;
   payoutMetrics: PayoutMetricsInput | null;
   paymentStatus: PaymentStatus;
+  payoutMethod?: PayoutMethod | null;
   brandAssets: BrandAssetInfo[];
 }
 
@@ -203,6 +206,8 @@ export interface CreateBountyRequest {
   engagementRequirements?: EngagementRequirementsInput;
   // Payout metrics (optional)
   payoutMetrics?: PayoutMetricsInput;
+  // Payout method (optional)
+  payoutMethod?: PayoutMethod;
   // Legacy fields (optional, for backward compat)
   rewardType?: RewardType;
   rewardValue?: number | null;
@@ -241,6 +246,7 @@ export interface CreateBountyResponse {
   totalRewardValue: string | null;
   payoutMetrics: PayoutMetricsInput | null;
   paymentStatus: PaymentStatus;
+  payoutMethod?: PayoutMethod | null;
 }
 
 // PATCH /bounties/:id
@@ -263,6 +269,8 @@ export interface UpdateBountyRequest {
   engagementRequirements?: EngagementRequirementsInput;
   // Payout metrics (optional)
   payoutMetrics?: PayoutMetricsInput;
+  // Payout method (optional)
+  payoutMethod?: PayoutMethod;
   // Legacy fields (optional, for backward compat)
   rewardType?: RewardType;
   rewardValue?: number | null;

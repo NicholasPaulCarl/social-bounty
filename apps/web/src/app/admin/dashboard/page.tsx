@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useAdminDashboard, useAuditLogs, useSystemHealth } from '@/hooks/useAdmin';
+import { useDisputeStats } from '@/hooks/useDisputes';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -29,6 +30,7 @@ export default function AdminDashboardPage() {
   const { data, isLoading, error, refetch } = useAdminDashboard();
   const { data: auditData } = useAuditLogs({ limit: 10, sortBy: 'createdAt', sortOrder: 'desc' });
   const { data: healthData } = useSystemHealth();
+  const { data: disputeData } = useDisputeStats();
 
   if (isLoading) return <LoadingState type="cards-grid" cards={6} />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
@@ -41,6 +43,8 @@ export default function AdminDashboardPage() {
     { label: 'Active Bounties', value: data.bounties.byStatus?.LIVE ?? 0, icon: 'pi-check-circle', href: '/admin/bounties' },
     { label: 'Total Submissions', value: data.submissions.total, icon: 'pi-file', href: '/admin/submissions' },
     { label: 'Pending Reviews', value: data.submissions.byStatus?.IN_REVIEW ?? 0, icon: 'pi-clock', href: '/admin/submissions' },
+    { label: 'Open Disputes', value: disputeData?.open ?? 0, icon: 'pi-flag', href: '/admin/disputes' },
+    { label: 'Escalated', value: disputeData?.escalated ?? 0, icon: 'pi-exclamation-triangle', href: '/admin/disputes?status=ESCALATED' },
   ];
 
   const auditLogs: AuditLogListItem[] = auditData?.data ?? [];

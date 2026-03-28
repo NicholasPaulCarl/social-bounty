@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { InputText } from 'primereact/inputtext';
 import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
@@ -13,6 +12,7 @@ import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
+import { VerifiedLinkInput } from '@/components/common/VerifiedLinkInput';
 import { ApiError } from '@/lib/api/client';
 
 export default function SubmitProofPage() {
@@ -86,32 +86,18 @@ export default function SubmitProofPage() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="proofText" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                  Proof Description <span className="text-accent-rose">*</span>
-                </label>
-                <InputTextarea
-                  id="proofText"
-                  value={proofText}
-                  onChange={(e) => setProofText(e.target.value)}
-                  rows={6}
-                  className="w-full"
-                  placeholder="Describe how you completed this bounty..."
-                  autoFocus
-                  maxLength={10000}
-                />
-                <p className="text-xs text-text-muted mt-1">{proofText.length}/10000 characters</p>
-              </div>
-
-              <div>
                 <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                  Proof Links (optional)
+                  Post / Profile Links
                 </label>
+                <p className="text-xs text-text-muted mb-3">
+                  Paste your social media post or profile URL. Links are verified automatically.
+                </p>
                 {proofLinks.map((link, index) => (
                   <div key={index} className="flex gap-2 mb-2">
-                    <InputText
+                    <VerifiedLinkInput
                       value={link}
-                      onChange={(e) => updateLink(index, e.target.value)}
-                      placeholder="https://..."
+                      onChange={(val) => updateLink(index, val)}
+                      placeholder="https://instagram.com/p/..."
                       className="flex-1"
                     />
                     {proofLinks.length > 1 && (
@@ -134,6 +120,22 @@ export default function SubmitProofPage() {
                   onClick={addLink}
                   type="button"
                 />
+              </div>
+
+              <div>
+                <label htmlFor="proofText" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
+                  Notes
+                </label>
+                <InputTextarea
+                  id="proofText"
+                  value={proofText}
+                  onChange={(e) => setProofText(e.target.value)}
+                  rows={4}
+                  className="w-full"
+                  placeholder="Any additional notes about your submission..."
+                  maxLength={10000}
+                />
+                <p className="text-xs text-text-muted mt-1">{proofText.length}/10000 characters</p>
               </div>
 
               <div>

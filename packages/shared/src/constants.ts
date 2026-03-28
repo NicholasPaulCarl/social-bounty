@@ -99,6 +99,16 @@ export const AUDIT_ACTIONS = {
   SUBMISSION_PAYOUT_CHANGE: 'submission.payout_change',
   SUBMISSION_OVERRIDE: 'submission.override',
   SETTINGS_UPDATE: 'settings.update',
+  DISPUTE_CREATE: 'dispute.create',
+  DISPUTE_STATUS_CHANGE: 'dispute.status_change',
+  DISPUTE_RESOLVE: 'dispute.resolve',
+  DISPUTE_ESCALATE: 'dispute.escalate',
+  DISPUTE_ASSIGN: 'dispute.assign',
+  DISPUTE_MESSAGE: 'dispute.message',
+  DISPUTE_EVIDENCE_UPLOAD: 'dispute.evidence_upload',
+  DISPUTE_WITHDRAW: 'dispute.withdraw',
+  DISPUTE_AUTO_ESCALATE: 'dispute.auto_escalate',
+  DISPUTE_AUTO_CLOSE: 'dispute.auto_close',
 } as const;
 
 export const ENTITY_TYPES = {
@@ -108,6 +118,7 @@ export const ENTITY_TYPES = {
   SUBMISSION: 'Submission',
   SETTINGS: 'Settings',
   BRAND_ASSET: 'BrandAsset',
+  DISPUTE: 'Dispute',
 } as const;
 
 export const CHANNEL_POST_FORMATS: Record<SocialChannel, PostFormat[]> = {
@@ -147,3 +158,55 @@ export const BOUNTY_CATEGORIES = [
 ] as const;
 
 export type CategoryInfo = (typeof BOUNTY_CATEGORIES)[number];
+
+// ─── Dispute Limits ──────────────────
+
+export const DISPUTE_LIMITS = {
+  MAX_ACTIVE_PER_SUBMISSION: 3,
+  MAX_PER_USER_PER_DAY: 5,
+  TITLE_MAX: 200,
+  DESCRIPTION_MAX: 10000,
+  DESIRED_OUTCOME_MAX: 5000,
+  MESSAGE_MAX: 5000,
+  RESOLUTION_SUMMARY_MAX: 5000,
+  EVIDENCE_DESCRIPTION_MAX: 500,
+  MAX_EVIDENCE_FILES: 10,
+  AUTO_ESCALATE_DAYS: 7,
+  AUTO_CLOSE_DAYS: 90,
+  RESPONSE_DEADLINE_DAYS: 7,
+} as const;
+
+export const DISPUTE_EVIDENCE_LIMITS = {
+  MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
+  MAX_FILES_PER_DISPUTE: 10,
+  ALLOWED_MIME_TYPES: [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'application/pdf',
+  ] as const,
+} as const;
+
+export const DISPUTE_REASON_CATEGORIES = {
+  NON_PAYMENT: [
+    'PAYMENT_NOT_RECEIVED',
+    'PAYMENT_INCORRECT_AMOUNT',
+    'PAYMENT_DELAYED_BEYOND_TERMS',
+    'PAYOUT_MARKED_BUT_NOT_RECEIVED',
+  ],
+  POST_QUALITY: [
+    'POST_EDITED_AFTER_APPROVAL',
+    'POST_REMOVED',
+    'POST_QUALITY_BELOW_STANDARD',
+    'POST_WRONG_PLATFORM',
+    'POST_MISSING_REQUIRED_ELEMENTS',
+  ],
+  POST_NON_COMPLIANCE: [
+    'POST_DELETED_AFTER_PAYMENT',
+    'POST_EDITED_AFTER_PAYMENT',
+    'DISCLOSURE_REMOVED',
+    'COMPETITOR_CONTENT_ADDED',
+    'TERMS_VIOLATED_AFTER_PAYMENT',
+  ],
+} as const;

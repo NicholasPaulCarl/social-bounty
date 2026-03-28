@@ -12,7 +12,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ReviewActionBar } from '@/components/features/submission/ReviewActionBar';
 import { PayoutActionBar } from '@/components/features/submission/PayoutActionBar';
-import { formatDate, formatDateTime } from '@/lib/utils/format';
+import { formatDate, formatDateTime, formatCurrency } from '@/lib/utils/format';
 import type { ReviewHistoryEntry } from '@social-bounty/shared';
 
 export default function ReviewCenterDetailPage() {
@@ -225,7 +225,7 @@ export default function ReviewCenterDetailPage() {
                 <div>
                   <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Reward</dt>
                   <dd className="text-sm font-medium font-mono text-text-primary">
-                    R{parseFloat(submission.bounty.rewardValue).toFixed(2)}
+                    {formatCurrency(submission.bounty.rewardValue, submission.bounty.currency)}
                   </dd>
                 </div>
               )}

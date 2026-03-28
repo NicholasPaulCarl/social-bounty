@@ -6,6 +6,8 @@ import type {
   AdminOrgListParams,
   AuditLogListParams,
   AdminRecentErrorsParams,
+  DisputeListParams,
+  AdminDisputeListParams,
 } from '@social-bounty/shared';
 
 export const queryKeys = {
@@ -41,6 +43,14 @@ export const queryKeys = {
     systemHealth: ['admin', 'system-health'] as const,
     recentErrors: (filters: AdminRecentErrorsParams) => ['admin', 'recent-errors', filters] as const,
     settings: ['admin', 'settings'] as const,
+  },
+  disputes: {
+    all: ['disputes'] as const,
+    mine: (params: DisputeListParams) => [...queryKeys.disputes.all, 'mine', params] as const,
+    forOrg: (params: DisputeListParams) => [...queryKeys.disputes.all, 'forOrg', params] as const,
+    detail: (id: string) => [...queryKeys.disputes.all, 'detail', id] as const,
+    adminList: (params: AdminDisputeListParams) => [...queryKeys.disputes.all, 'adminList', params] as const,
+    stats: () => [...queryKeys.disputes.all, 'stats'] as const,
   },
   business: {
     dashboard: ['business', 'dashboard'] as const,

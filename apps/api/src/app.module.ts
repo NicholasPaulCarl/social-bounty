@@ -10,6 +10,7 @@ import { UsersModule } from './modules/users/users.module';
 import { OrganisationsModule } from './modules/organisations/organisations.module';
 import { BountiesModule } from './modules/bounties/bounties.module';
 import { SubmissionsModule } from './modules/submissions/submissions.module';
+import { DisputesModule } from './modules/disputes/disputes.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { BusinessModule } from './modules/business/business.module';
 import { HealthModule } from './modules/health/health.module';
@@ -44,6 +45,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     OrganisationsModule,
     BountiesModule,
     SubmissionsModule,
+    DisputesModule,
     AdminModule,
     BusinessModule,
     HealthModule,

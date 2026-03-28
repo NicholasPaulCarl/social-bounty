@@ -14,7 +14,7 @@ import { StatusBadge } from '@/components/common/StatusBadge';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
-import { formatDate } from '@/lib/utils/format';
+import { formatDate, formatCurrency } from '@/lib/utils/format';
 import { PayoutStatus } from '@social-bounty/shared';
 import type { MySubmissionListItem, SubmissionStatus } from '@social-bounty/shared';
 
@@ -92,7 +92,7 @@ export default function MySubmissionsPage() {
               <i className="pi pi-wallet text-accent-emerald" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-accent-emerald font-mono">R{earnings?.totalEarned?.toFixed(2) ?? '0.00'}</p>
+              <p className="text-2xl font-heading font-bold text-accent-emerald font-mono">{formatCurrency(earnings?.totalEarned ?? 0)}</p>
               <p className="text-sm text-text-muted">Total Earned</p>
             </div>
           </div>
@@ -104,7 +104,7 @@ export default function MySubmissionsPage() {
               <i className="pi pi-clock text-accent-cyan" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-accent-emerald font-mono">R{earnings?.pendingPayout?.toFixed(2) ?? '0.00'}</p>
+              <p className="text-2xl font-heading font-bold text-accent-emerald font-mono">{formatCurrency(earnings?.pendingPayout ?? 0)}</p>
               <p className="text-sm text-text-muted">Pending Payout</p>
             </div>
           </div>

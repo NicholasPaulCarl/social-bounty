@@ -1,4 +1,5 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Query, BadRequestException, Res } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { Response } from 'express';
 import { Public } from '../../common/decorators';
 import { PrismaService } from '../prisma/prisma.service';
@@ -10,6 +11,76 @@ export class HealthController {
     private prisma: PrismaService,
     private redis: RedisService,
   ) {}
+
+  /**
+   * Verify that a URL is reachable (returns 2xx/3xx).
+   * Used by the submission form to validate social media links on blur.
+   */
+  @Get('verify-url')
+  @Public()
+  @Throttle({ default: { limit: 30, ttl: 60000 } }) // 30 checks per minute
+  async verifyUrl(@Query('url') url: string) {
+    if (!url || typeof url !== 'string') {
+      throw new BadRequestException('URL is required');
+    }
+
+    // Basic URL format check
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return { url, active: false, reason: 'Invalid URL format' };
+    }
+
+    // Only allow http/https
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return { url, active: false, reason: 'Only HTTP/HTTPS URLs are supported' };
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout
+
+      const response = await fetch(url, {
+        method: 'HEAD',
+        signal: controller.signal,
+        redirect: 'follow',
+        headers: {
+          'User-Agent': 'SocialBounty-LinkChecker/1.0',
+        },
+      });
+
+      clearTimeout(timeout);
+
+      // Some sites block HEAD, retry with GET if 405
+      if (response.status === 405) {
+        const getController = new AbortController();
+        const getTimeout = setTimeout(() => getController.abort(), 8000);
+
+        const getResponse = await fetch(url, {
+          method: 'GET',
+          signal: getController.signal,
+          redirect: 'follow',
+          headers: {
+            'User-Agent': 'SocialBounty-LinkChecker/1.0',
+          },
+        });
+
+        clearTimeout(getTimeout);
+        const active = getResponse.status >= 200 && getResponse.status < 400;
+        return { url, active, statusCode: getResponse.status };
+      }
+
+      const active = response.status >= 200 && response.status < 400;
+      return { url, active, statusCode: response.status };
+    } catch (err: any) {
+      return {
+        url,
+        active: false,
+        reason: err.name === 'AbortError' ? 'Request timed out' : 'Could not reach URL',
+      };
+    }
+  }
 
   @Get()
   @Public()

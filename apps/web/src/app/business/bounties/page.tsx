@@ -61,7 +61,7 @@ export default function BusinessBountiesPage() {
   );
 
   const rewardTemplate = (rowData: BountyListItem) => (
-    <span>{formatCurrency(rowData.rewardValue)}</span>
+    <span>{formatCurrency(rowData.rewardValue, rowData.currency)}</span>
   );
 
   const dateTemplate = (rowData: BountyListItem) => (

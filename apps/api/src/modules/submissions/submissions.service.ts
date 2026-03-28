@@ -162,6 +162,7 @@ export class SubmissionsService {
               title: true,
               rewardType: true,
               rewardValue: true,
+              currency: true,
               organisation: {
                 select: { id: true, name: true },
               },
@@ -185,6 +186,7 @@ export class SubmissionsService {
           title: s.bounty.title,
           rewardType: s.bounty.rewardType,
           rewardValue: s.bounty.rewardValue?.toString() || null,
+          currency: s.bounty.currency,
           organisation: s.bounty.organisation,
         },
         proofText: s.proofText,
@@ -311,6 +313,7 @@ export class SubmissionsService {
             title: true,
             rewardType: true,
             rewardValue: true,
+            currency: true,
             organisationId: true,
           },
         },
@@ -348,6 +351,7 @@ export class SubmissionsService {
         title: submission.bounty.title,
         rewardType: submission.bounty.rewardType,
         rewardValue: submission.bounty.rewardValue?.toString() || null,
+        currency: submission.bounty.currency,
       },
       userId: submission.userId,
       user: submission.user,
@@ -425,6 +429,7 @@ export class SubmissionsService {
             title: true,
             rewardType: true,
             rewardValue: true,
+            currency: true,
             organisationId: true,
           },
         },
@@ -457,6 +462,7 @@ export class SubmissionsService {
         title: updated.bounty.title,
         rewardType: updated.bounty.rewardType,
         rewardValue: updated.bounty.rewardValue?.toString() || null,
+        currency: updated.bounty.currency,
       },
       userId: updated.userId,
       user: updated.user,
@@ -597,6 +603,8 @@ export class SubmissionsService {
     newPayoutStatus: PayoutStatus,
     note?: string,
     ipAddress?: string,
+    proofOfPaymentUrl?: string,
+    proofOfPaymentName?: string,
   ) {
     const submission = await this.prisma.submission.findUnique({
       where: { id },
@@ -607,11 +615,13 @@ export class SubmissionsService {
             title: true,
             rewardValue: true,
             rewardType: true,
+            currency: true,
           },
         },
         user: {
           select: { email: true, firstName: true },
         },
+        payout: true,
       },
     });
 
@@ -644,6 +654,45 @@ export class SubmissionsService {
       data: { payoutStatus: newPayoutStatus },
     });
 
+    // Upsert Payout record with proof of payment when transitioning to PAID
+    if (newPayoutStatus === PayoutStatus.PAID) {
+      const payoutData = {
+        status: PayoutStatus.PAID,
+        paidAt: new Date(),
+        proofOfPaymentUrl: proofOfPaymentUrl ?? null,
+        proofOfPaymentName: proofOfPaymentName ?? null,
+      };
+
+      if (submission.payout) {
+        await this.prisma.payout.update({
+          where: { id: submission.payout.id },
+          data: payoutData,
+        });
+      } else {
+        await this.prisma.payout.create({
+          data: {
+            submissionId: id,
+            amount: submission.bounty.rewardValue ?? 0,
+            currency: submission.bounty.currency,
+            ...payoutData,
+          },
+        });
+      }
+    } else if (submission.payout) {
+      // Update proof of payment on existing payout even for non-PAID transitions
+      const payoutUpdateData: any = { status: newPayoutStatus };
+      if (proofOfPaymentUrl !== undefined) {
+        payoutUpdateData.proofOfPaymentUrl = proofOfPaymentUrl;
+      }
+      if (proofOfPaymentName !== undefined) {
+        payoutUpdateData.proofOfPaymentName = proofOfPaymentName;
+      }
+      await this.prisma.payout.update({
+        where: { id: submission.payout.id },
+        data: payoutUpdateData,
+      });
+    }
+
     this.auditService.log({
       actorId: user.sub,
       actorRole: user.role as UserRole,
@@ -664,7 +713,7 @@ export class SubmissionsService {
           amount: submission.bounty.rewardValue
             ? submission.bounty.rewardValue.toString()
             : '0',
-          currency: 'USD',
+          currency: submission.bounty.currency || 'USD',
         })
         .catch((err) => {
           console.error('Failed to send payout notification email:', err);
@@ -674,6 +723,8 @@ export class SubmissionsService {
     return {
       id: updated.id,
       payoutStatus: updated.payoutStatus,
+      proofOfPaymentUrl: proofOfPaymentUrl ?? null,
+      proofOfPaymentName: proofOfPaymentName ?? null,
       updatedAt: updated.updatedAt.toISOString(),
     };
   }
@@ -714,7 +765,7 @@ export class SubmissionsService {
       this.prisma.submission.findMany({
         where,
         include: {
-          bounty: { select: { id: true, title: true, rewardValue: true, rewardType: true, category: true, organisationId: true } },
+          bounty: { select: { id: true, title: true, rewardValue: true, rewardType: true, currency: true, category: true, organisationId: true } },
           user: { select: { id: true, firstName: true, lastName: true, email: true } },
           reviewedBy: { select: { id: true, firstName: true, lastName: true } },
         },

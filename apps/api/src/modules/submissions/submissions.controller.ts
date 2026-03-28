@@ -174,6 +174,8 @@ export class SubmissionsController {
       dto.payoutStatus,
       dto.note,
       req.ip,
+      dto.proofOfPaymentUrl,
+      dto.proofOfPaymentName,
     );
   }
 

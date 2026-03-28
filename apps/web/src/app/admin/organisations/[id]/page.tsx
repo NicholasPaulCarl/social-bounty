@@ -32,7 +32,7 @@ function OrgBountiesTab({ orgId }: { orgId: string }) {
     <DataTable value={bounties} stripedRows onRowClick={(e) => router.push(`/admin/bounties/${e.data.id}`)} className="cursor-pointer">
       <Column field="title" header="Title" />
       <Column header="Status" body={(row: any) => <StatusBadge type="bounty" value={row.status} />} />
-      <Column header="Reward" body={(row: any) => formatCurrency(row.rewardValue)} />
+      <Column header="Reward" body={(row: any) => formatCurrency(row.rewardValue, row.currency)} />
       <Column field="submissionCount" header="Submissions" />
       <Column header="Created" body={(row: any) => formatDate(row.createdAt)} />
     </DataTable>

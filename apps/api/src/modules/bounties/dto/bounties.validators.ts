@@ -31,6 +31,7 @@ import {
   PostFormat,
   PostVisibilityRule,
   DurationUnit,
+  PayoutMethod,
   FIELD_LIMITS,
   BOUNTY_REWARD_LIMITS,
 } from '@social-bounty/shared';
@@ -250,6 +251,10 @@ export class CreateBountyDto {
   @Type(() => PayoutMetricsDto)
   payoutMetrics?: PayoutMetricsDto;
 
+  @IsOptional()
+  @IsEnum(PayoutMethod)
+  payoutMethod?: PayoutMethod;
+
   // ── Legacy fields (optional, for backward compat) ──
 
   @IsOptional()
@@ -354,6 +359,10 @@ export class UpdateBountyDto {
   @ValidateNested()
   @Type(() => PayoutMetricsDto)
   payoutMetrics?: PayoutMetricsDto;
+
+  @IsOptional()
+  @IsEnum(PayoutMethod)
+  payoutMethod?: PayoutMethod;
 
   // ── Legacy fields (optional, for backward compat) ──
 

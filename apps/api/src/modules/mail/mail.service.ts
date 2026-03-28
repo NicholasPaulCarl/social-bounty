@@ -31,6 +31,33 @@ export interface BountyPublishedEmailData {
   bountyUrl?: string;
 }
 
+/** Data required for dispute-opened emails */
+export interface DisputeOpenedEmailData {
+  disputeNumber: string;
+  category: string;
+  description: string;
+  bountyTitle: string;
+  disputeUrl: string;
+}
+
+/** Data required for dispute-status-change emails */
+export interface DisputeStatusChangeEmailData {
+  disputeNumber: string;
+  oldStatus: string;
+  newStatus: string;
+  bountyTitle: string;
+  disputeUrl: string;
+}
+
+/** Data required for dispute-resolved emails */
+export interface DisputeResolvedEmailData {
+  disputeNumber: string;
+  resolution: string;
+  resolutionSummary: string;
+  bountyTitle: string;
+  disputeUrl: string;
+}
+
 const STATUS_LABELS: Record<string, string> = {
   APPROVED: 'Approved',
   REJECTED: 'Rejected',
@@ -256,6 +283,102 @@ export class MailService implements OnModuleInit {
       message: 'Bounty published email sent',
       to,
       bountyTitle: data.bountyTitle,
+    });
+  }
+
+  // ── Dispute Email Methods ─────────────────────────────
+
+  async sendDisputeOpenedEmail(
+    to: string,
+    data: DisputeOpenedEmailData,
+  ): Promise<void> {
+    const subject = `Dispute ${data.disputeNumber} opened for "${data.bountyTitle}" - Social Bounty`;
+    const frontendUrl = this.config.get('CORS_ORIGIN', 'http://localhost:3000');
+    const fullUrl = `${frontendUrl}${data.disputeUrl}`;
+
+    const html = `
+      <h2>Dispute Opened: ${data.disputeNumber}</h2>
+      <p>A new dispute has been filed regarding the bounty <strong>${data.bountyTitle}</strong>.</p>
+      <p><strong>Category:</strong> ${data.category.replace(/_/g, ' ')}</p>
+      <p><strong>Description:</strong></p>
+      <p>${data.description.substring(0, 500)}${data.description.length > 500 ? '...' : ''}</p>
+      <p><a href="${fullUrl}" style="display:inline-block;padding:10px 20px;background-color:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;">View Dispute</a></p>
+    `;
+
+    await this.sendWithRetry({
+      from: this.config.get('SMTP_FROM', 'noreply@socialbounty.com'),
+      to,
+      subject,
+      html,
+    });
+
+    this.logger.log({
+      message: 'Dispute opened email sent',
+      to,
+      disputeNumber: data.disputeNumber,
+    });
+  }
+
+  async sendDisputeStatusChangeEmail(
+    to: string,
+    data: DisputeStatusChangeEmailData,
+  ): Promise<void> {
+    const subject = `Dispute ${data.disputeNumber} status updated - Social Bounty`;
+    const frontendUrl = this.config.get('CORS_ORIGIN', 'http://localhost:3000');
+    const fullUrl = `${frontendUrl}${data.disputeUrl}`;
+
+    const html = `
+      <h2>Dispute Status Update: ${data.disputeNumber}</h2>
+      <p>The status of your dispute for bounty <strong>${data.bountyTitle}</strong> has changed.</p>
+      <p><strong>Previous Status:</strong> ${data.oldStatus.replace(/_/g, ' ')}</p>
+      <p><strong>New Status:</strong> ${data.newStatus.replace(/_/g, ' ')}</p>
+      <p><a href="${fullUrl}" style="display:inline-block;padding:10px 20px;background-color:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;">View Dispute</a></p>
+    `;
+
+    await this.sendWithRetry({
+      from: this.config.get('SMTP_FROM', 'noreply@socialbounty.com'),
+      to,
+      subject,
+      html,
+    });
+
+    this.logger.log({
+      message: 'Dispute status change email sent',
+      to,
+      disputeNumber: data.disputeNumber,
+      newStatus: data.newStatus,
+    });
+  }
+
+  async sendDisputeResolvedEmail(
+    to: string,
+    data: DisputeResolvedEmailData,
+  ): Promise<void> {
+    const subject = `Dispute ${data.disputeNumber} resolved - Social Bounty`;
+    const frontendUrl = this.config.get('CORS_ORIGIN', 'http://localhost:3000');
+    const fullUrl = `${frontendUrl}${data.disputeUrl}`;
+
+    const html = `
+      <h2>Dispute Resolved: ${data.disputeNumber}</h2>
+      <p>The dispute for bounty <strong>${data.bountyTitle}</strong> has been resolved.</p>
+      <p><strong>Resolution:</strong> ${data.resolution.replace(/_/g, ' ')}</p>
+      <p><strong>Summary:</strong></p>
+      <p>${data.resolutionSummary}</p>
+      <p><a href="${fullUrl}" style="display:inline-block;padding:10px 20px;background-color:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;">View Dispute</a></p>
+    `;
+
+    await this.sendWithRetry({
+      from: this.config.get('SMTP_FROM', 'noreply@socialbounty.com'),
+      to,
+      subject,
+      html,
+    });
+
+    this.logger.log({
+      message: 'Dispute resolved email sent',
+      to,
+      disputeNumber: data.disputeNumber,
+      resolution: data.resolution,
     });
   }
 }

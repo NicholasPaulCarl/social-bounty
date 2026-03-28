@@ -18,6 +18,7 @@ import {
   DurationUnit,
   Currency,
   PaymentStatus,
+  PayoutMethod,
   AUDIT_ACTIONS,
   ENTITY_TYPES,
   PAGINATION_DEFAULTS,
@@ -409,6 +410,7 @@ export class BountiesService {
         rewards: this.mapRewards(b.rewards),
         payoutMetrics: (b as any).payoutMetrics as PayoutMetricsInput | null ?? null,
         paymentStatus: (b as any).paymentStatus ?? PaymentStatus.UNPAID,
+        payoutMethod: (b as any).payoutMethod ?? null,
         createdAt: b.createdAt.toISOString(),
       })),
       meta: {
@@ -526,6 +528,7 @@ export class BountiesService {
           : null,
       payoutMetrics: (bounty as any).payoutMetrics as PayoutMetricsInput | null ?? null,
       paymentStatus: (bounty as any).paymentStatus ?? PaymentStatus.UNPAID,
+      payoutMethod: (bounty as any).payoutMethod ?? null,
       brandAssets: this.mapBrandAssets(bounty.brandAssets),
     };
   }
@@ -570,6 +573,7 @@ export class BountiesService {
       aiContentPermitted?: boolean;
       engagementRequirements?: EngagementRequirementsInput;
       payoutMetrics?: PayoutMetricsInput;
+      payoutMethod?: PayoutMethod;
       // Legacy fields (optional)
       rewardType?: RewardType;
       rewardValue?: number | null;
@@ -665,6 +669,7 @@ export class BountiesService {
           payoutMetrics: data.payoutMetrics
             ? data.payoutMetrics as Prisma.InputJsonValue
             : undefined,
+          payoutMethod: data.payoutMethod ?? undefined,
           visibilityAcknowledged: false,
         },
       });
@@ -743,6 +748,7 @@ export class BountiesService {
         : null,
       payoutMetrics: (result.bounty as any).payoutMetrics as PayoutMetricsInput | null ?? null,
       paymentStatus: (result.bounty as any).paymentStatus ?? PaymentStatus.UNPAID,
+      payoutMethod: (result.bounty as any).payoutMethod ?? null,
     };
   }
 
@@ -839,6 +845,9 @@ export class BountiesService {
       const pm = (data as any).payoutMetrics as PayoutMetricsInput;
       if (pm) this.validatePayoutMetrics(pm);
       (updateData as any).payoutMetrics = pm ? pm as Prisma.InputJsonValue : Prisma.DbNull;
+    }
+    if ((data as any).payoutMethod !== undefined) {
+      (updateData as any).payoutMethod = (data as any).payoutMethod as PayoutMethod | null;
     }
 
     // Handle rewards update within a transaction if rewards are provided
@@ -972,6 +981,7 @@ export class BountiesService {
         rewards.length > 0 ? this.computeTotalRewardValue(rewards) : null,
       payoutMetrics: updatedBounty.payoutMetrics as PayoutMetricsInput | null ?? null,
       paymentStatus: updatedBounty.paymentStatus ?? PaymentStatus.UNPAID,
+      payoutMethod: updatedBounty.payoutMethod ?? null,
     };
   }
 
