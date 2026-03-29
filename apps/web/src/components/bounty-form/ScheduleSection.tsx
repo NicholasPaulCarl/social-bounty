@@ -10,14 +10,15 @@ interface ScheduleSectionProps {
   errors: Record<string, string>;
   submitAttempted: boolean;
   onBlur: (field: string) => void;
+  disableStartDate?: boolean;
 }
 
-export function ScheduleSection({ startDate, endDate, dispatch, errors, submitAttempted, onBlur }: ScheduleSectionProps) {
+export function ScheduleSection({ startDate, endDate, dispatch, errors, submitAttempted, onBlur, disableStartDate }: ScheduleSectionProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
+      <div className={disableStartDate ? 'opacity-60 pointer-events-none' : ''}>
         <label htmlFor="startDate" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-          Start Date
+          Start Date {disableStartDate && <span className="text-text-muted text-[10px] normal-case">(locked)</span>}
         </label>
         <Calendar
           id="startDate"
@@ -27,6 +28,7 @@ export function ScheduleSection({ startDate, endDate, dispatch, errors, submitAt
           className="w-full"
           placeholder="Optional"
           minDate={new Date()}
+          disabled={disableStartDate}
         />
         <small className="text-xs text-text-muted mt-1 block">When the bounty becomes available</small>
       </div>

@@ -116,6 +116,7 @@ export default function BusinessBountyDetailPage() {
       case 'PAUSED':
         actions.push({ label: 'Resume', status: 'LIVE', severity: 'success' });
         actions.push({ label: 'Close', status: 'CLOSED', severity: 'danger' });
+        actions.push({ label: 'Revert to Draft', status: 'DRAFT', severity: 'secondary' });
         break;
     }
     return actions;
@@ -154,12 +155,14 @@ export default function BusinessBountyDetailPage() {
               outlined
               onClick={() => router.push(`/business/bounties/${id}/submissions`)}
             />
-            <Button
-              icon="pi pi-trash"
-              severity="danger"
-              outlined
-              onClick={() => setShowDelete(true)}
-            />
+            {bounty.status === 'DRAFT' && (
+              <Button
+                icon="pi pi-trash"
+                severity="danger"
+                outlined
+                onClick={() => setShowDelete(true)}
+              />
+            )}
           </div>
         }
       />
@@ -440,7 +443,13 @@ export default function BusinessBountyDetailPage() {
           visible
           onHide={() => setStatusAction(null)}
           title={`Change Status to ${formatEnumLabel(statusAction)}`}
-          message={`Are you sure you want to change this bounty's status to ${formatEnumLabel(statusAction)}?`}
+          message={
+            statusAction === 'CLOSED'
+              ? 'Are you sure you want to close this bounty? This action cannot be undone.'
+              : statusAction === 'DRAFT'
+                ? 'This will revert the bounty to draft status. You can make full edits and republish later.'
+                : `Are you sure you want to change this bounty's status to ${formatEnumLabel(statusAction)}?`
+          }
           confirmLabel={`Yes, ${formatEnumLabel(statusAction)}`}
           confirmSeverity={statusAction === 'CLOSED' ? 'danger' : statusAction === 'PAUSED' ? 'warning' : 'success'}
           onConfirm={() => handleStatusChange(statusAction)}

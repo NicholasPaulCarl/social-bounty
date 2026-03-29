@@ -31,6 +31,7 @@ interface CreateBountyFormProps {
   isSavingDraft: boolean;
   formError?: string;
   onStagedFilesReady?: (files: File[]) => void;
+  readOnlyMode?: 'live' | 'paused';
 }
 
 export function CreateBountyForm({
@@ -41,6 +42,7 @@ export function CreateBountyForm({
   isSavingDraft,
   formError,
   onStagedFilesReady,
+  readOnlyMode,
 }: CreateBountyFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -80,16 +82,19 @@ export function CreateBountyForm({
     router.push('/business/bounties');
   }, [router]);
 
+  const isLocked = readOnlyMode === 'live';
+  const lockedClass = isLocked ? 'opacity-60 pointer-events-none' : '';
+
   return (
     <>
       {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
 
       <form ref={formRef} className="flex flex-col gap-6 pb-24 md:pb-24 max-w-4xl mx-auto" onSubmit={(e) => e.preventDefault()}>
         {/* Section 1: Bounty Basic Information */}
-        <div data-section="bountyBasicInfo">
+        <div data-section="bountyBasicInfo" className={lockedClass}>
           <SectionPanel
             number={1}
-            title="Bounty Basic Information"
+            title={`Bounty Basic Information${isLocked ? ' (Locked)' : ''}`}
             icon="pi-file-edit"
             isComplete={isSectionComplete('bountyBasicInfo', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyBasicInfo', state.errors).length > 0}
@@ -106,6 +111,7 @@ export function CreateBountyForm({
                 className={`w-full ${state.errors.title ? 'p-invalid' : ''}`}
                 placeholder="Enter bounty title"
                 maxLength={FIELD_LIMITS.BOUNTY_TITLE_MAX}
+                disabled={isLocked}
               />
               <small className="text-xs text-text-muted mt-1 block text-right">
                 {state.title.length}/{FIELD_LIMITS.BOUNTY_TITLE_MAX}
@@ -131,6 +137,7 @@ export function CreateBountyForm({
                 className={`w-full ${state.submitAttempted && state.errors.shortDescription ? 'p-invalid' : ''}`}
                 placeholder="Brief summary visible in bounty listings"
                 maxLength={FIELD_LIMITS.SHORT_DESCRIPTION_MAX}
+                disabled={isLocked}
               />
               <small className="text-xs text-text-muted mt-1 block text-right">
                 {state.shortDescription.length}/{FIELD_LIMITS.SHORT_DESCRIPTION_MAX}
@@ -154,6 +161,7 @@ export function CreateBountyForm({
                 rows={5}
                 className={`w-full ${state.submitAttempted && state.errors.fullInstructions ? 'p-invalid' : ''}`}
                 placeholder="Detailed step-by-step instructions for participants"
+                disabled={isLocked}
               />
               {state.submitAttempted && state.errors.fullInstructions && (
                 <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
@@ -173,10 +181,10 @@ export function CreateBountyForm({
         </div>
 
         {/* Section 2: Bounty Content */}
-        <div data-section="bountyContent">
+        <div data-section="bountyContent" className={lockedClass}>
           <SectionPanel
             number={2}
-            title="Bounty Content"
+            title={`Bounty Content${isLocked ? ' (Locked)' : ''}`}
             icon="pi-sliders-h"
             isComplete={isSectionComplete('bountyContent', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyContent', state.errors).length > 0}
@@ -241,21 +249,24 @@ export function CreateBountyForm({
               errors={state.errors}
               submitAttempted={state.submitAttempted}
               onBlur={handleBlur}
+              disableStartDate={isLocked}
             />
-            <PayoutMetricsSection
-              payoutMetrics={state.payoutMetrics}
-              dispatch={dispatch}
-              errors={state.errors}
-              submitAttempted={state.submitAttempted}
-            />
+            <div className={isLocked ? 'opacity-60 pointer-events-none' : ''}>
+              <PayoutMetricsSection
+                payoutMetrics={state.payoutMetrics}
+                dispatch={dispatch}
+                errors={state.errors}
+                submitAttempted={state.submitAttempted}
+              />
+            </div>
           </SectionPanel>
         </div>
 
         {/* Section 4: Brand Assets */}
-        <div data-section="brandAssets">
+        <div data-section="brandAssets" className={lockedClass}>
           <SectionPanel
             number={4}
-            title="Brand Assets"
+            title={`Brand Assets${isLocked ? ' (Locked)' : ''}`}
             icon="pi-images"
             isComplete={isSectionComplete('brandAssets', state)}
             hasError={false}

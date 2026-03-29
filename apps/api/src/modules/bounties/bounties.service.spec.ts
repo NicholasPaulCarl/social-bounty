@@ -420,6 +420,35 @@ describe('BountiesService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
+    it('should reject LIVE -> DRAFT (invalid)', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+      });
+
+      await expect(
+        service.updateStatus('bounty-1', mockBA, BountyStatus.DRAFT),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should allow PAUSED -> DRAFT', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.PAUSED,
+      });
+      prisma.bounty.update.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.DRAFT,
+      });
+
+      const result = await service.updateStatus(
+        'bounty-1',
+        mockBA,
+        BountyStatus.DRAFT,
+      );
+      expect(result.status).toBe(BountyStatus.DRAFT);
+    });
+
     it('should throw NotFoundException for non-existent bounty', async () => {
       prisma.bounty.findUnique.mockResolvedValue(null);
 
@@ -499,7 +528,7 @@ describe('BountiesService', () => {
       expect(result.title).toBe('Updated Title');
     });
 
-    it('should reject non-editable fields on LIVE bounty', async () => {
+    it('should reject non-editable fields on LIVE bounty with descriptive error', async () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
         status: BountyStatus.LIVE,
@@ -508,9 +537,21 @@ describe('BountiesService', () => {
       await expect(
         service.update('bounty-1', mockBA, { title: 'New Title' }),
       ).rejects.toThrow(BadRequestException);
+
+      // Verify the error message tells users what CAN be edited
+      try {
+        await service.update('bounty-1', mockBA, { title: 'New Title' });
+      } catch (e: any) {
+        expect(e.message).toContain('LIVE bounties can only edit:');
+        expect(e.message).toContain('eligibilityRules');
+        expect(e.message).toContain('proofRequirements');
+        expect(e.message).toContain('maxSubmissions');
+        expect(e.message).toContain('endDate');
+        expect(e.message).toContain('title');
+      }
     });
 
-    it('should allow editable fields on LIVE bounty', async () => {
+    it('should allow editable fields on LIVE bounty (eligibilityRules)', async () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
         status: BountyStatus.LIVE,
@@ -529,6 +570,31 @@ describe('BountiesService', () => {
         'bounty-1',
         mockBA,
         { eligibilityRules: 'Updated rules' },
+      );
+      expect(result).toBeDefined();
+    });
+
+    it('should allow editable fields on LIVE bounty (proofRequirements, maxSubmissions, endDate)', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+      });
+      prisma.bounty.update.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+        proofRequirements: 'New proof',
+        maxSubmissions: 50,
+        endDate: new Date('2026-04-01'),
+        organisation: { id: 'org-1', name: 'Test', logo: null },
+        createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        rewards: [baseReward],
+        _count: { submissions: 0 },
+      });
+
+      const result = await service.update(
+        'bounty-1',
+        mockBA,
+        { proofRequirements: 'New proof', maxSubmissions: 50, endDate: '2026-04-01T00:00:00.000Z' },
       );
       expect(result).toBeDefined();
     });
@@ -596,10 +662,32 @@ describe('BountiesService', () => {
       );
     });
 
-    it('should reject deleting non-DRAFT bounties', async () => {
+    it('should reject deleting LIVE bounties', async () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
         status: BountyStatus.LIVE,
+      });
+
+      await expect(service.delete('bounty-1', mockBA)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should reject deleting PAUSED bounties', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.PAUSED,
+      });
+
+      await expect(service.delete('bounty-1', mockBA)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should reject deleting CLOSED bounties', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.CLOSED,
       });
 
       await expect(service.delete('bounty-1', mockBA)).rejects.toThrow(

@@ -8,6 +8,7 @@ import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
 import { TabMenu } from 'primereact/tabmenu';
 import { useBounties, useDeleteBounty } from '@/hooks/useBounties';
+import { bountyApi } from '@/lib/api/bounties';
 import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -17,8 +18,9 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { BountyFilters } from '@/components/features/bounty/BountyFilters';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
-import { formatDate, formatCurrency } from '@/lib/utils/format';
-import { BountyStatus } from '@social-bounty/shared';
+import { PaymentDialog } from '@/components/payment/PaymentDialog';
+import { formatDate, formatCurrency, formatEnumLabel } from '@/lib/utils/format';
+import { BountyStatus, PaymentStatus } from '@social-bounty/shared';
 import type { BountyListParams, BountyListItem } from '@social-bounty/shared';
 
 const statusTabs = [
@@ -36,6 +38,11 @@ export default function BusinessBountiesPage() {
   const [filters, setFilters] = useState<BountyListParams>({ page, limit });
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [statusAction, setStatusAction] = useState<{ id: string; newStatus: string; label: string } | null>(null);
+  const [paymentBounty, setPaymentBounty] = useState<BountyListItem | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const statusFilter = statusTabs[activeTabIndex].value;
   const { data, isLoading, error, refetch } = useBounties({ ...filters, page, limit, status: statusFilter });
@@ -53,6 +60,65 @@ export default function BusinessBountiesPage() {
     });
   };
 
+  const handleStatusChange = async (id: string, newStatus: string, bountyItem?: BountyListItem) => {
+    // For DRAFT -> LIVE, require payment first if not already paid
+    if (bountyItem && bountyItem.status === 'DRAFT' && newStatus === 'LIVE' && bountyItem.paymentStatus !== PaymentStatus.PAID) {
+      setStatusAction(null);
+      setPaymentBounty(bountyItem);
+      setPaymentLoading(true);
+      try {
+        const { clientSecret: secret } = await bountyApi.createPaymentIntent(id);
+        setClientSecret(secret);
+        setShowPayment(true);
+      } catch {
+        toast.showError('Failed to create payment. Please try again.');
+      } finally {
+        setPaymentLoading(false);
+      }
+      return;
+    }
+
+    bountyApi.updateStatus(id, { status: newStatus as BountyStatus })
+      .then(() => {
+        toast.showSuccess(`Bounty status updated to ${formatEnumLabel(newStatus)}`);
+        setStatusAction(null);
+        refetch();
+      })
+      .catch(() => toast.showError('Failed to update status'));
+  };
+
+  const handlePaymentSuccess = () => {
+    if (!paymentBounty) return;
+    setShowPayment(false);
+    setClientSecret(null);
+    bountyApi.updateStatus(paymentBounty.id, { status: BountyStatus.LIVE })
+      .then(() => {
+        toast.showSuccess('Payment successful! Bounty is now live.');
+        setPaymentBounty(null);
+        refetch();
+      })
+      .catch(() => toast.showError('Payment succeeded but failed to update status. Please try again.'));
+  };
+
+  const getStatusActions = (rowData: BountyListItem) => {
+    const actions: { label: string; status: string; icon: string; severity: string }[] = [];
+    switch (rowData.status) {
+      case 'DRAFT':
+        actions.push({ label: 'Publish', status: 'LIVE', icon: 'pi pi-play', severity: 'success' });
+        break;
+      case 'LIVE':
+        actions.push({ label: 'Pause', status: 'PAUSED', icon: 'pi pi-pause', severity: 'warning' });
+        actions.push({ label: 'Close', status: 'CLOSED', icon: 'pi pi-times-circle', severity: 'danger' });
+        break;
+      case 'PAUSED':
+        actions.push({ label: 'Resume', status: 'LIVE', icon: 'pi pi-play', severity: 'success' });
+        actions.push({ label: 'Close', status: 'CLOSED', icon: 'pi pi-times-circle', severity: 'danger' });
+        actions.push({ label: 'Revert to Draft', status: 'DRAFT', icon: 'pi pi-undo', severity: 'secondary' });
+        break;
+    }
+    return actions;
+  };
+
   if (isLoading) return <LoadingState type="table" />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
 
@@ -68,34 +134,51 @@ export default function BusinessBountiesPage() {
     <span>{formatDate(rowData.createdAt)}</span>
   );
 
-  const actionsTemplate = (rowData: BountyListItem) => (
-    <div className="flex gap-2">
-      <Button
-        icon="pi pi-eye"
-        rounded
-        text
-        severity="info"
-        onClick={() => router.push(`/business/bounties/${rowData.id}`)}
-        tooltip="View"
-      />
-      <Button
-        icon="pi pi-pencil"
-        rounded
-        text
-        severity="secondary"
-        onClick={() => router.push(`/business/bounties/${rowData.id}/edit`)}
-        tooltip="Edit"
-      />
-      <Button
-        icon="pi pi-trash"
-        rounded
-        text
-        severity="danger"
-        onClick={() => setDeleteId(rowData.id)}
-        tooltip="Delete"
-      />
-    </div>
-  );
+  const actionsTemplate = (rowData: BountyListItem) => {
+    const statusActions = getStatusActions(rowData);
+    return (
+      <div className="flex gap-1 items-center">
+        <Button
+          icon="pi pi-eye"
+          rounded
+          text
+          severity="info"
+          onClick={() => router.push(`/business/bounties/${rowData.id}`)}
+          tooltip="View"
+        />
+        <Button
+          icon="pi pi-pencil"
+          rounded
+          text
+          severity="secondary"
+          onClick={() => router.push(`/business/bounties/${rowData.id}/edit`)}
+          tooltip="Edit"
+        />
+        {statusActions.map((action) => (
+          <Button
+            key={action.status}
+            icon={action.icon}
+            rounded
+            text
+            severity={action.severity as 'success' | 'warning' | 'danger' | 'secondary'}
+            onClick={() => setStatusAction({ id: rowData.id, newStatus: action.status, label: action.label })}
+            tooltip={action.label}
+            loading={action.status === 'LIVE' && rowData.status === 'DRAFT' && paymentLoading && paymentBounty?.id === rowData.id}
+          />
+        ))}
+        {rowData.status === 'DRAFT' && (
+          <Button
+            icon="pi pi-trash"
+            rounded
+            text
+            severity="danger"
+            onClick={() => setDeleteId(rowData.id)}
+            tooltip="Delete"
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="animate-fade-up">
@@ -125,7 +208,7 @@ export default function BusinessBountiesPage() {
               <Column header="Reward" body={rewardTemplate} />
               <Column field="submissionCount" header="Submissions" />
               <Column header="Created" body={dateTemplate} />
-              <Column header="Actions" body={actionsTemplate} style={{ width: '12rem' }} />
+              <Column header="Actions" body={actionsTemplate} style={{ width: '18rem' }} />
             </DataTable>
           </div>
           <Paginator
@@ -156,6 +239,36 @@ export default function BusinessBountiesPage() {
         onConfirm={handleDelete}
         loading={deleteBounty.isPending}
       />
+
+      {statusAction && (
+        <ConfirmAction
+          visible
+          onHide={() => setStatusAction(null)}
+          title={`${statusAction.label} Bounty`}
+          message={
+            statusAction.newStatus === 'CLOSED'
+              ? 'Are you sure you want to close this bounty? This action cannot be undone.'
+              : `Are you sure you want to ${statusAction.label.toLowerCase()} this bounty?`
+          }
+          confirmLabel={`Yes, ${statusAction.label}`}
+          confirmSeverity={statusAction.newStatus === 'CLOSED' ? 'danger' : statusAction.newStatus === 'PAUSED' ? 'warning' : 'success'}
+          onConfirm={() => {
+            const bountyItem = data?.data.find((b) => b.id === statusAction.id);
+            handleStatusChange(statusAction.id, statusAction.newStatus, bountyItem);
+          }}
+        />
+      )}
+
+      {clientSecret && paymentBounty && (
+        <PaymentDialog
+          visible={showPayment}
+          onHide={() => { setShowPayment(false); setClientSecret(null); setPaymentBounty(null); }}
+          clientSecret={clientSecret}
+          amount={paymentBounty.rewardValue ?? '0'}
+          currency={paymentBounty.currency}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 }

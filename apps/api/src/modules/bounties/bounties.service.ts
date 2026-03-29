@@ -50,7 +50,7 @@ const LIVE_EDITABLE_FIELDS = new Set([
 const VALID_TRANSITIONS: Record<string, string[]> = {
   DRAFT: ['LIVE'],
   LIVE: ['PAUSED', 'CLOSED'],
-  PAUSED: ['LIVE', 'CLOSED'],
+  PAUSED: ['LIVE', 'CLOSED', 'DRAFT'],
 };
 
 @Injectable()
@@ -786,7 +786,7 @@ export class BountiesService {
       );
       if (invalidFields.length > 0) {
         throw new BadRequestException(
-          `Cannot edit these fields on a LIVE bounty: ${invalidFields.join(', ')}`,
+          `LIVE bounties can only edit: ${[...LIVE_EDITABLE_FIELDS].join(', ')}. The following fields cannot be changed: ${invalidFields.join(', ')}`,
         );
       }
     }

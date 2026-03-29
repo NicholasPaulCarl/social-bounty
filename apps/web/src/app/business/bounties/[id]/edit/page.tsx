@@ -3,10 +3,13 @@
 import { useRouter, useParams } from 'next/navigation';
 import { useBounty, useUpdateBounty } from '@/hooks/useBounties';
 import { useToast } from '@/hooks/useToast';
+import { Message } from 'primereact/message';
+import { Button } from 'primereact/button';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { CreateBountyForm } from '@/components/bounty-form';
+import { BountyStatus } from '@social-bounty/shared';
 import type { CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useState } from 'react';
 
@@ -59,9 +62,47 @@ export default function EditBountyPage() {
     { label: 'Edit' },
   ];
 
+  const isLive = bounty.status === BountyStatus.LIVE;
+  const isPaused = bounty.status === BountyStatus.PAUSED;
+
   return (
     <div className="animate-fade-up">
       <PageHeader title="Edit Bounty" breadcrumbs={breadcrumbs} />
+
+      {isLive && (
+        <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 flex items-start gap-3">
+          <i className="pi pi-exclamation-triangle text-amber-500 mt-0.5" />
+          <div>
+            <p className="font-medium text-text-primary">This bounty is live.</p>
+            <p className="text-sm text-text-secondary mt-1">
+              Only eligibility rules, proof requirements, max submissions, and end date can be edited.
+              All other fields are locked while the bounty is live. To make full edits, pause the bounty first, then revert it to draft.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {isPaused && (
+        <div className="mb-6 rounded-lg border border-blue-500/30 bg-blue-500/10 p-4 flex items-start gap-3">
+          <i className="pi pi-info-circle text-blue-500 mt-0.5" />
+          <div>
+            <p className="font-medium text-text-primary">This bounty is paused.</p>
+            <p className="text-sm text-text-secondary mt-1">
+              Editing is limited while in paused state. To make full edits, revert the bounty to draft status first.
+            </p>
+            <Button
+              label="Revert to Draft"
+              icon="pi pi-undo"
+              severity="secondary"
+              outlined
+              size="small"
+              className="mt-2"
+              onClick={() => router.push(`/business/bounties/${id}`)}
+            />
+          </div>
+        </div>
+      )}
+
       <CreateBountyForm
         initialBounty={bounty}
         onSubmit={handleSubmit}
@@ -69,6 +110,7 @@ export default function EditBountyPage() {
         isSubmitting={!isDraftSave && updateBounty.isPending}
         isSavingDraft={isDraftSave && updateBounty.isPending}
         formError={formError}
+        readOnlyMode={isLive ? 'live' : isPaused ? 'paused' : undefined}
       />
     </div>
   );
