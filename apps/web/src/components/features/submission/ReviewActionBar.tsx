@@ -31,10 +31,10 @@ export function ReviewActionBar({ currentStatus, onAction, loading = false }: Re
     <>
       <Card className="mt-4">
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-neutral-900">Review Actions</h3>
+          <h3 className="text-lg font-semibold text-text-primary">Review Actions</h3>
 
           <div>
-            <label htmlFor="review-note" className="block text-sm font-medium text-neutral-700 mb-2">
+            <label htmlFor="review-note" className="block text-sm font-medium text-text-secondary mb-2">
               Note (optional)
             </label>
             <InputTextarea
@@ -46,7 +46,7 @@ export function ReviewActionBar({ currentStatus, onAction, loading = false }: Re
               placeholder="Add a note for the participant..."
               maxLength={1000}
             />
-            <p className="text-xs text-neutral-500 mt-1">{note.length}/1000 characters</p>
+            <p className="text-xs text-text-muted mt-1">{note.length}/1000 characters</p>
           </div>
 
           <div className="flex gap-3">

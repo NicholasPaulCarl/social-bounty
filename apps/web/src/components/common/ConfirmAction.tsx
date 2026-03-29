@@ -67,10 +67,10 @@ export function ConfirmAction({
       closable
       className="w-full max-w-lg"
     >
-      <p className="text-neutral-700 mb-4">{message}</p>
+      <p className="text-text-secondary mb-4">{message}</p>
       {requireReason && (
         <div className="space-y-2">
-          <label htmlFor="confirm-reason" className="text-sm font-medium text-neutral-700">
+          <label htmlFor="confirm-reason" className="text-sm font-medium text-text-secondary">
             Reason (required)
           </label>
           <InputTextarea
@@ -82,7 +82,7 @@ export function ConfirmAction({
             placeholder="Please provide a reason..."
             autoFocus
           />
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-text-muted">
             {reason.trim().length}/{reasonMinLength} minimum characters
           </p>
         </div>

@@ -9,16 +9,15 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Steps } from 'primereact/steps';
 import { useCreateDispute } from '@/hooks/useDisputes';
+import { useBounties } from '@/hooks/useBounties';
+import { useSubmissionsForBounty } from '@/hooks/useSubmissions';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDate, formatEnumLabel } from '@/lib/utils/format';
-import { DisputeCategory, DisputeReason, PayoutStatus, DISPUTE_REASON_CATEGORIES } from '@social-bounty/shared';
+import { DisputeCategory, DisputeReason, PayoutStatus, SubmissionStatus, DISPUTE_REASON_CATEGORIES } from '@social-bounty/shared';
 import type { CreateDisputeRequest } from '@social-bounty/shared';
-
-// TODO: Replace with real hook when org submissions API is available
-// import { useSubmissionsForDispute } from '@/hooks/useDisputes';
 
 const steps = [
   { label: 'Select Submission' },
@@ -64,10 +63,26 @@ export default function NewBusinessDisputePage() {
   const [description, setDescription] = useState('');
   const [desiredOutcome, setDesiredOutcome] = useState('');
 
-  // TODO: wire up to real org submissions endpoint
-  const submissionsData: SubmissionOption[] | undefined = undefined;
-  const submissionsLoading = false;
-  const submissions: SubmissionOption[] = submissionsData ?? [];
+  // Step 1: fetch the org's bounties so the user can pick which bounty to dispute
+  const [selectedBountyId, setSelectedBountyId] = useState<string | null>(null);
+  const { data: bountiesData, isLoading: bountiesLoading } = useBounties({ limit: 100 });
+  const bountyOptions = (bountiesData?.data ?? []).map((b) => ({ label: b.title, value: b.id }));
+
+  // Step 2: fetch approved/paid submissions for the chosen bounty
+  const { data: submissionsRaw, isLoading: submissionsLoading } = useSubmissionsForBounty(
+    selectedBountyId ?? '',
+    { status: SubmissionStatus.APPROVED, limit: 100 },
+  );
+
+  // Map API shape to the local SubmissionOption shape expected by the table
+  const submissions: SubmissionOption[] = (submissionsRaw?.data ?? []).map((s) => ({
+    id: s.id,
+    bountyTitle: bountiesData?.data.find((b) => b.id === selectedBountyId)?.title ?? '',
+    participantName: `${s.user.firstName} ${s.user.lastName}`,
+    status: s.status,
+    payoutStatus: s.payoutStatus,
+    createdAt: s.createdAt,
+  }));
 
   const suggestedCategory = selectedSubmission ? suggestCategory(selectedSubmission.payoutStatus) : null;
 
@@ -123,7 +138,24 @@ export default function NewBusinessDisputePage() {
             Choose the approved or paid submission you want to raise a dispute for.
           </p>
 
-          {submissionsLoading ? (
+          {/* Bounty picker — must select a bounty before submissions load */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-secondary">Select Bounty</label>
+            {bountiesLoading ? (
+              <LoadingState type="inline" />
+            ) : (
+              <Dropdown
+                value={selectedBountyId}
+                options={bountyOptions}
+                onChange={(e) => { setSelectedBountyId(e.value); setSelectedSubmission(null); }}
+                placeholder="Choose a bounty..."
+                className="w-full sm:w-96"
+                filter
+              />
+            )}
+          </div>
+
+          {selectedBountyId && (submissionsLoading ? (
             <LoadingState type="table" />
           ) : submissions.length > 0 ? (
             <DataTable
@@ -156,7 +188,7 @@ export default function NewBusinessDisputePage() {
             <p className="text-sm text-text-muted py-8 text-center">
               No eligible submissions found. Only approved or paid submissions can be disputed.
             </p>
-          )}
+          ))}
 
           {selectedSubmission && (
             <div className="mt-4 p-3 rounded-lg bg-accent-cyan/5 border border-accent-cyan/20">

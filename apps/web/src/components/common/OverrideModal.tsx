@@ -72,12 +72,12 @@ export function OverrideModal({
     >
       <div className="space-y-4">
         <div>
-          <p className="text-sm font-medium text-neutral-700 mb-2">Current Status</p>
+          <p className="text-sm font-medium text-text-secondary mb-2">Current Status</p>
           <StatusBadge type={entityType} value={currentStatus} />
         </div>
 
         <div>
-          <label htmlFor="override-status" className="block text-sm font-medium text-neutral-700 mb-2">
+          <label htmlFor="override-status" className="block text-sm font-medium text-text-secondary mb-2">
             New Status
           </label>
           <Dropdown
@@ -91,7 +91,7 @@ export function OverrideModal({
         </div>
 
         <div>
-          <label htmlFor="override-reason" className="block text-sm font-medium text-neutral-700 mb-2">
+          <label htmlFor="override-reason" className="block text-sm font-medium text-text-secondary mb-2">
             Reason (required)
           </label>
           <InputTextarea
@@ -102,7 +102,7 @@ export function OverrideModal({
             className="w-full"
             placeholder="Provide a reason for this override..."
           />
-          <p className="text-xs text-neutral-500 mt-1">
+          <p className="text-xs text-text-muted mt-1">
             {reason.trim().length}/10 minimum characters
           </p>
         </div>
