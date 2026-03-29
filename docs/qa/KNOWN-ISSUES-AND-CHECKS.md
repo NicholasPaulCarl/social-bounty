@@ -9,16 +9,31 @@
 
 Run these checks **before every test session** to avoid wasting time on environment issues.
 
-### 1. Stale `.next` Webpack Cache (Blank Page)
+### 1. Stale `.next` Webpack Cache (Blank Page / Non-Interactive Page)
 
-**Symptom:** Frontend loads at `http://localhost:3000` but shows a completely blank white page. Browser console may show `Cannot find module './XXXX.js'` errors.
+**Symptom:** Frontend at `http://localhost:3000` shows either:
+- A completely blank white page, OR
+- The page renders visually but buttons, forms, and links don't respond to clicks (React fails to hydrate)
 
-**Root Cause:** Next.js dev server caches compiled webpack chunks in `.next/server/`. When files are added, renamed, or significantly changed between sessions (especially by multiple agents working in parallel), the cached chunks become stale and reference modules that no longer exist.
+Browser console may show `Cannot find module './XXXX.js'` errors or JS chunk 404s.
+
+**Root Cause:** Next.js dev server caches compiled webpack chunks in `.next/server/` and `.next/static/`. When files are added, renamed, or significantly changed between sessions (especially by multiple agents working in parallel), the cached chunks become stale. The HTML renders server-side but client JS chunks return 404, preventing React hydration — the page looks fine but is completely non-interactive.
 
 **How to detect:**
 ```bash
-curl -s http://localhost:3000/login | grep "Cannot find module"
-# If this returns a match, the cache is stale
+# Check 1: Does the HTML render?
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/login
+# 200 = HTML renders (but may still be broken)
+
+# Check 2: Do the JS chunks load?
+curl -s http://localhost:3000/login | grep -o 'src="/_next[^"]*"' | head -3 | while read -r src; do
+  url=$(echo "$src" | sed 's/src="//;s/"$//')
+  echo "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3000$url") $url"
+done
+# All should return 200. Any 404 = broken hydration = non-interactive page
+
+# Check 3: Look for the error in server logs
+grep "Cannot find module\|404" /tmp/sb-web.log | tail -5
 ```
 
 **Fix:**
@@ -26,19 +41,27 @@ curl -s http://localhost:3000/login | grep "Cannot find module"
 # 1. Kill the dev server
 pkill -f "next dev"
 
-# 2. Delete the cache
+# 2. Delete ALL caches
 rm -rf apps/web/.next
+rm -rf apps/web/node_modules/.cache
 
-# 3. Restart
+# 3. Restart with clean state
 cd apps/web && npx next dev
+
+# 4. Wait for full compilation (may take 10-20s first time)
+# Verify: curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/login should return 200
+# AND all JS chunk URLs in the HTML should also return 200
 ```
 
 **Prevention:**
 - Always clear `.next` after git pull or branch switch
 - Always clear `.next` after bulk file creation/deletion (e.g., new feature with many new pages)
-- Add to dev startup script: `rm -rf .next && npx next dev`
+- Recommended dev startup: `rm -rf .next && npx next dev`
+- If page looks correct but is unresponsive, this is the FIRST thing to check
 
-**Added to checklist:** 2026-03-29 after blank page incident caused by stale cache following Component Library + mobile UI batch changes.
+**Incident History:**
+- 2026-03-29 (first): Blank page after Component Library + mobile UI batch changes. Fix: clear `.next`.
+- 2026-03-29 (second): Login page rendered but non-interactive (buttons didn't work). JS chunks returning 404. Fix: clear `.next` + `node_modules/.cache`.
 
 ---
 
@@ -133,6 +156,54 @@ npx jest --config apps/api/jest.config.ts --no-coverage --silent 2>&1 | tail -1
 
 echo "=== Check Complete ==="
 ```
+
+---
+
+## Agent Post-Deployment Verification Protocol
+
+When agents make bulk changes (especially multiple agents in parallel), the following verification MUST run before declaring the task complete:
+
+### Mandatory Post-Change Checks
+
+```bash
+# 1. Backend compiles
+cd apps/api && rm -f tsconfig.tsbuildinfo && npx tsc --noEmit
+
+# 2. All tests pass
+cd /path/to/social-bounty && npx jest --config apps/api/jest.config.ts --no-coverage
+
+# 3. Frontend builds (catches type errors + missing imports)
+cd apps/web && npx next build
+
+# 4. Frontend dev server actually works (catches runtime/hydration errors)
+rm -rf .next && npx next dev &
+sleep 15
+# Verify HTML renders AND JS chunks load:
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/login)
+JS_STATUS=$(curl -s http://localhost:3000/login | grep -o 'src="/_next/static/chunks/main-app[^"]*"' | sed 's/src="//;s/"$//' | xargs -I{} curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000{}")
+echo "HTML: $STATUS | JS: $JS_STATUS"
+# Both must be 200
+
+# 5. API smoke test
+curl -s http://localhost:3001/api/v1/health | python3 -c "import sys,json;print(json.load(sys.stdin)['status'])"
+# Must print "ok"
+```
+
+### Agent Error Learning
+
+When a bug is caused by agent work, document it here with:
+1. **What happened** — the symptom the user experienced
+2. **Root cause** — what the agent did (or didn't do) that caused it
+3. **Detection** — how to catch this before the user sees it
+4. **Prevention** — what the agent prompt should include to prevent recurrence
+
+#### Known Agent-Caused Issues
+
+**Issue: Non-interactive frontend after bulk file changes**
+- **What happened:** Login page rendered but buttons didn't work. User couldn't login.
+- **Root cause:** Multiple agents created/modified 20+ files in parallel. Next.js dev server's hot-reload cache became inconsistent — HTML referenced chunk IDs that no longer existed.
+- **Detection:** After bulk changes, always verify JS chunks load (not just HTML status). `next build` passes but dev server can still serve stale chunks.
+- **Prevention:** Agent prompts should include a step to clear `.next` cache and verify the dev server after bulk file creation. Add to all frontend agent prompts: "After creating files, run `rm -rf .next` and restart the dev server."
 
 ---
 
