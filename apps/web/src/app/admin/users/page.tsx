@@ -106,7 +106,8 @@ export default function AdminUsersPage() {
 
       {data && data.data.length > 0 ? (
         <>
-          <DataTable value={data.data} stripedRows>
+          <div className="glass-card overflow-x-auto">
+          <DataTable value={data.data} stripedRows className="min-w-[600px]">
             <Column field="email" header="Email" sortable />
             <Column field="firstName" header="First Name" />
             <Column field="lastName" header="Last Name" />
@@ -115,6 +116,7 @@ export default function AdminUsersPage() {
             <Column header="Created" body={dateTemplate} />
             <Column header="Actions" body={actionsTemplate} style={{ width: '6rem' }} />
           </DataTable>
+          </div>
           <Paginator
             first={first}
             rows={limit}

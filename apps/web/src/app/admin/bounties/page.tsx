@@ -58,7 +58,8 @@ export default function AdminBountiesPage() {
 
       {data && data.data.length > 0 ? (
         <>
-          <DataTable value={data.data} stripedRows>
+          <div className="glass-card overflow-x-auto">
+          <DataTable value={data.data} stripedRows className="min-w-[600px]">
             <Column field="title" header="Title" sortable />
             <Column field="organisationName" header="Organisation" />
             <Column header="Status" body={statusTemplate} />
@@ -67,6 +68,7 @@ export default function AdminBountiesPage() {
             <Column header="Created" body={dateTemplate} />
             <Column header="Actions" body={actionsTemplate} style={{ width: '6rem' }} />
           </DataTable>
+          </div>
           <Paginator
             first={first}
             rows={limit}

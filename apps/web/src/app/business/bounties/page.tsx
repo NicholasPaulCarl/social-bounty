@@ -118,8 +118,8 @@ export default function BusinessBountiesPage() {
 
       {data && data.data.length > 0 ? (
         <>
-          <div className="glass-card p-6">
-            <DataTable value={data.data} stripedRows>
+          <div className="glass-card p-6 overflow-x-auto">
+            <DataTable value={data.data} stripedRows className="min-w-[700px]">
               <Column field="title" header="Title" sortable />
               <Column header="Status" body={statusTemplate} />
               <Column header="Reward" body={rewardTemplate} />

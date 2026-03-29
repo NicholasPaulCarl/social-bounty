@@ -15,7 +15,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
 
   return (
     <div
-      className="glass-card p-5 cursor-pointer hover:-translate-y-1 hover:shadow-glow-cyan/30 transition-all duration-250 group"
+      className="glass-card p-3 sm:p-5 cursor-pointer hover:-translate-y-1 hover:shadow-glow-cyan/30 transition-all duration-250 group"
       onClick={() => router.push(`/bounties/${bounty.id}`)}
       role="article"
     >
@@ -30,10 +30,10 @@ export function BountyCard({ bounty }: BountyCardProps) {
       </div>
 
       {/* Title + Description */}
-      <h3 className="text-base font-heading font-semibold text-text-primary mb-2 line-clamp-2 group-hover:text-accent-cyan transition-colors">
+      <h3 className="text-sm sm:text-base font-heading font-semibold text-text-primary mb-2 line-clamp-2 group-hover:text-accent-cyan transition-colors">
         {bounty.title}
       </h3>
-      <p className="text-sm text-text-secondary line-clamp-3 leading-relaxed">
+      <p className="text-sm text-text-secondary line-clamp-2 sm:line-clamp-3 leading-relaxed">
         {bounty.shortDescription}
       </p>
 
@@ -62,7 +62,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
           iconPos="right"
           text
           size="small"
-          className="text-accent-cyan opacity-0 group-hover:opacity-100 transition-opacity"
+          className="text-accent-cyan opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
           onClick={(e) => {
             e.stopPropagation();
             router.push(`/bounties/${bounty.id}`);

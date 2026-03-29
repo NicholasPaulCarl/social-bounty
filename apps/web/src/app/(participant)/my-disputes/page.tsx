@@ -80,13 +80,13 @@ export default function MyDisputesPage() {
 
       {!isLoading && !error && data && data.data.length > 0 && (
         <>
-          <div className="animate-fade-up">
+          <div className="animate-fade-up glass-card overflow-x-auto">
             <DataTable
               value={data.data}
               onRowClick={(e) => router.push(`/my-disputes/${(e.data as DisputeListItem).id}`)}
               rowClassName={() => 'cursor-pointer'}
               aria-label="My disputes table"
-              className="glass-card"
+              className="min-w-[600px]"
             >
               <Column
                 field="disputeNumber"

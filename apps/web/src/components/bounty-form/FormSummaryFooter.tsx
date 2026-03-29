@@ -70,8 +70,8 @@ export function FormSummaryFooter({
       </div>
 
       {/* Mobile footer */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/80 backdrop-blur-xl border-t border-glass-border p-4">
-        <div className="flex items-center justify-between mb-3">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/80 backdrop-blur-xl border-t border-glass-border p-3">
+        <div className="flex items-center justify-between mb-2">
           <div>
             <span className="text-xs text-text-muted">Total Reward</span>
             <p className="text-sm font-heading font-semibold text-accent-emerald">
@@ -83,9 +83,9 @@ export function FormSummaryFooter({
           </span>
         </div>
         <div className="flex gap-2">
-          <Button label="Cancel" text severity="secondary" className="flex-1" onClick={onCancel} disabled={isSaving || isCreating} />
-          <Button label="Draft" outlined className="flex-1" onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
-          <Button label="Create" icon="pi pi-check" className="flex-1" onClick={onCreate} loading={isCreating} disabled={isSaving} />
+          <Button label="Cancel" text severity="secondary" className="flex-1 text-sm" onClick={onCancel} disabled={isSaving || isCreating} />
+          <Button label="Draft" outlined className="flex-1 text-sm" onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
+          <Button label="Create" icon="pi pi-check" className="flex-1 text-sm" onClick={onCreate} loading={isCreating} disabled={isSaving} />
         </div>
       </div>
     </>

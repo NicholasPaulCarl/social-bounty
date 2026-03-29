@@ -81,7 +81,7 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
             Social Bounty
           </Link>
           <button
-            className="md:hidden p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors"
+            className="md:hidden p-3 min-h-[44px] min-w-[44px] rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors"
             onClick={onToggle}
             aria-label="Close sidebar"
           >

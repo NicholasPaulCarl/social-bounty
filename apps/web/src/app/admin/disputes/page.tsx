@@ -187,12 +187,12 @@ export default function AdminDisputesPage() {
 
       {disputes.length > 0 ? (
         <>
-          <div className="glass-card p-6">
+          <div className="glass-card p-6 overflow-x-auto">
             <DataTable
               value={disputes}
               stripedRows
               onRowClick={(e) => router.push(`/admin/disputes/${(e.data as DisputeListItem).id}`)}
-              className="cursor-pointer"
+              className="cursor-pointer min-w-[800px]"
               sortMode="single"
             >
               <Column header="Dispute #" body={disputeNumberTemplate} sortField="disputeNumber" sortable style={{ width: '9rem' }} />

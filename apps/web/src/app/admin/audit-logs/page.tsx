@@ -104,6 +104,7 @@ export default function AdminAuditLogsPage() {
 
       {data && data.data.length > 0 ? (
         <>
+          <div className="glass-card overflow-x-auto">
           <DataTable
             value={data.data}
             stripedRows
@@ -111,6 +112,7 @@ export default function AdminAuditLogsPage() {
             onRowToggle={(e) => setExpandedRows(e.data)}
             rowExpansionTemplate={rowExpansionTemplate}
             dataKey="id"
+            className="min-w-[600px]"
           >
             <Column expander style={{ width: '3rem' }} />
             <Column field="action" header="Action" sortable />
@@ -121,6 +123,7 @@ export default function AdminAuditLogsPage() {
             )} />
             <Column header="Timestamp" body={dateTemplate} />
           </DataTable>
+          </div>
           <Paginator
             first={first}
             rows={limit}

@@ -154,12 +154,12 @@ export default function BusinessDisputesPage() {
 
       {disputes.length > 0 ? (
         <>
-          <div className="glass-card p-6">
+          <div className="glass-card p-6 overflow-x-auto">
             <DataTable
               value={disputes}
               stripedRows
               onRowClick={(e) => router.push(`/business/disputes/${(e.data as DisputeListItem).id}`)}
-              className="cursor-pointer"
+              className="cursor-pointer min-w-[700px]"
             >
               <Column header="Dispute #" body={disputeNumberTemplate} style={{ width: '10rem' }} />
               <Column field="bountyTitle" header="Bounty" />

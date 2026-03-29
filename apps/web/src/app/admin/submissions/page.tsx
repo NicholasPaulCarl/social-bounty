@@ -130,7 +130,8 @@ export default function AdminSubmissionsPage() {
 
       {data && data.data.length > 0 ? (
         <>
-          <DataTable value={data.data} stripedRows onRowClick={(e) => router.push(`/admin/submissions/${e.data.id}`)} className="cursor-pointer">
+          <div className="glass-card overflow-x-auto">
+          <DataTable value={data.data} stripedRows onRowClick={(e) => router.push(`/admin/submissions/${e.data.id}`)} className="cursor-pointer min-w-[600px]">
             <Column header="ID" body={idTemplate} style={{ width: '8rem' }} />
             <Column header="Bounty" body={bountyTemplate} />
             <Column header="Participant" body={participantTemplate} />
@@ -139,6 +140,7 @@ export default function AdminSubmissionsPage() {
             <Column header="Payout" body={payoutTemplate} />
             <Column header="" body={actionsTemplate} style={{ width: '4rem' }} />
           </DataTable>
+          </div>
           <Paginator
             first={first}
             rows={limit}

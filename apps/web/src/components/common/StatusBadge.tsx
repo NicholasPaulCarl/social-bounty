@@ -86,7 +86,7 @@ export function StatusBadge({ type, value, size }: StatusBadgeProps) {
       value={label}
       severity={config.severity}
       icon={config.icon}
-      className={`${config.className} ${size === 'large' ? 'text-base px-3 py-1' : size === 'small' ? 'text-xs px-1.5 py-0.5' : ''}`}
+      className={`${config.className} ${size === 'large' ? 'text-base px-3 py-1' : size === 'small' ? 'text-xs px-1.5 py-0.5 max-w-[150px] truncate' : 'text-sm px-2.5 py-0.5'}`}
       role="status"
       aria-label={`${formatLabel(type)} status: ${label}`}
     />

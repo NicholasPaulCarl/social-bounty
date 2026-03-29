@@ -61,7 +61,7 @@ export default function MySubmissionsPage() {
       <PageHeader title="My Submissions" subtitle="Track your bounty submissions" />
 
       {/* Earnings Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-fade-up">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 animate-fade-up">
         <div className="glass-card p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
@@ -152,11 +152,14 @@ export default function MySubmissionsPage() {
 
       {!isLoading && !error && data && data.data.length > 0 && (
         <>
+          <div className="glass-card overflow-x-auto">
           <DataTable
             value={data.data}
             onRowClick={(e) => router.push(`/my-submissions/${(e.data as MySubmissionListItem).id}`)}
             rowClassName={() => 'cursor-pointer'}
             aria-label="My submissions table"
+            scrollable
+            className="min-w-[700px]"
           >
             <Column field="bountyTitle" header="Bounty" />
             <Column
@@ -184,6 +187,7 @@ export default function MySubmissionsPage() {
               body={(row: MySubmissionListItem) => formatDate(row.updatedAt)}
             />
           </DataTable>
+          </div>
 
           <Paginator
             first={first}

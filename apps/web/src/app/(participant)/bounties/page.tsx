@@ -68,13 +68,13 @@ export default function BrowseBountiesPage() {
       <PageHeader title="Browse Bounties" subtitle="Find bounties and earn rewards" />
 
       {/* Category filter chips */}
-      <div className="flex flex-wrap gap-3 mb-6 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-3 mb-6 pb-2">
         {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => handleCategoryChange(cat.id)}
             aria-label={`Filter by ${cat.name}`}
-            className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 border
+            className={`whitespace-nowrap px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 border
               ${
                 selectedCategory === cat.id
                   ? 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan/40 shadow-glow-cyan'
@@ -150,12 +150,14 @@ export default function BrowseBountiesPage() {
                 ))}
               </div>
             ) : (
-              <div className="glass-card overflow-hidden">
+              <div className="glass-card overflow-x-auto">
                 <DataTable
                   value={sortedData}
                   onRowClick={(e) => router.push(`/bounties/${(e.data as BountyListItem).id}`)}
                   rowClassName={() => 'cursor-pointer'}
                   aria-label="Bounties table"
+                  scrollable
+                  className="min-w-[600px]"
                 >
                   <Column field="title" header="Title" />
                   <Column
