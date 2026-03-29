@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password', '/reset-password', '/verify-email'];
+const MARKETING_ROUTES = ['/', '/join', '/contact', '/how-it-works'];
 const BUSINESS_ROUTES_PREFIX = '/business';
 const ADMIN_ROUTES_PREFIX = '/admin';
 const MY_DISPUTES_PREFIX = '/my-disputes';
@@ -43,20 +44,17 @@ export function middleware(request: NextRequest) {
   const authCookie = request.cookies.get('sb_auth_role')?.value;
   const user = authCookie ? { role: authCookie } : null;
 
-  // Public routes: redirect authenticated users to dashboard
+  // Marketing routes: always accessible, logged-in users see dashboard link in nav
+  if (MARKETING_ROUTES.some((route) => pathname === route || (route !== '/' && pathname.startsWith(route + '/')))) {
+    return NextResponse.next();
+  }
+
+  // Public auth routes: redirect authenticated users to dashboard
   if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
     if (user) {
       return NextResponse.redirect(new URL(getDashboardUrl(user.role), request.url));
     }
     return NextResponse.next();
-  }
-
-  // Root redirect
-  if (pathname === '/') {
-    if (user) {
-      return NextResponse.redirect(new URL(getDashboardUrl(user.role), request.url));
-    }
-    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // Protected routes: redirect unauthenticated users
