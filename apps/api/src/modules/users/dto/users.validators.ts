@@ -1,11 +1,21 @@
 import {
   IsOptional,
   IsString,
+  IsArray,
+  IsEnum,
+  IsUrl,
+  IsInt,
+  Min,
   MinLength,
   MaxLength,
   Matches,
 } from 'class-validator';
-import { FIELD_LIMITS, PASSWORD_RULES } from '@social-bounty/shared';
+import {
+  FIELD_LIMITS,
+  PASSWORD_RULES,
+  PROFILE_LIMITS,
+  SocialChannel,
+} from '@social-bounty/shared';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -19,6 +29,16 @@ export class UpdateProfileDto {
   @MinLength(1)
   @MaxLength(FIELD_LIMITS.LAST_NAME_MAX)
   lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(PROFILE_LIMITS.BIO_MAX)
+  bio?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  interests?: string[];
 }
 
 export class ChangePasswordDto {
@@ -32,4 +52,28 @@ export class ChangePasswordDto {
   @Matches(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
   @Matches(/[0-9]/, { message: 'Password must contain at least one number' })
   newPassword!: string;
+}
+
+export class UpsertSocialLinkDto {
+  @IsEnum(SocialChannel)
+  platform!: SocialChannel;
+
+  @IsString()
+  @IsUrl()
+  url!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(PROFILE_LIMITS.HANDLE_MAX)
+  handle?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  followerCount?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  postCount?: number;
 }

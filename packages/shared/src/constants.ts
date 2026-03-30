@@ -188,6 +188,36 @@ export const DISPUTE_EVIDENCE_LIMITS = {
   ] as const,
 } as const;
 
+// ─── Hunter Profile ──────────────────
+
+export const PROFILE_LIMITS = {
+  BIO_MAX: 500,
+  PROFILE_PICTURE_MAX_SIZE: 2 * 1024 * 1024, // 2MB
+  PROFILE_PICTURE_MIME_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const,
+  MAX_SOCIAL_LINKS: 5,
+  HANDLE_MAX: 100,
+} as const;
+
+export const HUNTER_INTERESTS = [
+  'Fitness & Wellness',
+  'Food & Cooking',
+  'Travel & Adventure',
+  'Tech & Gaming',
+  'Fashion & Beauty',
+  'Lifestyle & Home',
+  'Music & Entertainment',
+  'Business & Finance',
+  'Education & Learning',
+  'Photography & Art',
+  'Sports',
+  'Parenting & Family',
+  'Pets & Animals',
+  'Cars & Automotive',
+  'Comedy & Humor',
+] as const;
+
+export type HunterInterest = (typeof HUNTER_INTERESTS)[number];
+
 export const DISPUTE_REASON_CATEGORIES = {
   NON_PAYMENT: [
     'PAYMENT_NOT_RECEIVED',

@@ -42,6 +42,7 @@ export class AuthService {
     password: string,
     firstName: string,
     lastName: string,
+    interests?: string[],
   ) {
     const normalizedEmail = email.toLowerCase().trim();
 
@@ -64,6 +65,7 @@ export class AuthService {
         role: UserRole.PARTICIPANT,
         status: UserStatus.ACTIVE,
         emailVerified: false,
+        ...(interests && interests.length > 0 ? { interests } : {}),
       },
     });
 

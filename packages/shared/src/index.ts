@@ -58,9 +58,11 @@ export {
   DISPUTE_LIMITS,
   DISPUTE_EVIDENCE_LIMITS,
   DISPUTE_REASON_CATEGORIES,
+  PROFILE_LIMITS,
+  HUNTER_INTERESTS,
 } from './constants';
 
-export type { CategoryInfo } from './constants';
+export type { CategoryInfo, HunterInterest } from './constants';
 
 // Auth DTOs
 export type {
@@ -81,11 +83,22 @@ export type {
 // User DTOs
 export type {
   UserOrganisationInfo,
+  UserSocialLinkInfo,
   UserProfileResponse,
   UpdateProfileRequest,
   UpdateProfileResponse,
   ChangePasswordRequest,
 } from './dto/user.dto';
+
+// Hunter Profile DTOs
+export type {
+  SocialLinkResponse,
+  UpsertSocialLinkRequest,
+  UpdateHunterProfileRequest,
+  PublicHunterProfile,
+  HunterListItem,
+  HunterListParams,
+} from './dto/hunter-profile.dto';
 
 // Organisation DTOs
 export type {

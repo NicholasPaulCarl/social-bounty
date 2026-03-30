@@ -1,4 +1,4 @@
-import { UserRole, UserStatus } from '../enums';
+import { UserRole, UserStatus, SocialChannel } from '../enums';
 
 // ─────────────────────────────────────
 // User DTOs
@@ -11,6 +11,16 @@ export interface UserOrganisationInfo {
   role: string;
 }
 
+export interface UserSocialLinkInfo {
+  id: string;
+  platform: SocialChannel;
+  url: string;
+  handle: string | null;
+  followerCount: number | null;
+  postCount: number | null;
+  isVerified: boolean;
+}
+
 export interface UserProfileResponse {
   id: string;
   email: string;
@@ -19,6 +29,10 @@ export interface UserProfileResponse {
   role: UserRole;
   status: UserStatus;
   emailVerified: boolean;
+  bio: string | null;
+  profilePictureUrl: string | null;
+  interests: string[];
+  socialLinks: UserSocialLinkInfo[];
   organisation: UserOrganisationInfo | null;
   createdAt: string;
   updatedAt: string;
@@ -28,6 +42,8 @@ export interface UserProfileResponse {
 export interface UpdateProfileRequest {
   firstName?: string;
   lastName?: string;
+  bio?: string;
+  interests?: string[];
 }
 
 export interface UpdateProfileResponse {
@@ -38,6 +54,9 @@ export interface UpdateProfileResponse {
   role: UserRole;
   status: UserStatus;
   emailVerified: boolean;
+  bio: string | null;
+  profilePictureUrl: string | null;
+  interests: string[];
   updatedAt: string;
 }
 

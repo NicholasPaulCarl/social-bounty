@@ -2,6 +2,8 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
+  IsOptional,
+  IsArray,
   MinLength,
   Matches,
 } from 'class-validator';
@@ -28,6 +30,11 @@ export class SignupDto {
   @IsNotEmpty()
   @MinLength(1)
   lastName!: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  interests?: string[];
 }
 
 export class LoginDto {

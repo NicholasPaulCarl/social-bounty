@@ -8,6 +8,7 @@ import type {
   AdminRecentErrorsParams,
   DisputeListParams,
   AdminDisputeListParams,
+  HunterListParams,
 } from '@social-bounty/shared';
 
 export const queryKeys = {
@@ -57,5 +58,13 @@ export const queryKeys = {
   },
   user: {
     me: ['user', 'me'] as const,
+    socialLinks: ['user', 'social-links'] as const,
+  },
+  hunters: {
+    all: ['hunters'] as const,
+    lists: () => [...queryKeys.hunters.all, 'list'] as const,
+    list: (filters: HunterListParams) => [...queryKeys.hunters.lists(), filters] as const,
+    details: () => [...queryKeys.hunters.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.hunters.details(), id] as const,
   },
 };

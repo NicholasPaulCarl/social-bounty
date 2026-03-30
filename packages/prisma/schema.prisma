@@ -184,11 +184,15 @@ model User {
   role          UserRole   @default(PARTICIPANT)
   status        UserStatus @default(ACTIVE)
   emailVerified Boolean    @default(false)
+  bio               String?    @db.VarChar(500)
+  profilePictureUrl String?
+  interests         Json?      // string array: ["Fitness & Wellness", "Food & Cooking", ...]
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
   // Relations
   submissions             Submission[]          @relation("UserSubmissions")
+  socialLinks             SocialLink[]
   reviewedSubmissions     Submission[]          @relation("ReviewerSubmissions")
   organisationMemberships OrganisationMember[]
   createdBounties         Bounty[]              @relation("BountyCreator")
@@ -546,4 +550,28 @@ model DisputeStatusHistory {
   @@index([disputeId])
   @@index([createdAt])
   @@map("dispute_status_history")
+}
+
+// ─────────────────────────────────────
+// Hunter Profile
+// ─────────────────────────────────────
+
+model SocialLink {
+  id             String        @id @default(uuid())
+  userId         String
+  platform       SocialChannel
+  url            String
+  handle         String?
+  followerCount  Int?
+  postCount      Int?
+  isVerified     Boolean       @default(false)
+  verifiedAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platform])
+  @@index([userId])
+  @@map("social_links")
 }
