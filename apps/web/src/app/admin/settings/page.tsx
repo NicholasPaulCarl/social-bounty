@@ -81,10 +81,12 @@ export default function AdminSettingsPage() {
                 <dt className="text-sm text-text-muted">Timestamp</dt>
                 <dd className="text-sm font-medium text-text-secondary mt-0.5">{formatDateTime(settings.updatedAt)}</dd>
               </div>
-              <div className="border-t border-glass-border pt-3">
-                <dt className="text-sm text-text-muted">Updated By</dt>
-                <dd className="text-sm font-medium text-text-secondary mt-0.5">{settings.updatedBy.email}</dd>
-              </div>
+              {settings.updatedBy && (
+                <div className="border-t border-glass-border pt-3">
+                  <dt className="text-sm text-text-muted">Updated By</dt>
+                  <dd className="text-sm font-medium text-text-secondary mt-0.5">{settings.updatedBy.email}</dd>
+                </div>
+              )}
             </dl>
           </div>
         )}
