@@ -18,7 +18,6 @@ export class PayoutSchedulerService {
     const now = new Date();
 
     try {
-      // Fetch eligible submissions individually so we can credit each wallet
       const submissions = await this.prisma.submission.findMany({
         where: {
           status: SubmissionStatus.APPROVED,
@@ -26,50 +25,46 @@ export class PayoutSchedulerService {
           verificationDeadline: { lte: now },
         },
         include: {
-          bounty: {
-            select: { title: true, rewardValue: true },
-          },
+          bounty: { select: { title: true, rewardValue: true } },
         },
+        take: 100, // batch limit
       });
 
-      let processed = 0;
+      if (submissions.length === 0) return;
 
-      for (const submission of submissions) {
-        try {
-          await this.prisma.submission.update({
-            where: { id: submission.id },
-            data: { payoutStatus: PayoutStatus.PAID },
-          });
+      // Batch update all payout statuses atomically
+      await this.prisma.submission.updateMany({
+        where: {
+          id: { in: submissions.map((s) => s.id) },
+          status: SubmissionStatus.APPROVED,
+          payoutStatus: PayoutStatus.NOT_PAID,
+        },
+        data: { payoutStatus: PayoutStatus.PAID },
+      });
 
-          // Credit wallet if there is a reward value
-          const rewardAmount = submission.bounty.rewardValue
-            ? Number(submission.bounty.rewardValue)
-            : 0;
-
-          if (rewardAmount > 0) {
-            await this.walletService.creditWallet(
-              submission.userId,
-              rewardAmount,
-              `Auto-payout for bounty: ${submission.bounty.title}`,
+      // Credit wallets in parallel (non-blocking — failures logged individually)
+      const walletResults = await Promise.allSettled(
+        submissions
+          .filter((s) => s.bounty.rewardValue && Number(s.bounty.rewardValue) > 0)
+          .map((s) =>
+            this.walletService.creditWallet(
+              s.userId,
+              Number(s.bounty.rewardValue),
+              `Auto-payout for bounty: ${s.bounty.title}`,
               'SUBMISSION',
-              submission.id,
-            );
-          }
+              s.id,
+            ),
+          ),
+      );
 
-          processed++;
-        } catch (err) {
-          this.logger.error(
-            `Failed to process submission ${submission.id}`,
-            err,
-          );
-        }
+      const failed = walletResults.filter((r) => r.status === 'rejected');
+      if (failed.length > 0) {
+        this.logger.warn(`${failed.length} wallet credits failed during auto-payout`);
       }
 
-      if (processed > 0) {
-        this.logger.log(
-          `Auto-paid ${processed} submissions past verification deadline`,
-        );
-      }
+      this.logger.log(
+        `Auto-paid ${submissions.length} submissions (${submissions.length - failed.length} wallets credited)`,
+      );
     } catch (error) {
       this.logger.error('Failed to process expired deadlines', error);
     }

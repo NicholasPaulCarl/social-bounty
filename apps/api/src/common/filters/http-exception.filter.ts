@@ -118,22 +118,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       500: 'Internal Server Error',
     };
 
-    // Record errors for system health monitoring (skip 401/404 — too noisy)
-    if (this.errorRecorder && status >= 400 && status !== 401 && status !== 404) {
-      try {
-        const userId = (request as any).user?.sub || null;
-        this.errorRecorder.recordError({
-          message: `[${status}] ${message}`,
-          stackTrace: exception instanceof Error ? (exception.stack || '') : '',
-          endpoint: `${request.method} ${request.url}`,
-          userId,
-          severity: status >= 500 ? 'critical' : status === 403 ? 'warning' : 'error',
-        });
-      } catch {
-        // Never let error recording crash the response
-      }
-    }
-
+    // Send response FIRST, then record error asynchronously (never block response)
     response.status(status).json({
       statusCode: status,
       error: errorNames[status] || error,
@@ -141,5 +126,23 @@ export class HttpExceptionFilter implements ExceptionFilter {
       requestId,
       ...(details && { details }),
     });
+
+    // Deferred error recording — runs after response is sent
+    if (this.errorRecorder && status >= 400 && status !== 401 && status !== 404) {
+      process.nextTick(() => {
+        try {
+          const userId = (request as any).user?.sub || null;
+          this.errorRecorder!.recordError({
+            message: `[${status}] ${message}`,
+            stackTrace: exception instanceof Error ? (exception.stack || '') : '',
+            endpoint: `${request.method} ${request.url}`,
+            userId,
+            severity: status >= 500 ? 'critical' : status === 403 ? 'warning' : 'error',
+          });
+        } catch {
+          // Silent — never let recording affect the app
+        }
+      });
+    }
   }
 }

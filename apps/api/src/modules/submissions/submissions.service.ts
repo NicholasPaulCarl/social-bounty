@@ -689,21 +689,22 @@ export class SubmissionsService {
       ipAddress,
     });
 
-    // Credit wallet when payout is marked as PAID
+    // Credit wallet when payout is marked as PAID (with 5s timeout to prevent hanging)
     if (newPayoutStatus === PayoutStatus.PAID && submission.bounty.rewardValue) {
       const rewardAmount = Number(submission.bounty.rewardValue);
       if (rewardAmount > 0) {
-        this.walletService
-          .creditWallet(
+        Promise.race([
+          this.walletService.creditWallet(
             submission.userId,
             rewardAmount,
             `Payout for bounty: ${submission.bounty.title}`,
             'SUBMISSION',
             id,
-          )
-          .catch((err) => {
-            this.logger.error('Failed to credit wallet for submission payout:', err);
-          });
+          ),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Wallet credit timeout')), 5000)),
+        ]).catch((err) => {
+          this.logger.error('Failed to credit wallet for submission payout:', err);
+        });
       }
     }
 
