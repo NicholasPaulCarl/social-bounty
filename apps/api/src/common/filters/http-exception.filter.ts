@@ -5,14 +5,33 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  Inject,
+  Optional,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Response, Request } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
+// Lightweight interface to avoid circular dependency with AdminService
+export interface ErrorRecorder {
+  recordError(error: {
+    message: string;
+    stackTrace: string;
+    endpoint: string;
+    userId?: string | null;
+    severity?: string;
+  }): void;
+}
+
+export const ERROR_RECORDER = Symbol('ERROR_RECORDER');
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
+
+  constructor(
+    @Optional() @Inject(ERROR_RECORDER) private readonly errorRecorder?: ErrorRecorder,
+  ) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -98,6 +117,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
       429: 'Too Many Requests',
       500: 'Internal Server Error',
     };
+
+    // Record errors for system health monitoring (skip 401/404 — too noisy)
+    if (this.errorRecorder && status >= 400 && status !== 401 && status !== 404) {
+      try {
+        const userId = (request as any).user?.sub || null;
+        this.errorRecorder.recordError({
+          message: `[${status}] ${message}`,
+          stackTrace: exception instanceof Error ? (exception.stack || '') : '',
+          endpoint: `${request.method} ${request.url}`,
+          userId,
+          severity: status >= 500 ? 'critical' : status === 403 ? 'warning' : 'error',
+        });
+      } catch {
+        // Never let error recording crash the response
+      }
+    }
 
     response.status(status).json({
       statusCode: status,

@@ -6,6 +6,7 @@ import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { AdminService } from './modules/admin/admin.service';
 import { SanitizePipe } from './common/pipes/sanitize.pipe';
 
 async function bootstrap() {
@@ -74,7 +75,9 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(new HttpExceptionFilter());
+  // Wire error recording into the exception filter so all errors appear on System Health page
+  const adminService = app.get(AdminService);
+  app.useGlobalFilters(new HttpExceptionFilter(adminService));
 
   // Graceful shutdown
   app.enableShutdownHooks();
