@@ -9,8 +9,10 @@ import MoleculesSection from './_components/sections/MoleculesSection';
 import OrganismsSection from './_components/sections/OrganismsSection';
 import FormSectionsSection from './_components/sections/FormSectionsSection';
 import PrimeReactSection from './_components/sections/PrimeReactSection';
+import BrandSection from './_components/sections/BrandSection';
 
 const SECTION_IDS = [
+  'brand',
   'design-tokens',
   'atoms',
   'molecules',
@@ -55,6 +57,14 @@ export default function ComponentLibraryPage() {
         <LibrarySidebar activeSection={activeSection} />
 
         <main className="flex-1 min-w-0 animate-fade-up">
+          <section id="brand" className="mb-16">
+            <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
+              <i className="pi pi-star text-accent-amber" />
+              Brand Guidelines
+            </h2>
+            <BrandSection />
+          </section>
+
           <section id="design-tokens" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
               <i className="pi pi-palette text-accent-cyan" />

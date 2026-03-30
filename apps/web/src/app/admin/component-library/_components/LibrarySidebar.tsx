@@ -5,6 +5,7 @@ interface LibrarySidebarProps {
 }
 
 const SECTIONS = [
+  { label: 'Brand', id: 'brand', icon: 'pi pi-star' },
   { label: 'Design Tokens', id: 'design-tokens', icon: 'pi pi-palette' },
   { label: 'Atoms', id: 'atoms', icon: 'pi pi-circle' },
   { label: 'Molecules', id: 'molecules', icon: 'pi pi-th-large' },

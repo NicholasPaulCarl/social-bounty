@@ -44,6 +44,7 @@ const adminNav: NavItem[] = [
     icon: 'pi pi-palette',
     href: '/admin/component-library',
     children: [
+      { label: 'Brand', icon: 'pi pi-circle-fill', href: '/admin/component-library#brand' },
       { label: 'Design Tokens', icon: 'pi pi-circle-fill', href: '/admin/component-library#design-tokens' },
       { label: 'Atoms', icon: 'pi pi-circle-fill', href: '/admin/component-library#atoms' },
       { label: 'Molecules', icon: 'pi pi-circle-fill', href: '/admin/component-library#molecules' },
