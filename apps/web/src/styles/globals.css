@@ -395,15 +395,40 @@
   min-height: 2.875rem !important; /* 46px */
 }
 
-/* Icon-only button */
+/* Icon-only button — perfect square with centered icon */
 .p-button.p-button-icon-only {
-  padding: 0.625rem !important;
+  padding: 0 !important;
   width: 2.5rem !important;
+  height: 2.5rem !important;
   min-height: 2.5rem !important;
+  min-width: 2.5rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.p-button.p-button-icon-only .p-button-icon {
+  margin: 0 !important; /* Remove any default icon margin */
 }
 
 .p-button.p-button-icon-only.p-button-rounded {
   border-radius: 50% !important;
+}
+
+/* Small rounded icon button */
+.p-button.p-button-icon-only.p-button-sm {
+  width: 2rem !important;
+  height: 2rem !important;
+  min-height: 2rem !important;
+  min-width: 2rem !important;
+}
+
+/* Large rounded icon button */
+.p-button.p-button-icon-only.p-button-lg {
+  width: 3rem !important;
+  height: 3rem !important;
+  min-height: 3rem !important;
+  min-width: 3rem !important;
 }
 
 /* Disabled button */
