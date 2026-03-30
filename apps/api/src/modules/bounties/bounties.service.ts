@@ -408,9 +408,9 @@ export class BountiesService {
         totalRewardValue:
           b.rewards.length > 0 ? this.computeTotalRewardValue(b.rewards) : null,
         rewards: this.mapRewards(b.rewards),
-        payoutMetrics: (b as any).payoutMetrics as PayoutMetricsInput | null ?? null,
-        paymentStatus: (b as any).paymentStatus ?? PaymentStatus.UNPAID,
-        payoutMethod: (b as any).payoutMethod ?? null,
+        payoutMetrics: b.payoutMetrics as PayoutMetricsInput | null ?? null,
+        paymentStatus: b.paymentStatus ?? PaymentStatus.UNPAID,
+        payoutMethod: b.payoutMethod ?? null,
         createdAt: b.createdAt.toISOString(),
       })),
       meta: {
@@ -526,9 +526,9 @@ export class BountiesService {
         bounty.rewards.length > 0
           ? this.computeTotalRewardValue(bounty.rewards)
           : null,
-      payoutMetrics: (bounty as any).payoutMetrics as PayoutMetricsInput | null ?? null,
-      paymentStatus: (bounty as any).paymentStatus ?? PaymentStatus.UNPAID,
-      payoutMethod: (bounty as any).payoutMethod ?? null,
+      payoutMetrics: bounty.payoutMetrics as PayoutMetricsInput | null ?? null,
+      paymentStatus: bounty.paymentStatus ?? PaymentStatus.UNPAID,
+      payoutMethod: bounty.payoutMethod ?? null,
       brandAssets: this.mapBrandAssets(bounty.brandAssets),
     };
   }
@@ -746,9 +746,9 @@ export class BountiesService {
       totalRewardValue: result.rewards.length > 0
         ? this.computeTotalRewardValue(result.rewards)
         : null,
-      payoutMetrics: (result.bounty as any).payoutMetrics as PayoutMetricsInput | null ?? null,
-      paymentStatus: (result.bounty as any).paymentStatus ?? PaymentStatus.UNPAID,
-      payoutMethod: (result.bounty as any).payoutMethod ?? null,
+      payoutMetrics: result.bounty.payoutMetrics as PayoutMetricsInput | null ?? null,
+      paymentStatus: result.bounty.paymentStatus ?? PaymentStatus.UNPAID,
+      payoutMethod: result.bounty.payoutMethod ?? null,
     };
   }
 

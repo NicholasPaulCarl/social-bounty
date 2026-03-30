@@ -4,6 +4,7 @@ import {
   NotFoundException,
   ForbiddenException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import {
@@ -38,6 +39,8 @@ const PAYOUT_TRANSITIONS: Record<string, string[]> = {
 
 @Injectable()
 export class SubmissionsService {
+  private readonly logger = new Logger(SubmissionsService.name);
+
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
@@ -565,7 +568,7 @@ export class SubmissionsService {
           actionUrl: undefined,
         })
         .catch((err) => {
-          console.error('Failed to send submission status email:', err);
+          this.logger.error('Failed to send submission status email:', err);
         });
     }
 
@@ -699,7 +702,7 @@ export class SubmissionsService {
             id,
           )
           .catch((err) => {
-            console.error('Failed to credit wallet for submission payout:', err);
+            this.logger.error('Failed to credit wallet for submission payout:', err);
           });
       }
     }
@@ -716,7 +719,7 @@ export class SubmissionsService {
           currency: submission.bounty.currency || 'USD',
         })
         .catch((err) => {
-          console.error('Failed to send payout notification email:', err);
+          this.logger.error('Failed to send payout notification email:', err);
         });
     }
 

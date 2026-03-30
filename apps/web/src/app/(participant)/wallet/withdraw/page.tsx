@@ -95,7 +95,7 @@ export default function WithdrawPage() {
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
             {/* Amount */}
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-text-secondary">
+              <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                 Amount <span className="text-accent-rose">*</span>
               </label>
               <InputNumber
@@ -117,7 +117,7 @@ export default function WithdrawPage() {
 
             {/* Method */}
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-text-secondary">
+              <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                 Withdrawal Method <span className="text-accent-rose">*</span>
               </label>
               <Dropdown
@@ -133,7 +133,7 @@ export default function WithdrawPage() {
             {/* Dynamic destination fields */}
             {method === PayoutMethod.PAYPAL && (
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-secondary">
+                <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                   PayPal Email <span className="text-accent-rose">*</span>
                 </label>
                 <InputText
@@ -152,7 +152,7 @@ export default function WithdrawPage() {
                 <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">Bank Details</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-text-secondary">
+                    <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                       Bank Name <span className="text-accent-rose">*</span>
                     </label>
                     <InputText
@@ -164,7 +164,7 @@ export default function WithdrawPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-text-secondary">
+                    <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                       Branch Code <span className="text-accent-rose">*</span>
                     </label>
                     <InputText
@@ -176,7 +176,7 @@ export default function WithdrawPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-text-secondary">
+                    <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                       Account Number <span className="text-accent-rose">*</span>
                     </label>
                     <InputText
@@ -188,7 +188,7 @@ export default function WithdrawPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-text-secondary">
+                    <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                       Account Holder Name <span className="text-accent-rose">*</span>
                     </label>
                     <InputText
@@ -205,7 +205,7 @@ export default function WithdrawPage() {
 
             {method === PayoutMethod.E_WALLET && (
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-text-secondary">
+                <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                   Wallet ID / Phone Number <span className="text-accent-rose">*</span>
                 </label>
                 <InputText
@@ -238,7 +238,8 @@ export default function WithdrawPage() {
                 type="submit"
                 label="Submit Request"
                 icon="pi pi-send"
-                className="flex-1 bg-accent-emerald border-accent-emerald text-background hover:bg-accent-emerald/90"
+                severity="success"
+                className="flex-1"
                 loading={isPending}
               />
             </div>

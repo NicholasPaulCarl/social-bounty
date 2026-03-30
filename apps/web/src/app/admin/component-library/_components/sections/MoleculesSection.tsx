@@ -122,6 +122,35 @@ export default function MoleculesSection() {
         </div>
       </ComponentDemo>
 
+      {/* SocialLinkInput */}
+      <ComponentDemo
+        name="SocialLinkInput"
+        description="Social media link input with platform selector, handle, follower/post count fields, and URL verification."
+        importPath="@/components/features/profile/SocialLinkInput"
+        code={`import { SocialLinkInput } from '@/components/features/profile/SocialLinkInput';
+
+<SocialLinkInput
+  platform="INSTAGRAM"
+  url="https://instagram.com/example"
+  handle="example"
+  followerCount={10000}
+  postCount={250}
+  onChange={(data) => console.log(data)}
+  onRemove={() => console.log('removed')}
+/>`}
+        props={[
+          { name: 'platform', type: 'SocialChannel', default: '-', required: true, description: 'Social media platform' },
+          { name: 'url', type: 'string', default: '-', required: true, description: 'Profile or post URL' },
+          { name: 'handle', type: 'string', default: "''", required: false, description: '@username handle' },
+          { name: 'followerCount', type: 'number', default: '0', required: false, description: 'Follower count' },
+          { name: 'postCount', type: 'number', default: '0', required: false, description: 'Total post count' },
+          { name: 'onChange', type: '(data) => void', default: '-', required: true, description: 'Change handler' },
+          { name: 'onRemove', type: '() => void', default: '-', required: true, description: 'Remove handler' },
+        ]}
+      >
+        <p className="text-text-muted text-sm italic">Interactive demo requires profile context. See /profile/edit for live usage.</p>
+      </ComponentDemo>
+
       {/* SectionPanel */}
       <ComponentDemo
         name="SectionPanel"

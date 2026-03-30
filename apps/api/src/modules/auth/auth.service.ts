@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   ConflictException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -27,6 +28,8 @@ const LOGIN_LOCKOUT_TTL = 900; // 15 minutes in seconds
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
@@ -77,7 +80,7 @@ export class AuthService {
         this.mailService.sendEmailVerification(user.email, verificationToken),
       )
       .catch((err) => {
-        console.error('Failed to send verification email:', err);
+        this.logger.error('Failed to send verification email:', err);
       });
 
     return {

@@ -3,6 +3,7 @@ import {
   BadRequestException,
   NotFoundException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import {
@@ -21,6 +22,8 @@ import { RequestWithdrawalDto } from './dto/wallet.validators';
 
 @Injectable()
 export class WithdrawalService {
+  private readonly logger = new Logger(WithdrawalService.name);
+
   constructor(
     private prisma: PrismaService,
     private walletService: WalletService,
@@ -168,7 +171,7 @@ export class WithdrawalService {
           currency: withdrawal.currency,
         })
         .catch((err) => {
-          console.error('Failed to send withdrawal completion email:', err);
+          this.logger.error('Failed to send withdrawal completion email:', err);
         });
     }
 
@@ -225,7 +228,7 @@ export class WithdrawalService {
           currency: withdrawal.currency,
         })
         .catch((err) => {
-          console.error('Failed to send withdrawal failure email:', err);
+          this.logger.error('Failed to send withdrawal failure email:', err);
         });
     }
 

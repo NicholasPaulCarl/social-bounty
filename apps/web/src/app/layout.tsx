@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google';
 import { Providers } from './providers';
 
@@ -33,6 +33,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Social Bounty',
   description: 'Complete bounties, earn rewards',
+};
+
+export const viewport: Viewport = {
   themeColor: '#0a0f1e',
 };
 

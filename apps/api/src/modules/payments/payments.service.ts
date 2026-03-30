@@ -67,7 +67,7 @@ export class PaymentsService {
       throw new BadRequestException('Payment can only be created for DRAFT bounties');
     }
 
-    if ((bounty as any).paymentStatus === PaymentStatus.PAID) {
+    if (bounty.paymentStatus === PaymentStatus.PAID) {
       throw new BadRequestException('Payment has already been completed');
     }
 
@@ -129,7 +129,7 @@ export class PaymentsService {
       where: { id: bountyId },
       data: {
         stripePaymentIntentId: paymentIntent.id,
-        paymentStatus: PaymentStatus.PENDING as any,
+        paymentStatus: PaymentStatus.PENDING,
       },
     });
 
@@ -180,7 +180,7 @@ export class PaymentsService {
 
           // Update paymentStatus to PAID and transition DRAFT bounties to LIVE
           const updateData: Record<string, any> = {
-            paymentStatus: PaymentStatus.PAID as any,
+            paymentStatus: PaymentStatus.PAID,
           };
 
           if (bounty && bounty.status === BountyStatus.DRAFT) {
@@ -229,7 +229,7 @@ export class PaymentsService {
 
           await this.prisma.bounty.updateMany({
             where: { id: bountyId },
-            data: { paymentStatus: PaymentStatus.UNPAID as any },
+            data: { paymentStatus: PaymentStatus.UNPAID },
           });
 
           const failureMessage =
