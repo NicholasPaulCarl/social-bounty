@@ -24,8 +24,8 @@ const FOOTER_BRANDS = [
 
 const FOOTER_COMPANY = [
   { label: 'Contact', href: '/contact' },
-  { label: 'Privacy Policy', href: '#' },
-  { label: 'Terms of Service', href: '#' },
+  { label: 'Privacy Policy', href: '/privacy' },
+  { label: 'Terms of Service', href: '/terms' },
 ];
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
