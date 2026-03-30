@@ -109,6 +109,13 @@ export const AUDIT_ACTIONS = {
   DISPUTE_WITHDRAW: 'dispute.withdraw',
   DISPUTE_AUTO_ESCALATE: 'dispute.auto_escalate',
   DISPUTE_AUTO_CLOSE: 'dispute.auto_close',
+  WALLET_CREDIT: 'wallet.credit',
+  WALLET_ADJUST: 'wallet.adjust',
+  WITHDRAWAL_REQUEST: 'withdrawal.request',
+  WITHDRAWAL_PROCESS: 'withdrawal.process',
+  WITHDRAWAL_COMPLETE: 'withdrawal.complete',
+  WITHDRAWAL_FAIL: 'withdrawal.fail',
+  WITHDRAWAL_CANCEL: 'withdrawal.cancel',
 } as const;
 
 export const ENTITY_TYPES = {
@@ -119,6 +126,8 @@ export const ENTITY_TYPES = {
   SETTINGS: 'Settings',
   BRAND_ASSET: 'BrandAsset',
   DISPUTE: 'Dispute',
+  WALLET: 'Wallet',
+  WITHDRAWAL: 'Withdrawal',
 } as const;
 
 export const CHANNEL_POST_FORMATS: Record<SocialChannel, PostFormat[]> = {
@@ -217,6 +226,20 @@ export const HUNTER_INTERESTS = [
 ] as const;
 
 export type HunterInterest = (typeof HUNTER_INTERESTS)[number];
+
+// ─── Wallet & Withdrawal ─────────────
+
+export const WALLET_LIMITS = {
+  MIN_WITHDRAWAL: 50,
+  MAX_WITHDRAWAL: 50000,
+  DESCRIPTION_MAX: 500,
+  ADJUSTMENT_REASON_MAX: 2000,
+} as const;
+
+export const WITHDRAWAL_LIMITS = {
+  MAX_PENDING_PER_USER: 3,
+  DESTINATION_MAX: 320,
+} as const;
 
 export const DISPUTE_REASON_CATEGORIES = {
   NON_PAYMENT: [

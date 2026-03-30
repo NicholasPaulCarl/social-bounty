@@ -16,6 +16,7 @@ import { BusinessModule } from './modules/business/business.module';
 import { HealthModule } from './modules/health/health.module';
 import { FilesModule } from './modules/files/files.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { WalletModule } from './modules/wallet/wallet.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { MailModule } from './modules/mail/mail.module';
 import { SettingsModule } from './modules/settings/settings.module';
@@ -51,6 +52,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     HealthModule,
     FilesModule,
     PaymentsModule,
+    WalletModule,
   ],
   providers: [
     {

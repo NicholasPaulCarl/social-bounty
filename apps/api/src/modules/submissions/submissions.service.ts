@@ -21,6 +21,7 @@ import type { ReportedMetricsInput } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
+import { WalletService } from '../wallet/wallet.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 const REVIEW_TRANSITIONS: Record<string, string[]> = {
@@ -41,6 +42,7 @@ export class SubmissionsService {
     private prisma: PrismaService,
     private auditService: AuditService,
     private mailService: MailService,
+    private walletService: WalletService,
   ) {}
 
   private formatProofImages(images: any[]) {
@@ -683,6 +685,24 @@ export class SubmissionsService {
       afterState: { payoutStatus: newPayoutStatus, note: note || null },
       ipAddress,
     });
+
+    // Credit wallet when payout is marked as PAID
+    if (newPayoutStatus === PayoutStatus.PAID && submission.bounty.rewardValue) {
+      const rewardAmount = Number(submission.bounty.rewardValue);
+      if (rewardAmount > 0) {
+        this.walletService
+          .creditWallet(
+            submission.userId,
+            rewardAmount,
+            `Payout for bounty: ${submission.bounty.title}`,
+            'SUBMISSION',
+            id,
+          )
+          .catch((err) => {
+            console.error('Failed to credit wallet for submission payout:', err);
+          });
+      }
+    }
 
     // Send payout notification email when payout is marked as PAID
     if (newPayoutStatus === PayoutStatus.PAID) {

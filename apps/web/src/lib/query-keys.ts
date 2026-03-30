@@ -9,6 +9,10 @@ import type {
   DisputeListParams,
   AdminDisputeListParams,
   HunterListParams,
+  WalletTransactionListParams,
+  WithdrawalListParams,
+  AdminWalletListParams,
+  AdminWithdrawalListParams,
 } from '@social-bounty/shared';
 
 export const queryKeys = {
@@ -66,5 +70,15 @@ export const queryKeys = {
     list: (filters: HunterListParams) => [...queryKeys.hunters.lists(), filters] as const,
     details: () => [...queryKeys.hunters.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.hunters.details(), id] as const,
+  },
+  wallet: {
+    all: ['wallet'] as const,
+    dashboard: () => [...queryKeys.wallet.all, 'dashboard'] as const,
+    transactions: (params: WalletTransactionListParams) => [...queryKeys.wallet.all, 'transactions', params] as const,
+    withdrawals: (params: WithdrawalListParams) => [...queryKeys.wallet.all, 'withdrawals', params] as const,
+    adminLists: () => [...queryKeys.wallet.all, 'admin', 'list'] as const,
+    adminList: (params: AdminWalletListParams) => [...queryKeys.wallet.adminLists(), params] as const,
+    adminDetail: (userId: string) => [...queryKeys.wallet.all, 'admin', 'detail', userId] as const,
+    adminWithdrawals: (params: AdminWithdrawalListParams) => [...queryKeys.wallet.all, 'admin', 'withdrawals', params] as const,
   },
 };

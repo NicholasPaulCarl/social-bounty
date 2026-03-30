@@ -25,6 +25,8 @@ export {
   DisputeResolution,
   DisputeMessageType,
   EvidenceType,
+  WalletTxType,
+  WithdrawalStatus,
 } from './enums';
 
 // Common types
@@ -60,6 +62,8 @@ export {
   DISPUTE_REASON_CATEGORIES,
   PROFILE_LIMITS,
   HUNTER_INTERESTS,
+  WALLET_LIMITS,
+  WITHDRAWAL_LIMITS,
 } from './constants';
 
 export type { CategoryInfo, HunterInterest } from './constants';
@@ -99,6 +103,26 @@ export type {
   HunterListItem,
   HunterListParams,
 } from './dto/hunter-profile.dto';
+
+// Wallet DTOs
+export type {
+  WalletBalanceResponse,
+  WalletTransactionListItem,
+  WalletTransactionListParams,
+  WalletDashboardResponse,
+  PaginatedWalletTransactions,
+  RequestWithdrawalRequest,
+  WithdrawalListItem,
+  WithdrawalListParams,
+  PaginatedWithdrawals,
+  AdminWalletListItem,
+  AdminWalletListParams,
+  AdminWalletAdjustRequest,
+  AdminWithdrawalListItem,
+  AdminWithdrawalListParams,
+  AdminCompleteWithdrawalRequest,
+  AdminFailWithdrawalRequest,
+} from './dto/wallet.dto';
 
 // Organisation DTOs
 export type {

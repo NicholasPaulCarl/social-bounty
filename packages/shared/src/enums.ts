@@ -96,6 +96,24 @@ export enum PayoutMethod {
   E_WALLET = 'E_WALLET',
 }
 
+// ─── Wallet Enums ────────────────────
+
+export enum WalletTxType {
+  CREDIT = 'CREDIT',
+  DEBIT = 'DEBIT',
+  HOLD = 'HOLD',
+  RELEASE = 'RELEASE',
+  CORRECTION = 'CORRECTION',
+}
+
+export enum WithdrawalStatus {
+  REQUESTED = 'REQUESTED',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  CANCELLED = 'CANCELLED',
+}
+
 // ─── Dispute Enums ───────────────────
 
 export enum DisputeStatus {

@@ -12,6 +12,7 @@ const participantNav: NavItem[] = [
   { label: 'Browse Bounties', icon: 'pi pi-search', href: '/bounties' },
   { label: 'My Submissions', icon: 'pi pi-list', href: '/my-submissions' },
   { label: 'My Disputes', icon: 'pi pi-flag', href: '/my-disputes' },
+  { label: 'Wallet', icon: 'pi pi-wallet', href: '/wallet' },
   { label: 'Profile', icon: 'pi pi-user', href: '/profile' },
 ];
 
@@ -32,6 +33,8 @@ const adminNav: NavItem[] = [
   { label: 'Bounties', icon: 'pi pi-megaphone', href: '/admin/bounties' },
   { label: 'Submissions', icon: 'pi pi-inbox', href: '/admin/submissions' },
   { label: 'Hunters', icon: 'pi pi-users', href: '/hunters' },
+  { label: 'Wallets', icon: 'pi pi-wallet', href: '/admin/wallets' },
+  { label: 'Withdrawals', icon: 'pi pi-money-bill', href: '/admin/withdrawals' },
   { label: 'Disputes', icon: 'pi pi-flag', href: '/admin/disputes' },
   { label: 'Audit Logs', icon: 'pi pi-history', href: '/admin/audit-logs' },
   { label: 'System Health', icon: 'pi pi-server', href: '/admin/troubleshooting' },
