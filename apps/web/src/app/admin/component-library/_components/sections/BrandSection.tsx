@@ -48,7 +48,7 @@ export default function BrandSection() {
       <div className="glass-card p-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center">
-            <span className="text-xl">⚡</span>
+            <i className="pi pi-bolt text-xl text-pink-400" />
           </div>
           <div>
             <h3 className="text-lg font-heading font-bold text-text-primary">Social Bounty</h3>

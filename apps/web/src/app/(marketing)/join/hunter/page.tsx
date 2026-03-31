@@ -63,25 +63,25 @@ function FadeUp({
 const HOW_STEPS = [
   {
     n: 1,
-    icon: '🔍',
+    icon: '1',
     title: 'Browse the board',
     body: 'Scroll through live bounties from real brands. Filter by platform, reward size, or category — and find what suits you.',
   },
   {
     n: 2,
-    icon: '✋',
+    icon: '2',
     title: 'Claim a bounty',
     body: 'Lock in your spot on a bounty with one tap. Each claim gives you a clear brief, deadline, and exact payout.',
   },
   {
     n: 3,
-    icon: '📸',
+    icon: '3',
     title: 'Submit your proof',
     body: 'Upload your screenshot, link, or video. Our submission flow is fast — most Hunters are done in under three minutes.',
   },
   {
     n: 4,
-    icon: '💸',
+    icon: '4',
     title: 'Get your reward',
     body: 'Brand reviews your work, approves it, and your reward lands in your account. No chasing. No ambiguity.',
   },
@@ -89,32 +89,32 @@ const HOW_STEPS = [
 
 const WHY_CARDS = [
   {
-    icon: '💰',
+    icon: '$',
     title: 'Real daily income',
     body: 'New bounties drop every day. Stack small wins into a meaningful side income — or go full-time.',
   },
   {
-    icon: '🚫',
+    icon: '0',
     title: 'No follower minimums',
     body: "You don't need an audience. Zero followers, full access. Your effort is what gets rewarded.",
   },
   {
-    icon: '📋',
+    icon: '=',
     title: 'Transparent requirements',
     body: "Every bounty spells out exactly what's needed. No guesswork, no surprise rejections.",
   },
   {
-    icon: '⚖️',
+    icon: '\u2713',
     title: 'Fair review process',
     body: 'Structured brand reviews with clear criteria. Dispute any decision — we have your back.',
   },
   {
-    icon: '🌍',
+    icon: '\u2192',
     title: 'Work from anywhere',
     body: 'Your phone, your laptop, your couch. If you have internet, you can hunt.',
   },
   {
-    icon: '🏆',
+    icon: '\u2605',
     title: 'Build your portfolio',
     body: 'Every approved submission is proof of your content skills. Build a reputation, unlock bigger bounties.',
   },
@@ -164,8 +164,8 @@ function PhoneMockup() {
                 opacity: 1 - i * 0.12,
               }}
             >
-              <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center text-base shrink-0">
-                {b.tag === 'Food' ? '🍗' : b.tag === 'Fashion' ? '👗' : b.tag === 'Retail' ? '🛒' : '☕'}
+              <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center text-xs font-bold text-pink-600 shrink-0">
+                {b.tag[0]}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-slate-800 truncate">{b.brand}</p>
@@ -177,7 +177,7 @@ function PhoneMockup() {
 
           {/* Bottom bar */}
           <div className="mt-auto flex justify-around pt-2 border-t border-slate-100">
-            {['🏠', '🔍', '📬', '👤'].map((icon, i) => (
+            {['\u2302', '\u2315', '\u2709', '\u2022'].map((icon, i) => (
               <span key={i} className={`text-lg ${i === 1 ? 'opacity-100' : 'opacity-30'}`}>
                 {icon}
               </span>
@@ -207,7 +207,7 @@ export default function JoinHunterPage() {
             <div>
               <FadeUp>
                 <div className="inline-flex items-center gap-2 bg-pink-50 text-pink-700 text-sm font-semibold px-4 py-2 rounded-full mb-6">
-                  <span>🎯</span>
+                  <span className="w-4 h-4 rounded-full bg-pink-600 inline-block" />
                   <span>For Hunters</span>
                 </div>
               </FadeUp>
@@ -269,7 +269,6 @@ export default function JoinHunterPage() {
                     <div className="w-16 h-16 rounded-2xl bg-pink-600 flex items-center justify-center text-white font-heading font-bold text-xl shadow-lg">
                       {step.n}
                     </div>
-                    <span className="text-3xl">{step.icon}</span>
                   </div>
 
                   {/* Content */}
@@ -308,7 +307,7 @@ export default function JoinHunterPage() {
             {WHY_CARDS.map((card, i) => (
               <FadeUp key={card.title} delay={i * 60}>
                 <div className="h-full bg-white border border-slate-200 rounded-2xl p-6 hover:border-pink-200 hover:shadow-md transition-all duration-200 group">
-                  <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:bg-pink-100 transition-colors">
+                  <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-lg font-bold text-pink-600 mb-4 group-hover:bg-pink-100 transition-colors">
                     {card.icon}
                   </div>
                   <h3 className="font-heading text-lg font-bold text-slate-900 mb-2">{card.title}</h3>
@@ -379,7 +378,9 @@ export default function JoinHunterPage() {
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <FadeUp>
-            <div className="text-4xl mb-6">🎯</div>
+            <div className="w-16 h-16 rounded-2xl bg-pink-100 flex items-center justify-center mx-auto mb-6">
+              <span className="text-2xl font-bold text-pink-600">\u2605</span>
+            </div>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
               The board's open.{' '}
               <span className="text-pink-600">Let's get you earning.</span>

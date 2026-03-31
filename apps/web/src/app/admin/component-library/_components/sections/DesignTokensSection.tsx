@@ -2,6 +2,15 @@
 
 const COLOR_GROUPS = [
   {
+    label: 'Brand Primary',
+    colors: [
+      { name: 'primary-400', hex: '#f472b6', className: 'bg-[#f472b6]' },
+      { name: 'primary-500', hex: '#ec4899', className: 'bg-[#ec4899]' },
+      { name: 'primary-600', hex: '#db2777', className: 'bg-[#db2777]' },
+      { name: 'primary-700', hex: '#be185d', className: 'bg-[#be185d]' },
+    ],
+  },
+  {
     label: 'Background Layers',
     colors: [
       { name: 'Void', hex: '#030712', className: 'bg-void' },

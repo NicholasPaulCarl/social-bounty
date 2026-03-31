@@ -47,9 +47,9 @@ function useCountUp(target: number, duration = 1200, active = false) {
    ═══════════════════════════════════════════════════════════════ */
 
 const STEPS = [
-  { num: '01', icon: '◎', title: 'Post a bounty', desc: 'Define the task, set the reward, hit publish. Hunters see it instantly.' },
-  { num: '02', icon: '⚡', title: 'Hunters deliver', desc: 'Real people complete your task and submit proof. Submissions roll in daily.' },
-  { num: '03', icon: '🏆', title: 'Review & reward', desc: 'Approve what you love. Pay only for results. That\'s it.' },
+  { num: '01', icon: '01', title: 'Post a bounty', desc: 'Define the task, set the reward, hit publish. Hunters see it instantly.' },
+  { num: '02', icon: '02', title: 'Hunters deliver', desc: 'Real people complete your task and submit proof. Submissions roll in daily.' },
+  { num: '03', icon: '03', title: 'Review & reward', desc: 'Approve what you love. Pay only for results. That\'s it.' },
 ];
 
 const BOUNTIES = [
@@ -260,7 +260,7 @@ function HowItWorksSection() {
             <Reveal key={step.num} delay={i * 120}>
               <div className="relative text-center group">
                 {/* Step number */}
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-pink-50 text-pink-600 text-2xl mb-6 group-hover:scale-110 group-hover:bg-pink-100 transition-all duration-300">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-pink-50 text-pink-600 font-heading font-bold text-lg mb-6 group-hover:scale-110 group-hover:bg-pink-100 transition-all duration-300">
                   {step.icon}
                 </div>
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-3 text-[10px] font-mono font-bold text-pink-400 tracking-widest">
@@ -288,7 +288,7 @@ function DualSplitSection() {
           <Reveal>
             <div className="relative bg-gradient-to-br from-pink-50 to-rose-50 rounded-3xl p-8 sm:p-10 border border-pink-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-pink-600/5 transition-all duration-300 group overflow-hidden">
               <div className="absolute top-4 right-4 text-[80px] leading-none text-pink-100 font-heading font-bold select-none opacity-50 group-hover:opacity-70 transition-opacity">
-                ⚡
+                &#x2605;
               </div>
               <span className="text-xs font-semibold text-pink-600 uppercase tracking-wider">For Hunters</span>
               <h3 className="mt-3 text-2xl sm:text-3xl font-heading font-bold text-slate-900">
@@ -321,7 +321,7 @@ function DualSplitSection() {
           <Reveal delay={150}>
             <div className="relative bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-600/5 transition-all duration-300 group overflow-hidden">
               <div className="absolute top-4 right-4 text-[80px] leading-none text-blue-50 font-heading font-bold select-none opacity-60 group-hover:opacity-80 transition-opacity">
-                ◎
+                &#x25CF;
               </div>
               <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">For Brands</span>
               <h3 className="mt-3 text-2xl sm:text-3xl font-heading font-bold text-slate-900">

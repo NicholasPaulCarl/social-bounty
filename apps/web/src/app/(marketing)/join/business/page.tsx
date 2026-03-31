@@ -91,19 +91,19 @@ const COMPARISON_ROWS = [
 const HOW_STEPS = [
   {
     n: 1,
-    icon: '✍️',
+    icon: '1',
     title: 'Create a bounty',
     body: 'Write your brief: platform, task, requirements, and reward. Takes five minutes. Our guided form keeps it clear and Hunter-friendly.',
   },
   {
     n: 2,
-    icon: '⚡',
+    icon: '2',
     title: 'Hunters get to work',
     body: "Your bounty goes live on the board instantly. Hunters browse, claim, and start creating. You'll see submissions roll in within hours.",
   },
   {
     n: 3,
-    icon: '✅',
+    icon: '3',
     title: 'Review & reward',
     body: 'Approve the content you love. Reject anything that misses the brief. You pay only for what passes your standards.',
   },
@@ -111,22 +111,22 @@ const HOW_STEPS = [
 
 const BENEFIT_CARDS = [
   {
-    icon: '⚡',
+    icon: '\u26A1',
     title: 'First submissions in <24 hours',
     body: 'Our active Hunter community moves fast. Post in the morning, have content to review by end of day.',
   },
   {
-    icon: '💳',
+    icon: '\u2713',
     title: 'Pay only for approved results',
     body: 'Rewards are only released when you approve. Bad submissions? Reject them. Your budget, your call.',
   },
   {
-    icon: '🎨',
+    icon: '\u25A0',
     title: 'Full creative control',
     body: 'Your brief, your requirements, your approval criteria. Every piece of UGC meets your standards before you pay.',
   },
   {
-    icon: '📈',
+    icon: '\u25B2',
     title: 'Scale without headcount',
     body: 'Need 5 pieces this week, 50 next month? Just post more bounties. No hiring, no agency negotiations.',
   },
@@ -232,7 +232,7 @@ export default function JoinBusinessPage() {
             <div>
               <FadeUp>
                 <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-2 rounded-full mb-6">
-                  <span>📣</span>
+                  <span className="w-4 h-4 rounded-full bg-blue-600 inline-block" />
                   <span>For Brands & Businesses</span>
                 </div>
               </FadeUp>
@@ -350,7 +350,7 @@ export default function JoinBusinessPage() {
                     {step.n}
                   </div>
 
-                  <span className="text-4xl mb-4">{step.icon}</span>
+                  <span className="text-2xl font-bold text-pink-400 mb-4">{step.icon}</span>
 
                   <h3 className="font-heading text-xl font-bold text-slate-900 mb-2">{step.title}</h3>
                   <p className="text-slate-600 text-sm leading-relaxed">{step.body}</p>
@@ -377,7 +377,7 @@ export default function JoinBusinessPage() {
             {BENEFIT_CARDS.map((card, i) => (
               <FadeUp key={card.title} delay={i * 80}>
                 <div className="h-full bg-white border border-slate-200 rounded-2xl p-8 hover:border-pink-200 hover:shadow-md transition-all duration-200 group flex gap-5">
-                  <div className="w-14 h-14 bg-pink-50 rounded-2xl flex items-center justify-center text-2xl shrink-0 group-hover:bg-pink-100 transition-colors">
+                  <div className="w-14 h-14 bg-pink-50 rounded-2xl flex items-center justify-center text-xl font-bold text-pink-600 shrink-0 group-hover:bg-pink-100 transition-colors">
                     {card.icon}
                   </div>
                   <div>
@@ -440,7 +440,9 @@ export default function JoinBusinessPage() {
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <FadeUp>
-            <div className="text-4xl mb-6">📣</div>
+            <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-6">
+              <span className="text-2xl font-bold text-blue-600">\u2605</span>
+            </div>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
               Hunters are waiting for{' '}
               <span className="text-pink-600">your first bounty.</span>

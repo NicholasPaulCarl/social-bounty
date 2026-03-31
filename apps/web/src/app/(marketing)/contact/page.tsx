@@ -51,21 +51,21 @@ const CONTACT_CARDS: {
     body: 'Submission questions, account issues, payment help — we\'ve got you.',
     cta: 'Get Help',
     category: 'support',
-    icon: '🎯',
+    icon: 'H',
   },
   {
     title: "I'm a Brand",
     body: "Sales questions, partnerships, or help getting started? Let's chat.",
     cta: 'Talk to Us',
     category: 'sales',
-    icon: '🏢',
+    icon: 'B',
   },
   {
     title: 'Something else',
     body: 'Press, partnerships, feedback, or just saying hi.',
     cta: 'Reach Out',
     category: 'general',
-    icon: '✉️',
+    icon: '?',
   },
 ];
 
@@ -207,7 +207,7 @@ export default function ContactPage() {
                   key={card.category}
                   className="bg-white border border-slate-200 rounded-xl p-6 hover:border-pink-300 transition flex flex-col gap-4 group"
                 >
-                  <div className="text-3xl" aria-hidden="true">
+                  <div className="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600" aria-hidden="true">
                     {card.icon}
                   </div>
                   <div>
@@ -270,7 +270,9 @@ export default function ContactPage() {
               >
                 {formState === 'success' && (
                   <div className="text-center py-12 px-6 bg-white border border-slate-200 rounded-2xl">
-                    <div className="text-4xl mb-4">🎉</div>
+                    <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mx-auto mb-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-pink-600" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+                    </div>
                     <h3 className="text-xl font-heading font-semibold text-slate-900 mb-3">
                       Sent! We&apos;ll be in touch within 24 hours.
                     </h3>
@@ -380,9 +382,7 @@ export default function ContactPage() {
                   {/* Error banner */}
                   {formState === 'error' && (
                     <div className="flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-lg">
-                      <span className="text-red-500 mt-0.5" aria-hidden="true">
-                        ⚠️
-                      </span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 mt-0.5 shrink-0" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                       <p className="text-sm text-red-700 font-body">
                         Something tripped up. Try again, or email us directly at{' '}
                         <a
