@@ -24,7 +24,7 @@
     "@nestjs/platform-express": "^10.4.0",
     "@nestjs/schedule": "^4.1.0",
     "@nestjs/throttler": "^6.0.0",
-    "@prisma/client": "^6.0.0",
+    "@prisma/client": "^7.6.0",
     "@social-bounty/shared": "*",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
