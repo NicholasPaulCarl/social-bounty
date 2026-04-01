@@ -9,6 +9,7 @@ import {
   SocialChannel,
   PostFormat,
   CHANNEL_POST_FORMATS,
+  BountyAccessType,
 } from '@social-bounty/shared';
 import type {
   CreateBountyRequest,
@@ -225,6 +226,19 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
     case 'REMOVE_STAGED_BRAND_ASSET':
       return { ...state, stagedBrandAssetFiles: state.stagedBrandAssetFiles.filter((_, i) => i !== action.payload) };
 
+    // Section 5: Access Type
+    case 'SET_ACCESS_TYPE':
+      return {
+        ...state,
+        accessType: action.payload,
+        // Clear invitations when switching back to public
+        invitations: action.payload === BountyAccessType.PUBLIC ? [] : state.invitations,
+      };
+    case 'ADD_INVITATION':
+      return { ...state, invitations: [...state.invitations, action.payload] };
+    case 'REMOVE_INVITATION':
+      return { ...state, invitations: state.invitations.filter((_, i) => i !== action.payload) };
+
     // Validation
     case 'SET_TOUCHED':
       return { ...state, touched: { ...state.touched, [action.payload]: true } };
@@ -271,6 +285,8 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         endDate: b.endDate ? new Date(b.endDate) : null,
         payoutMetrics: b.payoutMetrics || { minViews: null, minLikes: null, minComments: null },
         stagedBrandAssetFiles: [],
+        accessType: (b as unknown as { accessType?: BountyAccessType }).accessType ?? BountyAccessType.PUBLIC,
+        invitations: [],
         errors: {},
         touched: {},
         submitAttempted: false,
@@ -327,6 +343,10 @@ export function buildCreateBountyRequest(
     if (hasEngagement) request.engagementRequirements = state.engagementRequirements;
     if (hasPayoutMetrics) request.payoutMetrics = state.payoutMetrics;
     if (state.payoutMethod !== null) request.payoutMethod = state.payoutMethod;
+    request.accessType = state.accessType;
+    if (state.accessType === BountyAccessType.CLOSED && state.invitations.length > 0) {
+      request.invitations = state.invitations;
+    }
     return request as CreateBountyRequest;
   }
 
@@ -348,6 +368,10 @@ export function buildCreateBountyRequest(
     engagementRequirements: state.engagementRequirements,
     payoutMetrics: hasPayoutMetrics ? state.payoutMetrics : undefined,
     ...(state.payoutMethod !== null ? { payoutMethod: state.payoutMethod } : {}),
+    accessType: state.accessType,
+    ...(state.accessType === BountyAccessType.CLOSED && state.invitations.length > 0
+      ? { invitations: state.invitations }
+      : {}),
   } as CreateBountyRequest;
 }
 

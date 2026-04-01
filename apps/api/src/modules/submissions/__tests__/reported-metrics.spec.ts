@@ -4,6 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../audit/audit.service';
 import { MailService } from '../../mail/mail.service';
 import { WalletService } from '../../wallet/wallet.service';
+import { BountyAccessService } from '../../bounty-access/bounty-access.service';
 import {
   UserRole,
   BountyStatus,
@@ -101,6 +102,7 @@ describe('SubmissionsService - Reported Metrics', () => {
         { provide: AuditService, useValue: auditService },
         { provide: MailService, useValue: mailService },
         { provide: WalletService, useValue: { creditWallet: jest.fn().mockResolvedValue({}) } },
+        { provide: BountyAccessService, useValue: { canSubmitToBounty: jest.fn().mockResolvedValue(true) } },
       ],
     }).compile();
 

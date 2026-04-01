@@ -10,6 +10,7 @@ import { Prisma } from '@prisma/client';
 import {
   UserRole,
   BountyStatus,
+  BountyAccessType,
   SubmissionStatus,
   PayoutStatus,
   AUDIT_ACTIONS,
@@ -23,6 +24,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { WalletService } from '../wallet/wallet.service';
+import { BountyAccessService } from '../bounty-access/bounty-access.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 const REVIEW_TRANSITIONS: Record<string, string[]> = {
@@ -46,6 +48,7 @@ export class SubmissionsService {
     private auditService: AuditService,
     private mailService: MailService,
     private walletService: WalletService,
+    private bountyAccessService: BountyAccessService,
   ) {}
 
   private formatProofImages(images: any[]) {
@@ -83,6 +86,19 @@ export class SubmissionsService {
 
     if (bounty.endDate && new Date() > bounty.endDate) {
       throw new BadRequestException('Bounty submission period has ended');
+    }
+
+    // Check access type for closed bounties
+    if ((bounty as any).accessType === BountyAccessType.CLOSED) {
+      const canSubmit = await this.bountyAccessService.canSubmitToBounty(
+        user.sub,
+        bountyId,
+      );
+      if (!canSubmit) {
+        throw new ForbiddenException(
+          'You need an approved application or accepted invitation to submit to this bounty',
+        );
+      }
     }
 
     // Atomic: check for existing + create in transaction

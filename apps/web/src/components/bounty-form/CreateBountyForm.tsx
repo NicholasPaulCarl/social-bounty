@@ -19,6 +19,7 @@ import { MaxSubmissionsSection } from './MaxSubmissionsSection';
 import { ScheduleSection } from './ScheduleSection';
 import { PayoutMetricsSection } from './PayoutMetricsSection';
 import { BrandAssetsSection } from './BrandAssetsSection';
+import { AccessTypeSection } from './AccessTypeSection';
 import { FormSummaryFooter } from './FormSummaryFooter';
 import { getSectionErrors, isSectionComplete } from './validation';
 import { SECTIONS } from './types';
@@ -262,10 +263,27 @@ export function CreateBountyForm({
           </SectionPanel>
         </div>
 
-        {/* Section 4: Brand Assets */}
-        <div data-section="brandAssets" className={lockedClass}>
+        {/* Section 4 (new): Access Type */}
+        <div data-section="accessType">
           <SectionPanel
             number={4}
+            title="Access Type"
+            icon="pi-lock"
+            isComplete={true}
+            hasError={false}
+          >
+            <AccessTypeSection
+              accessType={state.accessType}
+              invitations={state.invitations}
+              dispatch={dispatch}
+            />
+          </SectionPanel>
+        </div>
+
+        {/* Section 5: Brand Assets */}
+        <div data-section="brandAssets" className={lockedClass}>
+          <SectionPanel
+            number={5}
             title={`Brand Assets${isLocked ? ' (Locked)' : ''}`}
             icon="pi-images"
             isComplete={isSectionComplete('brandAssets', state)}

@@ -13,6 +13,8 @@ import type {
   WithdrawalListParams,
   AdminWalletListParams,
   AdminWithdrawalListParams,
+  NotificationListParams,
+  ConversationListParams,
 } from '@social-bounty/shared';
 
 export const queryKeys = {
@@ -80,5 +82,25 @@ export const queryKeys = {
     adminList: (params: AdminWalletListParams) => [...queryKeys.wallet.adminLists(), params] as const,
     adminDetail: (userId: string) => [...queryKeys.wallet.all, 'admin', 'detail', userId] as const,
     adminWithdrawals: (params: AdminWithdrawalListParams) => [...queryKeys.wallet.all, 'admin', 'withdrawals', params] as const,
+  },
+  bountyAccess: {
+    myApplication: (bountyId: string) => ['bounty-access', 'my-application', bountyId] as const,
+    applications: (bountyId: string, params?: Record<string, unknown>) =>
+      ['bounty-access', 'applications', bountyId, params] as const,
+    invitations: (bountyId: string) => ['bounty-access', 'invitations', bountyId] as const,
+    myInvitations: () => ['bounty-access', 'my-invitations'] as const,
+  },
+  socialHandles: {
+    mine: () => ['social-handles', 'mine'] as const,
+    forUser: (userId: string) => ['social-handles', 'user', userId] as const,
+  },
+  inbox: {
+    all: ['inbox'] as const,
+    unreadCount: () => [...queryKeys.inbox.all, 'unread-count'] as const,
+    notificationsAll: () => [...queryKeys.inbox.all, 'notifications'] as const,
+    notifications: (params: NotificationListParams) => [...queryKeys.inbox.notificationsAll(), params] as const,
+    conversationsAll: () => [...queryKeys.inbox.all, 'conversations'] as const,
+    conversations: (params: ConversationListParams) => [...queryKeys.inbox.conversationsAll(), params] as const,
+    conversationDetail: (id: string) => [...queryKeys.inbox.all, 'conversations', id] as const,
   },
 };

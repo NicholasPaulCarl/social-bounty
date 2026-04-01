@@ -103,6 +103,76 @@ enum PaymentStatus {
 }
 
 // ─────────────────────────────────────
+// Bounty Access Enums
+// ─────────────────────────────────────
+
+enum BountyAccessType {
+  PUBLIC
+  CLOSED
+}
+
+enum BountyApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+enum BountyInvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+// ─────────────────────────────────────
+// Social Handle Enums
+// ─────────────────────────────────────
+
+enum SocialPlatform {
+  X
+  INSTAGRAM
+  FACEBOOK
+  TIKTOK
+}
+
+enum SocialHandleStatus {
+  PENDING_VALIDATION
+  VERIFIED
+  FAILED_VALIDATION
+}
+
+// ─────────────────────────────────────
+// Inbox Enums
+// ─────────────────────────────────────
+
+enum NotificationType {
+  SUBMISSION_APPROVED
+  SUBMISSION_REJECTED
+  SUBMISSION_NEEDS_MORE_INFO
+  SUBMISSION_RECEIVED
+  APPLICATION_RECEIVED
+  APPLICATION_APPROVED
+  APPLICATION_REJECTED
+  INVITATION_RECEIVED
+  INVITATION_ACCEPTED
+  INVITATION_DECLINED
+  BOUNTY_PUBLISHED
+  BOUNTY_CLOSED
+  NEW_MESSAGE
+  PAYOUT_STATUS_CHANGED
+  SYSTEM_ANNOUNCEMENT
+}
+
+enum ConversationContext {
+  BOUNTY
+  APPLICATION
+  SUBMISSION
+  INVITATION
+  SUPPORT
+}
+
+// ─────────────────────────────────────
 // Wallet Enums
 // ─────────────────────────────────────
 
@@ -227,6 +297,15 @@ model User {
   disputeStatusChanges    DisputeStatusHistory[]
   wallet                  Wallet?
   withdrawals             Withdrawal[]
+  bountyApplications      BountyApplication[]  @relation("UserApplications")
+  reviewedApplications    BountyApplication[]  @relation("ApplicationReviewer")
+  bountyInvitations       BountyInvitation[]   @relation("UserInvitations")
+  sentInvitations         BountyInvitation[]   @relation("InvitationCreator")
+  userSocialHandles       UserSocialHandle[]   @relation("UserSocialHandles")
+  notifications           Notification[]       @relation("UserNotifications")
+  conversationsCreated    Conversation[]       @relation("ConversationsCreated")
+  conversationMemberships ConversationParticipant[] @relation("ConversationParticipants")
+  messagesSent            Message[]            @relation("MessagesSent")
 
   @@index([email])
   @@index([role])
@@ -303,14 +382,17 @@ model Bounty {
   stripePaymentIntentId  String?
   paymentStatus          PaymentStatus       @default(UNPAID)
   payoutMethod           PayoutMethod?
+  accessType             BountyAccessType    @default(PUBLIC)
   statusHistory          Json?
 
   // Relations
-  organisation Organisation  @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  createdBy    User          @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  organisation Organisation       @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  createdBy    User               @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
   submissions  Submission[]
   rewards      BountyReward[]
   brandAssets  BrandAsset[]
+  applications BountyApplication[] @relation("BountyApplications")
+  invitations  BountyInvitation[]  @relation("BountyInvitations")
 
   @@index([organisationId])
   @@index([status])
@@ -664,4 +746,163 @@ model Withdrawal {
   @@index([status])
   @@index([createdAt])
   @@map("withdrawals")
+}
+
+// ─────────────────────────────────────
+// Bounty Access Control
+// ─────────────────────────────────────
+
+model BountyApplication {
+  id          String                   @id @default(uuid())
+  bountyId    String
+  userId      String
+  status      BountyApplicationStatus  @default(PENDING)
+  message     String?                  @db.Text
+  reviewedBy  String?
+  reviewNote  String?                  @db.Text
+  appliedAt   DateTime                 @default(now())
+  reviewedAt  DateTime?
+
+  bounty   Bounty @relation("BountyApplications", fields: [bountyId], references: [id], onDelete: Cascade)
+  user     User   @relation("UserApplications", fields: [userId], references: [id])
+  reviewer User?  @relation("ApplicationReviewer", fields: [reviewedBy], references: [id])
+
+  @@unique([bountyId, userId])
+  @@index([bountyId])
+  @@index([userId])
+  @@index([status])
+  @@map("bounty_applications")
+}
+
+model BountyInvitation {
+  id            String                   @id @default(uuid())
+  bountyId      String
+  userId        String?
+  socialPlatform SocialPlatform
+  socialHandle  String
+  status        BountyInvitationStatus   @default(PENDING)
+  invitedBy     String
+  invitedAt     DateTime                 @default(now())
+  respondedAt   DateTime?
+  expiresAt     DateTime?
+
+  bounty  Bounty @relation("BountyInvitations", fields: [bountyId], references: [id], onDelete: Cascade)
+  user    User?  @relation("UserInvitations", fields: [userId], references: [id])
+  inviter User   @relation("InvitationCreator", fields: [invitedBy], references: [id])
+
+  @@unique([bountyId, socialPlatform, socialHandle])
+  @@index([bountyId])
+  @@index([userId])
+  @@index([status])
+  @@map("bounty_invitations")
+}
+
+// ─────────────────────────────────────
+// Social Handles (with X/Twitter)
+// ─────────────────────────────────────
+
+model UserSocialHandle {
+  id               String             @id @default(uuid())
+  userId           String
+  platform         SocialPlatform
+  handle           String
+  normalizedHandle String
+  profileUrl       String?
+  profileImageUrl  String?
+  displayName      String?
+  followerCount    Int?
+  status           SocialHandleStatus @default(PENDING_VALIDATION)
+  lastValidatedAt  DateTime?
+  validationError  String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  user User @relation("UserSocialHandles", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platform])
+  @@unique([platform, normalizedHandle])
+  @@index([userId])
+  @@index([platform, normalizedHandle])
+  @@map("user_social_handles")
+}
+
+// ─────────────────────────────────────
+// Inbox: Notifications & Conversations
+// ─────────────────────────────────────
+
+model Notification {
+  id            String           @id @default(uuid())
+  userId        String
+  type          NotificationType
+  title         String
+  body          String           @db.Text
+  referenceType String?
+  referenceId   String?
+  actionUrl     String?
+  isRead        Boolean          @default(false)
+  readAt        DateTime?
+  createdAt     DateTime         @default(now())
+
+  user User @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@index([type])
+  @@map("notifications")
+}
+
+model Conversation {
+  id            String              @id @default(uuid())
+  context       ConversationContext
+  referenceType String?
+  referenceId   String?
+  subject       String
+  createdBy     String
+  isArchived    Boolean             @default(false)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  creator      User                       @relation("ConversationsCreated", fields: [createdBy], references: [id])
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([referenceType, referenceId])
+  @@index([createdAt])
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String    @id @default(uuid())
+  conversationId String
+  userId         String
+  lastReadAt     DateTime?
+  isMuted        Boolean   @default(false)
+  joinedAt       DateTime  @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation("ConversationParticipants", fields: [userId], references: [id])
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id              String    @id @default(uuid())
+  conversationId  String
+  senderId        String
+  body            String    @db.Text
+  attachmentUrl   String?
+  attachmentName  String?
+  isSystemMessage Boolean   @default(false)
+  editedAt        DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("MessagesSent", fields: [senderId], references: [id])
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@map("messages")
 }

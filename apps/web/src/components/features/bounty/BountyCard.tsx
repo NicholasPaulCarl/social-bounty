@@ -21,7 +21,20 @@ export function BountyCard({ bounty }: BountyCardProps) {
     >
       {/* Header: Status + Reward */}
       <div className="flex items-center justify-between mb-4">
-        <StatusBadge type="bounty" value={bounty.status} size="small" />
+        <div className="flex items-center gap-2">
+          <StatusBadge type="bounty" value={bounty.status} size="small" />
+          {(bounty as unknown as { accessType?: string }).accessType === 'CLOSED' ? (
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-accent-amber/10 text-accent-amber border-accent-amber/30">
+              <i className="pi pi-lock" style={{ fontSize: '9px' }} />
+              Apply
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-accent-emerald/10 text-accent-emerald border-accent-emerald/30">
+              <i className="pi pi-globe" style={{ fontSize: '9px' }} />
+              Open
+            </span>
+          )}
+        </div>
         {bounty.rewardValue && (
           <span className="text-lg font-heading font-bold text-accent-emerald">
             {formatCurrency(bounty.rewardValue, bounty.currency)}

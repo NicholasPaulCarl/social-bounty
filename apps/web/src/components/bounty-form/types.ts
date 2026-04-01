@@ -7,7 +7,7 @@ import type {
   PayoutMetricsInput,
   BountyDetailResponse,
 } from '@social-bounty/shared';
-import { Currency, RewardType, PostVisibilityRule, DurationUnit } from '@social-bounty/shared';
+import { Currency, RewardType, PostVisibilityRule, DurationUnit, BountyAccessType, SocialPlatform } from '@social-bounty/shared';
 
 // Local enum until shared package exports PayoutMethod
 export enum PayoutMethod {
@@ -46,6 +46,10 @@ export interface BountyFormState {
 
   // Section 4: Brand Assets
   stagedBrandAssetFiles: File[];
+
+  // Section 5: Access Type
+  accessType: BountyAccessType;
+  invitations: Array<{ platform: SocialPlatform; handle: string }>;
 
   // UI state
   errors: Record<string, string>;
@@ -97,6 +101,10 @@ export type BountyFormAction =
   // Section 4: Brand Assets
   | { type: 'STAGE_BRAND_ASSET_FILES'; payload: File[] }
   | { type: 'REMOVE_STAGED_BRAND_ASSET'; payload: number }
+  // Section 5: Access Type
+  | { type: 'SET_ACCESS_TYPE'; payload: BountyAccessType }
+  | { type: 'ADD_INVITATION'; payload: { platform: SocialPlatform; handle: string } }
+  | { type: 'REMOVE_INVITATION'; payload: number }
   // Validation
   | { type: 'SET_TOUCHED'; payload: string }
   | { type: 'SET_ERRORS'; payload: Record<string, string> }
@@ -142,6 +150,8 @@ export const INITIAL_FORM_STATE: BountyFormState = {
     minComments: null,
   },
   stagedBrandAssetFiles: [],
+  accessType: BountyAccessType.PUBLIC,
+  invitations: [],
   errors: {},
   touched: {},
   submitAttempted: false,

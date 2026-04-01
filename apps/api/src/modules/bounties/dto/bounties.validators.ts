@@ -25,6 +25,7 @@ import {
 import { Type } from 'class-transformer';
 import {
   BountyStatus,
+  BountyAccessType,
   RewardType,
   Currency,
   SocialChannel,
@@ -255,6 +256,10 @@ export class CreateBountyDto {
   @IsEnum(PayoutMethod)
   payoutMethod?: PayoutMethod;
 
+  @IsOptional()
+  @IsEnum(BountyAccessType)
+  accessType?: BountyAccessType;
+
   // ── Legacy fields (optional, for backward compat) ──
 
   @IsOptional()
@@ -363,6 +368,10 @@ export class UpdateBountyDto {
   @IsOptional()
   @IsEnum(PayoutMethod)
   payoutMethod?: PayoutMethod;
+
+  @IsOptional()
+  @IsEnum(BountyAccessType)
+  accessType?: BountyAccessType;
 
   // ── Legacy fields (optional, for backward compat) ──
 

@@ -9,6 +9,7 @@ export interface NavItem {
 }
 
 const participantNav: NavItem[] = [
+  { label: 'Inbox', icon: 'pi pi-inbox', href: '/inbox' },
   { label: 'Browse Bounties', icon: 'pi pi-search', href: '/bounties' },
   { label: 'My Submissions', icon: 'pi pi-list', href: '/my-submissions' },
   { label: 'My Disputes', icon: 'pi pi-flag', href: '/my-disputes' },
@@ -17,6 +18,7 @@ const participantNav: NavItem[] = [
 ];
 
 const businessNav: NavItem[] = [
+  { label: 'Inbox', icon: 'pi pi-inbox', href: '/inbox' },
   { label: 'Dashboard', icon: 'pi pi-chart-bar', href: '/business/dashboard' },
   { label: 'Bounties', icon: 'pi pi-megaphone', href: '/business/bounties' },
   { label: 'Review Center', icon: 'pi pi-inbox', href: '/business/review-center' },
@@ -27,6 +29,7 @@ const businessNav: NavItem[] = [
 ];
 
 const adminNav: NavItem[] = [
+  { label: 'Inbox', icon: 'pi pi-inbox', href: '/inbox' },
   { label: 'Dashboard', icon: 'pi pi-chart-bar', href: '/admin/dashboard' },
   { label: 'Users', icon: 'pi pi-users', href: '/admin/users' },
   { label: 'Organisations', icon: 'pi pi-building', href: '/admin/organisations' },

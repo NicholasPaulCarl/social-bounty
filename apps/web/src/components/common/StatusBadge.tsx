@@ -2,7 +2,7 @@
 
 import { Tag } from 'primereact/tag';
 
-type StatusType = 'bounty' | 'submission' | 'payout' | 'user' | 'organisation' | 'role' | 'orgMemberRole' | 'dispute';
+type StatusType = 'bounty' | 'submission' | 'payout' | 'user' | 'organisation' | 'role' | 'orgMemberRole' | 'dispute' | 'application' | 'invitation';
 
 type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | null | undefined;
 
@@ -47,6 +47,18 @@ const STATUS_MAP: Record<string, Record<string, StatusConfig>> = {
   orgMemberRole: {
     OWNER: { severity: null, className: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30' },
     MEMBER: { severity: null, className: 'bg-elevated text-text-muted border border-glass-border' },
+  },
+  application: {
+    PENDING: { severity: 'warning', icon: 'pi pi-clock', className: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30' },
+    APPROVED: { severity: 'success', icon: 'pi pi-check-circle', className: 'bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30' },
+    REJECTED: { severity: 'danger', icon: 'pi pi-times-circle', className: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30' },
+    WITHDRAWN: { severity: null, icon: 'pi pi-undo', className: 'bg-elevated text-text-muted border border-glass-border' },
+  },
+  invitation: {
+    PENDING: { severity: 'warning', icon: 'pi pi-envelope', className: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30' },
+    ACCEPTED: { severity: 'success', icon: 'pi pi-check-circle', className: 'bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30' },
+    DECLINED: { severity: 'danger', icon: 'pi pi-times-circle', className: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30' },
+    EXPIRED: { severity: null, icon: 'pi pi-clock', className: 'bg-elevated text-text-muted border border-glass-border' },
   },
   dispute: {
     DRAFT: { severity: null, icon: 'pi pi-file-edit', className: 'bg-elevated text-text-muted border border-glass-border' },

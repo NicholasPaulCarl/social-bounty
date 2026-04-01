@@ -5,12 +5,15 @@ import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { useBounty } from '@/hooks/useBounties';
 import { useAuth } from '@/hooks/useAuth';
+import { useMyApplication, useWithdrawApplication, useMyInvitations, useAcceptInvitation, useDeclineInvitation } from '@/hooks/useBountyAccess';
+import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { formatCurrency, formatDate, timeRemaining, formatEnumLabel, formatBytes } from '@/lib/utils/format';
-import { PostVisibilityRule } from '@social-bounty/shared';
+import { PostVisibilityRule, BountyAccessType, BountyApplicationStatus, BountyInvitationStatus } from '@social-bounty/shared';
+import { ApiError } from '@/lib/api/client';
 
 // Local enum until shared package exports PayoutMethod
 enum PayoutMethod {
@@ -60,16 +63,39 @@ export default function BountyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
+  const { showSuccess, showError } = useToast();
   const { data: bounty, isLoading, error, refetch } = useBounty(id);
+
+  const isParticipant = user?.role === 'PARTICIPANT';
+
+  const { data: myApplication, isLoading: appLoading } = useMyApplication(id);
+  const { data: myInvitations = [] } = useMyInvitations();
+  const withdrawMutation = useWithdrawApplication(id);
+  const acceptMutation = useAcceptInvitation();
+  const declineMutation = useDeclineInvitation();
+
+  const myInvitation = myInvitations.find((inv) => inv.bountyId === id);
 
   if (isLoading) return <LoadingState type="detail" />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
   if (!bounty) return <ErrorState error={new Error('Bounty not found')} />;
 
-  const canSubmit =
-    bounty.status === 'LIVE' &&
-    user?.role === 'PARTICIPANT' &&
+  const isLive = bounty.status === 'LIVE';
+  const accessType = (bounty as unknown as { accessType?: string }).accessType ?? BountyAccessType.PUBLIC;
+  const isPublic = accessType === BountyAccessType.PUBLIC;
+  const isClosed = accessType === BountyAccessType.CLOSED;
+
+  const baseCanSubmit =
+    isLive &&
+    isParticipant &&
     (!bounty.maxSubmissions || (bounty.submissionCount ?? 0) < bounty.maxSubmissions);
+
+  // Determine if access is granted for closed bounties
+  const hasApprovedApplication = myApplication?.status === BountyApplicationStatus.APPROVED;
+  const hasAcceptedInvitation = myInvitation?.status === BountyInvitationStatus.ACCEPTED;
+  const closedAccessGranted = hasApprovedApplication || hasAcceptedInvitation;
+
+  const canSubmit = baseCanSubmit && (isPublic || closedAccessGranted);
 
   const breadcrumbs = [
     { label: 'Bounties', url: '/bounties' },
@@ -79,20 +105,98 @@ export default function BountyDetailPage() {
   const channels = bounty.channels || {};
   const channelKeys = Object.keys(channels);
 
+  // ─── Access CTA for header ─────────────────────────────────────────────
+
+  function renderAccessCTA() {
+    if (!isParticipant || !isLive) return null;
+
+    if (isPublic) {
+      if (!canSubmit) return null;
+      return (
+        <Button
+          label="Submit Proof"
+          icon="pi pi-upload"
+          onClick={() => router.push(`/bounties/${id}/submit`)}
+        />
+      );
+    }
+
+    // CLOSED bounty logic
+    if (isClosed) {
+      // Invitation is highest priority
+      if (myInvitation?.status === BountyInvitationStatus.PENDING) {
+        return null; // invitation banner shown inline below
+      }
+      if (myInvitation?.status === BountyInvitationStatus.ACCEPTED) {
+        return (
+          <Button
+            label="Submit Proof"
+            icon="pi pi-upload"
+            onClick={() => router.push(`/bounties/${id}/submit`)}
+          />
+        );
+      }
+
+      // Application states
+      if (!myApplication && !myInvitation) {
+        return (
+          <Button
+            label="Apply to Hunt"
+            icon="pi pi-send"
+            className="p-button-outlined"
+            onClick={() => router.push(`/bounties/${id}/apply`)}
+          />
+        );
+      }
+      if (myApplication?.status === BountyApplicationStatus.APPROVED) {
+        return (
+          <Button
+            label="Submit Proof"
+            icon="pi pi-upload"
+            onClick={() => router.push(`/bounties/${id}/submit`)}
+          />
+        );
+      }
+    }
+
+    return null;
+  }
+
+  async function handleWithdraw() {
+    try {
+      await withdrawMutation.mutateAsync();
+      showSuccess('Application withdrawn.');
+    } catch (err) {
+      showError(err instanceof ApiError ? err.message : 'Failed to withdraw application.');
+    }
+  }
+
+  async function handleAcceptInvitation() {
+    if (!myInvitation) return;
+    try {
+      await acceptMutation.mutateAsync(myInvitation.id);
+      showSuccess('Invitation accepted! You can now submit proof.');
+    } catch (err) {
+      showError(err instanceof ApiError ? err.message : 'Failed to accept invitation.');
+    }
+  }
+
+  async function handleDeclineInvitation() {
+    if (!myInvitation) return;
+    try {
+      await declineMutation.mutateAsync(myInvitation.id);
+      showSuccess('Invitation declined.');
+    } catch (err) {
+      showError(err instanceof ApiError ? err.message : 'Failed to decline invitation.');
+    }
+  }
+
   return (
     <>
       <PageHeader
         title={bounty.title}
         breadcrumbs={breadcrumbs}
-        actions={
-          canSubmit ? (
-            <Button
-              label="Submit Proof"
-              icon="pi pi-upload"
-              onClick={() => router.push(`/bounties/${id}/submit`)}
-            />
-          ) : undefined
-        }
+        actions={renderAccessCTA() ?? undefined}
       />
 
       {bounty.status === 'PAUSED' && (
@@ -103,6 +207,81 @@ export default function BountyDetailPage() {
         <Message severity="info" text="This bounty is closed." className="w-full mb-4" />
       )}
 
+      {/* Pending invitation banner */}
+      {isParticipant && myInvitation?.status === BountyInvitationStatus.PENDING && (
+        <div className="glass-card border border-accent-amber/40 bg-accent-amber/5 p-4 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-accent-amber/20 flex items-center justify-center flex-shrink-0">
+              <i className="pi pi-envelope text-accent-amber text-sm" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-text-primary">You&apos;re Invited!</p>
+              <p className="text-xs text-text-secondary mt-0.5">
+                You have been personally invited to participate in this bounty.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-shrink-0">
+            <Button
+              label="Accept"
+              icon="pi pi-check"
+              size="small"
+              loading={acceptMutation.isPending}
+              onClick={handleAcceptInvitation}
+            />
+            <Button
+              label="Decline"
+              icon="pi pi-times"
+              size="small"
+              outlined
+              severity="secondary"
+              loading={declineMutation.isPending}
+              onClick={handleDeclineInvitation}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Application status banners */}
+      {isParticipant && isClosed && !myInvitation && isLive && (
+        <>
+          {!appLoading && myApplication?.status === BountyApplicationStatus.PENDING && (
+            <div className="glass-card border border-accent-amber/40 bg-accent-amber/5 p-4 mb-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <i className="pi pi-clock text-accent-amber" />
+                <div>
+                  <p className="text-sm font-semibold text-text-primary">Application Pending</p>
+                  <p className="text-xs text-text-secondary mt-0.5">
+                    Your application is under review. You&apos;ll be notified of the outcome.
+                  </p>
+                </div>
+              </div>
+              <Button
+                label="Withdraw"
+                icon="pi pi-undo"
+                size="small"
+                outlined
+                severity="secondary"
+                loading={withdrawMutation.isPending}
+                onClick={handleWithdraw}
+              />
+            </div>
+          )}
+
+          {!appLoading && myApplication?.status === BountyApplicationStatus.REJECTED && (
+            <div className="glass-card border border-accent-rose/40 bg-accent-rose/5 p-4 mb-4 flex items-center gap-3">
+              <i className="pi pi-times-circle text-accent-rose" />
+              <div>
+                <p className="text-sm font-semibold text-text-primary">Application Not Approved</p>
+                {myApplication.reviewNote && (
+                  <p className="text-xs text-text-secondary mt-0.5">{myApplication.reviewNote}</p>
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-up">
         {/* Main content column */}
         <div className="lg:col-span-2 space-y-6">
@@ -111,6 +290,17 @@ export default function BountyDetailPage() {
           <div className="glass-card p-6">
             <div className="flex items-center gap-3 mb-4">
               <StatusBadge type="bounty" value={bounty.status} />
+              {/* Access type badge */}
+              <span
+                className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
+                  isPublic
+                    ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/30'
+                    : 'bg-accent-amber/10 text-accent-amber border-accent-amber/30'
+                }`}
+              >
+                <i className={`pi ${isPublic ? 'pi-globe' : 'pi-lock'} text-[10px]`} />
+                {isPublic ? 'Open' : 'Apply Only'}
+              </span>
             </div>
 
             <p className="text-text-secondary mb-6 leading-relaxed">{bounty.shortDescription}</p>

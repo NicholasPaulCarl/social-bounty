@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Menu } from 'primereact/menu';
 import type { MenuItem } from 'primereact/menuitem';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnreadCount } from '@/hooks/useInbox';
 import type { NavItem } from '@/lib/navigation';
 
 interface AppSidebarProps {
@@ -19,6 +20,8 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
   const router = useRouter();
   const { user, logout } = useAuth();
   const userMenuRef = useRef<Menu>(null);
+  const { data: unread } = useUnreadCount();
+  const inboxUnreadCount = unread?.total ?? 0;
 
   const initials = user
     ? `${(user.firstName?.[0] || '').toUpperCase()}${(user.lastName?.[0] || '').toUpperCase()}`
@@ -95,6 +98,8 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
             const hasChildren = item.children && item.children.length > 0;
             const showChildren = hasChildren && isActive;
+            const isInbox = item.href === '/inbox';
+            const badgeCount = isInbox ? inboxUnreadCount : (item.badge ?? 0);
 
             return (
               <div key={item.href}>
@@ -110,9 +115,9 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
                 >
                   <i className={`${item.icon} text-base`} />
                   <span className="font-heading">{item.label}</span>
-                  {item.badge != null && item.badge > 0 && (
-                    <span className="ml-auto bg-accent-cyan/20 text-accent-cyan text-xs rounded-full px-2 py-0.5 font-medium">
-                      {item.badge}
+                  {badgeCount > 0 && (
+                    <span className="ml-auto bg-accent-rose/20 text-accent-rose text-xs rounded-full px-2 py-0.5 font-medium">
+                      {badgeCount > 99 ? '99+' : badgeCount}
                     </span>
                   )}
                   {hasChildren && (

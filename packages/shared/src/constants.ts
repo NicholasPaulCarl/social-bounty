@@ -241,6 +241,37 @@ export const WITHDRAWAL_LIMITS = {
   DESTINATION_MAX: 320,
 } as const;
 
+// ─── Bounty Access ───────────────────
+
+export const BOUNTY_ACCESS_CONSTANTS = {
+  APPLICATION_MESSAGE_MAX: 500,
+  REVIEW_NOTE_MAX: 1000,
+  MAX_INVITATIONS_PER_BOUNTY: 100,
+} as const;
+
+// ─── Social Handles ──────────────────
+
+export const SOCIAL_HANDLE_CONSTANTS = {
+  MAX_LENGTH: { X: 15, INSTAGRAM: 30, FACEBOOK: 50, TIKTOK: 24 },
+  PROFILE_URL_TEMPLATES: {
+    X: 'https://x.com/{handle}',
+    INSTAGRAM: 'https://www.instagram.com/{handle}/',
+    FACEBOOK: 'https://www.facebook.com/{handle}',
+    TIKTOK: 'https://www.tiktok.com/@{handle}',
+  },
+  REVALIDATION_INTERVAL_DAYS: 30,
+} as const;
+
+// ─── Inbox ───────────────────────────
+
+export const INBOX_CONSTANTS = {
+  NOTIFICATION_RETENTION_DAYS: 90,
+  MESSAGE_EDIT_WINDOW_MINUTES: 15,
+  MESSAGE_RATE_LIMIT_PER_HOUR: 30,
+  MAX_MESSAGE_LENGTH: 2000,
+  UNREAD_POLL_INTERVAL_MS: 30000,
+} as const;
+
 export const DISPUTE_REASON_CATEGORIES = {
   NON_PAYMENT: [
     'PAYMENT_NOT_RECEIVED',

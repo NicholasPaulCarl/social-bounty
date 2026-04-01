@@ -27,6 +27,13 @@ export {
   EvidenceType,
   WalletTxType,
   WithdrawalStatus,
+  BountyAccessType,
+  BountyApplicationStatus,
+  BountyInvitationStatus,
+  SocialPlatform,
+  SocialHandleStatus,
+  NotificationType,
+  ConversationContext,
 } from './enums';
 
 // Common types
@@ -64,6 +71,9 @@ export {
   HUNTER_INTERESTS,
   WALLET_LIMITS,
   WITHDRAWAL_LIMITS,
+  BOUNTY_ACCESS_CONSTANTS,
+  SOCIAL_HANDLE_CONSTANTS,
+  INBOX_CONSTANTS,
 } from './constants';
 
 export type { CategoryInfo, HunterInterest } from './constants';
@@ -252,3 +262,30 @@ export type {
   DisputeStatsResponse,
   PaginatedDisputeListResponse,
 } from './dto/dispute.dto';
+
+// Bounty Access DTOs
+export type {
+  CreateBountyApplicationRequest,
+  ReviewApplicationRequest,
+  BountyApplicationResponse,
+  BountyApplicationListParams,
+  CreateBountyInvitationsRequest,
+  BountyInvitationResponse,
+  AddSocialHandleRequest,
+  SocialHandleResponse,
+} from './dto/bounty-access.dto';
+
+// Inbox DTOs
+export type {
+  NotificationResponse,
+  NotificationListParams,
+  PaginatedNotifications,
+  UnreadCountResponse,
+  CreateConversationRequest,
+  SendMessageRequest,
+  EditMessageRequest,
+  ConversationListItem,
+  ConversationDetailResponse,
+  InboxMessageResponse,
+  ConversationListParams,
+} from './dto/inbox.dto';

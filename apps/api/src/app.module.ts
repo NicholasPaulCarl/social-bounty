@@ -20,6 +20,9 @@ import { WalletModule } from './modules/wallet/wallet.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { MailModule } from './modules/mail/mail.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { BountyAccessModule } from './modules/bounty-access/bounty-access.module';
+import { SocialHandlesModule } from './modules/social-handles/social-handles.module';
+import { InboxModule } from './modules/inbox/inbox.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { UserStatusGuard } from './common/guards/user-status.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -53,6 +56,9 @@ import { RolesGuard } from './common/guards/roles.guard';
     FilesModule,
     PaymentsModule,
     WalletModule,
+    BountyAccessModule,
+    SocialHandlesModule,
+    InboxModule,
   ],
   providers: [
     {
