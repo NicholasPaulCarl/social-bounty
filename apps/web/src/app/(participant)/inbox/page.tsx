@@ -11,6 +11,7 @@ import {
 } from '@/hooks/useInbox';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
+import { NewConversationDialog } from '@/components/features/inbox/NewConversationDialog';
 import { NotificationType } from '@social-bounty/shared';
 import type { NotificationResponse, ConversationListItem } from '@social-bounty/shared';
 
@@ -216,11 +217,29 @@ function MessagesTab() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function InboxPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'notifications' | 'messages'>('notifications');
+  const [showNewConversation, setShowNewConversation] = useState(false);
+
+  const handleConversationCreated = (conversationId: string) => {
+    setShowNewConversation(false);
+    setActiveTab('messages');
+    router.push(`/inbox/conversations/${conversationId}`);
+  };
 
   return (
     <>
-      <PageHeader title="Inbox" subtitle="Notifications and messages" />
+      <PageHeader
+        title="Inbox"
+        subtitle="Notifications and messages"
+        actions={
+          <Button
+            label="New Message"
+            icon="pi pi-plus"
+            onClick={() => setShowNewConversation(true)}
+          />
+        }
+      />
 
       {/* Tabs */}
       <div className="flex gap-1 p-1 glass-card mb-6 animate-fade-up" style={{ borderRadius: '12px' }}>
@@ -249,6 +268,12 @@ export default function InboxPage() {
       </div>
 
       {activeTab === 'notifications' ? <NotificationsTab /> : <MessagesTab />}
+
+      <NewConversationDialog
+        visible={showNewConversation}
+        onHide={() => setShowNewConversation(false)}
+        onCreated={handleConversationCreated}
+      />
     </>
   );
 }

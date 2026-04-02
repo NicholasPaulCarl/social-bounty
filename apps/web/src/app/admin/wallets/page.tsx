@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { InputText } from 'primereact/inputtext';
 import { Paginator } from 'primereact/paginator';
 import { useAdminWallets } from '@/hooks/useWallet';
 import { usePagination } from '@/hooks/usePagination';
@@ -19,20 +18,12 @@ export default function AdminWalletsPage() {
   const router = useRouter();
   const { page, limit, first, onPageChange, resetPage } = usePagination();
   const [search, setSearch] = useState('');
-  const [searchInput, setSearchInput] = useState('');
 
   const { data, isLoading, error, refetch } = useAdminWallets({
     page,
     limit,
     search: search || undefined,
   });
-
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      setSearch(searchInput);
-      resetPage();
-    }
-  };
 
   const userTemplate = (row: AdminWalletListItem) => (
     <div>
@@ -63,29 +54,19 @@ export default function AdminWalletsPage() {
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Wallets" subtitle="View and manage hunter wallet balances" />
-
-      {/* Search */}
-      <div className="flex gap-3 mb-6">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
-          <InputText
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={handleSearch}
-            placeholder="Search by name or email..."
-            className="w-72"
-          />
-        </span>
-        {search && (
-          <button
-            className="text-xs text-text-muted hover:text-text-secondary px-3 py-1 rounded border border-glass-border bg-elevated transition-colors"
-            onClick={() => { setSearch(''); setSearchInput(''); resetPage(); }}
-          >
-            Clear
-          </button>
-        )}
-      </div>
+      <PageHeader
+        title="Wallets"
+        subtitle="View and manage hunter wallet balances"
+        toolbar={{
+          search: {
+            value: search,
+            onChange: (value) => { setSearch(value); resetPage(); },
+            placeholder: 'Search by name or email...',
+          },
+          onClearFilters: () => { setSearch(''); resetPage(); },
+          hasActiveFilters: !!search,
+        }}
+      />
 
       {isLoading && <LoadingState type="table" rows={10} columns={5} />}
       {error && <ErrorState error={error} onRetry={() => refetch()} />}

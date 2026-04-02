@@ -19,12 +19,12 @@ import { WithdrawalStatus } from '@social-bounty/shared';
 import type { AdminWithdrawalListItem } from '@social-bounty/shared';
 
 const STATUS_FILTERS = [
-  { label: 'All', value: '' },
-  { label: 'Requested', value: WithdrawalStatus.REQUESTED },
-  { label: 'Processing', value: WithdrawalStatus.PROCESSING },
-  { label: 'Completed', value: WithdrawalStatus.COMPLETED },
-  { label: 'Failed', value: WithdrawalStatus.FAILED },
-  { label: 'Cancelled', value: WithdrawalStatus.CANCELLED },
+  { id: 'all', label: 'All' },
+  { id: WithdrawalStatus.REQUESTED, label: 'Requested' },
+  { id: WithdrawalStatus.PROCESSING, label: 'Processing' },
+  { id: WithdrawalStatus.COMPLETED, label: 'Completed' },
+  { id: WithdrawalStatus.FAILED, label: 'Failed' },
+  { id: WithdrawalStatus.CANCELLED, label: 'Cancelled' },
 ];
 
 const STATUS_CONFIG: Record<WithdrawalStatus, { label: string; className: string }> = {
@@ -37,7 +37,7 @@ const STATUS_CONFIG: Record<WithdrawalStatus, { label: string; className: string
 
 export default function AdminWithdrawalsPage() {
   const { page, limit, first, onPageChange, resetPage } = usePagination();
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Action state
   const [processTarget, setProcessTarget] = useState<AdminWithdrawalListItem | null>(null);
@@ -48,7 +48,7 @@ export default function AdminWithdrawalsPage() {
   const { data, isLoading, error, refetch } = useAdminWithdrawals({
     page,
     limit,
-    status: (statusFilter as WithdrawalStatus) || undefined,
+    status: (statusFilter !== 'all' ? statusFilter as WithdrawalStatus : undefined),
   });
 
   const { mutate: processWithdrawal, isPending: isProcessing } = useAdminProcessWithdrawal();
@@ -144,24 +144,15 @@ export default function AdminWithdrawalsPage() {
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Withdrawals" subtitle="Review and process withdrawal requests" />
-
-      {/* Status filter chips */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {STATUS_FILTERS.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => { setStatusFilter(f.value); resetPage(); }}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
-              statusFilter === f.value
-                ? 'bg-accent-cyan/20 text-accent-cyan border-accent-cyan/50'
-                : 'bg-elevated text-text-muted border-glass-border hover:border-accent-cyan/30 hover:text-text-secondary'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+      <PageHeader
+        title="Withdrawals"
+        subtitle="Review and process withdrawal requests"
+        pills={{
+          items: STATUS_FILTERS,
+          activeId: statusFilter,
+          onChange: (id) => { setStatusFilter(id); resetPage(); },
+        }}
+      />
 
       {isLoading && <LoadingState type="table" rows={10} columns={6} />}
       {error && <ErrorState error={error} onRetry={() => refetch()} />}

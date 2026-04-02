@@ -43,47 +43,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Mutex: only one refresh call at a time. Concurrent callers share the same promise.
+  const refreshPromiseRef = useRef<Promise<string | null> | null>(null);
+
   const refreshAccessToken = useCallback(async (): Promise<string | null> => {
-    try {
-      const storedRefreshToken = localStorage.getItem('sb_refresh_token');
-      if (!storedRefreshToken) return null;
-
-      const response = await authApi.refresh({ refreshToken: storedRefreshToken });
-      setAccessToken(response.accessToken);
-      localStorage.setItem('sb_refresh_token', response.refreshToken);
-
-      const decoded = decodeToken(response.accessToken);
-      if (decoded) {
-        setUser((prev) =>
-          prev
-            ? { ...prev, firstName: decoded.firstName || prev.firstName, lastName: decoded.lastName || prev.lastName }
-            : null,
-        );
-      }
-
-      return response.accessToken;
-    } catch {
-      clearTokens();
-      localStorage.removeItem('sb_refresh_token');
-      setUser(null);
-      return null;
+    // If a refresh is already in flight, return the existing promise
+    if (refreshPromiseRef.current) {
+      return refreshPromiseRef.current;
     }
+
+    const promise = (async () => {
+      try {
+        const storedRefreshToken = localStorage.getItem('sb_refresh_token');
+        if (!storedRefreshToken) return null;
+
+        const response = await authApi.refresh({ refreshToken: storedRefreshToken });
+        setAccessToken(response.accessToken);
+        localStorage.setItem('sb_refresh_token', response.refreshToken);
+
+        const decoded = decodeToken(response.accessToken);
+        if (decoded) {
+          setUser((prev) =>
+            prev
+              ? { ...prev, firstName: decoded.firstName || prev.firstName, lastName: decoded.lastName || prev.lastName }
+              : null,
+          );
+        }
+
+        return response.accessToken;
+      } catch {
+        clearTokens();
+        localStorage.removeItem('sb_refresh_token');
+        setUser(null);
+        return null;
+      } finally {
+        refreshPromiseRef.current = null;
+      }
+    })();
+
+    refreshPromiseRef.current = promise;
+    return promise;
   }, []);
 
+  // Configure the API client synchronously on mount and when refreshAccessToken changes
+  // Use a ref to ensure the latest refreshAccessToken is always called
+  const refreshFnRef = useRef(refreshAccessToken);
+  refreshFnRef.current = refreshAccessToken;
+
   useEffect(() => {
-    configureApiClient(getAccessToken, refreshAccessToken);
-  }, [refreshAccessToken]);
+    configureApiClient(getAccessToken, () => refreshFnRef.current());
+  }, []);
 
   useEffect(() => {
     async function initAuth() {
       const storedRefreshToken = localStorage.getItem('sb_refresh_token');
       if (storedRefreshToken) {
-        try {
-          const response = await authApi.refresh({ refreshToken: storedRefreshToken });
-          setAccessToken(response.accessToken);
-          localStorage.setItem('sb_refresh_token', response.refreshToken);
-
-          const decoded = decodeToken(response.accessToken);
+        // Use the mutex-protected refreshAccessToken so any concurrent
+        // calls (e.g. from useUnreadCount) share the same request
+        const token = await refreshAccessToken();
+        if (token) {
+          const decoded = decodeToken(token);
           if (decoded) {
             setUser({
               id: decoded.sub,
@@ -97,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             });
             document.cookie = `sb_auth_role=${decoded.role}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
           }
-        } catch {
+        } else {
           clearTokens();
           localStorage.removeItem('sb_refresh_token');
           document.cookie = 'sb_auth_role=; path=/; max-age=0';
@@ -106,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     }
     initAuth();
-  }, []);
+  }, [refreshAccessToken]);
 
   useEffect(() => {
     if (user) {

@@ -3,9 +3,6 @@
 import { useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
-import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
 import { useAuditLogs } from '@/hooks/useAdmin';
 import { usePagination } from '@/hooks/usePagination';
@@ -73,34 +70,28 @@ export default function AdminAuditLogsPage() {
     </div>
   );
 
+  const hasActiveFilters = !!(filters.action || filters.entityType);
+
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Audit Logs" subtitle="Track all platform actions and changes" />
-
-      <div className="flex flex-wrap gap-3 mb-6">
-        <Dropdown
-          value={filters.action || ''}
-          options={actionOptions}
-          onChange={(e) => setFilters({ ...filters, action: e.value || undefined, page: 1 })}
-          placeholder="Action"
-          className="w-40"
-        />
-
-        <InputText
-          value={filters.entityType || ''}
-          onChange={(e) => setFilters({ ...filters, entityType: e.target.value || undefined, page: 1 })}
-          placeholder="Entity type..."
-          className="w-40"
-        />
-
-        <Button
-          icon="pi pi-filter-slash"
-          outlined
-          severity="secondary"
-          onClick={() => setFilters({ page: 1, limit })}
-          tooltip="Clear filters"
-        />
-      </div>
+      <PageHeader
+        title="Audit Logs"
+        subtitle="Track all platform actions and changes"
+        toolbar={{
+          search: {
+            value: filters.entityType || '',
+            onChange: (value) => setFilters({ ...filters, entityType: value || undefined, page: 1 }),
+            placeholder: 'Entity type...',
+          },
+          filters: [
+            { key: 'action', placeholder: 'Action', options: actionOptions, ariaLabel: 'Filter by action' },
+          ],
+          filterValues: { action: filters.action || '' },
+          onFilterChange: (key, value) => setFilters({ ...filters, [key]: value || undefined, page: 1 }),
+          onClearFilters: () => setFilters({ page: 1, limit }),
+          hasActiveFilters,
+        }}
+      />
 
       {data && data.data.length > 0 ? (
         <>

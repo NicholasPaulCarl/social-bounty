@@ -105,6 +105,13 @@ export const apiClient = {
     });
   },
 
+  put<T>(path: string, body?: unknown): Promise<T> {
+    return request<T>(path, {
+      method: 'PUT',
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    });
+  },
+
   delete<T>(path: string): Promise<T> {
     return request<T>(path, { method: 'DELETE' });
   },

@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
-import { InputText } from 'primereact/inputtext';
 import { Paginator } from 'primereact/paginator';
 import { Tag } from 'primereact/tag';
 import { useAdminDisputes, useDisputeStats } from '@/hooks/useDisputes';
@@ -124,9 +122,32 @@ export default function AdminDisputesPage() {
     );
   };
 
+  const hasActiveFilters = !!(statusFilter || categoryFilter || search);
+
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Disputes" subtitle="Manage all platform disputes" />
+      <PageHeader
+        title="Disputes"
+        subtitle="Manage all platform disputes"
+        toolbar={{
+          search: {
+            value: search,
+            onChange: setSearch,
+            placeholder: 'Search disputes...',
+          },
+          filters: [
+            { key: 'status', placeholder: 'Status', options: statusOptions, ariaLabel: 'Filter by status', className: 'w-full sm:w-52' },
+            { key: 'category', placeholder: 'Category', options: categoryOptions, ariaLabel: 'Filter by category', className: 'w-full sm:w-56' },
+          ],
+          filterValues: { status: statusFilter, category: categoryFilter },
+          onFilterChange: (key, value) => {
+            if (key === 'status') setStatusFilter(value);
+            else if (key === 'category') setCategoryFilter(value);
+          },
+          onClearFilters: () => { setStatusFilter(''); setCategoryFilter(''); setSearch(''); },
+          hasActiveFilters,
+        }}
+      />
 
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
@@ -145,44 +166,6 @@ export default function AdminDisputesPage() {
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
-          <InputText
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search disputes..."
-            className="w-60"
-          />
-        </span>
-        <Dropdown
-          value={statusFilter}
-          options={statusOptions}
-          onChange={(e) => setStatusFilter(e.value)}
-          placeholder="Status"
-          className="w-52"
-          aria-label="Filter by status"
-        />
-        <Dropdown
-          value={categoryFilter}
-          options={categoryOptions}
-          onChange={(e) => setCategoryFilter(e.value)}
-          placeholder="Category"
-          className="w-56"
-          aria-label="Filter by category"
-        />
-        {(statusFilter || categoryFilter || search) && (
-          <Button
-            icon="pi pi-filter-slash"
-            outlined
-            severity="secondary"
-            onClick={() => { setStatusFilter(''); setCategoryFilter(''); setSearch(''); }}
-            tooltip="Clear filters"
-          />
-        )}
       </div>
 
       {disputes.length > 0 ? (

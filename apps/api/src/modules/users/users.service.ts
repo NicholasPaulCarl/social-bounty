@@ -316,6 +316,46 @@ export class UsersService {
     };
   }
 
+  // ─── User Search (for messaging) ─────────────────────────
+
+  async searchUsersForMessaging(query: string, limit?: number) {
+    if (!query || query.trim().length < 2) {
+      return [];
+    }
+
+    const take = Math.min(limit || 10, 20);
+    const searchTerm = query.trim();
+
+    const users = await this.prisma.user.findMany({
+      where: {
+        OR: [
+          { firstName: { contains: searchTerm, mode: 'insensitive' } },
+          { lastName: { contains: searchTerm, mode: 'insensitive' } },
+          { email: { contains: searchTerm, mode: 'insensitive' } },
+        ],
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        profilePictureUrl: true,
+      },
+      take,
+      orderBy: { firstName: 'asc' },
+    });
+
+    return users.map((u) => ({
+      id: u.id,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      email: u.email,
+      role: u.role,
+      profilePictureUrl: u.profilePictureUrl,
+    }));
+  }
+
   // ─── Hunter Directory ────────────────────────────────────
 
   async listHunters(params: {

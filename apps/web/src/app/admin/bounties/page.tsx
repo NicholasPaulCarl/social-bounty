@@ -13,9 +13,31 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
-import { BountyFilters } from '@/components/features/bounty/BountyFilters';
 import { formatDate, formatCurrency } from '@/lib/utils/format';
-import type { BountyListParams, BountyListItem } from '@social-bounty/shared';
+import type { BountyListParams, BountyListItem, BountyStatus, RewardType } from '@social-bounty/shared';
+
+const statusOptions = [
+  { label: 'All Statuses', value: '' },
+  { label: 'Draft', value: 'DRAFT' },
+  { label: 'Live', value: 'LIVE' },
+  { label: 'Paused', value: 'PAUSED' },
+  { label: 'Closed', value: 'CLOSED' },
+];
+
+const rewardTypeOptions = [
+  { label: 'All Types', value: '' },
+  { label: 'Cash', value: 'CASH' },
+  { label: 'Product', value: 'PRODUCT' },
+  { label: 'Service', value: 'SERVICE' },
+  { label: 'Other', value: 'OTHER' },
+];
+
+const sortOptions = [
+  { label: 'Newest', value: 'createdAt' },
+  { label: 'Reward (High)', value: 'rewardValue' },
+  { label: 'Ending Soon', value: 'ending_soon' },
+  { label: 'Title', value: 'title' },
+];
 
 export default function AdminBountiesPage() {
   const router = useRouter();
@@ -50,11 +72,38 @@ export default function AdminBountiesPage() {
     />
   );
 
+  const hasActiveFilters = !!(filters.search || filters.status || filters.rewardType || (filters.sortBy && filters.sortBy !== 'createdAt'));
+
   return (
     <>
-      <PageHeader title="Bounties" subtitle="View and manage all bounties" />
-
-      <BountyFilters filters={filters} onChange={setFilters} showStatusFilter />
+      <PageHeader
+        title="Bounties"
+        subtitle="View and manage all bounties"
+        toolbar={{
+          search: {
+            value: filters.search || '',
+            onChange: (value) => setFilters({ ...filters, search: value || undefined, page: 1 }),
+            placeholder: 'Search bounties...',
+          },
+          filters: [
+            { key: 'status', placeholder: 'Status', options: statusOptions, ariaLabel: 'Filter by status' },
+            { key: 'rewardType', placeholder: 'Reward Type', options: rewardTypeOptions, ariaLabel: 'Filter by reward type' },
+            { key: 'sortBy', placeholder: 'Sort By', options: sortOptions, ariaLabel: 'Sort bounties' },
+          ],
+          filterValues: {
+            status: (filters.status as string) || '',
+            rewardType: (filters.rewardType as string) || '',
+            sortBy: filters.sortBy || 'createdAt',
+          },
+          onFilterChange: (key, value) => {
+            if (key === 'status') setFilters({ ...filters, status: (value || undefined) as BountyStatus, page: 1 });
+            else if (key === 'rewardType') setFilters({ ...filters, rewardType: (value || undefined) as RewardType, page: 1 });
+            else setFilters({ ...filters, [key]: value || undefined, page: 1 });
+          },
+          onClearFilters: () => setFilters({ page: 1, limit }),
+          hasActiveFilters,
+        }}
+      />
 
       {data && data.data.length > 0 ? (
         <>

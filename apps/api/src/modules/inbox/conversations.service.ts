@@ -25,8 +25,25 @@ export class ConversationsService {
       referenceId?: string;
       subject: string;
       initialMessage: string;
+      participantIds?: string[];
     },
   ) {
+    // Validate participant IDs exist
+    const participantIds = dto.participantIds ?? [];
+    if (participantIds.length > 0) {
+      const existingUsers = await this.prisma.user.findMany({
+        where: { id: { in: participantIds } },
+        select: { id: true },
+      });
+      const existingIds = new Set(existingUsers.map((u) => u.id));
+      const invalid = participantIds.filter((id) => !existingIds.has(id));
+      if (invalid.length > 0) {
+        throw new BadRequestException(
+          `Invalid participant IDs: ${invalid.join(', ')}`,
+        );
+      }
+    }
+
     const conversation = await this.prisma.$transaction(async (tx) => {
       const conv = await tx.conversation.create({
         data: {
@@ -38,6 +55,7 @@ export class ConversationsService {
         },
       });
 
+      // Add creator as participant
       await tx.conversationParticipant.create({
         data: {
           conversationId: conv.id,
@@ -45,6 +63,17 @@ export class ConversationsService {
           lastReadAt: new Date(),
         },
       });
+
+      // Add other participants
+      const otherParticipants = participantIds.filter((id) => id !== userId);
+      if (otherParticipants.length > 0) {
+        await tx.conversationParticipant.createMany({
+          data: otherParticipants.map((pId) => ({
+            conversationId: conv.id,
+            userId: pId,
+          })),
+        });
+      }
 
       await tx.message.create({
         data: {

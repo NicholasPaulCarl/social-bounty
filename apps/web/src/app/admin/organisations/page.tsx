@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
 import { useAdminOrganisations } from '@/hooks/useAdmin';
@@ -61,35 +59,21 @@ export default function AdminOrganisationsPage() {
         actions={
           <Button label="Create Organisation" icon="pi pi-plus" onClick={() => router.push('/admin/organisations/new')} />
         }
+        toolbar={{
+          search: {
+            value: filters.search || '',
+            onChange: (value) => setFilters({ ...filters, search: value || undefined, page: 1 }),
+            placeholder: 'Search organisations...',
+          },
+          filters: [
+            { key: 'status', placeholder: 'Status', options: statusOptions, ariaLabel: 'Filter by status' },
+          ],
+          filterValues: { status: filters.status || '' },
+          onFilterChange: (key, value) => setFilters({ ...filters, [key]: value || undefined, page: 1 }),
+          onClearFilters: () => setFilters({ page: 1, limit }),
+          hasActiveFilters: !!(filters.search || filters.status),
+        }}
       />
-
-      <div className="flex flex-wrap gap-3 mb-6">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
-          <InputText
-            value={filters.search || ''}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined, page: 1 })}
-            placeholder="Search organisations..."
-            className="w-64"
-          />
-        </span>
-
-        <Dropdown
-          value={filters.status || ''}
-          options={statusOptions}
-          onChange={(e) => setFilters({ ...filters, status: e.value || undefined, page: 1 })}
-          placeholder="Status"
-          className="w-40"
-        />
-
-        <Button
-          icon="pi pi-filter-slash"
-          outlined
-          severity="secondary"
-          onClick={() => setFilters({ page: 1, limit })}
-          tooltip="Clear filters"
-        />
-      </div>
 
       {data && data.data.length > 0 ? (
         <>

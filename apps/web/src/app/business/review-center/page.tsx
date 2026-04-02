@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Paginator } from 'primereact/paginator';
-import { Dropdown } from 'primereact/dropdown';
-import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useReviewQueue } from '@/hooks/useSubmissions';
@@ -131,12 +129,32 @@ export default function ReviewCenterPage() {
     />
   );
 
+  const hasActiveFilters = !!(statusFilter || bountyFilter || search);
+
   return (
     <div className="animate-fade-up">
       <PageHeader
         title="Review Center"
         subtitle="Review and manage participant submissions"
         breadcrumbs={breadcrumbs}
+        toolbar={{
+          search: {
+            value: search,
+            onChange: setSearch,
+            placeholder: 'Search participant...',
+          },
+          filters: [
+            { key: 'status', placeholder: 'Filter by status', options: statusOptions, ariaLabel: 'Filter by status', className: 'w-full sm:w-48' },
+            { key: 'bountyId', placeholder: 'Filter by bounty', options: bountyOptions, ariaLabel: 'Filter by bounty', className: 'w-full sm:w-52' },
+          ],
+          filterValues: { status: statusFilter, bountyId: bountyFilter },
+          onFilterChange: (key, value) => {
+            if (key === 'status') setStatusFilter(value);
+            else if (key === 'bountyId') setBountyFilter(value);
+          },
+          onClearFilters: () => { setStatusFilter(''); setBountyFilter(''); setSearch(''); },
+          hasActiveFilters,
+        }}
       />
 
       {/* Stats Cards */}
@@ -146,33 +164,6 @@ export default function ReviewCenterPage() {
         <StatCard icon="pi-exclamation-triangle" count={stats.needsMoreInfo}  label="Needs More Info"  iconClass="text-violet-400"  />
         <StatCard icon="pi-check-circle"         count={stats.approvedToday}  label="Approved Today"   iconClass="text-emerald-400" />
         <StatCard icon="pi-times-circle"         count={stats.rejectedToday}  label="Rejected Today"   iconClass="text-red-400"     />
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <Dropdown
-          value={statusFilter}
-          options={statusOptions}
-          onChange={(e) => setStatusFilter(e.value)}
-          placeholder="Filter by status"
-          className="w-48"
-        />
-        <Dropdown
-          value={bountyFilter}
-          options={bountyOptions}
-          onChange={(e) => setBountyFilter(e.value)}
-          placeholder="Filter by bounty"
-          className="w-52"
-        />
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
-          <InputText
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search participant..."
-            className="w-56"
-          />
-        </span>
       </div>
 
       {isLoading && <LoadingState type="table" rows={10} columns={5} />}

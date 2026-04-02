@@ -41,6 +41,7 @@ export interface CreateConversationRequest {
   referenceId?: string;
   subject: string;
   initialMessage: string;
+  participantIds: string[];
 }
 
 export interface SendMessageRequest {

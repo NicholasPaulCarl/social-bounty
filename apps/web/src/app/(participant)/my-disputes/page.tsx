@@ -18,17 +18,20 @@ import { DISPUTE_STATUS_OPTIONS } from '@/lib/constants/disputes';
 import { DisputeStatus } from '@social-bounty/shared';
 import type { DisputeListItem } from '@social-bounty/shared';
 
-const statusFilters = DISPUTE_STATUS_OPTIONS.map((o) => ({ label: o.label === 'All Statuses' ? 'All' : o.label, value: o.value }));
+const statusFilters = DISPUTE_STATUS_OPTIONS.map((o) => ({
+  id: o.value || 'all',
+  label: o.label === 'All Statuses' ? 'All' : o.label,
+}));
 
 export default function MyDisputesPage() {
   const router = useRouter();
   const { page, limit, first, onPageChange } = usePagination();
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const { data, isLoading, error, refetch } = useMyDisputes({
     page,
     limit,
-    status: (statusFilter as DisputeStatus) || undefined,
+    status: (statusFilter !== 'all' ? statusFilter as DisputeStatus : undefined),
     sortOrder: 'desc',
   });
 
@@ -45,24 +48,12 @@ export default function MyDisputesPage() {
             onClick={() => router.push('/my-disputes/new')}
           />
         }
+        pills={{
+          items: statusFilters,
+          activeId: statusFilter,
+          onChange: setStatusFilter,
+        }}
       />
-
-      {/* Status filter chips */}
-      <div className="flex flex-wrap gap-2 mb-6 animate-fade-up">
-        {statusFilters.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => setStatusFilter(f.value)}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
-              statusFilter === f.value
-                ? 'bg-accent-cyan/20 text-accent-cyan border-accent-cyan/50'
-                : 'bg-elevated text-text-muted border-glass-border hover:border-accent-cyan/30 hover:text-text-secondary'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
 
       {isLoading && <LoadingState type="table" rows={8} columns={5} />}
       {error && <ErrorState error={error} onRetry={() => refetch()} />}

@@ -9,6 +9,7 @@ import type {
   ConversationDetailResponse,
   CreateConversationRequest,
   SendMessageRequest,
+  EditMessageRequest,
   InboxMessageResponse,
 } from '@social-bounty/shared';
 
@@ -36,6 +37,12 @@ export const inboxApi = {
 
   sendMessage: (conversationId: string, data: SendMessageRequest): Promise<InboxMessageResponse> =>
     apiClient.post(`/conversations/${conversationId}/messages`, data),
+
+  editMessage: (conversationId: string, messageId: string, data: EditMessageRequest): Promise<InboxMessageResponse> =>
+    apiClient.put(`/conversations/${conversationId}/messages/${messageId}`, data),
+
+  deleteMessage: (conversationId: string, messageId: string): Promise<void> =>
+    apiClient.delete(`/conversations/${conversationId}/messages/${messageId}`),
 
   markConversationRead: (id: string): Promise<void> =>
     apiClient.post(`/conversations/${id}/read`),

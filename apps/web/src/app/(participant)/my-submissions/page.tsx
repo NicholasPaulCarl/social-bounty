@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Paginator } from 'primereact/paginator';
-import { Dropdown } from 'primereact/dropdown';
 import { SelectButton } from 'primereact/selectbutton';
 import { useMySubmissions, useMyEarnings } from '@/hooks/useSubmissions';
 import { usePagination } from '@/hooks/usePagination';
@@ -56,9 +55,35 @@ export default function MySubmissionsPage() {
 
   const { data: earnings } = useMyEarnings();
 
+  const hasActiveFilters = !!(statusFilter || payoutFilter || sortOrder !== 'desc');
+
   return (
     <>
-      <PageHeader title="My Submissions" subtitle="Track your bounty submissions" />
+      <PageHeader
+        title="My Submissions"
+        subtitle="Track your bounty submissions"
+        toolbar={{
+          filters: [
+            { key: 'status', placeholder: 'Filter by status', options: statusOptions, ariaLabel: 'Filter by status', className: 'w-full sm:w-48' },
+            { key: 'payoutStatus', placeholder: 'Filter by payout', options: payoutOptions, ariaLabel: 'Filter by payout status', className: 'w-full sm:w-44' },
+          ],
+          filterValues: { status: statusFilter, payoutStatus: payoutFilter },
+          onFilterChange: (key, value) => {
+            if (key === 'status') setStatusFilter(value as SubmissionStatus | '');
+            else if (key === 'payoutStatus') setPayoutFilter(value);
+          },
+          onClearFilters: () => { setStatusFilter(''); setPayoutFilter(''); setSortOrder('desc'); },
+          hasActiveFilters,
+          extra: (
+            <SelectButton
+              value={sortOrder}
+              options={sortOptions}
+              onChange={(e) => { if (e.value) setSortOrder(e.value); }}
+              aria-label="Sort order"
+            />
+          ),
+        }}
+      />
 
       {/* Earnings Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 animate-fade-up">
@@ -109,31 +134,6 @@ export default function MySubmissionsPage() {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <Dropdown
-          value={statusFilter}
-          options={statusOptions}
-          onChange={(e) => setStatusFilter(e.value)}
-          placeholder="Filter by status"
-          aria-label="Filter by status"
-          className="w-48"
-        />
-        <Dropdown
-          value={payoutFilter}
-          options={payoutOptions}
-          onChange={(e) => setPayoutFilter(e.value)}
-          placeholder="Filter by payout"
-          aria-label="Filter by payout status"
-          className="w-44"
-        />
-        <SelectButton
-          value={sortOrder}
-          options={sortOptions}
-          onChange={(e) => { if (e.value) setSortOrder(e.value); }}
-          aria-label="Sort order"
-        />
       </div>
 
       {isLoading && <LoadingState type="table" rows={10} columns={5} />}

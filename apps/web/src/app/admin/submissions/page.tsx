@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
 import { useAdminSubmissions } from '@/hooks/useAdmin';
@@ -90,43 +88,25 @@ export default function AdminSubmissionsPage() {
 
   return (
     <>
-      <PageHeader title="Submissions" subtitle="View and manage all submissions" />
-
-      <div className="flex flex-wrap gap-3 mb-6">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
-          <InputText
-            value={filters.search || ''}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined, page: 1 })}
-            placeholder="Search submissions..."
-            className="w-64"
-          />
-        </span>
-
-        <Dropdown
-          value={filters.status || ''}
-          options={statusOptions}
-          onChange={(e) => setFilters({ ...filters, status: e.value || undefined, page: 1 })}
-          placeholder="Status"
-          className="w-48"
-        />
-
-        <Dropdown
-          value={filters.payoutStatus || ''}
-          options={payoutStatusOptions}
-          onChange={(e) => setFilters({ ...filters, payoutStatus: e.value || undefined, page: 1 })}
-          placeholder="Payout Status"
-          className="w-48"
-        />
-
-        <Button
-          icon="pi pi-filter-slash"
-          outlined
-          severity="secondary"
-          onClick={() => setFilters({ page: 1, limit })}
-          tooltip="Clear filters"
-        />
-      </div>
+      <PageHeader
+        title="Submissions"
+        subtitle="View and manage all submissions"
+        toolbar={{
+          search: {
+            value: filters.search || '',
+            onChange: (value) => setFilters({ ...filters, search: value || undefined, page: 1 }),
+            placeholder: 'Search submissions...',
+          },
+          filters: [
+            { key: 'status', placeholder: 'Status', options: statusOptions, ariaLabel: 'Filter by status', className: 'w-full sm:w-48' },
+            { key: 'payoutStatus', placeholder: 'Payout Status', options: payoutStatusOptions, ariaLabel: 'Filter by payout status', className: 'w-full sm:w-48' },
+          ],
+          filterValues: { status: filters.status || '', payoutStatus: filters.payoutStatus || '' },
+          onFilterChange: (key, value) => setFilters({ ...filters, [key]: value || undefined, page: 1 }),
+          onClearFilters: () => setFilters({ page: 1, limit }),
+          hasActiveFilters: !!(filters.search || filters.status || filters.payoutStatus),
+        }}
+      />
 
       {data && data.data.length > 0 ? (
         <>

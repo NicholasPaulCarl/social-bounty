@@ -99,6 +99,7 @@ export type {
   UserOrganisationInfo,
   UserSocialLinkInfo,
   UserProfileResponse,
+  UserSearchResult,
   UpdateProfileRequest,
   UpdateProfileResponse,
   ChangePasswordRequest,

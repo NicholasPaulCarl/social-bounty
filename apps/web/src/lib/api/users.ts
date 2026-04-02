@@ -1,6 +1,7 @@
 import { apiClient } from './client';
 import type {
   UserProfileResponse,
+  UserSearchResult,
   UpdateProfileRequest,
   UpdateProfileResponse,
   ChangePasswordRequest,
@@ -12,6 +13,9 @@ import type {
 export const userApi = {
   getMe: (): Promise<UserProfileResponse> =>
     apiClient.get('/users/me'),
+
+  searchUsers: (q: string, limit?: number): Promise<UserSearchResult[]> =>
+    apiClient.get('/users/search', { q, limit } as Record<string, unknown>),
 
   updateMe: (data: UpdateProfileRequest): Promise<UpdateProfileResponse> =>
     apiClient.patch('/users/me', data),

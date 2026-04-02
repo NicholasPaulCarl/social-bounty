@@ -38,6 +38,16 @@ export interface UserProfileResponse {
   updatedAt: string;
 }
 
+// GET /users/search
+export interface UserSearchResult {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: UserRole;
+  profilePictureUrl: string | null;
+}
+
 // PATCH /users/me
 export interface UpdateProfileRequest {
   firstName?: string;

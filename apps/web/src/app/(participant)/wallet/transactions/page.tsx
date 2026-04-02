@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { Dropdown } from 'primereact/dropdown';
 import { Paginator } from 'primereact/paginator';
 import { useWalletTransactions, useWalletDashboard } from '@/hooks/useWallet';
 import { usePagination } from '@/hooks/usePagination';
@@ -22,6 +21,11 @@ const TX_TYPE_OPTIONS = [
   { label: 'Hold', value: WalletTxType.HOLD },
   { label: 'Release', value: WalletTxType.RELEASE },
   { label: 'Correction', value: WalletTxType.CORRECTION },
+];
+
+const SORT_OPTIONS = [
+  { label: 'Newest First', value: 'desc' },
+  { label: 'Oldest First', value: 'asc' },
 ];
 
 const TYPE_CONFIG: Record<WalletTxType, { label: string; className: string }> = {
@@ -46,11 +50,6 @@ export default function TransactionsPage() {
     type: (typeFilter as WalletTxType) || undefined,
     sortOrder,
   });
-
-  const handleTypeChange = (val: string) => {
-    setTypeFilter(val);
-    resetPage();
-  };
 
   const typeTemplate = (row: WalletTransactionListItem) => {
     const { label, className } = TYPE_CONFIG[row.type] ?? { label: row.type, className: 'bg-elevated text-text-muted' };
@@ -78,35 +77,28 @@ export default function TransactionsPage() {
     <span className="text-sm text-text-primary">{row.description}</span>
   );
 
+  const hasActiveFilters = !!(typeFilter || sortOrder !== 'desc');
+
   return (
     <>
       <PageHeader
         title="Transaction History"
         subtitle="Full ledger of all wallet activity"
         breadcrumbs={[{ label: 'Wallet', url: '/wallet' }, { label: 'Transactions' }]}
+        toolbar={{
+          filters: [
+            { key: 'type', placeholder: 'All Types', options: TX_TYPE_OPTIONS, ariaLabel: 'Filter by type', className: 'w-full sm:w-44' },
+            { key: 'sortOrder', placeholder: 'Sort order', options: SORT_OPTIONS, ariaLabel: 'Sort order', className: 'w-full sm:w-44' },
+          ],
+          filterValues: { type: typeFilter, sortOrder },
+          onFilterChange: (key, value) => {
+            if (key === 'type') { setTypeFilter(value); resetPage(); }
+            else if (key === 'sortOrder') setSortOrder(value as 'asc' | 'desc');
+          },
+          onClearFilters: () => { setTypeFilter(''); setSortOrder('desc'); resetPage(); },
+          hasActiveFilters,
+        }}
       />
-
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-6 animate-fade-up">
-        <Dropdown
-          value={typeFilter}
-          options={TX_TYPE_OPTIONS}
-          onChange={(e) => handleTypeChange(e.value)}
-          placeholder="All Types"
-          className="w-44"
-          aria-label="Filter by type"
-        />
-        <Dropdown
-          value={sortOrder}
-          options={[
-            { label: 'Newest First', value: 'desc' },
-            { label: 'Oldest First', value: 'asc' },
-          ]}
-          onChange={(e) => setSortOrder(e.value)}
-          className="w-44"
-          aria-label="Sort order"
-        />
-      </div>
 
       {isLoading && <LoadingState type="table" rows={10} columns={5} />}
       {error && <ErrorState error={error} onRetry={() => refetch()} />}

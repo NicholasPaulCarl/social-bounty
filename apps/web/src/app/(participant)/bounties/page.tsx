@@ -8,7 +8,6 @@ import { Column } from 'primereact/column';
 import { useBounties } from '@/hooks/useBounties';
 import { usePagination } from '@/hooks/usePagination';
 import { BountyCard } from '@/components/features/bounty/BountyCard';
-import { BountyFilters } from '@/components/features/bounty/BountyFilters';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -16,13 +15,28 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatCurrency, timeRemaining } from '@/lib/utils/format';
 import { BountyStatus, BOUNTY_CATEGORIES } from '@social-bounty/shared';
-import type { BountyListParams, BountyListItem } from '@social-bounty/shared';
+import type { BountyListParams, BountyListItem, RewardType } from '@social-bounty/shared';
 
 type LayoutMode = 'grid' | 'list';
 
 const categories = [
-  { id: 'all', name: 'All' },
-  ...BOUNTY_CATEGORIES,
+  { id: 'all', label: 'All' },
+  ...BOUNTY_CATEGORIES.map((c) => ({ id: c.id, label: c.name })),
+];
+
+const rewardTypeOptions = [
+  { label: 'All Types', value: '' },
+  { label: 'Cash', value: 'CASH' },
+  { label: 'Product', value: 'PRODUCT' },
+  { label: 'Service', value: 'SERVICE' },
+  { label: 'Other', value: 'OTHER' },
+];
+
+const sortOptions = [
+  { label: 'Newest', value: 'createdAt' },
+  { label: 'Reward (High)', value: 'rewardValue' },
+  { label: 'Ending Soon', value: 'ending_soon' },
+  { label: 'Title', value: 'title' },
 ];
 
 export default function BrowseBountiesPage() {
@@ -42,8 +56,9 @@ export default function BrowseBountiesPage() {
   const mergedFilters = { ...filters, page, limit, category: categoryFilter };
   const { data, isLoading, error, refetch } = useBounties(mergedFilters);
 
-  const handleFilterChange = (newFilters: BountyListParams) => {
-    setFilters(newFilters);
+  const handleFilterChange = (key: string, value: string) => {
+    if (key === 'rewardType') setFilters({ ...filters, rewardType: (value || undefined) as RewardType, page: 1 });
+    else setFilters({ ...filters, [key]: value || undefined, page: 1 });
     resetPage();
   };
 
@@ -51,6 +66,8 @@ export default function BrowseBountiesPage() {
     setSelectedCategory(catId);
     resetPage();
   };
+
+  const hasActiveFilters = !!(filters.search || filters.rewardType || (filters.sortBy && filters.sortBy !== 'createdAt'));
 
   // For ending_soon sort, sort client-side by endDate ascending and filter to only those with endDate
   const sortedData = (() => {
@@ -65,62 +82,42 @@ export default function BrowseBountiesPage() {
 
   return (
     <>
-      <PageHeader title="Browse Bounties" subtitle="Find bounties and earn rewards" />
-
-      {/* Category filter chips */}
-      <div className="flex flex-wrap gap-3 mb-6 pb-2">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => handleCategoryChange(cat.id)}
-            aria-label={`Filter by ${cat.name}`}
-            className={`whitespace-nowrap px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 border
-              ${
-                selectedCategory === cat.id
-                  ? 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan/40 shadow-glow-cyan'
-                  : 'bg-glass-bg border-glass-border text-text-secondary hover:bg-white/5 hover:text-text-primary hover:border-white/20'
-              }`}
-          >
-            {cat.name}
-          </button>
-        ))}
-      </div>
-
-      {/* Filters + Layout toggle */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
-        <div className="flex-1">
-          <BountyFilters filters={filters} onChange={handleFilterChange} />
-        </div>
-
-        {/* Glass layout toggle buttons */}
-        <div className="flex items-center glass-card !rounded-lg overflow-hidden !p-0">
-          <button
-            onClick={() => setLayout('grid')}
-            aria-label="Grid view"
-            className={`flex items-center justify-center w-10 h-10 transition-all duration-200
-              ${
-                layout === 'grid'
-                  ? 'bg-accent-cyan/15 text-accent-cyan shadow-glow-cyan'
-                  : 'text-text-muted hover:text-text-primary hover:bg-white/5'
-              }`}
-          >
-            <i className="pi pi-th-large text-sm" />
-          </button>
-          <div className="w-px h-5 bg-glass-border" />
-          <button
-            onClick={() => setLayout('list')}
-            aria-label="List view"
-            className={`flex items-center justify-center w-10 h-10 transition-all duration-200
-              ${
-                layout === 'list'
-                  ? 'bg-accent-cyan/15 text-accent-cyan shadow-glow-cyan'
-                  : 'text-text-muted hover:text-text-primary hover:bg-white/5'
-              }`}
-          >
-            <i className="pi pi-list text-sm" />
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Browse Bounties"
+        subtitle="Find bounties and earn rewards"
+        pills={{
+          items: categories,
+          activeId: selectedCategory,
+          onChange: handleCategoryChange,
+        }}
+        toolbar={{
+          search: {
+            value: filters.search || '',
+            onChange: (value) => {
+              setFilters({ ...filters, search: value || undefined, page: 1 });
+              resetPage();
+            },
+            placeholder: 'Search bounties...',
+          },
+          filters: [
+            { key: 'rewardType', placeholder: 'Reward Type', options: rewardTypeOptions, ariaLabel: 'Filter by reward type' },
+            { key: 'sortBy', placeholder: 'Sort By', options: sortOptions, ariaLabel: 'Sort bounties' },
+          ],
+          filterValues: {
+            rewardType: (filters.rewardType as string) || '',
+            sortBy: filters.sortBy || 'createdAt',
+          },
+          onFilterChange: handleFilterChange,
+          onClearFilters: () => {
+            setFilters({ page: 1, limit, status: BountyStatus.LIVE, sortBy: 'createdAt', sortOrder: 'desc' });
+            setSelectedCategory('all');
+            resetPage();
+          },
+          hasActiveFilters,
+          viewMode: layout,
+          onViewModeChange: setLayout,
+        }}
+      />
 
       {/* Main content area with fade-up animation */}
       <div className="animate-fade-up">

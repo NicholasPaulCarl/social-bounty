@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
 import { Paginator } from 'primereact/paginator';
 import { Tag } from 'primereact/tag';
 import { useOrgDisputes } from '@/hooks/useDisputes';
@@ -106,6 +105,19 @@ export default function BusinessDisputesPage() {
             onClick={() => router.push('/business/disputes/new')}
           />
         }
+        toolbar={{
+          filters: [
+            { key: 'status', placeholder: 'Filter by status', options: statusOptions, ariaLabel: 'Filter by status', className: 'w-full sm:w-52' },
+            { key: 'category', placeholder: 'Filter by category', options: categoryOptions, ariaLabel: 'Filter by category', className: 'w-full sm:w-56' },
+          ],
+          filterValues: { status: statusFilter, category: categoryFilter },
+          onFilterChange: (key, value) => {
+            if (key === 'status') setStatusFilter(value);
+            else if (key === 'category') setCategoryFilter(value);
+          },
+          onClearFilters: () => { setStatusFilter(''); setCategoryFilter(''); },
+          hasActiveFilters: !!(statusFilter || categoryFilter),
+        }}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -122,34 +134,6 @@ export default function BusinessDisputesPage() {
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="flex flex-wrap gap-3 mb-6">
-        <Dropdown
-          value={statusFilter}
-          options={statusOptions}
-          onChange={(e) => setStatusFilter(e.value)}
-          placeholder="Filter by status"
-          className="w-52"
-          aria-label="Filter by status"
-        />
-        <Dropdown
-          value={categoryFilter}
-          options={categoryOptions}
-          onChange={(e) => setCategoryFilter(e.value)}
-          placeholder="Filter by category"
-          className="w-56"
-          aria-label="Filter by category"
-        />
-        {(statusFilter || categoryFilter) && (
-          <Button
-            icon="pi pi-filter-slash"
-            outlined
-            severity="secondary"
-            onClick={() => { setStatusFilter(''); setCategoryFilter(''); }}
-            tooltip="Clear filters"
-          />
-        )}
       </div>
 
       {disputes.length > 0 ? (

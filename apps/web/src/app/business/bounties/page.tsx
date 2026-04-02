@@ -6,7 +6,6 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
-import { TabMenu } from 'primereact/tabmenu';
 import { useBounties, useDeleteBounty } from '@/hooks/useBounties';
 import { bountyApi } from '@/lib/api/bounties';
 import { usePagination } from '@/hooks/usePagination';
@@ -16,12 +15,11 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
-import { BountyFilters } from '@/components/features/bounty/BountyFilters';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { PaymentDialog } from '@/components/payment/PaymentDialog';
 import { formatDate, formatCurrency, formatEnumLabel } from '@/lib/utils/format';
 import { BountyStatus, PaymentStatus } from '@social-bounty/shared';
-import type { BountyListParams, BountyListItem } from '@social-bounty/shared';
+import type { BountyListParams, BountyListItem, RewardType } from '@social-bounty/shared';
 
 const statusTabs = [
   { label: 'All', value: undefined as BountyStatus | undefined },
@@ -29,6 +27,21 @@ const statusTabs = [
   { label: 'Live', value: BountyStatus.LIVE },
   { label: 'Paused', value: BountyStatus.PAUSED },
   { label: 'Closed', value: BountyStatus.CLOSED },
+];
+
+const rewardTypeOptions = [
+  { label: 'All Types', value: '' },
+  { label: 'Cash', value: 'CASH' },
+  { label: 'Product', value: 'PRODUCT' },
+  { label: 'Service', value: 'SERVICE' },
+  { label: 'Other', value: 'OTHER' },
+];
+
+const sortOptions = [
+  { label: 'Newest', value: 'createdAt' },
+  { label: 'Reward (High)', value: 'rewardValue' },
+  { label: 'Ending Soon', value: 'ending_soon' },
+  { label: 'Title', value: 'title' },
 ];
 
 export default function BusinessBountiesPage() {
@@ -180,6 +193,8 @@ export default function BusinessBountiesPage() {
     );
   };
 
+  const hasActiveFilters = !!(filters.search || filters.rewardType || (filters.sortBy && filters.sortBy !== 'createdAt'));
+
   return (
     <div className="animate-fade-up">
       <PageHeader
@@ -188,16 +203,33 @@ export default function BusinessBountiesPage() {
         actions={
           <Button label="Create Bounty" icon="pi pi-plus" onClick={() => router.push('/business/bounties/new')} />
         }
+        tabs={{
+          items: statusTabs.map((tab) => ({ label: tab.label })),
+          activeIndex: activeTabIndex,
+          onChange: (index) => setActiveTabIndex(index),
+        }}
+        toolbar={{
+          search: {
+            value: filters.search || '',
+            onChange: (value) => setFilters({ ...filters, search: value || undefined, page: 1 }),
+            placeholder: 'Search bounties...',
+          },
+          filters: [
+            { key: 'rewardType', placeholder: 'Reward Type', options: rewardTypeOptions, ariaLabel: 'Filter by reward type' },
+            { key: 'sortBy', placeholder: 'Sort By', options: sortOptions, ariaLabel: 'Sort bounties' },
+          ],
+          filterValues: {
+            rewardType: (filters.rewardType as string) || '',
+            sortBy: filters.sortBy || 'createdAt',
+          },
+          onFilterChange: (key, value) => {
+            if (key === 'rewardType') setFilters({ ...filters, rewardType: (value || undefined) as RewardType, page: 1 });
+            else setFilters({ ...filters, [key]: value || undefined, page: 1 });
+          },
+          onClearFilters: () => setFilters({ page: 1, limit }),
+          hasActiveFilters,
+        }}
       />
-
-      <TabMenu
-        model={statusTabs.map((tab) => ({ label: tab.label }))}
-        activeIndex={activeTabIndex}
-        onTabChange={(e) => setActiveTabIndex(e.index)}
-        className="mb-6"
-      />
-
-      <BountyFilters filters={filters} onChange={setFilters} />
 
       {data && data.data.length > 0 ? (
         <>

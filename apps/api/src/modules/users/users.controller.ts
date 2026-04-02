@@ -139,6 +139,17 @@ export class UsersController {
     return this.usersService.deleteSocialLink(user.sub, id);
   }
 
+  // ─── User Search (for messaging) ─────────────────────
+
+  @Get('users/search')
+  @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  async searchUsers(
+    @Query('q') q: string,
+    @Query('limit') limit?: number,
+  ) {
+    return this.usersService.searchUsersForMessaging(q, limit);
+  }
+
   // ─── Hunter Directory ─────────────────────────────────
 
   @Get('hunters')
