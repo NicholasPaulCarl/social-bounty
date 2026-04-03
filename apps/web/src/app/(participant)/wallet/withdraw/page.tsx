@@ -80,7 +80,7 @@ export default function WithdrawPage() {
     <>
       <PageHeader
         title="Request Withdrawal"
-        subtitle="Transfer your earnings to your preferred payment method"
+        subtitle="Cash out your earnings"
         breadcrumbs={[{ label: 'Wallet', url: '/wallet' }, { label: 'Withdraw' }]}
       />
 

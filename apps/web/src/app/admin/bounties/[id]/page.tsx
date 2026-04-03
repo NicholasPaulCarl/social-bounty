@@ -43,7 +43,7 @@ export default function AdminBountyDetailPage() {
           setShowOverride(false);
           refetch();
         },
-        onError: () => toast.showError('Failed to override bounty status'),
+        onError: () => toast.showError('Couldn\'t override bounty status. Try again.'),
       },
     );
   };

@@ -36,10 +36,10 @@ export default function AdminSettingsPage() {
       { signupsEnabled, submissionsEnabled },
       {
         onSuccess: () => {
-          toast.showSuccess('Settings updated successfully');
+          toast.showSuccess('Settings saved.');
           refetch();
         },
-        onError: () => setFormError('Failed to update settings'),
+        onError: () => setFormError('Couldn\'t update settings. Try again.'),
       },
     );
   };
@@ -66,7 +66,7 @@ export default function AdminSettingsPage() {
             <div className="flex items-center justify-between border-t border-glass-border pt-6">
               <div>
                 <p className="font-medium text-text-primary">Submissions</p>
-                <p className="text-sm text-text-muted">Allow participants to submit proof for bounties.</p>
+                <p className="text-sm text-text-muted">Allow Hunters to submit proof for bounties.</p>
               </div>
               <InputSwitch checked={submissionsEnabled} onChange={(e) => setSubmissionsEnabled(e.value ?? false)} />
             </div>

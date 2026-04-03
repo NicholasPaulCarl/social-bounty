@@ -88,7 +88,7 @@ export default function AdminOrgDetailPage() {
           setShowActivate(false);
           refetch();
         },
-        onError: () => toast.showError('Failed to update organisation status'),
+        onError: () => toast.showError('Couldn\'t update organisation status. Try again.'),
       },
     );
   };

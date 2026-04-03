@@ -54,10 +54,10 @@ export default function ApplyToBountyPage() {
 
     try {
       await applyMutation.mutateAsync({ message: message.trim() || undefined });
-      showSuccess('Application submitted! The business will review it shortly.');
+      showSuccess('Application dropped! The brand will review it shortly.');
       router.push(`/bounties/${id}`);
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Failed to submit application. Please try again.';
+      const msg = err instanceof ApiError ? err.message : 'Couldn\'t submit application. Try again.';
       setSubmitError(msg);
       showError(msg);
     }

@@ -85,7 +85,7 @@ const FAQ_ITEMS = [
   {
     question: 'Can I partner with Social Bounty?',
     answer:
-      "Absolutely. Whether you're a brand, creator platform, or agency — we're open to creative partnerships. Select 'Sales' in the form and tell us what you have in mind.",
+      "Absolutely. Whether you're a brand, Hunter community, or agency — we're open to creative partnerships. Select 'Sales' in the form and tell us what you have in mind.",
   },
 ];
 

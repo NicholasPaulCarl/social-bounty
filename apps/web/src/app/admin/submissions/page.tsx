@@ -130,7 +130,7 @@ export default function AdminSubmissionsPage() {
           />
         </>
       ) : (
-        <EmptyState icon="pi-inbox" title="No submissions found" message="No submissions match your current filters." />
+        <EmptyState icon="pi-inbox" title="No submissions" message="Nothing matches your current filters." />
       )}
     </>
   );

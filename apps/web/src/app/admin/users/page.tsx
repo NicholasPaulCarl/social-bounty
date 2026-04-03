@@ -106,7 +106,7 @@ export default function AdminUsersPage() {
           />
         </>
       ) : (
-        <EmptyState icon="pi-users" title="No users found" message="No users match your current filters." />
+        <EmptyState icon="pi-users" title="No users found" message="Try broadening your search." />
       )}
     </div>
   );

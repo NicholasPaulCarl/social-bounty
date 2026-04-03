@@ -57,7 +57,7 @@ export default function SignupPage() {
         firstName: form.firstName,
         lastName: form.lastName,
       });
-      showSuccess('Account created! Please check your email to verify your account.');
+      showSuccess('Welcome aboard! Check your email to verify and start hunting.');
       router.push('/login');
     } catch (err) {
       if (err instanceof ApiError) {

@@ -165,9 +165,9 @@ export default function BountyDetailPage() {
   async function handleWithdraw() {
     try {
       await withdrawMutation.mutateAsync();
-      showSuccess('Application withdrawn.');
+      showSuccess('Application withdrawn. On to the next hunt.');
     } catch (err) {
-      showError(err instanceof ApiError ? err.message : 'Failed to withdraw application.');
+      showError(err instanceof ApiError ? err.message : 'Couldn\'t withdraw application. Try again.');
     }
   }
 
@@ -175,9 +175,9 @@ export default function BountyDetailPage() {
     if (!myInvitation) return;
     try {
       await acceptMutation.mutateAsync(myInvitation.id);
-      showSuccess('Invitation accepted! You can now submit proof.');
+      showSuccess('You\'re in! Time to drop your proof.');
     } catch (err) {
-      showError(err instanceof ApiError ? err.message : 'Failed to accept invitation.');
+      showError(err instanceof ApiError ? err.message : 'Couldn\'t accept invitation. Try again.');
     }
   }
 
@@ -185,9 +185,9 @@ export default function BountyDetailPage() {
     if (!myInvitation) return;
     try {
       await declineMutation.mutateAsync(myInvitation.id);
-      showSuccess('Invitation declined.');
+      showSuccess('Invitation declined. No worries.');
     } catch (err) {
-      showError(err instanceof ApiError ? err.message : 'Failed to decline invitation.');
+      showError(err instanceof ApiError ? err.message : 'Couldn\'t decline invitation. Try again.');
     }
   }
 

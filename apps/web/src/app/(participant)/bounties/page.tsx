@@ -128,8 +128,8 @@ export default function BrowseBountiesPage() {
         {!isLoading && !error && sortedData.length === 0 && (
           <EmptyState
             icon="pi-search"
-            title="No bounties match your filters"
-            message="Try adjusting your search criteria or check back later."
+            title="No bounties in sight"
+            message="Fresh hunts get added daily — adjust your filters or check back soon."
             ctaLabel="Clear Filters"
             ctaAction={() => {
               setFilters({ page: 1, limit, status: BountyStatus.LIVE });

@@ -59,7 +59,7 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-text-secondary">
-          Upload logos, banners, and brand guidelines for participants to download.
+          Upload logos, banners, and brand guidelines for Hunters to download.
         </p>
         <span className="text-sm text-text-muted whitespace-nowrap ml-4">
           {totalFiles} / {BRAND_ASSET_LIMITS.MAX_FILES_PER_BOUNTY} files

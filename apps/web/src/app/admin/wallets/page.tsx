@@ -72,7 +72,7 @@ export default function AdminWalletsPage() {
       {error && <ErrorState error={error} onRetry={() => refetch()} />}
 
       {!isLoading && !error && data && data.data.length === 0 && (
-        <EmptyState icon="pi-wallet" title="No wallets found" message="No wallets match your search." />
+        <EmptyState icon="pi-wallet" title="No wallets found" message="Try adjusting your search." />
       )}
 
       {!isLoading && !error && data && data.data.length > 0 && (

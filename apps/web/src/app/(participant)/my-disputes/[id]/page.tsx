@@ -66,7 +66,7 @@ export default function DisputeDetailPage() {
           setMessageContent('');
           showSuccess('Message sent');
         },
-        onError: () => showError('Failed to send message'),
+        onError: () => showError('Couldn\'t send message. Try again.'),
       },
     );
   }
@@ -79,9 +79,9 @@ export default function DisputeDetailPage() {
         onSuccess: () => {
           setEscalateDialogOpen(false);
           setEscalateReason('');
-          showSuccess('Dispute escalated');
+          showSuccess('Bumped to our team for review.');
         },
-        onError: () => showError('Failed to escalate dispute'),
+        onError: () => showError('Couldn\'t escalate dispute. Try again.'),
       },
     );
   }
@@ -92,10 +92,10 @@ export default function DisputeDetailPage() {
       {
         onSuccess: () => {
           setWithdrawDialogOpen(false);
-          showSuccess('Dispute withdrawn');
+          showSuccess('Dispute withdrawn. Case closed.');
           router.push('/my-disputes');
         },
-        onError: () => showError('Failed to withdraw dispute'),
+        onError: () => showError('Couldn\'t withdraw dispute. Try again.'),
       },
     );
   }

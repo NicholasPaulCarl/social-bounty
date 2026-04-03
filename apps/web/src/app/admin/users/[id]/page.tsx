@@ -90,7 +90,7 @@ export default function AdminUserDetailPage() {
           setShowActivate(false);
           refetch();
         },
-        onError: () => toast.showError('Failed to update user status'),
+        onError: () => toast.showError('Couldn\'t update user status. Try again.'),
       },
     );
   };
@@ -103,7 +103,7 @@ export default function AdminUserDetailPage() {
           toast.showSuccess('Password reset initiated');
           setShowForceReset(false);
         },
-        onError: () => toast.showError('Failed to reset password'),
+        onError: () => toast.showError('Couldn\'t reset password. Try again.'),
       },
     );
   };

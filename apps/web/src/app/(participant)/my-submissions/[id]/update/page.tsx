@@ -82,14 +82,14 @@ export default function UpdateSubmissionPage() {
         },
         images: images.length > 0 ? images : undefined,
       });
-      showSuccess('Submission updated successfully!');
+      showSuccess('Submission updated.');
       router.push(`/my-submissions/${id}`);
     } catch (err) {
       if (err instanceof ApiError) {
         showError(err.message);
         setError(err.message);
       } else {
-        showError('Failed to update submission');
+        showError('Couldn\'t update submission. Try again.');
       }
     }
   };

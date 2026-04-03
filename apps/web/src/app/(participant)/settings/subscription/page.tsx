@@ -78,7 +78,7 @@ export default function SubscriptionPage() {
   const handleSubscribe = () => {
     subscribe.mutate(undefined, {
       onSuccess: () => toast.showSuccess('Welcome to Pro! Your perks are now active.'),
-      onError: (err) => toast.showError((err as Error).message || 'Failed to subscribe'),
+      onError: (err) => toast.showError((err as Error).message || 'Couldn\'t subscribe. Try again.'),
     });
   };
 
@@ -88,14 +88,14 @@ export default function SubscriptionPage() {
         toast.showSuccess('Subscription cancelled. Pro features active until period end.');
         setShowCancel(false);
       },
-      onError: (err) => toast.showError((err as Error).message || 'Failed to cancel'),
+      onError: (err) => toast.showError((err as Error).message || 'Couldn\'t cancel. Try again.'),
     });
   };
 
   const handleReactivate = () => {
     reactivate.mutate(undefined, {
       onSuccess: () => toast.showSuccess('Subscription reactivated! Pro features restored.'),
-      onError: (err) => toast.showError((err as Error).message || 'Failed to reactivate'),
+      onError: (err) => toast.showError((err as Error).message || 'Couldn\'t reactivate. Try again.'),
     });
   };
 
@@ -117,7 +117,7 @@ export default function SubscriptionPage() {
     <div className="animate-fade-up">
       <PageHeader
         title="Subscription"
-        subtitle="Manage your plan and billing"
+        subtitle="Your plan and perks"
         breadcrumbs={[{ label: 'Settings' }, { label: 'Subscription' }]}
       />
 

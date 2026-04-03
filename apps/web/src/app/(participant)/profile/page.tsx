@@ -82,7 +82,7 @@ export default function ProfilePage() {
 
     try {
       await changePassword.mutateAsync({ currentPassword, newPassword });
-      showSuccess('Password changed successfully!');
+      showSuccess('Password updated. You\'re secure.');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmNewPassword('');

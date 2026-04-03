@@ -100,7 +100,7 @@ export default function AdminOrganisationsPage() {
         <EmptyState
           icon="pi-building"
           title="No organisations found"
-          message="No organisations match your current filters."
+          message="Nothing matches your current filters."
         />
       )}
     </div>

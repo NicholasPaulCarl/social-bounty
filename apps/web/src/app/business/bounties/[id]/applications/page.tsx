@@ -46,7 +46,7 @@ export default function ApplicationsPage() {
       showSuccess(`Application from ${confirmApprove.userName} approved.`);
       setConfirmApprove(null);
     } catch (err) {
-      showError(err instanceof ApiError ? err.message : 'Failed to approve application.');
+      showError(err instanceof ApiError ? err.message : 'Couldn\'t approve application. Try again.');
     }
   }
 
@@ -57,7 +57,7 @@ export default function ApplicationsPage() {
       showSuccess(`Application from ${confirmReject.userName} rejected.`);
       setConfirmReject(null);
     } catch (err) {
-      showError(err instanceof ApiError ? err.message : 'Failed to reject application.');
+      showError(err instanceof ApiError ? err.message : 'Couldn\'t reject application. Try again.');
     }
   }
 
@@ -135,7 +135,7 @@ export default function ApplicationsPage() {
               <i className="pi pi-inbox text-2xl text-text-muted" />
             </div>
             <p className="text-text-secondary font-medium">No applications yet</p>
-            <p className="text-text-muted text-sm mt-1">Applications will appear here once hunters apply.</p>
+            <p className="text-text-muted text-sm mt-1">Applications will appear here once Hunters claim a spot.</p>
           </div>
         ) : (
           <DataTable

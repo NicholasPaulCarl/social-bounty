@@ -111,10 +111,10 @@ export default function NewDisputePage() {
       },
       {
         onSuccess: (dispute) => {
-          showSuccess('Dispute filed successfully');
+          showSuccess('Dispute raised. We\'re looking into it.');
           router.push(`/my-disputes/${dispute.id}`);
         },
-        onError: () => showError('Failed to file dispute. Please try again.'),
+        onError: () => showError('Couldn\'t file dispute. Try again.'),
       },
     );
   }
@@ -128,7 +128,7 @@ export default function NewDisputePage() {
     <>
       <PageHeader
         title="File a Dispute"
-        subtitle="Raise a formal dispute about a submission or payment"
+        subtitle="Got an issue? Raise it here."
         breadcrumbs={breadcrumbs}
       />
 

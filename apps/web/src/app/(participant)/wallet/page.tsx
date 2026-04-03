@@ -35,7 +35,7 @@ export default function WalletPage() {
   if (!data) {
     return (
       <>
-        <PageHeader title="Wallet" subtitle="Manage your earnings and withdrawals" />
+        <PageHeader title="Wallet" subtitle="Your earnings — cash out anytime" />
         <div className="glass-card p-12 text-center animate-fade-up">
           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-accent-emerald/10 mx-auto mb-4">
             <i className="pi pi-wallet text-accent-emerald text-2xl" />
@@ -54,7 +54,7 @@ export default function WalletPage() {
     <>
       <PageHeader
         title="Wallet"
-        subtitle="Manage your earnings and withdrawals"
+        subtitle="Your earnings — cash out anytime"
         actions={
           <Button
             label="Withdraw"

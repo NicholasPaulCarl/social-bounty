@@ -33,7 +33,7 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
     ? 'Super Admin'
     : user?.role === 'BUSINESS_ADMIN'
       ? 'Business Admin'
-      : 'Participant';
+      : 'Hunter';
 
   const userMenuItems: MenuItem[] = [
     {

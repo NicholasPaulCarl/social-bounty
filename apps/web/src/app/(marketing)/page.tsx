@@ -47,8 +47,8 @@ function useCountUp(target: number, duration = 1200, active = false) {
    ═══════════════════════════════════════════════════════════════ */
 
 const STEPS = [
-  { num: '01', icon: '01', title: 'Post a bounty', desc: 'Define the task, set the reward, hit publish. Hunters see it instantly.' },
-  { num: '02', icon: '02', title: 'Hunters deliver', desc: 'Real people complete your task and submit proof. Submissions roll in daily.' },
+  { num: '01', icon: '01', title: 'Post a bounty', desc: 'Define the bounty, set the reward, hit publish. Hunters see it instantly.' },
+  { num: '02', icon: '02', title: 'Hunters deliver', desc: 'Real people complete your bounty and submit proof. Submissions roll in daily.' },
   { num: '03', icon: '03', title: 'Review & reward', desc: 'Approve what you love. Pay only for results. That\'s it.' },
 ];
 

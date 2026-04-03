@@ -43,7 +43,7 @@ export default function GlobalError({
                 marginBottom: '0.75rem',
               }}
             >
-              Critical Error
+              Something Broke
             </h1>
             <p
               style={{
@@ -52,7 +52,7 @@ export default function GlobalError({
                 lineHeight: 1.6,
               }}
             >
-              {error.message || 'A critical error occurred. Please try again.'}
+              {error.message || 'Not your fault. We\'re on it \u2014 try again in a moment.'}
             </p>
             <button
               onClick={reset}

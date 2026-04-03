@@ -157,10 +157,10 @@ export default function ProfileEditPage() {
 
     try {
       await uploadPicture.mutateAsync(file);
-      showSuccess('Profile picture updated!');
+      showSuccess('Looking fresh!');
     } catch (err) {
       if (err instanceof ApiError) showError(err.message);
-      else showError('Failed to upload picture.');
+      else showError('Couldn\'t upload picture. Try again.');
     }
     // reset so the same file can be re-selected
     e.target.value = '';
@@ -169,10 +169,10 @@ export default function ProfileEditPage() {
   const handleDeletePicture = async () => {
     try {
       await deletePicture.mutateAsync();
-      showSuccess('Profile picture removed.');
+      showSuccess('Profile pic removed.');
     } catch (err) {
       if (err instanceof ApiError) showError(err.message);
-      else showError('Failed to remove picture.');
+      else showError('Couldn\'t remove picture. Try again.');
     }
   };
 
@@ -196,14 +196,14 @@ export default function ProfileEditPage() {
         ),
       );
 
-      showSuccess('Profile saved!');
+      showSuccess('Profile locked in.');
 
       if (isWelcome) {
         router.push('/profile');
       }
     } catch (err) {
       if (err instanceof ApiError) showError(err.message);
-      else showError('Failed to save profile. Please try again.');
+      else showError('Couldn\'t save profile. Try again.');
     }
   };
 

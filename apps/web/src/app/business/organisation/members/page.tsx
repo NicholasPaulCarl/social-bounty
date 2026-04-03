@@ -40,12 +40,12 @@ export default function OrganisationMembersPage() {
       { email: inviteEmail.trim() },
       {
         onSuccess: () => {
-          toast.showSuccess('Member invited successfully');
+          toast.showSuccess('Invite sent!');
           setShowInvite(false);
           setInviteEmail('');
           refetch();
         },
-        onError: () => toast.showError('Failed to invite member'),
+        onError: () => toast.showError('Couldn\'t invite member. Try again.'),
       },
     );
   };
@@ -54,11 +54,11 @@ export default function OrganisationMembersPage() {
     if (!removeUserId) return;
     removeMember.mutate(removeUserId, {
       onSuccess: () => {
-        toast.showSuccess('Member removed');
+        toast.showSuccess('Member removed from your team.');
         setRemoveUserId(null);
         refetch();
       },
-      onError: () => toast.showError('Failed to remove member'),
+      onError: () => toast.showError('Couldn\'t remove member. Try again.'),
     });
   };
 

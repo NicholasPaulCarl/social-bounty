@@ -24,7 +24,7 @@ export default function CreateBountyPage() {
         await bountyApi.uploadBrandAssets(bountyId, stagedFilesRef.current);
       } catch {
         // Non-blocking: brand asset upload failure shouldn't prevent navigation
-        toast.showError('Brand assets failed to upload. You can re-upload from the edit page.');
+        toast.showError('Couldn\'t upload brand assets. You can re-upload from the edit page.');
       }
     }
   };
@@ -35,11 +35,11 @@ export default function CreateBountyPage() {
     createBounty.mutate(data, {
       onSuccess: async (res) => {
         await uploadStagedFiles(res.id);
-        toast.showSuccess('Bounty created successfully');
+        toast.showSuccess('Bounty created! Ready to go live.');
         router.push(`/business/bounties/${res.id}`);
       },
       onError: () => {
-        setFormError('Failed to create bounty. Please try again.');
+        setFormError('Couldn\'t create bounty. Try again.');
       },
     });
   };
@@ -50,11 +50,11 @@ export default function CreateBountyPage() {
     createBounty.mutate(data, {
       onSuccess: async (res) => {
         await uploadStagedFiles(res.id);
-        toast.showSuccess('Draft saved successfully');
+        toast.showSuccess('Draft saved. Pick it up anytime.');
         router.push(`/business/bounties/${res.id}`);
       },
       onError: () => {
-        setFormError('Failed to save draft. Please try again.');
+        setFormError('Couldn\'t save draft. Try again.');
       },
     });
   };

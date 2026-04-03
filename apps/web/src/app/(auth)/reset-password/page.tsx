@@ -55,7 +55,7 @@ function ResetPasswordForm() {
 
     try {
       await authApi.resetPassword({ token, newPassword: password });
-      showSuccess('Password reset successfully! Please sign in.');
+      showSuccess('Password reset. You\'re ready to sign back in.');
       router.push('/login');
     } catch (err) {
       if (err instanceof ApiError) {

@@ -50,10 +50,10 @@ export default function EditOrganisationPage() {
       { data: { name: name.trim(), contactEmail: contactEmail.trim() }, logo },
       {
         onSuccess: () => {
-          toast.showSuccess('Organisation updated successfully');
+          toast.showSuccess('Organisation updated.');
           router.push('/business/organisation');
         },
-        onError: () => setFormError('Failed to update organisation. Please try again.'),
+        onError: () => setFormError('Couldn\'t update organisation. Try again.'),
       },
     );
   };

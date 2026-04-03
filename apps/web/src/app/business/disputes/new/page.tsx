@@ -111,10 +111,10 @@ export default function NewBusinessDisputePage() {
     };
     createDispute.mutate(payload, {
       onSuccess: (res) => {
-        toast.showSuccess('Dispute filed successfully');
+        toast.showSuccess('Dispute raised. We\'re looking into it.');
         router.push(`/business/disputes/${res.id}`);
       },
-      onError: () => toast.showError('Failed to file dispute. Please try again.'),
+      onError: () => toast.showError('Couldn\'t file dispute. Try again.'),
     });
   };
 

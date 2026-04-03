@@ -32,10 +32,10 @@ export default function AdminCreateOrganisationPage() {
       { name: name.trim(), contactEmail: contactEmail.trim(), ownerUserId: ownerUserId.trim() },
       {
         onSuccess: () => {
-          toast.showSuccess('Organisation created successfully');
+          toast.showSuccess('Organisation created.');
           router.push('/admin/organisations');
         },
-        onError: () => setFormError('Failed to create organisation. Please try again.'),
+        onError: () => setFormError('Couldn\'t create organisation. Try again.'),
       },
     );
   };

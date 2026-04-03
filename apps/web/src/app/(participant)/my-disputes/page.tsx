@@ -39,7 +39,7 @@ export default function MyDisputesPage() {
     <>
       <PageHeader
         title="My Disputes"
-        subtitle="Track and manage your filed disputes"
+        subtitle="Track your open disputes"
         actions={
           <Button
             label="File a Dispute"
@@ -61,8 +61,8 @@ export default function MyDisputesPage() {
       {!isLoading && !error && data && data.data.length === 0 && (
         <EmptyState
           icon="pi-flag"
-          title="You have no disputes"
-          message="If you have an issue with a submission or payment, you can file a dispute."
+          title="All clear"
+          message="No disputes on file. We've got your back if you ever need one."
           ctaLabel="File a Dispute"
           ctaAction={() => router.push('/my-disputes/new')}
           ctaIcon="pi-plus"

@@ -33,11 +33,11 @@ export default function EditBountyPage() {
     setFormError('');
     updateBounty.mutate(data as UpdateBountyRequest, {
       onSuccess: () => {
-        toast.showSuccess('Bounty updated successfully');
+        toast.showSuccess('Bounty updated.');
         router.push(`/business/bounties/${id}`);
       },
       onError: () => {
-        setFormError('Failed to update bounty. Please try again.');
+        setFormError('Couldn\'t update bounty. Try again.');
       },
     });
   };
@@ -47,11 +47,11 @@ export default function EditBountyPage() {
     setFormError('');
     updateBounty.mutate(data as UpdateBountyRequest, {
       onSuccess: () => {
-        toast.showSuccess('Draft saved successfully');
+        toast.showSuccess('Draft saved. Pick it up anytime.');
         router.push(`/business/bounties/${id}`);
       },
       onError: () => {
-        setFormError('Failed to save draft. Please try again.');
+        setFormError('Couldn\'t save draft. Try again.');
       },
     });
   };

@@ -135,13 +135,13 @@ export default function ReviewCenterPage() {
     <div className="animate-fade-up">
       <PageHeader
         title="Review Center"
-        subtitle="Review and manage participant submissions"
+        subtitle="Review Hunter submissions"
         breadcrumbs={breadcrumbs}
         toolbar={{
           search: {
             value: search,
             onChange: setSearch,
-            placeholder: 'Search participant...',
+            placeholder: 'Search hunter...',
           },
           filters: [
             { key: 'status', placeholder: 'Filter by status', options: statusOptions, ariaLabel: 'Filter by status', className: 'w-full sm:w-48' },
@@ -172,15 +172,15 @@ export default function ReviewCenterPage() {
       {!isLoading && !error && data && data.data.length === 0 && (
         <EmptyState
           icon="pi-inbox"
-          title="No submissions to review"
-          message="All caught up! New submissions will appear here."
+          title="All caught up!"
+          message="New submissions will appear here when Hunters drop their proof."
         />
       )}
 
       {!isLoading && !error && data && data.data.length > 0 && (
         <>
           <DataTable value={data.data} stripedRows aria-label="Submission review queue">
-            <Column header="Participant" body={participantTemplate} />
+            <Column header="Hunter" body={participantTemplate} />
             <Column header="Bounty" body={bountyTemplate} />
             <Column header="Status" body={statusTemplate} />
             <Column header="Submitted" body={dateTemplate} sortable sortField="createdAt" />

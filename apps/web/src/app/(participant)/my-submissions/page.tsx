@@ -143,7 +143,7 @@ export default function MySubmissionsPage() {
         <EmptyState
           icon="pi-list"
           title="No submissions yet"
-          message="Browse bounties and submit proof to get started."
+          message="Hunt a bounty, drop your proof, and claim the reward."
           ctaLabel="Browse Bounties"
           ctaAction={() => router.push('/bounties')}
           ctaIcon="pi-search"

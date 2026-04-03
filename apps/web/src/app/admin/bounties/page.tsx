@@ -127,7 +127,7 @@ export default function AdminBountiesPage() {
           />
         </>
       ) : (
-        <EmptyState icon="pi-megaphone" title="No bounties found" message="No bounties match your current filters." />
+        <EmptyState icon="pi-megaphone" title="No bounties found" message="Nothing matches your current filters." />
       )}
     </>
   );

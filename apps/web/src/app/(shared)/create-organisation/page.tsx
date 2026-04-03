@@ -41,7 +41,7 @@ export default function CreateOrganisationPage() {
         setError(err.message);
         showError(err.message);
       } else {
-        showError('Failed to create organisation');
+        showError('Couldn\'t create organisation. Try again.');
       }
     }
   };

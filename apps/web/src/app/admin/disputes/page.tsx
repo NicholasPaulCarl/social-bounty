@@ -197,7 +197,7 @@ export default function AdminDisputesPage() {
           />
         </>
       ) : (
-        <EmptyState icon="pi-flag" title="No disputes found" message="No disputes match your current filters." />
+        <EmptyState icon="pi-flag" title="All clear" message="No disputes to review right now." />
       )}
     </div>
   );

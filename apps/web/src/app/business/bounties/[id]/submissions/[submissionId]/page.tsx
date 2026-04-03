@@ -38,7 +38,7 @@ export default function BusinessSubmissionReviewPage() {
           toast.showSuccess(`Submission ${action.toLowerCase().replace('_', ' ')}`);
           refetch();
         },
-        onError: () => toast.showError('Failed to review submission'),
+        onError: () => toast.showError('Couldn\'t review submission. Try again.'),
       },
     );
   };
@@ -51,7 +51,7 @@ export default function BusinessSubmissionReviewPage() {
           toast.showSuccess(`Payout marked as ${newStatus.toLowerCase()}`);
           refetch();
         },
-        onError: () => toast.showError('Failed to update payout'),
+        onError: () => toast.showError('Couldn\'t update payout. Try again.'),
       },
     );
   };
@@ -146,7 +146,7 @@ export default function BusinessSubmissionReviewPage() {
             <h3 className="text-lg font-semibold text-text-primary mb-4">Details</h3>
             <dl className="space-y-3">
               <div>
-                <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Participant</dt>
+                <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Hunter</dt>
                 <dd className="text-sm font-medium text-text-primary">{submission.user ? `${submission.user.firstName} ${submission.user.lastName}` : 'Unknown'}</dd>
               </div>
               <div>

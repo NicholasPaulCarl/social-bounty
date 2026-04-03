@@ -158,7 +158,7 @@ export default function AdminWithdrawalsPage() {
       {error && <ErrorState error={error} onRetry={() => refetch()} />}
 
       {!isLoading && !error && withdrawals.length === 0 && (
-        <EmptyState icon="pi-money-bill" title="No withdrawals found" message="No withdrawal requests match the current filter." />
+        <EmptyState icon="pi-money-bill" title="No payouts pending" message="All squared up — no withdrawal requests in this view." />
       )}
 
       {!isLoading && !error && withdrawals.length > 0 && (

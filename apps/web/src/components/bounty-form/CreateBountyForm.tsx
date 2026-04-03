@@ -161,7 +161,7 @@ export function CreateBountyForm({
                 onChange={(e) => dispatch({ type: 'SET_FULL_INSTRUCTIONS', payload: e.target.value })}
                 rows={5}
                 className={`w-full ${state.submitAttempted && state.errors.fullInstructions ? 'p-invalid' : ''}`}
-                placeholder="Detailed step-by-step instructions for participants"
+                placeholder="Detailed step-by-step instructions for Hunters"
                 disabled={isLocked}
               />
               {state.submitAttempted && state.errors.fullInstructions && (

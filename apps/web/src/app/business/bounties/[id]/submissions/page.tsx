@@ -69,7 +69,7 @@ export default function BountySubmissionsPage() {
         <>
           <div className="glass-card p-6">
             <DataTable value={data.data} stripedRows>
-              <Column header="Participant" body={(rowData: SubmissionReviewListItem) => `${rowData.user.firstName} ${rowData.user.lastName}`} />
+              <Column header="Hunter" body={(rowData: SubmissionReviewListItem) => `${rowData.user.firstName} ${rowData.user.lastName}`} />
               <Column header="Status" body={statusTemplate} />
               <Column header="Payout" body={payoutTemplate} />
               <Column header="Submitted" body={dateTemplate} />
@@ -87,8 +87,8 @@ export default function BountySubmissionsPage() {
       ) : (
         <EmptyState
           icon="pi-inbox"
-          title="No submissions yet"
-          message="No participants have submitted proof for this bounty yet."
+          title="Waiting on Hunters"
+          message="Share your bounty to get the submissions flowing."
         />
       )}
     </div>

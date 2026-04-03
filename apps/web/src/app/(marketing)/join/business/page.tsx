@@ -93,7 +93,7 @@ const HOW_STEPS = [
     n: 1,
     icon: '1',
     title: 'Create a bounty',
-    body: 'Write your brief: platform, task, requirements, and reward. Takes five minutes. Our guided form keeps it clear and Hunter-friendly.',
+    body: 'Write your brief: platform, bounty details, requirements, and reward. Takes five minutes. Our guided form keeps it clear and Hunter-friendly.',
   },
   {
     n: 2,

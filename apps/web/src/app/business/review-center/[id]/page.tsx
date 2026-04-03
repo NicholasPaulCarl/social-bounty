@@ -37,7 +37,7 @@ export default function ReviewCenterDetailPage() {
           toast.showSuccess(`Submission ${action.toLowerCase().replace('_', ' ')}`);
           refetch();
         },
-        onError: () => toast.showError('Failed to review submission'),
+        onError: () => toast.showError('Couldn\'t review submission. Try again.'),
       },
     );
   };
@@ -50,7 +50,7 @@ export default function ReviewCenterDetailPage() {
           toast.showSuccess(`Payout marked as ${newStatus.toLowerCase()}`);
           refetch();
         },
-        onError: () => toast.showError('Failed to update payout'),
+        onError: () => toast.showError('Couldn\'t update payout. Try again.'),
       },
     );
   };
@@ -191,7 +191,7 @@ export default function ReviewCenterDetailPage() {
         <div className="space-y-6">
           {/* Participant Info */}
           <div className="glass-card p-6">
-            <h3 className="text-lg font-semibold text-text-primary mb-4">Participant</h3>
+            <h3 className="text-lg font-semibold text-text-primary mb-4">Hunter</h3>
             <dl className="space-y-3">
               <div>
                 <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Name</dt>

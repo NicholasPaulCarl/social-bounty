@@ -165,8 +165,8 @@ export default function BusinessDisputesPage() {
       ) : (
         <EmptyState
           icon="pi-flag"
-          title="No disputes found"
-          message="No disputes match your current filters, or your organisation has no disputes yet."
+          title="All clear"
+          message="No disputes on file. That's a good sign."
           ctaLabel="File a Dispute"
           ctaAction={() => router.push('/business/disputes/new')}
         />

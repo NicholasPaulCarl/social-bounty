@@ -58,7 +58,7 @@ export default function BusinessBountyDetailPage() {
         setClientSecret(secret);
         setShowPayment(true);
       } catch {
-        toast.showError('Failed to create payment. Please try again.');
+        toast.showError('Couldn\'t create payment. Try again.');
       } finally {
         setPaymentLoading(false);
       }
@@ -67,11 +67,11 @@ export default function BusinessBountyDetailPage() {
 
     updateStatus.mutate(newStatus as BountyStatus, {
       onSuccess: () => {
-        toast.showSuccess(`Bounty status updated to ${formatEnumLabel(newStatus)}`);
+        toast.showSuccess(`Bounty is now ${formatEnumLabel(newStatus)}.`);
         setStatusAction(null);
         refetch();
       },
-      onError: () => toast.showError('Failed to update status'),
+      onError: () => toast.showError('Couldn\'t update status. Try again.'),
     });
   };
 
@@ -84,17 +84,17 @@ export default function BusinessBountyDetailPage() {
         toast.showSuccess('Payment successful! Bounty is now live.');
         refetch();
       },
-      onError: () => toast.showError('Payment succeeded but failed to update status. Please try again.'),
+      onError: () => toast.showError('Payment went through but couldn\'t update status. Try again.'),
     });
   };
 
   const handleDelete = () => {
     deleteBounty.mutate(id, {
       onSuccess: () => {
-        toast.showSuccess('Bounty deleted');
+        toast.showSuccess('Bounty removed.');
         router.push('/business/bounties');
       },
-      onError: () => toast.showError('Failed to delete bounty'),
+      onError: () => toast.showError('Couldn\'t delete bounty. Try again.'),
     });
   };
 

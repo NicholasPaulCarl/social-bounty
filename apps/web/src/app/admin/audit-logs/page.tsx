@@ -124,7 +124,7 @@ export default function AdminAuditLogsPage() {
           />
         </>
       ) : (
-        <EmptyState icon="pi-history" title="No audit logs found" message="No audit log entries match your current filters." />
+        <EmptyState icon="pi-history" title="No activity" message="No audit entries match your filters." />
       )}
     </div>
   );

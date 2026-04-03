@@ -106,7 +106,7 @@ export default function InvitationsPage() {
       showSuccess(`Invitation sent to @${trimmed} on ${PLATFORM_LABELS[platform]}.`);
       setHandle('');
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Failed to send invitation.';
+      const msg = err instanceof ApiError ? err.message : 'Couldn\'t send invitation. Try again.';
       setFormError(msg);
       showError(msg);
     }

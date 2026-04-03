@@ -123,7 +123,7 @@ export default function BusinessDisputeDetailPage() {
           setReplyText('');
           refetch();
         },
-        onError: () => toast.showError('Failed to send response'),
+        onError: () => toast.showError('Couldn\'t send response. Try again.'),
       },
     );
   };
@@ -133,11 +133,11 @@ export default function BusinessDisputeDetailPage() {
       { reason: reason ?? '' },
       {
         onSuccess: () => {
-          toast.showSuccess('Dispute escalated');
+          toast.showSuccess('Bumped to our team for review.');
           setShowEscalate(false);
           refetch();
         },
-        onError: () => toast.showError('Failed to escalate dispute'),
+        onError: () => toast.showError('Couldn\'t escalate dispute. Try again.'),
       },
     );
   };

@@ -83,7 +83,7 @@ export default function TransactionsPage() {
     <>
       <PageHeader
         title="Transaction History"
-        subtitle="Full ledger of all wallet activity"
+        subtitle="All your earnings and payouts"
         breadcrumbs={[{ label: 'Wallet', url: '/wallet' }, { label: 'Transactions' }]}
         toolbar={{
           filters: [
@@ -106,8 +106,8 @@ export default function TransactionsPage() {
       {!isLoading && !error && data && data.data.length === 0 && (
         <EmptyState
           icon="pi-list"
-          title="No transactions found"
-          message="No transactions match your current filters."
+          title="Nothing here yet"
+          message="Your earnings history will show up once you start hunting."
         />
       )}
 

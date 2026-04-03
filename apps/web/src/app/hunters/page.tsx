@@ -155,7 +155,7 @@ export default function HuntersDirectoryPage() {
     <div className="animate-fade-up">
       <PageHeader
         title="Hunter Directory"
-        subtitle="Browse and discover talented creators"
+        subtitle="Browse and discover talented Hunters"
       />
 
       {/* Search */}

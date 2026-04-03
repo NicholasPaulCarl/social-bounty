@@ -54,7 +54,7 @@ export default function AdminSubmissionDetailPage() {
           setShowSubmissionOverride(false);
           refetch();
         },
-        onError: () => toast.showError('Failed to override submission status'),
+        onError: () => toast.showError('Couldn\'t override submission status. Try again.'),
       },
     );
   };
@@ -68,7 +68,7 @@ export default function AdminSubmissionDetailPage() {
           setShowPayoutOverride(false);
           refetch();
         },
-        onError: () => toast.showError('Failed to override payout status'),
+        onError: () => toast.showError('Couldn\'t override payout status. Try again.'),
       },
     );
   };

@@ -48,7 +48,7 @@ export default function BusinessProfilePage() {
           toast.showSuccess('Profile updated');
           refetch();
         },
-        onError: () => setProfileError('Failed to update profile'),
+        onError: () => setProfileError('Couldn\'t update profile. Try again.'),
       },
     );
   };
@@ -70,7 +70,7 @@ export default function BusinessProfilePage() {
       { currentPassword, newPassword },
       {
         onSuccess: () => {
-          toast.showSuccess('Password changed successfully');
+          toast.showSuccess('Password updated. You\'re secure.');
           setCurrentPassword('');
           setNewPassword('');
           setConfirmPassword('');

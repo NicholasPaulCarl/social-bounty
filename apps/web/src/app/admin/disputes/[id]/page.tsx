@@ -218,7 +218,7 @@ export default function AdminDisputeDetailPage() {
           setIsInternalNote(false);
           refetch();
         },
-        onError: () => toast.showError('Failed to send message'),
+        onError: () => toast.showError('Couldn\'t send message. Try again.'),
       },
     );
   };
@@ -234,7 +234,7 @@ export default function AdminDisputeDetailPage() {
           setStatusNote('');
           refetch();
         },
-        onError: () => toast.showError('Failed to change status'),
+        onError: () => toast.showError('Couldn\'t change status. Try again.'),
       },
     );
   };
@@ -249,7 +249,7 @@ export default function AdminDisputeDetailPage() {
           setAssignedToId('');
           refetch();
         },
-        onError: () => toast.showError('Failed to assign dispute'),
+        onError: () => toast.showError('Couldn\'t assign dispute. Try again.'),
       },
     );
   };
@@ -264,7 +264,7 @@ export default function AdminDisputeDetailPage() {
           setShowResolveConfirm(false);
           refetch();
         },
-        onError: () => toast.showError('Failed to resolve dispute'),
+        onError: () => toast.showError('Couldn\'t resolve dispute. Try again.'),
       },
     );
   };
@@ -274,11 +274,11 @@ export default function AdminDisputeDetailPage() {
       { reason: reason ?? '' },
       {
         onSuccess: () => {
-          toast.showSuccess('Dispute escalated');
+          toast.showSuccess('Bumped to our team for review.');
           setShowEscalate(false);
           refetch();
         },
-        onError: () => toast.showError('Failed to escalate'),
+        onError: () => toast.showError('Couldn\'t escalate. Try again.'),
       },
     );
   };
@@ -292,7 +292,7 @@ export default function AdminDisputeDetailPage() {
           setShowForceClose(false);
           refetch();
         },
-        onError: () => toast.showError('Failed to force close'),
+        onError: () => toast.showError('Couldn\'t force close. Try again.'),
       },
     );
   };

@@ -285,7 +285,7 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
           <div className="glass-card p-5 flex flex-col gap-3">
             <p className="text-sm font-heading font-semibold text-text-primary">Work with this hunter</p>
             <p className="text-xs text-text-secondary">
-              Invite this creator to one of your active bounties.
+              Invite this Hunter to one of your active bounties.
             </p>
             <Button
               label="Invite to Bounty"

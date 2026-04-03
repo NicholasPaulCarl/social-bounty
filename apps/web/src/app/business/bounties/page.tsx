@@ -65,11 +65,11 @@ export default function BusinessBountiesPage() {
     if (!deleteId) return;
     deleteBounty.mutate(deleteId, {
       onSuccess: () => {
-        toast.showSuccess('Bounty deleted successfully');
+        toast.showSuccess('Bounty removed.');
         setDeleteId(null);
         refetch();
       },
-      onError: () => toast.showError('Failed to delete bounty'),
+      onError: () => toast.showError('Couldn\'t delete bounty. Try again.'),
     });
   };
 
@@ -84,7 +84,7 @@ export default function BusinessBountiesPage() {
         setClientSecret(secret);
         setShowPayment(true);
       } catch {
-        toast.showError('Failed to create payment. Please try again.');
+        toast.showError('Couldn\'t create payment. Try again.');
       } finally {
         setPaymentLoading(false);
       }
@@ -93,11 +93,11 @@ export default function BusinessBountiesPage() {
 
     bountyApi.updateStatus(id, { status: newStatus as BountyStatus })
       .then(() => {
-        toast.showSuccess(`Bounty status updated to ${formatEnumLabel(newStatus)}`);
+        toast.showSuccess(`Bounty is now ${formatEnumLabel(newStatus)}.`);
         setStatusAction(null);
         refetch();
       })
-      .catch(() => toast.showError('Failed to update status'));
+      .catch(() => toast.showError('Couldn\'t update status. Try again.'));
   };
 
   const handlePaymentSuccess = () => {
@@ -110,7 +110,7 @@ export default function BusinessBountiesPage() {
         setPaymentBounty(null);
         refetch();
       })
-      .catch(() => toast.showError('Payment succeeded but failed to update status. Please try again.'));
+      .catch(() => toast.showError('Payment went through but couldn\'t update status. Try again.'));
   };
 
   const getStatusActions = (rowData: BountyListItem) => {
@@ -255,7 +255,7 @@ export default function BusinessBountiesPage() {
         <EmptyState
           icon="pi-megaphone"
           title="No bounties yet"
-          message="Create your first bounty to start attracting participants."
+          message="Drop your first bounty and watch the Hunters roll in."
           ctaLabel="Create Bounty"
           ctaAction={() => router.push('/business/bounties/new')}
         />

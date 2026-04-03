@@ -54,14 +54,14 @@ export default function SubmitProofPage() {
         },
         images: images.length > 0 ? images : undefined,
       });
-      showSuccess('Submission created successfully!');
+      showSuccess('Proof dropped! Your submission is in the review queue.');
       router.push('/my-submissions');
     } catch (err) {
       if (err instanceof ApiError) {
         showError(err.message);
         setError(err.message);
       } else {
-        showError('Failed to create submission');
+        showError('Couldn\'t create submission. Try again.');
       }
     }
   };
