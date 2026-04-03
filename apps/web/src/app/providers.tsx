@@ -9,7 +9,7 @@ import { queryClient } from '@/lib/query-client';
 import { AuthProvider } from '@/lib/auth/AuthContext';
 import { setGlobalToast } from '@/hooks/useToast';
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children }: { children: React.ReactNode | any }) {
   const toastRef = useRef<Toast>(null);
 
   return (
