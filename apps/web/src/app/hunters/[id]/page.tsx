@@ -1,6 +1,7 @@
 'use client';
 
-import { use } from 'react';
+
+
 import Image from 'next/image';
 import { Button } from 'primereact/button';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -303,11 +304,11 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
 // ─── Page ─────────────────────────────────────────────────────────────────
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 export default function PublicHunterProfilePage({ params }: PageProps) {
-  const { id } = use(params);
+  const { id } = params;
   const { data, isLoading, error, refetch } = usePublicProfile(id);
 
   if (isLoading) return <LoadingState type="detail" />;

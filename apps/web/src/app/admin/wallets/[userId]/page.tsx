@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState } from 'react';
+import { useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -24,11 +24,11 @@ const TYPE_CONFIG: Record<WalletTxType, { label: string; className: string }> = 
 };
 
 interface Props {
-  params: Promise<{ userId: string }>;
+  params: { userId: string };
 }
 
 export default function AdminWalletDetailPage({ params }: Props) {
-  const { userId } = use(params);
+  const { userId } = params;
   const { data, isLoading, error, refetch } = useAdminWallet(userId);
   const { mutate: adjustWallet, isPending: isAdjusting } = useAdminAdjustWallet(userId);
 
