@@ -34,12 +34,10 @@ export default function LoginPage() {
 
   return (
     <div className="glass-card p-8 shadow-level-3 animate-fade-up">
-      {/* ── Heading ── */}
-      <h2 className="text-xl font-heading font-semibold text-text-primary text-center mb-6">
+      <h2 className="text-2xl font-heading font-bold text-text-primary text-center mb-6">
         Sign In
       </h2>
 
-      {/* ── Error message ── */}
       {error && (
         <div className="mb-4 rounded-lg border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 text-sm text-accent-rose">
           <i className="pi pi-exclamation-circle mr-2" />
@@ -47,12 +45,11 @@ export default function LoginPage() {
         </div>
       )}
 
-      {/* ── Login form ── */}
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-text-secondary mb-1.5"
+            className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
           >
             Email
           </label>
@@ -62,7 +59,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full glass-input !bg-glass-bg !border-glass-border !text-text-primary placeholder:!text-text-muted focus:!border-accent-cyan focus:!shadow-ring-glow-cyan"
+            className="w-full"
             placeholder="you@example.com"
           />
         </div>
@@ -70,7 +67,7 @@ export default function LoginPage() {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-text-secondary mb-1.5"
+            className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
           >
             Password
           </label>
@@ -81,12 +78,11 @@ export default function LoginPage() {
             required
             feedback={false}
             toggleMask
-            className="w-full [&_.p-password-input]:glass-input [&_.p-password-input]:!bg-glass-bg [&_.p-password-input]:!border-glass-border [&_.p-password-input]:!text-text-primary [&_.p-password-input]:placeholder:!text-text-muted [&_.p-password-input]:focus:!border-accent-cyan [&_.p-password-input]:focus:!shadow-ring-glow-cyan"
+            className="w-full"
             inputClassName="w-full"
           />
         </div>
 
-        {/* ── Primary CTA ── */}
         <button
           type="submit"
           disabled={loading}
@@ -105,7 +101,6 @@ export default function LoginPage() {
         </button>
       </form>
 
-      {/* ── Links ── */}
       <div className="mt-6 text-center space-y-2">
         <Link
           href="/forgot-password"
@@ -123,7 +118,6 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
-
     </div>
   );
 }
