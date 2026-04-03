@@ -4,18 +4,27 @@ import {
   NotFoundException,
   ForbiddenException,
   Logger,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import {
   PAGINATION_DEFAULTS,
   INBOX_CONSTANTS,
+  ConversationContext,
+  SubscriptionTier,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
 @Injectable()
 export class ConversationsService {
   private readonly logger = new Logger(ConversationsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => SubscriptionsService))
+    private subscriptionsService: SubscriptionsService,
+  ) {}
 
   async createConversation(
     userId: string,
@@ -44,6 +53,13 @@ export class ConversationsService {
       }
     }
 
+    // Set priority for support conversations from Pro users
+    let isPriority = false;
+    if (dto.context === ConversationContext.SUPPORT || dto.context === 'SUPPORT') {
+      const tier = await this.subscriptionsService.getActiveTier(userId);
+      isPriority = tier === SubscriptionTier.PRO;
+    }
+
     const conversation = await this.prisma.$transaction(async (tx) => {
       const conv = await tx.conversation.create({
         data: {
@@ -52,6 +68,7 @@ export class ConversationsService {
           referenceId: dto.referenceId ?? null,
           subject: dto.subject.trim(),
           createdBy: userId,
+          isPriority,
         },
       });
 

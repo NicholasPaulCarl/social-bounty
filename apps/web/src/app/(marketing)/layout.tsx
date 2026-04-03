@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { label: 'How It Works', href: '/#how-it-works' },
   { label: 'For Hunters', href: '/join/hunter' },
   { label: 'For Brands', href: '/join/business' },
+  { label: 'Pricing', href: '/pricing' },
   { label: 'Contact', href: '/contact' },
 ];
 
@@ -23,6 +24,7 @@ const FOOTER_BRANDS = [
 ];
 
 const FOOTER_COMPANY = [
+  { label: 'Pricing', href: '/pricing' },
   { label: 'Contact', href: '/contact' },
   { label: 'Privacy Policy', href: '/privacy' },
   { label: 'Terms of Service', href: '/terms' },

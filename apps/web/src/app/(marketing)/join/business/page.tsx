@@ -435,6 +435,82 @@ export default function JoinBusinessPage() {
       </section>
 
       {/* ══════════════════════════════════════════
+          FREE vs PRO COMPARISON
+          ══════════════════════════════════════════ */}
+      <section className="py-16 sm:py-24 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeUp className="text-center mb-12">
+            <p className="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-3">Plans</p>
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
+              Start free.{' '}
+              <span className="text-blue-600">Scale with Pro.</span>
+            </h2>
+            <p className="text-lg text-slate-600 mt-4 max-w-xl mx-auto">
+              Every brand starts on Free. Upgrade when you need closed bounties and lower fees.
+            </p>
+          </FadeUp>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+            {/* Free */}
+            <FadeUp delay={0}>
+              <div className="h-full bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
+                <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Free Brand</h3>
+                <p className="text-3xl font-heading font-bold text-slate-900 mt-4 mb-6">R0<span className="text-base font-normal text-slate-400">/month</span></p>
+                <ul className="space-y-3 mb-6">
+                  {[
+                    '15% admin fee per bounty',
+                    'Public bounties only',
+                    'Standard support',
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-3 text-sm text-slate-600">
+                      <span className="text-slate-400 mt-0.5">{'\u2014'}</span>{f}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/signup" className="block text-center border border-slate-300 text-slate-700 font-semibold px-6 py-3 rounded-full hover:border-slate-400 transition-all duration-200">
+                  Get Started Free
+                </Link>
+              </div>
+            </FadeUp>
+
+            {/* Pro */}
+            <FadeUp delay={100}>
+              <div className="h-full bg-white border-2 border-blue-300 rounded-2xl p-6 sm:p-8 relative shadow-lg shadow-blue-100/50">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">
+                  Best Value
+                </div>
+                <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Pro Brand</h3>
+                <p className="text-3xl font-heading font-bold text-slate-900 mt-4 mb-6">R950<span className="text-base font-normal text-slate-400">/month</span></p>
+                <ul className="space-y-3 mb-6">
+                  {[
+                    '5% admin fee (save 10%)',
+                    'Create closed (invite-only) bounties',
+                    'Application + invitation management',
+                    'Priority support',
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
+                      <span className="text-blue-600 mt-0.5 font-bold">{'\u2713'}</span>{f}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/signup" className="block text-center bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-700 hover:scale-[1.02] hover:shadow-lg transition-all duration-200">
+                  Upgrade to Pro
+                </Link>
+              </div>
+            </FadeUp>
+          </div>
+
+          <FadeUp delay={200}>
+            <p className="text-center mt-8">
+              <Link href="/pricing" className="text-sm text-blue-600 font-semibold hover:underline">
+                View full feature comparison {'\u2192'}
+              </Link>
+            </p>
+          </FadeUp>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
           FINAL CTA
           ══════════════════════════════════════════ */}
       <section className="py-16 sm:py-24 bg-white">

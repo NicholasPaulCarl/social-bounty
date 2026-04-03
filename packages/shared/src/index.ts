@@ -34,6 +34,11 @@ export {
   SocialHandleStatus,
   NotificationType,
   ConversationContext,
+  SubscriptionTier,
+  SubscriptionEntityType,
+  SubscriptionStatus,
+  SubscriptionPaymentStatus,
+  SubscriptionFeature,
 } from './enums';
 
 // Common types
@@ -74,6 +79,9 @@ export {
   BOUNTY_ACCESS_CONSTANTS,
   SOCIAL_HANDLE_CONSTANTS,
   INBOX_CONSTANTS,
+  SUBSCRIPTION_CONSTANTS,
+  COMMISSION_RATES,
+  CLEARANCE_PERIODS,
 } from './constants';
 
 export type { CategoryInfo, HunterInterest } from './constants';
@@ -290,3 +298,17 @@ export type {
   InboxMessageResponse,
   ConversationListParams,
 } from './dto/inbox.dto';
+
+// Subscription DTOs
+export type {
+  SubscriptionFeaturesDto,
+  SubscriptionResponseDto,
+  SubscribeRequest,
+  SubscriptionPaymentDto,
+  SubscriptionPaymentListParams,
+  AdminSubscriptionListItem,
+  AdminSubscriptionListParams,
+  AdminSubscriptionDetailDto,
+  AdminSubscriptionOverrideRequest,
+  SubscriptionRevenueDto,
+} from './dto/subscription.dto';

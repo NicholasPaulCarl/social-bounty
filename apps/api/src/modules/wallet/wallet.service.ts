@@ -70,6 +70,26 @@ export class WalletService {
     });
   }
 
+  async creditWalletWithCommission(
+    userId: string,
+    grossAmount: number,
+    commissionRate: number,
+    description: string,
+    referenceType: string,
+    referenceId: string,
+  ): Promise<{ netAmount: number; platformFee: number }> {
+    const gross = new Prisma.Decimal(grossAmount);
+    const fee = gross.mul(new Prisma.Decimal(commissionRate));
+    const net = gross.sub(fee);
+
+    await this.creditWallet(userId, Number(net), description, referenceType, referenceId);
+
+    return {
+      netAmount: Number(net),
+      platformFee: Number(fee),
+    };
+  }
+
   async holdFunds(userId: string, amount: number, withdrawalId: string) {
     return this.prisma.$transaction(async (tx) => {
       const wallet = await this.ensureWallet(tx, userId);

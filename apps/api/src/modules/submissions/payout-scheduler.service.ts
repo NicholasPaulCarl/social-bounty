@@ -1,8 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { SubmissionStatus, PayoutStatus } from '@social-bounty/shared';
+import {
+  SubmissionStatus,
+  PayoutStatus,
+  COMMISSION_RATES,
+  SubscriptionTier,
+} from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { WalletService } from '../wallet/wallet.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
 @Injectable()
 export class PayoutSchedulerService {
@@ -11,6 +17,7 @@ export class PayoutSchedulerService {
   constructor(
     private prisma: PrismaService,
     private walletService: WalletService,
+    private subscriptionsService: SubscriptionsService,
   ) {}
 
   @Cron(CronExpression.EVERY_10_MINUTES)
@@ -27,7 +34,7 @@ export class PayoutSchedulerService {
         include: {
           bounty: { select: { title: true, rewardValue: true } },
         },
-        take: 100, // batch limit
+        take: 100,
       });
 
       if (submissions.length === 0) return;
@@ -42,19 +49,24 @@ export class PayoutSchedulerService {
         data: { payoutStatus: PayoutStatus.PAID },
       });
 
-      // Credit wallets in parallel (non-blocking — failures logged individually)
+      // Credit wallets with tier-based commission
       const walletResults = await Promise.allSettled(
         submissions
           .filter((s) => s.bounty.rewardValue && Number(s.bounty.rewardValue) > 0)
-          .map((s) =>
-            this.walletService.creditWallet(
+          .map(async (s) => {
+            const hunterTier = await this.subscriptionsService.getActiveTier(s.userId);
+            const commissionRate = hunterTier === SubscriptionTier.PRO
+              ? COMMISSION_RATES.HUNTER_PRO
+              : COMMISSION_RATES.HUNTER_FREE;
+            return this.walletService.creditWalletWithCommission(
               s.userId,
               Number(s.bounty.rewardValue),
+              commissionRate,
               `Auto-payout for bounty: ${s.bounty.title}`,
               'SUBMISSION',
               s.id,
-            ),
-          ),
+            );
+          }),
       );
 
       const failed = walletResults.filter((r) => r.status === 'rejected');

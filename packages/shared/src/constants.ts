@@ -272,6 +272,29 @@ export const INBOX_CONSTANTS = {
   UNREAD_POLL_INTERVAL_MS: 30000,
 } as const;
 
+// ─── Subscription Constants ─────────
+
+export const SUBSCRIPTION_CONSTANTS = {
+  HUNTER_PRO_PRICE_ZAR: 350,
+  BRAND_PRO_PRICE_ZAR: 950,
+  BILLING_CYCLE_DAYS: 30,
+  GRACE_PERIOD_DAYS: 3,
+  MAX_PAYMENT_RETRIES: 3,
+  EXPIRY_REMINDER_DAYS_BEFORE: 3,
+} as const;
+
+export const COMMISSION_RATES = {
+  HUNTER_FREE: 0.20,
+  HUNTER_PRO: 0.10,
+  BRAND_FREE: 0.15,
+  BRAND_PRO: 0.05,
+} as const;
+
+export const CLEARANCE_PERIODS = {
+  HUNTER_FREE_MIN_DAYS: 3,
+  HUNTER_PRO_DAYS: 0,
+} as const;
+
 export const DISPUTE_REASON_CATEGORIES = {
   NON_PAYMENT: [
     'PAYMENT_NOT_RECEIVED',

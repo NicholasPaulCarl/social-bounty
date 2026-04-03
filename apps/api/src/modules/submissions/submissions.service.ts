@@ -25,6 +25,8 @@ import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { WalletService } from '../wallet/wallet.service';
 import { BountyAccessService } from '../bounty-access/bounty-access.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+import { COMMISSION_RATES, SubscriptionTier, SubscriptionEntityType } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 const REVIEW_TRANSITIONS: Record<string, string[]> = {
@@ -49,6 +51,7 @@ export class SubmissionsService {
     private mailService: MailService,
     private walletService: WalletService,
     private bountyAccessService: BountyAccessService,
+    private subscriptionsService: SubscriptionsService,
   ) {}
 
   private formatProofImages(images: any[]) {
@@ -705,22 +708,27 @@ export class SubmissionsService {
       ipAddress,
     });
 
-    // Credit wallet when payout is marked as PAID (with 5s timeout to prevent hanging)
+    // Credit wallet when payout is marked as PAID (with tier-based commission)
     if (newPayoutStatus === PayoutStatus.PAID && submission.bounty.rewardValue) {
       const rewardAmount = Number(submission.bounty.rewardValue);
       if (rewardAmount > 0) {
-        Promise.race([
-          this.walletService.creditWallet(
-            submission.userId,
-            rewardAmount,
-            `Payout for bounty: ${submission.bounty.title}`,
-            'SUBMISSION',
-            id,
-          ),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Wallet credit timeout')), 5000)),
-        ]).catch((err) => {
-          this.logger.error('Failed to credit wallet for submission payout:', err);
-        });
+        this.subscriptionsService.getActiveTier(submission.userId)
+          .then((hunterTier) => {
+            const commissionRate = hunterTier === SubscriptionTier.PRO
+              ? COMMISSION_RATES.HUNTER_PRO
+              : COMMISSION_RATES.HUNTER_FREE;
+            return this.walletService.creditWalletWithCommission(
+              submission.userId,
+              rewardAmount,
+              commissionRate,
+              `Payout for bounty: ${submission.bounty.title}`,
+              'SUBMISSION',
+              id,
+            );
+          })
+          .catch((err) => {
+            this.logger.error('Failed to credit wallet for submission payout:', err);
+          });
       }
     }
 

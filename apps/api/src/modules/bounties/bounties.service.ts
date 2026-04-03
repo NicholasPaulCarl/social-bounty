@@ -11,6 +11,7 @@ import * as path from 'path';
 import {
   UserRole,
   BountyStatus,
+  BountyAccessType,
   RewardType,
   SocialChannel,
   PostFormat,
@@ -19,6 +20,7 @@ import {
   Currency,
   PaymentStatus,
   PayoutMethod,
+  SubscriptionTier,
   AUDIT_ACTIONS,
   ENTITY_TYPES,
   PAGINATION_DEFAULTS,
@@ -38,6 +40,7 @@ import type {
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 const LIVE_EDITABLE_FIELDS = new Set([
@@ -60,6 +63,7 @@ export class BountiesService {
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
+    private subscriptionsService: SubscriptionsService,
   ) {}
 
   // ── Validation helpers ─────────────────────────────────
@@ -579,11 +583,20 @@ export class BountiesService {
       rewardValue?: number | null;
       rewardDescription?: string | null;
       eligibilityRules?: string;
+      accessType?: BountyAccessType;
     },
     ipAddress?: string,
   ) {
     if (!user.organisationId) {
       throw new BadRequestException('You must belong to an organisation to create bounties');
+    }
+
+    // Gate closed bounty creation by subscription tier
+    if (data.accessType === BountyAccessType.CLOSED) {
+      const orgTier = await this.subscriptionsService.getActiveOrgTier(user.organisationId);
+      if (orgTier !== SubscriptionTier.PRO) {
+        throw new ForbiddenException('Closed bounties require a Pro Brand subscription. Upgrade to create closed bounties.');
+      }
     }
 
     if (data.startDate && data.endDate && new Date(data.endDate) <= new Date(data.startDate)) {

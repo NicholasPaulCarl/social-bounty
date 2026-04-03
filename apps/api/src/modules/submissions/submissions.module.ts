@@ -4,9 +4,10 @@ import { SubmissionsService } from './submissions.service';
 import { PayoutSchedulerService } from './payout-scheduler.service';
 import { WalletModule } from '../wallet/wallet.module';
 import { BountyAccessModule } from '../bounty-access/bounty-access.module';
+import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 
 @Module({
-  imports: [WalletModule, BountyAccessModule],
+  imports: [WalletModule, BountyAccessModule, SubscriptionsModule],
   controllers: [SubmissionsController],
   providers: [SubmissionsService, PayoutSchedulerService],
   exports: [SubmissionsService],

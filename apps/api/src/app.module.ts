@@ -23,6 +23,7 @@ import { SettingsModule } from './modules/settings/settings.module';
 import { BountyAccessModule } from './modules/bounty-access/bounty-access.module';
 import { SocialHandlesModule } from './modules/social-handles/social-handles.module';
 import { InboxModule } from './modules/inbox/inbox.module';
+import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { UserStatusGuard } from './common/guards/user-status.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -59,6 +60,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     BountyAccessModule,
     SocialHandlesModule,
     InboxModule,
+    SubscriptionsModule,
   ],
   providers: [
     {

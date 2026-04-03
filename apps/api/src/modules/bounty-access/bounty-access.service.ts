@@ -16,9 +16,11 @@ import {
   ENTITY_TYPES,
   PAGINATION_DEFAULTS,
   BOUNTY_ACCESS_CONSTANTS,
+  SubscriptionTier,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 @Injectable()
@@ -28,6 +30,7 @@ export class BountyAccessService {
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
+    private subscriptionsService: SubscriptionsService,
   ) {}
 
   // ── Helpers ────────────────────────────────────────────
@@ -83,6 +86,23 @@ export class BountyAccessService {
       throw new ConflictException(
         'You already have an application for this bounty',
       );
+    }
+
+    // Free hunters can only apply to closed bounties they were invited to
+    const hunterTier = await this.subscriptionsService.getActiveTier(userId);
+    if (hunterTier !== SubscriptionTier.PRO) {
+      const hasInvitation = await this.prisma.bountyInvitation.findFirst({
+        where: {
+          bountyId,
+          userId,
+          status: { in: [BountyInvitationStatus.PENDING, BountyInvitationStatus.ACCEPTED] },
+        },
+      });
+      if (!hasInvitation) {
+        throw new ForbiddenException(
+          'Pro subscription required to apply to closed bounties without an invitation. Upgrade to Pro to apply.',
+        );
+      }
     }
 
     const application = await this.prisma.bountyApplication.create({

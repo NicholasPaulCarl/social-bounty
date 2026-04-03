@@ -11,9 +11,12 @@ import {
   UserRole,
   BountyStatus,
   PaymentStatus,
+  COMMISSION_RATES,
+  SubscriptionTier,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 @Injectable()
@@ -25,6 +28,7 @@ export class PaymentsService {
     private prisma: PrismaService,
     private configService: ConfigService,
     private auditService: AuditService,
+    private subscriptionsService: SubscriptionsService,
   ) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     if (!secretKey) {
@@ -89,6 +93,16 @@ export class PaymentsService {
       throw new BadRequestException('Payment amount must be greater than zero');
     }
 
+    // Calculate admin fee based on org subscription tier
+    const orgTier = await this.subscriptionsService.getActiveOrgTier(bounty.organisationId);
+    const adminFeeRate = orgTier === SubscriptionTier.PRO
+      ? COMMISSION_RATES.BRAND_PRO
+      : COMMISSION_RATES.BRAND_FREE;
+    const totalAmount = totalCents / 100;
+    const adminFeeAmount = Math.round(totalAmount * adminFeeRate * 100) / 100;
+    const adminFeeCents = Math.round(adminFeeAmount * 100);
+    const totalWithFee = totalCents + adminFeeCents;
+
     // Map currency to Stripe currency codes
     const currencyMap: Record<string, string> = {
       ZAR: 'zar',
@@ -111,12 +125,14 @@ export class PaymentsService {
 
     const paymentIntent = await this.getStripe().paymentIntents.create(
       {
-        amount: totalCents,
+        amount: totalWithFee,
         currency: stripeCurrency,
         metadata: {
           bountyId: bounty.id,
           organisationId: bounty.organisationId,
           userId: user.sub,
+          adminFeePercent: (adminFeeRate * 100).toString(),
+          adminFeeAmount: adminFeeAmount.toString(),
         },
       },
       {
@@ -124,12 +140,14 @@ export class PaymentsService {
       },
     );
 
-    // Store the payment intent ID on the bounty
+    // Store the payment intent ID and admin fee snapshot on the bounty
     await this.prisma.bounty.update({
       where: { id: bountyId },
       data: {
         stripePaymentIntentId: paymentIntent.id,
         paymentStatus: PaymentStatus.PENDING,
+        adminFeePercent: adminFeeRate * 100,
+        adminFeeAmount: adminFeeAmount,
       },
     });
 
@@ -140,7 +158,8 @@ export class PaymentsService {
     return {
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
-      amount: totalCents,
+      amount: totalWithFee,
+      adminFee: adminFeeCents,
       currency: stripeCurrency,
     };
   }

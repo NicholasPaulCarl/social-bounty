@@ -162,6 +162,12 @@ enum NotificationType {
   NEW_MESSAGE
   PAYOUT_STATUS_CHANGED
   SYSTEM_ANNOUNCEMENT
+  SUBSCRIPTION_ACTIVATED
+  SUBSCRIPTION_CANCELLED
+  SUBSCRIPTION_EXPIRING
+  SUBSCRIPTION_EXPIRED
+  SUBSCRIPTION_PAYMENT_FAILED
+  SUBSCRIPTION_RENEWED
 }
 
 enum ConversationContext {
@@ -190,6 +196,35 @@ enum WithdrawalStatus {
   COMPLETED
   FAILED
   CANCELLED
+}
+
+// ─────────────────────────────────────
+// Subscription Enums
+// ─────────────────────────────────────
+
+enum SubscriptionTier {
+  FREE
+  PRO
+}
+
+enum SubscriptionEntityType {
+  HUNTER
+  BRAND
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+  FREE
+}
+
+enum SubscriptionPaymentStatus {
+  SUCCEEDED
+  FAILED
+  PENDING
+  REFUNDED
 }
 
 // ─────────────────────────────────────
@@ -306,6 +341,7 @@ model User {
   conversationsCreated    Conversation[]       @relation("ConversationsCreated")
   conversationMemberships ConversationParticipant[] @relation("ConversationParticipants")
   messagesSent            Message[]            @relation("MessagesSent")
+  subscription            Subscription?        @relation("UserSubscription")
 
   @@index([email])
   @@index([role])
@@ -323,8 +359,9 @@ model Organisation {
   updatedAt    DateTime  @updatedAt
 
   // Relations
-  members  OrganisationMember[]
-  bounties Bounty[]
+  members      OrganisationMember[]
+  bounties     Bounty[]
+  subscription Subscription?        @relation("OrgSubscription")
 
   @@index([status])
   @@map("organisations")
@@ -384,6 +421,8 @@ model Bounty {
   payoutMethod           PayoutMethod?
   accessType             BountyAccessType    @default(PUBLIC)
   statusHistory          Json?
+  adminFeePercent        Decimal?            @db.Decimal(5, 2)
+  adminFeeAmount         Decimal?            @db.Decimal(18, 2)
 
   // Relations
   organisation Organisation       @relation(fields: [organisationId], references: [id], onDelete: Cascade)
@@ -859,6 +898,7 @@ model Conversation {
   subject       String
   createdBy     String
   isArchived    Boolean             @default(false)
+  isPriority    Boolean             @default(false)
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
 
@@ -868,6 +908,7 @@ model Conversation {
 
   @@index([referenceType, referenceId])
   @@index([createdAt])
+  @@index([isPriority, updatedAt])
   @@map("conversations")
 }
 
@@ -905,4 +946,64 @@ model Message {
   @@index([conversationId, createdAt])
   @@index([senderId])
   @@map("messages")
+}
+
+// ─────────────────────────────────────
+// Subscriptions
+// ─────────────────────────────────────
+
+model Subscription {
+  id                  String                 @id @default(uuid())
+  userId              String?                @unique
+  organisationId      String?                @unique
+  entityType          SubscriptionEntityType
+  tier                SubscriptionTier       @default(FREE)
+  status              SubscriptionStatus     @default(FREE)
+  priceAmount         Decimal                @db.Decimal(10, 2)
+  currency            Currency               @default(ZAR)
+  currentPeriodStart  DateTime?
+  currentPeriodEnd    DateTime?
+  cancelledAt         DateTime?
+  cancelAtPeriodEnd   Boolean                @default(false)
+  gracePeriodEndsAt   DateTime?
+  failedPaymentCount  Int                    @default(0)
+  provider            String?
+  providerSubId       String?
+  providerCustomerId  String?
+  metadata            Json                   @default("{}")
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  user         User?                @relation("UserSubscription", fields: [userId], references: [id])
+  organisation Organisation?        @relation("OrgSubscription", fields: [organisationId], references: [id])
+  payments     SubscriptionPayment[]
+
+  @@unique([userId, entityType])
+  @@unique([organisationId, entityType])
+  @@index([status])
+  @@index([currentPeriodEnd])
+  @@index([tier])
+  @@map("subscriptions")
+}
+
+model SubscriptionPayment {
+  id                 String                    @id @default(uuid())
+  subscriptionId     String
+  amount             Decimal                   @db.Decimal(10, 2)
+  currency           Currency                  @default(ZAR)
+  status             SubscriptionPaymentStatus @default(PENDING)
+  provider           String?
+  providerPaymentId  String?
+  billingPeriodStart DateTime
+  billingPeriodEnd   DateTime
+  attemptNumber      Int                       @default(1)
+  failureReason      String?
+  paidAt             DateTime?
+  createdAt          DateTime                  @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@index([status])
+  @@map("subscription_payments")
 }

@@ -45,6 +45,12 @@ function notificationIcon(type: NotificationType): { icon: string; color: string
     [NotificationType.NEW_MESSAGE]: { icon: 'pi-comment', color: 'text-accent-violet' },
     [NotificationType.PAYOUT_STATUS_CHANGED]: { icon: 'pi-wallet', color: 'text-accent-emerald' },
     [NotificationType.SYSTEM_ANNOUNCEMENT]: { icon: 'pi-bell', color: 'text-accent-amber' },
+    [NotificationType.SUBSCRIPTION_ACTIVATED]: { icon: 'pi-star', color: 'text-accent-emerald' },
+    [NotificationType.SUBSCRIPTION_CANCELLED]: { icon: 'pi-times', color: 'text-accent-amber' },
+    [NotificationType.SUBSCRIPTION_EXPIRING]: { icon: 'pi-clock', color: 'text-accent-amber' },
+    [NotificationType.SUBSCRIPTION_EXPIRED]: { icon: 'pi-ban', color: 'text-accent-rose' },
+    [NotificationType.SUBSCRIPTION_PAYMENT_FAILED]: { icon: 'pi-exclamation-triangle', color: 'text-accent-rose' },
+    [NotificationType.SUBSCRIPTION_RENEWED]: { icon: 'pi-check-circle', color: 'text-accent-emerald' },
   };
   return map[type] ?? { icon: 'pi-bell', color: 'text-text-muted' };
 }
