@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { PaymentsService } from './payments.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { UserRole, BountyStatus, PaymentStatus } from '@social-bounty/shared';
 import type { AuthenticatedUser } from '../auth/jwt.strategy';
 
@@ -62,6 +63,7 @@ describe('PaymentsService', () => {
         PaymentsService,
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: auditService },
+        { provide: SubscriptionsService, useValue: { getActiveOrgTier: jest.fn().mockResolvedValue('FREE') } },
         {
           provide: ConfigService,
           useValue: {
@@ -109,11 +111,11 @@ describe('PaymentsService', () => {
 
       expect(result.clientSecret).toBe('pi_test_123_secret');
       expect(result.paymentIntentId).toBe('pi_test_123');
-      expect(result.amount).toBe(7500); // 75.00 * 100
+      expect(result.amount).toBe(8625); // 75.00 * 100 + 15% admin fee
       expect(result.currency).toBe('zar');
       expect(stripeInstance._mockPaymentIntentsCreate).toHaveBeenCalledWith(
         expect.objectContaining({
-          amount: 7500,
+          amount: 8625,
           currency: 'zar',
         }),
         expect.objectContaining({
@@ -250,7 +252,7 @@ describe('PaymentsService', () => {
 
       const result = await service.createPaymentIntent('bounty-1', mockBA);
 
-      expect(result.amount).toBe(10000); // 100.00 * 100
+      expect(result.amount).toBe(11500); // 100.00 * 100 + 15% admin fee
       expect(result.currency).toBe('usd');
     });
   });

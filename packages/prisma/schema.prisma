@@ -598,6 +598,7 @@ model BrandAsset {
   uploadedBy User   @relation("BrandAssetUploader", fields: [userId], references: [id], onDelete: Restrict)
 
   @@index([bountyId])
+  @@index([userId])
   @@map("brand_assets")
 }
 
@@ -660,6 +661,8 @@ model Dispute {
   @@index([category])
   @@index([status, createdAt])
   @@index([createdAt])
+  @@index([resolvedByUserId])
+  @@index([relatedDisputeId])
   @@map("disputes")
 }
 
@@ -721,6 +724,7 @@ model DisputeStatusHistory {
 
   @@index([disputeId])
   @@index([createdAt])
+  @@index([changedByUserId])
   @@map("dispute_status_history")
 }
 
@@ -839,6 +843,7 @@ model BountyApplication {
   @@index([bountyId])
   @@index([userId])
   @@index([status])
+  @@index([reviewedBy])
   @@map("bounty_applications")
 }
 
@@ -862,6 +867,7 @@ model BountyInvitation {
   @@index([bountyId])
   @@index([userId])
   @@index([status])
+  @@index([invitedBy])
   @@map("bounty_invitations")
 }
 
@@ -937,6 +943,7 @@ model Conversation {
 
   @@index([referenceType, referenceId])
   @@index([createdAt])
+  @@index([createdBy])
   @@index([isPriority, updatedAt])
   @@map("conversations")
 }

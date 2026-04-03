@@ -224,6 +224,11 @@ export function createMockPrisma() {
       findUnique: brandAssetFindUnique,
       delete: brandAssetDelete,
     },
+    userCredential: {
+      upsert: jest.fn(),
+      update: jest.fn(),
+      findUnique: jest.fn(),
+    },
     $transaction: jest.fn((fn: (tx: unknown) => Promise<unknown>) => {
       // The transaction callback receives a "tx" object that mirrors prisma
       // but uses the same mocks so tests can verify calls

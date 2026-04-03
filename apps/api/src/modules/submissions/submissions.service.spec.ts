@@ -18,6 +18,7 @@ import {
   PayoutStatus,
 } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
 describe('SubmissionsService', () => {
   let service: SubmissionsService;
@@ -117,6 +118,7 @@ describe('SubmissionsService', () => {
         { provide: MailService, useValue: mailService },
         { provide: WalletService, useValue: { creditWallet: jest.fn().mockResolvedValue({}) } },
         { provide: BountyAccessService, useValue: { canSubmitToBounty: jest.fn().mockResolvedValue(true) } },
+        { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
       ],
     }).compile();
 

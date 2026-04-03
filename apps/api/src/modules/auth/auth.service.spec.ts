@@ -13,7 +13,7 @@ import * as bcrypt from 'bcrypt';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let prisma: { user: { findUnique: jest.Mock; create: jest.Mock } };
+  let prisma: { user: { findUnique: jest.Mock; create: jest.Mock }; userCredential: { upsert: jest.Mock } };
   let jwtService: { sign: jest.Mock; verify: jest.Mock };
   let redisService: { get: jest.Mock; incr: jest.Mock; expire: jest.Mock; del: jest.Mock };
 
@@ -22,6 +22,9 @@ describe('AuthService', () => {
       user: {
         findUnique: jest.fn(),
         create: jest.fn(),
+      },
+      userCredential: {
+        upsert: jest.fn(),
       },
     };
 
@@ -138,7 +141,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue({
         id: 'user-id',
         email: 'test@example.com',
-        passwordHash: await bcrypt.hash('password', 10),
+        credential: { passwordHash: await bcrypt.hash('password', 10) },
         status: UserStatus.SUSPENDED,
         role: UserRole.PARTICIPANT,
         organisationMemberships: [],
@@ -154,7 +157,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue({
         id: 'user-id',
         email: 'test@example.com',
-        passwordHash: hash,
+        credential: { passwordHash: hash },
         firstName: 'Test',
         lastName: 'User',
         status: UserStatus.ACTIVE,
@@ -175,7 +178,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue({
         id: 'user-id',
         email: 'test@example.com',
-        passwordHash: await bcrypt.hash('correct-password', 10),
+        credential: { passwordHash: await bcrypt.hash('correct-password', 10) },
         status: UserStatus.ACTIVE,
         role: UserRole.PARTICIPANT,
         organisationMemberships: [],
@@ -214,7 +217,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue({
         id: 'user-id',
         email: 'test@example.com',
-        passwordHash: await bcrypt.hash('correct-password', 10),
+        credential: { passwordHash: await bcrypt.hash('correct-password', 10) },
         status: UserStatus.ACTIVE,
         role: UserRole.PARTICIPANT,
         organisationMemberships: [],

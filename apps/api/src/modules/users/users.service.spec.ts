@@ -21,7 +21,7 @@ describe('UsersService', () => {
     role: UserRole.PARTICIPANT,
     status: 'ACTIVE',
     emailVerified: true,
-    passwordHash: 'hashed-password',
+    credential: { passwordHash: 'hashed-password' },
     bio: null,
     profilePictureUrl: null,
     interests: [],
@@ -39,6 +39,9 @@ describe('UsersService', () => {
         findMany: jest.fn(),
         update: jest.fn(),
         count: jest.fn(),
+      },
+      userCredential: {
+        update: jest.fn(),
       },
       organisationMember: {
         findFirst: jest.fn(),
@@ -193,7 +196,7 @@ describe('UsersService', () => {
       prisma.user.findUnique.mockResolvedValue(baseUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (bcrypt.hash as jest.Mock).mockResolvedValue('new-hash');
-      prisma.user.update.mockResolvedValue(baseUser);
+      prisma.userCredential.update.mockResolvedValue({ userId: 'user-1', passwordHash: 'new-hash' });
 
       const result = await service.changePassword(
         'user-1',
@@ -203,9 +206,9 @@ describe('UsersService', () => {
 
       expect(bcrypt.compare).toHaveBeenCalledWith('currentPass', 'hashed-password');
       expect(bcrypt.hash).toHaveBeenCalledWith('newPass123', 12);
-      expect(prisma.user.update).toHaveBeenCalledWith(
+      expect(prisma.userCredential.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id: 'user-1' },
+          where: { userId: 'user-1' },
           data: { passwordHash: 'new-hash' },
         }),
       );

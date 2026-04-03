@@ -18,6 +18,7 @@ import {
   Currency,
 } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
 describe('BountiesService', () => {
   let service: BountiesService;
@@ -150,6 +151,7 @@ describe('BountiesService', () => {
         BountiesService,
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: auditService },
+        { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
       ],
     }).compile();
 

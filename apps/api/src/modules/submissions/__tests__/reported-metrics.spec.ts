@@ -5,6 +5,7 @@ import { AuditService } from '../../audit/audit.service';
 import { MailService } from '../../mail/mail.service';
 import { WalletService } from '../../wallet/wallet.service';
 import { BountyAccessService } from '../../bounty-access/bounty-access.service';
+import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import {
   UserRole,
   BountyStatus,
@@ -103,6 +104,7 @@ describe('SubmissionsService - Reported Metrics', () => {
         { provide: MailService, useValue: mailService },
         { provide: WalletService, useValue: { creditWallet: jest.fn().mockResolvedValue({}) } },
         { provide: BountyAccessService, useValue: { canSubmitToBounty: jest.fn().mockResolvedValue(true) } },
+        { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
       ],
     }).compile();
 

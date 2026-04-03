@@ -7,6 +7,7 @@ import {
 import { BountiesService } from '../bounties.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../audit/audit.service';
+import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import {
   BountyStatus,
   PostVisibilityRule,
@@ -41,6 +42,7 @@ describe('BountiesService - Status Transitions & DRAFT->LIVE Gate', () => {
         BountiesService,
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: auditService },
+        { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
       ],
     }).compile();
 

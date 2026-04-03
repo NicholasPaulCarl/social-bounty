@@ -3,6 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 import { BountiesService } from '../bounties.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../audit/audit.service';
+import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { BountyStatus } from '@social-bounty/shared';
 import {
   mockBA,
@@ -25,6 +26,7 @@ describe('BountiesService - Draft Save', () => {
         BountiesService,
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: auditService },
+        { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
       ],
     }).compile();
 
