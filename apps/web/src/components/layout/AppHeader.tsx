@@ -13,9 +13,9 @@ export function AppHeader({ onMenuToggle }: AppHeaderProps) {
   const count = unread?.total ?? 0;
 
   return (
-    <header className="sticky top-0 z-20 flex items-center h-16 px-4 bg-bg-surface/80 backdrop-blur-xl border-b border-glass-border md:hidden">
+    <header className="sticky top-0 z-20 flex items-center h-16 px-4 bg-white/80 backdrop-blur-md border-b border-slate-200 md:hidden">
       <button
-        className="p-3 min-h-[44px] min-w-[44px] rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors"
+        className="p-3 min-h-[44px] min-w-[44px] rounded-lg text-text-secondary hover:text-text-primary hover:bg-slate-100 transition-colors"
         onClick={onMenuToggle}
         aria-label="Toggle menu"
       >
@@ -23,7 +23,7 @@ export function AppHeader({ onMenuToggle }: AppHeaderProps) {
       </button>
       <div className="flex-1" />
       <button
-        className="relative p-3 min-h-[44px] min-w-[44px] rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors"
+        className="relative p-3 min-h-[44px] min-w-[44px] rounded-lg text-text-secondary hover:text-text-primary hover:bg-slate-100 transition-colors"
         onClick={() => router.push('/inbox')}
         aria-label="Inbox notifications"
       >

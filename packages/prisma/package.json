@@ -9,7 +9,7 @@
     "migrate:deploy": "prisma migrate deploy",
     "migrate:reset": "prisma migrate reset",
     "studio": "prisma studio",
-    "seed": "ts-node prisma/seed.ts",
+    "seed": "ts-node prisma/seed-demo.ts",
     "db:push": "prisma db push"
   },
   "dependencies": {
@@ -23,6 +23,6 @@
     "typescript": "^5.5.0"
   },
   "prisma": {
-    "seed": "ts-node seed.ts"
+    "seed": "ts-node seed-demo.ts"
   }
 }

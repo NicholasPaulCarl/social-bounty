@@ -41,14 +41,13 @@ export interface LoginUserResponse {
 
 export interface LoginResponse {
   accessToken: string;
-  refreshToken: string;
   expiresIn: number;
   user: LoginUserResponse;
 }
 
-// POST /auth/logout
+// POST /auth/logout (refresh token read from httpOnly cookie)
 export interface LogoutRequest {
-  refreshToken: string;
+  // empty — token in cookie
 }
 
 // POST /auth/forgot-password
@@ -67,14 +66,13 @@ export interface VerifyEmailRequest {
   token: string;
 }
 
-// POST /auth/refresh
+// POST /auth/refresh (refresh token read from httpOnly cookie)
 export interface RefreshTokenRequest {
-  refreshToken: string;
+  // empty — token in cookie
 }
 
 export interface RefreshTokenResponse {
   accessToken: string;
-  refreshToken: string;
   expiresIn: number;
 }
 

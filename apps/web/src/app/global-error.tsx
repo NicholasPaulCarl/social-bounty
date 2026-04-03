@@ -8,12 +8,12 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html lang="en" data-theme="dark">
+    <html lang="en">
       <body
         className="font-sans antialiased"
         style={{
-          backgroundColor: '#0a0f1e',
-          color: '#f1f5f9',
+          backgroundColor: '#f8fafc',
+          color: '#0f172a',
           fontFamily: 'Inter, system-ui, sans-serif',
         }}
       >
@@ -31,7 +31,7 @@ export default function GlobalError({
               style={{
                 fontSize: '4rem',
                 marginBottom: '1.5rem',
-                color: '#f43f5e',
+                color: '#e11d48',
               }}
             >
               !
@@ -47,7 +47,7 @@ export default function GlobalError({
             </h1>
             <p
               style={{
-                color: '#94a3b8',
+                color: '#475569',
                 marginBottom: '1.5rem',
                 lineHeight: 1.6,
               }}
@@ -58,7 +58,7 @@ export default function GlobalError({
               onClick={reset}
               style={{
                 padding: '0.75rem 1.5rem',
-                background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+                background: 'linear-gradient(135deg, #db2777, #be185d)',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '0.5rem',

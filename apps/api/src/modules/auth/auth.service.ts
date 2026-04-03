@@ -62,13 +62,15 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: {
         email: normalizedEmail,
-        passwordHash,
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         role: UserRole.PARTICIPANT,
         status: UserStatus.ACTIVE,
         emailVerified: false,
         ...(interests && interests.length > 0 ? { interests } : {}),
+        credential: {
+          create: { passwordHash },
+        },
       },
     });
 
@@ -103,6 +105,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
       include: {
+        credential: true,
         organisationMemberships: {
           select: { organisationId: true },
           take: 1,
@@ -110,7 +113,7 @@ export class AuthService {
       },
     });
 
-    if (!user) {
+    if (!user || !user.credential) {
       await this.recordFailedAttempt(normalizedEmail);
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -119,7 +122,7 @@ export class AuthService {
       throw new ForbiddenException('Your account has been suspended');
     }
 
-    const passwordValid = await bcrypt.compare(password, user.passwordHash);
+    const passwordValid = await bcrypt.compare(password, user.credential.passwordHash);
 
     if (!passwordValid) {
       const attempts = await this.recordFailedAttempt(normalizedEmail);
@@ -206,9 +209,10 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
 
-    await this.prisma.user.update({
-      where: { id: resetEntry.userId },
-      data: { passwordHash },
+    await this.prisma.userCredential.upsert({
+      where: { userId: resetEntry.userId },
+      update: { passwordHash },
+      create: { userId: resetEntry.userId, passwordHash },
     });
 
     const user = await this.prisma.user.findUnique({

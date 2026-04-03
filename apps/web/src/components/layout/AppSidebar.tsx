@@ -62,29 +62,29 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
       {/* Mobile overlay */}
       {!collapsed && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 md:hidden"
           onClick={onToggle}
           aria-hidden="true"
         />
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-40 h-screen bg-bg-surface/80 backdrop-blur-xl border-r border-glass-border transition-transform duration-300 flex flex-col
+        className={`fixed top-0 left-0 z-40 h-screen bg-white border-r border-slate-200 transition-transform duration-300 flex flex-col
           ${collapsed ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}
           w-60 md:sticky md:top-0`}
         role="navigation"
         aria-label="Main navigation"
       >
         {/* Logo / Brand */}
-        <div className="flex items-center justify-between h-14 px-4 border-b border-glass-border">
+        <div className="flex items-center justify-between h-14 px-4 border-b border-slate-200">
           <Link
             href="/"
-            className="text-xl font-bold font-heading bg-gradient-to-r from-accent-cyan to-accent-violet bg-clip-text text-transparent"
+            className="text-xl font-bold font-heading text-pink-600"
           >
             Social Bounty
           </Link>
           <button
-            className="md:hidden p-3 min-h-[44px] min-w-[44px] rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors"
+            className="md:hidden p-3 min-h-[44px] min-w-[44px] rounded-lg text-text-secondary hover:text-text-primary hover:bg-slate-100 transition-colors"
             onClick={onToggle}
             aria-label="Close sidebar"
           >
@@ -109,7 +109,7 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
                     ${
                       isActive
                         ? 'text-accent-cyan bg-accent-cyan/10'
-                        : 'text-text-muted hover:text-text-primary hover:bg-white/5'
+                        : 'text-text-muted hover:text-text-primary hover:bg-slate-100'
                     }`}
                   aria-current={isActive ? 'page' : undefined}
                 >
@@ -127,12 +127,12 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
 
                 {/* Sub-navigation */}
                 {showChildren && (
-                  <div className="ml-4 mt-1 space-y-0.5 border-l border-glass-border pl-3">
+                  <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
                     {item.children!.map((child) => (
                       <a
                         key={child.href}
                         href={child.href}
-                        className="flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium text-text-muted hover:text-accent-cyan hover:bg-white/5 transition-colors"
+                        className="flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium text-text-muted hover:text-accent-cyan hover:bg-slate-100 transition-colors"
                       >
                         <i className={`${child.icon} text-[6px]`} />
                         <span>{child.label}</span>
@@ -147,10 +147,10 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
 
         {/* User menu footer */}
         {user && (
-          <div className="border-t border-glass-border p-3">
+          <div className="border-t border-slate-200 p-3">
             <Menu model={userMenuItems} popup ref={userMenuRef} />
             <button
-              className="flex items-center gap-3 w-full text-left rounded-lg p-2 hover:bg-white/5 transition-colors"
+              className="flex items-center gap-3 w-full text-left rounded-lg p-2 hover:bg-slate-100 transition-colors"
               onClick={(e) => userMenuRef.current?.toggle(e)}
               aria-label="User menu"
             >

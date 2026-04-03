@@ -22,7 +22,7 @@ export function CodeBlock({ code, language = 'TSX' }: CodeBlockProps) {
         <span className="text-xs text-text-muted font-mono">{language}</span>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary transition-colors px-2 py-1 rounded hover:bg-white/5"
+          className="flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary transition-colors px-2 py-1 rounded hover:bg-slate-100"
         >
           <i className={`pi ${copied ? 'pi-check text-accent-emerald' : 'pi-copy'} text-xs`} />
           {copied ? 'Copied!' : 'Copy'}

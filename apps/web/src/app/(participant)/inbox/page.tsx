@@ -253,7 +253,7 @@ export default function InboxPage() {
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
             ${activeTab === 'notifications'
               ? 'bg-accent-cyan/15 text-accent-cyan shadow-sm'
-              : 'text-text-muted hover:text-text-primary hover:bg-white/5'
+              : 'text-text-muted hover:text-text-primary hover:bg-slate-100'
             }`}
           onClick={() => setActiveTab('notifications')}
         >
@@ -264,7 +264,7 @@ export default function InboxPage() {
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
             ${activeTab === 'messages'
               ? 'bg-accent-violet/15 text-accent-violet shadow-sm'
-              : 'text-text-muted hover:text-text-primary hover:bg-white/5'
+              : 'text-text-muted hover:text-text-primary hover:bg-slate-100'
             }`}
           onClick={() => setActiveTab('messages')}
         >

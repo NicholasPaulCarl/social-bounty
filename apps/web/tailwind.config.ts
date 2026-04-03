@@ -3,7 +3,7 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 import plugin from 'tailwindcss/plugin';
 
 const config: Config = {
-  darkMode: ['class', '[data-theme="dark"]'],
+  // Light mode — no darkMode config needed
   content: [
     './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
@@ -22,34 +22,34 @@ const config: Config = {
       // COLORS — NeoGlass Design System
       // ═══════════════════════════════════════════
       colors: {
-        // --- Background layers ---
-        'bg-void': '#030712',
-        'bg-abyss': '#0a0f1e',
-        'bg-surface': '#111827',
-        'bg-elevated': '#1f2937',
-        'bg-hover': '#374151',
+        // --- Background layers (light mode) ---
+        'bg-void': '#ffffff',
+        'bg-abyss': '#f8fafc',
+        'bg-surface': '#ffffff',
+        'bg-elevated': '#f1f5f9',
+        'bg-hover': '#e2e8f0',
 
-        // --- Accent colors ---
-        'accent-cyan': '#06b6d4',
-        'accent-violet': '#8b5cf6',
-        'accent-amber': '#f59e0b',
-        'accent-emerald': '#10b981',
-        'accent-rose': '#f43f5e',
-        'accent-blue': '#3b82f6',
+        // --- Accent colors (pink primary, blue secondary) ---
+        'accent-cyan': '#db2777',
+        'accent-violet': '#2563eb',
+        'accent-amber': '#d97706',
+        'accent-emerald': '#059669',
+        'accent-rose': '#e11d48',
+        'accent-blue': '#2563eb',
 
-        // --- Text ---
-        'text-primary': '#f1f5f9',
-        'text-secondary': '#94a3b8',
-        'text-muted': '#64748b',
-        'text-disabled': '#475569',
+        // --- Text (dark-on-light) ---
+        'text-primary': '#0f172a',
+        'text-secondary': '#475569',
+        'text-muted': '#94a3b8',
+        'text-disabled': '#cbd5e1',
 
-        // --- Glass ---
+        // --- Glass (light card style) ---
         glass: {
-          bg: 'rgba(255, 255, 255, 0.05)',
-          border: 'rgba(255, 255, 255, 0.10)',
-          hover: 'rgba(255, 255, 255, 0.08)',
-          active: 'rgba(255, 255, 255, 0.12)',
-          overlay: 'rgba(0, 0, 0, 0.60)',
+          bg: 'rgba(255, 255, 255, 0.80)',
+          border: 'rgba(0, 0, 0, 0.08)',
+          hover: 'rgba(0, 0, 0, 0.04)',
+          active: 'rgba(0, 0, 0, 0.06)',
+          overlay: 'rgba(0, 0, 0, 0.30)',
         },
 
         // --- Legacy semantic colors (preserving for existing components) ---
@@ -194,25 +194,25 @@ const config: Config = {
       // BOX SHADOW — Elevation + Glow
       // ═══════════════════════════════════════════
       boxShadow: {
-        // Elevation levels
+        // Elevation levels (light mode)
         'level-0': 'none',
-        'level-1': '0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)',
-        'level-2': '0 4px 12px rgba(0, 0, 0, 0.4)',
-        'level-3': '0 8px 24px rgba(0, 0, 0, 0.5)',
-        'level-4': '0 16px 48px rgba(0, 0, 0, 0.6)',
+        'level-1': '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04)',
+        'level-2': '0 4px 12px rgba(0, 0, 0, 0.08)',
+        'level-3': '0 8px 24px rgba(0, 0, 0, 0.12)',
+        'level-4': '0 16px 48px rgba(0, 0, 0, 0.16)',
 
-        // Glow effects
-        'glow-cyan': '0 0 20px rgba(6, 182, 212, 0.2)',
-        'glow-cyan-intense': '0 0 20px rgba(6, 182, 212, 0.3), 0 0 60px rgba(6, 182, 212, 0.1)',
-        'glow-violet': '0 0 20px rgba(139, 92, 246, 0.2)',
-        'glow-violet-intense': '0 0 20px rgba(139, 92, 246, 0.3), 0 0 60px rgba(139, 92, 246, 0.1)',
-        'glow-amber': '0 0 20px rgba(245, 158, 11, 0.2)',
-        'glow-emerald': '0 0 20px rgba(16, 185, 129, 0.2)',
-        'glow-rose': '0 0 20px rgba(244, 63, 94, 0.2)',
-        'glow-blue': '0 0 20px rgba(59, 130, 246, 0.2)',
+        // Subtle colored shadows (light mode equivalents)
+        'glow-cyan': '0 4px 14px rgba(219, 39, 119, 0.10)',
+        'glow-cyan-intense': '0 4px 14px rgba(219, 39, 119, 0.15), 0 1px 3px rgba(219, 39, 119, 0.08)',
+        'glow-violet': '0 4px 14px rgba(37, 99, 235, 0.10)',
+        'glow-violet-intense': '0 4px 14px rgba(37, 99, 235, 0.15), 0 1px 3px rgba(37, 99, 235, 0.08)',
+        'glow-amber': '0 4px 14px rgba(217, 119, 6, 0.10)',
+        'glow-emerald': '0 4px 14px rgba(5, 150, 105, 0.10)',
+        'glow-rose': '0 4px 14px rgba(225, 29, 72, 0.10)',
+        'glow-blue': '0 4px 14px rgba(37, 99, 235, 0.10)',
 
-        // Focus ring glow
-        'ring-glow-cyan': '0 0 0 3px rgba(6, 182, 212, 0.15), 0 0 20px rgba(6, 182, 212, 0.1)',
+        // Focus ring
+        'ring-glow-cyan': '0 0 0 3px rgba(219, 39, 119, 0.15)',
       },
 
       // ═══════════════════════════════════════════
@@ -290,38 +290,35 @@ const config: Config = {
   },
 
   plugins: [
-    // Custom plugin for NeoGlass utility classes
+    // Custom plugin for utility classes (light mode)
     plugin(function ({ addUtilities }) {
       addUtilities({
         '.glass-card': {
-          background: 'rgba(255, 255, 255, 0.05)',
-          'backdrop-filter': 'blur(12px)',
-          '-webkit-backdrop-filter': 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.10)',
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
           'border-radius': '16px',
+          'box-shadow': '0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04)',
         },
         '.glass-panel': {
-          background: 'rgba(15, 23, 42, 0.80)',
-          'backdrop-filter': 'blur(20px)',
-          '-webkit-backdrop-filter': 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.06)',
         },
         '.glass-input': {
-          background: 'rgba(255, 255, 255, 0.05)',
-          border: '1px solid rgba(255, 255, 255, 0.10)',
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
           'border-radius': '8px',
-          color: '#f1f5f9',
+          color: '#0f172a',
         },
         '.glass-dropdown': {
-          background: 'rgba(15, 23, 42, 0.90)',
-          'backdrop-filter': 'blur(20px)',
-          '-webkit-backdrop-filter': 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.10)',
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
           'border-radius': '12px',
+          'box-shadow': '0 8px 24px rgba(0, 0, 0, 0.10)',
         },
         '.skeleton': {
           background:
-            'linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%)',
+            'linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%)',
           'background-size': '200% 100%',
           'border-radius': '8px',
         },

@@ -7,10 +7,8 @@ import type {
   ForgotPasswordRequest,
   ResetPasswordRequest,
   VerifyEmailRequest,
-  RefreshTokenRequest,
   RefreshTokenResponse,
   MessageResponse,
-  LogoutRequest,
 } from '@social-bounty/shared';
 
 export const authApi = {
@@ -20,8 +18,8 @@ export const authApi = {
   login: (data: LoginRequest): Promise<LoginResponse> =>
     apiClient.post('/auth/login', data),
 
-  logout: (data: LogoutRequest): Promise<MessageResponse> =>
-    apiClient.post('/auth/logout', data),
+  logout: (): Promise<MessageResponse> =>
+    apiClient.post('/auth/logout', {}),
 
   forgotPassword: (data: ForgotPasswordRequest): Promise<MessageResponse> =>
     apiClient.post('/auth/forgot-password', data),
@@ -35,6 +33,6 @@ export const authApi = {
   resendVerification: (): Promise<MessageResponse> =>
     apiClient.post('/auth/resend-verification'),
 
-  refresh: (data: RefreshTokenRequest): Promise<RefreshTokenResponse> =>
-    apiClient.post('/auth/refresh', data),
+  refresh: (): Promise<RefreshTokenResponse> =>
+    apiClient.post('/auth/refresh', {}),
 };

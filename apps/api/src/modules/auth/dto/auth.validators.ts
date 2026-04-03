@@ -48,9 +48,7 @@ export class LoginDto {
 }
 
 export class LogoutDto {
-  @IsString()
-  @IsNotEmpty()
-  refreshToken!: string;
+  // Refresh token now read from httpOnly cookie, body is empty
 }
 
 export class ForgotPasswordDto {
@@ -79,7 +77,5 @@ export class VerifyEmailDto {
 }
 
 export class RefreshTokenDto {
-  @IsString()
-  @IsNotEmpty()
-  refreshToken!: string;
+  // Refresh token now read from httpOnly cookie, body is empty
 }

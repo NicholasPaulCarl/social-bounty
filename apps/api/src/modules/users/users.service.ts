@@ -131,21 +131,22 @@ export class UsersService {
 
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
+      include: { credential: true },
     });
 
-    if (!user) {
+    if (!user || !user.credential) {
       throw new BadRequestException('User not found');
     }
 
-    const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+    const valid = await bcrypt.compare(currentPassword, user.credential.passwordHash);
     if (!valid) {
       throw new UnauthorizedException('Current password is incorrect');
     }
 
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
 
-    await this.prisma.user.update({
-      where: { id: userId },
+    await this.prisma.userCredential.update({
+      where: { userId },
       data: { passwordHash },
     });
 

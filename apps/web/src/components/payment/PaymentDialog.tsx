@@ -113,12 +113,12 @@ export function PaymentDialog({ visible, onHide, clientSecret, amount, currency,
         options={{
           clientSecret,
           appearance: {
-            theme: 'night',
+            theme: 'stripe',
             variables: {
-              colorPrimary: '#06b6d4',
-              colorBackground: '#111827',
-              colorText: '#f1f5f9',
-              colorDanger: '#f43f5e',
+              colorPrimary: '#db2777',
+              colorBackground: '#ffffff',
+              colorText: '#0f172a',
+              colorDanger: '#e11d48',
               borderRadius: '8px',
               fontFamily: 'Inter, system-ui, sans-serif',
             },

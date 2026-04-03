@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import * as fs from 'fs';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -21,6 +22,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     rawBody: true, // Required for Stripe webhook signature verification
   });
+
+  // Cookie parser for httpOnly refresh token cookies
+  app.use(cookieParser());
 
   // Security headers via helmet
   // Defaults include: X-Content-Type-Options: nosniff, X-DNS-Prefetch-Control,

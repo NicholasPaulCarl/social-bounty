@@ -164,7 +164,7 @@ export default function ConversationPage() {
       <div className="glass-card px-5 py-4 mb-4 animate-fade-up shrink-0">
         <div className="flex items-start gap-3">
           <button
-            className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/5 transition-colors shrink-0 mt-0.5"
+            className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-slate-100 transition-colors shrink-0 mt-0.5"
             onClick={() => router.push('/inbox')}
             aria-label="Back to inbox"
           >

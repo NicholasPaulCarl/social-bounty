@@ -17,7 +17,7 @@ export function MainLayout({ navItems, children }: MainLayoutProps) {
     <div className="min-h-screen bg-bg-abyss">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-bg-surface focus:text-text-primary focus:p-2 focus:rounded focus:shadow-level-2 focus:ring-1 focus:ring-glass-border"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-text-primary focus:p-2 focus:rounded focus:shadow-level-2 focus:ring-1 focus:ring-slate-200"
       >
         Skip to main content
       </a>

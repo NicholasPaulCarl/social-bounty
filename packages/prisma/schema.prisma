@@ -7,8 +7,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ─────────────────────────────────────
@@ -301,52 +302,80 @@ enum EvidenceType {
 // ─────────────────────────────────────
 
 model User {
-  id            String     @id @default(uuid())
-  email         String     @unique
-  passwordHash  String
-  firstName     String
-  lastName      String
-  role          UserRole   @default(PARTICIPANT)
-  status        UserStatus @default(ACTIVE)
-  emailVerified Boolean    @default(false)
+  id                String     @id @default(uuid())
+  email             String     @unique
+  firstName         String
+  lastName          String
+  role              UserRole   @default(PARTICIPANT)
+  status            UserStatus @default(ACTIVE)
+  emailVerified     Boolean    @default(false)
   bio               String?    @db.VarChar(500)
   profilePictureUrl String?
-  interests         Json?      // string array: ["Fitness & Wellness", "Food & Cooking", ...]
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  interests         Json? // string array: ["Fitness & Wellness", "Food & Cooking", ...]
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   // Relations
-  submissions             Submission[]          @relation("UserSubmissions")
+  credential              UserCredential?
+  refreshTokenAudits      RefreshTokenAudit[]
+  submissions             Submission[]              @relation("UserSubmissions")
   socialLinks             SocialLink[]
-  reviewedSubmissions     Submission[]          @relation("ReviewerSubmissions")
+  reviewedSubmissions     Submission[]              @relation("ReviewerSubmissions")
   organisationMemberships OrganisationMember[]
-  createdBounties         Bounty[]              @relation("BountyCreator")
-  auditLogs               AuditLog[]            @relation("AuditActor")
-  fileUploads             FileUpload[]          @relation("FileUploader")
-  brandAssets             BrandAsset[]          @relation("BrandAssetUploader")
-  filedDisputes           Dispute[]             @relation("DisputeFiler")
-  resolvedDisputes        Dispute[]             @relation("DisputeResolver")
-  assignedDisputes        Dispute[]             @relation("DisputeAssignee")
+  createdBounties         Bounty[]                  @relation("BountyCreator")
+  auditLogs               AuditLog[]                @relation("AuditActor")
+  fileUploads             FileUpload[]              @relation("FileUploader")
+  brandAssets             BrandAsset[]              @relation("BrandAssetUploader")
+  filedDisputes           Dispute[]                 @relation("DisputeFiler")
+  resolvedDisputes        Dispute[]                 @relation("DisputeResolver")
+  assignedDisputes        Dispute[]                 @relation("DisputeAssignee")
   disputeMessages         DisputeMessage[]
   disputeEvidence         DisputeEvidence[]
   disputeStatusChanges    DisputeStatusHistory[]
   wallet                  Wallet?
   withdrawals             Withdrawal[]
-  bountyApplications      BountyApplication[]  @relation("UserApplications")
-  reviewedApplications    BountyApplication[]  @relation("ApplicationReviewer")
-  bountyInvitations       BountyInvitation[]   @relation("UserInvitations")
-  sentInvitations         BountyInvitation[]   @relation("InvitationCreator")
-  userSocialHandles       UserSocialHandle[]   @relation("UserSocialHandles")
-  notifications           Notification[]       @relation("UserNotifications")
-  conversationsCreated    Conversation[]       @relation("ConversationsCreated")
+  bountyApplications      BountyApplication[]       @relation("UserApplications")
+  reviewedApplications    BountyApplication[]       @relation("ApplicationReviewer")
+  bountyInvitations       BountyInvitation[]        @relation("UserInvitations")
+  sentInvitations         BountyInvitation[]        @relation("InvitationCreator")
+  userSocialHandles       UserSocialHandle[]        @relation("UserSocialHandles")
+  notifications           Notification[]            @relation("UserNotifications")
+  conversationsCreated    Conversation[]            @relation("ConversationsCreated")
   conversationMemberships ConversationParticipant[] @relation("ConversationParticipants")
-  messagesSent            Message[]            @relation("MessagesSent")
-  subscription            Subscription?        @relation("UserSubscription")
+  messagesSent            Message[]                 @relation("MessagesSent")
+  subscription            Subscription?             @relation("UserSubscription")
 
   @@index([email])
   @@index([role])
   @@index([status])
   @@map("users")
+}
+
+model UserCredential {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("user_credentials")
+}
+
+model RefreshTokenAudit {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jti       String
+  issuedAt  DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  ipAddress String?
+  userAgent String?
+
+  @@index([userId])
+  @@index([jti])
+  @@map("refresh_token_audits")
 }
 
 model Organisation {
@@ -385,25 +414,25 @@ model OrganisationMember {
 }
 
 model Bounty {
-  id                     String              @id @default(uuid())
-  organisationId         String
-  createdById            String
-  title                  String
-  shortDescription       String              @default("")
-  fullInstructions       String              @db.Text @default("")
-  category               String              @default("")
-  rewardType             RewardType          @default(CASH)
-  rewardValue            Decimal?            @db.Decimal(12, 2)
-  rewardDescription      String?
-  maxSubmissions         Int?
-  startDate              DateTime?
-  endDate                DateTime?
-  eligibilityRules       String              @db.Text @default("")
-  proofRequirements      String              @db.Text @default("")
-  status                 BountyStatus        @default(DRAFT)
-  deletedAt              DateTime?
-  createdAt              DateTime            @default(now())
-  updatedAt              DateTime            @updatedAt
+  id                String       @id @default(uuid())
+  organisationId    String
+  createdById       String
+  title             String
+  shortDescription  String       @default("")
+  fullInstructions  String       @default("") @db.Text
+  category          String       @default("")
+  rewardType        RewardType   @default(CASH)
+  rewardValue       Decimal?     @db.Decimal(12, 2)
+  rewardDescription String?
+  maxSubmissions    Int?
+  startDate         DateTime?
+  endDate           DateTime?
+  eligibilityRules  String       @default("") @db.Text
+  proofRequirements String       @default("") @db.Text
+  status            BountyStatus @default(DRAFT)
+  deletedAt         DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   // New fields for create bounty redesign
   currency               Currency            @default(ZAR)
@@ -425,8 +454,8 @@ model Bounty {
   adminFeeAmount         Decimal?            @db.Decimal(18, 2)
 
   // Relations
-  organisation Organisation       @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  createdBy    User               @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  organisation Organisation        @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  createdBy    User                @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
   submissions  Submission[]
   rewards      BountyReward[]
   brandAssets  BrandAsset[]
@@ -460,14 +489,14 @@ model BountyReward {
 }
 
 model Submission {
-  id           String           @id @default(uuid())
-  bountyId     String
-  userId       String
-  proofText    String           @db.Text
-  proofLinks   Json?
-  status       SubmissionStatus @default(SUBMITTED)
-  reviewerNote String?          @db.Text
-  reviewedById String?
+  id                   String           @id @default(uuid())
+  bountyId             String
+  userId               String
+  proofText            String           @db.Text
+  proofLinks           Json?
+  status               SubmissionStatus @default(SUBMITTED)
+  reviewerNote         String?          @db.Text
+  reviewedById         String?
   payoutStatus         PayoutStatus     @default(NOT_PAID)
   reportedMetrics      Json?
   verificationDeadline DateTime?
@@ -495,16 +524,16 @@ model Submission {
 }
 
 model Payout {
-  id                   String       @id @default(uuid())
-  submissionId         String       @unique
-  amount               Decimal      @db.Decimal(12, 2)
-  currency             Currency     @default(ZAR)
-  status               PayoutStatus @default(NOT_PAID)
-  paidAt               DateTime?
-  proofOfPaymentUrl    String?
-  proofOfPaymentName   String?
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
+  id                 String       @id @default(uuid())
+  submissionId       String       @unique
+  amount             Decimal      @db.Decimal(12, 2)
+  currency           Currency     @default(ZAR)
+  status             PayoutStatus @default(NOT_PAID)
+  paidAt             DateTime?
+  proofOfPaymentUrl  String?
+  proofOfPaymentName String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 
   submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
@@ -547,7 +576,7 @@ model FileUpload {
 
   // Relations
   submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  uploadedBy User      @relation("FileUploader", fields: [userId], references: [id], onDelete: Restrict)
+  uploadedBy User       @relation("FileUploader", fields: [userId], references: [id], onDelete: Restrict)
 
   @@index([submissionId])
   @@index([userId])
@@ -578,7 +607,7 @@ model SystemSetting {
   value     String
   type      String   @default("string") // string, boolean, number, json
   updatedAt DateTime @updatedAt
-  updatedBy String?  // userId of admin who last changed it
+  updatedBy String? // userId of admin who last changed it
 
   @@map("system_settings")
 }
@@ -588,13 +617,13 @@ model SystemSetting {
 // ─────────────────────────────────────
 
 model Dispute {
-  id                String            @id @default(uuid())
-  disputeNumber     String            @unique // DSP-000001
+  id                String             @id @default(uuid())
+  disputeNumber     String             @unique // DSP-000001
   category          DisputeCategory
-  status            DisputeStatus     @default(DRAFT)
+  status            DisputeStatus      @default(DRAFT)
   reason            DisputeReason
-  description       String            @db.Text
-  desiredOutcome    String            @db.Text
+  description       String             @db.Text
+  desiredOutcome    String             @db.Text
   submissionId      String
   bountyId          String
   openedByUserId    String
@@ -602,25 +631,25 @@ model Dispute {
   organisationId    String
   assignedToUserId  String?
   resolutionType    DisputeResolution?
-  resolutionSummary String?           @db.Text
+  resolutionSummary String?            @db.Text
   resolvedByUserId  String?
   resolvedAt        DateTime?
   escalatedAt       DateTime?
   responseDeadline  DateTime?
   relatedDisputeId  String?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
   // Relations
-  submission    Submission          @relation(fields: [submissionId], references: [id], onDelete: Restrict)
-  openedBy      User                @relation("DisputeFiler", fields: [openedByUserId], references: [id], onDelete: Restrict)
-  assignedTo    User?               @relation("DisputeAssignee", fields: [assignedToUserId], references: [id], onDelete: SetNull)
-  resolvedBy    User?               @relation("DisputeResolver", fields: [resolvedByUserId], references: [id], onDelete: SetNull)
-  relatedDispute Dispute?           @relation("DisputeChain", fields: [relatedDisputeId], references: [id], onDelete: SetNull)
-  childDisputes  Dispute[]          @relation("DisputeChain")
-  messages      DisputeMessage[]
-  evidence      DisputeEvidence[]
-  statusHistory DisputeStatusHistory[]
+  submission     Submission             @relation(fields: [submissionId], references: [id], onDelete: Restrict)
+  openedBy       User                   @relation("DisputeFiler", fields: [openedByUserId], references: [id], onDelete: Restrict)
+  assignedTo     User?                  @relation("DisputeAssignee", fields: [assignedToUserId], references: [id], onDelete: SetNull)
+  resolvedBy     User?                  @relation("DisputeResolver", fields: [resolvedByUserId], references: [id], onDelete: SetNull)
+  relatedDispute Dispute?               @relation("DisputeChain", fields: [relatedDisputeId], references: [id], onDelete: SetNull)
+  childDisputes  Dispute[]              @relation("DisputeChain")
+  messages       DisputeMessage[]
+  evidence       DisputeEvidence[]
+  statusHistory  DisputeStatusHistory[]
 
   @@index([submissionId])
   @@index([bountyId])
@@ -635,14 +664,14 @@ model Dispute {
 }
 
 model DisputeMessage {
-  id          String             @id @default(uuid())
-  disputeId   String
+  id           String             @id @default(uuid())
+  disputeId    String
   authorUserId String
-  authorRole  UserRole
-  messageType DisputeMessageType @default(COMMENT)
-  content     String             @db.Text
-  isInternal  Boolean            @default(false)
-  createdAt   DateTime           @default(now())
+  authorRole   UserRole
+  messageType  DisputeMessageType @default(COMMENT)
+  content      String             @db.Text
+  isInternal   Boolean            @default(false)
+  createdAt    DateTime           @default(now())
 
   // Relations
   dispute Dispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
@@ -655,17 +684,17 @@ model DisputeMessage {
 }
 
 model DisputeEvidence {
-  id             String       @id @default(uuid())
-  disputeId      String
+  id               String       @id @default(uuid())
+  disputeId        String
   uploadedByUserId String
-  evidenceType   EvidenceType
-  fileUrl        String?
-  url            String?
-  fileName       String?
-  mimeType       String?
-  fileSize       Int?
-  description    String?      @db.VarChar(500)
-  createdAt      DateTime     @default(now())
+  evidenceType     EvidenceType
+  fileUrl          String?
+  url              String?
+  fileName         String?
+  mimeType         String?
+  fileSize         Int?
+  description      String?      @db.VarChar(500)
+  createdAt        DateTime     @default(now())
 
   // Relations
   dispute    Dispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
@@ -677,14 +706,14 @@ model DisputeEvidence {
 }
 
 model DisputeStatusHistory {
-  id            String         @id @default(uuid())
-  disputeId     String
-  fromStatus    DisputeStatus?
-  toStatus      DisputeStatus
+  id              String         @id @default(uuid())
+  disputeId       String
+  fromStatus      DisputeStatus?
+  toStatus        DisputeStatus
   changedByUserId String
-  changedByRole UserRole
-  note          String?        @db.Text
-  createdAt     DateTime       @default(now())
+  changedByRole   UserRole
+  note            String?        @db.Text
+  createdAt       DateTime       @default(now())
 
   // Relations
   dispute   Dispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
@@ -700,17 +729,17 @@ model DisputeStatusHistory {
 // ─────────────────────────────────────
 
 model SocialLink {
-  id             String        @id @default(uuid())
-  userId         String
-  platform       SocialChannel
-  url            String
-  handle         String?
-  followerCount  Int?
-  postCount      Int?
-  isVerified     Boolean       @default(false)
-  verifiedAt     DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id            String        @id @default(uuid())
+  userId        String
+  platform      SocialChannel
+  url           String
+  handle        String?
+  followerCount Int?
+  postCount     Int?
+  isVerified    Boolean       @default(false)
+  verifiedAt    DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -724,15 +753,15 @@ model SocialLink {
 // ─────────────────────────────────────
 
 model Wallet {
-  id              String    @id @default(uuid())
-  userId          String    @unique
-  balance         Decimal   @default(0) @db.Decimal(12, 2)
-  pendingBalance  Decimal   @default(0) @db.Decimal(12, 2)
-  currency        Currency  @default(ZAR)
-  totalEarned     Decimal   @default(0) @db.Decimal(12, 2)
-  totalWithdrawn  Decimal   @default(0) @db.Decimal(12, 2)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  balance        Decimal  @default(0) @db.Decimal(12, 2)
+  pendingBalance Decimal  @default(0) @db.Decimal(12, 2)
+  currency       Currency @default(ZAR)
+  totalEarned    Decimal  @default(0) @db.Decimal(12, 2)
+  totalWithdrawn Decimal  @default(0) @db.Decimal(12, 2)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   user         User                @relation(fields: [userId], references: [id], onDelete: Restrict)
   transactions WalletTransaction[]
@@ -743,16 +772,16 @@ model Wallet {
 }
 
 model WalletTransaction {
-  id             String       @id @default(uuid())
-  walletId       String
-  type           WalletTxType
-  amount         Decimal      @db.Decimal(12, 2)
-  description    String
-  referenceType  String       // SUBMISSION, WITHDRAWAL, CORRECTION, REFUND
-  referenceId    String
-  balanceBefore  Decimal      @db.Decimal(12, 2)
-  balanceAfter   Decimal      @db.Decimal(12, 2)
-  createdAt      DateTime     @default(now())
+  id            String       @id @default(uuid())
+  walletId      String
+  type          WalletTxType
+  amount        Decimal      @db.Decimal(12, 2)
+  description   String
+  referenceType String // SUBMISSION, WITHDRAWAL, CORRECTION, REFUND
+  referenceId   String
+  balanceBefore Decimal      @db.Decimal(12, 2)
+  balanceAfter  Decimal      @db.Decimal(12, 2)
+  createdAt     DateTime     @default(now())
 
   wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Restrict)
 
@@ -763,19 +792,19 @@ model WalletTransaction {
 }
 
 model Withdrawal {
-  id             String           @id @default(uuid())
-  walletId       String
-  userId         String
-  amount         Decimal          @db.Decimal(12, 2)
-  currency       Currency         @default(ZAR)
-  method         PayoutMethod
-  status         WithdrawalStatus @default(REQUESTED)
-  destination    Json
-  processedAt    DateTime?
-  failureReason  String?          @db.Text
-  proofUrl       String?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id            String           @id @default(uuid())
+  walletId      String
+  userId        String
+  amount        Decimal          @db.Decimal(12, 2)
+  currency      Currency         @default(ZAR)
+  method        PayoutMethod
+  status        WithdrawalStatus @default(REQUESTED)
+  destination   Json
+  processedAt   DateTime?
+  failureReason String?          @db.Text
+  proofUrl      String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 
   wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Restrict)
   user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
@@ -792,15 +821,15 @@ model Withdrawal {
 // ─────────────────────────────────────
 
 model BountyApplication {
-  id          String                   @id @default(uuid())
-  bountyId    String
-  userId      String
-  status      BountyApplicationStatus  @default(PENDING)
-  message     String?                  @db.Text
-  reviewedBy  String?
-  reviewNote  String?                  @db.Text
-  appliedAt   DateTime                 @default(now())
-  reviewedAt  DateTime?
+  id         String                  @id @default(uuid())
+  bountyId   String
+  userId     String
+  status     BountyApplicationStatus @default(PENDING)
+  message    String?                 @db.Text
+  reviewedBy String?
+  reviewNote String?                 @db.Text
+  appliedAt  DateTime                @default(now())
+  reviewedAt DateTime?
 
   bounty   Bounty @relation("BountyApplications", fields: [bountyId], references: [id], onDelete: Cascade)
   user     User   @relation("UserApplications", fields: [userId], references: [id])
@@ -814,16 +843,16 @@ model BountyApplication {
 }
 
 model BountyInvitation {
-  id            String                   @id @default(uuid())
-  bountyId      String
-  userId        String?
+  id             String                 @id @default(uuid())
+  bountyId       String
+  userId         String?
   socialPlatform SocialPlatform
-  socialHandle  String
-  status        BountyInvitationStatus   @default(PENDING)
-  invitedBy     String
-  invitedAt     DateTime                 @default(now())
-  respondedAt   DateTime?
-  expiresAt     DateTime?
+  socialHandle   String
+  status         BountyInvitationStatus @default(PENDING)
+  invitedBy      String
+  invitedAt      DateTime               @default(now())
+  respondedAt    DateTime?
+  expiresAt      DateTime?
 
   bounty  Bounty @relation("BountyInvitations", fields: [bountyId], references: [id], onDelete: Cascade)
   user    User?  @relation("UserInvitations", fields: [userId], references: [id])
@@ -902,7 +931,7 @@ model Conversation {
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
 
-  creator      User                       @relation("ConversationsCreated", fields: [createdBy], references: [id])
+  creator      User                      @relation("ConversationsCreated", fields: [createdBy], references: [id])
   participants ConversationParticipant[]
   messages     Message[]
 
@@ -953,29 +982,29 @@ model Message {
 // ─────────────────────────────────────
 
 model Subscription {
-  id                  String                 @id @default(uuid())
-  userId              String?                @unique
-  organisationId      String?                @unique
-  entityType          SubscriptionEntityType
-  tier                SubscriptionTier       @default(FREE)
-  status              SubscriptionStatus     @default(FREE)
-  priceAmount         Decimal                @db.Decimal(10, 2)
-  currency            Currency               @default(ZAR)
-  currentPeriodStart  DateTime?
-  currentPeriodEnd    DateTime?
-  cancelledAt         DateTime?
-  cancelAtPeriodEnd   Boolean                @default(false)
-  gracePeriodEndsAt   DateTime?
-  failedPaymentCount  Int                    @default(0)
-  provider            String?
-  providerSubId       String?
-  providerCustomerId  String?
-  metadata            Json                   @default("{}")
-  createdAt           DateTime               @default(now())
-  updatedAt           DateTime               @updatedAt
+  id                 String                 @id @default(uuid())
+  userId             String?                @unique
+  organisationId     String?                @unique
+  entityType         SubscriptionEntityType
+  tier               SubscriptionTier       @default(FREE)
+  status             SubscriptionStatus     @default(FREE)
+  priceAmount        Decimal                @db.Decimal(10, 2)
+  currency           Currency               @default(ZAR)
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelledAt        DateTime?
+  cancelAtPeriodEnd  Boolean                @default(false)
+  gracePeriodEndsAt  DateTime?
+  failedPaymentCount Int                    @default(0)
+  provider           String?
+  providerSubId      String?
+  providerCustomerId String?
+  metadata           Json                   @default("{}")
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
 
-  user         User?                @relation("UserSubscription", fields: [userId], references: [id])
-  organisation Organisation?        @relation("OrgSubscription", fields: [organisationId], references: [id])
+  user         User?                 @relation("UserSubscription", fields: [userId], references: [id])
+  organisation Organisation?         @relation("OrgSubscription", fields: [organisationId], references: [id])
   payments     SubscriptionPayment[]
 
   @@unique([userId, entityType])

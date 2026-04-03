@@ -54,12 +54,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const promise = (async () => {
       try {
-        const storedRefreshToken = localStorage.getItem('sb_refresh_token');
-        if (!storedRefreshToken) return null;
-
-        const response = await authApi.refresh({ refreshToken: storedRefreshToken });
+        // Refresh token is sent automatically via httpOnly cookie (credentials: 'include')
+        const response = await authApi.refresh();
         setAccessToken(response.accessToken);
-        localStorage.setItem('sb_refresh_token', response.refreshToken);
 
         const decoded = decodeToken(response.accessToken);
         if (decoded) {
@@ -73,7 +70,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return response.accessToken;
       } catch {
         clearTokens();
-        localStorage.removeItem('sb_refresh_token');
         setUser(null);
         return null;
       } finally {
@@ -86,7 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Configure the API client synchronously on mount and when refreshAccessToken changes
-  // Use a ref to ensure the latest refreshAccessToken is always called
   const refreshFnRef = useRef(refreshAccessToken);
   refreshFnRef.current = refreshAccessToken;
 
@@ -96,10 +91,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function initAuth() {
-      const storedRefreshToken = localStorage.getItem('sb_refresh_token');
-      if (storedRefreshToken) {
-        // Use the mutex-protected refreshAccessToken so any concurrent
-        // calls (e.g. from useUnreadCount) share the same request
+      // Check if we have a role cookie (indicates a previous session)
+      const hasAuthCookie = document.cookie.includes('sb_auth_role=');
+      if (hasAuthCookie) {
+        // Try to refresh — httpOnly cookie sent automatically
         const token = await refreshAccessToken();
         if (token) {
           const decoded = decodeToken(token);
@@ -118,7 +113,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         } else {
           clearTokens();
-          localStorage.removeItem('sb_refresh_token');
           document.cookie = 'sb_auth_role=; path=/; max-age=0';
         }
       }
@@ -147,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (email: string, password: string) => {
       const response = await authApi.login({ email, password });
       setAccessToken(response.accessToken);
-      localStorage.setItem('sb_refresh_token', response.refreshToken);
+      // Refresh token is set as httpOnly cookie by the API — no localStorage needed
       setUser(response.user);
 
       // Set auth cookie for middleware route protection
@@ -162,15 +156,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      const refreshToken = localStorage.getItem('sb_refresh_token');
-      if (refreshToken) {
-        await authApi.logout({ refreshToken });
-      }
+      // API clears the httpOnly refresh cookie
+      await authApi.logout();
     } catch {
       // Ignore logout API errors
     } finally {
       clearTokens();
-      localStorage.removeItem('sb_refresh_token');
       document.cookie = 'sb_auth_role=; path=/; max-age=0';
       setUser(null);
       router.push('/login');

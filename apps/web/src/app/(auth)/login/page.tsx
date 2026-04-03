@@ -4,18 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
-import { Button } from 'primereact/button';
-import { Message } from 'primereact/message';
 import { useAuth } from '@/hooks/useAuth';
 import { ApiError } from '@/lib/api/client';
-
-const DEMO_ACCOUNTS = [
-  { label: 'Demo Participant', email: 'participant@demo.com', icon: 'pi pi-user', severity: 'info' as const },
-  { label: 'Demo Business Admin', email: 'admin@demo.com', icon: 'pi pi-briefcase', severity: 'success' as const },
-  { label: 'Demo Super Admin', email: 'superadmin@demo.com', icon: 'pi pi-shield', severity: 'warning' as const },
-];
-
-const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -23,7 +13,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,23 +29,6 @@ export default function LoginPage() {
       }
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleDemoLogin = async (demoEmail: string) => {
-    setError('');
-    setDemoLoading(demoEmail);
-
-    try {
-      await login(demoEmail, 'DemoPassword123!');
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
-    } finally {
-      setDemoLoading(null);
     }
   };
 
@@ -152,43 +124,6 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* ── Demo accounts ── */}
-      {isDemoMode && (
-        <div className="mt-8">
-          {/* Divider */}
-          <div className="relative flex items-center justify-center mb-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-glass-border" />
-            </div>
-            <span className="relative bg-bg-surface/80 px-3 text-xs uppercase tracking-wider text-text-muted">
-              Or sign in as a demo user
-            </span>
-          </div>
-
-          <div className="space-y-2.5">
-            {DEMO_ACCOUNTS.map((account) => (
-              <button
-                key={account.email}
-                type="button"
-                disabled={loading || (demoLoading !== null && demoLoading !== account.email)}
-                onClick={() => handleDemoLogin(account.email)}
-                className="group w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium
-                           border border-glass-border bg-glass-bg text-text-secondary
-                           hover:bg-glass-hover hover:text-text-primary hover:border-accent-cyan/40 hover:shadow-glow-cyan
-                           transition-all duration-normal
-                           disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {demoLoading === account.email ? (
-                  <i className="pi pi-spinner pi-spin text-accent-cyan" />
-                ) : (
-                  <i className={`${account.icon} text-accent-cyan`} />
-                )}
-                {account.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
