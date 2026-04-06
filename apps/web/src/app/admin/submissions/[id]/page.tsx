@@ -95,16 +95,16 @@ export default function AdminSubmissionDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Proof of Completion</h3>
+            <h3 className="text-lg font-semibold text-on-surface mb-4">Proof of Completion</h3>
             <div className="space-y-4">
               <div>
-                <h4 className="text-sm font-medium text-neutral-500 mb-1">Text Proof</h4>
-                <p className="text-neutral-800 whitespace-pre-wrap">{submission.proofText}</p>
+                <h4 className="text-sm font-medium text-on-surface-variant mb-1">Text Proof</h4>
+                <p className="text-on-surface whitespace-pre-wrap">{submission.proofText}</p>
               </div>
 
               {submission.proofLinks && submission.proofLinks.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-neutral-500 mb-1">Links</h4>
+                  <h4 className="text-sm font-medium text-on-surface-variant mb-1">Links</h4>
                   <ul className="space-y-1">
                     {submission.proofLinks.map((link: string, i: number) => (
                       <li key={i}>
@@ -112,7 +112,7 @@ export default function AdminSubmissionDetailPage() {
                           href={link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-primary-600 hover:text-primary-700 underline"
+                          className="text-primary hover:opacity-80 underline"
                         >
                           {link}
                         </a>
@@ -124,7 +124,7 @@ export default function AdminSubmissionDetailPage() {
 
               {submission.proofImages && submission.proofImages.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-neutral-500 mb-2">Images</h4>
+                  <h4 className="text-sm font-medium text-on-surface-variant mb-2">Images</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {submission.proofImages.map((img: { id: string; fileUrl: string; fileName: string }) => (
                       <Image key={img.id} src={img.fileUrl} alt={img.fileName} preview width="200" className="rounded-lg" />
@@ -138,49 +138,49 @@ export default function AdminSubmissionDetailPage() {
 
         <div className="space-y-6">
           <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Status</h3>
+            <h3 className="text-lg font-semibold text-on-surface mb-4">Status</h3>
             <dl className="space-y-3">
               <div>
-                <dt className="text-sm text-neutral-500">Submission Status</dt>
+                <dt className="text-sm text-on-surface-variant">Submission Status</dt>
                 <dd className="mt-1"><StatusBadge type="submission" value={submission.status} /></dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Payout Status</dt>
+                <dt className="text-sm text-on-surface-variant">Payout Status</dt>
                 <dd className="mt-1"><StatusBadge type="payout" value={submission.payoutStatus} /></dd>
               </div>
             </dl>
           </Card>
 
           <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Details</h3>
+            <h3 className="text-lg font-semibold text-on-surface mb-4">Details</h3>
             <dl className="space-y-3">
               <div>
-                <dt className="text-sm text-neutral-500">Participant</dt>
-                <dd className="text-sm font-medium text-neutral-900">{submission.user ? `${submission.user.firstName} ${submission.user.lastName}` : 'Unknown'}</dd>
+                <dt className="text-sm text-on-surface-variant">Participant</dt>
+                <dd className="text-sm font-medium text-on-surface">{submission.user ? `${submission.user.firstName} ${submission.user.lastName}` : 'Unknown'}</dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Bounty</dt>
+                <dt className="text-sm text-on-surface-variant">Bounty</dt>
                 <dd
-                  className="text-sm font-medium text-primary-600 hover:text-primary-700 cursor-pointer"
+                  className="text-sm font-medium text-primary hover:opacity-80 cursor-pointer"
                   onClick={() => router.push(`/admin/bounties/${submission.bountyId}`)}
                 >
                   {submission.bounty?.title || 'View Bounty'}
                 </dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Submitted</dt>
-                <dd className="text-sm font-medium text-neutral-900">{formatDateTime(submission.createdAt)}</dd>
+                <dt className="text-sm text-on-surface-variant">Submitted</dt>
+                <dd className="text-sm font-medium text-on-surface">{formatDateTime(submission.createdAt)}</dd>
               </div>
               {submission.reviewedBy && (
                 <div>
-                  <dt className="text-sm text-neutral-500">Reviewed By</dt>
-                  <dd className="text-sm font-medium text-neutral-900">{submission.reviewedBy.firstName} {submission.reviewedBy.lastName}</dd>
+                  <dt className="text-sm text-on-surface-variant">Reviewed By</dt>
+                  <dd className="text-sm font-medium text-on-surface">{submission.reviewedBy.firstName} {submission.reviewedBy.lastName}</dd>
                 </div>
               )}
               {submission.reviewerNote && (
                 <div>
-                  <dt className="text-sm text-neutral-500">Review Note</dt>
-                  <dd className="text-sm text-neutral-800">{submission.reviewerNote}</dd>
+                  <dt className="text-sm text-on-surface-variant">Review Note</dt>
+                  <dd className="text-sm text-on-surface">{submission.reviewerNote}</dd>
                 </div>
               )}
             </dl>

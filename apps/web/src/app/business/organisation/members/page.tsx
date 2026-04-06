@@ -139,7 +139,7 @@ export default function OrganisationMembersPage() {
         }
       >
         <div>
-          <label htmlFor="invite-email" className="block text-sm font-medium text-neutral-700 mb-1">
+          <label htmlFor="invite-email" className="block text-sm font-medium text-on-surface mb-1">
             Email Address
           </label>
           <InputText

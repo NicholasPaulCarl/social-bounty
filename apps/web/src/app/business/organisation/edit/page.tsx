@@ -73,7 +73,7 @@ export default function EditOrganisationPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label htmlFor="name" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
               Organisation Name *
             </label>
             <InputText
@@ -86,7 +86,7 @@ export default function EditOrganisationPage() {
           </div>
 
           <div>
-            <label htmlFor="contactEmail" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label htmlFor="contactEmail" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
               Contact Email *
             </label>
             <InputText
@@ -100,7 +100,7 @@ export default function EditOrganisationPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">
+            <label className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
               Logo
             </label>
             {org.logo && (

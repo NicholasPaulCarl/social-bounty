@@ -16,7 +16,7 @@ export function ScheduleSection({ startDate, endDate, dispatch, errors, submitAt
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label htmlFor="startDate" className="block text-sm font-medium text-neutral-700 mb-1.5">
+        <label htmlFor="startDate" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
           Start Date
         </label>
         <Calendar
@@ -28,10 +28,10 @@ export function ScheduleSection({ startDate, endDate, dispatch, errors, submitAt
           placeholder="Optional"
           minDate={new Date()}
         />
-        <small className="text-xs text-neutral-500 mt-1 block">When the bounty becomes available</small>
+        <small className="text-xs text-on-surface-variant mt-1 block">When the bounty becomes available</small>
       </div>
       <div>
-        <label htmlFor="endDate" className="block text-sm font-medium text-neutral-700 mb-1.5">
+        <label htmlFor="endDate" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
           End Date
         </label>
         <Calendar
@@ -44,9 +44,9 @@ export function ScheduleSection({ startDate, endDate, dispatch, errors, submitAt
           placeholder="Optional"
           minDate={startDate || new Date()}
         />
-        <small className="text-xs text-neutral-500 mt-1 block">When the bounty closes for submissions</small>
+        <small className="text-xs text-on-surface-variant mt-1 block">When the bounty closes for submissions</small>
         {errors.endDate && (
-          <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+          <small className="text-xs text-error mt-1 flex items-center gap-1">
             <i className="pi pi-exclamation-circle text-xs" />
             {errors.endDate}
           </small>

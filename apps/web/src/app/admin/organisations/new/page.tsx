@@ -55,7 +55,7 @@ export default function AdminCreateOrganisationPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label htmlFor="name" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
               Organisation Name *
             </label>
             <InputText
@@ -69,7 +69,7 @@ export default function AdminCreateOrganisationPage() {
           </div>
 
           <div>
-            <label htmlFor="contactEmail" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label htmlFor="contactEmail" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
               Contact Email *
             </label>
             <InputText
@@ -84,7 +84,7 @@ export default function AdminCreateOrganisationPage() {
           </div>
 
           <div>
-            <label htmlFor="ownerUserId" className="block text-sm font-medium text-neutral-700 mb-1">
+            <label htmlFor="ownerUserId" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
               Owner User ID *
             </label>
             <InputText
@@ -95,7 +95,7 @@ export default function AdminCreateOrganisationPage() {
               placeholder="User UUID"
               required
             />
-            <p className="text-xs text-neutral-500 mt-1">
+            <p className="text-xs text-on-surface-variant mt-1">
               The user ID of the person who will be assigned as organisation owner.
             </p>
           </div>

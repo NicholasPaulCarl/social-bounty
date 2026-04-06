@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
-import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
 import { useToast } from '@/hooks/useToast';
@@ -77,115 +75,137 @@ export default function SignupPage() {
   };
 
   return (
-    <Card>
-      <h2 className="text-xl font-semibold text-neutral-900 text-center mb-6">Create Account</h2>
+    <>
+      <h2 className="text-2xl font-bold text-on-surface text-center mb-8 font-headline tracking-tight">Create Account</h2>
 
-      {error && <Message severity="error" text={error} className="w-full mb-4" />}
+      {error && (
+        <div className="bg-error-container p-4 rounded-2xl flex items-center space-x-3 mb-6">
+          <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+          <p className="text-sm text-error">{error}</p>
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-1">
+          <div className="group">
+            <label htmlFor="firstName" className="block text-sm font-semibold mb-2 ml-4 group-focus-within:text-primary transition-colors">
               First Name
             </label>
-            <InputText
-              id="firstName"
-              value={form.firstName}
-              onChange={(e) => updateField('firstName', e.target.value)}
-              required
-              className={`w-full ${fieldErrors.firstName ? 'p-invalid' : ''}`}
-            />
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant">person</span>
+              <InputText
+                id="firstName"
+                value={form.firstName}
+                onChange={(e) => updateField('firstName', e.target.value)}
+                required
+                className={`w-full pl-14 ${fieldErrors.firstName ? 'p-invalid' : ''}`}
+              />
+            </div>
             {fieldErrors.firstName && (
-              <small className="text-danger-600">{fieldErrors.firstName}</small>
+              <small className="text-error ml-4 mt-1 block">{fieldErrors.firstName}</small>
             )}
           </div>
-          <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 mb-1">
+          <div className="group">
+            <label htmlFor="lastName" className="block text-sm font-semibold mb-2 ml-4 group-focus-within:text-primary transition-colors">
               Last Name
             </label>
-            <InputText
-              id="lastName"
-              value={form.lastName}
-              onChange={(e) => updateField('lastName', e.target.value)}
-              required
-              className={`w-full ${fieldErrors.lastName ? 'p-invalid' : ''}`}
-            />
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant">person</span>
+              <InputText
+                id="lastName"
+                value={form.lastName}
+                onChange={(e) => updateField('lastName', e.target.value)}
+                required
+                className={`w-full pl-14 ${fieldErrors.lastName ? 'p-invalid' : ''}`}
+              />
+            </div>
             {fieldErrors.lastName && (
-              <small className="text-danger-600">{fieldErrors.lastName}</small>
+              <small className="text-error ml-4 mt-1 block">{fieldErrors.lastName}</small>
             )}
           </div>
         </div>
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">
+        <div className="group">
+          <label htmlFor="email" className="block text-sm font-semibold mb-2 ml-4 group-focus-within:text-primary transition-colors">
             Email
           </label>
-          <InputText
-            id="email"
-            type="email"
-            value={form.email}
-            onChange={(e) => updateField('email', e.target.value)}
-            required
-            className={`w-full ${fieldErrors.email ? 'p-invalid' : ''}`}
-            placeholder="you@example.com"
-          />
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant">mail</span>
+            <InputText
+              id="email"
+              type="email"
+              value={form.email}
+              onChange={(e) => updateField('email', e.target.value)}
+              required
+              className={`w-full pl-14 ${fieldErrors.email ? 'p-invalid' : ''}`}
+              placeholder="you@example.com"
+            />
+          </div>
           {fieldErrors.email && (
-            <small className="text-danger-600">{fieldErrors.email}</small>
+            <small className="text-error ml-4 mt-1 block">{fieldErrors.email}</small>
           )}
         </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-1">
+        <div className="group">
+          <label htmlFor="password" className="block text-sm font-semibold mb-2 ml-4 group-focus-within:text-primary transition-colors">
             Password
           </label>
-          <Password
-            id="password"
-            value={form.password}
-            onChange={(e) => updateField('password', e.target.value)}
-            required
-            toggleMask
-            className={`w-full ${fieldErrors.password ? 'p-invalid' : ''}`}
-            inputClassName="w-full"
-          />
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant z-10">lock</span>
+            <Password
+              id="password"
+              value={form.password}
+              onChange={(e) => updateField('password', e.target.value)}
+              required
+              toggleMask
+              className={`w-full ${fieldErrors.password ? 'p-invalid' : ''}`}
+              inputClassName="w-full pl-14"
+            />
+          </div>
           {fieldErrors.password && (
-            <small className="text-danger-600">{fieldErrors.password}</small>
+            <small className="text-error ml-4 mt-1 block">{fieldErrors.password}</small>
           )}
         </div>
 
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+        <div className="group">
+          <label htmlFor="confirmPassword" className="block text-sm font-semibold mb-2 ml-4 group-focus-within:text-primary transition-colors">
             Confirm Password
           </label>
-          <Password
-            id="confirmPassword"
-            value={form.confirmPassword}
-            onChange={(e) => updateField('confirmPassword', e.target.value)}
-            required
-            feedback={false}
-            toggleMask
-            className={`w-full ${fieldErrors.confirmPassword ? 'p-invalid' : ''}`}
-            inputClassName="w-full"
-          />
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant z-10">lock</span>
+            <Password
+              id="confirmPassword"
+              value={form.confirmPassword}
+              onChange={(e) => updateField('confirmPassword', e.target.value)}
+              required
+              feedback={false}
+              toggleMask
+              className={`w-full ${fieldErrors.confirmPassword ? 'p-invalid' : ''}`}
+              inputClassName="w-full pl-14"
+            />
+          </div>
           {fieldErrors.confirmPassword && (
-            <small className="text-danger-600">{fieldErrors.confirmPassword}</small>
+            <small className="text-error ml-4 mt-1 block">{fieldErrors.confirmPassword}</small>
           )}
         </div>
 
-        <Button
-          type="submit"
-          label="Create Account"
-          icon="pi pi-user-plus"
-          loading={loading}
-          className="w-full"
-        />
+        <div className="pt-2">
+          <Button
+            type="submit"
+            label="Create Account"
+            icon="pi pi-user-plus"
+            loading={loading}
+            className="w-full"
+          />
+        </div>
       </form>
 
-      <p className="text-sm text-neutral-500 text-center mt-6">
+      <p className="text-sm text-on-surface-variant text-center mt-8">
         Already have an account?{' '}
-        <Link href="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+        <Link href="/login" className="text-primary hover:opacity-80 transition-opacity font-medium">
           Sign In
         </Link>
       </p>
-    </Card>
+    </>
   );
 }

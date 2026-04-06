@@ -95,8 +95,8 @@ export function CreateBountyForm({
             hasError={state.submitAttempted && getSectionErrors('bountyBasicInfo', state.errors).length > 0}
           >
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-neutral-700 mb-1.5">
-                Title <span className="text-danger-500">*</span>
+              <label htmlFor="title" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
+                Title <span className="text-error">*</span>
               </label>
               <InputText
                 id="title"
@@ -107,11 +107,11 @@ export function CreateBountyForm({
                 placeholder="Enter bounty title"
                 maxLength={FIELD_LIMITS.BOUNTY_TITLE_MAX}
               />
-              <small className="text-xs text-neutral-400 mt-1 block text-right">
+              <small className="text-xs text-on-surface-variant mt-1 block text-right">
                 {state.title.length}/{FIELD_LIMITS.BOUNTY_TITLE_MAX}
               </small>
               {state.errors.title && (
-                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                <small className="text-xs text-error mt-1 flex items-center gap-1">
                   <i className="pi pi-exclamation-circle text-xs" />
                   {state.errors.title}
                 </small>
@@ -119,8 +119,8 @@ export function CreateBountyForm({
             </div>
 
             <div>
-              <label htmlFor="shortDescription" className="block text-sm font-medium text-neutral-700 mb-1.5">
-                Campaign or Brand Description <span className="text-danger-500">*</span>
+              <label htmlFor="shortDescription" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
+                Campaign or Brand Description <span className="text-error">*</span>
               </label>
               <InputTextarea
                 id="shortDescription"
@@ -132,11 +132,11 @@ export function CreateBountyForm({
                 placeholder="Brief summary visible in bounty listings"
                 maxLength={FIELD_LIMITS.SHORT_DESCRIPTION_MAX}
               />
-              <small className="text-xs text-neutral-400 mt-1 block text-right">
+              <small className="text-xs text-on-surface-variant mt-1 block text-right">
                 {state.shortDescription.length}/{FIELD_LIMITS.SHORT_DESCRIPTION_MAX}
               </small>
               {state.submitAttempted && state.errors.shortDescription && (
-                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                <small className="text-xs text-error mt-1 flex items-center gap-1">
                   <i className="pi pi-exclamation-circle text-xs" />
                   {state.errors.shortDescription}
                 </small>
@@ -144,8 +144,8 @@ export function CreateBountyForm({
             </div>
 
             <div>
-              <label htmlFor="fullInstructions" className="block text-sm font-medium text-neutral-700 mb-1.5">
-                Instructions <span className="text-danger-500">*</span>
+              <label htmlFor="fullInstructions" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
+                Instructions <span className="text-error">*</span>
               </label>
               <InputTextarea
                 id="fullInstructions"
@@ -156,7 +156,7 @@ export function CreateBountyForm({
                 placeholder="Detailed step-by-step instructions for participants"
               />
               {state.submitAttempted && state.errors.fullInstructions && (
-                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                <small className="text-xs text-error mt-1 flex items-center gap-1">
                   <i className="pi pi-exclamation-circle text-xs" />
                   {state.errors.fullInstructions}
                 </small>

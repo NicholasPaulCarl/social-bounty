@@ -32,7 +32,7 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
               checked={minFollowersEnabled}
               onChange={(e) => dispatch({ type: 'SET_MIN_FOLLOWERS', payload: e.value ? 500 : null })}
             />
-            <span className="text-sm text-neutral-700">Minimum Followers</span>
+            <span className="text-sm text-on-surface">Minimum Followers</span>
           </div>
           {minFollowersEnabled && (
             <InputNumber
@@ -52,7 +52,7 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
               checked={eligibility.publicProfile || false}
               onChange={(e) => dispatch({ type: 'SET_PUBLIC_PROFILE', payload: e.value })}
             />
-            <span className="text-sm text-neutral-700">Public Profile Required</span>
+            <span className="text-sm text-on-surface">Public Profile Required</span>
           </div>
         </div>
 
@@ -63,7 +63,7 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
               checked={minAccountAgeEnabled}
               onChange={(e) => dispatch({ type: 'SET_MIN_ACCOUNT_AGE', payload: e.value ? 90 : null })}
             />
-            <span className="text-sm text-neutral-700">Minimum Account Age (days)</span>
+            <span className="text-sm text-on-surface">Minimum Account Age (days)</span>
           </div>
           {minAccountAgeEnabled && (
             <InputNumber
@@ -83,7 +83,7 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
               checked={locationEnabled}
               onChange={(e) => dispatch({ type: 'SET_LOCATION_RESTRICTION', payload: e.value ? '' : null })}
             />
-            <span className="text-sm text-neutral-700">Location Restriction</span>
+            <span className="text-sm text-on-surface">Location Restriction</span>
           </div>
           {locationEnabled && (
             <InputText
@@ -103,7 +103,7 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
               checked={noCompetingEnabled}
               onChange={(e) => dispatch({ type: 'SET_NO_COMPETING_BRAND_DAYS', payload: e.value ? 30 : null })}
             />
-            <span className="text-sm text-neutral-700">No Competing Brand (days)</span>
+            <span className="text-sm text-on-surface">No Competing Brand (days)</span>
           </div>
           {noCompetingEnabled && (
             <InputNumber
@@ -118,8 +118,8 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
       </div>
 
       {/* Custom Rules */}
-      <div className="mt-4 pt-4 border-t border-neutral-200">
-        <h4 className="text-sm font-semibold text-neutral-700 mb-3">Custom Rules</h4>
+      <div className="mt-4 pt-4 border-t border-outline-variant">
+        <h4 className="text-sm font-semibold text-on-surface mb-3">Custom Rules</h4>
         <div className="space-y-3">
           {customRules.map((rule, index) => (
             <div key={index} className="flex items-center gap-2">
@@ -148,7 +148,7 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
             onClick={() => dispatch({ type: 'ADD_CUSTOM_RULE' })}
           />
           {customRules.length >= BOUNTY_REWARD_LIMITS.MAX_CUSTOM_ELIGIBILITY_RULES && (
-            <small className="text-xs text-neutral-500">Maximum {BOUNTY_REWARD_LIMITS.MAX_CUSTOM_ELIGIBILITY_RULES} custom rules</small>
+            <small className="text-xs text-on-surface-variant">Maximum {BOUNTY_REWARD_LIMITS.MAX_CUSTOM_ELIGIBILITY_RULES} custom rules</small>
           )}
         </div>
       </div>

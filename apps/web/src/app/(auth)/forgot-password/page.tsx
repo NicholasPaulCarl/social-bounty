@@ -4,8 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
-import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
 
@@ -36,60 +34,72 @@ export default function ForgotPasswordPage() {
 
   if (submitted) {
     return (
-      <Card>
+      <>
         <div className="text-center">
-          <i className="pi pi-envelope text-primary-500" style={{ fontSize: '3rem' }} />
-          <h2 className="text-xl font-semibold text-neutral-900 mt-4">Check your email</h2>
-          <p className="text-neutral-600 mt-2">
-            If an account exists with <strong>{email}</strong>, we have sent a password reset link.
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-primary" style={{ fontSize: '2rem' }}>mail</span>
+          </div>
+          <h2 className="text-2xl font-bold text-on-surface font-headline tracking-tight">Check your email</h2>
+          <p className="text-on-surface-variant mt-3">
+            If an account exists with <strong className="text-on-surface">{email}</strong>, we have sent a password reset link.
           </p>
-          <Link href="/login" className="inline-block mt-6 text-primary-600 hover:text-primary-700 font-medium">
+          <Link href="/login" className="inline-block mt-8 text-primary hover:opacity-80 transition-opacity font-medium">
             Back to Sign In
           </Link>
         </div>
-      </Card>
+      </>
     );
   }
 
   return (
-    <Card>
-      <h2 className="text-xl font-semibold text-neutral-900 text-center mb-2">Forgot Password</h2>
-      <p className="text-sm text-neutral-500 text-center mb-6">
+    <>
+      <h2 className="text-2xl font-bold text-on-surface text-center mb-2 font-headline tracking-tight">Forgot Password</h2>
+      <p className="text-on-surface-variant text-center mb-8">
         Enter your email and we will send you a reset link.
       </p>
 
-      {error && <Message severity="error" text={error} className="w-full mb-4" />}
+      {error && (
+        <div className="bg-error-container p-4 rounded-2xl flex items-center space-x-3 mb-6">
+          <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+          <p className="text-sm text-error">{error}</p>
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="group">
+          <label htmlFor="email" className="block text-sm font-semibold mb-2 ml-4 group-focus-within:text-primary transition-colors">
             Email
           </label>
-          <InputText
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full"
-            placeholder="you@example.com"
-          />
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant">mail</span>
+            <InputText
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full pl-14"
+              placeholder="you@example.com"
+            />
+          </div>
         </div>
 
-        <Button
-          type="submit"
-          label="Send Reset Link"
-          icon="pi pi-send"
-          loading={loading}
-          className="w-full"
-        />
+        <div className="pt-2">
+          <Button
+            type="submit"
+            label="Send Reset Link"
+            icon="pi pi-send"
+            loading={loading}
+            className="w-full"
+          />
+        </div>
       </form>
 
-      <p className="text-sm text-neutral-500 text-center mt-6">
-        <Link href="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+      <p className="text-sm text-on-surface-variant text-center mt-8">
+        <Link href="/login" className="text-primary hover:opacity-80 transition-opacity font-medium">
           Back to Sign In
         </Link>
       </p>
-    </Card>
+    </>
   );
 }

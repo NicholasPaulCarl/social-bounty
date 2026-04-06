@@ -86,8 +86,8 @@ export default function BrowseBountiesPage() {
             className={`whitespace-nowrap px-3 py-1.5 rounded-full text-sm font-medium transition-colors border
               ${
                 selectedCategory === cat.id
-                  ? 'bg-primary-500 text-white border-primary-500'
-                  : 'bg-white text-neutral-600 border-neutral-300 hover:border-primary-300 hover:text-primary-600'
+                  ? 'bg-primary text-white border-primary'
+                  : 'bg-white text-on-surface-variant border-outline-variant hover:border-primary hover:opacity-80'
               }`}
           >
             {cat.name}

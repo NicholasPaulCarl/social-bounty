@@ -54,14 +54,14 @@ export default function BusinessOrganisationPage() {
                   <img src={org.logo} alt={org.name} className="w-16 h-16 rounded-lg object-cover" />
                 )}
                 <div>
-                  <h2 className="text-xl font-bold text-neutral-900">{org.name}</h2>
+                  <h2 className="text-xl font-bold text-on-surface">{org.name}</h2>
                   <StatusBadge type="organisation" value={org.status} />
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-neutral-500 mb-1">Contact Email</h3>
-                <p className="text-neutral-800">{org.contactEmail}</p>
+                <h3 className="text-sm font-medium text-on-surface-variant mb-1">Contact Email</h3>
+                <p className="text-on-surface">{org.contactEmail}</p>
               </div>
             </div>
           </Card>
@@ -69,19 +69,19 @@ export default function BusinessOrganisationPage() {
 
         <div>
           <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Details</h3>
+            <h3 className="text-lg font-semibold text-on-surface mb-4">Details</h3>
             <dl className="space-y-3">
               <div>
-                <dt className="text-sm text-neutral-500">Status</dt>
+                <dt className="text-sm text-on-surface-variant">Status</dt>
                 <dd><StatusBadge type="organisation" value={org.status} /></dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Created</dt>
-                <dd className="text-sm font-medium text-neutral-900">{formatDate(org.createdAt)}</dd>
+                <dt className="text-sm text-on-surface-variant">Created</dt>
+                <dd className="text-sm font-medium text-on-surface">{formatDate(org.createdAt)}</dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Members</dt>
-                <dd className="text-sm font-medium text-neutral-900">{org.memberCount ?? '-'}</dd>
+                <dt className="text-sm text-on-surface-variant">Members</dt>
+                <dd className="text-sm font-medium text-on-surface">{org.memberCount ?? '-'}</dd>
               </div>
             </dl>
           </Card>

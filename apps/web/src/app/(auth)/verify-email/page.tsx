@@ -5,8 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Button } from 'primereact/button';
-import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -55,42 +53,49 @@ function VerifyEmailContent() {
 
   if (status === 'loading') {
     return (
-      <Card>
+      <>
         <div className="text-center py-8">
           <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-          <p className="text-neutral-600 mt-4">Verifying your email...</p>
+          <p className="text-on-surface-variant mt-4">Verifying your email...</p>
         </div>
-      </Card>
+      </>
     );
   }
 
   if (status === 'success') {
     return (
-      <Card>
+      <>
         <div className="text-center">
-          <i className="pi pi-check-circle text-success-500" style={{ fontSize: '3rem' }} />
-          <h2 className="text-xl font-semibold text-neutral-900 mt-4">Email Verified</h2>
-          <p className="text-neutral-600 mt-2">
+          <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-success" style={{ fontSize: '2rem', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+          </div>
+          <h2 className="text-2xl font-bold text-on-surface font-headline tracking-tight">Email Verified</h2>
+          <p className="text-on-surface-variant mt-3">
             Your email has been verified. You can now sign in.
           </p>
           <Link
             href="/login"
-            className="inline-block mt-6 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+            className="inline-block mt-8 px-8 py-3 bg-primary text-on-primary rounded-full font-bold hover:opacity-90 transition-all active:scale-95"
           >
             Sign In
           </Link>
         </div>
-      </Card>
+      </>
     );
   }
 
   return (
-    <Card>
+    <>
       <div className="text-center">
-        <i className="pi pi-times-circle text-danger-500" style={{ fontSize: '3rem' }} />
-        <h2 className="text-xl font-semibold text-neutral-900 mt-4">Verification Failed</h2>
-        <Message severity="error" text={error} className="mt-4" />
-        <div className="mt-6 space-y-3">
+        <div className="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center mx-auto mb-4">
+          <span className="material-symbols-outlined text-error" style={{ fontSize: '2rem', fontVariationSettings: "'FILL' 1" }}>cancel</span>
+        </div>
+        <h2 className="text-2xl font-bold text-on-surface font-headline tracking-tight">Verification Failed</h2>
+        <div className="bg-error-container p-4 rounded-2xl flex items-center space-x-3 mt-4 max-w-sm mx-auto">
+          <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+          <p className="text-sm text-error">{error}</p>
+        </div>
+        <div className="mt-8 space-y-4">
           <Button
             label="Resend Verification Email"
             icon="pi pi-send"
@@ -99,13 +104,13 @@ function VerifyEmailContent() {
             loading={resending}
           />
           <div>
-            <Link href="/login" className="text-sm text-primary-600 hover:text-primary-700">
+            <Link href="/login" className="text-sm text-primary hover:opacity-80 transition-opacity font-medium">
               Back to Sign In
             </Link>
           </div>
         </div>
       </div>
-    </Card>
+    </>
   );
 }
 

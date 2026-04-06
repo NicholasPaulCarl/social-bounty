@@ -87,12 +87,12 @@ export default function BusinessProfilePage() {
 
       <div className="space-y-6 max-w-2xl">
         <Card>
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Personal Information</h3>
+          <h3 className="text-lg font-semibold text-on-surface mb-4">Personal Information</h3>
           {profileError && <Message severity="error" text={profileError} className="w-full mb-4" />}
 
           <form onSubmit={handleUpdateProfile} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                 Email
               </label>
               <InputText id="email" value={profile?.email || ''} disabled className="w-full" />
@@ -100,7 +100,7 @@ export default function BusinessProfilePage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-1">
+                <label htmlFor="firstName" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                   First Name
                 </label>
                 <InputText
@@ -111,7 +111,7 @@ export default function BusinessProfilePage() {
                 />
               </div>
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 mb-1">
+                <label htmlFor="lastName" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                   Last Name
                 </label>
                 <InputText
@@ -135,12 +135,12 @@ export default function BusinessProfilePage() {
         </Card>
 
         <Card>
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Change Password</h3>
+          <h3 className="text-lg font-semibold text-on-surface mb-4">Change Password</h3>
           {passwordError && <Message severity="error" text={passwordError} className="w-full mb-4" />}
 
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div>
-              <label htmlFor="currentPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="currentPassword" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                 Current Password
               </label>
               <Password
@@ -157,7 +157,7 @@ export default function BusinessProfilePage() {
             <Divider />
 
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="newPassword" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                 New Password
               </label>
               <Password
@@ -171,7 +171,7 @@ export default function BusinessProfilePage() {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                 Confirm New Password
               </label>
               <Password

@@ -82,17 +82,17 @@ export default function BountyDetailPage() {
               <StatusBadge type="bounty" value={bounty.status} />
             </div>
 
-            <p className="text-neutral-700 mb-4">{bounty.shortDescription}</p>
+            <p className="text-on-surface mb-4">{bounty.shortDescription}</p>
 
             <Divider />
 
-            <h3 className="text-lg font-semibold text-neutral-900 mb-2">Instructions</h3>
-            <div className="text-neutral-700 whitespace-pre-wrap">{bounty.fullInstructions}</div>
+            <h3 className="text-lg font-semibold text-on-surface mb-2">Instructions</h3>
+            <div className="text-on-surface whitespace-pre-wrap">{bounty.fullInstructions}</div>
 
             <Divider />
 
-            <h3 className="text-lg font-semibold text-neutral-900 mb-2">Proof Requirements</h3>
-            <div className="text-neutral-700">
+            <h3 className="text-lg font-semibold text-on-surface mb-2">Proof Requirements</h3>
+            <div className="text-on-surface">
               {bounty.proofRequirements && (bounty.proofRequirements === 'url' || bounty.proofRequirements === 'screenshot' || bounty.proofRequirements === 'url,screenshot' || bounty.proofRequirements === 'screenshot,url') ? (
                 <ul className="list-disc list-inside space-y-1">
                   {bounty.proofRequirements.split(',').map((req) => (
@@ -109,8 +109,8 @@ export default function BountyDetailPage() {
             {bounty.eligibilityRules && (
               <>
                 <Divider />
-                <h3 className="text-lg font-semibold text-neutral-900 mb-2">Eligibility</h3>
-                <div className="text-neutral-700 whitespace-pre-wrap">{bounty.eligibilityRules}</div>
+                <h3 className="text-lg font-semibold text-on-surface mb-2">Eligibility</h3>
+                <div className="text-on-surface whitespace-pre-wrap">{bounty.eligibilityRules}</div>
               </>
             )}
           </Card>
@@ -118,14 +118,14 @@ export default function BountyDetailPage() {
           {/* Channels */}
           {channelKeys.length > 0 && (
             <Card>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Required Channels</h3>
+              <h3 className="text-lg font-semibold text-on-surface mb-4">Required Channels</h3>
               <div className="space-y-3">
                 {channelKeys.map((ch) => (
                   <div key={ch} className="flex items-center gap-3">
                     <Tag value={CHANNEL_LABELS[ch] || ch} severity="info" />
                     <div className="flex gap-2">
                       {(channels[ch as keyof typeof channels] || []).map((fmt: string) => (
-                        <span key={fmt} className="text-sm text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">
+                        <span key={fmt} className="text-sm text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded">
                           {FORMAT_LABELS[fmt] || fmt}
                         </span>
                       ))}
@@ -139,8 +139,8 @@ export default function BountyDetailPage() {
           {/* Post Visibility */}
           {bounty.postVisibility && (
             <Card>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Post Visibility Requirements</h3>
-              <div className="text-sm text-neutral-700">
+              <h3 className="text-lg font-semibold text-on-surface mb-4">Post Visibility Requirements</h3>
+              <div className="text-sm text-on-surface">
                 {bounty.postVisibility.rule === PostVisibilityRule.MUST_NOT_REMOVE && (
                   <p>Your post must never be removed after submission.</p>
                 )}
@@ -162,15 +162,15 @@ export default function BountyDetailPage() {
 
         <div className="space-y-4">
           <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Reward</h3>
+            <h3 className="text-lg font-semibold text-on-surface mb-4">Reward</h3>
             <div className="space-y-3">
               {bounty.rewards && bounty.rewards.length > 0 ? (
                 <>
                   {bounty.rewards.map((reward) => (
                     <div key={reward.id} className="flex justify-between items-center py-1">
                       <div>
-                        <span className="text-sm text-neutral-800">{reward.name}</span>
-                        <span className="text-xs text-neutral-500 ml-2">({formatEnumLabel(reward.rewardType)})</span>
+                        <span className="text-sm text-on-surface">{reward.name}</span>
+                        <span className="text-xs text-on-surface-variant ml-2">({formatEnumLabel(reward.rewardType)})</span>
                       </div>
                       <span className="text-sm font-medium">
                         {formatCurrency(reward.monetaryValue, bounty.currency)}
@@ -178,9 +178,9 @@ export default function BountyDetailPage() {
                     </div>
                   ))}
                   {bounty.totalRewardValue && (
-                    <div className="pt-2 border-t border-neutral-200 flex justify-between">
-                      <span className="text-sm font-semibold text-neutral-700">Total</span>
-                      <span className="text-lg font-bold text-success-700">
+                    <div className="pt-2 border-t border-outline-variant flex justify-between">
+                      <span className="text-sm font-semibold text-on-surface">Total</span>
+                      <span className="text-lg font-bold text-success">
                         {formatCurrency(bounty.totalRewardValue, bounty.currency)}
                       </span>
                     </div>
@@ -190,18 +190,18 @@ export default function BountyDetailPage() {
                 <>
                   {bounty.rewardValue && (
                     <div>
-                      <p className="text-sm text-neutral-500">Value</p>
-                      <p className="text-2xl font-bold text-success-700">{formatCurrency(bounty.rewardValue, bounty.currency)}</p>
+                      <p className="text-sm text-on-surface-variant">Value</p>
+                      <p className="text-2xl font-bold text-success">{formatCurrency(bounty.rewardValue, bounty.currency)}</p>
                     </div>
                   )}
                   <div>
-                    <p className="text-sm text-neutral-500">Type</p>
+                    <p className="text-sm text-on-surface-variant">Type</p>
                     <p className="font-medium">{formatEnumLabel(bounty.rewardType)}</p>
                   </div>
                   {bounty.rewardDescription && (
                     <div>
-                      <p className="text-sm text-neutral-500">Description</p>
-                      <p className="text-neutral-700">{bounty.rewardDescription}</p>
+                      <p className="text-sm text-on-surface-variant">Description</p>
+                      <p className="text-on-surface">{bounty.rewardDescription}</p>
                     </div>
                   )}
                 </>
@@ -210,29 +210,29 @@ export default function BountyDetailPage() {
           </Card>
 
           <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Details</h3>
+            <h3 className="text-lg font-semibold text-on-surface mb-4">Details</h3>
             <div className="space-y-3">
               {bounty.startDate && (
                 <div>
-                  <p className="text-sm text-neutral-500">Start Date</p>
+                  <p className="text-sm text-on-surface-variant">Start Date</p>
                   <p className="font-medium">{formatDate(bounty.startDate)}</p>
                 </div>
               )}
               {bounty.endDate && (
                 <div>
-                  <p className="text-sm text-neutral-500">End Date</p>
+                  <p className="text-sm text-on-surface-variant">End Date</p>
                   <p className="font-medium">{formatDate(bounty.endDate)}</p>
-                  <p className="text-xs text-neutral-500">{timeRemaining(bounty.endDate)}</p>
+                  <p className="text-xs text-on-surface-variant">{timeRemaining(bounty.endDate)}</p>
                 </div>
               )}
               {bounty.maxSubmissions && (
                 <div>
-                  <p className="text-sm text-neutral-500">Submissions</p>
+                  <p className="text-sm text-on-surface-variant">Submissions</p>
                   <p className="font-medium">{bounty.submissionCount ?? 0} / {bounty.maxSubmissions}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-neutral-500">AI Content</p>
+                <p className="text-sm text-on-surface-variant">AI Content</p>
                 <p className="font-medium">{bounty.aiContentPermitted ? 'Permitted' : 'Not permitted'}</p>
               </div>
             </div>
@@ -245,8 +245,8 @@ export default function BountyDetailPage() {
             bounty.engagementRequirements.comment
           ) && (
             <Card>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Engagement</h3>
-              <div className="space-y-2 text-sm text-neutral-700">
+              <h3 className="text-lg font-semibold text-on-surface mb-4">Engagement</h3>
+              <div className="space-y-2 text-sm text-on-surface">
                 {bounty.engagementRequirements.tagAccount && (
                   <p>Tag <span className="font-medium">{bounty.engagementRequirements.tagAccount}</span></p>
                 )}
@@ -259,15 +259,15 @@ export default function BountyDetailPage() {
           {/* Brand Assets */}
           {bounty.brandAssets && bounty.brandAssets.length > 0 && (
             <Card>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Brand Assets</h3>
+              <h3 className="text-lg font-semibold text-on-surface mb-4">Brand Assets</h3>
               <div className="space-y-2">
                 {bounty.brandAssets.map((asset) => (
-                  <div key={asset.id} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-b-0">
+                  <div key={asset.id} className="flex items-center justify-between py-2 border-b border-outline-variant last:border-b-0">
                     <div className="flex items-center gap-2 min-w-0">
-                      <i className={`pi ${asset.mimeType === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-neutral-500 text-sm`} />
+                      <i className={`pi ${asset.mimeType === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-on-surface-variant text-sm`} />
                       <div className="min-w-0">
-                        <p className="text-sm text-neutral-800 truncate">{asset.fileName}</p>
-                        <p className="text-xs text-neutral-500">{formatBytes(asset.fileSize)}</p>
+                        <p className="text-sm text-on-surface truncate">{asset.fileName}</p>
+                        <p className="text-xs text-on-surface-variant">{formatBytes(asset.fileSize)}</p>
                       </div>
                     </div>
                     <Button

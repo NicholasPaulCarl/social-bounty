@@ -10,11 +10,11 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-surface px-4">
       <div className="text-center">
-        <i className="pi pi-exclamation-circle text-danger-500" style={{ fontSize: '4rem' }} />
-        <h1 className="text-2xl font-bold text-neutral-900 mt-6">Something went wrong</h1>
-        <p className="text-neutral-600 mt-2 max-w-md mx-auto">
+        <i className="pi pi-exclamation-circle text-error" style={{ fontSize: '4rem' }} />
+        <h1 className="text-2xl font-bold text-on-surface mt-6">Something went wrong</h1>
+        <p className="text-on-surface-variant mt-2 max-w-md mx-auto">
           {error.message || 'An unexpected error occurred. Please try again.'}
         </p>
         <Button

@@ -41,14 +41,14 @@ interface StatCardProps {
 
 function StatCard({ icon, count, label, bgColor, iconColor }: StatCardProps) {
   return (
-    <div className="bg-white rounded-lg border border-neutral-200 p-4">
+    <div className="bg-white rounded-lg border border-outline-variant p-4">
       <div className="flex items-center gap-3">
         <div className={`w-10 h-10 rounded-lg ${bgColor} flex items-center justify-center`}>
           <i className={`pi ${icon} ${iconColor}`} />
         </div>
         <div>
-          <p className="text-2xl font-heading font-bold text-neutral-900">{count}</p>
-          <p className="text-sm text-neutral-500">{label}</p>
+          <p className="text-2xl font-heading font-bold text-on-surface">{count}</p>
+          <p className="text-sm text-on-surface-variant">{label}</p>
         </div>
       </div>
     </div>
@@ -100,15 +100,15 @@ export default function ReviewCenterPage() {
 
   const participantTemplate = (rowData: QueueItem) => (
     <div>
-      <p className="text-sm font-medium text-neutral-900">
+      <p className="text-sm font-medium text-on-surface">
         {rowData.user.firstName} {rowData.user.lastName}
       </p>
-      <p className="text-xs text-neutral-500">{rowData.user.email}</p>
+      <p className="text-xs text-on-surface-variant">{rowData.user.email}</p>
     </div>
   );
 
   const bountyTemplate = (rowData: QueueItem) => (
-    <span className="text-sm text-neutral-900">
+    <span className="text-sm text-on-surface">
       {rowData.bounty?.title ?? '-'}
     </span>
   );
@@ -118,7 +118,7 @@ export default function ReviewCenterPage() {
   );
 
   const dateTemplate = (rowData: QueueItem) => (
-    <span className="font-mono text-sm text-neutral-700">{formatDate(rowData.createdAt)}</span>
+    <span className="font-mono text-sm text-on-surface">{formatDate(rowData.createdAt)}</span>
   );
 
   const actionsTemplate = (rowData: QueueItem) => (

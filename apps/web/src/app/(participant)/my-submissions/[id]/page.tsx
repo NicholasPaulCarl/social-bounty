@@ -63,13 +63,13 @@ export default function SubmissionDetailPage() {
               )}
             </div>
 
-            <h3 className="text-lg font-semibold text-neutral-900 mb-2">Proof</h3>
-            <div className="text-neutral-700 whitespace-pre-wrap">{submission.proofText}</div>
+            <h3 className="text-lg font-semibold text-on-surface mb-2">Proof</h3>
+            <div className="text-on-surface whitespace-pre-wrap">{submission.proofText}</div>
 
             {submission.proofLinks && submission.proofLinks.length > 0 && (
               <>
                 <Divider />
-                <h3 className="text-lg font-semibold text-neutral-900 mb-2">Links</h3>
+                <h3 className="text-lg font-semibold text-on-surface mb-2">Links</h3>
                 <ul className="space-y-1">
                   {submission.proofLinks.map((link, i) => (
                     <li key={i}>
@@ -77,7 +77,7 @@ export default function SubmissionDetailPage() {
                         href={link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary-600 hover:underline text-sm"
+                        className="text-primary hover:underline text-sm"
                       >
                         {link}
                       </a>
@@ -90,7 +90,7 @@ export default function SubmissionDetailPage() {
             {submission.proofImages && submission.proofImages.length > 0 && (
               <>
                 <Divider />
-                <h3 className="text-lg font-semibold text-neutral-900 mb-2">Images</h3>
+                <h3 className="text-lg font-semibold text-on-surface mb-2">Images</h3>
                 <div className="flex flex-wrap gap-4">
                   {submission.proofImages.map((img, i) => (
                     <Image
@@ -109,20 +109,20 @@ export default function SubmissionDetailPage() {
 
         <div className="space-y-4">
           <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Timeline</h3>
+            <h3 className="text-lg font-semibold text-on-surface mb-4">Timeline</h3>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-neutral-500">Submitted</p>
+                <p className="text-sm text-on-surface-variant">Submitted</p>
                 <p className="font-medium">{formatDate(submission.createdAt)}</p>
               </div>
               {submission.reviewedBy && (
                 <div>
-                  <p className="text-sm text-neutral-500">Reviewed By</p>
+                  <p className="text-sm text-on-surface-variant">Reviewed By</p>
                   <p className="font-medium">{submission.reviewedBy.firstName} {submission.reviewedBy.lastName}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-neutral-500">Last Updated</p>
+                <p className="text-sm text-on-surface-variant">Last Updated</p>
                 <p className="font-medium">{formatDate(submission.updatedAt)}</p>
               </div>
             </div>
@@ -130,8 +130,8 @@ export default function SubmissionDetailPage() {
 
           {submission.reviewerNote && (
             <Card>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-2">Reviewer Note</h3>
-              <p className="text-neutral-700">{submission.reviewerNote}</p>
+              <h3 className="text-lg font-semibold text-on-surface mb-2">Reviewer Note</h3>
+              <p className="text-on-surface">{submission.reviewerNote}</p>
             </Card>
           )}
         </div>

@@ -71,17 +71,17 @@ export default function AdminBountyDetailPage() {
               <div className="flex items-center gap-3">
                 <StatusBadge type="bounty" value={bounty.status} size="large" />
                 <span className="text-lg font-semibold">{formatCurrency(bounty.rewardValue)}</span>
-                <span className="text-sm text-neutral-500">{formatEnumLabel(bounty.rewardType)}</span>
+                <span className="text-sm text-on-surface-variant">{formatEnumLabel(bounty.rewardType)}</span>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-neutral-500 mb-1">Description</h3>
-                <p className="text-neutral-800 whitespace-pre-wrap">{bounty.shortDescription}</p>
+                <h3 className="text-sm font-medium text-on-surface-variant mb-1">Description</h3>
+                <p className="text-on-surface whitespace-pre-wrap">{bounty.shortDescription}</p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-neutral-500 mb-1">Full Instructions</h3>
-                <p className="text-neutral-800 whitespace-pre-wrap">{bounty.fullInstructions}</p>
+                <h3 className="text-sm font-medium text-on-surface-variant mb-1">Full Instructions</h3>
+                <p className="text-on-surface whitespace-pre-wrap">{bounty.fullInstructions}</p>
               </div>
             </div>
           </Card>
@@ -89,29 +89,29 @@ export default function AdminBountyDetailPage() {
 
         <div className="space-y-6">
           <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Details</h3>
+            <h3 className="text-lg font-semibold text-on-surface mb-4">Details</h3>
             <dl className="space-y-3">
               <div>
-                <dt className="text-sm text-neutral-500">Organisation</dt>
-                <dd className="text-sm font-medium text-neutral-900">{bounty.organisation?.name || '-'}</dd>
+                <dt className="text-sm text-on-surface-variant">Organisation</dt>
+                <dd className="text-sm font-medium text-on-surface">{bounty.organisation?.name || '-'}</dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Created By</dt>
-                <dd className="text-sm font-medium text-neutral-900">{bounty.createdBy ? `${bounty.createdBy.firstName} ${bounty.createdBy.lastName}` : '-'}</dd>
+                <dt className="text-sm text-on-surface-variant">Created By</dt>
+                <dd className="text-sm font-medium text-on-surface">{bounty.createdBy ? `${bounty.createdBy.firstName} ${bounty.createdBy.lastName}` : '-'}</dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Created</dt>
-                <dd className="text-sm font-medium text-neutral-900">{formatDateTime(bounty.createdAt)}</dd>
+                <dt className="text-sm text-on-surface-variant">Created</dt>
+                <dd className="text-sm font-medium text-on-surface">{formatDateTime(bounty.createdAt)}</dd>
               </div>
               {bounty.endDate && (
                 <div>
-                  <dt className="text-sm text-neutral-500">Ends</dt>
-                  <dd className="text-sm font-medium text-neutral-900">{formatDate(bounty.endDate)}</dd>
+                  <dt className="text-sm text-on-surface-variant">Ends</dt>
+                  <dd className="text-sm font-medium text-on-surface">{formatDate(bounty.endDate)}</dd>
                 </div>
               )}
               <div>
-                <dt className="text-sm text-neutral-500">Total Submissions</dt>
-                <dd className="text-sm font-medium text-neutral-900">{bounty.submissionCount ?? 0}</dd>
+                <dt className="text-sm text-on-surface-variant">Total Submissions</dt>
+                <dd className="text-sm font-medium text-on-surface">{bounty.submissionCount ?? 0}</dd>
               </div>
             </dl>
           </Card>

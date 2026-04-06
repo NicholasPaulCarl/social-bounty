@@ -56,8 +56,8 @@ export default function CreateOrganisationPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
-              Organisation Name <span className="text-danger-500">*</span>
+            <label htmlFor="name" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
+              Organisation Name <span className="text-error">*</span>
             </label>
             <InputText
               id="name"
@@ -68,8 +68,8 @@ export default function CreateOrganisationPage() {
             />
           </div>
           <div>
-            <label htmlFor="contactEmail" className="block text-sm font-medium text-neutral-700 mb-1">
-              Contact Email <span className="text-danger-500">*</span>
+            <label htmlFor="contactEmail" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
+              Contact Email <span className="text-error">*</span>
             </label>
             <InputText
               id="contactEmail"
@@ -81,7 +81,7 @@ export default function CreateOrganisationPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">
+            <label className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
               Logo (optional)
             </label>
             <FileUpload

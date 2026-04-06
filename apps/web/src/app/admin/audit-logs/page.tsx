@@ -41,34 +41,34 @@ export default function AdminAuditLogsPage() {
   );
 
   const rowExpansionTemplate = (data: AuditLogListItem) => (
-    <div className="p-4 bg-neutral-50 space-y-3">
+    <div className="p-4 bg-surface space-y-3">
       {data.reason && (
         <div>
-          <span className="text-xs font-medium text-neutral-500 uppercase">Reason</span>
-          <p className="text-sm text-neutral-700 mt-1">{data.reason}</p>
+          <span className="text-xs font-medium text-on-surface-variant uppercase">Reason</span>
+          <p className="text-sm text-on-surface mt-1">{data.reason}</p>
         </div>
       )}
       {data.beforeState && (
         <div>
-          <span className="text-xs font-medium text-neutral-500 uppercase">Before</span>
-          <pre className="text-xs font-mono bg-white p-2 rounded border border-neutral-200 mt-1 overflow-auto">
+          <span className="text-xs font-medium text-on-surface-variant uppercase">Before</span>
+          <pre className="text-xs font-mono bg-white p-2 rounded border border-outline-variant mt-1 overflow-auto">
             {JSON.stringify(data.beforeState, null, 2)}
           </pre>
         </div>
       )}
       {data.afterState && (
         <div>
-          <span className="text-xs font-medium text-neutral-500 uppercase">After</span>
-          <pre className="text-xs font-mono bg-white p-2 rounded border border-neutral-200 mt-1 overflow-auto">
+          <span className="text-xs font-medium text-on-surface-variant uppercase">After</span>
+          <pre className="text-xs font-mono bg-white p-2 rounded border border-outline-variant mt-1 overflow-auto">
             {JSON.stringify(data.afterState, null, 2)}
           </pre>
         </div>
       )}
       {data.ipAddress && (
-        <p className="text-xs text-neutral-400">IP: <span className="font-mono">{data.ipAddress}</span></p>
+        <p className="text-xs text-on-surface-variant">IP: <span className="font-mono">{data.ipAddress}</span></p>
       )}
       {!data.reason && !data.beforeState && !data.afterState && !data.ipAddress && (
-        <p className="text-sm text-neutral-400">No additional details available.</p>
+        <p className="text-sm text-on-surface-variant">No additional details available.</p>
       )}
     </div>
   );

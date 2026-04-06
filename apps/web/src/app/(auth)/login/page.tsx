@@ -6,7 +6,6 @@ import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { useAuth } from '@/hooks/useAuth';
 import { ApiError } from '@/lib/api/client';
 
@@ -62,75 +61,88 @@ export default function LoginPage() {
   };
 
   return (
-    <Card>
-      <h2 className="text-xl font-semibold text-neutral-900 text-center mb-6">Sign In</h2>
+    <>
+      <h2 className="text-2xl font-bold text-on-surface text-center mb-8 font-headline tracking-tight">Sign In</h2>
 
-      {error && <Message severity="error" text={error} className="w-full mb-4" />}
+      {error && (
+        <div className="bg-error-container p-4 rounded-2xl flex items-center space-x-3 mb-6">
+          <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+          <p className="text-sm text-error">{error}</p>
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="group">
+          <label htmlFor="email" className="block text-sm font-semibold mb-2 ml-4 group-focus-within:text-primary transition-colors">
             Email
           </label>
-          <InputText
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full"
-            placeholder="you@example.com"
-          />
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant">mail</span>
+            <InputText
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full pl-14"
+              placeholder="you@example.com"
+            />
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-1">
+        <div className="group">
+          <label htmlFor="password" className="block text-sm font-semibold mb-2 ml-4 group-focus-within:text-primary transition-colors">
             Password
           </label>
-          <Password
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            feedback={false}
-            toggleMask
-            className="w-full"
-            inputClassName="w-full"
-          />
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant z-10">lock</span>
+            <Password
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              feedback={false}
+              toggleMask
+              className="w-full"
+              inputClassName="w-full pl-14"
+            />
+          </div>
         </div>
 
-        <Button
-          type="submit"
-          label="Sign In"
-          icon="pi pi-sign-in"
-          loading={loading}
-          className="w-full"
-        />
+        <div className="pt-2">
+          <Button
+            type="submit"
+            label="Sign In"
+            icon="pi pi-sign-in"
+            loading={loading}
+            className="w-full"
+          />
+        </div>
       </form>
 
-      <div className="mt-6 text-center space-y-2">
-        <Link href="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700">
+      <div className="mt-8 text-center space-y-3">
+        <Link href="/forgot-password" className="text-sm text-primary hover:opacity-80 transition-opacity font-medium">
           Forgot your password?
         </Link>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-on-surface-variant">
           {"Don't have an account? "}
-          <Link href="/signup" className="text-primary-600 hover:text-primary-700 font-medium">
+          <Link href="/signup" className="text-primary hover:opacity-80 transition-opacity font-medium">
             Sign Up
           </Link>
         </p>
       </div>
 
       {isDemoMode && (
-        <div className="mt-6">
-          <div className="relative flex items-center justify-center mb-4">
+        <div className="mt-8">
+          <div className="relative flex items-center justify-center mb-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-neutral-300" />
+              <div className="w-full border-t border-outline-variant" />
             </div>
-            <span className="relative bg-white px-3 text-sm text-neutral-500">
+            <span className="relative bg-surface-container-low px-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">
               Or sign in as a demo user
             </span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {DEMO_ACCOUNTS.map((account) => (
               <Button
                 key={account.email}
@@ -148,6 +160,6 @@ export default function LoginPage() {
           </div>
         </div>
       )}
-    </Card>
+    </>
   );
 }

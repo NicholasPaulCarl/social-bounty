@@ -102,7 +102,7 @@ export default function ProfilePage() {
         <Card>
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold text-neutral-900">Account Details</h3>
+              <h3 className="text-lg font-semibold text-on-surface">Account Details</h3>
               {user?.role && <StatusBadge type="role" value={user.role} size="small" />}
             </div>
 
@@ -110,7 +110,7 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-1">
+                    <label className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                       First Name
                     </label>
                     <InputText
@@ -120,7 +120,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-1">
+                    <label className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                       Last Name
                     </label>
                     <InputText
@@ -147,11 +147,11 @@ export default function ProfilePage() {
             ) : (
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-neutral-500">Name</p>
+                  <p className="text-sm text-on-surface-variant">Name</p>
                   <p className="font-medium">{profile.firstName} {profile.lastName}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-neutral-500">Email</p>
+                  <p className="text-sm text-on-surface-variant">Email</p>
                   <p className="font-medium">{profile.email}</p>
                 </div>
               </div>
@@ -164,7 +164,7 @@ export default function ProfilePage() {
             {passwordError && <Message severity="error" text={passwordError} className="w-full" />}
 
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
+              <label className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                 Current Password
               </label>
               <Password
@@ -177,7 +177,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
+              <label className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                 New Password
               </label>
               <Password
@@ -189,7 +189,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
+              <label className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                 Confirm New Password
               </label>
               <Password

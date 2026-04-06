@@ -16,7 +16,7 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
   return (
     <div className="space-y-4">
       <div>
-        <label htmlFor="minViews" className="block text-sm font-medium text-neutral-700 mb-1.5">
+        <label htmlFor="minViews" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
           Minimum Views
         </label>
         <InputNumber
@@ -32,9 +32,9 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
           className={`w-48 ${submitAttempted && errors.minViews ? 'p-invalid' : ''}`}
           placeholder="No minimum"
         />
-        <small className="text-xs text-neutral-500 mt-1 block">Leave empty if no view threshold is required</small>
+        <small className="text-xs text-on-surface-variant mt-1 block">Leave empty if no view threshold is required</small>
         {submitAttempted && errors.minViews && (
-          <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+          <small className="text-xs text-error mt-1 flex items-center gap-1">
             <i className="pi pi-exclamation-circle text-xs" />
             {errors.minViews}
           </small>
@@ -42,7 +42,7 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
       </div>
 
       <div>
-        <label htmlFor="minLikes" className="block text-sm font-medium text-neutral-700 mb-1.5">
+        <label htmlFor="minLikes" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
           Minimum Likes
         </label>
         <InputNumber
@@ -58,9 +58,9 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
           className={`w-48 ${submitAttempted && errors.minLikes ? 'p-invalid' : ''}`}
           placeholder="No minimum"
         />
-        <small className="text-xs text-neutral-500 mt-1 block">Leave empty if no like threshold is required</small>
+        <small className="text-xs text-on-surface-variant mt-1 block">Leave empty if no like threshold is required</small>
         {submitAttempted && errors.minLikes && (
-          <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+          <small className="text-xs text-error mt-1 flex items-center gap-1">
             <i className="pi pi-exclamation-circle text-xs" />
             {errors.minLikes}
           </small>
@@ -68,7 +68,7 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
       </div>
 
       <div>
-        <label htmlFor="minComments" className="block text-sm font-medium text-neutral-700 mb-1.5">
+        <label htmlFor="minComments" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
           Minimum Comments
         </label>
         <InputNumber
@@ -84,9 +84,9 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
           className={`w-48 ${submitAttempted && errors.minComments ? 'p-invalid' : ''}`}
           placeholder="No minimum"
         />
-        <small className="text-xs text-neutral-500 mt-1 block">Leave empty if no comment threshold is required</small>
+        <small className="text-xs text-on-surface-variant mt-1 block">Leave empty if no comment threshold is required</small>
         {submitAttempted && errors.minComments && (
-          <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+          <small className="text-xs text-error mt-1 flex items-center gap-1">
             <i className="pi pi-exclamation-circle text-xs" />
             {errors.minComments}
           </small>

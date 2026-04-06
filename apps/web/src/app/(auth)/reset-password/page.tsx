@@ -5,8 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
-import { Message } from 'primereact/message';
-import { Card } from 'primereact/card';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
 import { useToast } from '@/hooks/useToast';
@@ -25,19 +23,21 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <Card>
+      <>
         <div className="text-center">
-          <i className="pi pi-exclamation-circle text-danger-500" style={{ fontSize: '3rem' }} />
-          <h2 className="text-xl font-semibold text-neutral-900 mt-4">Invalid Reset Link</h2>
-          <p className="text-neutral-600 mt-2">This password reset link is invalid or has expired.</p>
+          <div className="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-error" style={{ fontSize: '2rem', fontVariationSettings: "'FILL' 1" }}>error</span>
+          </div>
+          <h2 className="text-2xl font-bold text-on-surface font-headline tracking-tight">Invalid Reset Link</h2>
+          <p className="text-on-surface-variant mt-3">This password reset link is invalid or has expired.</p>
           <Link
             href="/forgot-password"
-            className="inline-block mt-6 text-primary-600 hover:text-primary-700 font-medium"
+            className="inline-block mt-8 text-primary hover:opacity-80 transition-opacity font-medium"
           >
             Request a new link
           </Link>
         </div>
-      </Card>
+      </>
     );
   }
 
@@ -71,52 +71,65 @@ function ResetPasswordForm() {
   };
 
   return (
-    <Card>
-      <h2 className="text-xl font-semibold text-neutral-900 text-center mb-6">Reset Password</h2>
+    <>
+      <h2 className="text-2xl font-bold text-on-surface text-center mb-8 font-headline tracking-tight">Reset Password</h2>
 
-      {error && <Message severity="error" text={error} className="w-full mb-4" />}
+      {error && (
+        <div className="bg-error-container p-4 rounded-2xl flex items-center space-x-3 mb-6">
+          <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+          <p className="text-sm text-error">{error}</p>
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-1">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="group">
+          <label htmlFor="password" className="block text-sm font-semibold mb-2 ml-4 group-focus-within:text-primary transition-colors">
             New Password
           </label>
-          <Password
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            toggleMask
-            className="w-full"
-            inputClassName="w-full"
-          />
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant z-10">lock</span>
+            <Password
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              toggleMask
+              className="w-full"
+              inputClassName="w-full pl-14"
+            />
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+        <div className="group">
+          <label htmlFor="confirmPassword" className="block text-sm font-semibold mb-2 ml-4 group-focus-within:text-primary transition-colors">
             Confirm New Password
           </label>
-          <Password
-            id="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            feedback={false}
-            toggleMask
-            className="w-full"
-            inputClassName="w-full"
-          />
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant z-10">lock</span>
+            <Password
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              feedback={false}
+              toggleMask
+              className="w-full"
+              inputClassName="w-full pl-14"
+            />
+          </div>
         </div>
 
-        <Button
-          type="submit"
-          label="Reset Password"
-          icon="pi pi-lock"
-          loading={loading}
-          className="w-full"
-        />
+        <div className="pt-2">
+          <Button
+            type="submit"
+            label="Reset Password"
+            icon="pi pi-lock"
+            loading={loading}
+            className="w-full"
+          />
+        </div>
       </form>
-    </Card>
+    </>
   );
 }
 

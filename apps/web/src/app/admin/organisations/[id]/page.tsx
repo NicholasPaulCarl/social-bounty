@@ -26,7 +26,7 @@ function OrgBountiesTab({ orgId }: { orgId: string }) {
   const bounties = data?.data ?? [];
 
   if (bounties.length === 0) {
-    return <p className="text-sm text-neutral-400 p-4">No bounties found for this organisation.</p>;
+    return <p className="text-sm text-on-surface-variant p-4">No bounties found for this organisation.</p>;
   }
 
   return (
@@ -49,7 +49,7 @@ function OrgSubmissionsTab({ orgId }: { orgId: string }) {
   const submissions = data?.data ?? [];
 
   if (submissions.length === 0) {
-    return <p className="text-sm text-neutral-400 p-4">No submissions found for this organisation.</p>;
+    return <p className="text-sm text-on-surface-variant p-4">No submissions found for this organisation.</p>;
   }
 
   return (
@@ -120,23 +120,23 @@ export default function AdminOrgDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
             <div className="lg:col-span-2">
               <Card>
-                <h3 className="text-lg font-heading font-semibold text-neutral-900 mb-4">Organisation Information</h3>
+                <h3 className="text-lg font-heading font-semibold text-on-surface mb-4">Organisation Information</h3>
                 <dl className="grid grid-cols-2 gap-4">
                   <div>
-                    <dt className="text-sm text-neutral-500">Name</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{org.name}</dd>
+                    <dt className="text-sm text-on-surface-variant">Name</dt>
+                    <dd className="text-sm font-medium text-on-surface">{org.name}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Contact Email</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{org.contactEmail || '-'}</dd>
+                    <dt className="text-sm text-on-surface-variant">Contact Email</dt>
+                    <dd className="text-sm font-medium text-on-surface">{org.contactEmail || '-'}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Status</dt>
+                    <dt className="text-sm text-on-surface-variant">Status</dt>
                     <dd><StatusBadge type="organisation" value={org.status} /></dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Created</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{formatDateTime(org.createdAt)}</dd>
+                    <dt className="text-sm text-on-surface-variant">Created</dt>
+                    <dd className="text-sm font-medium text-on-surface">{formatDateTime(org.createdAt)}</dd>
                   </div>
                 </dl>
               </Card>
@@ -144,15 +144,15 @@ export default function AdminOrgDetailPage() {
 
             <div>
               <Card>
-                <h3 className="text-lg font-heading font-semibold text-neutral-900 mb-4">Stats</h3>
+                <h3 className="text-lg font-heading font-semibold text-on-surface mb-4">Stats</h3>
                 <dl className="space-y-3">
                   <div>
-                    <dt className="text-sm text-neutral-500">Members</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{org.memberCount ?? 0}</dd>
+                    <dt className="text-sm text-on-surface-variant">Members</dt>
+                    <dd className="text-sm font-medium text-on-surface">{org.memberCount ?? 0}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Bounties</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{org.bountyCount ?? 0}</dd>
+                    <dt className="text-sm text-on-surface-variant">Bounties</dt>
+                    <dd className="text-sm font-medium text-on-surface">{org.bountyCount ?? 0}</dd>
                   </div>
                 </dl>
               </Card>

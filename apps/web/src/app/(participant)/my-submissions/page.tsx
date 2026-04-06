@@ -62,50 +62,50 @@ export default function MySubmissionsPage() {
 
       {/* Earnings Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+        <div className="bg-white rounded-lg border border-outline-variant p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-              <i className="pi pi-send text-primary-600" />
+            <div className="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center">
+              <i className="pi pi-send text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-neutral-900">{earnings?.totalSubmissions ?? 0}</p>
-              <p className="text-sm text-neutral-500">Total Submissions</p>
+              <p className="text-2xl font-heading font-bold text-on-surface">{earnings?.totalSubmissions ?? 0}</p>
+              <p className="text-sm text-on-surface-variant">Total Submissions</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+        <div className="bg-white rounded-lg border border-outline-variant p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-success-100 flex items-center justify-center">
-              <i className="pi pi-check-circle text-success-600" />
+              <i className="pi pi-check-circle text-success" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-neutral-900">{earnings?.approvedCount ?? 0}</p>
-              <p className="text-sm text-neutral-500">Approved</p>
+              <p className="text-2xl font-heading font-bold text-on-surface">{earnings?.approvedCount ?? 0}</p>
+              <p className="text-sm text-on-surface-variant">Approved</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+        <div className="bg-white rounded-lg border border-outline-variant p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-              <i className="pi pi-wallet text-primary-600" />
+            <div className="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center">
+              <i className="pi pi-wallet text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-neutral-900 font-mono">R{earnings?.totalEarned?.toFixed(2) ?? '0.00'}</p>
-              <p className="text-sm text-neutral-500">Total Earned</p>
+              <p className="text-2xl font-heading font-bold text-on-surface font-mono">R{earnings?.totalEarned?.toFixed(2) ?? '0.00'}</p>
+              <p className="text-sm text-on-surface-variant">Total Earned</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-neutral-200 p-4">
+        <div className="bg-white rounded-lg border border-outline-variant p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-warning-100 flex items-center justify-center">
-              <i className="pi pi-clock text-warning-600" />
+              <i className="pi pi-clock text-warning" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-neutral-900 font-mono">R{earnings?.pendingPayout?.toFixed(2) ?? '0.00'}</p>
-              <p className="text-sm text-neutral-500">Pending Payout</p>
+              <p className="text-2xl font-heading font-bold text-on-surface font-mono">R{earnings?.pendingPayout?.toFixed(2) ?? '0.00'}</p>
+              <p className="text-sm text-on-surface-variant">Pending Payout</p>
             </div>
           </div>
         </div>

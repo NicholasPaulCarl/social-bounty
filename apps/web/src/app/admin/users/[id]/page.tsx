@@ -27,7 +27,7 @@ function UserSubmissionsTab({ userId }: { userId: string }) {
   const submissions = data?.data ?? [];
 
   if (submissions.length === 0) {
-    return <p className="text-sm text-neutral-400 p-4">No submissions found for this user.</p>;
+    return <p className="text-sm text-on-surface-variant p-4">No submissions found for this user.</p>;
   }
 
   return (
@@ -49,7 +49,7 @@ function UserAuditTab({ userId }: { userId: string }) {
   const logs: AuditLogListItem[] = data?.data ?? [];
 
   if (logs.length === 0) {
-    return <p className="text-sm text-neutral-400 p-4">No audit activity found for this user.</p>;
+    return <p className="text-sm text-on-surface-variant p-4">No audit activity found for this user.</p>;
   }
 
   return (
@@ -136,33 +136,33 @@ export default function AdminUserDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
             <div className="lg:col-span-2">
               <Card>
-                <h3 className="text-lg font-heading font-semibold text-neutral-900 mb-4">User Information</h3>
+                <h3 className="text-lg font-heading font-semibold text-on-surface mb-4">User Information</h3>
                 <dl className="grid grid-cols-2 gap-4">
                   <div>
-                    <dt className="text-sm text-neutral-500">Email</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{user.email}</dd>
+                    <dt className="text-sm text-on-surface-variant">Email</dt>
+                    <dd className="text-sm font-medium text-on-surface">{user.email}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Name</dt>
-                    <dd className="text-sm font-medium text-neutral-900">
+                    <dt className="text-sm text-on-surface-variant">Name</dt>
+                    <dd className="text-sm font-medium text-on-surface">
                       {`${user.firstName || '-'} ${user.lastName || ''}`.trim()}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Role</dt>
+                    <dt className="text-sm text-on-surface-variant">Role</dt>
                     <dd><StatusBadge type="role" value={user.role} /></dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Status</dt>
+                    <dt className="text-sm text-on-surface-variant">Status</dt>
                     <dd><StatusBadge type="user" value={user.status} /></dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Email Verified</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{user.emailVerified ? 'Yes' : 'No'}</dd>
+                    <dt className="text-sm text-on-surface-variant">Email Verified</dt>
+                    <dd className="text-sm font-medium text-on-surface">{user.emailVerified ? 'Yes' : 'No'}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Created</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{formatDateTime(user.createdAt)}</dd>
+                    <dt className="text-sm text-on-surface-variant">Created</dt>
+                    <dd className="text-sm font-medium text-on-surface">{formatDateTime(user.createdAt)}</dd>
                   </div>
                 </dl>
               </Card>
@@ -170,21 +170,21 @@ export default function AdminUserDetailPage() {
 
             <div>
               <Card>
-                <h3 className="text-lg font-heading font-semibold text-neutral-900 mb-4">Activity</h3>
+                <h3 className="text-lg font-heading font-semibold text-on-surface mb-4">Activity</h3>
                 <dl className="space-y-3">
                   {user.organisation && (
                     <div>
-                      <dt className="text-sm text-neutral-500">Organisation</dt>
-                      <dd className="text-sm font-medium text-primary-600">{user.organisation.name}</dd>
+                      <dt className="text-sm text-on-surface-variant">Organisation</dt>
+                      <dd className="text-sm font-medium text-primary">{user.organisation.name}</dd>
                     </div>
                   )}
                   <div>
-                    <dt className="text-sm text-neutral-500">Submissions</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{user.submissionCount ?? 0}</dd>
+                    <dt className="text-sm text-on-surface-variant">Submissions</dt>
+                    <dd className="text-sm font-medium text-on-surface">{user.submissionCount ?? 0}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-neutral-500">Approved Submissions</dt>
-                    <dd className="text-sm font-medium text-neutral-900">{user.approvedSubmissionCount ?? 0}</dd>
+                    <dt className="text-sm text-on-surface-variant">Approved Submissions</dt>
+                    <dd className="text-sm font-medium text-on-surface">{user.approvedSubmissionCount ?? 0}</dd>
                   </div>
                 </dl>
               </Card>

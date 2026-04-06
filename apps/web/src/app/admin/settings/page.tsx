@@ -53,21 +53,21 @@ export default function AdminSettingsPage() {
         {formError && <Message severity="error" text={formError} className="w-full" />}
 
         <Card>
-          <h3 className="text-lg font-semibold text-neutral-900 mb-6">Feature Toggles</h3>
+          <h3 className="text-lg font-semibold text-on-surface mb-6">Feature Toggles</h3>
 
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-neutral-900">User Signups</p>
-                <p className="text-sm text-neutral-500">Allow new users to create accounts.</p>
+                <p className="font-medium text-on-surface">User Signups</p>
+                <p className="text-sm text-on-surface-variant">Allow new users to create accounts.</p>
               </div>
               <InputSwitch checked={signupsEnabled} onChange={(e) => setSignupsEnabled(e.value ?? false)} />
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-neutral-900">Submissions</p>
-                <p className="text-sm text-neutral-500">Allow participants to submit proof for bounties.</p>
+                <p className="font-medium text-on-surface">Submissions</p>
+                <p className="text-sm text-on-surface-variant">Allow participants to submit proof for bounties.</p>
               </div>
               <InputSwitch checked={submissionsEnabled} onChange={(e) => setSubmissionsEnabled(e.value ?? false)} />
             </div>
@@ -76,15 +76,15 @@ export default function AdminSettingsPage() {
 
         {settings && (
           <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Last Updated</h3>
+            <h3 className="text-lg font-semibold text-on-surface mb-4">Last Updated</h3>
             <dl className="space-y-2">
               <div>
-                <dt className="text-sm text-neutral-500">Timestamp</dt>
-                <dd className="text-sm font-medium text-neutral-900">{formatDateTime(settings.updatedAt)}</dd>
+                <dt className="text-sm text-on-surface-variant">Timestamp</dt>
+                <dd className="text-sm font-medium text-on-surface">{formatDateTime(settings.updatedAt)}</dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Updated By</dt>
-                <dd className="text-sm font-medium text-neutral-900">{settings.updatedBy.email}</dd>
+                <dt className="text-sm text-on-surface-variant">Updated By</dt>
+                <dd className="text-sm font-medium text-on-surface">{settings.updatedBy.email}</dd>
               </div>
             </dl>
           </Card>

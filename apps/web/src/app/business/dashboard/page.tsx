@@ -35,12 +35,12 @@ export default function BusinessDashboardPage() {
         {stats.map((stat) => (
           <Card key={stat.label} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(stat.href)}>
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-50">
-                <i className={`pi ${stat.icon} text-primary-600 text-xl`} />
+              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-container">
+                <i className={`pi ${stat.icon} text-primary text-xl`} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-neutral-900">{stat.value}</p>
-                <p className="text-sm text-neutral-500">{stat.label}</p>
+                <p className="text-2xl font-bold text-on-surface">{stat.value}</p>
+                <p className="text-sm text-on-surface-variant">{stat.label}</p>
               </div>
             </div>
           </Card>

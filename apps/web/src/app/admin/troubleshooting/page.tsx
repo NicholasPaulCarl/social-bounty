@@ -56,47 +56,47 @@ export default function AdminTroubleshootingPage() {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-neutral-500">Overall Status</p>
+                <p className="text-sm text-on-surface-variant">Overall Status</p>
                 <Tag value={health.status} severity={getStatusSeverity(health.status)} className="mt-1" />
               </div>
-              <i className="pi pi-server text-2xl text-neutral-400" />
+              <i className="pi pi-server text-2xl text-on-surface-variant" />
             </div>
           </Card>
 
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-neutral-500">Database</p>
+                <p className="text-sm text-on-surface-variant">Database</p>
                 <Tag value={health.services.database.status} severity={getStatusSeverity(health.services.database.status)} className="mt-1" />
               </div>
-              <i className="pi pi-database text-2xl text-neutral-400" />
+              <i className="pi pi-database text-2xl text-on-surface-variant" />
             </div>
           </Card>
 
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-neutral-500">Uptime</p>
-                <p className="text-lg font-bold text-neutral-900 mt-1">{Math.floor(health.uptime / 3600)}h {Math.floor((health.uptime % 3600) / 60)}m</p>
+                <p className="text-sm text-on-surface-variant">Uptime</p>
+                <p className="text-lg font-bold text-on-surface mt-1">{Math.floor(health.uptime / 3600)}h {Math.floor((health.uptime % 3600) / 60)}m</p>
               </div>
-              <i className="pi pi-clock text-2xl text-neutral-400" />
+              <i className="pi pi-clock text-2xl text-on-surface-variant" />
             </div>
           </Card>
 
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-neutral-500">Memory Usage</p>
-                <p className="text-lg font-bold text-neutral-900 mt-1">{Math.round((health.memory.used / health.memory.total) * 100)}%</p>
+                <p className="text-sm text-on-surface-variant">Memory Usage</p>
+                <p className="text-lg font-bold text-on-surface mt-1">{Math.round((health.memory.used / health.memory.total) * 100)}%</p>
               </div>
-              <i className="pi pi-chart-bar text-2xl text-neutral-400" />
+              <i className="pi pi-chart-bar text-2xl text-on-surface-variant" />
             </div>
           </Card>
         </div>
       )}
 
       <Card>
-        <h3 className="text-lg font-semibold text-neutral-900 mb-4">Recent Errors</h3>
+        <h3 className="text-lg font-semibold text-on-surface mb-4">Recent Errors</h3>
 
         {errorsLoading ? (
           <LoadingState type="table" />

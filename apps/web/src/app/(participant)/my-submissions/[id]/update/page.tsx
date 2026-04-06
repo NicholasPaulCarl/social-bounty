@@ -118,8 +118,8 @@ export default function UpdateSubmissionPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="proofText" className="block text-sm font-medium text-neutral-700 mb-2">
-              Proof Description <span className="text-danger-500">*</span>
+            <label htmlFor="proofText" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
+              Proof Description <span className="text-error">*</span>
             </label>
             <InputTextarea
               id="proofText"
@@ -132,7 +132,7 @@ export default function UpdateSubmissionPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
               Proof Links (optional)
             </label>
             {proofLinks.map((link, index) => (
@@ -166,7 +166,7 @@ export default function UpdateSubmissionPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
               Additional Images (optional)
             </label>
             <FileUpload
@@ -183,7 +183,7 @@ export default function UpdateSubmissionPage() {
               onRemove={(e) => setImages((prev) => prev.filter((f) => f !== e.file))}
               onClear={() => setImages([])}
               emptyTemplate={
-                <p className="text-neutral-500 text-center py-4">
+                <p className="text-on-surface-variant text-center py-4">
                   Drag and drop images here. Max 5MB per image.
                 </p>
               }

@@ -87,8 +87,8 @@ export default function SubmitProofPage() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="proofText" className="block text-sm font-medium text-neutral-700 mb-2">
-                  Proof Description <span className="text-danger-500">*</span>
+                <label htmlFor="proofText" className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
+                  Proof Description <span className="text-error">*</span>
                 </label>
                 <InputTextarea
                   id="proofText"
@@ -100,11 +100,11 @@ export default function SubmitProofPage() {
                   autoFocus
                   maxLength={10000}
                 />
-                <p className="text-xs text-neutral-500 mt-1">{proofText.length}/10000 characters</p>
+                <p className="text-xs text-on-surface-variant mt-1">{proofText.length}/10000 characters</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <label className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                   Proof Links (optional)
                 </label>
                 {proofLinks.map((link, index) => (
@@ -138,7 +138,7 @@ export default function SubmitProofPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <label className="block text-sm font-semibold mb-2 ml-4 text-on-surface">
                   Proof Images (optional)
                 </label>
                 <FileUpload
@@ -157,7 +157,7 @@ export default function SubmitProofPage() {
                   onRemove={(e) => setImages((prev) => prev.filter((f) => f !== e.file))}
                   onClear={() => setImages([])}
                   emptyTemplate={
-                    <p className="text-neutral-500 text-center py-4">
+                    <p className="text-on-surface-variant text-center py-4">
                       Drag and drop images here, or click to browse. Max 5MB per image.
                     </p>
                   }
@@ -186,8 +186,8 @@ export default function SubmitProofPage() {
 
         <div>
           <Card>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-3">Bounty Requirements</h3>
-            <p className="text-sm text-neutral-700 whitespace-pre-wrap">{bounty.proofRequirements}</p>
+            <h3 className="text-lg font-semibold text-on-surface mb-3">Bounty Requirements</h3>
+            <p className="text-sm text-on-surface whitespace-pre-wrap">{bounty.proofRequirements}</p>
           </Card>
         </div>
       </div>
