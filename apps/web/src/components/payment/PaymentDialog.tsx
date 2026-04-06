@@ -52,15 +52,20 @@ function PaymentForm({ amount, currency, onSuccess, onCancel }: PaymentFormProps
   }, [stripe, elements, onSuccess]);
 
   return (
-    <div className="space-y-4">
-      <div className="bg-neutral-50 rounded-lg p-4 text-center">
-        <p className="text-sm text-neutral-500">Total Amount</p>
-        <p className="text-2xl font-bold text-neutral-900">{currency} {amount}</p>
+    <div className="space-y-5">
+      <div className="bg-surface-container rounded-2xl p-6 text-center">
+        <p className="text-sm text-on-surface-variant">Total Amount</p>
+        <p className="text-3xl font-bold text-on-surface font-headline">{currency} {amount}</p>
       </div>
 
       <PaymentElement />
 
-      {error && <Message severity="error" text={error} className="w-full" />}
+      {error && (
+        <div className="bg-error-container p-4 rounded-2xl flex items-center space-x-3">
+          <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+          <p className="text-sm text-error">{error}</p>
+        </div>
+      )}
 
       <div className="flex justify-end gap-3 pt-2">
         <Button

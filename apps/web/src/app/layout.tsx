@@ -12,13 +12,13 @@ import '@/styles/globals.css';
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-heading',
-  weight: ['400', '500', '600', '700'],
+  weight: ['300', '400', '500', '600', '700'],
 });
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-body',
-  weight: ['400', '500', '600', '700'],
+  weight: ['300', '400', '500', '600'],
 });
 
 const sourceCodePro = Source_Code_Pro({
@@ -35,7 +35,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${spaceGrotesk.variable} ${inter.variable} ${sourceCodePro.variable} font-body antialiased`}>
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className={`${spaceGrotesk.variable} ${inter.variable} ${sourceCodePro.variable} font-body antialiased bg-background text-on-surface`}>
         <Providers>{children}</Providers>
       </body>
     </html>

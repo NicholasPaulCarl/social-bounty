@@ -38,18 +38,18 @@ export function FormSummaryFooter({
   return (
     <>
       {/* Desktop footer */}
-      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-neutral-200 shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
-        <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-8">
             <div>
-              <span className="text-xs text-neutral-500 uppercase tracking-wider">Total Reward</span>
-              <p className="text-base font-semibold text-neutral-900">
-                <span className="text-neutral-500 text-sm font-normal mr-1">{currencySymbol}</span>
+              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Total Reward</span>
+              <p className="text-lg font-bold text-on-surface font-headline">
+                <span className="text-on-surface-variant text-sm font-normal mr-1">{currencySymbol}</span>
                 {totalRewardValue.toFixed(2)}
               </p>
             </div>
-            <div className="text-sm text-neutral-500">
-              <span className="font-medium text-neutral-700">{completedSections}</span>/{totalSections} sections complete
+            <div className="text-sm text-on-surface-variant">
+              <span className="font-bold text-on-surface">{completedSections}</span>/{totalSections} sections complete
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -61,15 +61,15 @@ export function FormSummaryFooter({
       </div>
 
       {/* Mobile footer */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-neutral-200 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] p-4">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <span className="text-xs text-neutral-500">Total Reward</span>
-            <p className="text-sm font-semibold text-neutral-900">
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Total Reward</span>
+            <p className="text-sm font-bold text-on-surface">
               {currencySymbol} {totalRewardValue.toFixed(2)}
             </p>
           </div>
-          <span className="text-xs text-neutral-500">
+          <span className="text-xs text-on-surface-variant">
             {completedSections}/{totalSections} complete
           </span>
         </div>

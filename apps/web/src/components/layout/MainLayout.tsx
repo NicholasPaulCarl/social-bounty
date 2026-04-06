@@ -14,10 +14,10 @@ export function MainLayout({ navItems, children }: MainLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-background">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:p-2 focus:rounded focus:shadow"
+        className="sr-only-focusable"
       >
         Skip to main content
       </a>
@@ -32,7 +32,7 @@ export function MainLayout({ navItems, children }: MainLayoutProps) {
         <div className="flex-1 flex flex-col min-h-screen">
           <AppHeader onMenuToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
 
-          <main id="main-content" tabIndex={-1} className="flex-1 p-6 max-w-7xl w-full mx-auto">
+          <main id="main-content" tabIndex={-1} className="flex-1 p-6 md:p-8 max-w-screen-2xl w-full mx-auto">
             {children}
           </main>
         </div>

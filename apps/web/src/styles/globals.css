@@ -2,5 +2,261 @@
 @tailwind components;
 @tailwind utilities;
 
-body { @apply bg-neutral-50 text-neutral-900 font-sans; }
-.sr-only-focusable:focus { @apply not-sr-only absolute top-2 left-2 z-50 bg-white p-2 rounded shadow; }
+/* === Jester Quest Design System === */
+
+/* Material Symbols icon font settings */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-surface;
+    font-family: 'Inter', var(--font-body), sans-serif;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Space Grotesk', var(--font-heading), sans-serif;
+  }
+
+  /* No shadows — Jester Quest uses tonal layering for depth */
+  * {
+    box-shadow: none !important;
+  }
+}
+
+/* Accessibility skip link */
+.sr-only-focusable:focus {
+  @apply not-sr-only absolute top-2 left-2 z-50 bg-surface-container-lowest p-2 rounded-lg;
+}
+
+/* === PrimeReact Theme Overrides (Jester Quest) === */
+@layer components {
+  /* --- Buttons --- */
+  .p-button {
+    @apply rounded-full font-bold transition-all;
+    box-shadow: none !important;
+  }
+  .p-button:not(.p-button-outlined):not(.p-button-text):not(.p-button-link) {
+    @apply bg-primary text-on-primary border-none;
+  }
+  .p-button:not(.p-button-outlined):not(.p-button-text):not(.p-button-link):enabled:hover {
+    @apply bg-primary border-none;
+    opacity: 0.9;
+  }
+  .p-button:not(.p-button-outlined):not(.p-button-text):not(.p-button-link):enabled:active {
+    transform: scale(0.95);
+  }
+  .p-button.p-button-outlined {
+    @apply bg-secondary-container text-secondary border-none rounded-full font-bold;
+  }
+  .p-button.p-button-outlined:enabled:hover {
+    @apply bg-secondary-container border-none;
+    opacity: 0.9;
+  }
+  .p-button.p-button-text {
+    @apply text-secondary bg-transparent rounded-full font-bold;
+  }
+  .p-button.p-button-text:enabled:hover {
+    @apply bg-secondary-container/50;
+  }
+  .p-button.p-button-success {
+    @apply bg-success text-white border-none;
+  }
+  .p-button.p-button-success:enabled:hover {
+    @apply bg-success border-none;
+    opacity: 0.9;
+  }
+  .p-button.p-button-danger {
+    @apply bg-error text-on-error border-none;
+  }
+  .p-button.p-button-danger:enabled:hover {
+    @apply bg-error border-none;
+    opacity: 0.9;
+  }
+  .p-button.p-button-warning {
+    @apply bg-warning text-white border-none;
+  }
+  .p-button.p-button-warning:enabled:hover {
+    @apply bg-warning border-none;
+    opacity: 0.9;
+  }
+  .p-button.p-button-secondary {
+    @apply bg-surface-container text-on-surface-variant border-none;
+  }
+  .p-button.p-button-secondary:enabled:hover {
+    @apply bg-surface-container-high border-none;
+  }
+
+  /* --- Input Fields --- */
+  .p-inputtext,
+  .p-inputtextarea,
+  .p-password input {
+    @apply bg-surface-container border-none rounded-2xl py-3 px-5 text-on-surface;
+    box-shadow: none !important;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+  .p-inputtext:enabled:focus,
+  .p-inputtextarea:enabled:focus,
+  .p-password input:enabled:focus {
+    @apply bg-surface-container-lowest;
+    ring: 2px;
+    --tw-ring-color: rgba(236, 72, 153, 0.2);
+    box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2) !important;
+  }
+  .p-inputtext::placeholder,
+  .p-inputtextarea::placeholder {
+    @apply text-on-surface-variant;
+  }
+
+  /* --- Dropdown --- */
+  .p-dropdown {
+    @apply bg-surface-container border-none rounded-2xl;
+    box-shadow: none !important;
+  }
+  .p-dropdown:not(.p-disabled).p-focus {
+    box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2) !important;
+    @apply bg-surface-container-lowest;
+  }
+  .p-dropdown-panel {
+    @apply bg-surface-container-lowest rounded-xl border-none;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08) !important;
+  }
+  .p-dropdown-item {
+    @apply rounded-lg;
+  }
+  .p-dropdown-item.p-highlight {
+    @apply bg-primary-container text-primary;
+  }
+
+  /* --- Card --- */
+  .p-card {
+    @apply bg-surface-container-low rounded-xl border-none;
+    box-shadow: none !important;
+  }
+  .p-card .p-card-body {
+    @apply p-6;
+  }
+  .p-card .p-card-content {
+    padding: 0;
+  }
+
+  /* --- Dialog / Modal --- */
+  .p-dialog {
+    @apply bg-surface-container-lowest rounded-xl border-none;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12) !important;
+  }
+  .p-dialog .p-dialog-header {
+    @apply bg-surface-container-lowest rounded-t-xl border-none pb-2;
+  }
+  .p-dialog .p-dialog-header .p-dialog-title {
+    @apply font-headline text-xl font-bold text-on-surface;
+  }
+  .p-dialog .p-dialog-content {
+    @apply bg-surface-container-lowest px-6 py-4;
+  }
+  .p-dialog .p-dialog-footer {
+    @apply bg-surface-container-lowest rounded-b-xl border-none pt-2;
+  }
+  .p-dialog-mask {
+    backdrop-filter: blur(4px);
+  }
+
+  /* --- Tag / Badge --- */
+  .p-tag {
+    @apply rounded-full px-4 py-1.5 font-bold text-xs border-none;
+    box-shadow: none !important;
+  }
+
+  /* --- Toast --- */
+  .p-toast-message {
+    @apply rounded-2xl border-none;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08) !important;
+  }
+  .p-toast-message-success {
+    @apply bg-success-container;
+  }
+  .p-toast-message-error {
+    @apply bg-error-container;
+  }
+  .p-toast-message-warn {
+    @apply bg-warning-container;
+  }
+  .p-toast-message-info {
+    @apply bg-info-container;
+  }
+
+  /* --- Panel --- */
+  .p-panel {
+    @apply bg-surface-container-low rounded-xl border-none;
+    box-shadow: none !important;
+  }
+  .p-panel .p-panel-header {
+    @apply bg-surface-container-low border-none rounded-t-xl;
+  }
+  .p-panel .p-panel-content {
+    @apply bg-surface-container-low border-none;
+  }
+
+  /* --- Message --- */
+  .p-message {
+    @apply rounded-2xl border-none;
+    box-shadow: none !important;
+  }
+  .p-message.p-message-error {
+    @apply bg-error-container;
+  }
+  .p-message.p-message-success {
+    @apply bg-success-container;
+  }
+  .p-message.p-message-warn {
+    @apply bg-warning-container;
+  }
+  .p-message.p-message-info {
+    @apply bg-info-container;
+  }
+
+  /* --- Paginator --- */
+  .p-paginator {
+    @apply bg-transparent border-none;
+    box-shadow: none !important;
+  }
+  .p-paginator .p-paginator-page.p-highlight {
+    @apply bg-primary text-on-primary rounded-full;
+  }
+  .p-paginator button {
+    @apply rounded-full;
+  }
+
+  /* --- BreadCrumb --- */
+  .p-breadcrumb {
+    @apply bg-transparent border-none p-0;
+    box-shadow: none !important;
+  }
+  .p-breadcrumb .p-menuitem-link {
+    @apply text-on-surface-variant;
+  }
+
+  /* --- Menu (popup) --- */
+  .p-menu {
+    @apply bg-surface-container-lowest rounded-xl border-none;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08) !important;
+  }
+  .p-menu .p-menuitem-link {
+    @apply rounded-lg;
+  }
+  .p-menu .p-menuitem-link:hover {
+    @apply bg-surface-container-low;
+  }
+
+  /* --- Skeleton --- */
+  .p-skeleton {
+    @apply bg-surface-container rounded-xl;
+  }
+
+  /* --- Confirm Dialog --- */
+  .p-confirm-dialog {
+    @apply rounded-xl;
+  }
+}

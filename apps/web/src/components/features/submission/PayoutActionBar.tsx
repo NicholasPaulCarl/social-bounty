@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Button } from 'primereact/button';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Card } from 'primereact/card';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { PayoutStatus } from '@social-bounty/shared';
 
@@ -23,12 +22,12 @@ export function PayoutActionBar({ currentPayoutStatus, onAction, loading = false
 
   return (
     <>
-      <Card className="mt-4">
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-neutral-900">Payout Actions</h3>
+      <div className="bg-surface-container-low rounded-xl p-6 mt-6">
+        <div className="space-y-5">
+          <h3 className="text-lg font-bold text-on-surface font-headline">Payout Actions</h3>
 
-          <div>
-            <label htmlFor="payout-note" className="block text-sm font-medium text-neutral-700 mb-2">
+          <div className="group">
+            <label htmlFor="payout-note" className="block text-sm font-semibold text-on-surface mb-2 ml-1 group-focus-within:text-primary transition-colors">
               Note (optional)
             </label>
             <InputTextarea
@@ -61,7 +60,7 @@ export function PayoutActionBar({ currentPayoutStatus, onAction, loading = false
             />
           </div>
         </div>
-      </Card>
+      </div>
 
       <ConfirmAction
         visible={showConfirmPaid}

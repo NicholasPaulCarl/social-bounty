@@ -9,6 +9,8 @@ interface EmptyStateProps {
   ctaLabel?: string;
   ctaAction?: () => void;
   ctaIcon?: string;
+  /** Material Symbols icon name (e.g. "inbox", "search"). Falls back to PrimeIcon if prefixed with pi- */
+  materialIcon?: string;
 }
 
 export function EmptyState({
@@ -18,18 +20,27 @@ export function EmptyState({
   ctaLabel,
   ctaAction,
   ctaIcon,
+  materialIcon,
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
-      <i className={`pi ${icon} text-neutral-400`} style={{ fontSize: '3rem' }} />
-      <h3 className="text-lg font-semibold text-neutral-700 mt-4">{title}</h3>
-      {message && <p className="text-sm text-neutral-500 mt-2 text-center max-w-md">{message}</p>}
+      <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mb-4">
+        {materialIcon ? (
+          <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: '2rem' }}>
+            {materialIcon}
+          </span>
+        ) : (
+          <i className={`pi ${icon} text-on-surface-variant`} style={{ fontSize: '2rem' }} />
+        )}
+      </div>
+      <h3 className="text-lg font-bold text-on-surface font-headline">{title}</h3>
+      {message && <p className="text-on-surface-variant mt-2 text-center max-w-md">{message}</p>}
       {ctaLabel && ctaAction && (
         <Button
           label={ctaLabel}
           icon={ctaIcon ? `pi ${ctaIcon}` : undefined}
           outlined
-          className="mt-4"
+          className="mt-6"
           onClick={ctaAction}
         />
       )}

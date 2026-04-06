@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu } from 'primereact/menu';
@@ -59,51 +59,51 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
       {/* Mobile overlay */}
       {!collapsed && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 md:hidden"
           onClick={onToggle}
           aria-hidden="true"
         />
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-40 h-screen bg-white border-r border-neutral-200 transition-transform duration-300 flex flex-col
+        className={`fixed top-0 left-0 z-40 h-screen bg-surface-container-lowest/90 backdrop-blur-xl transition-transform duration-300 flex flex-col
           ${collapsed ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}
           w-60 md:sticky md:top-0`}
         role="navigation"
         aria-label="Main navigation"
       >
-        <div className="flex items-center justify-between h-16 px-4 border-b border-neutral-200">
-          <Link href="/" className="text-xl font-bold text-primary-600 font-heading">
+        <div className="flex items-center justify-between h-16 px-5">
+          <Link href="/" className="text-xl font-bold tracking-tighter text-primary font-headline">
             Social Bounty
           </Link>
           <button
-            className="md:hidden p-2 rounded hover:bg-neutral-100"
+            className="md:hidden p-2 rounded-full hover:bg-surface-container transition-colors"
             onClick={onToggle}
             aria-label="Close sidebar"
           >
-            <i className="pi pi-times" />
+            <span className="material-symbols-outlined text-on-surface-variant text-xl">close</span>
           </button>
         </div>
 
-        <nav className="p-4 space-y-1 flex-1">
+        <nav className="px-3 py-4 space-y-1 flex-1">
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-r-lg text-sm font-medium transition-colors
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200
                   ${
                     isActive
-                      ? 'border-l-[3px] border-primary-600 bg-primary-50 text-primary-700'
-                      : 'border-l-[3px] border-transparent text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
+                      ? 'bg-primary-container text-primary font-bold'
+                      : 'text-on-surface-variant hover:bg-surface-container'
                   }`}
                 aria-current={isActive ? 'page' : undefined}
               >
                 <i className={`${item.icon} text-base`} />
-                <span className="font-heading">{item.label}</span>
+                <span className="font-headline">{item.label}</span>
                 {item.badge != null && item.badge > 0 && (
-                  <span className="ml-auto bg-secondary-500 text-white text-xs rounded-full px-2 py-0.5 font-medium">
+                  <span className="ml-auto bg-primary text-on-primary text-xs rounded-full px-2 py-0.5 font-bold">
                     {item.badge}
                   </span>
                 )}
@@ -114,21 +114,21 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
 
         {/* User menu footer */}
         {user && (
-          <div className="border-t border-neutral-200 p-4">
+          <div className="p-3">
             <Menu model={userMenuItems} popup ref={userMenuRef} />
             <button
-              className="flex items-center gap-3 w-full text-left rounded-lg p-2 hover:bg-neutral-50 transition-colors"
+              className="flex items-center gap-3 w-full text-left rounded-full p-3 hover:bg-surface-container transition-colors"
               onClick={(e) => userMenuRef.current?.toggle(e)}
               aria-label="User menu"
             >
-              <div className="w-9 h-9 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-sm font-semibold shrink-0">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-sm font-bold text-white shrink-0">
                 {initials}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-neutral-900 truncate">{fullName}</p>
-                <p className="text-xs text-neutral-500 truncate">{roleLabel}</p>
+                <p className="text-sm font-medium text-on-surface truncate">{fullName}</p>
+                <p className="text-xs text-on-surface-variant truncate">{roleLabel}</p>
               </div>
-              <i className="pi pi-chevron-up text-xs text-neutral-400" />
+              <span className="material-symbols-outlined text-on-surface-variant text-lg">expand_less</span>
             </button>
           </div>
         )}

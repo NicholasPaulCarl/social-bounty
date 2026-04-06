@@ -1,53 +1,49 @@
 'use client';
 
-import { Tag } from 'primereact/tag';
-
 type StatusType = 'bounty' | 'submission' | 'payout' | 'user' | 'organisation' | 'role' | 'orgMemberRole';
-
-type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | null | undefined;
 
 interface StatusConfig {
   bg: string;
   text: string;
-  severity: TagSeverity;
   icon?: string;
 }
 
 const STATUS_COLOUR_MAP: Record<string, Record<string, StatusConfig>> = {
   bounty: {
-    DRAFT: { bg: 'bg-neutral-100', text: 'text-neutral-600', severity: null },
-    LIVE: { bg: 'bg-success-100', text: 'text-success-700', severity: 'success' },
-    PAUSED: { bg: 'bg-warning-100', text: 'text-warning-700', severity: 'warning' },
-    CLOSED: { bg: 'bg-danger-100', text: 'text-danger-700', severity: 'danger' },
+    DRAFT: { bg: 'bg-surface-container', text: 'text-on-surface-variant' },
+    LIVE: { bg: 'bg-success-container', text: 'text-success' },
+    PAUSED: { bg: 'bg-warning-container', text: 'text-warning' },
+    CLOSED: { bg: 'bg-error-container', text: 'text-error' },
   },
   submission: {
-    SUBMITTED: { bg: 'bg-info-100', text: 'text-info-700', severity: 'info', icon: 'pi pi-send' },
-    IN_REVIEW: { bg: 'bg-warning-100', text: 'text-warning-700', severity: 'warning', icon: 'pi pi-eye' },
-    NEEDS_MORE_INFO: { bg: 'bg-yellow-100', text: 'text-yellow-800', severity: 'warning', icon: 'pi pi-exclamation-triangle' },
-    APPROVED: { bg: 'bg-success-100', text: 'text-success-700', severity: 'success', icon: 'pi pi-check-circle' },
-    REJECTED: { bg: 'bg-danger-100', text: 'text-danger-700', severity: 'danger', icon: 'pi pi-times-circle' },
+    SUBMITTED: { bg: 'bg-info-container', text: 'text-info', icon: 'send' },
+    IN_REVIEW: { bg: 'bg-warning-container', text: 'text-warning', icon: 'visibility' },
+    NEEDS_MORE_INFO: { bg: 'bg-warning-container', text: 'text-warning', icon: 'warning' },
+    APPROVED: { bg: 'bg-success-container', text: 'text-success', icon: 'check_circle' },
+    REJECTED: { bg: 'bg-error-container', text: 'text-error', icon: 'cancel' },
   },
   payout: {
-    NOT_PAID: { bg: 'bg-neutral-100', text: 'text-neutral-600', severity: null, icon: 'pi pi-minus-circle' },
-    PENDING: { bg: 'bg-warning-100', text: 'text-warning-700', severity: 'warning', icon: 'pi pi-clock' },
-    PAID: { bg: 'bg-success-100', text: 'text-success-700', severity: 'success', icon: 'pi pi-check-circle' },
+    NOT_PAID: { bg: 'bg-surface-container', text: 'text-on-surface-variant', icon: 'do_not_disturb_on' },
+    PENDING: { bg: 'bg-warning-container', text: 'text-warning', icon: 'schedule' },
+    PAID: { bg: 'bg-success-container', text: 'text-success', icon: 'check_circle' },
+    FAILED: { bg: 'bg-error-container', text: 'text-error', icon: 'error' },
   },
   user: {
-    ACTIVE: { bg: 'bg-success-100', text: 'text-success-700', severity: 'success' },
-    SUSPENDED: { bg: 'bg-danger-100', text: 'text-danger-700', severity: 'danger' },
+    ACTIVE: { bg: 'bg-success-container', text: 'text-success' },
+    SUSPENDED: { bg: 'bg-error-container', text: 'text-error' },
   },
   organisation: {
-    ACTIVE: { bg: 'bg-success-100', text: 'text-success-700', severity: 'success' },
-    SUSPENDED: { bg: 'bg-danger-100', text: 'text-danger-700', severity: 'danger' },
+    ACTIVE: { bg: 'bg-success-container', text: 'text-success' },
+    SUSPENDED: { bg: 'bg-error-container', text: 'text-error' },
   },
   role: {
-    PARTICIPANT: { bg: 'bg-info-100', text: 'text-info-700', severity: 'info' },
-    BUSINESS_ADMIN: { bg: 'bg-primary-100', text: 'text-primary-700', severity: null },
-    SUPER_ADMIN: { bg: 'bg-purple-100', text: 'text-purple-700', severity: null },
+    PARTICIPANT: { bg: 'bg-info-container', text: 'text-info' },
+    BUSINESS_ADMIN: { bg: 'bg-primary-container', text: 'text-primary' },
+    SUPER_ADMIN: { bg: 'bg-purple-100', text: 'text-purple-700' },
   },
   orgMemberRole: {
-    OWNER: { bg: 'bg-primary-100', text: 'text-primary-700', severity: null },
-    MEMBER: { bg: 'bg-neutral-100', text: 'text-neutral-600', severity: null },
+    OWNER: { bg: 'bg-primary-container', text: 'text-primary' },
+    MEMBER: { bg: 'bg-surface-container', text: 'text-on-surface-variant' },
   },
 };
 
@@ -68,18 +64,36 @@ export function StatusBadge({ type, value, size }: StatusBadgeProps) {
   const config = STATUS_COLOUR_MAP[type]?.[value];
   const label = formatLabel(value);
 
+  const sizeClasses = size === 'large'
+    ? 'text-sm px-4 py-2'
+    : size === 'small'
+      ? 'text-xs px-3 py-1'
+      : 'text-xs px-4 py-1.5';
+
   if (!config) {
-    return <Tag value={label} />;
+    return (
+      <span
+        className={`inline-flex items-center gap-1.5 rounded-full font-bold bg-surface-container text-on-surface-variant ${sizeClasses}`}
+        role="status"
+        aria-label={`${formatLabel(type)} status: ${label}`}
+      >
+        {label}
+      </span>
+    );
   }
 
   return (
-    <Tag
-      value={label}
-      severity={config.severity}
-      icon={config.icon}
-      className={`${config.bg} ${config.text} ${size === 'large' ? 'text-base px-3 py-1' : size === 'small' ? 'text-xs px-1.5 py-0.5' : ''}`}
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full font-bold ${config.bg} ${config.text} ${sizeClasses}`}
       role="status"
       aria-label={`${formatLabel(type)} status: ${label}`}
-    />
+    >
+      {config.icon && (
+        <span className="material-symbols-outlined" style={{ fontSize: size === 'small' ? '14px' : '16px', fontVariationSettings: "'FILL' 1" }}>
+          {config.icon}
+        </span>
+      )}
+      {label}
+    </span>
   );
 }

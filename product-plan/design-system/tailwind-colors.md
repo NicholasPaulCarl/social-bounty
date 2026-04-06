@@ -1,25 +1,83 @@
-# Tailwind Color Configuration
+# Jester Quest Color System (M3 Tonal Tokens)
 
-## Color Choices
+## Design Philosophy
 
-- **Primary:** `pink` — Used for buttons, links, key accents, active nav indicators
-- **Secondary:** `blue` — Used for tags, highlights, secondary badges, notification counts
-- **Neutral:** `slate` — Used for backgrounds, text, borders, sidebar chrome
+The Jester Quest design system uses **tonal layering** instead of borders and shadows. Depth is created through subtle background color shifts between surface levels.
 
-## Usage Examples
+**Key principle:** No shadows (`box-shadow: none !important`). Depth is communicated through surface-level color hierarchy.
 
-Primary button: `bg-pink-600 hover:bg-pink-700 text-white dark:bg-pink-500 dark:hover:bg-pink-600`
-Primary outline: `border-pink-200 bg-pink-50 text-pink-700 dark:border-pink-800 dark:bg-pink-950/30 dark:text-pink-300`
-Secondary badge: `bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300`
-Neutral text: `text-slate-600 dark:text-slate-400`
-Neutral border: `border-slate-200 dark:border-slate-800`
-Card: `bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800`
-Page background: `bg-slate-50 dark:bg-slate-950`
+## Color Token Reference
 
-## Status Colors (Consistent Across Sections)
+### Brand Colors
 
-- **Active / Approved / Healthy / Live:** emerald
-- **Suspended / Rejected / Down / Error:** red
-- **Paused / Pending / In Review / Warning / Needs Info:** amber/orange
-- **Submitted / Info:** blue
-- **Draft / Inactive / Closed:** slate (gray)
+| Token | Hex | Usage |
+|---|---|---|
+| `primary` | #ec4899 (Pink) | CTAs, active states, brand accents |
+| `primary-container` | #fce7f3 | Active nav items, highlight backgrounds |
+| `on-primary` | #ffffff | Text on primary surfaces |
+| `secondary` | #3b82f6 (Blue) | Secondary actions, links, ghost buttons |
+| `secondary-container` | #dbeafe | Outlined button fills, secondary highlights |
+| `on-secondary` | #ffffff | Text on secondary surfaces |
+| `accent` | #f59e0b (Amber) | Rewards, points, monetary values |
+
+### Surface Hierarchy (Tonal Layering)
+
+| Token | Hex | Level | Usage |
+|---|---|---|---|
+| `background` / `surface` | #f8fafc | Base | Page background |
+| `surface-container-lowest` | #ffffff | Highest | Modals, active highlights, focus states |
+| `surface-container-low` | #f1f5f9 | High | Cards, panels, sidebar |
+| `surface-container` | #e2e8f0 | Medium | Inputs, chips, inactive elements |
+| `surface-container-high` | #cbd5e1 | Low | Secondary containers |
+| `surface-container-highest` | #94a3b8 | Lowest | Muted elements |
+
+### Text Colors
+
+| Token | Hex | Usage |
+|---|---|---|
+| `on-surface` | #334155 | Primary text, headings |
+| `on-surface-variant` | #64748b | Secondary text, descriptions, placeholders |
+
+### Border Colors
+
+| Token | Hex | Usage |
+|---|---|---|
+| `outline` | #94a3b8 | Strong borders (rarely used) |
+| `outline-variant` | #e2e8f0 | Subtle dividers, separator lines |
+
+### Feedback / Status Colors
+
+| Token | Hex | Usage |
+|---|---|---|
+| `success` | #22c55e | Approved, active, healthy, live, paid |
+| `success-container` | #dcfce7 | Success alert background |
+| `error` | #ef4444 | Rejected, suspended, failed, destructive |
+| `error-container` | #fee2e2 | Error alert background |
+| `warning` | #f59e0b | Pending, paused, in review, needs info |
+| `warning-container` | #fef3c7 | Warning alert background |
+| `info` | #3b82f6 | Submitted, informational |
+| `info-container` | #dbeafe | Info alert background |
+
+## Usage Examples (Jester Quest Patterns)
+
+```
+Primary button:     bg-primary text-on-primary rounded-full hover:opacity-90 active:scale-95
+Outlined button:    bg-secondary-container text-secondary rounded-full
+Ghost button:       text-secondary hover:bg-secondary-container rounded-full
+Card:               bg-surface-container-low rounded-xl (no border, no shadow)
+Input:              bg-surface-container border-none rounded-2xl focus:ring-2 focus:ring-primary/20
+Active chip:        bg-primary text-on-primary text-xs px-4 py-2 rounded-full font-bold
+Inactive chip:      bg-surface-container text-on-surface-variant text-xs px-4 py-2 rounded-full
+Success alert:      bg-success-container p-4 rounded-2xl
+Error alert:        bg-error-container p-4 rounded-2xl
+Nav bar:            bg-white/80 backdrop-blur-xl
+Label:              text-xs font-bold uppercase tracking-widest text-primary
+```
+
+## Status Color Mapping (Consistent Across Sections)
+
+- **Active / Approved / Healthy / Live / Paid:** `success` / `success-container`
+- **Suspended / Rejected / Down / Error / Failed:** `error` / `error-container`
+- **Paused / Pending / In Review / Warning / Needs Info:** `warning` / `warning-container`
+- **Submitted / Info:** `info` / `info-container`
+- **Draft / Inactive / Closed / Not Paid:** `surface-container` / `on-surface-variant`

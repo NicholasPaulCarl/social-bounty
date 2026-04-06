@@ -44,17 +44,19 @@ export function BountyFilters({ filters, onChange, showStatusFilter = false }: B
   };
 
   return (
-    <div className="flex flex-wrap gap-3 mb-6">
-      <span className="p-input-icon-left">
-        <i className="pi pi-search" />
+    <div className="flex flex-wrap gap-3 mb-8">
+      <div className="relative">
+        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" style={{ fontSize: '20px' }}>
+          search
+        </span>
         <InputText
           value={filters.search || ''}
           onChange={(e) => updateFilter('search', e.target.value)}
           placeholder="Search bounties..."
           aria-label="Search bounties by title"
-          className="w-64"
+          className="w-64 pl-12"
         />
-      </span>
+      </div>
 
       {showStatusFilter && (
         <Dropdown
@@ -92,6 +94,7 @@ export function BountyFilters({ filters, onChange, showStatusFilter = false }: B
         onClick={clearFilters}
         tooltip="Clear filters"
         aria-label="Clear all filters"
+        className="rounded-full"
       />
     </div>
   );
