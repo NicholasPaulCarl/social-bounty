@@ -32,6 +32,7 @@ import { RolesGuard } from './common/guards/roles.guard';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env', '../../.env'],
     }),
     ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([
