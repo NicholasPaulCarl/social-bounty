@@ -64,11 +64,6 @@ export interface AdminUpdateUserStatusResponse {
   updatedAt: string;
 }
 
-// POST /admin/users/:id/force-password-reset
-export interface AdminForcePasswordResetRequest {
-  reason: string;
-}
-
 // GET /admin/organisations (list item)
 export interface AdminOrgListItem {
   id: string;

@@ -6,7 +6,6 @@ import { queryKeys } from '@/lib/query-keys';
 import type {
   AdminUserListParams,
   AdminUpdateUserStatusRequest,
-  AdminForcePasswordResetRequest,
   AdminOrgListParams,
   AdminCreateOrgRequest,
   AdminUpdateOrgStatusRequest,
@@ -50,12 +49,6 @@ export function useUpdateUserStatus(id: string) {
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.userDetail(id) });
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
     },
-  });
-}
-
-export function useForcePasswordReset(id: string) {
-  return useMutation({
-    mutationFn: (data: AdminForcePasswordResetRequest) => adminApi.forcePasswordReset(id, data),
   });
 }
 

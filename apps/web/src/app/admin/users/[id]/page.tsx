@@ -6,7 +6,7 @@ import { Button } from 'primereact/button';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { useAdminUserDetail, useUpdateUserStatus, useForcePasswordReset, useAdminSubmissions, useAuditLogs } from '@/hooks/useAdmin';
+import { useAdminUserDetail, useUpdateUserStatus, useAdminSubmissions, useAuditLogs } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
 import { UserStatus } from '@social-bounty/shared';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -70,11 +70,9 @@ export default function AdminUserDetailPage() {
 
   const { data: user, isLoading, error, refetch } = useAdminUserDetail(id);
   const updateStatus = useUpdateUserStatus(id);
-  const forceReset = useForcePasswordReset(id);
 
   const [showSuspend, setShowSuspend] = useState(false);
   const [showActivate, setShowActivate] = useState(false);
-  const [showForceReset, setShowForceReset] = useState(false);
 
   if (isLoading) return <LoadingState type="detail" />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
@@ -91,19 +89,6 @@ export default function AdminUserDetailPage() {
           refetch();
         },
         onError: () => toast.showError('Couldn\'t update user status. Try again.'),
-      },
-    );
-  };
-
-  const handleForceReset = () => {
-    forceReset.mutate(
-      { reason: 'Admin-initiated password reset' },
-      {
-        onSuccess: () => {
-          toast.showSuccess('Password reset initiated');
-          setShowForceReset(false);
-        },
-        onError: () => toast.showError('Couldn\'t reset password. Try again.'),
       },
     );
   };
@@ -125,7 +110,6 @@ export default function AdminUserDetailPage() {
             ) : (
               <Button label="Activate" icon="pi pi-check" severity="success" outlined onClick={() => setShowActivate(true)} />
             )}
-            <Button label="Force Password Reset" icon="pi pi-lock" severity="warning" outlined onClick={() => setShowForceReset(true)} />
           </div>
         }
       />
@@ -228,16 +212,6 @@ export default function AdminUserDetailPage() {
         loading={updateStatus.isPending}
       />
 
-      <ConfirmAction
-        visible={showForceReset}
-        onHide={() => setShowForceReset(false)}
-        title="Force Password Reset"
-        message={`This will send a password reset email to ${user.email} and invalidate their current sessions.`}
-        confirmLabel="Reset Password"
-        confirmSeverity="warning"
-        onConfirm={handleForceReset}
-        loading={forceReset.isPending}
-      />
     </>
   );
 }

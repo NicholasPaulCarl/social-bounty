@@ -4,22 +4,34 @@ import {
   IsString,
   IsOptional,
   IsArray,
+  Length,
   MinLength,
-  Matches,
 } from 'class-validator';
-import { FIELD_LIMITS, PASSWORD_RULES } from '@social-bounty/shared';
 
-export class SignupDto {
+export class RequestOtpDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email!: string;
+}
+
+export class VerifyOtpDto {
   @IsEmail()
   @IsNotEmpty()
   email!: string;
 
   @IsString()
-  @MinLength(PASSWORD_RULES.MIN_LENGTH)
-  @Matches(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
-  @Matches(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
-  @Matches(/[0-9]/, { message: 'Password must contain at least one number' })
-  password!: string;
+  @Length(6, 6, { message: 'OTP must be exactly 6 digits' })
+  otp!: string;
+}
+
+export class SignupWithOtpDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email!: string;
+
+  @IsString()
+  @Length(6, 6, { message: 'OTP must be exactly 6 digits' })
+  otp!: string;
 
   @IsString()
   @IsNotEmpty()
@@ -37,43 +49,8 @@ export class SignupDto {
   interests?: string[];
 }
 
-export class LoginDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  password!: string;
-}
-
 export class LogoutDto {
   // Refresh token now read from httpOnly cookie, body is empty
-}
-
-export class ForgotPasswordDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email!: string;
-}
-
-export class ResetPasswordDto {
-  @IsString()
-  @IsNotEmpty()
-  token!: string;
-
-  @IsString()
-  @MinLength(PASSWORD_RULES.MIN_LENGTH)
-  @Matches(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
-  @Matches(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
-  @Matches(/[0-9]/, { message: 'Password must contain at least one number' })
-  newPassword!: string;
-}
-
-export class VerifyEmailDto {
-  @IsString()
-  @IsNotEmpty()
-  token!: string;
 }
 
 export class RefreshTokenDto {

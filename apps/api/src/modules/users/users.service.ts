@@ -1,30 +1,22 @@
 import {
   Injectable,
   BadRequestException,
-  UnauthorizedException,
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
   UserRole,
-  AUDIT_ACTIONS,
-  ENTITY_TYPES,
   PAGINATION_DEFAULTS,
   SocialChannel,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
-import { AuditService } from '../audit/audit.service';
-
-const BCRYPT_ROUNDS = 12;
 
 @Injectable()
 export class UsersService {
   constructor(
     private prisma: PrismaService,
-    private auditService: AuditService,
   ) {}
 
   async getProfile(userId: string) {
@@ -115,51 +107,6 @@ export class UsersService {
       interests: Array.isArray(user.interests) ? user.interests as string[] : [],
       updatedAt: user.updatedAt.toISOString(),
     };
-  }
-
-  async changePassword(
-    userId: string,
-    currentPassword: string,
-    newPassword: string,
-    ipAddress?: string,
-  ) {
-    if (currentPassword === newPassword) {
-      throw new BadRequestException(
-        'New password must differ from current password',
-      );
-    }
-
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: { credential: true },
-    });
-
-    if (!user || !user.credential) {
-      throw new BadRequestException('User not found');
-    }
-
-    const valid = await bcrypt.compare(currentPassword, user.credential.passwordHash);
-    if (!valid) {
-      throw new UnauthorizedException('Current password is incorrect');
-    }
-
-    const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
-
-    await this.prisma.userCredential.update({
-      where: { userId },
-      data: { passwordHash },
-    });
-
-    this.auditService.log({
-      actorId: userId,
-      actorRole: user.role as UserRole,
-      action: AUDIT_ACTIONS.USER_PASSWORD_CHANGE,
-      entityType: ENTITY_TYPES.USER,
-      entityId: userId,
-      ipAddress,
-    });
-
-    return { message: 'Password changed successfully.' };
   }
 
   // ─── Social Links ────────────────────────────────────────

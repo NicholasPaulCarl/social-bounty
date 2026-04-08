@@ -12,11 +12,11 @@ export const PAGINATION_DEFAULTS = {
   SORT_BY: 'createdAt',
 };
 
-export const PASSWORD_RULES = {
-  MIN_LENGTH: 8,
-  REQUIRE_UPPERCASE: true,
-  REQUIRE_LOWERCASE: true,
-  REQUIRE_NUMBER: true,
+export const OTP_RULES = {
+  LENGTH: 6,
+  TTL_SECONDS: 300,
+  MAX_ATTEMPTS: 5,
+  RESEND_COOLDOWN_SECONDS: 60,
 };
 
 export const FILE_UPLOAD_LIMITS = {
@@ -63,11 +63,9 @@ export const FIELD_LIMITS = {
 };
 
 export const RATE_LIMITS = {
+  REQUEST_OTP: { limit: 5, ttl: 60 },
+  VERIFY_OTP: { limit: 10, ttl: 60 },
   SIGNUP: { limit: 5, ttl: 60 },
-  LOGIN: { limit: 10, ttl: 60 },
-  FORGOT_PASSWORD: { limit: 3, ttl: 60 },
-  RESET_PASSWORD: { limit: 5, ttl: 60 },
-  RESEND_VERIFICATION: { limit: 3, ttl: 60 },
   DEFAULT: { limit: 100, ttl: 60 },
 };
 
@@ -77,10 +75,7 @@ export const JWT_CONFIG = {
 };
 
 export const AUDIT_ACTIONS = {
-  USER_PASSWORD_CHANGE: 'user.password_change',
-  USER_PASSWORD_RESET: 'user.password_reset',
   USER_STATUS_CHANGE: 'user.status_change',
-  USER_FORCE_PASSWORD_RESET: 'user.force_password_reset',
   ORGANISATION_CREATE: 'organisation.create',
   ORGANISATION_UPDATE: 'organisation.update',
   ORGANISATION_STATUS_CHANGE: 'organisation.status_change',

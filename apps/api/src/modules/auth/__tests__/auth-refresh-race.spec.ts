@@ -4,9 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import { AuditService } from '../../audit/audit.service';
 import { MailService } from '../../mail/mail.service';
-import { RedisService } from '../../redis/redis.service';
 import { TokenStoreService } from '../token-store.service';
 import { UserRole, UserStatus } from '@social-bounty/shared';
 
@@ -27,10 +25,12 @@ describe('AuthService — Refresh Token Race Condition', () => {
     getRefreshToken: jest.Mock;
     deleteRefreshToken: jest.Mock;
     invalidateAllUserTokens: jest.Mock;
-    storeResetToken: jest.Mock;
-    getAndDeleteResetToken: jest.Mock;
-    storeVerificationToken: jest.Mock;
-    getAndDeleteVerificationToken: jest.Mock;
+    storeOtp: jest.Mock;
+    getOtp: jest.Mock;
+    incrementOtpAttempts: jest.Mock;
+    deleteOtp: jest.Mock;
+    hasRecentOtp: jest.Mock;
+    setOtpCooldown: jest.Mock;
   };
   let jwtService: { sign: jest.Mock; verify: jest.Mock };
   let prisma: { user: { findUnique: jest.Mock; create: jest.Mock; update: jest.Mock } };
@@ -45,10 +45,12 @@ describe('AuthService — Refresh Token Race Condition', () => {
       getRefreshToken: jest.fn(),
       deleteRefreshToken: jest.fn().mockResolvedValue(undefined),
       invalidateAllUserTokens: jest.fn().mockResolvedValue(undefined),
-      storeResetToken: jest.fn().mockResolvedValue(undefined),
-      getAndDeleteResetToken: jest.fn().mockResolvedValue(null),
-      storeVerificationToken: jest.fn().mockResolvedValue(undefined),
-      getAndDeleteVerificationToken: jest.fn().mockResolvedValue(null),
+      storeOtp: jest.fn().mockResolvedValue(undefined),
+      getOtp: jest.fn().mockResolvedValue(null),
+      incrementOtpAttempts: jest.fn().mockResolvedValue(1),
+      deleteOtp: jest.fn().mockResolvedValue(undefined),
+      hasRecentOtp: jest.fn().mockResolvedValue(false),
+      setOtpCooldown: jest.fn().mockResolvedValue(undefined),
     };
 
     jwtService = {
@@ -91,9 +93,7 @@ describe('AuthService — Refresh Token Race Condition', () => {
             }),
           },
         },
-        { provide: AuditService, useValue: { log: jest.fn() } },
-        { provide: MailService, useValue: { sendPasswordReset: jest.fn(), sendEmailVerification: jest.fn() } },
-        { provide: RedisService, useValue: { get: jest.fn().mockResolvedValue(null), incr: jest.fn(), expire: jest.fn(), del: jest.fn() } },
+        { provide: MailService, useValue: { sendOtpEmail: jest.fn() } },
         { provide: TokenStoreService, useValue: tokenStore },
       ],
     }).compile();

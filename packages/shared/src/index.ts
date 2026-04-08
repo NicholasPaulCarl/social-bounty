@@ -55,7 +55,7 @@ export type {
 // Constants
 export {
   PAGINATION_DEFAULTS,
-  PASSWORD_RULES,
+  OTP_RULES,
   FILE_UPLOAD_LIMITS,
   BRAND_ASSET_LIMITS,
   FIELD_LIMITS,
@@ -88,15 +88,12 @@ export type { CategoryInfo, HunterInterest } from './constants';
 
 // Auth DTOs
 export type {
-  SignupRequest,
-  SignupResponse,
-  LoginRequest,
+  RequestOtpRequest,
+  VerifyOtpRequest,
+  SignupWithOtpRequest,
   LoginUserResponse,
   LoginResponse,
   LogoutRequest,
-  ForgotPasswordRequest,
-  ResetPasswordRequest,
-  VerifyEmailRequest,
   RefreshTokenRequest,
   RefreshTokenResponse,
   JwtPayload,
@@ -110,7 +107,6 @@ export type {
   UserSearchResult,
   UpdateProfileRequest,
   UpdateProfileResponse,
-  ChangePasswordRequest,
 } from './dto/user.dto';
 
 // Hunter Profile DTOs
@@ -214,7 +210,6 @@ export type {
   AdminUserDetailResponse,
   AdminUpdateUserStatusRequest,
   AdminUpdateUserStatusResponse,
-  AdminForcePasswordResetRequest,
   AdminOrgListItem,
   AdminOrgListParams,
   AdminCreateOrgRequest,

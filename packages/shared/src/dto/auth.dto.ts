@@ -4,28 +4,24 @@ import { UserRole, UserStatus } from '../enums';
 // Auth DTOs
 // ─────────────────────────────────────
 
+// POST /auth/request-otp
+export interface RequestOtpRequest {
+  email: string;
+}
+
+// POST /auth/verify-otp
+export interface VerifyOtpRequest {
+  email: string;
+  otp: string;
+}
+
 // POST /auth/signup
-export interface SignupRequest {
+export interface SignupWithOtpRequest {
   email: string;
-  password: string;
+  otp: string;
   firstName: string;
   lastName: string;
-}
-
-export interface SignupResponse {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  emailVerified: boolean;
-  createdAt: string;
-}
-
-// POST /auth/login
-export interface LoginRequest {
-  email: string;
-  password: string;
+  interests?: string[];
 }
 
 export interface LoginUserResponse {
@@ -48,22 +44,6 @@ export interface LoginResponse {
 // POST /auth/logout (refresh token read from httpOnly cookie)
 export interface LogoutRequest {
   // empty — token in cookie
-}
-
-// POST /auth/forgot-password
-export interface ForgotPasswordRequest {
-  email: string;
-}
-
-// POST /auth/reset-password
-export interface ResetPasswordRequest {
-  token: string;
-  newPassword: string;
-}
-
-// POST /auth/verify-email
-export interface VerifyEmailRequest {
-  token: string;
 }
 
 // POST /auth/refresh (refresh token read from httpOnly cookie)

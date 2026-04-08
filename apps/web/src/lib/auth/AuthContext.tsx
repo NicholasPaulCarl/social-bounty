@@ -3,7 +3,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserStatus } from '@social-bounty/shared';
-import type { LoginUserResponse, UserRole } from '@social-bounty/shared';
+import type { LoginResponse, LoginUserResponse, UserRole } from '@social-bounty/shared';
 import { authApi } from '@/lib/api/auth';
 import { configureApiClient } from '@/lib/api/client';
 import { getAccessToken, setAccessToken, clearTokens, decodeToken } from './tokens';
@@ -12,7 +12,7 @@ interface AuthContextValue {
   user: LoginUserResponse | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (response: LoginResponse) => void;
   logout: () => Promise<void>;
   refreshAccessToken: () => Promise<string | null>;
 }
@@ -21,7 +21,7 @@ export const AuthContext = createContext<AuthContextValue>({
   user: null,
   isAuthenticated: false,
   isLoading: true,
-  login: async () => {},
+  login: () => {},
   logout: async () => {},
   refreshAccessToken: async () => null,
 });
@@ -138,10 +138,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, refreshAccessToken]);
 
   const login = useCallback(
-    async (email: string, password: string) => {
-      const response = await authApi.login({ email, password });
+    (response: LoginResponse) => {
       setAccessToken(response.accessToken);
-      // Refresh token is set as httpOnly cookie by the API — no localStorage needed
       setUser(response.user);
 
       // Set auth cookie for middleware route protection

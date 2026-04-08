@@ -18,7 +18,6 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
-import { AuthService } from '../auth/auth.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 import { SettingsService } from '../settings/settings.service';
 import * as crypto from 'crypto';
@@ -29,7 +28,6 @@ export class AdminService {
     private prisma: PrismaService,
     private auditService: AuditService,
     private mailService: MailService,
-    private authService: AuthService,
     private settingsService: SettingsService,
   ) {}
 
@@ -184,32 +182,6 @@ export class AdminService {
       status: updated.status,
       updatedAt: updated.updatedAt.toISOString(),
     };
-  }
-
-  async forcePasswordReset(
-    id: string,
-    actor: AuthenticatedUser,
-    reason: string,
-    ipAddress?: string,
-  ) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
-    if (!user) throw new NotFoundException('User not found');
-
-    const token = crypto.randomBytes(64).toString('hex');
-    await this.authService.storeResetToken(token, user.id);
-    await this.mailService.sendPasswordReset(user.email, token);
-
-    this.auditService.log({
-      actorId: actor.sub,
-      actorRole: actor.role as UserRole,
-      action: AUDIT_ACTIONS.USER_FORCE_PASSWORD_RESET,
-      entityType: ENTITY_TYPES.USER,
-      entityId: id,
-      reason,
-      ipAddress,
-    });
-
-    return { message: 'Password reset email sent to user.' };
   }
 
   // ── Organisations ──────────────────

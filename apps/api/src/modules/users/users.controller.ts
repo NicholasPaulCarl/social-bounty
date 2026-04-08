@@ -7,16 +7,12 @@ import {
   Body,
   Param,
   Query,
-  HttpCode,
-  HttpStatus,
-  Req,
   UseInterceptors,
   UploadedFiles,
   BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { Request } from 'express';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { Roles, CurrentUser } from '../../common/decorators';
@@ -24,7 +20,6 @@ import { UserRole, PROFILE_LIMITS } from '@social-bounty/shared';
 import { UsersService } from './users.service';
 import {
   UpdateProfileDto,
-  ChangePasswordDto,
   UpsertSocialLinkDto,
 } from './dto/users.validators';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
@@ -48,22 +43,6 @@ export class UsersController {
     @Body() dto: UpdateProfileDto,
   ) {
     return this.usersService.updateProfile(user.sub, dto);
-  }
-
-  @Post('users/me/change-password')
-  @HttpCode(HttpStatus.OK)
-  @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
-  async changePassword(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: ChangePasswordDto,
-    @Req() req: Request,
-  ) {
-    return this.usersService.changePassword(
-      user.sub,
-      dto.currentPassword,
-      dto.newPassword,
-      req.ip,
-    );
   }
 
   // ─── Profile Picture ──────────────────────────────────

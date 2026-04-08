@@ -15,6 +15,12 @@ interface VerificationTokenData {
   userId: string;
 }
 
+interface OtpData {
+  email: string;
+  otp: string;
+  attempts: number;
+}
+
 @Injectable()
 export class TokenStoreService {
   private readonly logger = new Logger(TokenStoreService.name);
@@ -23,9 +29,13 @@ export class TokenStoreService {
   private static readonly REFRESH_PREFIX = 'refresh';
   private static readonly RESET_PREFIX = 'reset';
   private static readonly VERIFY_PREFIX = 'verify';
+  private static readonly OTP_PREFIX = 'otp';
+  private static readonly OTP_COOLDOWN_PREFIX = 'otp_cooldown';
 
   private static readonly RESET_TTL_SECONDS = 3600; // 1 hour
   private static readonly VERIFY_TTL_SECONDS = 86400; // 24 hours
+  private static readonly OTP_TTL_SECONDS = 300; // 5 minutes
+  private static readonly OTP_COOLDOWN_SECONDS = 60; // 1 minute
 
   constructor(
     private redis: RedisService,
@@ -112,6 +122,53 @@ export class TokenStoreService {
     const data = await this.redis.getAndDelete(key);
     if (!data) return null;
     return JSON.parse(data) as VerificationTokenData;
+  }
+
+  // --- OTP ---
+
+  async storeOtp(email: string, otp: string): Promise<void> {
+    const key = `${TokenStoreService.OTP_PREFIX}:${email}`;
+    const data: OtpData = { email, otp, attempts: 0 };
+    await this.redis.set(
+      key,
+      JSON.stringify(data),
+      TokenStoreService.OTP_TTL_SECONDS,
+    );
+  }
+
+  async getOtp(email: string): Promise<OtpData | null> {
+    const key = `${TokenStoreService.OTP_PREFIX}:${email}`;
+    const data = await this.redis.get(key);
+    if (!data) return null;
+    return JSON.parse(data) as OtpData;
+  }
+
+  async incrementOtpAttempts(email: string): Promise<number> {
+    const key = `${TokenStoreService.OTP_PREFIX}:${email}`;
+    const data = await this.redis.get(key);
+    if (!data) return -1;
+    const parsed = JSON.parse(data) as OtpData;
+    parsed.attempts += 1;
+    // Preserve remaining TTL by getting it first
+    const ttl = await this.redis.ttl(key);
+    await this.redis.set(key, JSON.stringify(parsed), ttl > 0 ? ttl : TokenStoreService.OTP_TTL_SECONDS);
+    return parsed.attempts;
+  }
+
+  async deleteOtp(email: string): Promise<void> {
+    const key = `${TokenStoreService.OTP_PREFIX}:${email}`;
+    await this.redis.del(key);
+  }
+
+  async hasRecentOtp(email: string): Promise<boolean> {
+    const key = `${TokenStoreService.OTP_COOLDOWN_PREFIX}:${email}`;
+    const data = await this.redis.get(key);
+    return data !== null;
+  }
+
+  async setOtpCooldown(email: string): Promise<void> {
+    const key = `${TokenStoreService.OTP_COOLDOWN_PREFIX}:${email}`;
+    await this.redis.set(key, '1', TokenStoreService.OTP_COOLDOWN_SECONDS);
   }
 
   // --- Utilities ---

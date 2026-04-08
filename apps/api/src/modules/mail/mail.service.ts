@@ -76,14 +76,17 @@ export class MailService implements OnModuleInit {
   private transporter: nodemailer.Transporter;
 
   private baseTemplate!: Handlebars.TemplateDelegate;
+  private otpTemplate!: Handlebars.TemplateDelegate;
   private submissionStatusTemplate!: Handlebars.TemplateDelegate;
   private payoutNotificationTemplate!: Handlebars.TemplateDelegate;
   private bountyPublishedTemplate!: Handlebars.TemplateDelegate;
 
   constructor(private config: ConfigService) {
+    const port = this.config.get<number>('SMTP_PORT', 1025);
     this.transporter = nodemailer.createTransport({
       host: this.config.get('SMTP_HOST', 'localhost'),
-      port: this.config.get<number>('SMTP_PORT', 1025),
+      port,
+      secure: port === 465,
       auth: this.config.get('SMTP_USER')
         ? {
             user: this.config.get('SMTP_USER'),
@@ -103,6 +106,7 @@ export class MailService implements OnModuleInit {
     const templatesDir = path.join(__dirname, 'templates');
 
     this.baseTemplate = this.compileTemplate(templatesDir, 'base.hbs');
+    this.otpTemplate = this.compileTemplate(templatesDir, 'otp.hbs');
     this.submissionStatusTemplate = this.compileTemplate(templatesDir, 'submission-status.hbs');
     this.payoutNotificationTemplate = this.compileTemplate(templatesDir, 'payout-notification.hbs');
     this.bountyPublishedTemplate = this.compileTemplate(templatesDir, 'bounty-published.hbs');
@@ -174,23 +178,21 @@ export class MailService implements OnModuleInit {
 
   // ── Existing Methods (preserved) ──────────────────────
 
-  async sendPasswordReset(email: string, token: string): Promise<void> {
-    const resetUrl = `${this.config.get('CORS_ORIGIN')}/reset-password?token=${token}`;
-    await this.sendWithRetry({
-      from: this.config.get('SMTP_FROM', 'noreply@socialbounty.com'),
-      to: email,
-      subject: 'Reset your password - Social Bounty',
-      html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.</p>`,
-    });
-  }
+  async sendOtpEmail(email: string, otp: string): Promise<void> {
+    const subject = 'Your verification code - Social Bounty';
+    const contentHtml = this.otpTemplate({ otp });
+    const html = this.renderWithLayout(contentHtml, subject);
 
-  async sendEmailVerification(email: string, token: string): Promise<void> {
-    const verifyUrl = `${this.config.get('CORS_ORIGIN')}/verify-email?token=${token}`;
     await this.sendWithRetry({
       from: this.config.get('SMTP_FROM', 'noreply@socialbounty.com'),
       to: email,
-      subject: 'Verify your email - Social Bounty',
-      html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email address.</p>`,
+      subject,
+      html,
+    });
+
+    this.logger.log({
+      message: 'OTP email sent',
+      to: email,
     });
   }
 

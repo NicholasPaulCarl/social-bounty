@@ -69,9 +69,3 @@ export interface UpdateProfileResponse {
   interests: string[];
   updatedAt: string;
 }
-
-// POST /users/me/change-password
-export interface ChangePasswordRequest {
-  currentPassword: string;
-  newPassword: string;
-}

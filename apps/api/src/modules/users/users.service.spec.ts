@@ -1,12 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, UnauthorizedException, NotFoundException, ForbiddenException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { UserRole, SocialChannel } from '@social-bounty/shared';
-
-jest.mock('bcrypt');
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -21,7 +18,6 @@ describe('UsersService', () => {
     role: UserRole.PARTICIPANT,
     status: 'ACTIVE',
     emailVerified: true,
-    credential: { passwordHash: 'hashed-password' },
     bio: null,
     profilePictureUrl: null,
     interests: [],
@@ -39,9 +35,6 @@ describe('UsersService', () => {
         findMany: jest.fn(),
         update: jest.fn(),
         count: jest.fn(),
-      },
-      userCredential: {
-        update: jest.fn(),
       },
       organisationMember: {
         findFirst: jest.fn(),
@@ -186,59 +179,6 @@ describe('UsersService', () => {
 
       expect(result.bio).toBe('Hello world');
       expect(result.interests).toEqual(['Fitness & Wellness', 'Food & Cooking']);
-    });
-  });
-
-  // ── changePassword ───────────────────────────────────────
-
-  describe('changePassword', () => {
-    it('should change password when current password is correct', async () => {
-      prisma.user.findUnique.mockResolvedValue(baseUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
-      (bcrypt.hash as jest.Mock).mockResolvedValue('new-hash');
-      prisma.userCredential.update.mockResolvedValue({ userId: 'user-1', passwordHash: 'new-hash' });
-
-      const result = await service.changePassword(
-        'user-1',
-        'currentPass',
-        'newPass123',
-      );
-
-      expect(bcrypt.compare).toHaveBeenCalledWith('currentPass', 'hashed-password');
-      expect(bcrypt.hash).toHaveBeenCalledWith('newPass123', 12);
-      expect(prisma.userCredential.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { userId: 'user-1' },
-          data: { passwordHash: 'new-hash' },
-        }),
-      );
-      expect(result.message).toMatch(/success/i);
-      expect(auditService.log).toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'user.password_change' }),
-      );
-    });
-
-    it('should throw UnauthorizedException when current password is wrong', async () => {
-      prisma.user.findUnique.mockResolvedValue(baseUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
-
-      await expect(
-        service.changePassword('user-1', 'wrongPass', 'newPass123'),
-      ).rejects.toThrow(UnauthorizedException);
-    });
-
-    it('should throw BadRequestException when new password equals current password', async () => {
-      await expect(
-        service.changePassword('user-1', 'samePass', 'samePass'),
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('should throw BadRequestException when user not found', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
-
-      await expect(
-        service.changePassword('missing', 'current', 'newpass'),
-      ).rejects.toThrow(BadRequestException);
     });
   });
 

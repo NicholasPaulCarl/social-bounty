@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { InputText } from 'primereact/inputtext';
-import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import { Divider } from 'primereact/divider';
-import { useProfile, useUpdateProfile, useChangePassword } from '@/hooks/useProfile';
+import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -16,16 +14,10 @@ export default function BusinessProfilePage() {
   const toast = useToast();
   const { data: profile, isLoading, error, refetch } = useProfile();
   const updateProfile = useUpdateProfile();
-  const changePassword = useChangePassword();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [profileError, setProfileError] = useState('');
-
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
 
   useEffect(() => {
     if (profile) {
@@ -49,33 +41,6 @@ export default function BusinessProfilePage() {
           refetch();
         },
         onError: () => setProfileError('Couldn\'t update profile. Try again.'),
-      },
-    );
-  };
-
-  const handleChangePassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPasswordError('');
-
-    if (newPassword !== confirmPassword) {
-      setPasswordError('Passwords do not match');
-      return;
-    }
-    if (newPassword.length < 8) {
-      setPasswordError('Password must be at least 8 characters');
-      return;
-    }
-
-    changePassword.mutate(
-      { currentPassword, newPassword },
-      {
-        onSuccess: () => {
-          toast.showSuccess('Password updated. You\'re secure.');
-          setCurrentPassword('');
-          setNewPassword('');
-          setConfirmPassword('');
-        },
-        onError: () => setPasswordError('Failed to change password. Check your current password.'),
       },
     );
   };
@@ -133,68 +98,6 @@ export default function BusinessProfilePage() {
           </form>
         </div>
 
-        <div className="glass-card p-6">
-          <h3 className="text-lg font-semibold text-text-primary mb-4">Change Password</h3>
-          {passwordError && <Message severity="error" text={passwordError} className="w-full mb-4" />}
-
-          <form onSubmit={handleChangePassword} className="space-y-4">
-            <div>
-              <label htmlFor="currentPassword" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                Current Password
-              </label>
-              <Password
-                id="currentPassword"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                feedback={false}
-                toggleMask
-                className="w-full"
-                inputClassName="w-full"
-              />
-            </div>
-
-            <Divider />
-
-            <div>
-              <label htmlFor="newPassword" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                New Password
-              </label>
-              <Password
-                id="newPassword"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                toggleMask
-                className="w-full"
-                inputClassName="w-full"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                Confirm New Password
-              </label>
-              <Password
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                feedback={false}
-                toggleMask
-                className="w-full"
-                inputClassName="w-full"
-              />
-            </div>
-
-            <div className="flex justify-end">
-              <Button
-                label="Change Password"
-                type="submit"
-                icon="pi pi-lock"
-                severity="warning"
-                loading={changePassword.isPending}
-              />
-            </div>
-          </form>
-        </div>
       </div>
     </div>
   );

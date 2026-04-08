@@ -3,10 +3,10 @@ import { expect } from '@playwright/test';
 
 export type DemoRole = 'participant' | 'business' | 'admin';
 
-const DEMO_CREDENTIALS: Record<DemoRole, { email: string; password: string }> = {
-  participant: { email: 'participant@demo.com', password: 'DemoPassword123!' },
-  business:    { email: 'admin@demo.com',       password: 'DemoPassword123!' },
-  admin:       { email: 'superadmin@demo.com',  password: 'DemoPassword123!' },
+const DEMO_CREDENTIALS: Record<DemoRole, { email: string }> = {
+  participant: { email: 'participant@demo.com' },
+  business:    { email: 'admin@demo.com' },
+  admin:       { email: 'superadmin@demo.com' },
 };
 
 const POST_LOGIN_URL: Record<DemoRole, string> = {
@@ -16,25 +16,31 @@ const POST_LOGIN_URL: Record<DemoRole, string> = {
 };
 
 /**
- * Log in as a demo user via the login form.
+ * Log in as a demo user via the OTP login flow.
+ * Step 1: Enter email and click Continue to request OTP.
+ * Step 2: Enter OTP code (demo accounts accept "000000" in test/dev mode).
  * After a successful login the browser will be on the role's default dashboard.
  */
 export async function loginAs(page: Page, role: DemoRole): Promise<void> {
-  const { email, password } = DEMO_CREDENTIALS[role];
+  const { email } = DEMO_CREDENTIALS[role];
 
   await page.goto('/login');
 
-  // Fill the email field (PrimeReact InputText renders a plain <input>)
+  // Step 1: Enter email
   const emailInput = page.locator('#email');
   await emailInput.waitFor({ state: 'visible' });
   await emailInput.fill(email);
 
-  // Fill the password field (PrimeReact Password renders a nested <input>)
-  const passwordInput = page.locator('#password input').first();
-  await passwordInput.fill(password);
+  // Click Continue / Request OTP
+  await page.getByRole('button', { name: /continue|send code|request/i }).click();
 
-  // Submit the form
-  await page.getByRole('button', { name: /sign in/i }).click();
+  // Step 2: Wait for OTP input to appear and fill it
+  const otpInput = page.locator('#otp, [data-testid="otp-input"], input[name="otp"]').first();
+  await otpInput.waitFor({ state: 'visible', timeout: 10_000 });
+  await otpInput.fill('000000');
+
+  // Submit OTP
+  await page.getByRole('button', { name: /sign in|verify|submit/i }).click();
 
   // Wait for redirect to the expected post-login page
   await page.waitForURL(`**${POST_LOGIN_URL[role]}`, { timeout: 15_000 });

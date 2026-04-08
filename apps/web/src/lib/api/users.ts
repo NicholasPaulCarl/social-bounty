@@ -4,7 +4,6 @@ import type {
   UserSearchResult,
   UpdateProfileRequest,
   UpdateProfileResponse,
-  ChangePasswordRequest,
   MessageResponse,
   SocialLinkResponse,
   UpsertSocialLinkRequest,
@@ -19,9 +18,6 @@ export const userApi = {
 
   updateMe: (data: UpdateProfileRequest): Promise<UpdateProfileResponse> =>
     apiClient.patch('/users/me', data),
-
-  changePassword: (data: ChangePasswordRequest): Promise<MessageResponse> =>
-    apiClient.post('/users/me/change-password', data),
 
   // Profile picture
   uploadProfilePicture: (file: File): Promise<{ profilePictureUrl: string }> => {

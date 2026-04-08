@@ -20,7 +20,6 @@ import {
 import { AdminService } from './admin.service';
 import {
   AdminUpdateUserStatusDto,
-  AdminForcePasswordResetDto,
   AdminCreateOrgDto,
   AdminUpdateOrgStatusDto,
   AdminOverrideBountyDto,
@@ -66,16 +65,6 @@ export class AdminController {
     return this.adminService.updateUserStatus(
       id, actor, dto.status, dto.reason, req.ip,
     );
-  }
-
-  @Post('users/:id/force-password-reset')
-  async forcePasswordReset(
-    @Param('id') id: string,
-    @CurrentUser() actor: AuthenticatedUser,
-    @Body() dto: AdminForcePasswordResetDto,
-    @Req() req: Request,
-  ) {
-    return this.adminService.forcePasswordReset(id, actor, dto.reason, req.ip);
   }
 
   // ── Organisations ──────────────────

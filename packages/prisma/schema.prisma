@@ -316,7 +316,6 @@ model User {
   updatedAt         DateTime   @updatedAt
 
   // Relations
-  credential              UserCredential?
   refreshTokenAudits      RefreshTokenAudit[]
   submissions             Submission[]              @relation("UserSubmissions")
   socialLinks             SocialLink[]
@@ -349,17 +348,6 @@ model User {
   @@index([role])
   @@index([status])
   @@map("users")
-}
-
-model UserCredential {
-  id           String   @id @default(uuid())
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@map("user_credentials")
 }
 
 model RefreshTokenAudit {

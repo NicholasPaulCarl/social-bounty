@@ -7,7 +7,6 @@ import { AdminService } from '../admin.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../audit/audit.service';
 import { MailService } from '../../mail/mail.service';
-import { AuthService } from '../../auth/auth.service';
 import { SettingsService } from '../../settings/settings.service';
 import {
   UserRole,
@@ -25,8 +24,7 @@ describe('AdminService - Edge Cases', () => {
   let service: AdminService;
   let prisma: any;
   let auditService: { log: jest.Mock };
-  let mailService: { sendPasswordReset: jest.Mock };
-  let authService: { storeResetToken: jest.Mock };
+  let mailService: Record<string, jest.Mock>;
   let settingsService: {
     isSignupEnabled: jest.Mock;
     isSubmissionEnabled: jest.Mock;
@@ -88,8 +86,7 @@ describe('AdminService - Edge Cases', () => {
     };
 
     auditService = { log: jest.fn() };
-    mailService = { sendPasswordReset: jest.fn().mockResolvedValue(undefined) };
-    authService = { storeResetToken: jest.fn() };
+    mailService = {};
     settingsService = {
       isSignupEnabled: jest.fn().mockResolvedValue(true),
       isSubmissionEnabled: jest.fn().mockResolvedValue(true),
@@ -108,88 +105,11 @@ describe('AdminService - Edge Cases', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: auditService },
         { provide: MailService, useValue: mailService },
-        { provide: AuthService, useValue: authService },
         { provide: SettingsService, useValue: settingsService },
       ],
     }).compile();
 
     service = module.get<AdminService>(AdminService);
-  });
-
-  // ── Force Password Reset - Token Storage ──────────────────────
-
-  describe('forcePasswordReset - token storage', () => {
-    it('should call authService.storeResetToken with generated token and user id', async () => {
-      prisma.user.findUnique.mockResolvedValue({
-        id: 'user-1',
-        email: 'user@test.com',
-      });
-
-      await service.forcePasswordReset('user-1', mockSA, 'Compromised account');
-
-      expect(authService.storeResetToken).toHaveBeenCalledTimes(1);
-      expect(authService.storeResetToken).toHaveBeenCalledWith(
-        expect.any(String),
-        'user-1',
-      );
-    });
-
-    it('should pass the same token to storeResetToken and sendPasswordReset', async () => {
-      prisma.user.findUnique.mockResolvedValue({
-        id: 'user-1',
-        email: 'user@test.com',
-      });
-
-      await service.forcePasswordReset('user-1', mockSA, 'Security concern');
-
-      const storedToken = authService.storeResetToken.mock.calls[0][0];
-      const emailedToken = mailService.sendPasswordReset.mock.calls[0][1];
-      expect(storedToken).toBe(emailedToken);
-    });
-
-    it('should generate a hex token of 128 characters (64 random bytes)', async () => {
-      prisma.user.findUnique.mockResolvedValue({
-        id: 'user-1',
-        email: 'user@test.com',
-      });
-
-      await service.forcePasswordReset('user-1', mockSA, 'Token length test');
-
-      const token = authService.storeResetToken.mock.calls[0][0];
-      expect(token).toMatch(/^[0-9a-f]{128}$/);
-    });
-
-    it('should generate unique tokens for consecutive calls', async () => {
-      prisma.user.findUnique.mockResolvedValue({
-        id: 'user-1',
-        email: 'user@test.com',
-      });
-
-      await service.forcePasswordReset('user-1', mockSA, 'First reset');
-      await service.forcePasswordReset('user-1', mockSA, 'Second reset');
-
-      const token1 = authService.storeResetToken.mock.calls[0][0];
-      const token2 = authService.storeResetToken.mock.calls[1][0];
-      expect(token1).not.toBe(token2);
-    });
-
-    it('should include ipAddress in audit log when provided', async () => {
-      prisma.user.findUnique.mockResolvedValue({
-        id: 'user-1',
-        email: 'user@test.com',
-      });
-
-      await service.forcePasswordReset('user-1', mockSA, 'IP test', '192.168.1.1');
-
-      expect(auditService.log).toHaveBeenCalledWith(
-        expect.objectContaining({
-          action: AUDIT_ACTIONS.USER_FORCE_PASSWORD_RESET,
-          entityType: ENTITY_TYPES.USER,
-          entityId: 'user-1',
-          ipAddress: '192.168.1.1',
-        }),
-      );
-    });
   });
 
   // ── Settings Integration ──────────────────────────────────────

@@ -5,7 +5,6 @@ import type {
   AdminUserDetailResponse,
   AdminUpdateUserStatusRequest,
   AdminUpdateUserStatusResponse,
-  AdminForcePasswordResetRequest,
   AdminOrgListItem,
   AdminOrgListParams,
   AdminCreateOrgRequest,
@@ -26,7 +25,6 @@ import type {
   AdminSettingsResponse,
   AdminUpdateSettingsRequest,
   PaginatedResponse,
-  MessageResponse,
   BountyListItem,
   BountyListParams,
   BountyDetailResponse,
@@ -47,9 +45,6 @@ export const adminApi = {
 
   updateUserStatus: (id: string, data: AdminUpdateUserStatusRequest): Promise<AdminUpdateUserStatusResponse> =>
     apiClient.patch(`/admin/users/${id}/status`, data),
-
-  forcePasswordReset: (id: string, data: AdminForcePasswordResetRequest): Promise<MessageResponse> =>
-    apiClient.post(`/admin/users/${id}/force-password-reset`, data),
 
   // Organisations
   listOrganisations: (params: AdminOrgListParams): Promise<PaginatedResponse<AdminOrgListItem>> =>

@@ -137,6 +137,14 @@ export class RedisService implements OnModuleDestroy {
   }
 
   /**
+   * Get remaining TTL for a key in seconds.
+   * Returns -2 if the key does not exist, -1 if no expiry is set.
+   */
+  async ttl(key: string): Promise<number> {
+    return this.client.ttl(key);
+  }
+
+  /**
    * Ping Redis to check connectivity. Returns true if healthy.
    */
   async ping(): Promise<boolean> {

@@ -6,27 +6,21 @@
  * - Brand (BUSINESS_ADMIN) with Organisation
  * - Super Admin (SUPER_ADMIN)
  *
+ * Auth is passwordless (OTP via email) — no passwords needed.
+ *
  * Usage: npx ts-node seed-production.ts
  */
 
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 
 const prisma = new PrismaClient();
-const BCRYPT_ROUNDS = 12;
 
 interface AccountConfig {
   email: string;
   firstName: string;
   lastName: string;
   role: 'PARTICIPANT' | 'BUSINESS_ADMIN' | 'SUPER_ADMIN';
-  password: string;
   orgName?: string;
-}
-
-function generatePassword(): string {
-  return crypto.randomBytes(12).toString('base64url').slice(0, 16);
 }
 
 const ACCOUNTS: AccountConfig[] = [
@@ -35,14 +29,12 @@ const ACCOUNTS: AccountConfig[] = [
     firstName: 'Demo',
     lastName: 'Hunter',
     role: 'PARTICIPANT',
-    password: generatePassword(),
   },
   {
     email: 'brand@socialbounty.cash',
     firstName: 'Demo',
     lastName: 'Brand',
     role: 'BUSINESS_ADMIN',
-    password: generatePassword(),
     orgName: 'Social Bounty Official',
   },
   {
@@ -50,7 +42,6 @@ const ACCOUNTS: AccountConfig[] = [
     firstName: 'Platform',
     lastName: 'Admin',
     role: 'SUPER_ADMIN',
-    password: generatePassword(),
   },
 ];
 
@@ -67,8 +58,6 @@ async function main() {
       continue;
     }
 
-    const passwordHash = await bcrypt.hash(account.password, BCRYPT_ROUNDS);
-
     const user = await prisma.user.create({
       data: {
         email: account.email,
@@ -77,9 +66,6 @@ async function main() {
         role: account.role,
         status: 'ACTIVE',
         emailVerified: true,
-        credential: {
-          create: { passwordHash },
-        },
       },
     });
 
@@ -116,18 +102,17 @@ async function main() {
     console.log(`  ✓ Created ${account.role}: ${account.email}`);
   }
 
-  console.log('\n=== Login Credentials ===\n');
-  console.log('  ┌──────────────────┬────────────────────────────┬──────────────────┐');
-  console.log('  │ Role             │ Email                      │ Password         │');
-  console.log('  ├──────────────────┼────────────────────────────┼──────────────────┤');
+  console.log('\n=== Accounts ===\n');
+  console.log('  ┌──────────────────┬────────────────────────────┐');
+  console.log('  │ Role             │ Email                      │');
+  console.log('  ├──────────────────┼────────────────────────────┤');
   for (const account of ACCOUNTS) {
     const role = account.role.padEnd(16);
     const email = account.email.padEnd(26);
-    const pass = account.password.padEnd(16);
-    console.log(`  │ ${role} │ ${email} │ ${pass} │`);
+    console.log(`  │ ${role} │ ${email} │`);
   }
-  console.log('  └──────────────────┴────────────────────────────┴──────────────────┘');
-  console.log('\n  ⚠ Save these credentials securely — they are only shown once.\n');
+  console.log('  └──────────────────┴────────────────────────────┘');
+  console.log('\n  Auth: OTP via email (passwordless)\n');
 }
 
 main()

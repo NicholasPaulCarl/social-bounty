@@ -5,7 +5,6 @@ import { userApi } from '@/lib/api/users';
 import { queryKeys } from '@/lib/query-keys';
 import type {
   UpdateProfileRequest,
-  ChangePasswordRequest,
   UpsertSocialLinkRequest,
 } from '@social-bounty/shared';
 
@@ -23,12 +22,6 @@ export function useUpdateProfile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.user.me });
     },
-  });
-}
-
-export function useChangePassword() {
-  return useMutation({
-    mutationFn: (data: ChangePasswordRequest) => userApi.changePassword(data),
   });
 }
 

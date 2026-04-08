@@ -27,14 +27,6 @@ export class AdminUpdateUserStatusDto {
   reason!: string;
 }
 
-export class AdminForcePasswordResetDto {
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(1)
-  @MaxLength(FIELD_LIMITS.ADMIN_REASON_MAX)
-  reason!: string;
-}
-
 export class AdminCreateOrgDto {
   @IsString()
   @IsNotEmpty()

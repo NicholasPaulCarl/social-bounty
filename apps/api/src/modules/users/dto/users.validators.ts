@@ -8,11 +8,9 @@ import {
   Min,
   MinLength,
   MaxLength,
-  Matches,
 } from 'class-validator';
 import {
   FIELD_LIMITS,
-  PASSWORD_RULES,
   PROFILE_LIMITS,
   SocialChannel,
 } from '@social-bounty/shared';
@@ -39,19 +37,6 @@ export class UpdateProfileDto {
   @IsArray()
   @IsString({ each: true })
   interests?: string[];
-}
-
-export class ChangePasswordDto {
-  @IsString()
-  @MinLength(1)
-  currentPassword!: string;
-
-  @IsString()
-  @MinLength(PASSWORD_RULES.MIN_LENGTH)
-  @Matches(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
-  @Matches(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
-  @Matches(/[0-9]/, { message: 'Password must contain at least one number' })
-  newPassword!: string;
 }
 
 export class UpsertSocialLinkDto {

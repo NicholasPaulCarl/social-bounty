@@ -6,7 +6,7 @@
 
 describe('Middleware Route Protection Logic', () => {
   // Replicate the middleware logic as pure functions for testability
-  const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password', '/reset-password', '/verify-email'];
+  const PUBLIC_ROUTES = ['/login', '/signup'];
   const MARKETING_ROUTES = ['/', '/join', '/contact', '/how-it-works', '/privacy', '/terms'];
   const BUSINESS_ROUTES_PREFIX = '/business';
   const ADMIN_ROUTES_PREFIX = '/admin';

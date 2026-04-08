@@ -1,40 +1,36 @@
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
-
-const BCRYPT_ROUNDS = 12;
-const DEMO_PASSWORD = 'DemoPassword123!';
 
 // ─── User Data ───────────────────────────────────────────
 
 const PARTICIPANTS = [
-  { email: 'participant@demo.com', firstName: 'Demo', lastName: 'Participant' },
-  { email: 'sarah.mitchell@demo.com', firstName: 'Sarah', lastName: 'Mitchell' },
-  { email: 'james.peterson@demo.com', firstName: 'James', lastName: 'Peterson' },
-  { email: 'thandi.mabaso@demo.com', firstName: 'Thandi', lastName: 'Mabaso' },
-  { email: 'ryan.chen@demo.com', firstName: 'Ryan', lastName: 'Chen' },
-  { email: 'priya.naidoo@demo.com', firstName: 'Priya', lastName: 'Naidoo' },
-  { email: 'lucas.van.wyk@demo.com', firstName: 'Lucas', lastName: 'Van Wyk' },
-  { email: 'aisha.khan@demo.com', firstName: 'Aisha', lastName: 'Khan' },
-  { email: 'david.okonkwo@demo.com', firstName: 'David', lastName: 'Okonkwo' },
-  { email: 'emma.williams@demo.com', firstName: 'Emma', lastName: 'Williams' },
-  { email: 'sipho.dlamini@demo.com', firstName: 'Sipho', lastName: 'Dlamini' },
-  { email: 'nina.garcia@demo.com', firstName: 'Nina', lastName: 'Garcia' },
-  { email: 'alex.turner@demo.com', firstName: 'Alex', lastName: 'Turner' },
-  { email: 'fatima.osman@demo.com', firstName: 'Fatima', lastName: 'Osman' },
-  { email: 'kyle.joubert@demo.com', firstName: 'Kyle', lastName: 'Joubert' },
+  { email: 'participant@socialbounty.cash', firstName: 'Demo', lastName: 'Participant' },
+  { email: 'sarah.mitchell@socialbounty.cash', firstName: 'Sarah', lastName: 'Mitchell' },
+  { email: 'james.peterson@socialbounty.cash', firstName: 'James', lastName: 'Peterson' },
+  { email: 'thandi.mabaso@socialbounty.cash', firstName: 'Thandi', lastName: 'Mabaso' },
+  { email: 'ryan.chen@socialbounty.cash', firstName: 'Ryan', lastName: 'Chen' },
+  { email: 'priya.naidoo@socialbounty.cash', firstName: 'Priya', lastName: 'Naidoo' },
+  { email: 'lucas.van.wyk@socialbounty.cash', firstName: 'Lucas', lastName: 'Van Wyk' },
+  { email: 'aisha.khan@socialbounty.cash', firstName: 'Aisha', lastName: 'Khan' },
+  { email: 'david.okonkwo@socialbounty.cash', firstName: 'David', lastName: 'Okonkwo' },
+  { email: 'emma.williams@socialbounty.cash', firstName: 'Emma', lastName: 'Williams' },
+  { email: 'sipho.dlamini@socialbounty.cash', firstName: 'Sipho', lastName: 'Dlamini' },
+  { email: 'nina.garcia@socialbounty.cash', firstName: 'Nina', lastName: 'Garcia' },
+  { email: 'alex.turner@socialbounty.cash', firstName: 'Alex', lastName: 'Turner' },
+  { email: 'fatima.osman@socialbounty.cash', firstName: 'Fatima', lastName: 'Osman' },
+  { email: 'kyle.joubert@socialbounty.cash', firstName: 'Kyle', lastName: 'Joubert' },
 ];
 
 const BUSINESS_ADMINS = [
-  { email: 'admin@demo.com', firstName: 'Demo', lastName: 'Business Admin', orgName: 'Demo Company', orgEmail: 'admin@demo.com', orgId: 'demo-org-id' },
+  { email: 'business@socialbounty.cash', firstName: 'Demo', lastName: 'Business Admin', orgName: 'Demo Company', orgEmail: 'business@socialbounty.cash', orgId: 'demo-org-id' },
   { email: 'marketing@freshroast.co', firstName: 'Lebo', lastName: 'Moloi', orgName: 'Fresh Roast Coffee', orgEmail: 'hello@freshroast.co' },
   { email: 'social@urbanfit.za', firstName: 'Craig', lastName: 'Hendricks', orgName: 'UrbanFit Gym', orgEmail: 'info@urbanfit.za' },
   { email: 'campaigns@vividmedia.co', firstName: 'Zanele', lastName: 'Khumalo', orgName: 'Vivid Media Agency', orgEmail: 'info@vividmedia.co' },
 ];
 
 const SUPER_ADMINS = [
-  { email: 'superadmin@demo.com', firstName: 'Demo', lastName: 'Super Admin' },
+  { email: 'admin@socialbounty.cash', firstName: 'Demo', lastName: 'Super Admin' },
 ];
 
 // ─── Bounty Templates ────────────────────────────────────
@@ -257,8 +253,6 @@ const BOUNTY_TEMPLATES = [
 async function main() {
   console.log('Seeding database...\n');
 
-  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, BCRYPT_ROUNDS);
-
   // ── 1. Create Participants (15) ──
 
   const participantUsers = [];
@@ -266,7 +260,7 @@ async function main() {
     const user = await prisma.user.upsert({
       where: { email: p.email },
       update: { firstName: p.firstName, lastName: p.lastName, role: 'PARTICIPANT', status: 'ACTIVE', emailVerified: true },
-      create: { email: p.email, firstName: p.firstName, lastName: p.lastName, role: 'PARTICIPANT', status: 'ACTIVE', emailVerified: true, credential: { create: { passwordHash } } },
+      create: { email: p.email, firstName: p.firstName, lastName: p.lastName, role: 'PARTICIPANT', status: 'ACTIVE', emailVerified: true },
     });
     participantUsers.push(user);
   }
@@ -279,7 +273,7 @@ async function main() {
     const user = await prisma.user.upsert({
       where: { email: ba.email },
       update: { firstName: ba.firstName, lastName: ba.lastName, role: 'BUSINESS_ADMIN', status: 'ACTIVE', emailVerified: true },
-      create: { email: ba.email, firstName: ba.firstName, lastName: ba.lastName, role: 'BUSINESS_ADMIN', status: 'ACTIVE', emailVerified: true, credential: { create: { passwordHash } } },
+      create: { email: ba.email, firstName: ba.firstName, lastName: ba.lastName, role: 'BUSINESS_ADMIN', status: 'ACTIVE', emailVerified: true },
     });
 
     const orgData = {
@@ -316,7 +310,7 @@ async function main() {
     await prisma.user.upsert({
       where: { email: sa.email },
       update: { firstName: sa.firstName, lastName: sa.lastName, role: 'SUPER_ADMIN', status: 'ACTIVE', emailVerified: true },
-      create: { email: sa.email, firstName: sa.firstName, lastName: sa.lastName, role: 'SUPER_ADMIN', status: 'ACTIVE', emailVerified: true, credential: { create: { passwordHash } } },
+      create: { email: sa.email, firstName: sa.firstName, lastName: sa.lastName, role: 'SUPER_ADMIN', status: 'ACTIVE', emailVerified: true },
     });
   }
   console.log(`  Created ${SUPER_ADMINS.length} super admins`);
@@ -441,7 +435,7 @@ async function main() {
   console.log(`  Organisations: ${orgs.length}`);
   console.log(`  Bounties:      ${bounties.length} (${liveBounties.length} live, 1 draft, 1 paused, 1 closed)`);
   console.log(`  Submissions:   ${submissionCount}`);
-  console.log(`  Password:      ${DEMO_PASSWORD}`);
+  console.log('  Auth:          OTP (passwordless)');
   console.log('═══════════════════════════════════════\n');
 }
 

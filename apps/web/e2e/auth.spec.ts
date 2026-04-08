@@ -17,27 +17,41 @@ test.describe('Auth — login page', () => {
     const theme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
     expect(theme).toBe('dark');
 
-    // Password toggle and sign-in button present
-    await expect(page.locator('#password')).toBeVisible();
-    await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
+    // Email input and Continue button present (no password field in step 1)
+    await expect(page.getByRole('button', { name: /continue|send code|request/i })).toBeVisible();
   });
 
-  test('shows links to sign-up and forgot password', async ({ page }) => {
+  test('shows link to sign-up', async ({ page }) => {
     await page.goto('/login');
     await expect(page.getByRole('link', { name: /sign up/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /forgot your password/i })).toBeVisible();
   });
 
-  test('shows error on invalid credentials', async ({ page }) => {
+  test('shows OTP input after entering email and clicking Continue', async ({ page }) => {
+    await page.goto('/login');
+
+    await page.locator('#email').fill('test@example.com');
+    await page.getByRole('button', { name: /continue|send code|request/i }).click();
+
+    // OTP input should appear
+    const otpInput = page.locator('#otp, [data-testid="otp-input"], input[name="otp"]').first();
+    await expect(otpInput).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('shows error on invalid OTP', async ({ page }) => {
     await page.goto('/login');
 
     await page.locator('#email').fill('invalid@example.com');
-    await page.locator('#password input').first().fill('WrongPassword!');
-    await page.getByRole('button', { name: /sign in/i }).click();
+    await page.getByRole('button', { name: /continue|send code|request/i }).click();
 
-    // Error message should appear (the div with accent-rose styling or PrimeReact Message)
+    // Wait for OTP input
+    const otpInput = page.locator('#otp, [data-testid="otp-input"], input[name="otp"]').first();
+    await otpInput.waitFor({ state: 'visible', timeout: 10_000 });
+    await otpInput.fill('999999');
+    await page.getByRole('button', { name: /sign in|verify|submit/i }).click();
+
+    // Error message should appear
     await expect(
-      page.locator('.text-accent-rose, [class*="accent-rose"]').first()
+      page.locator('.text-accent-rose, [class*="accent-rose"], [role="alert"]').first()
     ).toBeVisible({ timeout: 10_000 });
   });
 
@@ -78,7 +92,7 @@ test.describe('Auth — signup page', () => {
       page.getByRole('heading', { name: /sign up|create account|join/i })
     ).toBeVisible();
 
-    // Email and password fields present
+    // Email field present
     await expect(page.locator('input[type="email"], #email')).toBeVisible();
   });
 });

@@ -1,29 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { InputText } from 'primereact/inputtext';
-import { Password } from 'primereact/password';
-import { Button } from 'primereact/button';
-import { Message } from 'primereact/message';
+import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
-import { useToast } from '@/hooks/useToast';
 
 export default function SignupPage() {
-  const router = useRouter();
-  const { showSuccess } = useToast();
+  const { login } = useAuth();
   const [form, setForm] = useState({
     email: '',
-    password: '',
-    confirmPassword: '',
     firstName: '',
     lastName: '',
   });
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState<'details' | 'otp'>('details');
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   const updateField = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -36,14 +38,12 @@ export default function SignupPage() {
     if (!form.firstName.trim()) errors.firstName = 'First name is required';
     if (!form.lastName.trim()) errors.lastName = 'Last name is required';
     if (!form.email.trim()) errors.email = 'Email is required';
-    if (form.password.length < 8) errors.password = 'Password must be at least 8 characters';
-    if (form.password !== form.confirmPassword) errors.confirmPassword = 'Passwords do not match';
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleRequestOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
@@ -51,14 +51,33 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await authApi.signup({
+      await authApi.requestOtp({ email: form.email });
+      setStep('otp');
+      setCooldown(60);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await authApi.signup({
         email: form.email,
-        password: form.password,
+        otp,
         firstName: form.firstName,
         lastName: form.lastName,
       });
-      showSuccess('Welcome aboard! Check your email to verify and start hunting.');
-      router.push('/login');
+      login(response);
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.details) {
@@ -75,130 +94,188 @@ export default function SignupPage() {
     }
   };
 
+  const handleResend = useCallback(async () => {
+    if (cooldown > 0) return;
+    setError('');
+    try {
+      await authApi.requestOtp({ email: form.email });
+      setCooldown(60);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError('Failed to resend code. Please try again.');
+      }
+    }
+  }, [cooldown, form.email]);
+
+  const handleChangeEmail = () => {
+    setStep('details');
+    setOtp('');
+    setError('');
+  };
+
   return (
     <div className="glass-card p-8 animate-fade-up">
       <h2 className="text-2xl font-heading font-bold text-text-primary text-center mb-6">
         Create Account
       </h2>
 
-      {error && <Message severity="error" text={error} className="w-full mb-4" />}
+      {error && (
+        <div className="mb-4 rounded-lg border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 text-sm text-accent-rose">
+          <i className="pi pi-exclamation-circle mr-2" />
+          {error}
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {step === 'details' ? (
+        <form onSubmit={handleRequestOtp} className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="firstName"
+                className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
+              >
+                First Name
+              </label>
+              <InputText
+                id="firstName"
+                value={form.firstName}
+                onChange={(e) => updateField('firstName', e.target.value)}
+                required
+                className={`w-full ${fieldErrors.firstName ? 'p-invalid' : ''}`}
+              />
+              {fieldErrors.firstName && (
+                <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.firstName}</small>
+              )}
+            </div>
+            <div>
+              <label
+                htmlFor="lastName"
+                className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
+              >
+                Last Name
+              </label>
+              <InputText
+                id="lastName"
+                value={form.lastName}
+                onChange={(e) => updateField('lastName', e.target.value)}
+                required
+                className={`w-full ${fieldErrors.lastName ? 'p-invalid' : ''}`}
+              />
+              {fieldErrors.lastName && (
+                <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.lastName}</small>
+              )}
+            </div>
+          </div>
+
           <div>
             <label
-              htmlFor="firstName"
+              htmlFor="email"
               className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
             >
-              First Name
+              Email
             </label>
             <InputText
-              id="firstName"
-              value={form.firstName}
-              onChange={(e) => updateField('firstName', e.target.value)}
+              id="email"
+              type="email"
+              value={form.email}
+              onChange={(e) => updateField('email', e.target.value)}
               required
-              className={`w-full ${fieldErrors.firstName ? 'p-invalid' : ''}`}
+              className={`w-full ${fieldErrors.email ? 'p-invalid' : ''}`}
+              placeholder="you@example.com"
             />
-            {fieldErrors.firstName && (
-              <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.firstName}</small>
+            {fieldErrors.email && (
+              <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.email}</small>
             )}
           </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="group relative w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white
+                       bg-gradient-to-r from-accent-cyan to-accent-blue
+                       shadow-glow-cyan hover:shadow-glow-cyan-intense
+                       transition-all duration-normal
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <i className="pi pi-spinner pi-spin" />
+            ) : (
+              <i className="pi pi-arrow-right" />
+            )}
+            Continue
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleSignup} className="space-y-5">
+          <p className="text-sm text-text-secondary text-center">
+            We sent a 6-digit code to <strong>{form.email}</strong>
+          </p>
+
           <div>
             <label
-              htmlFor="lastName"
+              htmlFor="otp"
               className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
             >
-              Last Name
+              Verification Code
             </label>
             <InputText
-              id="lastName"
-              value={form.lastName}
-              onChange={(e) => updateField('lastName', e.target.value)}
+              id="otp"
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
               required
-              className={`w-full ${fieldErrors.lastName ? 'p-invalid' : ''}`}
+              maxLength={6}
+              className="w-full text-center text-lg tracking-[0.3em]"
+              placeholder="000000"
+              autoFocus
             />
-            {fieldErrors.lastName && (
-              <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.lastName}</small>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || otp.length < 6}
+            className="group relative w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white
+                       bg-gradient-to-r from-accent-cyan to-accent-blue
+                       shadow-glow-cyan hover:shadow-glow-cyan-intense
+                       transition-all duration-normal
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <i className="pi pi-spinner pi-spin" />
+            ) : (
+              <i className="pi pi-user-plus" />
+            )}
+            Create Account
+          </button>
+
+          <div className="flex items-center justify-between text-sm">
+            <button
+              type="button"
+              onClick={handleChangeEmail}
+              className="text-accent-cyan hover:text-accent-cyan/80 transition-colors duration-fast"
+            >
+              Use different email
+            </button>
+            {cooldown > 0 ? (
+              <span className="text-text-muted">Resend in {cooldown}s</span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResend}
+                className="text-accent-cyan hover:text-accent-cyan/80 transition-colors duration-fast"
+              >
+                Resend code
+              </button>
             )}
           </div>
-        </div>
-
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
-          >
-            Email
-          </label>
-          <InputText
-            id="email"
-            type="email"
-            value={form.email}
-            onChange={(e) => updateField('email', e.target.value)}
-            required
-            className={`w-full ${fieldErrors.email ? 'p-invalid' : ''}`}
-            placeholder="you@example.com"
-          />
-          {fieldErrors.email && (
-            <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.email}</small>
-          )}
-        </div>
-
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
-          >
-            Password
-          </label>
-          <Password
-            id="password"
-            value={form.password}
-            onChange={(e) => updateField('password', e.target.value)}
-            required
-            toggleMask
-            className={`w-full ${fieldErrors.password ? 'p-invalid' : ''}`}
-            inputClassName="w-full"
-          />
-          {fieldErrors.password && (
-            <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.password}</small>
-          )}
-        </div>
-
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
-          >
-            Confirm Password
-          </label>
-          <Password
-            id="confirmPassword"
-            value={form.confirmPassword}
-            onChange={(e) => updateField('confirmPassword', e.target.value)}
-            required
-            feedback={false}
-            toggleMask
-            className={`w-full ${fieldErrors.confirmPassword ? 'p-invalid' : ''}`}
-            inputClassName="w-full"
-          />
-          {fieldErrors.confirmPassword && (
-            <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.confirmPassword}</small>
-          )}
-        </div>
-
-        <Button
-          type="submit"
-          label="Create Account"
-          icon="pi pi-user-plus"
-          loading={loading}
-          className="w-full"
-        />
-      </form>
+        </form>
+      )}
 
       <p className="text-sm text-text-muted text-center mt-6">
         Already have an account?{' '}
-        <Link href="/login" className="text-accent-cyan hover:text-accent-cyan/80 font-medium">
+        <Link href="/login" className="text-accent-cyan hover:text-accent-cyan/80 font-medium transition-colors duration-fast">
           Sign In
         </Link>
       </p>

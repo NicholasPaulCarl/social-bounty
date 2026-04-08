@@ -7,7 +7,6 @@ import { AdminService } from './admin.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
-import { AuthService } from '../auth/auth.service';
 import { SettingsService } from '../settings/settings.service';
 import {
   UserRole,
@@ -22,7 +21,7 @@ describe('AdminService', () => {
   let service: AdminService;
   let prisma: any;
   let auditService: { log: jest.Mock };
-  let mailService: { sendPasswordReset: jest.Mock };
+  let mailService: Record<string, jest.Mock>;
 
   const mockSA: AuthenticatedUser = {
     sub: 'sa-1',
@@ -71,7 +70,7 @@ describe('AdminService', () => {
     };
 
     auditService = { log: jest.fn() };
-    mailService = { sendPasswordReset: jest.fn().mockResolvedValue(undefined) };
+    mailService = {};
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -79,7 +78,6 @@ describe('AdminService', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: auditService },
         { provide: MailService, useValue: mailService },
-        { provide: AuthService, useValue: { storeResetToken: jest.fn() } },
         {
           provide: SettingsService,
           useValue: {
@@ -193,43 +191,6 @@ describe('AdminService', () => {
           UserStatus.SUSPENDED,
           'Test',
         ),
-      ).rejects.toThrow(NotFoundException);
-    });
-  });
-
-  // ── forcePasswordReset ──────────────────────────────
-
-  describe('forcePasswordReset', () => {
-    it('should send a password reset email and log audit', async () => {
-      prisma.user.findUnique.mockResolvedValue({
-        id: 'user-1',
-        email: 'user@test.com',
-      });
-
-      const result = await service.forcePasswordReset(
-        'user-1',
-        mockSA,
-        'Account compromised',
-      );
-
-      expect(result.message).toBe('Password reset email sent to user.');
-      expect(mailService.sendPasswordReset).toHaveBeenCalledWith(
-        'user@test.com',
-        expect.any(String),
-      );
-      expect(auditService.log).toHaveBeenCalledWith(
-        expect.objectContaining({
-          action: 'user.force_password_reset',
-          reason: 'Account compromised',
-        }),
-      );
-    });
-
-    it('should throw NotFoundException for non-existent user', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
-
-      await expect(
-        service.forcePasswordReset('non-existent', mockSA, 'Test'),
       ).rejects.toThrow(NotFoundException);
     });
   });

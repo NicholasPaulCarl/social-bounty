@@ -1,18 +1,14 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from 'primereact/button';
-import { Password } from 'primereact/password';
 import { Message } from 'primereact/message';
-import { useProfile, useChangePassword, useSocialLinks } from '@/hooks/useProfile';
+import { useProfile, useSocialLinks } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
-import { ApiError } from '@/lib/api/client';
 import { SocialChannel } from '@social-bounty/shared';
 
 const PLATFORM_ICONS: Record<SocialChannel, string> = {
@@ -49,17 +45,8 @@ function computeCompletion(profile: {
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const { showSuccess, showError } = useToast();
   const { data: profile, isLoading, error, refetch } = useProfile();
   const { data: socialLinks } = useSocialLinks();
-  const changePassword = useChangePassword();
-
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmNewPassword, setConfirmNewPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [showPasswordSection, setShowPasswordSection] = useState(false);
-
   if (isLoading) return <LoadingState type="detail" />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
   if (!profile) return null;
@@ -68,30 +55,6 @@ export default function ProfilePage() {
   const completion = computeCompletion(profile, links.length > 0);
   const initials =
     `${profile.firstName?.[0] ?? ''}${profile.lastName?.[0] ?? ''}`.toUpperCase();
-
-  const handleChangePassword = async () => {
-    setPasswordError('');
-    if (newPassword.length < 8) {
-      setPasswordError('Password must be at least 8 characters');
-      return;
-    }
-    if (newPassword !== confirmNewPassword) {
-      setPasswordError('Passwords do not match');
-      return;
-    }
-
-    try {
-      await changePassword.mutateAsync({ currentPassword, newPassword });
-      showSuccess('Password updated. You\'re secure.');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmNewPassword('');
-      setShowPasswordSection(false);
-    } catch (err) {
-      if (err instanceof ApiError) setPasswordError(err.message);
-      else setPasswordError('Failed to change password');
-    }
-  };
 
   return (
     <>
@@ -288,76 +251,6 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* ── Change Password ───────────────────────────────────────────── */}
-        <div className="glass-card p-6 animate-fade-up" style={{ animationDelay: '200ms' }}>
-          <button
-            className="flex items-center justify-between w-full text-left"
-            onClick={() => setShowPasswordSection(!showPasswordSection)}
-          >
-            <div className="flex items-center gap-3">
-              <i className="pi pi-lock text-text-muted" />
-              <h3 className="text-lg font-heading font-semibold text-text-primary">
-                Change Password
-              </h3>
-            </div>
-            <i
-              className={`pi ${showPasswordSection ? 'pi-chevron-up' : 'pi-chevron-down'} text-text-muted text-sm`}
-            />
-          </button>
-
-          {showPasswordSection && (
-            <div className="space-y-5 mt-6 pt-6 border-t border-glass-border">
-              {passwordError && (
-                <Message severity="error" text={passwordError} className="w-full" />
-              )}
-
-              <div>
-                <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                  Current Password
-                </label>
-                <Password
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  feedback={false}
-                  toggleMask
-                  className="w-full"
-                  inputClassName="w-full"
-                />
-              </div>
-              <div>
-                <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                  New Password
-                </label>
-                <Password
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  toggleMask
-                  className="w-full"
-                  inputClassName="w-full"
-                />
-              </div>
-              <div>
-                <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                  Confirm New Password
-                </label>
-                <Password
-                  value={confirmNewPassword}
-                  onChange={(e) => setConfirmNewPassword(e.target.value)}
-                  feedback={false}
-                  toggleMask
-                  className="w-full"
-                  inputClassName="w-full"
-                />
-              </div>
-              <Button
-                label="Change Password"
-                icon="pi pi-lock"
-                onClick={handleChangePassword}
-                loading={changePassword.isPending}
-              />
-            </div>
-          )}
-        </div>
       </div>
     </>
   );
