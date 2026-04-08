@@ -265,8 +265,8 @@ async function main() {
   for (const p of PARTICIPANTS) {
     const user = await prisma.user.upsert({
       where: { email: p.email },
-      update: { passwordHash, firstName: p.firstName, lastName: p.lastName, role: 'PARTICIPANT', status: 'ACTIVE', emailVerified: true },
-      create: { email: p.email, passwordHash, firstName: p.firstName, lastName: p.lastName, role: 'PARTICIPANT', status: 'ACTIVE', emailVerified: true },
+      update: { firstName: p.firstName, lastName: p.lastName, role: 'PARTICIPANT', status: 'ACTIVE', emailVerified: true },
+      create: { email: p.email, firstName: p.firstName, lastName: p.lastName, role: 'PARTICIPANT', status: 'ACTIVE', emailVerified: true, credential: { create: { passwordHash } } },
     });
     participantUsers.push(user);
   }
@@ -278,8 +278,8 @@ async function main() {
   for (const ba of BUSINESS_ADMINS) {
     const user = await prisma.user.upsert({
       where: { email: ba.email },
-      update: { passwordHash, firstName: ba.firstName, lastName: ba.lastName, role: 'BUSINESS_ADMIN', status: 'ACTIVE', emailVerified: true },
-      create: { email: ba.email, passwordHash, firstName: ba.firstName, lastName: ba.lastName, role: 'BUSINESS_ADMIN', status: 'ACTIVE', emailVerified: true },
+      update: { firstName: ba.firstName, lastName: ba.lastName, role: 'BUSINESS_ADMIN', status: 'ACTIVE', emailVerified: true },
+      create: { email: ba.email, firstName: ba.firstName, lastName: ba.lastName, role: 'BUSINESS_ADMIN', status: 'ACTIVE', emailVerified: true, credential: { create: { passwordHash } } },
     });
 
     const orgData = {
@@ -315,8 +315,8 @@ async function main() {
   for (const sa of SUPER_ADMINS) {
     await prisma.user.upsert({
       where: { email: sa.email },
-      update: { passwordHash, firstName: sa.firstName, lastName: sa.lastName, role: 'SUPER_ADMIN', status: 'ACTIVE', emailVerified: true },
-      create: { email: sa.email, passwordHash, firstName: sa.firstName, lastName: sa.lastName, role: 'SUPER_ADMIN', status: 'ACTIVE', emailVerified: true },
+      update: { firstName: sa.firstName, lastName: sa.lastName, role: 'SUPER_ADMIN', status: 'ACTIVE', emailVerified: true },
+      create: { email: sa.email, firstName: sa.firstName, lastName: sa.lastName, role: 'SUPER_ADMIN', status: 'ACTIVE', emailVerified: true, credential: { create: { passwordHash } } },
     });
   }
   console.log(`  Created ${SUPER_ADMINS.length} super admins`);
