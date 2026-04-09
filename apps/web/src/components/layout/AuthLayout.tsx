@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 interface AuthLayoutProps {
   children: React.ReactNode;
 }
@@ -32,9 +34,9 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       <div className="relative z-10 w-full max-w-md">
         {/* ── Branding ── */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-heading font-bold tracking-tight text-pink-600">
+          <Link href="/" className="text-4xl font-heading font-bold tracking-tight text-pink-600 hover:text-pink-500 transition-colors duration-200">
             Social Bounty
-          </h1>
+          </Link>
           <p className="text-sm text-slate-600 mt-2">
             Complete bounties, earn rewards
           </p>
