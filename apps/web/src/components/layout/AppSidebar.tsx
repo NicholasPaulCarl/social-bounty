@@ -7,6 +7,7 @@ import { Menu } from 'primereact/menu';
 import type { MenuItem } from 'primereact/menuitem';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadCount } from '@/hooks/useInbox';
+import { BrandSelector } from './BrandSelector';
 import type { NavItem } from '@/lib/navigation';
 
 interface AppSidebarProps {
@@ -91,6 +92,9 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
             <i className="pi pi-times" />
           </button>
         </div>
+
+        {/* Brand selector for business admins */}
+        {user?.role === 'BUSINESS_ADMIN' && <BrandSelector />}
 
         {/* Navigation */}
         <nav className="p-3 space-y-1 flex-1 overflow-y-auto">

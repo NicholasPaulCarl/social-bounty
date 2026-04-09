@@ -3,9 +3,12 @@ import {
   IsNotEmpty,
   IsString,
   IsOptional,
+  IsBoolean,
   IsArray,
+  IsUUID,
   Length,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class RequestOtpDto {
@@ -47,6 +50,27 @@ export class SignupWithOtpDto {
   @IsArray()
   @IsString({ each: true })
   interests?: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  registerAsBrand?: boolean;
+
+  @ValidateIf((o) => o.registerAsBrand === true)
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  brandName?: string;
+
+  @ValidateIf((o) => o.registerAsBrand === true)
+  @IsEmail()
+  @IsNotEmpty()
+  brandContactEmail?: string;
+}
+
+export class SwitchOrganisationDto {
+  @IsUUID()
+  @IsNotEmpty()
+  organisationId!: string;
 }
 
 export class LogoutDto {

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { InputText } from 'primereact/inputtext';
+import { InputSwitch } from 'primereact/inputswitch';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
@@ -13,6 +14,9 @@ export default function SignupPage() {
     email: '',
     firstName: '',
     lastName: '',
+    registerAsBrand: false,
+    brandName: '',
+    brandContactEmail: '',
   });
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'details' | 'otp'>('details');
@@ -38,6 +42,10 @@ export default function SignupPage() {
     if (!form.firstName.trim()) errors.firstName = 'First name is required';
     if (!form.lastName.trim()) errors.lastName = 'Last name is required';
     if (!form.email.trim()) errors.email = 'Email is required';
+    if (form.registerAsBrand) {
+      if (!form.brandName.trim()) errors.brandName = 'Brand name is required';
+      if (!form.brandContactEmail.trim()) errors.brandContactEmail = 'Brand contact email is required';
+    }
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -76,6 +84,13 @@ export default function SignupPage() {
         otp,
         firstName: form.firstName,
         lastName: form.lastName,
+        ...(form.registerAsBrand
+          ? {
+              registerAsBrand: true,
+              brandName: form.brandName,
+              brandContactEmail: form.brandContactEmail,
+            }
+          : {}),
       });
       login(response);
     } catch (err) {
@@ -189,6 +204,62 @@ export default function SignupPage() {
               <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.email}</small>
             )}
           </div>
+
+          {/* Register as Brand toggle */}
+          <div className="flex items-center justify-between py-2 px-3 rounded-lg border border-glass-border bg-glass-bg/50">
+            <div>
+              <p className="text-sm font-medium text-text-primary">Register as a Brand</p>
+              <p className="text-xs text-text-muted">Create a brand profile to post bounties</p>
+            </div>
+            <InputSwitch
+              checked={form.registerAsBrand}
+              onChange={(e) => setForm((prev) => ({ ...prev, registerAsBrand: e.value }))}
+            />
+          </div>
+
+          {form.registerAsBrand && (
+            <div className="space-y-4 p-4 rounded-lg border border-accent-cyan/20 bg-accent-cyan/5">
+              <div>
+                <label
+                  htmlFor="brandName"
+                  className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
+                >
+                  Brand Name
+                </label>
+                <InputText
+                  id="brandName"
+                  value={form.brandName}
+                  onChange={(e) => updateField('brandName', e.target.value)}
+                  required
+                  className={`w-full ${fieldErrors.brandName ? 'p-invalid' : ''}`}
+                  placeholder="Your brand name"
+                />
+                {fieldErrors.brandName && (
+                  <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.brandName}</small>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="brandContactEmail"
+                  className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
+                >
+                  Brand Contact Email
+                </label>
+                <InputText
+                  id="brandContactEmail"
+                  type="email"
+                  value={form.brandContactEmail}
+                  onChange={(e) => updateField('brandContactEmail', e.target.value)}
+                  required
+                  className={`w-full ${fieldErrors.brandContactEmail ? 'p-invalid' : ''}`}
+                  placeholder="brand@example.com"
+                />
+                {fieldErrors.brandContactEmail && (
+                  <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.brandContactEmail}</small>
+                )}
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"

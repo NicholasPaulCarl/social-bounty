@@ -367,13 +367,20 @@ model RefreshTokenAudit {
 }
 
 model Organisation {
-  id           String    @id @default(uuid())
-  name         String
-  logo         String?
-  contactEmail String
-  status       OrgStatus @default(ACTIVE)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id               String    @id @default(uuid())
+  name             String
+  handle           String?   @unique
+  logo             String?
+  coverPhotoUrl    String?
+  contactEmail     String
+  bio              String?   @db.VarChar(500)
+  websiteUrl       String?
+  socialLinks      Json?     // { instagram?, tiktok?, facebook?, x?, website? }
+  targetInterests  Json?     // string[] from HUNTER_INTERESTS
+  messagingEnabled Boolean   @default(true)
+  status           OrgStatus @default(ACTIVE)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   // Relations
   members      OrganisationMember[]
@@ -381,6 +388,7 @@ model Organisation {
   subscription Subscription?        @relation("OrgSubscription")
 
   @@index([status])
+  @@index([handle])
   @@map("organisations")
 }
 

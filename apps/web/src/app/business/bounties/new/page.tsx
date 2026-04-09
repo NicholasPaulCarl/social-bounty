@@ -4,6 +4,8 @@ import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCreateBounty } from '@/hooks/useBounties';
 import { useToast } from '@/hooks/useToast';
+import { useAuth } from '@/hooks/useAuth';
+import { useOrganisation } from '@/hooks/useOrganisation';
 import { PageHeader } from '@/components/common/PageHeader';
 import { CreateBountyForm } from '@/components/bounty-form';
 import { bountyApi } from '@/lib/api/bounties';
@@ -13,6 +15,8 @@ import { useState } from 'react';
 export default function CreateBountyPage() {
   const router = useRouter();
   const toast = useToast();
+  const { user } = useAuth();
+  const { data: org } = useOrganisation(user?.organisationId || '');
   const createBounty = useCreateBounty();
   const [formError, setFormError] = useState('');
   const [isDraftSave, setIsDraftSave] = useState(false);
@@ -71,6 +75,15 @@ export default function CreateBountyPage() {
   return (
     <div className="animate-fade-up">
       <PageHeader title="Create New Bounty" breadcrumbs={breadcrumbs} />
+
+      {org && (
+        <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-accent-cyan/20 bg-accent-cyan/5 text-sm">
+          <i className="pi pi-building text-accent-cyan" />
+          <span className="text-text-muted">Creating bounty for:</span>
+          <span className="font-medium text-text-primary">{org.name}</span>
+        </div>
+      )}
+
       <CreateBountyForm
         onSubmit={handleSubmit as (data: unknown) => void}
         onSaveDraft={handleSaveDraft as (data: unknown) => void}

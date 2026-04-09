@@ -72,6 +72,7 @@ export {
   DISPUTE_LIMITS,
   DISPUTE_EVIDENCE_LIMITS,
   DISPUTE_REASON_CATEGORIES,
+  BRAND_PROFILE_LIMITS,
   PROFILE_LIMITS,
   HUNTER_INTERESTS,
   WALLET_LIMITS,
@@ -91,6 +92,7 @@ export type {
   RequestOtpRequest,
   VerifyOtpRequest,
   SignupWithOtpRequest,
+  SwitchOrganisationRequest,
   LoginUserResponse,
   LoginResponse,
   LogoutRequest,
@@ -141,10 +143,15 @@ export type {
 
 // Organisation DTOs
 export type {
+  BrandSocialLinks,
   CreateOrganisationRequest,
   OrganisationResponse,
   OrganisationDetailResponse,
   UpdateOrganisationRequest,
+  BrandProfileResponse,
+  BrandListItem,
+  BrandListParams,
+  MyBrandListItem,
   OrgMemberUserInfo,
   OrgMemberResponse,
   InviteMemberRequest,

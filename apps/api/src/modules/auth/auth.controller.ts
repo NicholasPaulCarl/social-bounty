@@ -10,14 +10,16 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
-import { Public, Roles } from '../../common/decorators';
+import { Public, Roles, CurrentUser } from '../../common/decorators';
 import { UserRole } from '@social-bounty/shared';
 import { AuthService } from './auth.service';
 import { SettingsService } from '../settings/settings.service';
+import { AuthenticatedUser } from './jwt.strategy';
 import {
   RequestOtpDto,
   VerifyOtpDto,
   SignupWithOtpDto,
+  SwitchOrganisationDto,
 } from './dto/auth.validators';
 
 const REFRESH_COOKIE_NAME = 'sb_refresh_token';
@@ -87,7 +89,24 @@ export class AuthController {
       dto.firstName,
       dto.lastName,
       dto.interests,
+      dto.registerAsBrand,
+      dto.brandName,
+      dto.brandContactEmail,
     );
+    setRefreshCookie(res, result.refreshToken);
+    const { refreshToken: _, ...response } = result;
+    return response;
+  }
+
+  @Post('switch-organisation')
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  async switchOrganisation(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: SwitchOrganisationDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.switchOrganisation(user.sub, dto.organisationId);
     setRefreshCookie(res, result.refreshToken);
     const { refreshToken: _, ...response } = result;
     return response;

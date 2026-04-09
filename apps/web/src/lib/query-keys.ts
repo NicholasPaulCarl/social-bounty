@@ -15,6 +15,7 @@ import type {
   AdminWithdrawalListParams,
   NotificationListParams,
   ConversationListParams,
+  BrandListParams,
 } from '@social-bounty/shared';
 
 export const queryKeys = {
@@ -38,6 +39,9 @@ export const queryKeys = {
     all: ['organisations'] as const,
     detail: (id: string) => [...queryKeys.organisations.all, 'detail', id] as const,
     members: (id: string) => [...queryKeys.organisations.all, id, 'members'] as const,
+    mine: () => [...queryKeys.organisations.all, 'mine'] as const,
+    publicList: (filters: BrandListParams) => [...queryKeys.organisations.all, 'publicList', filters] as const,
+    publicProfile: (idOrHandle: string) => [...queryKeys.organisations.all, 'publicProfile', idOrHandle] as const,
   },
   admin: {
     users: (filters: AdminUserListParams) => ['admin', 'users', filters] as const,

@@ -11,6 +11,7 @@ export interface NavItem {
 const participantNav: NavItem[] = [
   { label: 'Inbox', icon: 'pi pi-inbox', href: '/inbox' },
   { label: 'Browse Bounties', icon: 'pi pi-search', href: '/bounties' },
+  { label: 'Browse Brands', icon: 'pi pi-building', href: '/brands' },
   { label: 'My Submissions', icon: 'pi pi-list', href: '/my-submissions' },
   { label: 'My Disputes', icon: 'pi pi-flag', href: '/my-disputes' },
   { label: 'Wallet', icon: 'pi pi-wallet', href: '/wallet' },
@@ -24,7 +25,7 @@ const businessNav: NavItem[] = [
   { label: 'Review Center', icon: 'pi pi-inbox', href: '/business/review-center' },
   { label: 'Hunters', icon: 'pi pi-users', href: '/hunters' },
   { label: 'Disputes', icon: 'pi pi-flag', href: '/business/disputes' },
-  { label: 'Organisation', icon: 'pi pi-building', href: '/business/organisation' },
+  { label: 'Brands', icon: 'pi pi-building', href: '/business/brands' },
   { label: 'Profile', icon: 'pi pi-user', href: '/business/profile' },
 ];
 

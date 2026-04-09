@@ -15,6 +15,7 @@ interface AuthContextValue {
   login: (response: LoginResponse) => void;
   logout: () => Promise<void>;
   refreshAccessToken: () => Promise<string | null>;
+  switchOrganisation: (organisationId: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue>({
@@ -24,6 +25,7 @@ export const AuthContext = createContext<AuthContextValue>({
   login: () => {},
   logout: async () => {},
   refreshAccessToken: async () => null,
+  switchOrganisation: async () => {},
 });
 
 function getDashboardUrl(role: UserRole): string {
@@ -152,6 +154,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [router],
   );
 
+  const switchOrganisation = useCallback(async (organisationId: string) => {
+    const response = await authApi.switchOrganisation(organisationId);
+    setAccessToken(response.accessToken);
+    setUser(response.user);
+    document.cookie = `sb_auth_role=${response.user.role}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       // API clears the httpOnly refresh cookie
@@ -174,8 +183,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       refreshAccessToken,
+      switchOrganisation,
     }),
-    [user, isLoading, login, logout, refreshAccessToken],
+    [user, isLoading, login, logout, refreshAccessToken, switchOrganisation],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

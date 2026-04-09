@@ -952,11 +952,13 @@
   transition: transform 200ms ease !important;
 }
 
-.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
+.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider,
+.p-inputswitch.p-highlight .p-inputswitch-slider {
   background: #db2777 !important;
 }
 
-.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider::before {
+.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider::before,
+.p-inputswitch.p-highlight .p-inputswitch-slider::before {
   background: #ffffff !important;
 }
 

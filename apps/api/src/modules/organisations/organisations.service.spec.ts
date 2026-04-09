@@ -86,8 +86,7 @@ describe('OrganisationsService', () => {
 
       const result = await service.create(
         mockParticipant,
-        'Acme Corp',
-        'contact@acme.com',
+        { name: 'Acme Corp', contactEmail: 'contact@acme.com' },
       );
 
       expect(prisma.$transaction).toHaveBeenCalled();
@@ -102,7 +101,7 @@ describe('OrganisationsService', () => {
       prisma.organisationMember.findFirst.mockResolvedValue({ id: 'mem-1' });
 
       await expect(
-        service.create(mockParticipant, 'New Org', 'new@org.com'),
+        service.create(mockParticipant, { name: 'New Org', contactEmail: 'new@org.com' }),
       ).rejects.toThrow(ConflictException);
     });
   });

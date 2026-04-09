@@ -13,6 +13,8 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   UserRole,
   UserStatus,
+  OrgMemberRole,
+  OrgStatus,
   OTP_RULES,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
@@ -160,6 +162,9 @@ export class AuthService {
     firstName: string,
     lastName: string,
     interests?: string[],
+    registerAsBrand?: boolean,
+    brandName?: string,
+    brandContactEmail?: string,
   ) {
     const normalizedEmail = email.toLowerCase().trim();
 
@@ -206,15 +211,75 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    // Create user (no credential needed — passwordless)
+    const role = registerAsBrand ? UserRole.BUSINESS_ADMIN : UserRole.PARTICIPANT;
+
+    if (registerAsBrand) {
+      // Create user + organisation + membership in a transaction
+      const result = await this.prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: {
+            email: normalizedEmail,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            role,
+            status: UserStatus.ACTIVE,
+            emailVerified: true,
+            ...(interests && interests.length > 0 ? { interests } : {}),
+          },
+        });
+
+        const organisation = await tx.organisation.create({
+          data: {
+            name: brandName!,
+            contactEmail: brandContactEmail!,
+            status: OrgStatus.ACTIVE,
+          },
+        });
+
+        await tx.organisationMember.create({
+          data: {
+            userId: user.id,
+            organisationId: organisation.id,
+            role: OrgMemberRole.OWNER,
+          },
+        });
+
+        return { user, organisationId: organisation.id };
+      });
+
+      const tokens = await this.generateTokens(
+        result.user.id,
+        result.user.email,
+        result.user.role,
+        result.organisationId,
+        result.user.firstName,
+        result.user.lastName,
+      );
+
+      return {
+        ...tokens,
+        user: {
+          id: result.user.id,
+          email: result.user.email,
+          firstName: result.user.firstName,
+          lastName: result.user.lastName,
+          role: result.user.role,
+          status: result.user.status,
+          emailVerified: result.user.emailVerified,
+          organisationId: result.organisationId,
+        },
+      };
+    }
+
+    // Standard participant signup
     const user = await this.prisma.user.create({
       data: {
         email: normalizedEmail,
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        role: UserRole.PARTICIPANT,
+        role,
         status: UserStatus.ACTIVE,
-        emailVerified: true, // OTP proves email ownership
+        emailVerified: true,
         ...(interests && interests.length > 0 ? { interests } : {}),
       },
     });
@@ -239,6 +304,56 @@ export class AuthService {
         status: user.status,
         emailVerified: user.emailVerified,
         organisationId: null,
+      },
+    };
+  }
+
+  async switchOrganisation(userId: string, organisationId: string) {
+    // Verify the user is a member of the specified organisation
+    const membership = await this.prisma.organisationMember.findUnique({
+      where: {
+        userId_organisationId: {
+          userId,
+          organisationId,
+        },
+      },
+    });
+
+    if (!membership) {
+      throw new ForbiddenException(
+        'You are not a member of this organisation',
+      );
+    }
+
+    // Look up the user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || user.status === UserStatus.SUSPENDED) {
+      throw new UnauthorizedException('Invalid user');
+    }
+
+    const tokens = await this.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+      organisationId,
+      user.firstName,
+      user.lastName,
+    );
+
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        status: user.status,
+        emailVerified: user.emailVerified,
+        organisationId,
       },
     };
   }
@@ -281,22 +396,14 @@ export class AuthService {
 
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
-        include: {
-          organisationMemberships: {
-            select: { organisationId: true },
-            take: 1,
-          },
-        },
       });
 
       if (!user || user.status === UserStatus.SUSPENDED) {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      const organisationId =
-        user.organisationMemberships.length > 0
-          ? user.organisationMemberships[0].organisationId
-          : null;
+      // Preserve the selected organisation from the refresh token
+      const organisationId = payload.organisationId ?? null;
 
       return this.generateTokens(
         user.id,
@@ -341,6 +448,7 @@ export class AuthService {
     const refreshToken = this.jwtService.sign(
       {
         sub: userId,
+        organisationId,
         type: 'refresh',
         jti,
       },

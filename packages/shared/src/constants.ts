@@ -192,6 +192,18 @@ export const DISPUTE_EVIDENCE_LIMITS = {
   ] as const,
 } as const;
 
+// ─── Brand Profile ──────────────────
+
+export const BRAND_PROFILE_LIMITS = {
+  HANDLE_MIN: 3,
+  HANDLE_MAX: 30,
+  BIO_MAX: 500,
+  LOGO_MAX_SIZE: 2 * 1024 * 1024, // 2MB
+  LOGO_MIME_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const,
+  COVER_PHOTO_MAX_SIZE: 5 * 1024 * 1024, // 5MB
+  COVER_PHOTO_MIME_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const,
+} as const;
+
 // ─── Hunter Profile ──────────────────
 
 export const PROFILE_LIMITS = {

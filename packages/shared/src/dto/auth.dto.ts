@@ -22,6 +22,14 @@ export interface SignupWithOtpRequest {
   firstName: string;
   lastName: string;
   interests?: string[];
+  registerAsBrand?: boolean;
+  brandName?: string;
+  brandContactEmail?: string;
+}
+
+// POST /auth/switch-organisation
+export interface SwitchOrganisationRequest {
+  organisationId: string;
 }
 
 export interface LoginUserResponse {

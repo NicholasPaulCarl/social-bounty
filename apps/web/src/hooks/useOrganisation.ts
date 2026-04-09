@@ -7,7 +7,9 @@ import type {
   CreateOrganisationRequest,
   UpdateOrganisationRequest,
   InviteMemberRequest,
+  BrandListParams,
 } from '@social-bounty/shared';
+import { authApi } from '@/lib/api/auth';
 
 export function useOrganisation(id: string) {
   return useQuery({
@@ -63,6 +65,38 @@ export function useRemoveMember(orgId: string) {
     mutationFn: (userId: string) => organisationApi.removeMember(orgId, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.organisations.members(orgId) });
+    },
+  });
+}
+
+export function useMyBrands() {
+  return useQuery({
+    queryKey: queryKeys.organisations.mine(),
+    queryFn: () => organisationApi.listMine(),
+  });
+}
+
+export function useBrandPublicProfile(idOrHandle: string) {
+  return useQuery({
+    queryKey: queryKeys.organisations.publicProfile(idOrHandle),
+    queryFn: () => organisationApi.getPublicProfile(idOrHandle),
+    enabled: !!idOrHandle,
+  });
+}
+
+export function useBrandsPublicList(params: BrandListParams) {
+  return useQuery({
+    queryKey: queryKeys.organisations.publicList(params),
+    queryFn: () => organisationApi.listPublic(params),
+  });
+}
+
+export function useSwitchOrganisation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (organisationId: string) => authApi.switchOrganisation(organisationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries();
     },
   });
 }
