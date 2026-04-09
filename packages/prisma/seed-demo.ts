@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 // ─── User Data ───────────────────────────────────────────
 
 const PARTICIPANTS = [
-  { email: 'participant@socialbounty.cash', firstName: 'Demo', lastName: 'Participant' },
+  { email: 'hunter@socialbounty.cash', firstName: 'Demo', lastName: 'Hunter' },
   { email: 'sarah.mitchell@socialbounty.cash', firstName: 'Sarah', lastName: 'Mitchell' },
   { email: 'james.peterson@socialbounty.cash', firstName: 'James', lastName: 'Peterson' },
   { email: 'thandi.mabaso@socialbounty.cash', firstName: 'Thandi', lastName: 'Mabaso' },
@@ -23,7 +23,7 @@ const PARTICIPANTS = [
 ];
 
 const BUSINESS_ADMINS = [
-  { email: 'business@socialbounty.cash', firstName: 'Demo', lastName: 'Business Admin', orgName: 'Demo Company', orgEmail: 'business@socialbounty.cash', orgId: 'demo-org-id' },
+  { email: 'brand@socialbounty.cash', firstName: 'Demo', lastName: 'Brand', orgName: 'Demo Company', orgEmail: 'brand@socialbounty.cash', orgId: 'demo-org-id' },
   { email: 'marketing@freshroast.co', firstName: 'Lebo', lastName: 'Moloi', orgName: 'Fresh Roast Coffee', orgEmail: 'hello@freshroast.co' },
   { email: 'social@urbanfit.za', firstName: 'Craig', lastName: 'Hendricks', orgName: 'UrbanFit Gym', orgEmail: 'info@urbanfit.za' },
   { email: 'campaigns@vividmedia.co', firstName: 'Zanele', lastName: 'Khumalo', orgName: 'Vivid Media Agency', orgEmail: 'info@vividmedia.co' },
