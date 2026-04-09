@@ -7,6 +7,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Message } from 'primereact/message';
 import Link from 'next/link';
+import { getUploadUrl } from '@/lib/api/client';
 
 import {
   useProfile,
@@ -248,7 +249,7 @@ export default function ProfileEditPage() {
           <div className="flex items-center gap-5">
             {profile.profilePictureUrl ? (
               <img
-                src={profile.profilePictureUrl}
+                src={getUploadUrl(profile.profilePictureUrl)!}
                 alt="Profile"
                 className="w-20 h-20 rounded-full object-cover border-2 border-glass-border"
               />

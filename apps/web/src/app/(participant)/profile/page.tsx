@@ -5,6 +5,7 @@ import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { useProfile, useSocialLinks } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
+import { getUploadUrl } from '@/lib/api/client';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -127,7 +128,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3 mb-6">
             {profile.profilePictureUrl ? (
               <img
-                src={profile.profilePictureUrl}
+                src={getUploadUrl(profile.profilePictureUrl)!}
                 alt="Profile"
                 className="w-12 h-12 rounded-full object-cover border-2 border-glass-border"
               />

@@ -8,6 +8,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { usePublicProfile } from '@/hooks/useHunters';
 import { SocialChannel } from '@social-bounty/shared';
+import { getUploadUrl } from '@/lib/api/client';
 import type { PublicHunterProfile, SocialLinkResponse } from '@social-bounty/shared';
 import { formatDate } from '@/lib/utils/format';
 
@@ -180,7 +181,7 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
               {profile.profilePictureUrl ? (
                 <div className="relative w-24 h-24 rounded-full overflow-hidden shrink-0 ring-2 ring-accent-cyan/30">
                   <Image
-                    src={profile.profilePictureUrl}
+                    src={getUploadUrl(profile.profilePictureUrl)!}
                     alt={`${profile.firstName} ${profile.lastName}`}
                     fill
                     className="object-cover"

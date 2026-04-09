@@ -1,5 +1,18 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
+// Origin for static assets (uploads). Strips /api/v1 suffix.
+const API_ORIGIN = API_BASE_URL.replace(/\/api\/v\d+$/, '');
+
+/**
+ * Resolve a server-relative upload path (e.g. /uploads/abc.jpg)
+ * to a full URL the browser can fetch.
+ */
+export function getUploadUrl(path: string | null | undefined): string | null {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  return `${API_ORIGIN}${path}`;
+}
+
 export class ApiError extends Error {
   constructor(
     public statusCode: number,

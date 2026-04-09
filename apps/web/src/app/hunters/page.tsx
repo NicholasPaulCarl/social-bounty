@@ -10,6 +10,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { useHunters } from '@/hooks/useHunters';
 import { HUNTER_INTERESTS, SocialChannel } from '@social-bounty/shared';
+import { getUploadUrl } from '@/lib/api/client';
 import type { HunterListItem } from '@social-bounty/shared';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -52,7 +53,7 @@ function HunterCard({ hunter, index }: HunterCardProps) {
         {hunter.profilePictureUrl ? (
           <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 ring-2 ring-glass-border">
             <Image
-              src={hunter.profilePictureUrl}
+              src={getUploadUrl(hunter.profilePictureUrl)!}
               alt={`${hunter.firstName} ${hunter.lastName}`}
               fill
               className="object-cover"

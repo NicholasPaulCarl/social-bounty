@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import * as fs from 'fs';
@@ -19,9 +20,12 @@ async function bootstrap() {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
 
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     rawBody: true, // Required for Stripe webhook signature verification
   });
+
+  // Serve uploaded files (profile pictures, etc.)
+  app.useStaticAssets(uploadsDir, { prefix: '/uploads/' });
 
   // Cookie parser for httpOnly refresh token cookies
   app.use(cookieParser());
