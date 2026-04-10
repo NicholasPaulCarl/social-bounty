@@ -2,6 +2,12 @@
 const nextConfig = {
   transpilePackages: ['@social-bounty/shared'],
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      { protocol: 'http', hostname: 'localhost' },
+      { protocol: 'https', hostname: '**' },
+    ],
+  },
   async headers() {
     return [
       {
