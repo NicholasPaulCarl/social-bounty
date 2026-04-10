@@ -58,7 +58,7 @@ export class OrganisationsService {
           websiteUrl: data.websiteUrl || null,
           ...(data.socialLinks ? { socialLinks: data.socialLinks } : {}),
           ...(data.targetInterests ? { targetInterests: data.targetInterests } : {}),
-          ...(logoFile ? { logo: `uploads/${logoFile.filename}` } : {}),
+          ...(logoFile ? { logo: `/uploads/${logoFile.filename}` } : {}),
         },
       });
 
@@ -217,7 +217,7 @@ export class OrganisationsService {
     if (data.socialLinks !== undefined) updateData.socialLinks = data.socialLinks || null;
     if (data.targetInterests !== undefined) updateData.targetInterests = data.targetInterests || null;
     if (data.messagingEnabled !== undefined) updateData.messagingEnabled = data.messagingEnabled;
-    if (logoFile) updateData.logo = `uploads/${logoFile.filename}`;
+    if (logoFile) updateData.logo = `/uploads/${logoFile.filename}`;
 
     const updated = await this.prisma.organisation.update({
       where: { id: orgId },
@@ -472,7 +472,7 @@ export class OrganisationsService {
 
     const updated = await this.prisma.organisation.update({
       where: { id: orgId },
-      data: { coverPhotoUrl: `uploads/${file.filename}` },
+      data: { coverPhotoUrl: `/uploads/${file.filename}` },
     });
 
     return {

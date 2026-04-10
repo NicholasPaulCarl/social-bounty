@@ -10,7 +10,8 @@ const API_ORIGIN = API_BASE_URL.replace(/\/api\/v\d+$/, '');
 export function getUploadUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   if (path.startsWith('http')) return path;
-  return `${API_ORIGIN}${path}`;
+  const normalised = path.startsWith('/') ? path : `/${path}`;
+  return `${API_ORIGIN}${normalised}`;
 }
 
 export class ApiError extends Error {
