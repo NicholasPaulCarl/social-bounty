@@ -13,7 +13,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 
-export default function EditOrganisationPage() {
+export default function EditBrandPage() {
   const router = useRouter();
   const toast = useToast();
   const { user } = useAuth();
@@ -50,22 +50,22 @@ export default function EditOrganisationPage() {
       { data: { name: name.trim(), contactEmail: contactEmail.trim() }, logo },
       {
         onSuccess: () => {
-          toast.showSuccess('Organisation updated.');
-          router.push('/business/organisation');
+          toast.showSuccess('Brand updated.');
+          router.push('/business/brands');
         },
-        onError: () => setFormError('Couldn\'t update organisation. Try again.'),
+        onError: () => setFormError("Couldn't update brand. Try again."),
       },
     );
   };
 
   const breadcrumbs = [
-    { label: 'Organisation', url: '/business/organisation' },
+    { label: 'Brands', url: '/business/brands' },
     { label: 'Edit' },
   ];
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Edit Organisation" breadcrumbs={breadcrumbs} />
+      <PageHeader title="Edit Brand" breadcrumbs={breadcrumbs} />
 
       <div className="glass-card p-6">
         {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
@@ -73,7 +73,7 @@ export default function EditOrganisationPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="name" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-              Organisation Name *
+              Brand Name *
             </label>
             <InputText
               id="name"
@@ -121,7 +121,7 @@ export default function EditOrganisationPage() {
               type="button"
               outlined
               severity="secondary"
-              onClick={() => router.push('/business/organisation')}
+              onClick={() => router.push('/business/brands')}
             />
             <Button
               label="Save Changes"

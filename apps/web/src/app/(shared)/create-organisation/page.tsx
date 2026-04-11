@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ApiError } from '@/lib/api/client';
 
-export default function CreateOrganisationPage() {
+export default function CreateBrandPage() {
   const router = useRouter();
   const { showSuccess, showError } = useToast();
   const createOrg = useCreateOrganisation();
@@ -34,21 +34,21 @@ export default function CreateOrganisationPage() {
         data: { name: name.trim(), contactEmail: contactEmail.trim() },
         logo,
       });
-      showSuccess('Organisation created! You are now a Business Admin.');
+      showSuccess('Brand created! You are now a Business Admin.');
       router.push('/business/dashboard');
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
         showError(err.message);
       } else {
-        showError('Couldn\'t create organisation. Try again.');
+        showError("Couldn't create brand. Try again.");
       }
     }
   };
 
   return (
     <>
-      <PageHeader title="Create Organisation" subtitle="Set up your business to start creating bounties" />
+      <PageHeader title="Create Brand" subtitle="Set up your business to start creating bounties" />
 
       <div className="glass-card p-8 max-w-2xl animate-fade-up">
         {error && <Message severity="error" text={error} className="w-full mb-6" />}
@@ -56,7 +56,7 @@ export default function CreateOrganisationPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label htmlFor="name" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-              Organisation Name <span className="text-accent-rose">*</span>
+              Brand Name <span className="text-accent-rose">*</span>
             </label>
             <InputText
               id="name"
@@ -98,7 +98,7 @@ export default function CreateOrganisationPage() {
           <div className="flex gap-3 pt-4">
             <Button
               type="submit"
-              label="Create Organisation"
+              label="Create Brand"
               icon="pi pi-check"
               loading={createOrg.isPending}
             />

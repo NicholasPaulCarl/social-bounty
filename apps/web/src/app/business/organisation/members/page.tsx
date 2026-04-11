@@ -18,7 +18,7 @@ import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate } from '@/lib/utils/format';
 import type { OrgMemberResponse } from '@social-bounty/shared';
 
-export default function OrganisationMembersPage() {
+export default function BrandMembersPage() {
   const toast = useToast();
   const { user } = useAuth();
   const orgId = user?.organisationId || '';
@@ -85,7 +85,7 @@ export default function OrganisationMembersPage() {
   };
 
   const breadcrumbs = [
-    { label: 'Organisation', url: '/business/organisation' },
+    { label: 'Brands', url: '/business/brands' },
     { label: 'Members' },
   ];
 
@@ -94,7 +94,7 @@ export default function OrganisationMembersPage() {
   return (
     <div className="animate-fade-up">
       <PageHeader
-        title="Organisation Members"
+        title="Brand Members"
         breadcrumbs={breadcrumbs}
         actions={
           <Button label="Invite Member" icon="pi pi-user-plus" onClick={() => setShowInvite(true)} />
@@ -159,7 +159,7 @@ export default function OrganisationMembersPage() {
         visible={!!removeUserId}
         onHide={() => setRemoveUserId(null)}
         title="Remove Member"
-        message="Are you sure you want to remove this member from the organisation?"
+        message="Are you sure you want to remove this member from the brand?"
         confirmLabel="Remove"
         confirmSeverity="danger"
         onConfirm={handleRemove}

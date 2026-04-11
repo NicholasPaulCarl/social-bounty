@@ -234,6 +234,30 @@ export class AdminService {
     };
   }
 
+  async getOrgDetail(id: string) {
+    const org = await this.prisma.organisation.findUnique({
+      where: { id },
+      include: {
+        _count: { select: { members: true, bounties: true } },
+      },
+    });
+
+    if (!org) {
+      throw new NotFoundException('Brand not found');
+    }
+
+    return {
+      id: org.id,
+      name: org.name,
+      logo: org.logo,
+      contactEmail: org.contactEmail,
+      status: org.status,
+      memberCount: org._count.members,
+      bountyCount: org._count.bounties,
+      createdAt: org.createdAt.toISOString(),
+    };
+  }
+
   async createOrganisation(
     actor: AuthenticatedUser,
     data: {

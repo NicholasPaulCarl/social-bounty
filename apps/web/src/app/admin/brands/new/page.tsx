@@ -9,7 +9,7 @@ import { useAdminCreateOrg } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 
-export default function AdminCreateOrganisationPage() {
+export default function AdminCreateBrandPage() {
   const router = useRouter();
   const toast = useToast();
   const createOrg = useAdminCreateOrg();
@@ -32,22 +32,22 @@ export default function AdminCreateOrganisationPage() {
       { name: name.trim(), contactEmail: contactEmail.trim(), ownerUserId: ownerUserId.trim() },
       {
         onSuccess: () => {
-          toast.showSuccess('Organisation created.');
-          router.push('/admin/organisations');
+          toast.showSuccess('Brand created.');
+          router.push('/admin/brands');
         },
-        onError: () => setFormError('Couldn\'t create organisation. Try again.'),
+        onError: () => setFormError("Couldn't create brand. Try again."),
       },
     );
   };
 
   const breadcrumbs = [
-    { label: 'Organisations', url: '/admin/organisations' },
+    { label: 'Brands', url: '/admin/brands' },
     { label: 'Create' },
   ];
 
   return (
     <>
-      <PageHeader title="Create Organisation" breadcrumbs={breadcrumbs} />
+      <PageHeader title="Create Brand" breadcrumbs={breadcrumbs} />
 
       <div className="glass-card p-6 max-w-2xl animate-fade-up">
         {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
@@ -55,14 +55,14 @@ export default function AdminCreateOrganisationPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">
-              Organisation Name *
+              Brand Name *
             </label>
             <InputText
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full"
-              placeholder="Enter organisation name"
+              placeholder="Enter brand name"
               required
             />
           </div>
@@ -95,7 +95,7 @@ export default function AdminCreateOrganisationPage() {
               required
             />
             <p className="text-xs text-text-muted mt-1">
-              The user ID of the person who will be assigned as organisation owner.
+              The user ID of the person who will be assigned as brand owner.
             </p>
           </div>
 
@@ -105,10 +105,10 @@ export default function AdminCreateOrganisationPage() {
               type="button"
               outlined
               severity="secondary"
-              onClick={() => router.push('/admin/organisations')}
+              onClick={() => router.push('/admin/brands')}
             />
             <Button
-              label="Create Organisation"
+              label="Create Brand"
               type="submit"
               icon="pi pi-plus"
               loading={createOrg.isPending}

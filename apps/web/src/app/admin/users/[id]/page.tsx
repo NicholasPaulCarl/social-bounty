@@ -157,7 +157,7 @@ export default function AdminUserDetailPage() {
                 <dl className="space-y-3">
                   {user.organisation && (
                     <div>
-                      <dt className="text-sm text-text-muted">Organisation</dt>
+                      <dt className="text-sm text-text-muted">Brand</dt>
                       <dd className="text-sm font-medium text-primary-600">{user.organisation.name}</dd>
                     </div>
                   )}

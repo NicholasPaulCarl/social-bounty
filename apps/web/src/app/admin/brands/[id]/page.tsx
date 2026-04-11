@@ -25,7 +25,7 @@ function OrgBountiesTab({ orgId }: { orgId: string }) {
   const bounties = data?.data ?? [];
 
   if (bounties.length === 0) {
-    return <p className="text-sm text-text-muted p-4">No bounties found for this organisation.</p>;
+    return <p className="text-sm text-text-muted p-4">No bounties found for this brand.</p>;
   }
 
   return (
@@ -48,7 +48,7 @@ function OrgSubmissionsTab({ orgId }: { orgId: string }) {
   const submissions = data?.data ?? [];
 
   if (submissions.length === 0) {
-    return <p className="text-sm text-text-muted p-4">No submissions found for this organisation.</p>;
+    return <p className="text-sm text-text-muted p-4">No submissions found for this brand.</p>;
   }
 
   return (
@@ -62,7 +62,7 @@ function OrgSubmissionsTab({ orgId }: { orgId: string }) {
   );
 }
 
-export default function AdminOrgDetailPage() {
+export default function AdminBrandDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const toast = useToast();
@@ -83,25 +83,25 @@ export default function AdminOrgDetailPage() {
       { status, reason: reason || '' },
       {
         onSuccess: () => {
-          toast.showSuccess(`Organisation ${status === OrgStatus.ACTIVE ? 'activated' : 'suspended'}`);
+          toast.showSuccess(`Brand ${status === OrgStatus.ACTIVE ? 'activated' : 'suspended'}`);
           setShowSuspend(false);
           setShowActivate(false);
           refetch();
         },
-        onError: () => toast.showError('Couldn\'t update organisation status. Try again.'),
+        onError: () => toast.showError("Couldn't update brand status. Try again."),
       },
     );
   };
 
   const breadcrumbs = [
-    { label: 'Organisations', url: '/admin/organisations' },
-    { label: org.name || 'Organisation' },
+    { label: 'Brands', url: '/admin/brands' },
+    { label: org.name || 'Brand' },
   ];
 
   return (
     <>
       <PageHeader
-        title={org.name || 'Organisation'}
+        title={org.name || 'Brand'}
         breadcrumbs={breadcrumbs}
         actions={
           <div className="flex gap-2">
@@ -119,7 +119,7 @@ export default function AdminOrgDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4 animate-fade-up">
             <div className="lg:col-span-2">
               <div className="glass-card p-6">
-                <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Organisation Information</h3>
+                <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Brand Information</h3>
                 <dl className="grid grid-cols-2 gap-4">
                   <div>
                     <dt className="text-sm text-text-muted">Name</dt>
@@ -175,7 +175,7 @@ export default function AdminOrgDetailPage() {
       <ConfirmAction
         visible={showSuspend}
         onHide={() => setShowSuspend(false)}
-        title="Suspend Organisation"
+        title="Suspend Brand"
         message={`Are you sure you want to suspend "${org.name}"? All members will lose access and active bounties will be paused.`}
         confirmLabel="Suspend"
         confirmSeverity="danger"
@@ -187,7 +187,7 @@ export default function AdminOrgDetailPage() {
       <ConfirmAction
         visible={showActivate}
         onHide={() => setShowActivate(false)}
-        title="Activate Organisation"
+        title="Activate Brand"
         message={`Are you sure you want to reactivate "${org.name}"?`}
         confirmLabel="Activate"
         confirmSeverity="success"

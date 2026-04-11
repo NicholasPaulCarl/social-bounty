@@ -36,13 +36,16 @@ const PLATFORM_META: Record<MockPlatform, { label: string; icon: string; color: 
 
 export function BrandSocialReachCard({ orgId, socialLinks }: BrandSocialReachCardProps) {
   const links = socialLinks ?? {};
-  const tiles = MOCK_PLATFORMS.filter((p) => !!links[p]).map((platform) => ({
+
+  // Always render all three platform tiles — the card is a demo of Apify
+  // analytics, so it should appear on every brand. When a handle is not
+  // connected, the tile still shows deterministic mock numbers and hides the
+  // handle link so it's clear there's nothing real to click through to.
+  const tiles = MOCK_PLATFORMS.map((platform) => ({
     platform,
-    handle: links[platform] as string,
+    handle: (links[platform] as string | undefined) ?? null,
     analytics: getMockBrandSocialAnalytics(orgId, platform),
   }));
-
-  if (tiles.length === 0) return null;
 
   return (
     <div className="mb-8">
@@ -52,7 +55,7 @@ export function BrandSocialReachCard({ orgId, socialLinks }: BrandSocialReachCar
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {tiles.map(({ platform, handle, analytics }) => {
           const meta = PLATFORM_META[platform];
-          const href = `${meta.urlPrefix}${handle}`;
+          const href = handle ? `${meta.urlPrefix}${handle}` : null;
           return (
             <div key={platform} className="glass-card p-5">
               <div className="flex items-center justify-between mb-4">
@@ -62,15 +65,19 @@ export function BrandSocialReachCard({ orgId, socialLinks }: BrandSocialReachCar
                     {meta.label}
                   </span>
                 </div>
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-text-muted hover:text-accent-cyan transition-colors inline-flex items-center gap-1"
-                >
-                  @{handle}
-                  <i className="pi pi-external-link text-[10px]" />
-                </a>
+                {href && handle ? (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-text-muted hover:text-accent-cyan transition-colors inline-flex items-center gap-1"
+                  >
+                    @{handle}
+                    <i className="pi pi-external-link text-[10px]" />
+                  </a>
+                ) : (
+                  <span className="text-xs text-text-muted italic">Not connected</span>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">

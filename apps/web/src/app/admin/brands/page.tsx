@@ -22,7 +22,7 @@ const statusOptions = [
   { label: 'Suspended', value: 'SUSPENDED' },
 ];
 
-export default function AdminOrganisationsPage() {
+export default function AdminBrandsPage() {
   const router = useRouter();
   const { page, limit, first, onPageChange } = usePagination();
   const [filters, setFilters] = useState<AdminOrgListParams>({ page, limit });
@@ -46,7 +46,7 @@ export default function AdminOrganisationsPage() {
       rounded
       text
       severity="info"
-      onClick={() => router.push(`/admin/organisations/${rowData.id}`)}
+      onClick={() => router.push(`/admin/brands/${rowData.id}`)}
       tooltip="View Details"
     />
   );
@@ -54,16 +54,16 @@ export default function AdminOrganisationsPage() {
   return (
     <div className="animate-fade-up">
       <PageHeader
-        title="Organisations"
-        subtitle="Manage platform organisations"
+        title="Brands"
+        subtitle="Manage platform brands"
         actions={
-          <Button label="Create Organisation" icon="pi pi-plus" onClick={() => router.push('/admin/organisations/new')} />
+          <Button label="Create Brand" icon="pi pi-plus" onClick={() => router.push('/admin/brands/new')} />
         }
         toolbar={{
           search: {
             value: filters.search || '',
             onChange: (value) => setFilters({ ...filters, search: value || undefined, page: 1 }),
-            placeholder: 'Search organisations...',
+            placeholder: 'Search brands...',
           },
           filters: [
             { key: 'status', placeholder: 'Status', options: statusOptions, ariaLabel: 'Filter by status' },
@@ -99,7 +99,7 @@ export default function AdminOrganisationsPage() {
       ) : (
         <EmptyState
           icon="pi-building"
-          title="No organisations found"
+          title="No brands found"
           message="Nothing matches your current filters."
         />
       )}

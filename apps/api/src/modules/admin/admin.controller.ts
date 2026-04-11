@@ -83,6 +83,11 @@ export class AdminController {
     });
   }
 
+  @Get('organisations/:id')
+  async getOrgDetail(@Param('id') id: string) {
+    return this.adminService.getOrgDetail(id);
+  }
+
   @Post('organisations')
   async createOrganisation(
     @CurrentUser() actor: AuthenticatedUser,

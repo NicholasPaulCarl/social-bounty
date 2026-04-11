@@ -97,7 +97,7 @@ export default function BusinessDisputesPage() {
     <div className="animate-fade-up">
       <PageHeader
         title="Disputes"
-        subtitle="Review and manage disputes for your organisation"
+        subtitle="Review and manage disputes for your brand"
         actions={
           <Button
             label="File Dispute"
