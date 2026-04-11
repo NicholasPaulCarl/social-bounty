@@ -376,6 +376,7 @@ model Organisation {
   bio              String?   @db.VarChar(500)
   websiteUrl       String?
   socialLinks      Json?     // { instagram?, tiktok?, facebook?, x?, website? }
+  socialAnalytics  Json?     // BrandSocialAnalyticsBlob — populated by ApifyService
   targetInterests  Json?     // string[] from HUNTER_INTERESTS
   messagingEnabled Boolean   @default(true)
   status           OrgStatus @default(ACTIVE)

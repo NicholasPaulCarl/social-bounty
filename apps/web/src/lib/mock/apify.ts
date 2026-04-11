@@ -1,9 +1,8 @@
-// MOCK DATA — replace with real Apify results when integration lands.
-// See DevApify skill for the eventual integration contract.
-//
-// Each metric is a deterministic djb2 hash of `${orgId}:${platform}:${metric}`
-// bucketed into a plausible per-platform range, so any brand always renders
-// the same numbers across page refreshes, viewers, and routes.
+// MOCK DATA — fallback used by BrandSocialReachCard when real Apify data
+// is not available (brand not yet scraped, scraper failed, or APIFY_API_TOKEN
+// is not set in the environment). Each metric is a deterministic djb2 hash
+// of `${orgId}:${platform}:${metric}` bucketed into a plausible per-platform
+// range, so any brand always renders stable numbers across refreshes.
 
 export interface BrandSocialAnalytics {
   followers: number;

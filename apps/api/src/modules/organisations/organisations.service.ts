@@ -332,6 +332,7 @@ export class OrganisationsService {
       bio: org.bio,
       websiteUrl: org.websiteUrl,
       socialLinks: org.socialLinks,
+      socialAnalytics: org.socialAnalytics,
       targetInterests: org.targetInterests,
       messagingEnabled: org.messagingEnabled,
       stats: {

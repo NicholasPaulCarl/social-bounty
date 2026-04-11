@@ -52,6 +52,24 @@ export function formatEnumLabel(value: string): string {
     .join(' ');
 }
 
+export function formatRelativeTime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  if (!Number.isFinite(diffMs)) return '';
+  if (diffMs < 0) return 'just now';
+  const minutes = Math.floor(diffMs / 60_000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 14) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
 export function formatCount(n: number | null | undefined): string {
   if (n === null || n === undefined) return '—';
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;

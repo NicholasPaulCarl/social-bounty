@@ -144,6 +144,9 @@ export type {
 // Organisation DTOs
 export type {
   BrandSocialLinks,
+  ApifyPlatform,
+  BrandSocialAnalyticsCounters,
+  BrandSocialAnalyticsBlob,
   CreateOrganisationRequest,
   OrganisationResponse,
   OrganisationDetailResponse,

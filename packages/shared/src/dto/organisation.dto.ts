@@ -12,6 +12,27 @@ export interface BrandSocialLinks {
   website?: string;
 }
 
+// ─── Apify-sourced social analytics ──
+
+export type ApifyPlatform = 'instagram' | 'facebook' | 'tiktok';
+
+export interface BrandSocialAnalyticsCounters {
+  followersCount: number | null;
+  followingCount: number | null;
+  postsCount: number | null;
+  totalLikes: number | null; // TikTok heart total; null for IG/FB
+  avgLikes: number | null; // computed when source data allows
+  engagementRate: number | null; // percent, 1 decimal
+  error: string | null; // per-platform error or "not connected"; null on success
+}
+
+export interface BrandSocialAnalyticsBlob {
+  fetchedAt: string; // ISO timestamp of the last refresh
+  instagram: BrandSocialAnalyticsCounters;
+  facebook: BrandSocialAnalyticsCounters;
+  tiktok: BrandSocialAnalyticsCounters;
+}
+
 // POST /organisations
 export interface CreateOrganisationRequest {
   name: string;
@@ -83,6 +104,7 @@ export interface BrandProfileResponse {
   bio: string | null;
   websiteUrl: string | null;
   socialLinks: BrandSocialLinks | null;
+  socialAnalytics: BrandSocialAnalyticsBlob | null;
   targetInterests: string[] | null;
   messagingEnabled: boolean;
   stats: {

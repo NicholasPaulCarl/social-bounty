@@ -17,7 +17,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { BrandSocialReachCard } from '@/components/features/brand-profile/BrandSocialReachCard';
 import { getUploadUrl } from '@/lib/api/client';
-import { formatCurrency } from '@/lib/utils/format';
+import { formatCurrency, formatDate } from '@/lib/utils/format';
 import type { BrandSocialLinks } from '@social-bounty/shared';
 
 const SOCIAL_LINK_CONFIG: {
@@ -147,7 +147,7 @@ export default function BusinessProfilePage() {
       <div className="flex flex-col md:flex-row gap-6 mb-8">
         <div className="flex items-start gap-4 flex-1">
           {brand.logo ? (
-            <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 ring-2 ring-glass-border -mt-12 bg-bg-void">
+            <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 ring-2 ring-glass-border bg-bg-void">
               <Image
                 src={getUploadUrl(brand.logo)!}
                 alt={brand.name}
@@ -156,12 +156,16 @@ export default function BusinessProfilePage() {
               />
             </div>
           ) : (
-            <div className="w-20 h-20 rounded-xl shrink-0 bg-accent-cyan/10 border border-accent-cyan/30 flex items-center justify-center text-accent-cyan font-heading font-bold text-2xl -mt-12">
+            <div className="w-16 h-16 rounded-xl shrink-0 bg-accent-cyan/10 border border-accent-cyan/30 flex items-center justify-center text-accent-cyan font-heading font-bold text-xl">
               {brand.name.charAt(0).toUpperCase()}
             </div>
           )}
           <div>
             <h1 className="text-2xl font-heading font-bold text-text-primary">{brand.name}</h1>
+            <p className="text-xs text-text-muted mt-0.5">
+              <i className="pi pi-calendar text-[10px] mr-1" />
+              Joined {formatDate(brand.createdAt)}
+            </p>
             {brand.handle && <p className="text-text-muted">@{brand.handle}</p>}
             {brand.bio && (
               <p className="text-text-secondary mt-2 max-w-2xl">{brand.bio}</p>
@@ -214,8 +218,12 @@ export default function BusinessProfilePage() {
         </div>
       </div>
 
-      {/* Social Reach (mock Apify analytics) */}
-      <BrandSocialReachCard orgId={brand.id} socialLinks={brand.socialLinks} />
+      {/* Social Reach (real Apify analytics with mock fallback) */}
+      <BrandSocialReachCard
+        orgId={brand.id}
+        socialLinks={brand.socialLinks}
+        analytics={brand.socialAnalytics}
+      />
 
       {/* Target Interests */}
       {brand.targetInterests && brand.targetInterests.length > 0 && (

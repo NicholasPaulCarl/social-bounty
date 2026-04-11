@@ -69,7 +69,7 @@ export class AdminController {
 
   // ── Organisations ──────────────────
 
-  @Get('organisations')
+  @Get('brands')
   async listOrganisations(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -83,12 +83,12 @@ export class AdminController {
     });
   }
 
-  @Get('organisations/:id')
+  @Get('brands/:id')
   async getOrgDetail(@Param('id') id: string) {
     return this.adminService.getOrgDetail(id);
   }
 
-  @Post('organisations')
+  @Post('brands')
   async createOrganisation(
     @CurrentUser() actor: AuthenticatedUser,
     @Body() dto: AdminCreateOrgDto,
@@ -97,7 +97,7 @@ export class AdminController {
     return this.adminService.createOrganisation(actor, dto, req.ip);
   }
 
-  @Patch('organisations/:id/status')
+  @Patch('brands/:id/status')
   async updateOrgStatus(
     @Param('id') id: string,
     @CurrentUser() actor: AuthenticatedUser,

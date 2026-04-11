@@ -1,7 +1,11 @@
 'use client';
 
-import type { BrandSocialLinks } from '@social-bounty/shared';
-import { formatCount } from '@/lib/utils/format';
+import type {
+  BrandSocialAnalyticsBlob,
+  BrandSocialAnalyticsCounters,
+  BrandSocialLinks,
+} from '@social-bounty/shared';
+import { formatCount, formatRelativeTime } from '@/lib/utils/format';
 import {
   MOCK_PLATFORMS,
   getMockBrandSocialAnalytics,
@@ -11,6 +15,7 @@ import {
 interface BrandSocialReachCardProps {
   orgId: string;
   socialLinks: BrandSocialLinks | null;
+  analytics: BrandSocialAnalyticsBlob | null;
 }
 
 const PLATFORM_META: Record<MockPlatform, { label: string; icon: string; color: string; urlPrefix: string }> = {
@@ -34,18 +39,58 @@ const PLATFORM_META: Record<MockPlatform, { label: string; icon: string; color: 
   },
 };
 
-export function BrandSocialReachCard({ orgId, socialLinks }: BrandSocialReachCardProps) {
+interface TileData {
+  followers: number;
+  postCount: number;
+  avgLikes: number;
+  engagementRate: number;
+  isReal: boolean;
+  error: string | null;
+}
+
+function counterHasRealData(c: BrandSocialAnalyticsCounters | undefined): boolean {
+  if (!c) return false;
+  if (c.error && c.error !== 'not connected') return false;
+  return (
+    c.followersCount !== null ||
+    c.followingCount !== null ||
+    c.postsCount !== null ||
+    c.totalLikes !== null ||
+    c.avgLikes !== null
+  );
+}
+
+function buildTile(orgId: string, platform: MockPlatform, real: BrandSocialAnalyticsCounters | undefined): TileData {
+  const mock = getMockBrandSocialAnalytics(orgId, platform);
+  if (real && counterHasRealData(real)) {
+    return {
+      followers: real.followersCount ?? mock.followers,
+      postCount: real.postsCount ?? mock.postCount,
+      avgLikes: real.avgLikes ?? mock.avgLikes,
+      engagementRate: real.engagementRate ?? mock.engagementRate,
+      isReal: true,
+      error: null,
+    };
+  }
+  return {
+    ...mock,
+    isReal: false,
+    error: real?.error && real.error !== 'not connected' ? real.error : null,
+  };
+}
+
+export function BrandSocialReachCard({ orgId, socialLinks, analytics }: BrandSocialReachCardProps) {
   const links = socialLinks ?? {};
 
-  // Always render all three platform tiles — the card is a demo of Apify
-  // analytics, so it should appear on every brand. When a handle is not
-  // connected, the tile still shows deterministic mock numbers and hides the
-  // handle link so it's clear there's nothing real to click through to.
   const tiles = MOCK_PLATFORMS.map((platform) => ({
     platform,
     handle: (links[platform] as string | undefined) ?? null,
-    analytics: getMockBrandSocialAnalytics(orgId, platform),
+    data: buildTile(orgId, platform, analytics?.[platform]),
   }));
+
+  const footerText = analytics?.fetchedAt
+    ? `Last updated ${formatRelativeTime(analytics.fetchedAt)}`
+    : 'No data yet — will update on next login';
 
   return (
     <div className="mb-8">
@@ -53,7 +98,7 @@ export function BrandSocialReachCard({ orgId, socialLinks }: BrandSocialReachCar
         Social Reach
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {tiles.map(({ platform, handle, analytics }) => {
+        {tiles.map(({ platform, handle, data }) => {
           const meta = PLATFORM_META[platform];
           const href = handle ? `${meta.urlPrefix}${handle}` : null;
           return (
@@ -64,6 +109,17 @@ export function BrandSocialReachCard({ orgId, socialLinks }: BrandSocialReachCar
                   <span className="text-text-primary font-heading font-semibold text-sm">
                     {meta.label}
                   </span>
+                  {!data.isReal && (
+                    <span className="text-[10px] uppercase tracking-wider text-text-muted border border-glass-border rounded px-1.5 py-0.5">
+                      Sample
+                    </span>
+                  )}
+                  {data.error && (
+                    <i
+                      className="pi pi-exclamation-circle text-accent-rose text-xs"
+                      title={data.error}
+                    />
+                  )}
                 </div>
                 {href && handle ? (
                   <a
@@ -83,25 +139,25 @@ export function BrandSocialReachCard({ orgId, socialLinks }: BrandSocialReachCar
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <p className="text-xl font-heading font-bold text-accent-cyan">
-                    {formatCount(analytics.followers)}
+                    {formatCount(data.followers)}
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">Followers</p>
                 </div>
                 <div>
                   <p className="text-xl font-heading font-bold text-accent-cyan">
-                    {formatCount(analytics.postCount)}
+                    {formatCount(data.postCount)}
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">Posts</p>
                 </div>
                 <div>
                   <p className="text-xl font-heading font-bold text-accent-cyan">
-                    {formatCount(analytics.avgLikes)}
+                    {formatCount(data.avgLikes)}
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">Avg Likes</p>
                 </div>
                 <div>
                   <p className="text-xl font-heading font-bold text-accent-cyan">
-                    {analytics.engagementRate.toFixed(1)}%
+                    {data.engagementRate.toFixed(1)}%
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">Engagement</p>
                 </div>
@@ -110,9 +166,7 @@ export function BrandSocialReachCard({ orgId, socialLinks }: BrandSocialReachCar
           );
         })}
       </div>
-      <p className="text-[11px] text-text-muted italic mt-2">
-        Mock data — Apify integration pending.
-      </p>
+      <p className="text-[11px] text-text-muted italic mt-2">{footerText}</p>
     </div>
   );
 }

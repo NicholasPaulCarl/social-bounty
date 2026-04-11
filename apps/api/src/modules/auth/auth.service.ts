@@ -20,6 +20,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { TokenStoreService } from './token-store.service';
+import { ApifyService } from '../apify/apify.service';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +32,7 @@ export class AuthService {
     private config: ConfigService,
     private mailService: MailService,
     private tokenStore: TokenStoreService,
+    private apify: ApifyService,
   ) {}
 
   async requestOtp(email: string) {
@@ -140,6 +142,20 @@ export class AuthService {
       user.firstName,
       user.lastName,
     );
+
+    // Fire-and-forget: refresh brand social analytics in the background on a
+    // business-admin login. Respects its own 24h staleness guard so rapid
+    // repeat logins don't hammer Apify. Never blocks the login response.
+    if (user.role === UserRole.BUSINESS_ADMIN && organisationId) {
+      setImmediate(() => {
+        this.apify.refreshIfStale(organisationId).catch((err) => {
+          this.logger.error(
+            `Background login-triggered refresh failed for ${organisationId}`,
+            err,
+          );
+        });
+      });
+    }
 
     return {
       ...tokens,

@@ -27,7 +27,7 @@ import {
 } from './dto/organisations.validators';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
-@Controller('organisations')
+@Controller('brands')
 export class OrganisationsController {
   constructor(private organisationsService: OrganisationsService) {}
 

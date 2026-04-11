@@ -48,16 +48,16 @@ export const adminApi = {
 
   // Organisations
   listOrganisations: (params: AdminOrgListParams): Promise<PaginatedResponse<AdminOrgListItem>> =>
-    apiClient.get('/admin/organisations', params as Record<string, unknown>),
+    apiClient.get('/admin/brands', params as Record<string, unknown>),
 
   createOrganisation: (data: AdminCreateOrgRequest): Promise<AdminCreateOrgResponse> =>
-    apiClient.post('/admin/organisations', data),
+    apiClient.post('/admin/brands', data),
 
   getOrgById: (id: string): Promise<AdminOrgListItem> =>
-    apiClient.get(`/admin/organisations/${id}`),
+    apiClient.get(`/admin/brands/${id}`),
 
   updateOrgStatus: (id: string, data: AdminUpdateOrgStatusRequest): Promise<AdminUpdateOrgStatusResponse> =>
-    apiClient.patch(`/admin/organisations/${id}/status`, data),
+    apiClient.patch(`/admin/brands/${id}/status`, data),
 
   // Bounties
   listBounties: (params: BountyListParams): Promise<PaginatedResponse<BountyListItem>> =>
