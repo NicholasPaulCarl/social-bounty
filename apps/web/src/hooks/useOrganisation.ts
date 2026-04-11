@@ -44,7 +44,10 @@ export function useUpdateOrganisation(id: string) {
     mutationFn: ({ data, logo }: { data: UpdateOrganisationRequest; logo?: File | null }) =>
       organisationApi.update(id, data, logo),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.organisations.detail(id) });
+      // Invalidate the whole organisations branch so both the detail cache and
+      // the public-profile cache (keyed by id *or* handle) stay in sync — a
+      // handle change would otherwise leave one of the two entries stale.
+      queryClient.invalidateQueries({ queryKey: queryKeys.organisations.all });
     },
   });
 }

@@ -52,6 +52,13 @@ export function formatEnumLabel(value: string): string {
     .join(' ');
 }
 
+export function formatCount(n: number | null | undefined): string {
+  if (n === null || n === undefined) return '—';
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
+}
+
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;

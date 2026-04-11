@@ -9,6 +9,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { getUploadUrl } from '@/lib/api/client';
 import { formatCurrency } from '@/lib/utils/format';
+import { BrandSocialReachCard } from '@/components/features/brand-profile/BrandSocialReachCard';
 import type { BrandSocialLinks } from '@social-bounty/shared';
 
 const SOCIAL_LINK_CONFIG: { key: keyof BrandSocialLinks; icon: string; color: string; urlPrefix: string }[] = [
@@ -123,6 +124,9 @@ export default function BrandProfilePage() {
           <p className="text-sm text-text-muted mt-1">Achievement Rate</p>
         </div>
       </div>
+
+      {/* Social Reach (mock Apify analytics) */}
+      <BrandSocialReachCard orgId={brand.id} socialLinks={brand.socialLinks} />
 
       {/* Target Interests */}
       {brand.targetInterests && brand.targetInterests.length > 0 && (
