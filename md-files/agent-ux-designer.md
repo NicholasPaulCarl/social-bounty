@@ -69,13 +69,13 @@ Reference the full route inventory in [`agent-frontend.md`](./agent-frontend.md)
 
 **Auth**: login, signup, forgot-password, reset-password, verify-email
 **Participant**: /bounties, /bounties/[id], /bounties/[id]/submit, /my-submissions, /my-submissions/[id], /profile
-**Business**: /business/dashboard, /business/bounties/*, /business/organisation/*, /business/profile
-**Admin**: /admin/dashboard, /admin/users/*, /admin/organisations/*, /admin/bounties/*, /admin/audit-logs/*, /admin/troubleshooting, /admin/settings
+**Business**: /business/dashboard, /business/bounties/*, /business/brand/*, /business/profile
+**Admin**: /admin/dashboard, /admin/users/*, /admin/brands/*, /admin/bounties/*, /admin/audit-logs/*, /admin/troubleshooting, /admin/settings
 
 ## Existing Data Model
 
 Reference [`agent-architect.md`](./agent-architect.md) for the full data model:
-- **Entities**: User, Organisation, OrganisationMember, Bounty, Submission, AuditLog, FileUpload
+- **Entities**: User, Brand, BrandMember, Bounty, Submission, AuditLog, FileUpload
 - **Status flows**: Bounty (DRAFT→LIVE→PAUSED/CLOSED), Submission (SUBMITTED→IN_REVIEW→APPROVED/REJECTED)
 - **RBAC**: Participant, Business Admin, Super Admin
 

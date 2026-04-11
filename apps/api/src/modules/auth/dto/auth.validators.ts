@@ -70,7 +70,7 @@ export class SignupWithOtpDto {
 export class SwitchOrganisationDto {
   @IsUUID()
   @IsNotEmpty()
-  organisationId!: string;
+  brandId!: string;
 }
 
 export class LogoutDto {

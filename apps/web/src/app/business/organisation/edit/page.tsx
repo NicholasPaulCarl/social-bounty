@@ -7,7 +7,7 @@ import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { useAuth } from '@/hooks/useAuth';
-import { useOrganisation, useUpdateOrganisation } from '@/hooks/useOrganisation';
+import { useBrand, useUpdateBrand } from '@/hooks/useBrand';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -17,9 +17,9 @@ export default function EditBrandPage() {
   const router = useRouter();
   const toast = useToast();
   const { user } = useAuth();
-  const orgId = user?.organisationId || '';
-  const { data: org, isLoading, error, refetch } = useOrganisation(orgId);
-  const updateOrg = useUpdateOrganisation(orgId);
+  const orgId = user?.brandId || '';
+  const { data: org, isLoading, error, refetch } = useBrand(orgId);
+  const updateOrg = useUpdateBrand(orgId);
 
   const [name, setName] = useState('');
   const [contactEmail, setContactEmail] = useState('');

@@ -6,9 +6,9 @@ import { Button } from 'primereact/button';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { useAdminOrgDetail, useUpdateOrgStatus, useAdminBounties, useAdminSubmissions } from '@/hooks/useAdmin';
+import { useAdminBrandDetail, useUpdateBrandStatus, useAdminBounties, useAdminSubmissions } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
-import { OrgStatus } from '@social-bounty/shared';
+import { BrandStatus } from '@social-bounty/shared';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -18,7 +18,7 @@ import { formatDate, formatDateTime, formatCurrency } from '@/lib/utils/format';
 
 function OrgBountiesTab({ orgId }: { orgId: string }) {
   const router = useRouter();
-  const { data, isLoading } = useAdminBounties({ organisationId: orgId, limit: 20 });
+  const { data, isLoading } = useAdminBounties({ brandId: orgId, limit: 20 });
 
   if (isLoading) return <LoadingState type="table" />;
 
@@ -41,7 +41,7 @@ function OrgBountiesTab({ orgId }: { orgId: string }) {
 
 function OrgSubmissionsTab({ orgId }: { orgId: string }) {
   const router = useRouter();
-  const { data, isLoading } = useAdminSubmissions({ organisationId: orgId, limit: 20 });
+  const { data, isLoading } = useAdminSubmissions({ brandId: orgId, limit: 20 });
 
   if (isLoading) return <LoadingState type="table" />;
 
@@ -68,8 +68,8 @@ export default function AdminBrandDetailPage() {
   const toast = useToast();
   const [activeTab, setActiveTab] = useState(0);
 
-  const { data: org, isLoading, error, refetch } = useAdminOrgDetail(id);
-  const updateStatus = useUpdateOrgStatus(id);
+  const { data: org, isLoading, error, refetch } = useAdminBrandDetail(id);
+  const updateStatus = useUpdateBrandStatus(id);
 
   const [showSuspend, setShowSuspend] = useState(false);
   const [showActivate, setShowActivate] = useState(false);
@@ -78,12 +78,12 @@ export default function AdminBrandDetailPage() {
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
   if (!org) return null;
 
-  const handleStatusChange = (status: OrgStatus, reason?: string) => {
+  const handleStatusChange = (status: BrandStatus, reason?: string) => {
     updateStatus.mutate(
       { status, reason: reason || '' },
       {
         onSuccess: () => {
-          toast.showSuccess(`Brand ${status === OrgStatus.ACTIVE ? 'activated' : 'suspended'}`);
+          toast.showSuccess(`Brand ${status === BrandStatus.ACTIVE ? 'activated' : 'suspended'}`);
           setShowSuspend(false);
           setShowActivate(false);
           refetch();
@@ -180,7 +180,7 @@ export default function AdminBrandDetailPage() {
         confirmLabel="Suspend"
         confirmSeverity="danger"
         requireReason
-        onConfirm={(reason) => handleStatusChange(OrgStatus.SUSPENDED, reason)}
+        onConfirm={(reason) => handleStatusChange(BrandStatus.SUSPENDED, reason)}
         loading={updateStatus.isPending}
       />
 
@@ -192,7 +192,7 @@ export default function AdminBrandDetailPage() {
         confirmLabel="Activate"
         confirmSeverity="success"
         requireReason
-        onConfirm={(reason) => handleStatusChange(OrgStatus.ACTIVE, reason)}
+        onConfirm={(reason) => handleStatusChange(BrandStatus.ACTIVE, reason)}
         loading={updateStatus.isPending}
       />
     </>

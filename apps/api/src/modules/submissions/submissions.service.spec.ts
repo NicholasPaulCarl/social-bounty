@@ -35,21 +35,21 @@ describe('SubmissionsService', () => {
     sub: 'participant-1',
     email: 'participant@test.com',
     role: UserRole.PARTICIPANT,
-    organisationId: null,
+    brandId: null,
   };
 
   const mockBA: AuthenticatedUser = {
     sub: 'ba-1',
     email: 'ba@test.com',
     role: UserRole.BUSINESS_ADMIN,
-    organisationId: 'org-1',
+    brandId: 'org-1',
   };
 
   const mockSA: AuthenticatedUser = {
     sub: 'sa-1',
     email: 'admin@test.com',
     role: UserRole.SUPER_ADMIN,
-    organisationId: null,
+    brandId: null,
   };
 
   const liveBounty = {
@@ -57,7 +57,7 @@ describe('SubmissionsService', () => {
     status: BountyStatus.LIVE,
     maxSubmissions: 100,
     endDate: new Date('2026-12-31'),
-    organisationId: 'org-1',
+    brandId: 'org-1',
     title: 'Test Bounty',
     _count: { submissions: 5 },
   };
@@ -76,7 +76,7 @@ describe('SubmissionsService', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     user: { id: 'participant-1', email: 'participant@test.com', firstName: 'Test', lastName: 'User' },
-    bounty: { id: 'bounty-1', title: 'Test Bounty', organisationId: 'org-1', rewardValue: 100, currency: 'ZAR' },
+    bounty: { id: 'bounty-1', title: 'Test Bounty', brandId: 'org-1', rewardValue: 100, currency: 'ZAR' },
   };
 
   beforeEach(async () => {
@@ -229,7 +229,7 @@ describe('SubmissionsService', () => {
     const submittedSubmission = {
       ...baseSubmission,
       status: SubmissionStatus.SUBMITTED,
-      bounty: { organisationId: 'org-1', title: 'Test Bounty' },
+      bounty: { brandId: 'org-1', title: 'Test Bounty' },
       user: { email: 'participant@test.com', firstName: 'Test' },
     };
 
@@ -385,7 +385,7 @@ describe('SubmissionsService', () => {
     it('should throw ForbiddenException if BA not in bounty org', async () => {
       prisma.submission.findUnique.mockResolvedValue({
         ...submittedSubmission,
-        bounty: { organisationId: 'other-org', title: 'Other Bounty' },
+        bounty: { brandId: 'other-org', title: 'Other Bounty' },
       });
 
       await expect(
@@ -396,7 +396,7 @@ describe('SubmissionsService', () => {
     it('should allow SA to review any org submission', async () => {
       prisma.submission.findUnique.mockResolvedValue({
         ...submittedSubmission,
-        bounty: { organisationId: 'other-org', title: 'Other Bounty' },
+        bounty: { brandId: 'other-org', title: 'Other Bounty' },
       });
       prisma.submission.update.mockResolvedValue({
         ...baseSubmission,
@@ -461,7 +461,7 @@ describe('SubmissionsService', () => {
       ...baseSubmission,
       status: SubmissionStatus.APPROVED,
       payoutStatus: PayoutStatus.NOT_PAID,
-      bounty: { ...baseSubmission.bounty, organisationId: 'org-1' },
+      bounty: { ...baseSubmission.bounty, brandId: 'org-1' },
       payout: null,
     };
 
@@ -556,7 +556,7 @@ describe('SubmissionsService', () => {
     it('should throw ForbiddenException if BA not in bounty org', async () => {
       prisma.submission.findUnique.mockResolvedValue({
         ...approvedSubmission,
-        bounty: { ...baseSubmission.bounty, organisationId: 'other-org' },
+        bounty: { ...baseSubmission.bounty, brandId: 'other-org' },
       });
 
       await expect(
@@ -580,7 +580,7 @@ describe('SubmissionsService', () => {
         ...nmiSubmission,
         status: SubmissionStatus.SUBMITTED,
         proofText: 'Updated proof',
-        bounty: { id: 'bounty-1', title: 'Test', rewardType: 'CASH', rewardValue: 25, organisationId: 'org-1' },
+        bounty: { id: 'bounty-1', title: 'Test', rewardType: 'CASH', rewardValue: 25, brandId: 'org-1' },
         user: { id: 'participant-1', firstName: 'P', lastName: 'User', email: 'p@test.com' },
         reviewedBy: null,
         proofImages: [],
@@ -642,7 +642,7 @@ describe('SubmissionsService', () => {
         title: 'Test',
         rewardType: 'CASH',
         rewardValue: 25,
-        organisationId: 'org-1',
+        brandId: 'org-1',
       },
       user: { id: 'participant-1', firstName: 'P', lastName: 'U', email: 'p@test.com' },
       reviewedBy: null,
@@ -677,7 +677,7 @@ describe('SubmissionsService', () => {
     it('should throw ForbiddenException if BA views other org submission', async () => {
       prisma.submission.findUnique.mockResolvedValue({
         ...fullSubmission,
-        bounty: { ...fullSubmission.bounty, organisationId: 'other-org' },
+        bounty: { ...fullSubmission.bounty, brandId: 'other-org' },
       });
 
       await expect(service.findById('sub-1', mockBA)).rejects.toThrow(
@@ -688,7 +688,7 @@ describe('SubmissionsService', () => {
     it('should allow SA to view any submission', async () => {
       prisma.submission.findUnique.mockResolvedValue({
         ...fullSubmission,
-        bounty: { ...fullSubmission.bounty, organisationId: 'other-org' },
+        bounty: { ...fullSubmission.bounty, brandId: 'other-org' },
       });
 
       const result = await service.findById('sub-1', mockSA);

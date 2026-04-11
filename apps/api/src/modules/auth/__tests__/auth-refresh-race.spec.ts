@@ -67,7 +67,7 @@ describe('AuthService — Refresh Token Race Condition', () => {
           status: UserStatus.ACTIVE,
           firstName: 'Test',
           lastName: 'User',
-          organisationMemberships: [],
+          brandMemberships: [],
         }),
         create: jest.fn(),
         update: jest.fn(),
@@ -184,7 +184,7 @@ describe('AuthService — Refresh Token Race Condition', () => {
         email: 'test@test.com',
         role: UserRole.PARTICIPANT,
         status: UserStatus.SUSPENDED,
-        organisationMemberships: [],
+        brandMemberships: [],
       });
 
       await expect(service.refresh(REFRESH_TOKEN)).rejects.toThrow(UnauthorizedException);

@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { OrganisationsService } from './organisations.service';
+import { BrandsService } from './organisations.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { UserRole } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
-describe('OrganisationsService', () => {
-  let service: OrganisationsService;
+describe('BrandsService', () => {
+  let service: BrandsService;
   let prisma: any;
   let auditService: { log: jest.Mock };
 
@@ -15,21 +15,21 @@ describe('OrganisationsService', () => {
     sub: 'user-1',
     email: 'user@test.com',
     role: UserRole.PARTICIPANT,
-    organisationId: null,
+    brandId: null,
   };
 
   const mockOwner: AuthenticatedUser = {
     sub: 'owner-1',
     email: 'owner@test.com',
     role: UserRole.BUSINESS_ADMIN,
-    organisationId: 'org-1',
+    brandId: 'org-1',
   };
 
   const mockSA: AuthenticatedUser = {
     sub: 'sa-1',
     email: 'admin@test.com',
     role: UserRole.SUPER_ADMIN,
-    organisationId: null,
+    brandId: null,
   };
 
   const baseOrg = {
@@ -45,7 +45,7 @@ describe('OrganisationsService', () => {
 
   beforeEach(async () => {
     prisma = {
-      organisation: {
+      brand: {
         create: jest.fn(),
         findUnique: jest.fn(),
         update: jest.fn(),
@@ -66,22 +66,22 @@ describe('OrganisationsService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        OrganisationsService,
+        BrandsService,
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: auditService },
       ],
     }).compile();
 
-    service = module.get<OrganisationsService>(OrganisationsService);
+    service = module.get<BrandsService>(BrandsService);
   });
 
   // ── create ───────────────────────────────────────────────
 
   describe('create', () => {
     it('should create an organisation and run within a transaction', async () => {
-      prisma.organisationMember.findFirst.mockResolvedValue(null);
-      prisma.organisation.create.mockResolvedValue(baseOrg);
-      prisma.organisationMember.create.mockResolvedValue({});
+      prisma.brandMember.findFirst.mockResolvedValue(null);
+      prisma.brand.create.mockResolvedValue(baseOrg);
+      prisma.brandMember.create.mockResolvedValue({});
       prisma.user.update.mockResolvedValue({});
 
       const result = await service.create(
@@ -98,7 +98,7 @@ describe('OrganisationsService', () => {
     });
 
     it('should throw ConflictException if user already belongs to an org', async () => {
-      prisma.organisationMember.findFirst.mockResolvedValue({ id: 'mem-1' });
+      prisma.brandMember.findFirst.mockResolvedValue({ id: 'mem-1' });
 
       await expect(
         service.create(mockParticipant, { name: 'New Org', contactEmail: 'new@org.com' }),
@@ -110,7 +110,7 @@ describe('OrganisationsService', () => {
 
   describe('findById', () => {
     it('should return org detail for member of that org', async () => {
-      prisma.organisation.findUnique.mockResolvedValue(baseOrg);
+      prisma.brand.findUnique.mockResolvedValue(baseOrg);
 
       const result = await service.findById('org-1', mockOwner);
 
@@ -119,7 +119,7 @@ describe('OrganisationsService', () => {
     });
 
     it('should throw NotFoundException when org does not exist', async () => {
-      prisma.organisation.findUnique.mockResolvedValue(null);
+      prisma.brand.findUnique.mockResolvedValue(null);
 
       await expect(
         service.findById('missing-org', mockOwner),
@@ -127,13 +127,13 @@ describe('OrganisationsService', () => {
     });
 
     it('should throw ForbiddenException when user is not in the org and not SA', async () => {
-      prisma.organisation.findUnique.mockResolvedValue(baseOrg);
+      prisma.brand.findUnique.mockResolvedValue(baseOrg);
 
       const outsider: AuthenticatedUser = {
         sub: 'other-1',
         email: 'other@test.com',
         role: UserRole.BUSINESS_ADMIN,
-        organisationId: 'other-org',
+        brandId: 'other-org',
       };
 
       await expect(
@@ -142,7 +142,7 @@ describe('OrganisationsService', () => {
     });
 
     it('should allow SUPER_ADMIN to view any org', async () => {
-      prisma.organisation.findUnique.mockResolvedValue(baseOrg);
+      prisma.brand.findUnique.mockResolvedValue(baseOrg);
 
       const result = await service.findById('org-1', mockSA);
 
@@ -154,12 +154,12 @@ describe('OrganisationsService', () => {
 
   describe('update', () => {
     it('should update org when caller is the owner', async () => {
-      prisma.organisation.findUnique.mockResolvedValue(baseOrg);
-      prisma.organisationMember.findFirst.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue(baseOrg);
+      prisma.brandMember.findFirst.mockResolvedValue({
         id: 'mem-1',
         role: 'OWNER',
       });
-      prisma.organisation.update.mockResolvedValue({
+      prisma.brand.update.mockResolvedValue({
         ...baseOrg,
         name: 'Acme Updated',
         updatedAt: new Date('2025-06-01'),
@@ -176,14 +176,14 @@ describe('OrganisationsService', () => {
     });
 
     it('should throw ForbiddenException when caller is not the owner', async () => {
-      prisma.organisation.findUnique.mockResolvedValue(baseOrg);
-      prisma.organisationMember.findFirst.mockResolvedValue(null);
+      prisma.brand.findUnique.mockResolvedValue(baseOrg);
+      prisma.brandMember.findFirst.mockResolvedValue(null);
 
       const nonOwner: AuthenticatedUser = {
         sub: 'member-1',
         email: 'member@test.com',
         role: UserRole.BUSINESS_ADMIN,
-        organisationId: 'org-1',
+        brandId: 'org-1',
       };
 
       await expect(
@@ -192,8 +192,8 @@ describe('OrganisationsService', () => {
     });
 
     it('should allow SUPER_ADMIN to update without ownership check', async () => {
-      prisma.organisation.findUnique.mockResolvedValue(baseOrg);
-      prisma.organisation.update.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue(baseOrg);
+      prisma.brand.update.mockResolvedValue({
         ...baseOrg,
         name: 'SA Updated',
         updatedAt: new Date('2025-06-01'),
@@ -205,11 +205,11 @@ describe('OrganisationsService', () => {
 
       expect(result.name).toBe('SA Updated');
       // Should NOT have checked membership for SA
-      expect(prisma.organisationMember.findFirst).not.toHaveBeenCalled();
+      expect(prisma.brandMember.findFirst).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when org does not exist', async () => {
-      prisma.organisation.findUnique.mockResolvedValue(null);
+      prisma.brand.findUnique.mockResolvedValue(null);
 
       await expect(
         service.update('missing-org', mockOwner, { name: 'X' }),

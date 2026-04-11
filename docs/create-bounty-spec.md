@@ -368,7 +368,7 @@ Creates a new bounty with structured data. Bounty is created in `DRAFT` status.
   "eligibilityRules": "Min 500 followers. Public profile required. Account age: 90+ days. Location: South Africa. Must be 18 years or older.",
   "proofRequirements": "Submit the URL to your Instagram post. Post must be public.",
   "status": "DRAFT",
-  "organisationId": "org-uuid-1",
+  "brandId": "org-uuid-1",
   "createdById": "user-uuid-1",
   "createdAt": "2026-02-07T10:00:00.000Z",
   "updatedAt": "2026-02-07T10:00:00.000Z",

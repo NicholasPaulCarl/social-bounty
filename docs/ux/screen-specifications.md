@@ -34,15 +34,15 @@
   - [4.5 Edit Bounty](#45-edit-bounty)
   - [4.6 Submission Review List](#46-submission-review-list)
   - [4.7 Submission Review Detail](#47-submission-review-detail)
-  - [4.8 View Organisation](#48-view-organisation)
-  - [4.9 Edit Organisation](#49-edit-organisation)
-  - [4.10 Manage Organisation Members](#410-manage-organisation-members)
+  - [4.8 View Brand](#48-view-brand)
+  - [4.9 Edit Brand](#49-edit-brand)
+  - [4.10 Manage Brand Members](#410-manage-brand-members)
 - [5. Super Admin Screens](#5-super-admin-screens)
   - [5.1 Super Admin Dashboard](#51-super-admin-dashboard)
   - [5.2 User Management List](#52-user-management-list)
   - [5.3 User Detail](#53-user-detail)
-  - [5.4 Organisation Management List](#54-organisation-management-list)
-  - [5.5 Organisation Detail (Admin)](#55-organisation-detail-admin)
+  - [5.4 Brand Management List](#54-brand-management-list)
+  - [5.5 Brand Detail (Admin)](#55-brand-detail-admin)
   - [5.6 Bounty Oversight List](#56-bounty-oversight-list)
   - [5.7 Bounty Detail (Admin)](#57-bounty-detail-admin)
   - [5.8 Submission Oversight List](#58-submission-oversight-list)
@@ -333,7 +333,7 @@ Each screen specification follows this structure:
 - Short description (truncated to 2 lines)
 - Category badge
 - Reward: type icon + value (e.g., "$50 Cash") or description (e.g., "Gift Card")
-- Organisation name
+- Brand name
 - Time remaining (if endDate is set and approaching)
 
 **Filter Bar:**
@@ -388,7 +388,7 @@ Each screen specification follows this structure:
 **Key Information Displayed:**
 - Title
 - Status badge (Live / Paused / Closed)
-- Organisation name and logo
+- Brand name and logo
 - Full instructions (rich text)
 - Category badge
 - Reward type + value or description
@@ -748,12 +748,12 @@ Each screen specification follows this structure:
 | Field | Value |
 |-------|-------|
 | **Route** | `/dashboard` |
-| **Purpose** | Overview of bounty and submission activity for the Business Admin's organisation |
+| **Purpose** | Overview of bounty and submission activity for the Business Admin's brand |
 | **Roles** | BUSINESS_ADMIN (default landing page after login) |
 | **Entry Points** | Login redirect, sidebar "Dashboard" link |
 
 **Layout:**
-- Page header: "Dashboard" with organisation name
+- Page header: "Dashboard" with brand name
 - Summary cards row (4 cards)
 - Quick actions section
 
@@ -777,8 +777,8 @@ Each screen specification follows this structure:
 - Quick action buttons
 
 **Empty State:**
-- No organisation set up yet: "Welcome! Create your organisation to get started." + "Create Organisation" button -> `/organisation` (org creation flow)
-- Organisation exists but no bounties: cards show all zeros, "Create your first bounty" prompt
+- No brand set up yet: "Welcome! Create your brand to get started." + "Create Brand" button -> `/brand` (org creation flow)
+- Brand exists but no bounties: cards show all zeros, "Create your first bounty" prompt
 
 **Error States:**
 - API error: toast + retry
@@ -796,7 +796,7 @@ Each screen specification follows this structure:
 | Field | Value |
 |-------|-------|
 | **Route** | `/manage/bounties` |
-| **Purpose** | View and manage all bounties for the Business Admin's organisation |
+| **Purpose** | View and manage all bounties for the Business Admin's brand |
 | **Roles** | BUSINESS_ADMIN |
 | **Entry Points** | Sidebar "Bounties" link, dashboard card click, dashboard quick action |
 
@@ -909,7 +909,7 @@ Each screen specification follows this structure:
 |-------|-------|
 | **Route** | `/manage/bounties/:id` |
 | **Purpose** | View bounty details and perform management actions (status transitions) |
-| **Roles** | BUSINESS_ADMIN (own organisation's bounties only) |
+| **Roles** | BUSINESS_ADMIN (own brand's bounties only) |
 | **Entry Points** | Click row from Bounty Management List, redirect after creating/editing |
 
 **Layout:**
@@ -968,7 +968,7 @@ Each screen specification follows this structure:
 |-------|-------|
 | **Route** | `/manage/bounties/:id/edit` |
 | **Purpose** | Edit bounty details (field editability depends on bounty status) |
-| **Roles** | BUSINESS_ADMIN (own organisation's bounties only) |
+| **Roles** | BUSINESS_ADMIN (own brand's bounties only) |
 | **Entry Points** | "Edit" button from Bounty Management Detail |
 
 **Layout:**
@@ -1023,7 +1023,7 @@ Each screen specification follows this structure:
 |-------|-------|
 | **Route** | `/manage/bounties/:id/submissions` |
 | **Purpose** | View all submissions for a specific bounty for review |
-| **Roles** | BUSINESS_ADMIN (own organisation's bounties only) |
+| **Roles** | BUSINESS_ADMIN (own brand's bounties only) |
 | **Entry Points** | "View Submissions" from Bounty Management Detail, dashboard quick action |
 
 **Layout:**
@@ -1076,7 +1076,7 @@ Each screen specification follows this structure:
 |-------|-------|
 | **Route** | `/manage/submissions/:id` |
 | **Purpose** | Review a single submission: view proof and take review actions |
-| **Roles** | BUSINESS_ADMIN (own organisation's bounties only) |
+| **Roles** | BUSINESS_ADMIN (own brand's bounties only) |
 | **Entry Points** | Click submission from Submission Review List |
 
 **Layout:**
@@ -1158,22 +1158,22 @@ Each screen specification follows this structure:
 
 ---
 
-### 4.8 View Organisation
+### 4.8 View Brand
 
 | Field | Value |
 |-------|-------|
-| **Route** | `/organisation` |
-| **Purpose** | View the Business Admin's organisation details |
+| **Route** | `/brand` |
+| **Purpose** | View the Business Admin's brand details |
 | **Roles** | BUSINESS_ADMIN |
-| **Entry Points** | Sidebar "Organisation" link |
+| **Entry Points** | Sidebar "Brand" link |
 
 **Layout:**
-- Page header: "My Organisation"
-- Organisation details card
+- Page header: "My Brand"
+- Brand details card
 - Members section
 
 **Key Information Displayed:**
-- Organisation name
+- Brand name
 - Logo (or placeholder icon if none)
 - Contact email
 - Status badge (Active/Suspended)
@@ -1181,17 +1181,17 @@ Each screen specification follows this structure:
 - Member list (name, role badge: Owner/Member, joined date)
 
 **Primary Actions:**
-- "Edit Organisation" button -> `/organisation/edit` (owner only)
-- "Manage Members" button -> `/organisation/members` (owner only)
+- "Edit Brand" button -> `/brand/edit` (owner only)
+- "Manage Members" button -> `/brand/members` (owner only)
 
 **Secondary Actions:** None
 
 **Conditional Elements:**
-- Edit/Manage buttons only visible to organisation OWNER, not regular MEMBER
-- Suspended org: warning banner "Your organisation has been suspended by a platform administrator."
+- Edit/Manage buttons only visible to brand OWNER, not regular MEMBER
+- Suspended org: warning banner "Your brand has been suspended by a platform administrator."
 
 **Empty State:**
-- No organisation: "You haven't set up an organisation yet." + "Create Organisation" button
+- No brand: "You haven't set up an brand yet." + "Create Brand" button
 
 **Error States:**
 - API error: toast + retry
@@ -1203,24 +1203,24 @@ Each screen specification follows this structure:
 
 ---
 
-### 4.9 Edit Organisation
+### 4.9 Edit Brand
 
 | Field | Value |
 |-------|-------|
-| **Route** | `/organisation/edit` |
-| **Purpose** | Update organisation details |
-| **Roles** | BUSINESS_ADMIN (OWNER role within organisation only) |
-| **Entry Points** | "Edit Organisation" button from View Organisation |
+| **Route** | `/brand/edit` |
+| **Purpose** | Update brand details |
+| **Roles** | BUSINESS_ADMIN (OWNER role within brand only) |
+| **Entry Points** | "Edit Brand" button from View Brand |
 
 **Layout:**
-- Page header: "Edit Organisation"
+- Page header: "Edit Brand"
 - Edit form
 
 **Form Fields:**
 
 | Field | Component | Type | Required | Validation |
 |-------|-----------|------|----------|------------|
-| Organisation Name | InputText | text | Yes | Non-empty, max 200 chars |
+| Brand Name | InputText | text | Yes | Non-empty, max 200 chars |
 | Contact Email | InputText | email | Yes | Valid email format |
 | Logo | FileUpload (single image) | file | No | Images only (JPEG/PNG/GIF/WebP), max 2MB |
 
@@ -1228,32 +1228,32 @@ Each screen specification follows this structure:
 - "Save Changes" button
 
 **Secondary Actions:**
-- "Cancel" -> `/organisation`
+- "Cancel" -> `/brand`
 
 **Error States:**
 - Validation errors: inline per field
-- Permission denied (not owner): redirect to `/organisation` with toast
+- Permission denied (not owner): redirect to `/brand` with toast
 
 **Loading State:**
 - Skeleton form while loading existing data
 - Save button shows spinner
 
 **Success State:**
-- Toast: "Organisation updated"
-- Redirect to `/organisation`
+- Toast: "Brand updated"
+- Redirect to `/brand`
 
 **PrimeReact Components:** InputText, FileUpload, Button, Message
 
 ---
 
-### 4.10 Manage Organisation Members
+### 4.10 Manage Brand Members
 
 | Field | Value |
 |-------|-------|
-| **Route** | `/organisation/members` |
+| **Route** | `/brand/members` |
 | **Purpose** | Invite new members and manage existing members |
-| **Roles** | BUSINESS_ADMIN (OWNER role within organisation only) |
-| **Entry Points** | "Manage Members" button from View Organisation |
+| **Roles** | BUSINESS_ADMIN (OWNER role within brand only) |
+| **Entry Points** | "Manage Members" button from View Brand |
 
 **Layout:**
 - Page header: "Manage Members"
@@ -1282,7 +1282,7 @@ Each screen specification follows this structure:
 - "Remove" button per member (with confirmation dialog)
 
 **Confirmation Dialog (Remove Member):**
-- "Remove this member from the organisation? They will lose Business Admin privileges."
+- "Remove this member from the brand? They will lose Business Admin privileges."
 - [Remove (danger)] [Cancel]
 
 **Empty State:**
@@ -1290,7 +1290,7 @@ Each screen specification follows this structure:
 
 **Error States:**
 - User not found: toast "No user found with this email"
-- User already a member: toast "This user is already a member of your organisation"
+- User already a member: toast "This user is already a member of your brand"
 - Cannot remove self (owner): button disabled for own row
 - API error: toast
 
@@ -1309,7 +1309,7 @@ Each screen specification follows this structure:
 | Field | Value |
 |-------|-------|
 | **Route** | `/admin/dashboard` |
-| **Purpose** | Platform-wide overview of users, organisations, bounties, and submissions |
+| **Purpose** | Platform-wide overview of users, brands, bounties, and submissions |
 | **Roles** | SUPER_ADMIN (default landing page after login) |
 | **Entry Points** | Login redirect, sidebar "Dashboard" link |
 
@@ -1323,7 +1323,7 @@ Each screen specification follows this structure:
 | Card | Content |
 |------|---------|
 | Users | Total count + breakdown by role (Participant: X, Business Admin: X, Super Admin: X) |
-| Organisations | Total count + breakdown (Active: X, Suspended: X) |
+| Brands | Total count + breakdown (Active: X, Suspended: X) |
 | Bounties | Total count + breakdown by status |
 | Submissions | Total count + breakdown by status |
 | Payouts | Breakdown (Not Paid: X, Pending: X, Paid: X) |
@@ -1416,7 +1416,7 @@ Each screen specification follows this structure:
 **Layout:**
 - Breadcrumb: Users > [User Name]
 - User details card
-- Organisation membership section (if Business Admin)
+- Brand membership section (if Business Admin)
 - Submission summary section
 - Admin actions bar
 
@@ -1427,7 +1427,7 @@ Each screen specification follows this structure:
 - Status badge (prominent)
 - Email verification status
 - Account creation date
-- Organisation name + link (if Business Admin)
+- Brand name + link (if Business Admin)
 - Submission count summary (by status): Submitted: X, Approved: X, Rejected: X, etc.
 
 **Admin Actions (based on user status):**
@@ -1450,7 +1450,7 @@ Each screen specification follows this structure:
 
 **Secondary Actions:**
 - Force password reset
-- Navigate to user's organisation (if applicable)
+- Navigate to user's brand (if applicable)
 
 **Error States:**
 - User not found: redirect to `/admin/users` with toast
@@ -1463,17 +1463,17 @@ Each screen specification follows this structure:
 
 ---
 
-### 5.4 Organisation Management List
+### 5.4 Brand Management List
 
 | Field | Value |
 |-------|-------|
-| **Route** | `/admin/organisations` |
-| **Purpose** | View and manage all platform organisations |
+| **Route** | `/admin/brands` |
+| **Purpose** | View and manage all platform brands |
 | **Roles** | SUPER_ADMIN |
-| **Entry Points** | Sidebar "Organisations" link, dashboard card click |
+| **Entry Points** | Sidebar "Brands" link, dashboard card click |
 
 **Layout:**
-- Page header: "Organisation Management"
+- Page header: "Brand Management"
 - Search bar + filters
 - DataTable
 - Pagination
@@ -1494,12 +1494,12 @@ Each screen specification follows this structure:
 | Status | Dropdown | All, Active, Suspended |
 
 **Primary Actions:**
-- Click row -> `/admin/organisations/:id`
+- Click row -> `/admin/brands/:id`
 
 **Pagination:** Server-side, 20 per page
 
 **Empty State:**
-- "No organisations match your search criteria."
+- "No brands match your search criteria."
 
 **Error States:**
 - API error: toast + retry
@@ -1511,24 +1511,24 @@ Each screen specification follows this structure:
 
 ---
 
-### 5.5 Organisation Detail (Admin)
+### 5.5 Brand Detail (Admin)
 
 | Field | Value |
 |-------|-------|
-| **Route** | `/admin/organisations/:id` |
-| **Purpose** | View organisation details and perform admin actions (suspend/reinstate) |
+| **Route** | `/admin/brands/:id` |
+| **Purpose** | View brand details and perform admin actions (suspend/reinstate) |
 | **Roles** | SUPER_ADMIN |
-| **Entry Points** | Click row from Organisation Management List, link from User Detail |
+| **Entry Points** | Click row from Brand Management List, link from User Detail |
 
 **Layout:**
-- Breadcrumb: Organisations > [Org Name]
-- Organisation details card (name, logo, contact email, status, created date)
+- Breadcrumb: Brands > [Org Name]
+- Brand details card (name, logo, contact email, status, created date)
 - Members list (name, role, joined date)
 - Bounty summary (count by status)
 - Admin actions bar
 
 **Key Information Displayed:**
-- Organisation name, logo, contact email
+- Brand name, logo, contact email
 - Status badge (prominent)
 - Creation date
 - Member list with roles
@@ -1538,13 +1538,13 @@ Each screen specification follows this structure:
 
 | Org Status | Available Actions |
 |------------|-------------------|
-| ACTIVE | "Suspend Organisation" (danger) |
-| SUSPENDED | "Reinstate Organisation" (success) |
+| ACTIVE | "Suspend Brand" (danger) |
+| SUSPENDED | "Reinstate Brand" (success) |
 
 **Confirmation Dialogs:**
 
-- **Suspend**: "Suspend this organisation? All its live bounties will be paused automatically." + Reason field (required). [Suspend (danger)] [Cancel]
-- **Reinstate**: "Reinstate this organisation?" + Reason field (required). [Reinstate (success)] [Cancel]
+- **Suspend**: "Suspend this brand? All its live bounties will be paused automatically." + Reason field (required). [Suspend (danger)] [Cancel]
+- **Reinstate**: "Reinstate this brand?" + Reason field (required). [Reinstate (success)] [Cancel]
 
 **Error States:**
 - Org not found: redirect with toast
@@ -1573,7 +1573,7 @@ Each screen specification follows this structure:
 
 **Key Information Displayed (per row):**
 - Title
-- Organisation name
+- Brand name
 - Status badge
 - Submission count
 - Created date
@@ -1584,7 +1584,7 @@ Each screen specification follows this structure:
 |---------|-----------|----------|
 | Search | InputText | Keyword in title |
 | Status | Dropdown | All, Draft, Live, Paused, Closed |
-| Organisation | Dropdown | All orgs (populated dynamically) |
+| Brand | Dropdown | All orgs (populated dynamically) |
 
 **Primary Actions:**
 - Click row -> `/admin/bounties/:id`
@@ -1617,13 +1617,13 @@ Each screen specification follows this structure:
 - Breadcrumb: Bounties > [Bounty Title]
 - Full bounty details (same fields as business admin view)
 - Status badge (prominent)
-- Organisation info (linked)
+- Brand info (linked)
 - Submission count summary
 - Override action bar
 
 **Key Information Displayed:**
 - All bounty fields
-- Organisation name and link -> `/admin/organisations/:id`
+- Brand name and link -> `/admin/brands/:id`
 - Created by user name and link -> `/admin/users/:id`
 - Status, submission counts
 
@@ -1814,7 +1814,7 @@ Each screen specification follows this structure:
 - Actor name + email
 - Role badge
 - Action (human-readable label, e.g., "Approved Submission", "Suspended User")
-- Entity type (User / Organisation / Bounty / Submission / Setting)
+- Entity type (User / Brand / Bounty / Submission / Setting)
 - Entity ID (truncated UUID, linked to entity if applicable)
 - Change summary (one-line description)
 
@@ -1824,7 +1824,7 @@ Each screen specification follows this structure:
 |---------|-----------|----------|
 | Actor | InputText (with autocomplete) | Search by actor name or email |
 | Action Type | Dropdown | CREATE, UPDATE, DELETE, STATUS_CHANGE, OVERRIDE, LOGIN, PASSWORD_RESET, etc. |
-| Entity Type | Dropdown | User, Organisation, Bounty, Submission, Setting |
+| Entity Type | Dropdown | User, Brand, Bounty, Submission, Setting |
 | Date Range Start | Calendar | Filter from date |
 | Date Range End | Calendar | Filter to date |
 

@@ -6,8 +6,8 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { useAuth } from '@/hooks/useAuth';
-import { useCreateOrganisation } from '@/hooks/useOrganisation';
-import { organisationApi } from '@/lib/api/organisations';
+import { useCreateBrand } from '@/hooks/useBrand';
+import { brandsApi } from '@/lib/api/brands';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { HUNTER_INTERESTS, BRAND_PROFILE_LIMITS } from '@social-bounty/shared';
@@ -15,9 +15,9 @@ import type { BrandSocialLinks } from '@social-bounty/shared';
 
 export default function CreateBrandPage() {
   const router = useRouter();
-  const { switchOrganisation } = useAuth();
+  const { switchBrand } = useAuth();
   const toast = useToast();
-  const createOrg = useCreateOrganisation();
+  const createOrg = useCreateBrand();
 
   const [form, setForm] = useState({
     name: '',
@@ -41,7 +41,7 @@ export default function CreateBrandPage() {
     setHandleStatus('checking');
     const timer = setTimeout(async () => {
       try {
-        const result = await organisationApi.checkHandle(form.handle);
+        const result = await brandsApi.checkHandle(form.handle);
         setHandleStatus(result.available ? 'available' : 'taken');
       } catch {
         setHandleStatus('idle');
@@ -115,7 +115,7 @@ export default function CreateBrandPage() {
       {
         onSuccess: async (org) => {
           try {
-            await switchOrganisation(org.id);
+            await switchBrand(org.id);
           } catch {
             // Non-blocking — user can switch manually
           }

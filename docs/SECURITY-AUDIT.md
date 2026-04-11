@@ -96,7 +96,7 @@ const BCRYPT_ROUNDS = 12;
 - `sub` (user ID) — present
 - `email` — present
 - `role` — present (used for RBAC)
-- `organisationId` — present
+- `brandId` — present
 - `type: 'access'` — present; enforced in `JwtStrategy.validate()`
 
 **Refresh token payload:**

@@ -155,10 +155,10 @@ export default function AdminUserDetailPage() {
               <div className="glass-card p-6">
                 <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Activity</h3>
                 <dl className="space-y-3">
-                  {user.organisation && (
+                  {user.brand && (
                     <div>
                       <dt className="text-sm text-text-muted">Brand</dt>
-                      <dd className="text-sm font-medium text-primary-600">{user.organisation.name}</dd>
+                      <dd className="text-sm font-medium text-primary-600">{user.brand.name}</dd>
                     </div>
                   )}
                   <div>

@@ -7,7 +7,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { useAuth } from '@/hooks/useAuth';
-import { useOrganisationMembers, useInviteMember, useRemoveMember } from '@/hooks/useOrganisation';
+import { useBrandMembers, useInviteMember, useRemoveMember } from '@/hooks/useBrand';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -16,14 +16,14 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate } from '@/lib/utils/format';
-import type { OrgMemberResponse } from '@social-bounty/shared';
+import type { BrandMemberResponse } from '@social-bounty/shared';
 
 export default function BrandMembersPage() {
   const toast = useToast();
   const { user } = useAuth();
-  const orgId = user?.organisationId || '';
+  const orgId = user?.brandId || '';
 
-  const { data, isLoading, error, refetch } = useOrganisationMembers(orgId);
+  const { data, isLoading, error, refetch } = useBrandMembers(orgId);
   const inviteMember = useInviteMember(orgId);
   const removeMember = useRemoveMember(orgId);
 
@@ -62,15 +62,15 @@ export default function BrandMembersPage() {
     });
   };
 
-  const roleTemplate = (rowData: OrgMemberResponse) => (
+  const roleTemplate = (rowData: BrandMemberResponse) => (
     <StatusBadge type="orgMemberRole" value={rowData.role} />
   );
 
-  const dateTemplate = (rowData: OrgMemberResponse) => (
+  const dateTemplate = (rowData: BrandMemberResponse) => (
     <span>{formatDate(rowData.joinedAt)}</span>
   );
 
-  const actionsTemplate = (rowData: OrgMemberResponse) => {
+  const actionsTemplate = (rowData: BrandMemberResponse) => {
     if (rowData.role === 'OWNER') return null;
     return (
       <Button
@@ -104,8 +104,8 @@ export default function BrandMembersPage() {
       {members.length > 0 ? (
         <div className="glass-card p-6">
           <DataTable value={members} stripedRows>
-            <Column header="Name" body={(rowData: OrgMemberResponse) => `${rowData.user.firstName} ${rowData.user.lastName}`} />
-            <Column header="Email" body={(rowData: OrgMemberResponse) => rowData.user.email} />
+            <Column header="Name" body={(rowData: BrandMemberResponse) => `${rowData.user.firstName} ${rowData.user.lastName}`} />
+            <Column header="Email" body={(rowData: BrandMemberResponse) => rowData.user.email} />
             <Column header="Role" body={roleTemplate} />
             <Column header="Joined" body={dateTemplate} />
             <Column header="Actions" body={actionsTemplate} style={{ width: '6rem' }} />

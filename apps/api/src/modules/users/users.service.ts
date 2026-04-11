@@ -23,9 +23,9 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
-        organisationMemberships: {
+        brandMemberships: {
           include: {
-            organisation: {
+            brand: {
               select: { id: true, name: true },
             },
           },
@@ -39,7 +39,7 @@ export class UsersService {
       throw new BadRequestException('User not found');
     }
 
-    const membership = user.organisationMemberships[0] || null;
+    const membership = user.brandMemberships[0] || null;
 
     return {
       id: user.id,
@@ -64,8 +64,8 @@ export class UsersService {
       })),
       organisation: membership
         ? {
-            id: membership.organisation.id,
-            name: membership.organisation.name,
+            id: membership.brand.id,
+            name: membership.brand.name,
             role: membership.role,
           }
         : null,

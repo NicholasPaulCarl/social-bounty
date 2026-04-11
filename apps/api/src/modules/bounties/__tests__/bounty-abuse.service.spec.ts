@@ -168,7 +168,7 @@ describe('BountiesService - Abuse Prevention', () => {
       const data = {
         ...validCreateBountyData(),
         status: BountyStatus.LIVE, // should be ignored
-        organisationId: 'hacker-org', // should be ignored
+        brandId: 'hacker-org', // should be ignored
         createdById: 'hacker-id', // should be ignored
       };
       prisma.bounty.create.mockResolvedValue(baseBountyRecord());
@@ -185,7 +185,7 @@ describe('BountiesService - Abuse Prevention', () => {
       // Verify org comes from user, not request
       expect(prisma.bounty.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ organisationId: mockBA.organisationId }),
+          data: expect.objectContaining({ brandId: mockBA.brandId }),
         }),
       );
     });
@@ -198,7 +198,7 @@ describe('BountiesService - Abuse Prevention', () => {
       const data = validCreateBountyData();
 
       // The controller-level @Roles check prevents this,
-      // but service-level check for organisationId also catches it
+      // but service-level check for brandId also catches it
       await expect(service.create(mockParticipant, data)).rejects.toThrow(
         BadRequestException,
       );
@@ -206,7 +206,7 @@ describe('BountiesService - Abuse Prevention', () => {
 
     it('AP-18: BA should not access another org bounty for update', async () => {
       prisma.bounty.findUnique.mockResolvedValue(
-        baseBountyRecord({ organisationId: 'org-1', status: BountyStatus.DRAFT }),
+        baseBountyRecord({ brandId: 'org-1', status: BountyStatus.DRAFT }),
       );
 
       await expect(
@@ -216,7 +216,7 @@ describe('BountiesService - Abuse Prevention', () => {
 
     it('AP-18: BA should not access another org bounty for delete', async () => {
       prisma.bounty.findUnique.mockResolvedValue(
-        baseBountyRecord({ organisationId: 'org-1', status: BountyStatus.DRAFT }),
+        baseBountyRecord({ brandId: 'org-1', status: BountyStatus.DRAFT }),
       );
 
       await expect(
@@ -227,14 +227,14 @@ describe('BountiesService - Abuse Prevention', () => {
     it('SA should be able to update any org bounty', async () => {
       prisma.bounty.findUnique.mockResolvedValue(
         baseBountyRecord({
-          organisationId: 'any-org',
+          brandId: 'any-org',
           status: BountyStatus.DRAFT,
         }),
       );
       prisma.bounty.update.mockResolvedValue(
         baseBountyRecord({
           title: 'SA Updated',
-          organisation: { id: 'any-org', name: 'Any', logo: null },
+          brand: { id: 'any-org', name: 'Any', logo: null },
           createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
           _count: { submissions: 0 },
         }),
@@ -248,7 +248,7 @@ describe('BountiesService - Abuse Prevention', () => {
     it('SA should be able to delete any org bounty', async () => {
       prisma.bounty.findUnique.mockResolvedValue(
         baseBountyRecord({
-          organisationId: 'any-org',
+          brandId: 'any-org',
           status: BountyStatus.DRAFT,
         }),
       );

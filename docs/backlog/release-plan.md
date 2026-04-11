@@ -88,24 +88,24 @@ This release plan organizes the MVP backlog into six sequential phases. Each pha
 
 ---
 
-## Phase 2: Organisations and Bounties
+## Phase 2: Brands and Bounties
 
-**Goal**: Business Admins can create organisations and manage bounties through their full lifecycle. Participants can browse and view live bounties.
+**Goal**: Business Admins can create brands and manage bounties through their full lifecycle. Participants can browse and view live bounties.
 
 ### Scope
 
 | Epic | Stories |
 |------|---------|
-| Epic 3: Organisations | 3.1 (Create Org), 3.2 (View Org), 3.3 (Edit Org), 3.4 (Manage Members) |
+| Epic 3: Brands | 3.1 (Create Org), 3.2 (View Org), 3.3 (Edit Org), 3.4 (Manage Members) |
 | Epic 4: Bounties | 4.1 (Create Bounty), 4.2 (Edit Bounty), 4.3 (Status Transitions), 4.4 (Browse Bounties), 4.5 (Bounty Detail), 4.6 (Delete Draft Bounty) |
 | Epic 10: Infrastructure | 10.5 (Secure File Uploads) |
 
 ### Deliverables
-- Organisation CRUD with membership management
-- Organisation logo upload (image only)
+- Brand CRUD with membership management
+- Brand logo upload (image only)
 - Org member invitation via email
 - Role upgrade to Business Admin on org creation/join
-- Bounty CRUD scoped to organisation
+- Bounty CRUD scoped to brand
 - Bounty status state machine: Draft -> Live -> Paused -> Closed
 - Bounty list with filters, sorting, and pagination (participant view)
 - Bounty detail page with conditional submit button
@@ -186,7 +186,7 @@ This release plan organizes the MVP backlog into six sequential phases. Each pha
 ### Deliverables
 - Super Admin dashboard with platform-wide counts
 - User management: search, view, suspend, reinstate, force password reset
-- Organisation management: search, view, suspend, reinstate
+- Brand management: search, view, suspend, reinstate
 - Bounty and submission overrides with mandatory reason
 - Audit log viewer: search, filter, detail view
 - System health and troubleshooting panel
@@ -198,7 +198,7 @@ This release plan organizes the MVP backlog into six sequential phases. Each pha
 
 ### Definition of Done
 - [ ] Super Admin can search and manage users (suspend, reinstate, force reset)
-- [ ] Super Admin can manage organisations (suspend, reinstate)
+- [ ] Super Admin can manage brands (suspend, reinstate)
 - [ ] Super Admin can override bounty and submission statuses with reason
 - [ ] Audit log viewer shows all logged actions with filtering
 - [ ] System health panel shows health status and recent errors
@@ -256,7 +256,7 @@ This release plan organizes the MVP backlog into six sequential phases. Each pha
 |-------|------|---------------|--------------|
 | 0 | Project Scaffolding | M0: Skeleton runs | None |
 | 1 | Authentication & Profiles | M1: Users can authenticate | Phase 0 |
-| 2 | Organisations & Bounties | M2: Bounties are live | Phase 1 |
+| 2 | Brands & Bounties | M2: Bounties are live | Phase 1 |
 | 3 | Submissions & Review | M3: Full bounty lifecycle works | Phase 2 |
 | 4 | Super Admin & Platform | M4: Platform is manageable | Phase 3 |
 | 5 | QA, Polish & Release | M5: Ready to ship | Phase 4 |

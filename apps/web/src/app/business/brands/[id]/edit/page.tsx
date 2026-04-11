@@ -6,8 +6,8 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Button } from 'primereact/button';
-import { useOrganisation, useUpdateOrganisation } from '@/hooks/useOrganisation';
-import { organisationApi } from '@/lib/api/organisations';
+import { useBrand, useUpdateBrand } from '@/hooks/useBrand';
+import { brandsApi } from '@/lib/api/brands';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -19,8 +19,8 @@ export default function EditBrandPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const toast = useToast();
-  const { data: org, isLoading, error, refetch } = useOrganisation(id);
-  const updateOrg = useUpdateOrganisation(id);
+  const { data: org, isLoading, error, refetch } = useBrand(id);
+  const updateOrg = useUpdateBrand(id);
 
   const [form, setForm] = useState({
     name: '',
@@ -75,7 +75,7 @@ export default function EditBrandPage() {
     setHandleStatus('checking');
     const timer = setTimeout(async () => {
       try {
-        const result = await organisationApi.checkHandle(form.handle);
+        const result = await brandsApi.checkHandle(form.handle);
         setHandleStatus(result.available ? 'available' : 'taken');
       } catch {
         setHandleStatus('idle');
@@ -146,7 +146,7 @@ export default function EditBrandPage() {
           // Upload cover photo separately if provided
           if (coverPhoto) {
             try {
-              await organisationApi.uploadCoverPhoto(id, coverPhoto);
+              await brandsApi.uploadCoverPhoto(id, coverPhoto);
             } catch {
               toast.showError('Cover photo upload failed. You can try again.');
             }

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApifyClient } from 'apify-client';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import type {
   BrandSocialAnalyticsBlob,
   BrandSocialAnalyticsCounters,
@@ -20,6 +21,10 @@ const FACEBOOK_ACTOR = 'apify/facebook-pages-scraper';
 const TIKTOK_ACTOR = 'clockworks/tiktok-scraper';
 
 const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24 hours
+// How long a refresh lock is valid before auto-expiring. Sized to be longer
+// than three actor runs + DB writes but short enough that a crashed process
+// doesn't block the next refresh indefinitely.
+const REFRESH_LOCK_TTL_SECS = 5 * 60; // 5 minutes
 
 @Injectable()
 export class ApifyService {
@@ -30,6 +35,7 @@ export class ApifyService {
   constructor(
     private config: ConfigService,
     private prisma: PrismaService,
+    private redis: RedisService,
   ) {
     const token = this.config.get<string>('APIFY_API_TOKEN');
     this.client = token ? new ApifyClient({ token }) : null;
@@ -51,67 +57,109 @@ export class ApifyService {
   /**
    * Fire a refresh only if the existing snapshot is missing or older than
    * STALE_THRESHOLD_MS. Intended for login-triggered background refresh so we
-   * don't hammer Apify when a user logs in repeatedly.
+   * don't hammer Apify when a user logs in repeatedly. Merges the staleness
+   * check + refresh into a single Prisma round-trip by selecting both
+   * socialAnalytics and socialLinks up front.
    */
-  async refreshIfStale(orgId: string): Promise<void> {
+  async refreshIfStale(brandId: string): Promise<void> {
     if (!this.client) return;
     try {
-      const org = await this.prisma.organisation.findUnique({
-        where: { id: orgId },
-        select: { socialAnalytics: true },
+      const brand = await this.prisma.brand.findUnique({
+        where: { id: brandId },
+        select: { id: true, socialLinks: true, socialAnalytics: true },
       });
-      if (!org) return;
-      const blob = org.socialAnalytics as BrandSocialAnalyticsBlob | null;
-      if (blob && blob.fetchedAt) {
+      if (!brand) return;
+      const blob = brand.socialAnalytics as BrandSocialAnalyticsBlob | null;
+      if (blob?.fetchedAt) {
         const fetchedAt = new Date(blob.fetchedAt).getTime();
-        if (Number.isFinite(fetchedAt) && Date.now() - fetchedAt < STALE_THRESHOLD_MS) {
-          this.logger.debug(`Skip refresh for ${orgId} — snapshot is fresh`);
+        // Reject NaN / future timestamps — a corrupted / spoofed blob would
+        // otherwise skip refresh indefinitely.
+        if (
+          Number.isFinite(fetchedAt) &&
+          fetchedAt <= Date.now() &&
+          Date.now() - fetchedAt < STALE_THRESHOLD_MS
+        ) {
+          this.logger.debug(`Skip refresh for ${brandId} — snapshot is fresh`);
           return;
         }
       }
-      await this.refreshForOrganisation(orgId);
+      await this.refreshForBrand(brandId, (brand.socialLinks as BrandSocialLinks | null) ?? {});
     } catch (err) {
-      this.logger.error(`refreshIfStale failed for ${orgId}`, err);
+      this.logger.error(`refreshIfStale failed for ${brandId}`, err);
     }
   }
 
   /**
    * Run the three actors in parallel for the given brand's handles and
    * persist the resulting blob on Organisation.socialAnalytics.
+   *
+   * Protected by a per-brand Redis lock so two concurrent triggers (e.g. a
+   * login + an overlapping cron pass) don't waste actor credits or race on
+   * the final DB write.
    */
-  async refreshForOrganisation(orgId: string): Promise<BrandSocialAnalyticsBlob | null> {
+  async refreshForBrand(
+    brandId: string,
+    preloadedLinks?: BrandSocialLinks,
+  ): Promise<BrandSocialAnalyticsBlob | null> {
     if (!this.client) return null;
-    const org = await this.prisma.organisation.findUnique({
-      where: { id: orgId },
-      select: { id: true, socialLinks: true },
-    });
-    if (!org) {
-      this.logger.warn(`refreshForOrganisation: organisation ${orgId} not found`);
+
+    const lockKey = `apify:refresh-lock:${brandId}`;
+    // Atomic SET NX EX — the key exists iff a refresh is already in flight.
+    const acquired = await this.redis.setNxEx(lockKey, '1', REFRESH_LOCK_TTL_SECS);
+    if (!acquired) {
+      this.logger.debug(`Skip refresh for ${brandId} — lock held by another run`);
       return null;
     }
 
-    const links = (org.socialLinks as BrandSocialLinks | null) ?? {};
+    try {
+      let links: BrandSocialLinks;
+      if (preloadedLinks) {
+        links = preloadedLinks;
+      } else {
+        const brand = await this.prisma.brand.findUnique({
+          where: { id: brandId },
+          select: { socialLinks: true },
+        });
+        if (!brand) {
+          this.logger.warn(`refreshForBrand: brand ${brandId} not found`);
+          return null;
+        }
+        links = (brand.socialLinks as BrandSocialLinks | null) ?? {};
+      }
 
-    const [instagram, facebook, tiktok] = await Promise.all([
-      this.scrapeInstagram(links.instagram),
-      this.scrapeFacebook(links.facebook),
-      this.scrapeTiktok(links.tiktok),
-    ]);
+      const [instagram, facebook, tiktok] = await Promise.all([
+        this.scrapeInstagram(links.instagram),
+        this.scrapeFacebook(links.facebook),
+        this.scrapeTiktok(links.tiktok),
+      ]);
 
-    const blob: BrandSocialAnalyticsBlob = {
-      fetchedAt: new Date().toISOString(),
-      instagram,
-      facebook,
-      tiktok,
-    };
+      const blob: BrandSocialAnalyticsBlob = {
+        fetchedAt: new Date().toISOString(),
+        instagram,
+        facebook,
+        tiktok,
+      };
 
-    await this.prisma.organisation.update({
-      where: { id: orgId },
-      data: { socialAnalytics: blob as unknown as object },
-    });
+      await this.prisma.brand.update({
+        where: { id: brandId },
+        data: { socialAnalytics: blob as unknown as object },
+      });
 
-    this.logger.log(`Refreshed social analytics for brand ${orgId}`);
-    return blob;
+      this.logger.log(`Refreshed social analytics for brand ${brandId}`);
+      return blob;
+    } finally {
+      await this.redis.del(lockKey).catch((err) => {
+        this.logger.warn(`Failed to release refresh lock for ${brandId}`, err);
+      });
+    }
+  }
+
+  /**
+   * Back-compat alias — the scheduler still calls refreshForOrganisation.
+   * @deprecated use refreshForBrand
+   */
+  async refreshForOrganisation(brandId: string): Promise<BrandSocialAnalyticsBlob | null> {
+    return this.refreshForBrand(brandId);
   }
 
   // ─── Private scrapers ─────────────────────────────────────────
@@ -120,6 +168,7 @@ export class ApifyService {
     if (!handle) return emptyCounters('not connected');
     if (!this.client) return emptyCounters('Apify not configured');
     const username = normalizeHandle('instagram', handle);
+    if (!username) return emptyCounters('invalid handle');
     try {
       const run = await this.client.actor(INSTAGRAM_ACTOR).call(
         { usernames: [username], resultsLimit: 1 },
@@ -138,6 +187,7 @@ export class ApifyService {
     if (!handle) return emptyCounters('not connected');
     if (!this.client) return emptyCounters('Apify not configured');
     const slug = normalizeHandle('facebook', handle);
+    if (!slug) return emptyCounters('invalid handle');
     const url = slug.startsWith('http') ? slug : `https://www.facebook.com/${slug}`;
     try {
       const run = await this.client.actor(FACEBOOK_ACTOR).call(
@@ -157,6 +207,7 @@ export class ApifyService {
     if (!handle) return emptyCounters('not connected');
     if (!this.client) return emptyCounters('Apify not configured');
     const username = normalizeHandle('tiktok', handle);
+    if (!username) return emptyCounters('invalid handle');
     try {
       const run = await this.client.actor(TIKTOK_ACTOR).call(
         {

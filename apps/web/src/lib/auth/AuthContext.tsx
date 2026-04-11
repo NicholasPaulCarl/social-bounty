@@ -15,7 +15,7 @@ interface AuthContextValue {
   login: (response: LoginResponse) => void;
   logout: () => Promise<void>;
   refreshAccessToken: () => Promise<string | null>;
-  switchOrganisation: (organisationId: string) => Promise<void>;
+  switchBrand: (brandId: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue>({
@@ -25,7 +25,7 @@ export const AuthContext = createContext<AuthContextValue>({
   login: () => {},
   logout: async () => {},
   refreshAccessToken: async () => null,
-  switchOrganisation: async () => {},
+  switchBrand: async () => {},
 });
 
 function getDashboardUrl(role: UserRole): string {
@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               role: decoded.role,
               status: UserStatus.ACTIVE,
               emailVerified: false,
-              organisationId: decoded.organisationId,
+              brandId: decoded.brandId,
             });
             document.cookie = `sb_auth_role=${decoded.role}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
           }
@@ -154,8 +154,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [router],
   );
 
-  const switchOrganisation = useCallback(async (organisationId: string) => {
-    const response = await authApi.switchOrganisation(organisationId);
+  const switchBrand = useCallback(async (brandId: string) => {
+    const response = await authApi.switchBrand(brandId);
     setAccessToken(response.accessToken);
     setUser(response.user);
     document.cookie = `sb_auth_role=${response.user.role}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
@@ -183,9 +183,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       refreshAccessToken,
-      switchOrganisation,
+      switchBrand,
     }),
-    [user, isLoading, login, logout, refreshAccessToken, switchOrganisation],
+    [user, isLoading, login, logout, refreshAccessToken, switchBrand],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

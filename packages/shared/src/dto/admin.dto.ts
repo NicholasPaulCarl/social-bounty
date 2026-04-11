@@ -1,7 +1,7 @@
 import {
   UserRole,
   UserStatus,
-  OrgStatus,
+  BrandStatus,
   BountyStatus,
   SubmissionStatus,
   PayoutStatus,
@@ -20,7 +20,7 @@ export interface AdminUserListItem {
   role: UserRole;
   status: UserStatus;
   emailVerified: boolean;
-  organisation: { id: string; name: string } | null;
+  brand: { id: string; name: string } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -45,7 +45,7 @@ export interface AdminUserDetailResponse {
   role: UserRole;
   status: UserStatus;
   emailVerified: boolean;
-  organisation: { id: string; name: string } | null;
+  brand: { id: string; name: string } | null;
   submissionCount: number;
   approvedSubmissionCount: number;
   createdAt: string;
@@ -64,62 +64,62 @@ export interface AdminUpdateUserStatusResponse {
   updatedAt: string;
 }
 
-// GET /admin/organisations (list item)
-export interface AdminOrgListItem {
+// GET /admin/brands (list item)
+export interface AdminBrandListItem {
   id: string;
   name: string;
   logo: string | null;
   contactEmail: string;
-  status: OrgStatus;
+  status: BrandStatus;
   memberCount: number;
   bountyCount: number;
   createdAt: string;
 }
 
-// GET /admin/organisations (query params)
-export interface AdminOrgListParams {
+// GET /admin/brands (query params)
+export interface AdminBrandListParams {
   page?: number;
   limit?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-  status?: OrgStatus;
+  status?: BrandStatus;
   search?: string;
 }
 
-// POST /admin/organisations
-export interface AdminCreateOrgRequest {
+// POST /admin/brands
+export interface AdminCreateBrandRequest {
   name: string;
   contactEmail: string;
   logo?: string | null;
   ownerUserId: string;
 }
 
-export interface AdminCreateOrgOwnerInfo {
+export interface AdminCreateBrandOwnerInfo {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
 }
 
-export interface AdminCreateOrgResponse {
+export interface AdminCreateBrandResponse {
   id: string;
   name: string;
   contactEmail: string;
   logo: string | null;
-  status: OrgStatus;
-  owner: AdminCreateOrgOwnerInfo;
+  status: BrandStatus;
+  owner: AdminCreateBrandOwnerInfo;
   createdAt: string;
 }
 
-// PATCH /admin/organisations/:id/status
-export interface AdminUpdateOrgStatusRequest {
-  status: OrgStatus;
+// PATCH /admin/brands/:id/status
+export interface AdminUpdateBrandStatusRequest {
+  status: BrandStatus;
   reason: string;
 }
 
-export interface AdminUpdateOrgStatusResponse {
+export interface AdminUpdateBrandStatusResponse {
   id: string;
-  status: OrgStatus;
+  status: BrandStatus;
   updatedAt: string;
 }
 
@@ -200,7 +200,7 @@ export interface AdminDashboardResponse {
     suspended: number;
     byRole: Record<UserRole, number>;
   };
-  organisations: {
+  brands: {
     total: number;
     active: number;
     suspended: number;

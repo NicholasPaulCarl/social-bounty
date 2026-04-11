@@ -35,7 +35,7 @@ const STATUS_MAP: Record<string, Record<string, StatusConfig>> = {
     ACTIVE: { severity: 'success', className: 'bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30' },
     SUSPENDED: { severity: 'danger', className: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30' },
   },
-  organisation: {
+  brand: {
     ACTIVE: { severity: 'success', className: 'bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30' },
     SUSPENDED: { severity: 'danger', className: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30' },
   },

@@ -48,7 +48,7 @@ describe('BountiesService - Update Bounty', () => {
   });
 
   const updateIncludes = {
-    organisation: { id: 'org-1', name: 'Test', logo: null },
+    brand: { id: 'org-1', name: 'Test', logo: null },
     createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
     _count: { submissions: 0 },
   };
@@ -370,7 +370,7 @@ describe('BountiesService - Update Bounty', () => {
 
     it('should throw ForbiddenException if BA not in bounty org', async () => {
       prisma.bounty.findUnique.mockResolvedValue(
-        baseBountyRecord({ organisationId: 'org-1' }),
+        baseBountyRecord({ brandId: 'org-1' }),
       );
 
       await expect(
@@ -381,7 +381,7 @@ describe('BountiesService - Update Bounty', () => {
     it('should allow SA to update any org bounty', async () => {
       prisma.bounty.findUnique.mockResolvedValue(
         baseBountyRecord({
-          organisationId: 'other-org',
+          brandId: 'other-org',
           status: BountyStatus.DRAFT,
         }),
       );

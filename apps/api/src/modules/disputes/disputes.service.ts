@@ -89,7 +89,7 @@ export class DisputesService {
       include: {
         bounty: {
           include: {
-            organisation: { select: { id: true, name: true } },
+            brand: { select: { id: true, name: true } },
           },
         },
         user: { select: { id: true, email: true, firstName: true, lastName: true } },
@@ -114,7 +114,7 @@ export class DisputesService {
       if (
         user.role !== UserRole.SUPER_ADMIN &&
         (user.role !== UserRole.BUSINESS_ADMIN ||
-          submission.bounty.organisationId !== user.organisationId)
+          submission.bounty.brandId !== user.brandId)
       ) {
         throw new ForbiddenException(
           'Only a business admin of the bounty organisation can file this dispute category',
@@ -203,7 +203,7 @@ export class DisputesService {
           bountyId: submission.bountyId,
           openedByUserId: user.sub,
           openedByRole: user.role as UserRole,
-          organisationId: submission.bounty.organisationId,
+          brandId: submission.bounty.brandId,
         },
       });
 
@@ -248,7 +248,7 @@ export class DisputesService {
       desiredOutcome: dispute.desiredOutcome,
       submissionId: dispute.submissionId,
       bountyId: dispute.bountyId,
-      organisationId: dispute.organisationId,
+      brandId: dispute.brandId,
       createdAt: dispute.createdAt.toISOString(),
       updatedAt: dispute.updatedAt.toISOString(),
     };
@@ -263,7 +263,7 @@ export class DisputesService {
         submission: {
           include: {
             bounty: {
-              select: { id: true, title: true, organisationId: true, organisation: { select: { name: true } } },
+              select: { id: true, title: true, brandId: true, brand: { select: { name: true } } },
             },
           },
         },
@@ -314,7 +314,7 @@ export class DisputesService {
 
     if (
       user.role === UserRole.BUSINESS_ADMIN &&
-      dispute.organisationId !== user.organisationId
+      dispute.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -358,8 +358,8 @@ export class DisputesService {
         role: dispute.openedByRole,
       },
       openedByRole: dispute.openedByRole,
-      organisationId: dispute.organisationId,
-      organisationName: dispute.submission.bounty.organisation.name,
+      brandId: dispute.brandId,
+      organisationName: dispute.submission.bounty.brand.name,
       assignedTo: dispute.assignedTo
         ? {
             id: dispute.assignedTo.id,
@@ -455,7 +455,7 @@ export class DisputesService {
           submission: {
             include: {
               bounty: {
-                select: { title: true, organisation: { select: { name: true } } },
+                select: { title: true, brand: { select: { name: true } } },
               },
             },
           },
@@ -478,7 +478,7 @@ export class DisputesService {
         submissionId: d.submissionId,
         bountyTitle: d.submission.bounty.title,
         openedBy: d.openedBy,
-        organisationName: d.submission.bounty.organisation.name,
+        organisationName: d.submission.bounty.brand.name,
         assignedTo: d.assignedTo,
         createdAt: d.createdAt.toISOString(),
         updatedAt: d.updatedAt.toISOString(),
@@ -505,7 +505,7 @@ export class DisputesService {
       sortOrder?: 'asc' | 'desc';
     },
   ) {
-    if (!user.organisationId) {
+    if (!user.brandId) {
       throw new ForbiddenException('Not a member of any organisation');
     }
 
@@ -519,7 +519,7 @@ export class DisputesService {
     const sortBy: string = params.sortBy && ALLOWED_SORT_FIELDS.includes(params.sortBy) ? params.sortBy : 'createdAt';
 
     const where: Prisma.DisputeWhereInput = {
-      organisationId: user.organisationId,
+      brandId: user.brandId,
     };
     if (params.status) where.status = params.status;
     if (params.category) where.category = params.category;
@@ -537,7 +537,7 @@ export class DisputesService {
           submission: {
             include: {
               bounty: {
-                select: { title: true, organisation: { select: { name: true } } },
+                select: { title: true, brand: { select: { name: true } } },
               },
             },
           },
@@ -560,7 +560,7 @@ export class DisputesService {
         submissionId: d.submissionId,
         bountyTitle: d.submission.bounty.title,
         openedBy: d.openedBy,
-        organisationName: d.submission.bounty.organisation.name,
+        organisationName: d.submission.bounty.brand.name,
         assignedTo: d.assignedTo,
         createdAt: d.createdAt.toISOString(),
         updatedAt: d.updatedAt.toISOString(),
@@ -583,7 +583,7 @@ export class DisputesService {
     category?: DisputeCategory;
     assignedToUserId?: string;
     openedByUserId?: string;
-    organisationId?: string;
+    brandId?: string;
     search?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
@@ -602,7 +602,7 @@ export class DisputesService {
     if (params.category) where.category = params.category;
     if (params.assignedToUserId) where.assignedToUserId = params.assignedToUserId;
     if (params.openedByUserId) where.openedByUserId = params.openedByUserId;
-    if (params.organisationId) where.organisationId = params.organisationId;
+    if (params.brandId) where.brandId = params.brandId;
     if (params.search) {
       where.OR = [
         { disputeNumber: { contains: params.search, mode: 'insensitive' } },
@@ -623,7 +623,7 @@ export class DisputesService {
           submission: {
             include: {
               bounty: {
-                select: { title: true, organisation: { select: { name: true } } },
+                select: { title: true, brand: { select: { name: true } } },
               },
             },
           },
@@ -646,7 +646,7 @@ export class DisputesService {
         submissionId: d.submissionId,
         bountyTitle: d.submission.bounty.title,
         openedBy: d.openedBy,
-        organisationName: d.submission.bounty.organisation.name,
+        organisationName: d.submission.bounty.brand.name,
         assignedTo: d.assignedTo,
         createdAt: d.createdAt.toISOString(),
         updatedAt: d.updatedAt.toISOString(),
@@ -715,8 +715,8 @@ export class DisputesService {
             bounty: {
               select: {
                 title: true,
-                organisationId: true,
-                organisation: {
+                brandId: true,
+                brand: {
                   select: {
                     members: {
                       select: {
@@ -782,7 +782,7 @@ export class DisputesService {
 
     // If participant filed, notify org admins; if business admin filed, notify participant
     if (dispute.openedByRole === UserRole.PARTICIPANT) {
-      const orgEmails = dispute.submission.bounty.organisation.members.map(
+      const orgEmails = dispute.submission.bounty.brand.members.map(
         (m) => m.user.email,
       );
       for (const email of orgEmails) {
@@ -1347,7 +1347,7 @@ export class DisputesService {
     const isOpener = dispute.openedByUserId === user.sub;
     const isOrgAdmin =
       user.role === UserRole.BUSINESS_ADMIN &&
-      dispute.organisationId === user.organisationId;
+      dispute.brandId === user.brandId;
     const isSuperAdmin = user.role === UserRole.SUPER_ADMIN;
 
     if (!isOpener && !isOrgAdmin && !isSuperAdmin) {

@@ -31,26 +31,26 @@ describe('BountyAccessService', () => {
     sub: 'user-1',
     email: 'user@test.com',
     role: UserRole.PARTICIPANT,
-    organisationId: null,
+    brandId: null,
   };
 
   const mockAdmin: AuthenticatedUser = {
     sub: 'admin-1',
     email: 'admin@test.com',
     role: UserRole.BUSINESS_ADMIN,
-    organisationId: 'org-1',
+    brandId: 'org-1',
   };
 
   const mockSuperAdmin: AuthenticatedUser = {
     sub: 'sa-1',
     email: 'sa@test.com',
     role: UserRole.SUPER_ADMIN,
-    organisationId: null,
+    brandId: null,
   };
 
   const closedLiveBounty = {
     id: 'bounty-1',
-    organisationId: 'org-1',
+    brandId: 'org-1',
     accessType: BountyAccessType.CLOSED,
     status: BountyStatus.LIVE,
     deletedAt: null,
@@ -58,7 +58,7 @@ describe('BountyAccessService', () => {
 
   const publicLiveBounty = {
     id: 'bounty-2',
-    organisationId: 'org-1',
+    brandId: 'org-1',
     accessType: BountyAccessType.PUBLIC,
     status: BountyStatus.LIVE,
     deletedAt: null,
@@ -421,7 +421,7 @@ describe('BountyAccessService', () => {
         sub: 'admin-2',
         email: 'other@test.com',
         role: UserRole.BUSINESS_ADMIN,
-        organisationId: 'org-other',
+        brandId: 'org-other',
       };
 
       prisma.bountyApplication.findUnique.mockResolvedValue(applicationWithBounty);
@@ -547,7 +547,7 @@ describe('BountyAccessService', () => {
         sub: 'admin-2',
         email: 'other@test.com',
         role: UserRole.BUSINESS_ADMIN,
-        organisationId: 'org-other',
+        brandId: 'org-other',
       };
 
       prisma.bounty.findUnique.mockResolvedValue(closedLiveBounty);

@@ -43,28 +43,28 @@ export const mockParticipant: AuthenticatedUser = {
   sub: 'participant-id',
   email: 'participant@test.com',
   role: UserRole.PARTICIPANT,
-  organisationId: null,
+  brandId: null,
 };
 
 export const mockBA: AuthenticatedUser = {
   sub: 'ba-id',
   email: 'ba@test.com',
   role: UserRole.BUSINESS_ADMIN,
-  organisationId: 'org-1',
+  brandId: 'org-1',
 };
 
 export const mockBA2: AuthenticatedUser = {
   sub: 'ba-2-id',
   email: 'ba2@test.com',
   role: UserRole.BUSINESS_ADMIN,
-  organisationId: 'org-2',
+  brandId: 'org-2',
 };
 
 export const mockSA: AuthenticatedUser = {
   sub: 'sa-id',
   email: 'admin@test.com',
   role: UserRole.SUPER_ADMIN,
-  organisationId: null,
+  brandId: null,
 };
 
 // ── Valid Create Data ──────────────────────────────
@@ -113,7 +113,7 @@ export function validCreateBountyData(): CreateBountyTestData {
 export function baseBountyRecord(overrides: Record<string, unknown> = {}) {
   return {
     id: 'bounty-1',
-    organisationId: 'org-1',
+    brandId: 'org-1',
     createdById: 'ba-id',
     title: 'Test Bounty',
     shortDescription: 'A test bounty',

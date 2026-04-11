@@ -56,6 +56,16 @@ export class RedisService implements OnModuleDestroy {
   }
 
   /**
+   * Atomic SET NX EX — sets the key with a TTL only if it does not already
+   * exist. Returns true if the key was set, false if it was already present.
+   * Use for distributed locks and race-condition guards.
+   */
+  async setNxEx(key: string, value: string, ttlSeconds: number): Promise<boolean> {
+    const result = await this.client.set(key, value, 'EX', ttlSeconds, 'NX');
+    return result === 'OK';
+  }
+
+  /**
    * Delete a key.
    */
   async del(key: string): Promise<void> {

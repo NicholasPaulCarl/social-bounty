@@ -27,9 +27,9 @@ export interface SignupWithOtpRequest {
   brandContactEmail?: string;
 }
 
-// POST /auth/switch-organisation
-export interface SwitchOrganisationRequest {
-  organisationId: string;
+// POST /auth/switch-brand
+export interface SwitchBrandRequest {
+  brandId: string;
 }
 
 export interface LoginUserResponse {
@@ -40,7 +40,7 @@ export interface LoginUserResponse {
   role: UserRole;
   status: UserStatus;
   emailVerified: boolean;
-  organisationId: string | null;
+  brandId: string | null;
 }
 
 export interface LoginResponse {
@@ -69,7 +69,7 @@ export interface JwtPayload {
   sub: string;
   email: string;
   role: UserRole;
-  organisationId: string | null;
+  brandId: string | null;
   firstName?: string;
   lastName?: string;
   type: 'access' | 'refresh';

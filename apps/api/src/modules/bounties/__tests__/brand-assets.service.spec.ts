@@ -141,7 +141,7 @@ describe('BountiesService - Brand Assets', () => {
     });
 
     it('should reject upload by BA from different org', async () => {
-      const bounty = baseBountyRecord({ status: BountyStatus.DRAFT, organisationId: 'org-1' });
+      const bounty = baseBountyRecord({ status: BountyStatus.DRAFT, brandId: 'org-1' });
       prisma.bounty.findUnique.mockResolvedValue(bounty);
 
       await expect(
@@ -197,7 +197,7 @@ describe('BountiesService - Brand Assets', () => {
     });
 
     it('should reject delete by BA from different org', async () => {
-      const bounty = baseBountyRecord({ organisationId: 'org-1' });
+      const bounty = baseBountyRecord({ brandId: 'org-1' });
       prisma.bounty.findUnique.mockResolvedValue(bounty);
 
       await expect(
@@ -243,7 +243,7 @@ describe('BountiesService - Brand Assets', () => {
     it('should return asset for participant on LIVE bounty', async () => {
       const asset = {
         ...baseBrandAssetRecord(),
-        bounty: { organisationId: 'org-1', status: BountyStatus.LIVE, deletedAt: null },
+        bounty: { brandId: 'org-1', status: BountyStatus.LIVE, deletedAt: null },
       };
       prisma.brandAsset.findUnique.mockResolvedValue(asset);
 
@@ -255,7 +255,7 @@ describe('BountiesService - Brand Assets', () => {
     it('should reject participant download on non-LIVE bounty', async () => {
       const asset = {
         ...baseBrandAssetRecord(),
-        bounty: { organisationId: 'org-1', status: BountyStatus.DRAFT, deletedAt: null },
+        bounty: { brandId: 'org-1', status: BountyStatus.DRAFT, deletedAt: null },
       };
       prisma.brandAsset.findUnique.mockResolvedValue(asset);
 
@@ -267,7 +267,7 @@ describe('BountiesService - Brand Assets', () => {
     it('should reject BA download from different org', async () => {
       const asset = {
         ...baseBrandAssetRecord(),
-        bounty: { organisationId: 'org-1', status: BountyStatus.DRAFT, deletedAt: null },
+        bounty: { brandId: 'org-1', status: BountyStatus.DRAFT, deletedAt: null },
       };
       prisma.brandAsset.findUnique.mockResolvedValue(asset);
 
@@ -279,7 +279,7 @@ describe('BountiesService - Brand Assets', () => {
     it('should allow super admin to download any asset', async () => {
       const asset = {
         ...baseBrandAssetRecord(),
-        bounty: { organisationId: 'org-1', status: BountyStatus.DRAFT, deletedAt: null },
+        bounty: { brandId: 'org-1', status: BountyStatus.DRAFT, deletedAt: null },
       };
       prisma.brandAsset.findUnique.mockResolvedValue(asset);
 
@@ -299,7 +299,7 @@ describe('BountiesService - Brand Assets', () => {
     it('should reject download for deleted bounty', async () => {
       const asset = {
         ...baseBrandAssetRecord(),
-        bounty: { organisationId: 'org-1', status: BountyStatus.LIVE, deletedAt: new Date() },
+        bounty: { brandId: 'org-1', status: BountyStatus.LIVE, deletedAt: new Date() },
       };
       prisma.brandAsset.findUnique.mockResolvedValue(asset);
 
@@ -314,7 +314,7 @@ describe('BountiesService - Brand Assets', () => {
       const assets = [baseBrandAssetRecord()];
       const bounty = {
         ...baseBountyRecord({ status: BountyStatus.LIVE }),
-        organisation: { id: 'org-1', name: 'Test Org', logo: null },
+        brand: { id: 'org-1', name: 'Test Org', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'User' },
         rewards: [],
         brandAssets: assets,

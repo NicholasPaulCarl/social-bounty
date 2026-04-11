@@ -17,7 +17,7 @@ import {
 // ─────────────────────────────────────
 
 // Organisation summary embedded in bounty responses
-export interface BountyOrganisationInfo {
+export interface BountyBrandInfo {
   id: string;
   name: string;
   logo: string | null;
@@ -122,7 +122,7 @@ export interface BountyListItem {
   endDate: string | null;
   status: BountyStatus;
   submissionCount: number;
-  organisation: BountyOrganisationInfo;
+  brand: BountyBrandInfo;
   createdAt: string;
   // New fields
   channels: ChannelSelection | null;
@@ -144,7 +144,7 @@ export interface BountyListParams {
   category?: string;
   rewardType?: RewardType;
   search?: string;
-  organisationId?: string;
+  brandId?: string;
 }
 
 // GET /bounties/:id
@@ -165,7 +165,7 @@ export interface BountyDetailResponse {
   proofRequirements: string;
   status: BountyStatus;
   submissionCount: number;
-  organisation: BountyOrganisationInfo;
+  brand: BountyBrandInfo;
   createdBy: BountyCreatorInfo;
   userSubmission: BountyUserSubmissionInfo | null;
   createdAt: string;
@@ -230,7 +230,7 @@ export interface CreateBountyResponse {
   eligibilityRules: string;
   proofRequirements: string;
   status: BountyStatus;
-  organisationId: string;
+  brandId: string;
   createdById: string;
   createdAt: string;
   updatedAt: string;

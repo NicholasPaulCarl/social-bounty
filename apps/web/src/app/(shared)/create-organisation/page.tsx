@@ -6,7 +6,7 @@ import { InputText } from 'primereact/inputtext';
 import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import { useCreateOrganisation } from '@/hooks/useOrganisation';
+import { useCreateBrand } from '@/hooks/useBrand';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ApiError } from '@/lib/api/client';
@@ -14,7 +14,7 @@ import { ApiError } from '@/lib/api/client';
 export default function CreateBrandPage() {
   const router = useRouter();
   const { showSuccess, showError } = useToast();
-  const createOrg = useCreateOrganisation();
+  const createOrg = useCreateBrand();
 
   const [name, setName] = useState('');
   const [contactEmail, setContactEmail] = useState('');

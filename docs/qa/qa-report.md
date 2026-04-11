@@ -19,7 +19,7 @@ The Social Bounty MVP implementation is **substantially complete** with strong f
 |----------|-----------|------|------|---------|-------|
 | A: Authentication Flows | 23 | 20 | 2 | 1 | Missing verification email on signup; settings endpoint missing |
 | B: User Profile | 6 | 6 | 0 | 0 | All checks pass |
-| C: Organisation Management | 9 | 7 | 2 | 0 | Missing invite member endpoint |
+| C: Brand Management | 9 | 7 | 2 | 0 | Missing invite member endpoint |
 | D: Bounty Management | 25 | 23 | 2 | 0 | Hard delete instead of soft delete |
 | E: Participant Submission | 17 | 13 | 4 | 0 | File upload not implemented |
 | F: BA Review Flows | 12 | 11 | 1 | 0 | ReviewActionBar restricted to IN_REVIEW |
@@ -45,9 +45,9 @@ The Social Bounty MVP implementation is **substantially complete** with strong f
 - **Description**: No `GET /admin/settings`, `PATCH /admin/settings`, or `GET /admin/recent-errors` endpoints exist in the backend. The frontend settings page and troubleshooting page will fail with 404 errors. The `AdminUpdateSettingsDto` exists but is never wired to a controller method. Global toggles for signups/submissions cannot be configured, meaning test cases A-23 (signup disabled) and E-10 (submissions disabled) are also untestable.
 
 #### DEF-02: Invite member endpoint missing (Task #31)
-- **File**: `apps/api/src/modules/organisations/organisations.controller.ts`
+- **File**: `apps/api/src/modules/brands/brands.controller.ts`
 - **Impact**: Test cases C-07, H-13
-- **Description**: No `POST /organisations/:id/members` endpoint. The `InviteMemberDto` exists in the validators file but is never imported or used. Business Admins cannot invite new members to their organisation. The frontend member management page has no way to add members.
+- **Description**: No `POST /brands/:id/members` endpoint. The `InviteMemberDto` exists in the validators file but is never imported or used. Business Admins cannot invite new members to their brand. The frontend member management page has no way to add members.
 
 #### DEF-03: Bounty delete is hard delete, spec requires soft delete (Task #32)
 - **File**: `apps/api/src/modules/bounties/bounties.service.ts:467`
@@ -60,7 +60,7 @@ The Social Bounty MVP implementation is **substantially complete** with strong f
 - **Description**: `if (currentStatus !== SubmissionStatus.IN_REVIEW) return null;` prevents review actions from appearing when the submission is in SUBMITTED or NEEDS_MORE_INFO status. The backend supports transitions from all three statuses, but the UI only shows review buttons for IN_REVIEW. BAs must manually transition submissions to IN_REVIEW first, but there's no UI to do that either.
 
 #### DEF-05: Activate user/org dialogs missing requireReason (Task #35)
-- **Files**: `apps/web/src/app/admin/users/[id]/page.tsx:154-163`, `apps/web/src/app/admin/organisations/[id]/page.tsx:122-131`
+- **Files**: `apps/web/src/app/admin/users/[id]/page.tsx:154-163`, `apps/web/src/app/admin/brands/[id]/page.tsx:122-131`
 - **Impact**: Test cases G-05, G-06, G-10
 - **Description**: The activate/reinstate confirmation dialogs do not set `requireReason={true}`. The backend DTO has `reason` as `@IsNotEmpty()` (required), so activating a user/org will fail with 400 because the frontend sends `reason: ''`. The suspend dialogs correctly have `requireReason` but the activate ones do not.
 
@@ -126,26 +126,26 @@ The Social Bounty MVP implementation is **substantially complete** with strong f
 
 | ID | Title | Priority | Result | Notes |
 |----|-------|----------|--------|-------|
-| B-01 | View Own Profile | P2 | PASS | Returns all expected fields including organisation |
+| B-01 | View Own Profile | P2 | PASS | Returns all expected fields including brand |
 | B-02 | Update Profile Name | P2 | PASS | Only firstName/lastName updated |
 | B-03 | Change Password | P1 | PASS | bcrypt compare + hash, audit log created |
 | B-04 | Wrong Current Password | P1 | PASS | 401 "Current password is incorrect" |
 | B-05 | Weak New Password | P2 | PASS | class-validator enforces password rules |
 | B-06 | Cannot Change Email | P2 | PASS | UpdateProfileDto only has firstName/lastName; whitelist+forbidNonWhitelisted rejects email |
 
-### Group C: Organisation Management (9 cases)
+### Group C: Brand Management (9 cases)
 
 | ID | Title | Priority | Result | Notes |
 |----|-------|----------|--------|-------|
-| C-01 | Create Organisation | P1 | PASS | Org created, user promoted to BA, audit logged |
+| C-01 | Create Brand | P1 | PASS | Org created, user promoted to BA, audit logged |
 | C-02 | Already in Org | P1 | PASS | 409 ConflictException |
 | C-03 | View Org Details (Member) | P2 | PASS | Returns name, contactEmail, status, memberCount, bountyCount |
-| C-04 | View Org Details (Non-Member) | P2 | PASS | 403 if user.organisationId !== orgId |
-| C-05 | Edit Org (Owner) | P2 | PASS | Owner check via OrgMemberRole.OWNER, audit logged |
+| C-04 | View Org Details (Non-Member) | P2 | PASS | 403 if user.brandId !== orgId |
+| C-05 | Edit Org (Owner) | P2 | PASS | Owner check via BrandMemberRole.OWNER, audit logged |
 | C-06 | Edit Org (Not Owner) | P2 | PASS | 403 "Only org owner or Super Admin can update" |
 | C-07 | Invite Member | P2 | **FAIL** | Endpoint not implemented (DEF-02) |
 | C-08 | Remove Member | P2 | PASS | Member removed, role reverted to PARTICIPANT |
-| C-09 | Cannot Remove Owner | P2 | PASS | 400 "Cannot remove the organisation owner" |
+| C-09 | Cannot Remove Owner | P2 | PASS | 400 "Cannot remove the brand owner" |
 
 ### Group D: Bounty Management (25 cases)
 
@@ -228,8 +228,8 @@ The Social Bounty MVP implementation is **substantially complete** with strong f
 | G-06 | Suspend Missing Reason | P1 | PASS | @IsNotEmpty on reason field |
 | G-07 | Suspend Self | P2 | PASS | 400 "Cannot change your own status" |
 | G-08 | Force Password Reset | P2 | PASS | Email sent, audit logged |
-| G-09 | Suspend Organisation | P1 | PASS | Org suspended, LIVE bounties paused |
-| G-10 | Reinstate Organisation | P1 | **FAIL** (frontend) | Backend works; frontend doesn't require reason (DEF-05) |
+| G-09 | Suspend Brand | P1 | PASS | Org suspended, LIVE bounties paused |
+| G-10 | Reinstate Brand | P1 | **FAIL** (frontend) | Backend works; frontend doesn't require reason (DEF-05) |
 | G-11 | Override Bounty Status | P1 | PASS | Bypasses state machine, audit logged |
 | G-12 | Override Missing Reason | P1 | PASS | @IsNotEmpty on reason |
 | G-13 | Override Submission | P1 | PASS | Status overridden, audit logged |
@@ -251,7 +251,7 @@ The Social Bounty MVP implementation is **substantially complete** with strong f
 | H-03 | Participant Cannot Access Admin | P1 | PASS | @Roles(SUPER_ADMIN) at class level |
 | H-04 | BA Cannot Access Admin | P1 | PASS | @Roles(SUPER_ADMIN) at class level |
 | H-05 | BA Cannot Submit Proof | P1 | PASS | @Roles(PARTICIPANT) on submission create |
-| H-06 | BA Cannot View Other Org | P1 | PASS | organisationId check in service |
+| H-06 | BA Cannot View Other Org | P1 | PASS | brandId check in service |
 | H-07 | BA Cannot Review Other Org | P1 | PASS | Org scoping check in review |
 | H-08 | Unauthenticated Rejected | P1 | PASS | Global JwtAuthGuard as APP_GUARD |
 | H-09 | Expired JWT | P1 | PASS | JwtService.verify rejects expired |
@@ -259,7 +259,7 @@ The Social Bounty MVP implementation is **substantially complete** with strong f
 | H-11 | Participant No Business Dashboard | P2 | PASS | @Roles(BUSINESS_ADMIN) on controller |
 | H-12 | BA Cannot Update Other Org Payout | P1 | PASS | Org scoping in updatePayout |
 | H-13 | Non-Owner Cannot Invite | P2 | **FAIL** (N/A) | Invite endpoint doesn't exist (DEF-02) |
-| H-14 | File Access Scoped | P2 | PASS | FilesController checks userId/organisationId |
+| H-14 | File Access Scoped | P2 | PASS | FilesController checks userId/brandId |
 
 ### Group I: Audit Logging (10 cases)
 
@@ -326,7 +326,7 @@ The Social Bounty MVP implementation is **substantially complete** with strong f
 2. **Audit logging is comprehensive**: All status changes, creates, updates, and overrides produce audit entries with before/after state. Fire-and-forget pattern prevents blocking requests.
 3. **Input validation is thorough**: `forbidNonWhitelisted: true` and `whitelist: true` in the global ValidationPipe. All DTOs use class-validator decorators with MaxLength limits.
 4. **Authentication is secure**: bcrypt with 12 rounds, generic "Invalid credentials" message, refresh token rotation with theft detection, rate limiting on all auth endpoints.
-5. **Org scoping is correct**: All BA endpoints verify `user.organisationId` matches the resource's organisation.
+5. **Org scoping is correct**: All BA endpoints verify `user.brandId` matches the resource's brand.
 6. **Status state machines are well-implemented**: Bounty transitions (DRAFT->LIVE->PAUSED->CLOSED), submission review transitions, and payout transitions all validated against explicit maps.
 
 ---

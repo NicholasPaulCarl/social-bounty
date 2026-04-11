@@ -96,7 +96,7 @@ No gaps identified.
 | **Status** | PASS |
 | **Evidence** | `apps/api/src/modules/auth/jwt.strategy.ts`; `apps/api/src/modules/auth/auth.service.ts` |
 
-**Finding:** Access tokens carry `sub`, `email`, `role`, `organisationId`, and `type: 'access'`. Refresh tokens carry `sub`, `type: 'refresh'`, and `jti` (UUID v4). `ignoreExpiration: false` is set in `JwtStrategy`. `validate()` explicitly checks `payload.type !== 'access'` and throws `UnauthorizedException` for type confusion attacks. Access token TTL is 15 minutes; refresh token TTL is 7 days.
+**Finding:** Access tokens carry `sub`, `email`, `role`, `brandId`, and `type: 'access'`. Refresh tokens carry `sub`, `type: 'refresh'`, and `jti` (UUID v4). `ignoreExpiration: false` is set in `JwtStrategy`. `validate()` explicitly checks `payload.type !== 'access'` and throws `UnauthorizedException` for type confusion attacks. Access token TTL is 15 minutes; refresh token TTL is 7 days.
 
 No gaps identified.
 

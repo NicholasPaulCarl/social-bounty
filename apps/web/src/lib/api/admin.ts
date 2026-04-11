@@ -5,12 +5,12 @@ import type {
   AdminUserDetailResponse,
   AdminUpdateUserStatusRequest,
   AdminUpdateUserStatusResponse,
-  AdminOrgListItem,
-  AdminOrgListParams,
-  AdminCreateOrgRequest,
-  AdminCreateOrgResponse,
-  AdminUpdateOrgStatusRequest,
-  AdminUpdateOrgStatusResponse,
+  AdminBrandListItem,
+  AdminBrandListParams,
+  AdminCreateBrandRequest,
+  AdminCreateBrandResponse,
+  AdminUpdateBrandStatusRequest,
+  AdminUpdateBrandStatusResponse,
   AdminOverrideBountyRequest,
   AdminOverrideBountyResponse,
   AdminOverrideSubmissionRequest,
@@ -47,16 +47,16 @@ export const adminApi = {
     apiClient.patch(`/admin/users/${id}/status`, data),
 
   // Organisations
-  listOrganisations: (params: AdminOrgListParams): Promise<PaginatedResponse<AdminOrgListItem>> =>
+  listBrands: (params: AdminBrandListParams): Promise<PaginatedResponse<AdminBrandListItem>> =>
     apiClient.get('/admin/brands', params as Record<string, unknown>),
 
-  createOrganisation: (data: AdminCreateOrgRequest): Promise<AdminCreateOrgResponse> =>
+  createOrganisation: (data: AdminCreateBrandRequest): Promise<AdminCreateBrandResponse> =>
     apiClient.post('/admin/brands', data),
 
-  getOrgById: (id: string): Promise<AdminOrgListItem> =>
+  getBrandById: (id: string): Promise<AdminBrandListItem> =>
     apiClient.get(`/admin/brands/${id}`),
 
-  updateOrgStatus: (id: string, data: AdminUpdateOrgStatusRequest): Promise<AdminUpdateOrgStatusResponse> =>
+  updateBrandStatus: (id: string, data: AdminUpdateBrandStatusRequest): Promise<AdminUpdateBrandStatusResponse> =>
     apiClient.patch(`/admin/brands/${id}/status`, data),
 
   // Bounties

@@ -106,7 +106,7 @@ export class AuthController {
     @Body() dto: SwitchOrganisationDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.switchOrganisation(user.sub, dto.organisationId);
+    const result = await this.authService.switchOrganisation(user.sub, dto.brandId);
     setRefreshCookie(res, result.refreshToken);
     const { refreshToken: _, ...response } = result;
     return response;

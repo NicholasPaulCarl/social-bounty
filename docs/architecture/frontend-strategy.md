@@ -66,7 +66,7 @@ apps/web/
 │   │   │   │           ├── page.tsx      # Review submissions list
 │   │   │   │           └── [submissionId]/
 │   │   │   │               └── page.tsx  # Review single submission
-│   │   │   ├── organisation/
+│   │   │   ├── brand/
 │   │   │   │   ├── page.tsx              # Org details / edit
 │   │   │   │   └── members/
 │   │   │   │       └── page.tsx          # Manage members
@@ -81,7 +81,7 @@ apps/web/
 │   │   │   │   ├── page.tsx              # User management list
 │   │   │   │   └── [id]/
 │   │   │   │       └── page.tsx          # User detail
-│   │   │   ├── organisations/
+│   │   │   ├── brands/
 │   │   │   │   ├── page.tsx              # Org management list
 │   │   │   │   ├── new/
 │   │   │   │   │   └── page.tsx          # Create org (SA)
@@ -106,7 +106,7 @@ apps/web/
 │   │   │       └── page.tsx              # View/edit profile
 │   │   │
 │   │   └── (shared)/                     # Shared routes accessible to multiple roles
-│   │       └── create-organisation/
+│   │       └── create-brand/
 │   │           └── page.tsx              # Create org (Participant flow)
 │   │
 │   ├── components/                       # Shared UI components
@@ -165,7 +165,7 @@ apps/web/
 │   │   │   ├── auth.ts                   # Auth API calls
 │   │   │   ├── bounties.ts               # Bounty API calls
 │   │   │   ├── submissions.ts            # Submission API calls
-│   │   │   ├── organisations.ts          # Organisation API calls
+│   │   │   ├── brands.ts          # Brand API calls
 │   │   │   ├── admin.ts                  # Admin API calls
 │   │   │   └── types.ts                  # API response types
 │   │   ├── auth/
@@ -203,7 +203,7 @@ apps/web/
 | `(participant)` | `/bounties`, `/my-submissions`, etc. | PARTICIPANT, BUSINESS_ADMIN, SUPER_ADMIN | Standard nav + content |
 | `(business)` | `/business/*` (e.g., `/business/dashboard`) | BUSINESS_ADMIN | Business nav + content |
 | `(admin)` | `/admin/*` (e.g., `/admin/dashboard`) | SUPER_ADMIN | Admin nav + content |
-| `(shared)` | `/create-organisation` | PARTICIPANT | Standard nav + content |
+| `(shared)` | `/create-brand` | PARTICIPANT | Standard nav + content |
 
 **Note**: Route groups in Next.js App Router use parentheses `(groupName)` which do not affect the URL path. The actual URL paths are defined by the folder names inside the group.
 
@@ -222,22 +222,22 @@ apps/web/
 | `/my-submissions` | (participant) | My Submissions | P |
 | `/my-submissions/:id` | (participant) | Submission Detail | P |
 | `/profile` | (participant) | Profile | P, BA, SA |
-| `/create-organisation` | (shared) | Create Organisation | P |
+| `/create-brand` | (shared) | Create Brand | P |
 | `/business/dashboard` | (business) | Business Dashboard | BA |
 | `/business/bounties` | (business) | Manage Bounties | BA |
 | `/business/bounties/new` | (business) | Create Bounty | BA |
 | `/business/bounties/:id` | (business) | Edit Bounty | BA |
 | `/business/bounties/:id/submissions` | (business) | Review Submissions | BA |
 | `/business/bounties/:id/submissions/:submissionId` | (business) | Review Single Submission | BA |
-| `/business/organisation` | (business) | Org Details | BA |
-| `/business/organisation/members` | (business) | Manage Members | BA |
+| `/business/brand` | (business) | Org Details | BA |
+| `/business/brand/members` | (business) | Manage Members | BA |
 | `/business/profile` | (business) | Profile | BA |
 | `/admin/dashboard` | (admin) | Admin Dashboard | SA |
 | `/admin/users` | (admin) | User Management | SA |
 | `/admin/users/:id` | (admin) | User Detail | SA |
-| `/admin/organisations` | (admin) | Org Management | SA |
-| `/admin/organisations/new` | (admin) | Create Org (SA) | SA |
-| `/admin/organisations/:id` | (admin) | Org Detail | SA |
+| `/admin/brands` | (admin) | Org Management | SA |
+| `/admin/brands/new` | (admin) | Create Org (SA) | SA |
+| `/admin/brands/:id` | (admin) | Org Detail | SA |
 | `/admin/bounties` | (admin) | All Bounties | SA |
 | `/admin/bounties/:id` | (admin) | Bounty Detail + Override | SA |
 | `/admin/submissions/:id` | (admin) | Submission Detail + Override | SA |
@@ -270,7 +270,7 @@ The middleware at `src/middleware.ts` runs on every request and handles:
 import { NextRequest, NextResponse } from 'next/server';
 
 const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password', '/reset-password', '/verify-email'];
-const PARTICIPANT_ROUTES = ['/bounties', '/my-submissions', '/profile', '/create-organisation'];
+const PARTICIPANT_ROUTES = ['/bounties', '/my-submissions', '/profile', '/create-brand'];
 const BUSINESS_ROUTES_PREFIX = '/business';
 const ADMIN_ROUTES_PREFIX = '/admin';
 
@@ -383,15 +383,15 @@ const queryKeys = {
       [...queryKeys.submissions.all, 'forBounty', bountyId, filters] as const,
     detail: (id: string) => [...queryKeys.submissions.all, 'detail', id] as const,
   },
-  organisations: {
-    all: ['organisations'] as const,
-    detail: (id: string) => [...queryKeys.organisations.all, 'detail', id] as const,
-    members: (id: string) => [...queryKeys.organisations.all, id, 'members'] as const,
+  brands: {
+    all: ['brands'] as const,
+    detail: (id: string) => [...queryKeys.brands.all, 'detail', id] as const,
+    members: (id: string) => [...queryKeys.brands.all, id, 'members'] as const,
   },
   admin: {
     users: (filters: UserFilters) => ['admin', 'users', filters] as const,
     userDetail: (id: string) => ['admin', 'users', id] as const,
-    organisations: (filters: OrgFilters) => ['admin', 'organisations', filters] as const,
+    brands: (filters: OrgFilters) => ['admin', 'brands', filters] as const,
     auditLogs: (filters: AuditLogFilters) => ['admin', 'audit-logs', filters] as const,
     auditLogDetail: (id: string) => ['admin', 'audit-logs', id] as const,
     dashboard: ['admin', 'dashboard'] as const,
@@ -832,13 +832,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 **Business Admin**:
 - Dashboard
 - Bounties (manage)
-- Organisation
+- Brand
 - Profile
 
 **Super Admin**:
 - Dashboard
 - Users
-- Organisations
+- Brands
 - Bounties (all)
 - Audit Logs
 - Troubleshooting

@@ -7,8 +7,8 @@ import { Prisma } from '@prisma/client';
 import {
   UserRole,
   UserStatus,
-  OrgStatus,
-  OrgMemberRole,
+  BrandStatus,
+  BrandMemberRole,
   BountyStatus,
   SubmissionStatus,
   AUDIT_ACTIONS,
@@ -61,9 +61,9 @@ export class AdminService {
       this.prisma.user.findMany({
         where,
         include: {
-          organisationMemberships: {
+          brandMemberships: {
             include: {
-              organisation: { select: { id: true, name: true } },
+              brand: { select: { id: true, name: true } },
             },
             take: 1,
           },
@@ -84,10 +84,10 @@ export class AdminService {
         role: u.role,
         status: u.status,
         emailVerified: u.emailVerified,
-        organisation: u.organisationMemberships[0]
+        brand: u.brandMemberships[0]
           ? {
-              id: u.organisationMemberships[0].organisation.id,
-              name: u.organisationMemberships[0].organisation.name,
+              id: u.brandMemberships[0].brand.id,
+              name: u.brandMemberships[0].brand.name,
             }
           : null,
         createdAt: u.createdAt.toISOString(),
@@ -101,9 +101,9 @@ export class AdminService {
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
-        organisationMemberships: {
+        brandMemberships: {
           include: {
-            organisation: { select: { id: true, name: true } },
+            brand: { select: { id: true, name: true } },
           },
           take: 1,
         },
@@ -127,10 +127,10 @@ export class AdminService {
       role: user.role,
       status: user.status,
       emailVerified: user.emailVerified,
-      organisation: user.organisationMemberships[0]
+      brand: user.brandMemberships[0]
         ? {
-            id: user.organisationMemberships[0].organisation.id,
-            name: user.organisationMemberships[0].organisation.name,
+            id: user.brandMemberships[0].brand.id,
+            name: user.brandMemberships[0].brand.name,
           }
         : null,
       submissionCount: user._count.submissions,
@@ -186,18 +186,18 @@ export class AdminService {
 
   // ── Organisations ──────────────────
 
-  async listOrganisations(params: {
+  async listBrands(params: {
     page?: number;
     limit?: number;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
-    status?: OrgStatus;
+    status?: BrandStatus;
     search?: string;
   }) {
     const page = params.page || PAGINATION_DEFAULTS.PAGE;
     const limit = Math.min(params.limit || PAGINATION_DEFAULTS.LIMIT, PAGINATION_DEFAULTS.MAX_LIMIT);
 
-    const where: Prisma.OrganisationWhereInput = {};
+    const where: Prisma.BrandWhereInput = {};
     if (params.status) where.status = params.status;
     if (params.search) {
       where.OR = [
@@ -207,7 +207,7 @@ export class AdminService {
     }
 
     const [orgs, total] = await Promise.all([
-      this.prisma.organisation.findMany({
+      this.prisma.brand.findMany({
         where,
         include: {
           _count: { select: { members: true, bounties: true } },
@@ -216,7 +216,7 @@ export class AdminService {
         take: limit,
         orderBy: { [params.sortBy || 'createdAt']: params.sortOrder || 'desc' },
       }),
-      this.prisma.organisation.count({ where }),
+      this.prisma.brand.count({ where }),
     ]);
 
     return {
@@ -234,8 +234,8 @@ export class AdminService {
     };
   }
 
-  async getOrgDetail(id: string) {
-    const org = await this.prisma.organisation.findUnique({
+  async getBrandDetail(id: string) {
+    const org = await this.prisma.brand.findUnique({
       where: { id },
       include: {
         _count: { select: { members: true, bounties: true } },
@@ -258,7 +258,7 @@ export class AdminService {
     };
   }
 
-  async createOrganisation(
+  async createBrand(
     actor: AuthenticatedUser,
     data: {
       name: string;
@@ -276,7 +276,7 @@ export class AdminService {
       throw new BadRequestException('Owner user not found');
     }
 
-    const existingMembership = await this.prisma.organisationMember.findFirst({
+    const existingMembership = await this.prisma.brandMember.findFirst({
       where: { userId: data.ownerUserId },
     });
 
@@ -285,7 +285,7 @@ export class AdminService {
     }
 
     const org = await this.prisma.$transaction(async (tx) => {
-      const organisation = await tx.organisation.create({
+      const organisation = await tx.brand.create({
         data: {
           name: data.name.trim(),
           contactEmail: data.contactEmail.toLowerCase().trim(),
@@ -293,11 +293,11 @@ export class AdminService {
         },
       });
 
-      await tx.organisationMember.create({
+      await tx.brandMember.create({
         data: {
           userId: data.ownerUserId,
-          organisationId: organisation.id,
-          role: OrgMemberRole.OWNER,
+          brandId: organisation.id,
+          role: BrandMemberRole.OWNER,
         },
       });
 
@@ -312,8 +312,8 @@ export class AdminService {
     this.auditService.log({
       actorId: actor.sub,
       actorRole: actor.role as UserRole,
-      action: AUDIT_ACTIONS.ORGANISATION_CREATE,
-      entityType: ENTITY_TYPES.ORGANISATION,
+      action: AUDIT_ACTIONS.BRAND_CREATE,
+      entityType: ENTITY_TYPES.BRAND,
       entityId: org.id,
       afterState: { name: org.name, ownerUserId: data.ownerUserId },
       ipAddress,
@@ -335,27 +335,27 @@ export class AdminService {
     };
   }
 
-  async updateOrgStatus(
+  async updateBrandStatus(
     id: string,
     actor: AuthenticatedUser,
-    status: OrgStatus,
+    status: BrandStatus,
     reason: string,
     ipAddress?: string,
   ) {
-    const org = await this.prisma.organisation.findUnique({ where: { id } });
+    const org = await this.prisma.brand.findUnique({ where: { id } });
     if (!org) throw new NotFoundException('Organisation not found');
 
     const beforeState = { status: org.status };
 
-    const updated = await this.prisma.organisation.update({
+    const updated = await this.prisma.brand.update({
       where: { id },
       data: { status },
     });
 
     // If suspending, pause all LIVE bounties
-    if (status === OrgStatus.SUSPENDED) {
+    if (status === BrandStatus.SUSPENDED) {
       await this.prisma.bounty.updateMany({
-        where: { organisationId: id, status: BountyStatus.LIVE },
+        where: { brandId: id, status: BountyStatus.LIVE },
         data: { status: BountyStatus.PAUSED },
       });
     }
@@ -363,8 +363,8 @@ export class AdminService {
     this.auditService.log({
       actorId: actor.sub,
       actorRole: actor.role as UserRole,
-      action: AUDIT_ACTIONS.ORGANISATION_STATUS_CHANGE,
-      entityType: ENTITY_TYPES.ORGANISATION,
+      action: AUDIT_ACTIONS.BRAND_STATUS_CHANGE,
+      entityType: ENTITY_TYPES.BRAND,
       entityId: id,
       beforeState,
       afterState: { status },
@@ -389,7 +389,7 @@ export class AdminService {
     status?: SubmissionStatus;
     payoutStatus?: string;
     userId?: string;
-    organisationId?: string;
+    brandId?: string;
     search?: string;
   }) {
     const page = params.page || PAGINATION_DEFAULTS.PAGE;
@@ -399,8 +399,8 @@ export class AdminService {
     if (params.status) where.status = params.status;
     if (params.payoutStatus) where.payoutStatus = params.payoutStatus as any;
     if (params.userId) where.userId = params.userId;
-    if (params.organisationId) {
-      where.bounty = { organisationId: params.organisationId };
+    if (params.brandId) {
+      where.bounty = { brandId: params.brandId };
     }
     if (params.search) {
       where.OR = [
@@ -415,7 +415,7 @@ export class AdminService {
       this.prisma.submission.findMany({
         where,
         include: {
-          bounty: { select: { id: true, title: true, organisationId: true } },
+          bounty: { select: { id: true, title: true, brandId: true } },
           user: { select: { id: true, firstName: true, lastName: true, email: true } },
           reviewedBy: { select: { id: true, firstName: true, lastName: true } },
         },
@@ -650,9 +650,9 @@ export class AdminService {
       this.prisma.user.count({ where: { role: UserRole.PARTICIPANT } }),
       this.prisma.user.count({ where: { role: UserRole.BUSINESS_ADMIN } }),
       this.prisma.user.count({ where: { role: UserRole.SUPER_ADMIN } }),
-      this.prisma.organisation.count(),
-      this.prisma.organisation.count({ where: { status: OrgStatus.ACTIVE } }),
-      this.prisma.organisation.count({ where: { status: OrgStatus.SUSPENDED } }),
+      this.prisma.brand.count(),
+      this.prisma.brand.count({ where: { status: BrandStatus.ACTIVE } }),
+      this.prisma.brand.count({ where: { status: BrandStatus.SUSPENDED } }),
       this.prisma.bounty.count(),
       this.prisma.bounty.count({ where: { status: BountyStatus.DRAFT } }),
       this.prisma.bounty.count({ where: { status: BountyStatus.LIVE } }),

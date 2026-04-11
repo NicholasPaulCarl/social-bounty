@@ -5,7 +5,7 @@ import type {
   SignupWithOtpRequest,
   LoginResponse,
   RefreshTokenResponse,
-  SwitchOrganisationRequest,
+  SwitchBrandRequest,
 } from '@social-bounty/shared';
 
 export const authApi = {
@@ -17,6 +17,6 @@ export const authApi = {
     apiClient.post<LoginResponse>('/auth/signup', data),
   logout: () => apiClient.post('/auth/logout', {}),
   refresh: () => apiClient.post<RefreshTokenResponse>('/auth/refresh', {}),
-  switchOrganisation: (organisationId: string) =>
-    apiClient.post<LoginResponse>('/auth/switch-organisation', { organisationId }),
+  switchBrand: (brandId: string) =>
+    apiClient.post<LoginResponse>('/auth/switch-organisation', { brandId }),
 };

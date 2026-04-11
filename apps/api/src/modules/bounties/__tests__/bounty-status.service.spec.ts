@@ -186,7 +186,7 @@ describe('BountiesService - Status Transitions & DRAFT->LIVE Gate', () => {
 
     it('should throw ForbiddenException if BA not in bounty org', async () => {
       prisma.bounty.findUnique.mockResolvedValue(
-        baseBountyRecord({ organisationId: 'other-org' }),
+        baseBountyRecord({ brandId: 'other-org' }),
       );
 
       await expect(
@@ -336,7 +336,7 @@ describe('BountiesService - Status Transitions & DRAFT->LIVE Gate', () => {
       prisma.bounty.findUnique.mockResolvedValue(
         baseBountyRecord({
           status: BountyStatus.LIVE,
-          organisationId: 'other-org',
+          brandId: 'other-org',
         }),
       );
       prisma.bounty.update.mockResolvedValue(
@@ -350,7 +350,7 @@ describe('BountiesService - Status Transitions & DRAFT->LIVE Gate', () => {
 
     it('AP-18: should reject BA from different org', async () => {
       prisma.bounty.findUnique.mockResolvedValue(
-        baseBountyRecord({ organisationId: 'org-1' }),
+        baseBountyRecord({ brandId: 'org-1' }),
       );
 
       await expect(

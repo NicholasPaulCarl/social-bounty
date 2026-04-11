@@ -1,48 +1,48 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { organisationApi } from '@/lib/api/organisations';
+import { brandsApi } from '@/lib/api/brands';
 import { queryKeys } from '@/lib/query-keys';
 import type {
-  CreateOrganisationRequest,
-  UpdateOrganisationRequest,
+  CreateBrandRequest,
+  UpdateBrandRequest,
   InviteMemberRequest,
   BrandListParams,
 } from '@social-bounty/shared';
 import { authApi } from '@/lib/api/auth';
 
-export function useOrganisation(id: string) {
+export function useBrand(id: string) {
   return useQuery({
     queryKey: queryKeys.organisations.detail(id),
-    queryFn: () => organisationApi.getById(id),
+    queryFn: () => brandsApi.getById(id),
     enabled: !!id,
   });
 }
 
-export function useOrganisationMembers(id: string) {
+export function useBrandMembers(id: string) {
   return useQuery({
     queryKey: queryKeys.organisations.members(id),
-    queryFn: () => organisationApi.listMembers(id),
+    queryFn: () => brandsApi.listMembers(id),
     enabled: !!id,
   });
 }
 
-export function useCreateOrganisation() {
+export function useCreateBrand() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ data, logo }: { data: CreateOrganisationRequest; logo?: File }) =>
-      organisationApi.create(data, logo),
+    mutationFn: ({ data, logo }: { data: CreateBrandRequest; logo?: File }) =>
+      brandsApi.create(data, logo),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.organisations.all });
     },
   });
 }
 
-export function useUpdateOrganisation(id: string) {
+export function useUpdateBrand(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ data, logo }: { data: UpdateOrganisationRequest; logo?: File | null }) =>
-      organisationApi.update(id, data, logo),
+    mutationFn: ({ data, logo }: { data: UpdateBrandRequest; logo?: File | null }) =>
+      brandsApi.update(id, data, logo),
     onSuccess: () => {
       // Invalidate the whole organisations branch so both the detail cache and
       // the public-profile cache (keyed by id *or* handle) stay in sync — a
@@ -55,7 +55,7 @@ export function useUpdateOrganisation(id: string) {
 export function useInviteMember(orgId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: InviteMemberRequest) => organisationApi.inviteMember(orgId, data),
+    mutationFn: (data: InviteMemberRequest) => brandsApi.inviteMember(orgId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.organisations.members(orgId) });
     },
@@ -65,7 +65,7 @@ export function useInviteMember(orgId: string) {
 export function useRemoveMember(orgId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (userId: string) => organisationApi.removeMember(orgId, userId),
+    mutationFn: (userId: string) => brandsApi.removeMember(orgId, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.organisations.members(orgId) });
     },
@@ -75,29 +75,34 @@ export function useRemoveMember(orgId: string) {
 export function useMyBrands() {
   return useQuery({
     queryKey: queryKeys.organisations.mine(),
-    queryFn: () => organisationApi.listMine(),
+    queryFn: () => brandsApi.listMine(),
   });
 }
 
 export function useBrandPublicProfile(idOrHandle: string) {
   return useQuery({
     queryKey: queryKeys.organisations.publicProfile(idOrHandle),
-    queryFn: () => organisationApi.getPublicProfile(idOrHandle),
+    queryFn: () => brandsApi.getPublicProfile(idOrHandle),
     enabled: !!idOrHandle,
+    // Brand profiles change slowly — analytics refresh via login trigger
+    // or biweekly cron, not on every page navigation. A 5-minute stale time
+    // avoids redundant refetches without hiding recent edits for long.
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
 export function useBrandsPublicList(params: BrandListParams) {
   return useQuery({
     queryKey: queryKeys.organisations.publicList(params),
-    queryFn: () => organisationApi.listPublic(params),
+    queryFn: () => brandsApi.listPublic(params),
   });
 }
 
-export function useSwitchOrganisation() {
+export function useSwitchBrand() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (organisationId: string) => authApi.switchOrganisation(organisationId),
+    mutationFn: (brandId: string) => authApi.switchBrand(brandId),
     onSuccess: () => {
       queryClient.invalidateQueries();
     },

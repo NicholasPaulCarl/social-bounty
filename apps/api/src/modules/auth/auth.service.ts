@@ -13,8 +13,8 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   UserRole,
   UserStatus,
-  OrgMemberRole,
-  OrgStatus,
+  BrandMemberRole,
+  BrandStatus,
   OTP_RULES,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
@@ -106,8 +106,8 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
       include: {
-        organisationMemberships: {
-          select: { organisationId: true },
+        brandMemberships: {
+          select: { brandId: true },
           take: 1,
         },
       },
@@ -129,31 +129,36 @@ export class AuthService {
       });
     }
 
-    const organisationId =
-      user.organisationMemberships.length > 0
-        ? user.organisationMemberships[0].organisationId
+    const brandId =
+      user.brandMemberships.length > 0
+        ? user.brandMemberships[0].brandId
         : null;
 
     const tokens = await this.generateTokens(
       user.id,
       user.email,
       user.role,
-      organisationId,
+      brandId,
       user.firstName,
       user.lastName,
     );
 
     // Fire-and-forget: refresh brand social analytics in the background on a
-    // business-admin login. Respects its own 24h staleness guard so rapid
-    // repeat logins don't hammer Apify. Never blocks the login response.
-    if (user.role === UserRole.BUSINESS_ADMIN && organisationId) {
-      setImmediate(() => {
-        this.apify.refreshIfStale(organisationId).catch((err) => {
+    // business-admin login. Respects its own 24h staleness guard and a Redis
+    // lock so rapid repeat logins don't hammer Apify. Never blocks the login
+    // response. Every branch of the promise chain is explicitly wrapped so
+    // no path can surface as an unhandled rejection and crash the process.
+    if (user.role === UserRole.BUSINESS_ADMIN && brandId) {
+      const capturedBrandId = brandId;
+      setImmediate(async () => {
+        try {
+          await this.apify.refreshIfStale(capturedBrandId);
+        } catch (err) {
           this.logger.error(
-            `Background login-triggered refresh failed for ${organisationId}`,
+            `Background login-triggered refresh failed for ${capturedBrandId}`,
             err,
           );
-        });
+        }
       });
     }
 
@@ -167,7 +172,7 @@ export class AuthService {
         role: user.role,
         status: user.status,
         emailVerified: true,
-        organisationId,
+        brandId,
       },
     };
   }
@@ -244,30 +249,30 @@ export class AuthService {
           },
         });
 
-        const organisation = await tx.organisation.create({
+        const organisation = await tx.brand.create({
           data: {
             name: brandName!,
             contactEmail: brandContactEmail!,
-            status: OrgStatus.ACTIVE,
+            status: BrandStatus.ACTIVE,
           },
         });
 
-        await tx.organisationMember.create({
+        await tx.brandMember.create({
           data: {
             userId: user.id,
-            organisationId: organisation.id,
-            role: OrgMemberRole.OWNER,
+            brandId: organisation.id,
+            role: BrandMemberRole.OWNER,
           },
         });
 
-        return { user, organisationId: organisation.id };
+        return { user, brandId: organisation.id };
       });
 
       const tokens = await this.generateTokens(
         result.user.id,
         result.user.email,
         result.user.role,
-        result.organisationId,
+        result.brandId,
         result.user.firstName,
         result.user.lastName,
       );
@@ -282,7 +287,7 @@ export class AuthService {
           role: result.user.role,
           status: result.user.status,
           emailVerified: result.user.emailVerified,
-          organisationId: result.organisationId,
+          brandId: result.brandId,
         },
       };
     }
@@ -319,18 +324,18 @@ export class AuthService {
         role: user.role,
         status: user.status,
         emailVerified: user.emailVerified,
-        organisationId: null,
+        brandId: null,
       },
     };
   }
 
-  async switchOrganisation(userId: string, organisationId: string) {
+  async switchOrganisation(userId: string, brandId: string) {
     // Verify the user is a member of the specified organisation
-    const membership = await this.prisma.organisationMember.findUnique({
+    const membership = await this.prisma.brandMember.findUnique({
       where: {
-        userId_organisationId: {
+        userId_brandId: {
           userId,
-          organisationId,
+          brandId,
         },
       },
     });
@@ -354,7 +359,7 @@ export class AuthService {
       user.id,
       user.email,
       user.role,
-      organisationId,
+      brandId,
       user.firstName,
       user.lastName,
     );
@@ -369,7 +374,7 @@ export class AuthService {
         role: user.role,
         status: user.status,
         emailVerified: user.emailVerified,
-        organisationId,
+        brandId,
       },
     };
   }
@@ -419,13 +424,13 @@ export class AuthService {
       }
 
       // Preserve the selected organisation from the refresh token
-      const organisationId = payload.organisationId ?? null;
+      const brandId = payload.brandId ?? null;
 
       return this.generateTokens(
         user.id,
         user.email,
         user.role,
-        organisationId,
+        brandId,
         user.firstName,
         user.lastName,
       );
@@ -439,7 +444,7 @@ export class AuthService {
     userId: string,
     email: string,
     role: string,
-    organisationId: string | null,
+    brandId: string | null,
     firstName?: string,
     lastName?: string,
   ) {
@@ -450,7 +455,7 @@ export class AuthService {
         sub: userId,
         email,
         role,
-        organisationId,
+        brandId,
         firstName: firstName || '',
         lastName: lastName || '',
         type: 'access',
@@ -464,7 +469,7 @@ export class AuthService {
     const refreshToken = this.jwtService.sign(
       {
         sub: userId,
-        organisationId,
+        brandId,
         type: 'refresh',
         jti,
       },

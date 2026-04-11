@@ -206,7 +206,7 @@ describe('BountiesService - Create Bounty', () => {
     });
 
     it('should allow SA to create bounty for any org', async () => {
-      const saWithOrg = { ...mockSA, organisationId: 'org-1' };
+      const saWithOrg = { ...mockSA, brandId: 'org-1' };
       const data = validCreateBountyData();
       prisma.bounty.create.mockResolvedValue(baseBountyRecord());
 
@@ -219,8 +219,8 @@ describe('BountiesService - Create Bounty', () => {
   // ── Validation Edge Cases ────────────────────────
 
   describe('Validation edge cases', () => {
-    it('VE-30: should throw if user has no organisationId', async () => {
-      const noOrgUser = { ...mockBA, organisationId: null };
+    it('VE-30: should throw if user has no brandId', async () => {
+      const noOrgUser = { ...mockBA, brandId: null };
       const data = validCreateBountyData();
 
       await expect(service.create(noOrgUser, data)).rejects.toThrow(

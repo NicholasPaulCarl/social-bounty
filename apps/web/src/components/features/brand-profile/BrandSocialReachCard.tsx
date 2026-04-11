@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import type {
   BrandSocialAnalyticsBlob,
   BrandSocialAnalyticsCounters,
@@ -79,14 +80,17 @@ function buildTile(orgId: string, platform: MockPlatform, real: BrandSocialAnaly
   };
 }
 
-export function BrandSocialReachCard({ orgId, socialLinks, analytics }: BrandSocialReachCardProps) {
-  const links = socialLinks ?? {};
-
-  const tiles = MOCK_PLATFORMS.map((platform) => ({
-    platform,
-    handle: (links[platform] as string | undefined) ?? null,
-    data: buildTile(orgId, platform, analytics?.[platform]),
-  }));
+function BrandSocialReachCardImpl({ orgId, socialLinks, analytics }: BrandSocialReachCardProps) {
+  // Memoize the whole tile set so parent re-renders don't re-hash the mock
+  // for each platform. Deps: orgId + the two data blobs.
+  const tiles = useMemo(() => {
+    const links = socialLinks ?? {};
+    return MOCK_PLATFORMS.map((platform) => ({
+      platform,
+      handle: (links[platform] as string | undefined) ?? null,
+      data: buildTile(orgId, platform, analytics?.[platform]),
+    }));
+  }, [orgId, socialLinks, analytics]);
 
   const footerText = analytics?.fetchedAt
     ? `Last updated ${formatRelativeTime(analytics.fetchedAt)}`
@@ -170,3 +174,5 @@ export function BrandSocialReachCard({ orgId, socialLinks, analytics }: BrandSoc
     </div>
   );
 }
+
+export const BrandSocialReachCard = memo(BrandSocialReachCardImpl);

@@ -70,8 +70,8 @@ describe('Navigation', () => {
         expect(items.find(i => i.label === 'Review Center')).toBeDefined();
       });
 
-      it('should include Organisation', () => {
-        expect(items.find(i => i.label === 'Organisation')).toBeDefined();
+      it('should include Brands', () => {
+        expect(items.find(i => i.label === 'Brands')).toBeDefined();
       });
 
       it('should include Hunters', () => {
@@ -97,8 +97,8 @@ describe('Navigation', () => {
         expect(items.find(i => i.label === 'Users')).toBeDefined();
       });
 
-      it('should include Organisations', () => {
-        expect(items.find(i => i.label === 'Organisations')).toBeDefined();
+      it('should include Brands', () => {
+        expect(items.find(i => i.label === 'Brands')).toBeDefined();
       });
 
       it('should include Audit Logs', () => {

@@ -8,7 +8,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { useAuth } from '@/hooks/useAuth';
-import { useBrandPublicProfile } from '@/hooks/useOrganisation';
+import { useBrandPublicProfile } from '@/hooks/useBrand';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -37,7 +37,7 @@ export default function BusinessProfilePage() {
   const router = useRouter();
   const toast = useToast();
   const { user } = useAuth();
-  const organisationId = user?.organisationId ?? '';
+  const brandId = user?.brandId ?? '';
 
   const { data: profile, isLoading: profileLoading } = useProfile();
   const updateProfile = useUpdateProfile();
@@ -47,7 +47,7 @@ export default function BusinessProfilePage() {
     isLoading: brandLoading,
     error: brandError,
     refetch: refetchBrand,
-  } = useBrandPublicProfile(organisationId);
+  } = useBrandPublicProfile(brandId);
 
   // Account-info edit dialog state
   const [showAccountDialog, setShowAccountDialog] = useState(false);
@@ -63,7 +63,7 @@ export default function BusinessProfilePage() {
   }, [profile]);
 
   // No brand associated with this user → empty state pointing to create flow.
-  if (!organisationId) {
+  if (!brandId) {
     return (
       <div className="animate-fade-up">
         <PageHeader title="My Brand Profile" />

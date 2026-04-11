@@ -283,23 +283,23 @@ async function main() {
     };
 
     const org = ba.orgId
-      ? await prisma.organisation.upsert({
+      ? await prisma.brand.upsert({
           where: { id: ba.orgId },
           update: orgData,
           create: { id: ba.orgId, ...orgData },
         })
-      : await prisma.organisation.create({ data: orgData }).catch(async () => {
+      : await prisma.brand.create({ data: orgData }).catch(async () => {
           // Org may exist if re-seeding — find by name
-          const existing = await prisma.organisation.findFirst({ where: { name: ba.orgName } });
+          const existing = await prisma.brand.findFirst({ where: { name: ba.orgName } });
           return existing!;
         });
 
     orgs.push(org);
 
-    await prisma.organisationMember.upsert({
-      where: { userId_organisationId: { userId: user.id, organisationId: org.id } },
+    await prisma.brandMember.upsert({
+      where: { userId_brandId: { userId: user.id, brandId: org.id } },
       update: { role: 'OWNER' },
-      create: { userId: user.id, organisationId: org.id, role: 'OWNER' },
+      create: { userId: user.id, brandId: org.id, role: 'OWNER' },
     });
   }
   console.log(`  Created ${BUSINESS_ADMINS.length} business admins with ${orgs.length} organisations`);
@@ -322,8 +322,8 @@ async function main() {
   for (let i = 0; i < BOUNTY_TEMPLATES.length; i++) {
     const t = BOUNTY_TEMPLATES[i];
     const org = orgs[t.orgIndex];
-    const baUser = await prisma.organisationMember.findFirst({
-      where: { organisationId: org.id, role: 'OWNER' },
+    const baUser = await prisma.brandMember.findFirst({
+      where: { brandId: org.id, role: 'OWNER' },
     });
 
     const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
@@ -331,7 +331,7 @@ async function main() {
 
     const bounty = await prisma.bounty.create({
       data: {
-        organisationId: org.id,
+        brandId: org.id,
         createdById: baUser!.userId,
         title: t.title,
         shortDescription: t.shortDescription,

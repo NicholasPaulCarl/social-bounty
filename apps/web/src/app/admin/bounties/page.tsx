@@ -110,7 +110,7 @@ export default function AdminBountiesPage() {
           <div className="glass-card overflow-x-auto">
           <DataTable value={data.data} stripedRows className="min-w-[600px]">
             <Column field="title" header="Title" sortable />
-            <Column field="organisationName" header="Brand" />
+            <Column field="brandName" header="Brand" />
             <Column header="Status" body={statusTemplate} />
             <Column header="Reward" body={rewardTemplate} />
             <Column field="submissionCount" header="Submissions" />

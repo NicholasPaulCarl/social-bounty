@@ -161,11 +161,11 @@ describe('SubscriptionsService', () => {
       expect(result.id).toBe('sub-1');
     });
 
-    it('should query by organisationId for business admin', async () => {
+    it('should query by brandId for business admin', async () => {
       prisma.subscription.findFirst.mockResolvedValue(null);
       await service.getSubscription('user-1', UserRole.BUSINESS_ADMIN, 'org-1');
       expect(prisma.subscription.findFirst).toHaveBeenCalledWith({
-        where: { organisationId: 'org-1', entityType: SubscriptionEntityType.BRAND },
+        where: { brandId: 'org-1', entityType: SubscriptionEntityType.BRAND },
       });
     });
   });

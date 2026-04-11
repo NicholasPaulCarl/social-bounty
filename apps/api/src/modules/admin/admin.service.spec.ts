@@ -11,7 +11,7 @@ import { SettingsService } from '../settings/settings.service';
 import {
   UserRole,
   UserStatus,
-  OrgStatus,
+  BrandStatus,
   BountyStatus,
   SubmissionStatus,
 } from '@social-bounty/shared';
@@ -27,7 +27,7 @@ describe('AdminService', () => {
     sub: 'sa-1',
     email: 'admin@test.com',
     role: UserRole.SUPER_ADMIN,
-    organisationId: null,
+    brandId: null,
   };
 
   beforeEach(async () => {
@@ -38,7 +38,7 @@ describe('AdminService', () => {
         count: jest.fn(),
         update: jest.fn(),
       },
-      organisation: {
+      brand: {
         findUnique: jest.fn(),
         findMany: jest.fn(),
         count: jest.fn(),
@@ -195,31 +195,31 @@ describe('AdminService', () => {
     });
   });
 
-  // ── updateOrgStatus ─────────────────────────────────
+  // ── updateBrandStatus ─────────────────────────────────
 
-  describe('updateOrgStatus', () => {
+  describe('updateBrandStatus', () => {
     it('should suspend an organisation and pause LIVE bounties', async () => {
-      prisma.organisation.findUnique.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue({
         id: 'org-1',
-        status: OrgStatus.ACTIVE,
+        status: BrandStatus.ACTIVE,
       });
-      prisma.organisation.update.mockResolvedValue({
+      prisma.brand.update.mockResolvedValue({
         id: 'org-1',
-        status: OrgStatus.SUSPENDED,
+        status: BrandStatus.SUSPENDED,
         updatedAt: new Date(),
       });
       prisma.bounty.updateMany.mockResolvedValue({ count: 3 });
 
-      const result = await service.updateOrgStatus(
+      const result = await service.updateBrandStatus(
         'org-1',
         mockSA,
-        OrgStatus.SUSPENDED,
+        BrandStatus.SUSPENDED,
         'Policy violation',
       );
 
-      expect(result.status).toBe(OrgStatus.SUSPENDED);
+      expect(result.status).toBe(BrandStatus.SUSPENDED);
       expect(prisma.bounty.updateMany).toHaveBeenCalledWith({
-        where: { organisationId: 'org-1', status: BountyStatus.LIVE },
+        where: { brandId: 'org-1', status: BountyStatus.LIVE },
         data: { status: BountyStatus.PAUSED },
       });
       expect(auditService.log).toHaveBeenCalledWith(
@@ -231,36 +231,36 @@ describe('AdminService', () => {
     });
 
     it('should reinstate an organisation without re-publishing bounties', async () => {
-      prisma.organisation.findUnique.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue({
         id: 'org-1',
-        status: OrgStatus.SUSPENDED,
+        status: BrandStatus.SUSPENDED,
       });
-      prisma.organisation.update.mockResolvedValue({
+      prisma.brand.update.mockResolvedValue({
         id: 'org-1',
-        status: OrgStatus.ACTIVE,
+        status: BrandStatus.ACTIVE,
         updatedAt: new Date(),
       });
 
-      const result = await service.updateOrgStatus(
+      const result = await service.updateBrandStatus(
         'org-1',
         mockSA,
-        OrgStatus.ACTIVE,
+        BrandStatus.ACTIVE,
         'Investigation resolved',
       );
 
-      expect(result.status).toBe(OrgStatus.ACTIVE);
+      expect(result.status).toBe(BrandStatus.ACTIVE);
       // bounty.updateMany should NOT be called for reinstatement
       expect(prisma.bounty.updateMany).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException for non-existent org', async () => {
-      prisma.organisation.findUnique.mockResolvedValue(null);
+      prisma.brand.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.updateOrgStatus(
+        service.updateBrandStatus(
           'non-existent',
           mockSA,
-          OrgStatus.SUSPENDED,
+          BrandStatus.SUSPENDED,
           'Test',
         ),
       ).rejects.toThrow(NotFoundException);
@@ -370,7 +370,7 @@ describe('AdminService', () => {
         role: UserRole.PARTICIPANT,
         status: UserStatus.ACTIVE,
         emailVerified: true,
-        organisationMemberships: [],
+        brandMemberships: [],
         _count: { submissions: 10 },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -404,7 +404,7 @@ describe('AdminService', () => {
         .mockResolvedValueOnce(320)    // participants
         .mockResolvedValueOnce(25)     // BAs
         .mockResolvedValueOnce(5);     // SAs
-      prisma.organisation.count
+      prisma.brand.count
         .mockResolvedValueOnce(25)     // total
         .mockResolvedValueOnce(23)     // active
         .mockResolvedValueOnce(2);     // suspended

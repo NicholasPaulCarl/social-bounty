@@ -29,14 +29,14 @@ const mockBA: AuthenticatedUser = {
   sub: 'ba-id',
   email: 'ba@test.com',
   role: UserRole.BUSINESS_ADMIN,
-  organisationId: 'org-1',
+  brandId: 'org-1',
 };
 
 const mockSA: AuthenticatedUser = {
   sub: 'sa-id',
   email: 'admin@test.com',
   role: UserRole.SUPER_ADMIN,
-  organisationId: null,
+  brandId: null,
 };
 
 describe('PaymentsService', () => {
@@ -88,7 +88,7 @@ describe('PaymentsService', () => {
     it('should create a payment intent for a draft bounty with rewards', async () => {
       const bounty = {
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         paymentStatus: 'UNPAID',
         currency: 'ZAR',
@@ -127,7 +127,7 @@ describe('PaymentsService', () => {
     it('should pass idempotency key based on bountyId', async () => {
       const bounty = {
         id: 'bounty-xyz',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         paymentStatus: 'UNPAID',
         currency: 'USD',
@@ -173,7 +173,7 @@ describe('PaymentsService', () => {
     it('should throw ForbiddenException when BA belongs to different org', async () => {
       const bounty = {
         id: 'bounty-1',
-        organisationId: 'org-2',
+        brandId: 'org-2',
         status: BountyStatus.DRAFT,
         deletedAt: null,
       };
@@ -187,7 +187,7 @@ describe('PaymentsService', () => {
     it('should throw BadRequestException for non-DRAFT bounty', async () => {
       const bounty = {
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.LIVE,
         deletedAt: null,
       };
@@ -201,7 +201,7 @@ describe('PaymentsService', () => {
     it('should throw BadRequestException when already paid', async () => {
       const bounty = {
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         paymentStatus: 'PAID',
         deletedAt: null,
@@ -216,7 +216,7 @@ describe('PaymentsService', () => {
     it('should throw BadRequestException when bounty has no reward value', async () => {
       const bounty = {
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         paymentStatus: 'UNPAID',
         currency: 'ZAR',
@@ -234,7 +234,7 @@ describe('PaymentsService', () => {
     it('should use legacy rewardValue when no reward lines exist', async () => {
       const bounty = {
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         paymentStatus: 'UNPAID',
         currency: 'USD',

@@ -3,7 +3,7 @@ import type {
   MySubmissionsParams,
   SubmissionReviewListParams,
   AdminUserListParams,
-  AdminOrgListParams,
+  AdminBrandListParams,
   AuditLogListParams,
   AdminRecentErrorsParams,
   DisputeListParams,
@@ -46,7 +46,7 @@ export const queryKeys = {
   admin: {
     users: (filters: AdminUserListParams) => ['admin', 'users', filters] as const,
     userDetail: (id: string) => ['admin', 'users', id] as const,
-    organisations: (filters: AdminOrgListParams) => ['admin', 'organisations', filters] as const,
+    organisations: (filters: AdminBrandListParams) => ['admin', 'organisations', filters] as const,
     orgDetail: (id: string) => ['admin', 'organisations', id] as const,
     auditLogs: (filters: AuditLogListParams) => ['admin', 'audit-logs', filters] as const,
     auditLogDetail: (id: string) => ['admin', 'audit-logs', id] as const,

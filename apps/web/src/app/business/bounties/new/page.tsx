@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCreateBounty } from '@/hooks/useBounties';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
-import { useOrganisation } from '@/hooks/useOrganisation';
+import { useBrand } from '@/hooks/useBrand';
 import { PageHeader } from '@/components/common/PageHeader';
 import { CreateBountyForm } from '@/components/bounty-form';
 import { bountyApi } from '@/lib/api/bounties';
@@ -16,7 +16,7 @@ export default function CreateBountyPage() {
   const router = useRouter();
   const toast = useToast();
   const { user } = useAuth();
-  const { data: org } = useOrganisation(user?.organisationId || '');
+  const { data: org } = useBrand(user?.brandId || '');
   const createBounty = useCreateBounty();
   const [formError, setFormError] = useState('');
   const [isDraftSave, setIsDraftSave] = useState(false);

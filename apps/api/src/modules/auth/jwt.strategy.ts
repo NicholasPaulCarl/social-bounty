@@ -7,7 +7,7 @@ interface JwtPayloadFromToken {
   sub: string;
   email: string;
   role: string;
-  organisationId: string | null;
+  brandId: string | null;
   type: string;
 }
 
@@ -15,7 +15,7 @@ export interface AuthenticatedUser {
   sub: string;
   email: string;
   role: string;
-  organisationId: string | null;
+  brandId: string | null;
 }
 
 @Injectable()
@@ -37,7 +37,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       sub: payload.sub,
       email: payload.email,
       role: payload.role,
-      organisationId: payload.organisationId,
+      brandId: payload.brandId,
     };
   }
 }

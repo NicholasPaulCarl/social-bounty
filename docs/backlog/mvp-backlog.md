@@ -12,7 +12,7 @@
 - [Assumptions](#assumptions)
 - [Epic 1: Authentication](#epic-1-authentication)
 - [Epic 2: User Profile](#epic-2-user-profile)
-- [Epic 3: Organisations](#epic-3-organisations)
+- [Epic 3: Brands](#epic-3-brands)
 - [Epic 4: Bounties](#epic-4-bounties)
 - [Epic 5: Submissions](#epic-5-submissions)
 - [Epic 6: Business Admin](#epic-6-business-admin)
@@ -27,8 +27,8 @@
 
 These assumptions are documented per the project rule: "If something is unclear, make the smallest reasonable assumption and document it."
 
-1. **Single organisation per Business Admin**: The spec states "Each Business Admin belongs to one organisation (MVP constraint)." A user cannot be a Business Admin of multiple orgs.
-2. **Role assignment**: Super Admins are seeded or manually assigned. There is no self-service Super Admin registration. Business Admins are assigned their role when they create or are invited to an organisation.
+1. **Single brand per Business Admin**: The spec states "Each Business Admin belongs to one brand (MVP constraint)." A user cannot be a Business Admin of multiple orgs.
+2. **Role assignment**: Super Admins are seeded or manually assigned. There is no self-service Super Admin registration. Business Admins are assigned their role when they create or are invited to an brand.
 3. **Participants cannot be Business Admins simultaneously**: A user has a single primary role for MVP. Role separation is enforced.
 4. **Email verification is optional**: The spec says "Optional email verification." We will implement the flow but it will not block access.
 5. **File uploads are images only**: The spec explicitly limits proof images to image files only. No video, PDF, or other file types.
@@ -188,75 +188,75 @@ These assumptions are documented per the project rule: "If something is unclear,
 
 ---
 
-## Epic 3: Organisations
+## Epic 3: Brands
 
-**Goal**: Business Admins can create and manage their organisation. Super Admins can manage all organisations.
+**Goal**: Business Admins can create and manage their brand. Super Admins can manage all brands.
 
-### Story 3.1: Create Organisation
+### Story 3.1: Create Brand
 
-**As a** user, **I want to** create an organisation, **so that** I can manage bounties as a Business Admin.
+**As a** user, **I want to** create an brand, **so that** I can manage bounties as a Business Admin.
 
 **Acceptance Criteria**:
-- [ ] Form collects: organisation name, contact email, logo (optional image upload)
+- [ ] Form collects: brand name, contact email, logo (optional image upload)
 - [ ] On creation, the user's role is changed to Business Admin
-- [ ] The creating user is added as an OrganisationMember with "owner" role
-- [ ] Organisation is created with status "active"
-- [ ] A user who already belongs to an organisation cannot create another one
-- [ ] Audit log entry is created for organisation creation
+- [ ] The creating user is added as an BrandMember with "owner" role
+- [ ] Brand is created with status "active"
+- [ ] A user who already belongs to an brand cannot create another one
+- [ ] Audit log entry is created for brand creation
 
 **Tasks**:
-- T3.1.1: Create `POST /organisations` endpoint with validation
-- T3.1.2: Implement organisation creation service with membership logic
-- T3.1.3: Build create organisation page UI
+- T3.1.1: Create `POST /brands` endpoint with validation
+- T3.1.2: Implement brand creation service with membership logic
+- T3.1.3: Build create brand page UI
 - T3.1.4: Handle logo image upload (optional)
 - T3.1.5: Write unit tests for creation logic
 - T3.1.6: Write API integration tests
 
-### Story 3.2: View Organisation Details
+### Story 3.2: View Brand Details
 
-**As a** Business Admin, **I want to** view my organisation's details, **so that** I can see the current state.
+**As a** Business Admin, **I want to** view my brand's details, **so that** I can see the current state.
 
 **Acceptance Criteria**:
-- [ ] Organisation detail page shows: name, logo, contact email, status, member list, creation date
-- [ ] Only members of the organisation can view the details (RBAC)
-- [ ] Super Admins can view any organisation's details
+- [ ] Brand detail page shows: name, logo, contact email, status, member list, creation date
+- [ ] Only members of the brand can view the details (RBAC)
+- [ ] Super Admins can view any brand's details
 
 **Tasks**:
-- T3.2.1: Create `GET /organisations/:id` endpoint with RBAC
-- T3.2.2: Build organisation detail page UI
+- T3.2.1: Create `GET /brands/:id` endpoint with RBAC
+- T3.2.2: Build brand detail page UI
 - T3.2.3: Write API integration test
 
-### Story 3.3: Edit Organisation
+### Story 3.3: Edit Brand
 
-**As a** Business Admin (owner), **I want to** update my organisation's details, **so that** information stays current.
+**As a** Business Admin (owner), **I want to** update my brand's details, **so that** information stays current.
 
 **Acceptance Criteria**:
 - [ ] Owner can update: name, contact email, logo
-- [ ] Only the organisation owner can edit (RBAC)
+- [ ] Only the brand owner can edit (RBAC)
 - [ ] On success, a confirmation toast is shown
 - [ ] Audit log entry is created for changes
 
 **Tasks**:
-- T3.3.1: Create `PATCH /organisations/:id` endpoint with RBAC and validation
-- T3.3.2: Build edit organisation form UI
+- T3.3.1: Create `PATCH /brands/:id` endpoint with RBAC and validation
+- T3.3.2: Build edit brand form UI
 - T3.3.3: Write API integration tests
 
-### Story 3.4: Manage Organisation Members
+### Story 3.4: Manage Brand Members
 
-**As a** Business Admin (owner), **I want to** invite and remove members from my organisation, **so that** my team can manage bounties.
+**As a** Business Admin (owner), **I want to** invite and remove members from my brand, **so that** my team can manage bounties.
 
 **Acceptance Criteria**:
-- [ ] Owner can invite users by email to join the organisation
+- [ ] Owner can invite users by email to join the brand
 - [ ] Invited user receives an email invitation
 - [ ] Invited user who accepts is added as a member with "member" role
 - [ ] Owner can remove members (with confirmation dialog)
-- [ ] Members gain Business Admin role for the organisation
-- [ ] Removed members lose Business Admin privileges for that organisation
+- [ ] Members gain Business Admin role for the brand
+- [ ] Removed members lose Business Admin privileges for that brand
 - [ ] Audit log entry is created for member additions and removals
 
 **Tasks**:
-- T3.4.1: Create `POST /organisations/:id/members` (invite) endpoint
-- T3.4.2: Create `DELETE /organisations/:id/members/:userId` endpoint
+- T3.4.1: Create `POST /brands/:id/members` (invite) endpoint
+- T3.4.2: Create `DELETE /brands/:id/members/:userId` endpoint
 - T3.4.3: Implement invitation email and acceptance flow
 - T3.4.4: Build member management UI (list, invite, remove)
 - T3.4.5: Write unit tests for membership logic
@@ -275,7 +275,7 @@ These assumptions are documented per the project rule: "If something is unclear,
 **Acceptance Criteria**:
 - [ ] Form collects all bounty fields: title, short description, full instructions, category, reward type, reward value or reward description, max submissions (optional), start/end dates (optional), eligibility rules, proof requirements
 - [ ] Bounty is created in "Draft" status
-- [ ] Bounty is associated with the Business Admin's organisation
+- [ ] Bounty is associated with the Business Admin's brand
 - [ ] Input validation on all fields (required fields, date ordering, positive reward values)
 - [ ] Audit log entry is created
 
@@ -294,7 +294,7 @@ These assumptions are documented per the project rule: "If something is unclear,
 - [ ] All fields except status can be edited
 - [ ] Only bounties in Draft or Paused status can have all fields edited
 - [ ] Live bounties can only have limited fields edited (eligibility rules, proof requirements, max submissions, end date)
-- [ ] Only members of the bounty's organisation can edit (RBAC)
+- [ ] Only members of the bounty's brand can edit (RBAC)
 - [ ] Audit log entry is created with before/after state
 
 **Tasks**:
@@ -329,7 +329,7 @@ These assumptions are documented per the project rule: "If something is unclear,
 
 **Acceptance Criteria**:
 - [ ] Bounty list page shows all bounties with status "Live"
-- [ ] Each list item shows: title, short description, category, reward type/value, organisation name
+- [ ] Each list item shows: title, short description, category, reward type/value, brand name
 - [ ] Filters available: category, reward type, keyword search
 - [ ] Pagination is implemented (server-side)
 - [ ] Sorting by: newest, reward value, ending soon
@@ -346,7 +346,7 @@ These assumptions are documented per the project rule: "If something is unclear,
 **As a** participant, **I want to** view full bounty details, **so that** I can decide whether to submit.
 
 **Acceptance Criteria**:
-- [ ] Detail page shows all bounty fields: title, full instructions, category, reward, eligibility rules, proof requirements, organisation name, start/end dates, remaining submissions (if max is set)
+- [ ] Detail page shows all bounty fields: title, full instructions, category, reward, eligibility rules, proof requirements, brand name, start/end dates, remaining submissions (if max is set)
 - [ ] A "Submit Proof" button is visible if the bounty is Live and the user has not already submitted
 - [ ] If the user has already submitted, their submission status is shown instead
 - [ ] Closed or Paused bounties show appropriate status badges but no submit button
@@ -364,7 +364,7 @@ These assumptions are documented per the project rule: "If something is unclear,
 **Acceptance Criteria**:
 - [ ] Only bounties in "Draft" status can be deleted
 - [ ] Confirmation dialog is required before deletion
-- [ ] Only the organisation's members can delete (RBAC)
+- [ ] Only the brand's members can delete (RBAC)
 - [ ] Audit log entry is created
 - [ ] Soft delete (mark as deleted, do not purge from database)
 
@@ -424,7 +424,7 @@ These assumptions are documented per the project rule: "If something is unclear,
 
 **Acceptance Criteria**:
 - [ ] Detail page shows: proof text, proof links, proof images, status, reviewer note (if any), payout status, submission date
-- [ ] Only the submitter, the bounty's organisation members, and Super Admins can view (RBAC)
+- [ ] Only the submitter, the bounty's brand members, and Super Admins can view (RBAC)
 - [ ] If status is "Needs More Info", an "Update Submission" button is shown
 
 **Tasks**:
@@ -462,19 +462,19 @@ These assumptions are documented per the project rule: "If something is unclear,
 - [ ] Dashboard shows summary counts: total bounties by status, total submissions by status, pending reviews
 - [ ] Dashboard is the default landing page for Business Admins after login
 - [ ] Only Business Admins can access (RBAC)
-- [ ] Data is scoped to the Business Admin's organisation only
+- [ ] Data is scoped to the Business Admin's brand only
 
 **Tasks**:
-- T6.1.1: Create `GET /organisations/:id/dashboard` endpoint with RBAC
+- T6.1.1: Create `GET /brands/:id/dashboard` endpoint with RBAC
 - T6.1.2: Build Business Admin dashboard page UI with PrimeReact cards/stats
 - T6.1.3: Write API integration tests
 
 ### Story 6.2: Bounty Management List
 
-**As a** Business Admin, **I want to** see all bounties for my organisation, **so that** I can manage them.
+**As a** Business Admin, **I want to** see all bounties for my brand, **so that** I can manage them.
 
 **Acceptance Criteria**:
-- [ ] List shows all bounties for the organisation, regardless of status
+- [ ] List shows all bounties for the brand, regardless of status
 - [ ] Each item shows: title, status badge, submission count, creation date
 - [ ] Filters available: status
 - [ ] Sorting by: newest, title, status
@@ -482,7 +482,7 @@ These assumptions are documented per the project rule: "If something is unclear,
 - [ ] Pagination is implemented
 
 **Tasks**:
-- T6.2.1: Create `GET /organisations/:id/bounties` endpoint with RBAC, filtering, pagination
+- T6.2.1: Create `GET /brands/:id/bounties` endpoint with RBAC, filtering, pagination
 - T6.2.2: Build bounty management list page UI with PrimeReact DataTable
 - T6.2.3: Write API integration tests
 
@@ -498,7 +498,7 @@ These assumptions are documented per the project rule: "If something is unclear,
 - [ ] Status transitions are validated: Submitted -> In Review, In Review -> Approved/Rejected/Needs More Info
 - [ ] When a reviewer opens a submission, its status changes to "In Review" (if currently "Submitted")
 - [ ] Confirmation dialog is shown for Approve and Reject actions
-- [ ] Only the bounty's organisation members can review (RBAC)
+- [ ] Only the bounty's brand members can review (RBAC)
 - [ ] Audit log entry is created for every review action with before/after state
 
 **Tasks**:
@@ -518,7 +518,7 @@ These assumptions are documented per the project rule: "If something is unclear,
 - [ ] Valid payout transitions: Not Paid -> Pending, Pending -> Paid, Not Paid -> Paid
 - [ ] Payout update includes optional note
 - [ ] Payout status badge is visible on submission list and detail
-- [ ] Only the bounty's organisation members can update payout status (RBAC)
+- [ ] Only the bounty's brand members can update payout status (RBAC)
 - [ ] Audit log entry is created for payout status changes
 
 **Tasks**:
@@ -531,14 +531,14 @@ These assumptions are documented per the project rule: "If something is unclear,
 
 ## Epic 7: Super Admin
 
-**Goal**: Super Admins can manage the entire platform, including users, organisations, bounties, submissions, audit logs, and system health.
+**Goal**: Super Admins can manage the entire platform, including users, brands, bounties, submissions, audit logs, and system health.
 
 ### Story 7.1: Super Admin Dashboard
 
 **As a** Super Admin, **I want to** see a platform-wide dashboard, **so that** I can monitor the overall state of the system.
 
 **Acceptance Criteria**:
-- [ ] Dashboard shows platform-wide summary counts: total users, total organisations, total bounties by status, total submissions by status
+- [ ] Dashboard shows platform-wide summary counts: total users, total brands, total bounties by status, total submissions by status
 - [ ] Dashboard is the default landing page for Super Admins after login
 - [ ] Only Super Admins can access (RBAC)
 
@@ -570,24 +570,24 @@ These assumptions are documented per the project rule: "If something is unclear,
 - T7.2.7: Write unit tests for suspend/reinstate logic
 - T7.2.8: Write API integration tests for all user management actions
 
-### Story 7.3: Organisation Management
+### Story 7.3: Brand Management
 
-**As a** Super Admin, **I want to** view and manage all organisations, **so that** I can oversee the platform.
+**As a** Super Admin, **I want to** view and manage all brands, **so that** I can oversee the platform.
 
 **Acceptance Criteria**:
-- [ ] Organisation list with search by name
+- [ ] Brand list with search by name
 - [ ] Each entry shows: name, contact email, status, member count, bounty count, creation date
-- [ ] Super Admin can view any organisation's details
-- [ ] Super Admin can suspend/reinstate organisations (with confirmation and mandatory reason)
-- [ ] Suspended organisations' bounties are automatically paused
+- [ ] Super Admin can view any brand's details
+- [ ] Super Admin can suspend/reinstate brands (with confirmation and mandatory reason)
+- [ ] Suspended brands' bounties are automatically paused
 - [ ] All actions create audit log entries
 - [ ] Pagination is implemented
 
 **Tasks**:
-- T7.3.1: Create `GET /admin/organisations` endpoint with search and pagination
-- T7.3.2: Create `POST /admin/organisations/:id/suspend` endpoint with reason
-- T7.3.3: Create `POST /admin/organisations/:id/reinstate` endpoint with reason
-- T7.3.4: Build organisation management page UI
+- T7.3.1: Create `GET /admin/brands` endpoint with search and pagination
+- T7.3.2: Create `POST /admin/brands/:id/suspend` endpoint with reason
+- T7.3.3: Create `POST /admin/brands/:id/reinstate` endpoint with reason
+- T7.3.4: Build brand management page UI
 - T7.3.5: Write API integration tests
 
 ### Story 7.4: Bounty and Submission Overrides
@@ -712,16 +712,16 @@ These assumptions are documented per the project rule: "If something is unclear,
 
 ### Story 9.1: Business Admin Reports
 
-**As a** Business Admin, **I want to** see simple counts and breakdowns for my organisation, **so that** I can understand activity levels.
+**As a** Business Admin, **I want to** see simple counts and breakdowns for my brand, **so that** I can understand activity levels.
 
 **Acceptance Criteria**:
 - [ ] Reports show: total bounties by status, total submissions by status, total approved submissions, total payouts by status
-- [ ] Data is scoped to the Business Admin's organisation only
+- [ ] Data is scoped to the Business Admin's brand only
 - [ ] No charts -- just numbers and simple tabular breakdowns
 - [ ] Only Business Admins can access (RBAC)
 
 **Tasks**:
-- T9.1.1: Create `GET /organisations/:id/reports` endpoint with RBAC
+- T9.1.1: Create `GET /brands/:id/reports` endpoint with RBAC
 - T9.1.2: Build reports section on Business Admin dashboard
 - T9.1.3: Write API integration tests
 
@@ -730,7 +730,7 @@ These assumptions are documented per the project rule: "If something is unclear,
 **As a** Super Admin, **I want to** see platform-wide counts and breakdowns, **so that** I can monitor overall platform health.
 
 **Acceptance Criteria**:
-- [ ] Reports show: total users by role, total organisations by status, total bounties by status, total submissions by status, total payouts by status
+- [ ] Reports show: total users by role, total brands by status, total bounties by status, total submissions by status, total payouts by status
 - [ ] No charts -- just numbers and simple tabular breakdowns
 - [ ] Only Super Admins can access (RBAC)
 
@@ -869,7 +869,7 @@ The following dependencies exist between epics and should guide implementation o
 Epic 10 (Infrastructure) ──> Foundation for all epics
 Epic 1 (Authentication)  ──> Required by all other epics
 Epic 2 (User Profile)    ──> Depends on Epic 1
-Epic 3 (Organisations)   ──> Depends on Epic 1
+Epic 3 (Brands)   ──> Depends on Epic 1
 Epic 4 (Bounties)        ──> Depends on Epic 1, Epic 3
 Epic 5 (Submissions)     ──> Depends on Epic 1, Epic 4
 Epic 6 (Business Admin)  ──> Depends on Epic 3, Epic 4, Epic 5
@@ -886,7 +886,7 @@ Epic 9 (Reporting)       ──> Depends on Epic 4, Epic 5
 - Epic 2: User Profile (all stories)
 
 ### Phase 2: Core Domain
-- Epic 3: Organisations (all stories)
+- Epic 3: Brands (all stories)
 - Epic 4: Bounties (all stories)
 - Epic 5: Submissions (all stories)
 

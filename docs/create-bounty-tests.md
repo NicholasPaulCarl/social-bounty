@@ -145,7 +145,7 @@
 | VE-27 | Reward with 3 decimal places | `rewards: [{ monetaryValue: 10.123, ... }]` | 400, "Monetary value must have at most 2 decimal places" |
 | VE-28 | Unknown channel enum | `channels: { YOUTUBE: ['VIDEO_POST'] }` | 400, invalid channel |
 | VE-29 | Invalid currency enum | `currency: 'BTC'` | 400, "Currency must be ZAR, USD, GBP, or EUR" |
-| VE-30 | User without organisationId | No org user tries to create bounty | 400, "You must belong to an organisation" |
+| VE-30 | User without brandId | No org user tries to create bounty | 400, "You must belong to an brand" |
 | VE-31 | LIVE bounty edit restricted fields | LIVE bounty, try to update `title` | 400, "Cannot edit these fields on a LIVE bounty: title" |
 | VE-32 | CLOSED bounty edit any field | CLOSED bounty, try to update `maxSubmissions` | 400, "Cannot edit a closed bounty" |
 | VE-33 | Acknowledge visibility without postVisibilityRule set | Draft bounty, postVisibilityRule=null | 400, "Bounty has no visibility rule set" |

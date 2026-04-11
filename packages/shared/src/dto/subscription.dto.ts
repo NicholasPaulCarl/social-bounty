@@ -66,7 +66,7 @@ export interface AdminSubscriptionListItem {
   failedPaymentCount: number;
   userName: string | null;
   userEmail: string | null;
-  organisationName: string | null;
+  brandName: string | null;
   createdAt: string;
 }
 
@@ -95,7 +95,7 @@ export interface AdminSubscriptionDetailDto {
   providerSubId: string | null;
   userName: string | null;
   userEmail: string | null;
-  organisationName: string | null;
+  brandName: string | null;
   payments: SubscriptionPaymentDto[];
   createdAt: string;
   updatedAt: string;

@@ -164,7 +164,7 @@ Run from project root using workspace scripts, or from `packages/prisma/` direct
 `packages/prisma/schema.prisma`
 
 ### Seed Script
-`packages/prisma/seed.ts` — creates 3 demo users + demo organisation. Configured in `package.json` under `prisma.seed`.
+`packages/prisma/seed.ts` — creates 3 demo users + demo brand. Configured in `package.json` under `prisma.seed`.
 
 ### Migration Workflow
 

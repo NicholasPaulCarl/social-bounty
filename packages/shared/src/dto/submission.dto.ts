@@ -62,7 +62,7 @@ export interface SubmissionBountyInfo {
 
 // Bounty summary with org info for "my submissions"
 export interface SubmissionBountyWithOrgInfo extends SubmissionBountyInfo {
-  organisation: {
+  brand: {
     id: string;
     name: string;
   };

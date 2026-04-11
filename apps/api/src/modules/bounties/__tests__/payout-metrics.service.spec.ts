@@ -146,7 +146,7 @@ describe('BountiesService - Payout Metrics', () => {
         payoutMetrics: { minViews: 200, minLikes: 20, minComments: 10 },
         _count: { submissions: 0 },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'User' },
-        organisation: { id: 'org-1', name: 'Test Org', logo: null },
+        brand: { id: 'org-1', name: 'Test Org', logo: null },
       };
       prisma.bounty.update.mockResolvedValue(updatedRecord);
       prisma.bountyReward.findMany.mockResolvedValue([baseBountyRewardRecord()]);
