@@ -31,11 +31,16 @@ enum BrandStatus {
   ACTIVE
   SUSPENDED
   INACTIVE
+
+  // DB enum type stays "OrgStatus" to avoid a type-rename migration.
+  @@map("OrgStatus")
 }
 
 enum BrandMemberRole {
   OWNER
   MEMBER
+
+  @@map("OrgMemberRole")
 }
 
 enum BountyStatus {
