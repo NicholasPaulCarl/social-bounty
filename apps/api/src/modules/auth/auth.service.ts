@@ -18,6 +18,7 @@ import {
   OTP_RULES,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { MailService } from '../mail/mail.service';
 import { TokenStoreService } from './token-store.service';
 import { ApifyService } from '../apify/apify.service';
@@ -30,6 +31,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private config: ConfigService,
+    private redis: RedisService,
     private mailService: MailService,
     private tokenStore: TokenStoreService,
     private apify: ApifyService,
@@ -439,6 +441,96 @@ export class AuthService {
       if (err instanceof UnauthorizedException) throw err;
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
+  }
+
+  // ── Email change (OTP-verified) ────────────
+
+  async requestEmailChange(userId: string, newEmail: string) {
+    const normalizedEmail = newEmail.toLowerCase().trim();
+
+    // Check new email isn't already taken
+    const existing = await this.prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+    if (existing) {
+      throw new ConflictException('An account with this email already exists.');
+    }
+
+    // Check cooldown
+    const cooldownKey = `email_change_cooldown:${userId}`;
+    const hasCooldown = await this.tokenStore.hasRecentOtp(normalizedEmail);
+    if (hasCooldown) {
+      return { message: 'A verification code has been sent to your new email.' };
+    }
+
+    // Generate and store OTP keyed to the user+newEmail pair
+    const otp = String(randomInt(100000, 999999));
+    const redisKey = `email_change:${userId}`;
+    await this.redis.set(
+      redisKey,
+      JSON.stringify({ newEmail: normalizedEmail, otp, attempts: 0 }),
+      300, // 5 minutes
+    );
+    await this.tokenStore.setOtpCooldown(normalizedEmail);
+
+    // Send OTP to the NEW email
+    this.mailService.sendOtpEmail(normalizedEmail, otp).catch((err) => {
+      this.logger.error(`Failed to send email-change OTP to ${normalizedEmail}:`, err);
+    });
+
+    return { message: 'A verification code has been sent to your new email.' };
+  }
+
+  async verifyEmailChange(userId: string, otp: string) {
+    const redisKey = `email_change:${userId}`;
+    const raw = await this.redis.get(redisKey);
+    if (!raw) {
+      throw new BadRequestException('No pending email change. Please request a new code.');
+    }
+
+    const data = JSON.parse(raw) as { newEmail: string; otp: string; attempts: number };
+
+    // Max attempts
+    if (data.attempts >= 5) {
+      await this.redis.del(redisKey);
+      throw new ForbiddenException('Too many failed attempts. Please request a new code.');
+    }
+
+    // Timing-safe comparison
+    const otpBuffer = Buffer.from(otp.padEnd(6));
+    const storedBuffer = Buffer.from(data.otp.padEnd(6));
+    if (!timingSafeEqual(otpBuffer, storedBuffer)) {
+      data.attempts += 1;
+      const ttl = await this.redis.ttl(redisKey);
+      await this.redis.set(redisKey, JSON.stringify(data), ttl > 0 ? ttl : 300);
+      const remaining = 5 - data.attempts;
+      if (remaining > 0) {
+        throw new BadRequestException(
+          `Invalid code. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`,
+        );
+      }
+      await this.redis.del(redisKey);
+      throw new ForbiddenException('Too many failed attempts. Please request a new code.');
+    }
+
+    // OTP valid — check email not taken (race guard)
+    const conflict = await this.prisma.user.findUnique({
+      where: { email: data.newEmail },
+    });
+    if (conflict) {
+      await this.redis.del(redisKey);
+      throw new ConflictException('An account with this email was created while you were verifying.');
+    }
+
+    // Update email
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { email: data.newEmail, emailVerified: true },
+    });
+
+    await this.redis.del(redisKey);
+
+    return { message: 'Email updated successfully.', email: data.newEmail };
   }
 
   private async generateTokens(

@@ -73,6 +73,18 @@ export class SwitchOrganisationDto {
   brandId!: string;
 }
 
+export class RequestEmailChangeDto {
+  @IsEmail()
+  @IsNotEmpty()
+  newEmail!: string;
+}
+
+export class VerifyEmailChangeDto {
+  @IsString()
+  @Length(6, 6, { message: 'OTP must be exactly 6 digits' })
+  otp!: string;
+}
+
 export class LogoutDto {
   // Refresh token now read from httpOnly cookie, body is empty
 }

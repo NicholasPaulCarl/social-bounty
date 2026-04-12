@@ -20,6 +20,8 @@ import {
   VerifyOtpDto,
   SignupWithOtpDto,
   SwitchOrganisationDto,
+  RequestEmailChangeDto,
+  VerifyEmailChangeDto,
 } from './dto/auth.validators';
 
 const REFRESH_COOKIE_NAME = 'sb_refresh_token';
@@ -110,6 +112,28 @@ export class AuthController {
     setRefreshCookie(res, result.refreshToken);
     const { refreshToken: _, ...response } = result;
     return response;
+  }
+
+  @Post('request-email-change')
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  async requestEmailChange(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: RequestEmailChangeDto,
+  ) {
+    return this.authService.requestEmailChange(user.sub, dto.newEmail);
+  }
+
+  @Post('verify-email-change')
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  async verifyEmailChange(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: VerifyEmailChangeDto,
+  ) {
+    return this.authService.verifyEmailChange(user.sub, dto.otp);
   }
 
   @Post('logout')
