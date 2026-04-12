@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { InputSwitch } from 'primereact/inputswitch';
@@ -9,6 +10,7 @@ import { Button } from 'primereact/button';
 import { useBrand, useUpdateBrand } from '@/hooks/useBrand';
 import { brandsApi } from '@/lib/api/brands';
 import { useToast } from '@/hooks/useToast';
+import { queryKeys } from '@/lib/query-keys';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -19,6 +21,7 @@ import { ImageCropDialog } from '@/components/common/ImageCropDialog';
 export default function EditBrandPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const toast = useToast();
   const { data: org, isLoading, error, refetch } = useBrand(id);
   const updateOrg = useUpdateBrand(id);
@@ -150,6 +153,8 @@ export default function EditBrandPage() {
           if (coverPhoto) {
             try {
               await brandsApi.uploadCoverPhoto(id, coverPhoto);
+              // Invalidate so the profile page shows the new image immediately
+              queryClient.invalidateQueries({ queryKey: queryKeys.organisations.all });
             } catch {
               toast.showError('Cover photo upload failed. You can try again.');
             }

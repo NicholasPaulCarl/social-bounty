@@ -79,7 +79,7 @@ function BrandSocialReachCardImpl({ socialLinks, analytics }: BrandSocialReachCa
           const meta = PLATFORM_META[platform];
           const href = handle ? `${meta.urlPrefix}${handle}` : null;
           return (
-            <div key={platform} className="glass-card p-5">
+            <div key={platform} className="glass-card border-0 p-5">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   {/* Icon is clickable if handle exists — links to the social profile */}
