@@ -6,7 +6,6 @@ import { useCreateBounty } from '@/hooks/useBounties';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
 import { useBrand } from '@/hooks/useBrand';
-import { PageHeader } from '@/components/common/PageHeader';
 import { CreateBountyForm } from '@/components/bounty-form';
 import { bountyApi } from '@/lib/api/bounties';
 import type { CreateBountyRequest } from '@social-bounty/shared';
@@ -67,14 +66,9 @@ export default function CreateBountyPage() {
     stagedFilesRef.current = files;
   };
 
-  const breadcrumbs = [
-    { label: 'Bounties', url: '/business/bounties' },
-    { label: 'Create' },
-  ];
-
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Create New Bounty" breadcrumbs={breadcrumbs} />
+      <h1 className="text-2xl font-bold text-text-primary mb-6">Create New Bounty</h1>
 
       {org && (
         <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-accent-cyan/20 bg-accent-cyan/5 text-sm">

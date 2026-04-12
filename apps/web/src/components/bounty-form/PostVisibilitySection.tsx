@@ -106,10 +106,11 @@ export function PostVisibilitySection({
         <div className="mt-4 p-3 bg-warning-50 border border-warning-200 rounded-lg">
           <div className="flex items-start gap-3">
             <Checkbox
+              inputId="visibility-ack"
               checked={visibilityAcknowledged}
               onChange={(e) => dispatch({ type: 'SET_VISIBILITY_ACKNOWLEDGED', payload: e.checked ?? false })}
             />
-            <label className="text-sm text-text-primary cursor-pointer">
+            <label htmlFor="visibility-ack" className="text-sm text-text-primary cursor-pointer">
               I understand and confirm the post visibility requirements above.
               <span className="block text-xs text-text-muted mt-1">
                 This must be acknowledged before the bounty can be published.

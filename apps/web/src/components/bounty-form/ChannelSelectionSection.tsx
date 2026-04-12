@@ -47,18 +47,25 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
           return (
             <div
               key={channel}
+              role="button"
+              tabIndex={0}
               className={`border rounded-lg p-4 cursor-pointer transition-colors ${
                 selected
                   ? 'border-2 border-accent-cyan bg-accent-cyan/10'
                   : 'border-glass-border bg-surface hover:border-accent-cyan'
               }`}
-              onClick={() => toggleChannel(channel)}
+              onClick={(e) => {
+                // Only toggle if the click didn't come from a nested checkbox
+                if ((e.target as HTMLElement).closest('.p-checkbox')) return;
+                toggleChannel(channel);
+              }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleChannel(channel); } }}
             >
               <div className="flex items-center gap-3">
                 <Checkbox
+                  inputId={`channel-${channel}`}
                   checked={selected}
                   onChange={() => toggleChannel(channel)}
-                  onClick={(e) => e.stopPropagation()}
                 />
                 <i className={`pi ${icon} text-lg ${selected ? 'text-accent-cyan' : 'text-text-muted'}`} />
                 <span className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>
@@ -70,10 +77,11 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
                   {formats.map((fmt) => (
                     <div key={fmt} className="flex items-center gap-2">
                       <Checkbox
+                        inputId={`format-${channel}-${fmt}`}
                         checked={isFormatSelected(channel, fmt)}
                         onChange={() => toggleFormat(channel, fmt)}
                       />
-                      <label className="text-sm text-text-primary">{FORMAT_LABELS[fmt]}</label>
+                      <label htmlFor={`format-${channel}-${fmt}`} className="text-sm text-text-primary cursor-pointer">{FORMAT_LABELS[fmt]}</label>
                     </div>
                   ))}
                 </div>

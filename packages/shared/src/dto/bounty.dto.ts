@@ -10,6 +10,7 @@ import {
   PostVisibilityRule,
   DurationUnit,
   Currency,
+  ContentFormat,
 } from '../enums';
 
 // ─────────────────────────────────────
@@ -152,7 +153,9 @@ export interface BountyDetailResponse {
   id: string;
   title: string;
   shortDescription: string;
+  contentFormat: ContentFormat;
   fullInstructions: string;
+  instructionSteps: string[];
   category: string;
   rewardType: RewardType;
   rewardValue: string | null;
@@ -190,7 +193,9 @@ export interface BountyDetailResponse {
 export interface CreateBountyRequest {
   title: string;
   shortDescription?: string;
+  contentFormat?: ContentFormat;
   fullInstructions?: string;
+  instructionSteps?: string[];
   category?: string;
   proofRequirements?: string;
   maxSubmissions?: number | null;
@@ -219,7 +224,9 @@ export interface CreateBountyResponse {
   id: string;
   title: string;
   shortDescription: string;
+  contentFormat: ContentFormat;
   fullInstructions: string;
+  instructionSteps: string[];
   category: string;
   rewardType: RewardType;
   rewardValue: string | null;
@@ -253,7 +260,9 @@ export interface CreateBountyResponse {
 export interface UpdateBountyRequest {
   title?: string;
   shortDescription?: string;
+  contentFormat?: ContentFormat;
   fullInstructions?: string;
+  instructionSteps?: string[];
   category?: string;
   maxSubmissions?: number | null;
   startDate?: string | null;

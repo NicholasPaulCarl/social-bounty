@@ -423,7 +423,9 @@ model Bounty {
   createdById       String
   title             String
   shortDescription  String       @default("")
+  contentFormat     String       @default("BOTH")
   fullInstructions  String       @default("") @db.Text
+  instructionSteps  Json?
   category          String       @default("")
   rewardType        RewardType   @default(CASH)
   rewardValue       Decimal?     @db.Decimal(12, 2)

@@ -493,6 +493,22 @@
   font-size: 0.875rem !important;
 }
 
+/* Horizontal stepper buttons — add gap between buttons and input */
+.max-submissions-stepper .p-inputnumber-horizontal {
+  gap: 0.5rem;
+}
+.max-submissions-stepper .p-inputnumber-button {
+  border-radius: 8px !important;
+  width: 2.5rem !important;
+  min-width: 2.5rem !important;
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+}
+.max-submissions-stepper .p-inputnumber-button:hover {
+  background: #e2e8f0 !important;
+}
+
 /* ─── Card ─── */
 
 .p-card {

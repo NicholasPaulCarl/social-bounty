@@ -491,7 +491,9 @@ export class BountiesService {
       id: bounty.id,
       title: bounty.title,
       shortDescription: bounty.shortDescription,
+      contentFormat: bounty.contentFormat as any,
       fullInstructions: bounty.fullInstructions,
+      instructionSteps: (bounty.instructionSteps as string[] | null) || [],
       category: bounty.category,
       rewardType: bounty.rewardType,
       rewardValue: bounty.rewardValue?.toString() || null,
@@ -562,7 +564,9 @@ export class BountiesService {
     data: {
       title: string;
       shortDescription?: string;
+      contentFormat?: string;
       fullInstructions?: string;
+      instructionSteps?: string[];
       category?: string;
       proofRequirements?: string;
       maxSubmissions?: number | null;
@@ -654,7 +658,11 @@ export class BountiesService {
           createdById: user.sub,
           title: data.title.trim(),
           shortDescription: data.shortDescription?.trim() ?? '',
+          contentFormat: data.contentFormat ?? 'BOTH',
           fullInstructions: data.fullInstructions?.trim() ?? '',
+          instructionSteps: data.instructionSteps?.length
+            ? data.instructionSteps as Prisma.InputJsonValue
+            : undefined,
           category: data.category?.trim() ?? '',
           proofRequirements: data.proofRequirements?.trim() ?? '',
           maxSubmissions: data.maxSubmissions ?? undefined,
@@ -724,7 +732,9 @@ export class BountiesService {
       id: result.bounty.id,
       title: result.bounty.title,
       shortDescription: result.bounty.shortDescription,
+      contentFormat: result.bounty.contentFormat as any,
       fullInstructions: result.bounty.fullInstructions,
+      instructionSteps: (result.bounty.instructionSteps as string[] | null) || [],
       category: result.bounty.category,
       rewardType: result.bounty.rewardType,
       rewardValue: result.bounty.rewardValue?.toString() || null,
@@ -814,7 +824,13 @@ export class BountiesService {
     const updateData: Prisma.BountyUpdateInput = {};
     if (data.title !== undefined) updateData.title = data.title as string;
     if (data.shortDescription !== undefined) updateData.shortDescription = data.shortDescription as string;
+    if ((data as Record<string, unknown>).contentFormat !== undefined) {
+      updateData.contentFormat = (data as Record<string, unknown>).contentFormat as string;
+    }
     if (data.fullInstructions !== undefined) updateData.fullInstructions = data.fullInstructions as string;
+    if ((data as Record<string, unknown>).instructionSteps !== undefined) {
+      updateData.instructionSteps = (data as Record<string, unknown>).instructionSteps as Prisma.InputJsonValue;
+    }
     if (data.category !== undefined) updateData.category = data.category as string;
     if (data.rewardType !== undefined) updateData.rewardType = data.rewardType as RewardType;
     if (data.rewardValue !== undefined) updateData.rewardValue = data.rewardValue as number | null;
@@ -953,7 +969,9 @@ export class BountiesService {
       id: updatedBounty.id,
       title: updatedBounty.title,
       shortDescription: updatedBounty.shortDescription,
+      contentFormat: updatedBounty.contentFormat as any,
       fullInstructions: updatedBounty.fullInstructions,
+      instructionSteps: (updatedBounty.instructionSteps as string[] | null) || [],
       category: updatedBounty.category,
       rewardType: updatedBounty.rewardType,
       rewardValue: updatedBounty.rewardValue?.toString() || null,
@@ -1212,7 +1230,9 @@ export class BountiesService {
       data: {
         title: `Copy of ${original.title}`,
         shortDescription: original.shortDescription,
+        contentFormat: original.contentFormat,
         fullInstructions: original.fullInstructions,
+        instructionSteps: original.instructionSteps as Prisma.InputJsonValue ?? undefined,
         category: original.category,
         rewardType: original.rewardType,
         rewardValue: original.rewardValue,

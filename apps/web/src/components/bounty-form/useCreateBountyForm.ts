@@ -6,6 +6,7 @@ import {
   DurationUnit,
   Currency,
   RewardType,
+  ContentFormat,
   SocialChannel,
   PostFormat,
   CHANNEL_POST_FORMATS,
@@ -31,8 +32,21 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
       return { ...state, title: action.payload };
     case 'SET_SHORT_DESCRIPTION':
       return { ...state, shortDescription: action.payload };
+    case 'SET_CONTENT_FORMAT':
+      return { ...state, contentFormat: action.payload };
     case 'SET_FULL_INSTRUCTIONS':
       return { ...state, fullInstructions: action.payload };
+    case 'ADD_INSTRUCTION_STEP':
+      return { ...state, instructionSteps: [...state.instructionSteps, ''] };
+    case 'REMOVE_INSTRUCTION_STEP':
+      return { ...state, instructionSteps: state.instructionSteps.filter((_, i) => i !== action.payload) };
+    case 'UPDATE_INSTRUCTION_STEP':
+      return {
+        ...state,
+        instructionSteps: state.instructionSteps.map((s, i) =>
+          i === action.payload.index ? action.payload.value : s,
+        ),
+      };
 
     // Section 1 cont: Channels
     case 'TOGGLE_CHANNEL': {
@@ -254,7 +268,11 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         ...state,
         title: b.title,
         shortDescription: b.shortDescription,
+        contentFormat: ((b as unknown as { contentFormat?: ContentFormat }).contentFormat) ?? ContentFormat.BOTH,
         fullInstructions: b.fullInstructions,
+        instructionSteps: ((b as unknown as { instructionSteps?: string[] }).instructionSteps?.length)
+          ? (b as unknown as { instructionSteps: string[] }).instructionSteps
+          : [''],
         channels: b.channels || {},
         aiContentPermitted: b.aiContentPermitted,
         engagementRequirements: b.engagementRequirements || { tagAccount: null, mention: false, comment: false },
@@ -329,7 +347,14 @@ export function buildCreateBountyRequest(
       title: state.title.trim(),
     };
     if (state.shortDescription.trim()) request.shortDescription = state.shortDescription.trim();
-    if (state.fullInstructions.trim()) request.fullInstructions = state.fullInstructions.trim();
+    request.contentFormat = state.contentFormat;
+    const filteredSteps = state.instructionSteps.filter((s) => s.trim());
+    if (filteredSteps.length > 0) {
+      request.instructionSteps = filteredSteps;
+      request.fullInstructions = filteredSteps.map((s, i) => `${i + 1}. ${s}`).join('\n');
+    } else if (state.fullInstructions.trim()) {
+      request.fullInstructions = state.fullInstructions.trim();
+    }
     if (state.proofRequirements.length > 0) request.proofRequirements = state.proofRequirements.join(',');
     if (state.maxSubmissions !== null) request.maxSubmissions = state.maxSubmissions;
     if (state.startDate) request.startDate = state.startDate.toISOString();
@@ -351,10 +376,15 @@ export function buildCreateBountyRequest(
   }
 
   // Full mode: include everything
+  const filteredSteps = state.instructionSteps.filter((s) => s.trim());
   return {
     title: state.title.trim(),
     shortDescription: state.shortDescription.trim(),
-    fullInstructions: state.fullInstructions.trim(),
+    contentFormat: state.contentFormat,
+    fullInstructions: filteredSteps.length > 0
+      ? filteredSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
+      : state.fullInstructions.trim(),
+    ...(filteredSteps.length > 0 ? { instructionSteps: filteredSteps } : {}),
     proofRequirements: state.proofRequirements.join(','),
     maxSubmissions: state.maxSubmissions,
     startDate: state.startDate?.toISOString() ?? null,

@@ -7,7 +7,7 @@ import type {
   PayoutMetricsInput,
   BountyDetailResponse,
 } from '@social-bounty/shared';
-import { Currency, RewardType, PostVisibilityRule, DurationUnit, BountyAccessType, SocialPlatform } from '@social-bounty/shared';
+import { Currency, RewardType, PostVisibilityRule, DurationUnit, BountyAccessType, SocialPlatform, ContentFormat } from '@social-bounty/shared';
 
 // Local enum until shared package exports PayoutMethod
 export enum PayoutMethod {
@@ -24,7 +24,9 @@ export interface BountyFormState {
   // Section 1: Bounty Basic Information
   title: string;
   shortDescription: string;
+  contentFormat: ContentFormat;
   fullInstructions: string;
+  instructionSteps: string[];
   channels: ChannelSelection;
 
   // Section 2: Bounty Content
@@ -65,7 +67,11 @@ export type BountyFormAction =
   // Section 1: Bounty Basic Information
   | { type: 'SET_TITLE'; payload: string }
   | { type: 'SET_SHORT_DESCRIPTION'; payload: string }
+  | { type: 'SET_CONTENT_FORMAT'; payload: ContentFormat }
   | { type: 'SET_FULL_INSTRUCTIONS'; payload: string }
+  | { type: 'ADD_INSTRUCTION_STEP' }
+  | { type: 'REMOVE_INSTRUCTION_STEP'; payload: number }
+  | { type: 'UPDATE_INSTRUCTION_STEP'; payload: { index: number; value: string } }
   | { type: 'TOGGLE_CHANNEL'; payload: { channel: string; formats: string[] } }
   | { type: 'TOGGLE_FORMAT'; payload: { channel: string; format: string } }
   // Section 2: Bounty Content
@@ -119,7 +125,9 @@ export type BountyFormAction =
 export const INITIAL_FORM_STATE: BountyFormState = {
   title: '',
   shortDescription: '',
+  contentFormat: ContentFormat.BOTH,
   fullInstructions: '',
+  instructionSteps: [''],
   channels: {},
   aiContentPermitted: false,
   engagementRequirements: {

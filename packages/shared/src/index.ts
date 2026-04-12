@@ -14,6 +14,7 @@ export {
   PayoutStatus,
   SocialChannel,
   PostFormat,
+  ContentFormat,
   PostVisibilityRule,
   DurationUnit,
   Currency,

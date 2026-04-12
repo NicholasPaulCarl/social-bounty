@@ -65,6 +65,12 @@ export enum PostFormat {
   VIDEO_POST = 'VIDEO_POST',
 }
 
+export enum ContentFormat {
+  VIDEO_ONLY = 'VIDEO_ONLY',
+  PHOTO_ONLY = 'PHOTO_ONLY',
+  BOTH = 'BOTH',
+}
+
 export enum PostVisibilityRule {
   MUST_NOT_REMOVE = 'MUST_NOT_REMOVE',
   MINIMUM_DURATION = 'MINIMUM_DURATION',
