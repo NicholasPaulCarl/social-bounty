@@ -206,13 +206,17 @@ export default function BusinessProfilePage() {
         </div>
         <div className="glass-card p-5 text-center">
           <p className="text-2xl font-heading font-bold text-accent-cyan">
-            {formatCurrency(brand.stats.totalBountyAmount)}
+            {brand.stats.bountiesPosted > 0
+              ? formatCurrency(brand.stats.totalBountyAmount)
+              : 'No bounties yet'}
           </p>
           <p className="text-sm text-text-muted mt-1">Total Rewards</p>
         </div>
         <div className="glass-card p-5 text-center">
           <p className="text-2xl font-heading font-bold text-accent-cyan">
-            {brand.stats.achievementRate}%
+            {brand.stats.bountiesPosted > 0
+              ? `${brand.stats.achievementRate}%`
+              : 'No bounties yet'}
           </p>
           <p className="text-sm text-text-muted mt-1">Achievement Rate</p>
         </div>

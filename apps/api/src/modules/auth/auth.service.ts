@@ -423,8 +423,9 @@ export class AuthService {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      // Preserve the selected organisation from the refresh token
-      const brandId = payload.brandId ?? null;
+      // Preserve the selected brand from the refresh token. Fall back to
+      // the legacy organisationId claim for tokens issued before the rename.
+      const brandId = payload.brandId ?? payload.organisationId ?? null;
 
       return this.generateTokens(
         user.id,

@@ -259,20 +259,10 @@ export class BrandsService {
     if (UUID_REGEX.test(idOrHandle)) {
       org = await this.prisma.brand.findUnique({
         where: { id: idOrHandle },
-        include: {
-          _count: {
-            select: { bounties: true },
-          },
-        },
       });
     } else {
       org = await this.prisma.brand.findFirst({
         where: { handle: idOrHandle, status: 'ACTIVE' },
-        include: {
-          _count: {
-            select: { bounties: true },
-          },
-        },
       });
     }
 
@@ -280,19 +270,25 @@ export class BrandsService {
       throw new NotFoundException('Organisation not found');
     }
 
-    // Compute stats
-    const bountiesPosted = org._count.bounties;
-
-    // Total bounty amount for LIVE or CLOSED bounties
-    const amountResult = await this.prisma.bounty.aggregate({
-      where: {
-        brandId: org.id,
-        status: { in: ['LIVE', 'CLOSED'] },
-      },
-      _sum: {
-        rewardValue: true,
-      },
-    });
+    // Compute stats — only count bounties that were actually published (LIVE or CLOSED).
+    // DRAFT and PAUSED bounties are not visible to hunters and shouldn't inflate the count.
+    const [bountiesPosted, amountResult] = await Promise.all([
+      this.prisma.bounty.count({
+        where: {
+          brandId: org.id,
+          status: { in: ['LIVE', 'CLOSED'] },
+        },
+      }),
+      this.prisma.bounty.aggregate({
+        where: {
+          brandId: org.id,
+          status: { in: ['LIVE', 'CLOSED'] },
+        },
+        _sum: {
+          rewardValue: true,
+        },
+      }),
+    ]);
     const totalBountyAmount = amountResult._sum.rewardValue
       ? Number(amountResult._sum.rewardValue)
       : 0;

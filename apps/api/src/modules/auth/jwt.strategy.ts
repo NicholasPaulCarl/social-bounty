@@ -7,7 +7,8 @@ interface JwtPayloadFromToken {
   sub: string;
   email: string;
   role: string;
-  brandId: string | null;
+  brandId?: string | null;
+  organisationId?: string | null; // legacy claim from tokens issued before the rename
   type: string;
 }
 
@@ -37,7 +38,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       sub: payload.sub,
       email: payload.email,
       role: payload.role,
-      brandId: payload.brandId,
+      // Support tokens minted before the organisationId → brandId rename
+      brandId: payload.brandId ?? payload.organisationId ?? null,
     };
   }
 }
