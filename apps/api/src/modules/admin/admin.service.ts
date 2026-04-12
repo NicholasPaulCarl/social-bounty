@@ -281,7 +281,7 @@ export class AdminService {
     });
 
     if (existingMembership) {
-      throw new BadRequestException('User already belongs to an organisation');
+      throw new BadRequestException('User already belongs to a brand');
     }
 
     const org = await this.prisma.$transaction(async (tx) => {
@@ -343,7 +343,7 @@ export class AdminService {
     ipAddress?: string,
   ) {
     const org = await this.prisma.brand.findUnique({ where: { id } });
-    if (!org) throw new NotFoundException('Organisation not found');
+    if (!org) throw new NotFoundException('Brand not found');
 
     const beforeState = { status: org.status };
 

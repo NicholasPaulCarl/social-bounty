@@ -52,17 +52,17 @@ export function useUpdateUserStatus(id: string) {
   });
 }
 
-// Organisations
+// Brands
 export function useAdminBrands(params: AdminBrandListParams) {
   return useQuery({
-    queryKey: queryKeys.admin.organisations(params),
+    queryKey: queryKeys.admin.brands(params),
     queryFn: () => adminApi.listBrands(params),
   });
 }
 
 export function useAdminBrandDetail(id: string) {
   return useQuery({
-    queryKey: queryKeys.admin.orgDetail(id),
+    queryKey: queryKeys.admin.brandDetail(id),
     queryFn: () => adminApi.getBrandById(id),
     enabled: !!id,
   });
@@ -71,7 +71,7 @@ export function useAdminBrandDetail(id: string) {
 export function useAdminCreateOrg() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: AdminCreateBrandRequest) => adminApi.createOrganisation(data),
+    mutationFn: (data: AdminCreateBrandRequest) => adminApi.createBrand(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'organisations'] });
     },
@@ -83,7 +83,7 @@ export function useUpdateBrandStatus(id: string) {
   return useMutation({
     mutationFn: (data: AdminUpdateBrandStatusRequest) => adminApi.updateBrandStatus(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orgDetail(id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.brandDetail(id) });
       queryClient.invalidateQueries({ queryKey: ['admin', 'organisations'] });
     },
   });

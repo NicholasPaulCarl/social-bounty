@@ -117,7 +117,7 @@ export class DisputesService {
           submission.bounty.brandId !== user.brandId)
       ) {
         throw new ForbiddenException(
-          'Only a business admin of the bounty organisation can file this dispute category',
+          'Only a business admin of the bounty brand can file this dispute category',
         );
       }
     }
@@ -494,7 +494,7 @@ export class DisputesService {
 
   // ── List For Organisation ─────────────────────────────
 
-  async listForOrganisation(
+  async listForBrand(
     user: AuthenticatedUser,
     params: {
       page?: number;
@@ -506,7 +506,7 @@ export class DisputesService {
     },
   ) {
     if (!user.brandId) {
-      throw new ForbiddenException('Not a member of any organisation');
+      throw new ForbiddenException('Not a member of any brand');
     }
 
     const page = params.page || PAGINATION_DEFAULTS.PAGE;

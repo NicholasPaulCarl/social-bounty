@@ -46,11 +46,11 @@ export const adminApi = {
   updateUserStatus: (id: string, data: AdminUpdateUserStatusRequest): Promise<AdminUpdateUserStatusResponse> =>
     apiClient.patch(`/admin/users/${id}/status`, data),
 
-  // Organisations
+  // Brands
   listBrands: (params: AdminBrandListParams): Promise<PaginatedResponse<AdminBrandListItem>> =>
     apiClient.get('/admin/brands', params as Record<string, unknown>),
 
-  createOrganisation: (data: AdminCreateBrandRequest): Promise<AdminCreateBrandResponse> =>
+  createBrand: (data: AdminCreateBrandRequest): Promise<AdminCreateBrandResponse> =>
     apiClient.post('/admin/brands', data),
 
   getBrandById: (id: string): Promise<AdminBrandListItem> =>

@@ -22,8 +22,8 @@ import { Roles, CurrentUser, Public } from '../../common/decorators';
 import { UserRole, BRAND_PROFILE_LIMITS } from '@social-bounty/shared';
 import { BrandsService } from './organisations.service';
 import {
-  CreateOrganisationDto,
-  UpdateOrganisationDto,
+  CreateBrandDto,
+  UpdateBrandDto,
   InviteMemberDto,
 } from './dto/organisations.validators';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
@@ -56,7 +56,7 @@ export class BrandsController {
   )
   async create(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: CreateOrganisationDto,
+    @Body() dto: CreateBrandDto,
     @UploadedFiles() files: Express.Multer.File[],
     @Req() req: Request,
   ) {
@@ -79,7 +79,7 @@ export class BrandsController {
   @Get('mine')
   @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
   async listMine(@CurrentUser() user: AuthenticatedUser) {
-    return this.brandsService.listMyOrganisations(user.sub);
+    return this.brandsService.listMyBrands(user.sub);
   }
 
   @Get('public')
@@ -142,7 +142,7 @@ export class BrandsController {
   async update(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: UpdateOrganisationDto,
+    @Body() dto: UpdateBrandDto,
     @UploadedFiles() files: Express.Multer.File[],
     @Req() req: Request,
   ) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import Cropper from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
 import { Dialog } from 'primereact/dialog';
@@ -73,7 +73,13 @@ export function ImageCropDialog({
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const imageSrc = file ? URL.createObjectURL(file) : '';
+  // Create a stable object URL from the file and revoke it on cleanup
+  const imageSrc = useMemo(() => (file ? URL.createObjectURL(file) : ''), [file]);
+  useEffect(() => {
+    return () => {
+      if (imageSrc) URL.revokeObjectURL(imageSrc);
+    };
+  }, [imageSrc]);
 
   const onCropChange = useCallback((c: { x: number; y: number }) => setCrop(c), []);
   const onZoomChange = useCallback((z: number) => setZoom(z), []);
@@ -98,6 +104,8 @@ export function ImageCropDialog({
   const handleCancel = () => {
     setCrop({ x: 0, y: 0 });
     setZoom(1);
+    setCroppedAreaPixels(null);
+    setSaving(false);
     onHide();
   };
 

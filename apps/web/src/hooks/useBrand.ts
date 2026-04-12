@@ -13,7 +13,7 @@ import { authApi } from '@/lib/api/auth';
 
 export function useBrand(id: string) {
   return useQuery({
-    queryKey: queryKeys.organisations.detail(id),
+    queryKey: queryKeys.brands.detail(id),
     queryFn: () => brandsApi.getById(id),
     enabled: !!id,
   });
@@ -21,7 +21,7 @@ export function useBrand(id: string) {
 
 export function useBrandMembers(id: string) {
   return useQuery({
-    queryKey: queryKeys.organisations.members(id),
+    queryKey: queryKeys.brands.members(id),
     queryFn: () => brandsApi.listMembers(id),
     enabled: !!id,
   });
@@ -33,7 +33,7 @@ export function useCreateBrand() {
     mutationFn: ({ data, logo }: { data: CreateBrandRequest; logo?: File }) =>
       brandsApi.create(data, logo),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.organisations.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.all });
     },
   });
 }
@@ -47,7 +47,7 @@ export function useUpdateBrand(id: string) {
       // Invalidate the whole organisations branch so both the detail cache and
       // the public-profile cache (keyed by id *or* handle) stay in sync — a
       // handle change would otherwise leave one of the two entries stale.
-      queryClient.invalidateQueries({ queryKey: queryKeys.organisations.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.all });
     },
   });
 }
@@ -57,7 +57,7 @@ export function useInviteMember(orgId: string) {
   return useMutation({
     mutationFn: (data: InviteMemberRequest) => brandsApi.inviteMember(orgId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.organisations.members(orgId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.members(orgId) });
     },
   });
 }
@@ -67,21 +67,21 @@ export function useRemoveMember(orgId: string) {
   return useMutation({
     mutationFn: (userId: string) => brandsApi.removeMember(orgId, userId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.organisations.members(orgId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.members(orgId) });
     },
   });
 }
 
 export function useMyBrands() {
   return useQuery({
-    queryKey: queryKeys.organisations.mine(),
+    queryKey: queryKeys.brands.mine(),
     queryFn: () => brandsApi.listMine(),
   });
 }
 
 export function useBrandPublicProfile(idOrHandle: string) {
   return useQuery({
-    queryKey: queryKeys.organisations.publicProfile(idOrHandle),
+    queryKey: queryKeys.brands.publicProfile(idOrHandle),
     queryFn: () => brandsApi.getPublicProfile(idOrHandle),
     enabled: !!idOrHandle,
     // Brand profiles change slowly — analytics refresh via login trigger
@@ -94,7 +94,7 @@ export function useBrandPublicProfile(idOrHandle: string) {
 
 export function useBrandsPublicList(params: BrandListParams) {
   return useQuery({
-    queryKey: queryKeys.organisations.publicList(params),
+    queryKey: queryKeys.brands.publicList(params),
     queryFn: () => brandsApi.listPublic(params),
   });
 }

@@ -776,7 +776,7 @@ export class SubmissionsService {
       const membership = await this.prisma.brandMember.findFirst({
         where: { userId: user.sub },
       });
-      if (!membership) throw new ForbiddenException('Not a member of any organisation');
+      if (!membership) throw new ForbiddenException('Not a member of any brand');
       brandId = membership.brandId;
     }
 

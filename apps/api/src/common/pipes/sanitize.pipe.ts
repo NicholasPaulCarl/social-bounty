@@ -23,10 +23,10 @@ export class SanitizePipe implements PipeTransform {
       // (not rendered as raw HTML), decode common entities back so values
       // like "Fitness & Wellness" stay as plain text, not "Fitness &amp; Wellness".
       const stripped = sanitizeHtml(value, { allowedTags: [], allowedAttributes: {} }).trim();
+      // Only decode ampersands and quotes — NOT angle brackets (&lt; &gt;)
+      // which must stay encoded to prevent reconstructed <script> tags.
       return stripped
         .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
         .replace(/&quot;/g, '"')
         .replace(/&#x27;/g, "'")
         .replace(/&#39;/g, "'");

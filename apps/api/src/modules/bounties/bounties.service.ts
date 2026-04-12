@@ -588,7 +588,7 @@ export class BountiesService {
     ipAddress?: string,
   ) {
     if (!user.brandId) {
-      throw new BadRequestException('You must belong to an organisation to create bounties');
+      throw new BadRequestException('You must belong to a brand to create bounties');
     }
 
     // Gate closed bounty creation by subscription tier

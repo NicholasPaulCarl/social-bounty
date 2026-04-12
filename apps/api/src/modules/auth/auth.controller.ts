@@ -19,7 +19,7 @@ import {
   RequestOtpDto,
   VerifyOtpDto,
   SignupWithOtpDto,
-  SwitchOrganisationDto,
+  SwitchBrandDto,
   RequestEmailChangeDto,
   VerifyEmailChangeDto,
 } from './dto/auth.validators';
@@ -100,15 +100,15 @@ export class AuthController {
     return response;
   }
 
-  @Post('switch-organisation')
+  @Post('switch-brand')
   @HttpCode(HttpStatus.OK)
   @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
-  async switchOrganisation(
+  async switchBrand(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: SwitchOrganisationDto,
+    @Body() dto: SwitchBrandDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.switchOrganisation(user.sub, dto.brandId);
+    const result = await this.authService.switchBrand(user.sub, dto.brandId);
     setRefreshCookie(res, result.refreshToken);
     const { refreshToken: _, ...response } = result;
     return response;

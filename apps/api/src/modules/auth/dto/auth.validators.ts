@@ -67,7 +67,7 @@ export class SignupWithOtpDto {
   brandContactEmail?: string;
 }
 
-export class SwitchOrganisationDto {
+export class SwitchBrandDto {
   @IsUUID()
   @IsNotEmpty()
   brandId!: string;

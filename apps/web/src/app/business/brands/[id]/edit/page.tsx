@@ -154,7 +154,7 @@ export default function EditBrandPage() {
             try {
               await brandsApi.uploadCoverPhoto(id, coverPhoto);
               // Invalidate so the profile page shows the new image immediately
-              queryClient.invalidateQueries({ queryKey: queryKeys.organisations.all });
+              queryClient.invalidateQueries({ queryKey: queryKeys.brands.all });
             } catch {
               toast.showError('Cover photo upload failed. You can try again.');
             }

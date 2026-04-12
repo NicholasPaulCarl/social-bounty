@@ -18,7 +18,7 @@ export const authApi = {
   logout: () => apiClient.post('/auth/logout', {}),
   refresh: () => apiClient.post<RefreshTokenResponse>('/auth/refresh', {}),
   switchBrand: (brandId: string) =>
-    apiClient.post<LoginResponse>('/auth/switch-organisation', { brandId }),
+    apiClient.post<LoginResponse>('/auth/switch-brand', { brandId }),
   requestEmailChange: (newEmail: string) =>
     apiClient.post<{ message: string }>('/auth/request-email-change', { newEmail }),
   verifyEmailChange: (otp: string) =>

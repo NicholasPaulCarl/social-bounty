@@ -20,7 +20,7 @@ export class BusinessService {
 
   async getDashboard(user: AuthenticatedUser) {
     if (!user.brandId) {
-      throw new BadRequestException('You do not belong to an organisation');
+      throw new BadRequestException('You do not belong to a brand');
     }
 
     const cacheKey = `dashboard:${user.brandId}`;
@@ -37,7 +37,7 @@ export class BusinessService {
     });
 
     if (!org) {
-      throw new BadRequestException('Organisation not found');
+      throw new BadRequestException('Brand not found');
     }
 
     const orgId = user.brandId;

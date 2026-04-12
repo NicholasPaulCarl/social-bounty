@@ -331,8 +331,8 @@ export class AuthService {
     };
   }
 
-  async switchOrganisation(userId: string, brandId: string) {
-    // Verify the user is a member of the specified organisation
+  async switchBrand(userId: string, brandId: string) {
+    // Verify the user is a member of the specified brand
     const membership = await this.prisma.brandMember.findUnique({
       where: {
         userId_brandId: {
@@ -344,7 +344,7 @@ export class AuthService {
 
     if (!membership) {
       throw new ForbiddenException(
-        'You are not a member of this organisation',
+        'You are not a member of this brand',
       );
     }
 
@@ -448,7 +448,16 @@ export class AuthService {
   async requestEmailChange(userId: string, newEmail: string) {
     const normalizedEmail = newEmail.toLowerCase().trim();
 
-    // Check new email isn't already taken
+    // Reject if user is changing to their own current email
+    const currentUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+    if (currentUser?.email === normalizedEmail) {
+      throw new BadRequestException('New email must be different from your current email.');
+    }
+
+    // Check new email isn't already taken by another account
     const existing = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
     });
@@ -456,14 +465,14 @@ export class AuthService {
       throw new ConflictException('An account with this email already exists.');
     }
 
-    // Check cooldown
+    // Cooldown per user (not per email) to prevent spam
     const cooldownKey = `email_change_cooldown:${userId}`;
-    const hasCooldown = await this.tokenStore.hasRecentOtp(normalizedEmail);
+    const hasCooldown = await this.redis.exists(cooldownKey);
     if (hasCooldown) {
       return { message: 'A verification code has been sent to your new email.' };
     }
 
-    // Generate and store OTP keyed to the user+newEmail pair
+    // Generate and store OTP keyed to the user
     const otp = String(randomInt(100000, 999999));
     const redisKey = `email_change:${userId}`;
     await this.redis.set(
@@ -471,7 +480,7 @@ export class AuthService {
       JSON.stringify({ newEmail: normalizedEmail, otp, attempts: 0 }),
       300, // 5 minutes
     );
-    await this.tokenStore.setOtpCooldown(normalizedEmail);
+    await this.redis.set(cooldownKey, '1', 60); // 60s cooldown
 
     // Send OTP to the NEW email
     this.mailService.sendOtpEmail(normalizedEmail, otp).catch((err) => {
@@ -522,15 +531,36 @@ export class AuthService {
       throw new ConflictException('An account with this email was created while you were verifying.');
     }
 
-    // Update email
-    await this.prisma.user.update({
+    // Update email and get the full user for token generation
+    const user = await this.prisma.user.update({
       where: { id: userId },
       data: { email: data.newEmail, emailVerified: true },
+      include: {
+        brandMemberships: {
+          select: { brandId: true },
+          take: 1,
+        },
+      },
     });
 
     await this.redis.del(redisKey);
 
-    return { message: 'Email updated successfully.', email: data.newEmail };
+    // Return fresh tokens so the client JWT reflects the new email
+    const brandId = user.brandMemberships[0]?.brandId ?? null;
+    const tokens = await this.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+      brandId,
+      user.firstName,
+      user.lastName,
+    );
+
+    return {
+      message: 'Email updated successfully.',
+      email: data.newEmail,
+      ...tokens,
+    };
   }
 
   private async generateTokens(

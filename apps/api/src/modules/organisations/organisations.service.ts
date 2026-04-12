@@ -135,14 +135,14 @@ export class BrandsService {
     });
 
     if (!org) {
-      throw new NotFoundException('Organisation not found');
+      throw new NotFoundException('Brand not found');
     }
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
       user.brandId !== orgId
     ) {
-      throw new ForbiddenException('Not authorized to view this organisation');
+      throw new ForbiddenException('Not authorized to view this brand');
     }
 
     return {
@@ -186,7 +186,7 @@ export class BrandsService {
     });
 
     if (!org) {
-      throw new NotFoundException('Organisation not found');
+      throw new NotFoundException('Brand not found');
     }
 
     // Check ownership
@@ -286,7 +286,7 @@ export class BrandsService {
     }
 
     if (!org || org.status !== 'ACTIVE') {
-      throw new NotFoundException('Organisation not found');
+      throw new NotFoundException('Brand not found');
     }
 
     // Compute stats — only count bounties that were actually published (LIVE or CLOSED).
@@ -420,7 +420,7 @@ export class BrandsService {
     };
   }
 
-  async listMyOrganisations(userId: string) {
+  async listMyBrands(userId: string) {
     const memberships = await this.prisma.brandMember.findMany({
       where: { userId },
       include: {
@@ -468,7 +468,7 @@ export class BrandsService {
     });
 
     if (!org) {
-      throw new NotFoundException('Organisation not found');
+      throw new NotFoundException('Brand not found');
     }
 
     // Check ownership (same as update)
@@ -589,7 +589,7 @@ export class BrandsService {
     });
 
     if (!org) {
-      throw new NotFoundException('Organisation not found');
+      throw new NotFoundException('Brand not found');
     }
 
     // Find user by email
@@ -609,7 +609,7 @@ export class BrandsService {
       });
 
       if (existingMembership) {
-        throw new ConflictException('User already belongs to an organisation');
+        throw new ConflictException('User already belongs to a brand');
       }
 
       const newMember = await tx.brandMember.create({
@@ -682,7 +682,7 @@ export class BrandsService {
     }
 
     if (membership.role === BrandMemberRole.OWNER) {
-      throw new BadRequestException('Cannot remove the organisation owner');
+      throw new BadRequestException('Cannot remove the brand owner');
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -706,6 +706,6 @@ export class BrandsService {
       ipAddress,
     });
 
-    return { message: 'Member removed from organisation.' };
+    return { message: 'Member removed from brand.' };
   }
 }

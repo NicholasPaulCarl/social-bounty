@@ -29,7 +29,7 @@ function parseJsonField(fieldName: string) {
   };
 }
 
-export class CreateOrganisationDto {
+export class CreateBrandDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(1)
@@ -71,7 +71,7 @@ export class CreateOrganisationDto {
   targetInterests?: string[];
 }
 
-export class UpdateOrganisationDto {
+export class UpdateBrandDto {
   @IsOptional()
   @IsString()
   @MinLength(1)
