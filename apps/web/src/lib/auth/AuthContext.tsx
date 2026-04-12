@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               status: UserStatus.ACTIVE,
               emailVerified: false,
               // Support tokens issued before the organisationId → brandId rename
-              brandId: decoded.brandId ?? (decoded as Record<string, unknown>).organisationId as string | null ?? null,
+              brandId: decoded.brandId ?? (decoded as unknown as Record<string, unknown>).organisationId as string | null ?? null,
             });
             document.cookie = `sb_auth_role=${decoded.role}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
           }

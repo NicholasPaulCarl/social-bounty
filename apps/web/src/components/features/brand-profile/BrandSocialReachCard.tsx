@@ -49,7 +49,6 @@ function hasRealCounters(c: BrandSocialAnalyticsCounters | undefined): boolean {
   );
 }
 
-/** Format a counter value: real number → formatted, null/undefined → '--' */
 function display(n: number | null | undefined): string {
   if (n === null || n === undefined) return '--';
   return formatCount(n);
@@ -83,7 +82,20 @@ function BrandSocialReachCardImpl({ socialLinks, analytics }: BrandSocialReachCa
             <div key={platform} className="glass-card p-5">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <i className={`${meta.icon} ${meta.color} text-lg`} />
+                  {/* Icon is clickable if handle exists — links to the social profile */}
+                  {href ? (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${meta.color} hover:opacity-70 transition-opacity`}
+                      title={`View ${meta.label} profile`}
+                    >
+                      <i className={`${meta.icon} text-lg`} />
+                    </a>
+                  ) : (
+                    <i className={`${meta.icon} text-text-muted text-lg`} />
+                  )}
                   <span className="text-text-primary font-heading font-semibold text-sm">
                     {meta.label}
                   </span>
@@ -94,17 +106,7 @@ function BrandSocialReachCardImpl({ socialLinks, analytics }: BrandSocialReachCa
                     />
                   )}
                 </div>
-                {href && handle ? (
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-text-muted hover:text-accent-cyan transition-colors inline-flex items-center gap-1"
-                  >
-                    @{handle}
-                    <i className="pi pi-external-link text-[10px]" />
-                  </a>
-                ) : (
+                {!handle && (
                   <span className="text-xs text-text-muted italic">Not connected</span>
                 )}
               </div>

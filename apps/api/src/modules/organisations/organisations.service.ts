@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   BadRequestException,
   ConflictException,
   NotFoundException,
@@ -13,15 +14,19 @@ import {
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { ApifyService } from '../apify/apify.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 const UUID_REGEX = /^[0-9a-f]{8}-/;
 
 @Injectable()
 export class BrandsService {
+  private readonly logger = new Logger(BrandsService.name);
+
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
+    private apify: ApifyService,
   ) {}
 
   async create(
@@ -92,6 +97,13 @@ export class BrandsService {
       entityId: org.id,
       afterState: { name: org.name, contactEmail: org.contactEmail },
       ipAddress,
+    });
+
+    // Fire-and-forget: pull social analytics for the new brand if handles were provided
+    setImmediate(() => {
+      this.apify.refreshIfStale(org.id).catch((err) => {
+        this.logger.error(`Background refresh after brand create failed for ${org.id}`, err);
+      });
     });
 
     return {
@@ -233,6 +245,13 @@ export class BrandsService {
       beforeState,
       afterState: { name: updated.name, contactEmail: updated.contactEmail },
       ipAddress,
+    });
+
+    // Fire-and-forget: refresh social analytics when social handles may have changed
+    setImmediate(() => {
+      this.apify.refreshIfStale(orgId).catch((err) => {
+        this.logger.error(`Background refresh after brand update failed for ${orgId}`, err);
+      });
     });
 
     return {
