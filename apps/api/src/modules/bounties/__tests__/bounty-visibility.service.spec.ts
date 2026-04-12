@@ -294,7 +294,7 @@ describe('BountiesService - Post Visibility Validation', () => {
           status: BountyStatus.DRAFT,
           visibilityAcknowledged: false,
           postVisibilityRule: PostVisibilityRule.MUST_NOT_REMOVE,
-          organisation: { id: 'org-1', name: 'Test', logo: null },
+          brand: { id: 'org-1', name: 'Test', logo: null },
           createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
           _count: { submissions: 0 },
         }),

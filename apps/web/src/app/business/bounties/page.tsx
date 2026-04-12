@@ -199,7 +199,7 @@ export default function BusinessBountiesPage() {
     <div className="animate-fade-up">
       <PageHeader
         title="Bounties"
-        subtitle="Manage your organisation's bounties"
+        subtitle="Manage your brand's bounties"
         actions={
           <Button label="Create Bounty" icon="pi pi-plus" onClick={() => router.push('/business/bounties/new')} />
         }

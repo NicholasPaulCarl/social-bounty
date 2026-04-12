@@ -13,13 +13,13 @@ export enum UserStatus {
   SUSPENDED = 'SUSPENDED',
 }
 
-export enum OrgStatus {
+export enum BrandStatus {
   ACTIVE = 'ACTIVE',
   SUSPENDED = 'SUSPENDED',
   INACTIVE = 'INACTIVE',
 }
 
-export enum OrgMemberRole {
+export enum BrandMemberRole {
   OWNER = 'OWNER',
   MEMBER = 'MEMBER',
 }

@@ -37,35 +37,35 @@ describe('SubmissionsService - Submission Edge Cases', () => {
     sub: 'participant-1',
     email: 'participant@test.com',
     role: UserRole.PARTICIPANT,
-    organisationId: null,
+    brandId: null,
   };
 
   const mockParticipant2: AuthenticatedUser = {
     sub: 'participant-2',
     email: 'participant2@test.com',
     role: UserRole.PARTICIPANT,
-    organisationId: null,
+    brandId: null,
   };
 
   const mockBA: AuthenticatedUser = {
     sub: 'ba-1',
     email: 'ba@test.com',
     role: UserRole.BUSINESS_ADMIN,
-    organisationId: 'org-1',
+    brandId: 'org-1',
   };
 
   const mockBA2: AuthenticatedUser = {
     sub: 'ba-2',
     email: 'ba2@test.com',
     role: UserRole.BUSINESS_ADMIN,
-    organisationId: 'org-2',
+    brandId: 'org-2',
   };
 
   const mockSA: AuthenticatedUser = {
     sub: 'sa-1',
     email: 'admin@test.com',
     role: UserRole.SUPER_ADMIN,
-    organisationId: null,
+    brandId: null,
   };
 
   // ── Data Fixtures ──────────────────────────────────
@@ -75,7 +75,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
     status: BountyStatus.LIVE,
     maxSubmissions: 100,
     endDate: new Date('2026-12-31'),
-    organisationId: 'org-1',
+    brandId: 'org-1',
     title: 'Test Bounty',
     _count: { submissions: 5 },
   };
@@ -96,7 +96,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     user: { id: 'participant-1', email: 'participant@test.com', firstName: 'Test', lastName: 'User' },
-    bounty: { id: 'bounty-1', title: 'Test Bounty', organisationId: 'org-1', rewardValue: 100, currency: 'ZAR' },
+    bounty: { id: 'bounty-1', title: 'Test Bounty', brandId: 'org-1', rewardValue: 100, currency: 'ZAR' },
   };
 
   beforeEach(async () => {
@@ -366,7 +366,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
     const submittedSubmission = {
       ...baseSubmission,
       status: SubmissionStatus.SUBMITTED,
-      bounty: { organisationId: 'org-1', title: 'Test Bounty' },
+      bounty: { brandId: 'org-1', title: 'Test Bounty' },
       user: { email: 'participant@test.com' },
     };
 
@@ -626,7 +626,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       ...baseSubmission,
       status: SubmissionStatus.APPROVED,
       payoutStatus: PayoutStatus.NOT_PAID,
-      bounty: { ...baseSubmission.bounty, organisationId: 'org-1' },
+      bounty: { ...baseSubmission.bounty, brandId: 'org-1' },
       payout: null,
     };
 
@@ -838,7 +838,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
         title: 'Test',
         rewardType: 'CASH',
         rewardValue: 25,
-        organisationId: 'org-1',
+        brandId: 'org-1',
       },
       user: {
         id: 'participant-1',
@@ -924,7 +924,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
         title: 'Test',
         rewardType: 'CASH',
         rewardValue: 25,
-        organisationId: 'org-1',
+        brandId: 'org-1',
       },
       user: {
         id: 'participant-1',
@@ -946,7 +946,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
     it('should throw ForbiddenException when BA tries to view other org submission', async () => {
       prisma.submission.findUnique.mockResolvedValue({
         ...fullSubmission,
-        bounty: { ...fullSubmission.bounty, organisationId: 'org-2' },
+        bounty: { ...fullSubmission.bounty, brandId: 'org-2' },
       });
 
       await expect(service.findById('sub-1', mockBA)).rejects.toThrow(
@@ -957,7 +957,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
     it('should throw ForbiddenException with "Not authorized" message', async () => {
       prisma.submission.findUnique.mockResolvedValue({
         ...fullSubmission,
-        bounty: { ...fullSubmission.bounty, organisationId: 'other-org' },
+        bounty: { ...fullSubmission.bounty, brandId: 'other-org' },
       });
 
       await expect(service.findById('sub-1', mockBA)).rejects.toThrow('Not authorized');
@@ -966,7 +966,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
     it('should allow Super Admin to view any org submission', async () => {
       prisma.submission.findUnique.mockResolvedValue({
         ...fullSubmission,
-        bounty: { ...fullSubmission.bounty, organisationId: 'any-org' },
+        bounty: { ...fullSubmission.bounty, brandId: 'any-org' },
       });
 
       const result = await service.findById('sub-1', mockSA);
@@ -978,7 +978,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       it('should allow BA to list submissions for their own org bounty', async () => {
         prisma.bounty.findUnique.mockResolvedValue({
           id: 'bounty-1',
-          organisationId: 'org-1',
+          brandId: 'org-1',
         });
         prisma.submission.findMany.mockResolvedValue([]);
         prisma.submission.count.mockResolvedValue(0);
@@ -991,7 +991,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       it('should throw ForbiddenException when BA lists submissions for other org bounty', async () => {
         prisma.bounty.findUnique.mockResolvedValue({
           id: 'bounty-1',
-          organisationId: 'org-2',
+          brandId: 'org-2',
         });
 
         await expect(
@@ -1002,7 +1002,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       it('should allow Super Admin to list submissions for any org bounty', async () => {
         prisma.bounty.findUnique.mockResolvedValue({
           id: 'bounty-1',
-          organisationId: 'other-org',
+          brandId: 'other-org',
         });
         prisma.submission.findMany.mockResolvedValue([]);
         prisma.submission.count.mockResolvedValue(0);
@@ -1025,7 +1025,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       const submittedForOtherOrg = {
         ...baseSubmission,
         status: SubmissionStatus.SUBMITTED,
-        bounty: { organisationId: 'org-2', title: 'Other Org Bounty' },
+        bounty: { brandId: 'org-2', title: 'Other Org Bounty' },
         user: { email: 'participant@test.com' },
       };
 
@@ -1060,7 +1060,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
         ...baseSubmission,
         status: SubmissionStatus.APPROVED,
         payoutStatus: PayoutStatus.NOT_PAID,
-        bounty: { ...baseSubmission.bounty, organisationId: 'org-2' },
+        bounty: { ...baseSubmission.bounty, brandId: 'org-2' },
         payout: null,
       };
 

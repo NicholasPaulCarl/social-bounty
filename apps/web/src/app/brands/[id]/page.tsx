@@ -3,20 +3,20 @@
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useBrandPublicProfile } from '@/hooks/useOrganisation';
-import { PageHeader } from '@/components/common/PageHeader';
+import { useBrandPublicProfile } from '@/hooks/useBrand';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { getUploadUrl } from '@/lib/api/client';
-import { formatCurrency } from '@/lib/utils/format';
+import { formatCurrency, formatDate } from '@/lib/utils/format';
+import { BrandSocialReachCard } from '@/components/features/brand-profile/BrandSocialReachCard';
 import type { BrandSocialLinks } from '@social-bounty/shared';
 
-const SOCIAL_LINK_CONFIG: { key: keyof BrandSocialLinks; icon: string; color: string; urlPrefix: string }[] = [
-  { key: 'instagram', icon: 'pi pi-instagram', color: 'text-pink-400', urlPrefix: 'https://instagram.com/' },
-  { key: 'tiktok', icon: 'pi pi-tiktok', color: 'text-cyan-400', urlPrefix: 'https://tiktok.com/@' },
-  { key: 'facebook', icon: 'pi pi-facebook', color: 'text-blue-400', urlPrefix: 'https://facebook.com/' },
-  { key: 'x', icon: 'pi pi-twitter', color: 'text-slate-300', urlPrefix: 'https://x.com/' },
-  { key: 'website', icon: 'pi pi-globe', color: 'text-accent-cyan', urlPrefix: '' },
+const SOCIAL_LINK_CONFIG: { key: keyof BrandSocialLinks; icon: string; urlPrefix: string }[] = [
+  { key: 'instagram', icon: 'pi pi-instagram', urlPrefix: 'https://instagram.com/' },
+  { key: 'tiktok', icon: 'pi pi-tiktok', urlPrefix: 'https://tiktok.com/@' },
+  { key: 'facebook', icon: 'pi pi-facebook', urlPrefix: 'https://facebook.com/' },
+  { key: 'x', icon: 'pi pi-twitter', urlPrefix: 'https://x.com/' },
+  { key: 'website', icon: 'pi pi-globe', urlPrefix: '' },
 ];
 
 export default function BrandProfilePage() {
@@ -33,16 +33,8 @@ export default function BrandProfilePage() {
 
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title=""
-        breadcrumbs={[
-          { label: 'Brands', url: '/brands' },
-          { label: brand.name },
-        ]}
-      />
-
-      {/* Cover Photo Hero */}
-      <div className="relative w-full h-48 md:h-64 rounded-xl overflow-hidden mb-6 bg-gradient-to-r from-accent-cyan/20 to-accent-blue/20 border border-glass-border">
+      {/* Cover Photo Hero — no border, no breadcrumbs */}
+      <div className="relative w-full h-48 md:h-64 rounded-xl overflow-hidden mb-6 bg-gradient-to-r from-accent-cyan/20 to-accent-blue/20">
         {brand.coverPhotoUrl && (
           <Image
             src={getUploadUrl(brand.coverPhotoUrl)!}
@@ -56,8 +48,9 @@ export default function BrandProfilePage() {
       {/* Brand Info */}
       <div className="flex flex-col md:flex-row gap-6 mb-8">
         <div className="flex items-start gap-4 flex-1">
+          {/* Profile picture — no border/ring */}
           {brand.logo ? (
-            <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 ring-2 ring-glass-border -mt-12 bg-bg-void">
+            <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-bg-void">
               <Image
                 src={getUploadUrl(brand.logo)!}
                 alt={brand.name}
@@ -66,22 +59,30 @@ export default function BrandProfilePage() {
               />
             </div>
           ) : (
-            <div className="w-20 h-20 rounded-xl shrink-0 bg-accent-cyan/10 border border-accent-cyan/30 flex items-center justify-center text-accent-cyan font-heading font-bold text-2xl -mt-12">
+            <div className="w-16 h-16 rounded-xl shrink-0 bg-accent-cyan/10 flex items-center justify-center text-accent-cyan font-heading font-bold text-xl">
               {brand.name.charAt(0).toUpperCase()}
             </div>
           )}
           <div>
             <h1 className="text-2xl font-heading font-bold text-text-primary">{brand.name}</h1>
-            {brand.handle && (
-              <p className="text-text-muted">@{brand.handle}</p>
-            )}
+            {/* Handle first, then join date — same line, same font size */}
+            <p className="text-xs text-text-muted mt-0.5">
+              {brand.handle && (
+                <span className="mr-2">@{brand.handle}</span>
+              )}
+              <span>
+                <i className="pi pi-calendar text-[10px] mr-1" />
+                Joined {formatDate(brand.createdAt)}
+              </span>
+            </p>
+            {/* Bio underneath */}
             {brand.bio && (
-              <p className="text-text-secondary mt-2 max-w-2xl">{brand.bio}</p>
+              <p className="text-text-secondary mt-2 max-w-2xl text-sm">{brand.bio}</p>
             )}
           </div>
         </div>
 
-        {/* Social Links */}
+        {/* Social Links — grayscale icons only, no button/border */}
         {activeSocials.length > 0 && (
           <div className="flex items-center gap-3">
             {activeSocials.map((social) => {
@@ -93,10 +94,10 @@ export default function BrandProfilePage() {
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`w-10 h-10 rounded-lg bg-glass-bg border border-glass-border flex items-center justify-center ${social.color} hover:bg-accent-cyan/10 transition-colors`}
+                  className="text-text-muted hover:text-text-primary transition-colors"
                   title={social.key}
                 >
-                  <i className={social.icon} />
+                  <i className={`${social.icon} text-lg`} />
                 </a>
               );
             })}
@@ -112,17 +113,28 @@ export default function BrandProfilePage() {
         </div>
         <div className="glass-card p-5 text-center">
           <p className="text-2xl font-heading font-bold text-accent-cyan">
-            {formatCurrency(brand.stats.totalBountyAmount)}
+            {brand.stats.bountiesPosted > 0
+              ? formatCurrency(brand.stats.totalBountyAmount)
+              : 'No bounties yet'}
           </p>
           <p className="text-sm text-text-muted mt-1">Total Rewards</p>
         </div>
         <div className="glass-card p-5 text-center">
           <p className="text-2xl font-heading font-bold text-accent-cyan">
-            {brand.stats.achievementRate}%
+            {brand.stats.bountiesPosted > 0
+              ? `${brand.stats.achievementRate}%`
+              : 'No bounties yet'}
           </p>
           <p className="text-sm text-text-muted mt-1">Achievement Rate</p>
         </div>
       </div>
+
+      {/* Social Reach */}
+      <BrandSocialReachCard
+        orgId={brand.id}
+        socialLinks={brand.socialLinks}
+        analytics={brand.socialAnalytics}
+      />
 
       {/* Target Interests */}
       {brand.targetInterests && brand.targetInterests.length > 0 && (

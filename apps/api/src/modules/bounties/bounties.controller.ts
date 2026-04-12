@@ -43,7 +43,7 @@ export class BountiesController {
     @Query('category') category?: string,
     @Query('rewardType') rewardType?: RewardType,
     @Query('search') search?: string,
-    @Query('organisationId') organisationId?: string,
+    @Query('brandId') brandId?: string,
   ) {
     return this.bountiesService.list(user, {
       page,
@@ -54,7 +54,7 @@ export class BountiesController {
       category,
       rewardType,
       search,
-      organisationId,
+      brandId,
     });
   }
 

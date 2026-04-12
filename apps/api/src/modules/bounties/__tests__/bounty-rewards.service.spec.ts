@@ -243,7 +243,7 @@ describe('BountiesService - Reward Validation', () => {
       prisma.bounty.update.mockResolvedValue(
         baseBountyRecord({
           status: BountyStatus.DRAFT,
-          organisation: { id: 'org-1', name: 'Test', logo: null },
+          brand: { id: 'org-1', name: 'Test', logo: null },
           createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
           _count: { submissions: 0 },
         }),

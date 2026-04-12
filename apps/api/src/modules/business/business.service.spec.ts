@@ -14,7 +14,7 @@ import { AuthenticatedUser } from '../auth/jwt.strategy';
 describe('BusinessService', () => {
   let service: BusinessService;
   let prisma: {
-    organisation: { findUnique: jest.Mock };
+    brand: { findUnique: jest.Mock };
     bounty: { groupBy: jest.Mock };
     submission: { groupBy: jest.Mock };
   };
@@ -24,7 +24,7 @@ describe('BusinessService', () => {
     sub: 'user-1',
     email: 'admin@test.com',
     role: UserRole.BUSINESS_ADMIN,
-    organisationId: 'org-1',
+    brandId: 'org-1',
   };
 
   const mockOrg = { id: 'org-1', name: 'Acme Corp' };
@@ -53,7 +53,7 @@ describe('BusinessService', () => {
 
   beforeEach(async () => {
     prisma = {
-      organisation: { findUnique: jest.fn() },
+      brand: { findUnique: jest.fn() },
       bounty: { groupBy: jest.fn() },
       submission: { groupBy: jest.fn() },
     };
@@ -76,15 +76,15 @@ describe('BusinessService', () => {
 
   // ─── Guard clauses ──────────────────────────────────────────────────────────
 
-  it('throws BadRequestException when user has no organisationId', async () => {
-    const noOrgUser: AuthenticatedUser = { ...mockUser, organisationId: null };
+  it('throws BadRequestException when user has no brandId', async () => {
+    const noOrgUser: AuthenticatedUser = { ...mockUser, brandId: null };
     await expect(service.getDashboard(noOrgUser)).rejects.toThrow(
       BadRequestException,
     );
   });
 
   it('throws BadRequestException when the organisation is not found', async () => {
-    prisma.organisation.findUnique.mockResolvedValue(null);
+    prisma.brand.findUnique.mockResolvedValue(null);
     await expect(service.getDashboard(mockUser)).rejects.toThrow(
       BadRequestException,
     );
@@ -93,7 +93,7 @@ describe('BusinessService', () => {
   // ─── Happy path ─────────────────────────────────────────────────────────────
 
   it('returns correct dashboard metrics from DB', async () => {
-    prisma.organisation.findUnique.mockResolvedValue(mockOrg);
+    prisma.brand.findUnique.mockResolvedValue(mockOrg);
     prisma.bounty.groupBy.mockResolvedValue(defaultBountyGroups);
     prisma.submission.groupBy
       .mockResolvedValueOnce(defaultSubmissionStatusGroups)
@@ -124,7 +124,7 @@ describe('BusinessService', () => {
   });
 
   it('defaults missing status counts to 0 when groupBy returns no row for that status', async () => {
-    prisma.organisation.findUnique.mockResolvedValue(mockOrg);
+    prisma.brand.findUnique.mockResolvedValue(mockOrg);
     prisma.bounty.groupBy.mockResolvedValue([]); // no bounties at all
     prisma.submission.groupBy.mockResolvedValue([]); // no submissions at all
 
@@ -140,7 +140,7 @@ describe('BusinessService', () => {
   // ─── Caching ────────────────────────────────────────────────────────────────
 
   it('stores the result in Redis with a 300-second TTL on cache miss', async () => {
-    prisma.organisation.findUnique.mockResolvedValue(mockOrg);
+    prisma.brand.findUnique.mockResolvedValue(mockOrg);
     prisma.bounty.groupBy.mockResolvedValue(defaultBountyGroups);
     prisma.submission.groupBy
       .mockResolvedValueOnce(defaultSubmissionStatusGroups)
@@ -149,40 +149,40 @@ describe('BusinessService', () => {
     const result = await service.getDashboard(mockUser);
 
     expect(redis.set).toHaveBeenCalledWith(
-      `dashboard:${mockUser.organisationId}`,
+      `dashboard:${mockUser.brandId}`,
       JSON.stringify(result),
       300,
     );
   });
 
   it('returns cached value and skips DB queries on cache hit', async () => {
-    const cachedData = { organisation: mockOrg, bounties: {}, submissions: {} };
+    const cachedData = { brand: mockOrg, bounties: {}, submissions: {} };
     redis.get.mockResolvedValue(JSON.stringify(cachedData));
 
     const result = await service.getDashboard(mockUser);
 
     expect(result).toEqual(cachedData);
-    expect(prisma.organisation.findUnique).not.toHaveBeenCalled();
+    expect(prisma.brand.findUnique).not.toHaveBeenCalled();
     expect(prisma.bounty.groupBy).not.toHaveBeenCalled();
     expect(prisma.submission.groupBy).not.toHaveBeenCalled();
     // No new entry written when serving from cache
     expect(redis.set).not.toHaveBeenCalled();
   });
 
-  it('checks the cache key namespaced to the organisationId', async () => {
-    prisma.organisation.findUnique.mockResolvedValue(mockOrg);
+  it('checks the cache key namespaced to the brandId', async () => {
+    prisma.brand.findUnique.mockResolvedValue(mockOrg);
     prisma.bounty.groupBy.mockResolvedValue([]);
     prisma.submission.groupBy.mockResolvedValue([]);
 
     await service.getDashboard(mockUser);
 
-    expect(redis.get).toHaveBeenCalledWith(`dashboard:${mockUser.organisationId}`);
+    expect(redis.get).toHaveBeenCalledWith(`dashboard:${mockUser.brandId}`);
   });
 
   // ─── Query efficiency ────────────────────────────────────────────────────────
 
   it('uses exactly one groupBy for bounties and two groupBy calls for submissions', async () => {
-    prisma.organisation.findUnique.mockResolvedValue(mockOrg);
+    prisma.brand.findUnique.mockResolvedValue(mockOrg);
     prisma.bounty.groupBy.mockResolvedValue(defaultBountyGroups);
     prisma.submission.groupBy
       .mockResolvedValueOnce(defaultSubmissionStatusGroups)
@@ -197,7 +197,7 @@ describe('BusinessService', () => {
   });
 
   it('scopes submission groupBy queries to the organisation via relation filter', async () => {
-    prisma.organisation.findUnique.mockResolvedValue(mockOrg);
+    prisma.brand.findUnique.mockResolvedValue(mockOrg);
     prisma.bounty.groupBy.mockResolvedValue([]);
     prisma.submission.groupBy.mockResolvedValue([]);
 
@@ -206,7 +206,7 @@ describe('BusinessService', () => {
     const submissionCalls = prisma.submission.groupBy.mock.calls;
     for (const [args] of submissionCalls) {
       expect(args.where).toEqual({
-        bounty: { organisationId: mockUser.organisationId },
+        bounty: { brandId: mockUser.brandId },
       });
     }
   });

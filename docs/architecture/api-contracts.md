@@ -27,7 +27,7 @@ The JWT payload contains:
   "sub": "uuid",
   "email": "user@example.com",
   "role": "PARTICIPANT | BUSINESS_ADMIN | SUPER_ADMIN",
-  "organisationId": "uuid | null",
+  "brandId": "uuid | null",
   "iat": 1700000000,
   "exp": 1700086400
 }
@@ -82,7 +82,7 @@ All errors use a consistent format:
 | **SA** | Super Admin |
 | **Public** | No authentication required |
 | **Self** | Authenticated user acting on their own resource |
-| **OrgOwner** | Business Admin who is the Owner of the relevant organisation |
+| **OrgOwner** | Business Admin who is the Owner of the relevant brand |
 
 ---
 
@@ -166,7 +166,7 @@ Authenticate and receive a JWT. (Backlog: Story 1.2)
     "role": "PARTICIPANT",
     "status": "ACTIVE",
     "emailVerified": false,
-    "organisationId": null
+    "brandId": null
   }
 }
 ```
@@ -367,13 +367,13 @@ Get the authenticated user's profile. (Backlog: Story 2.1)
   "role": "PARTICIPANT",
   "status": "ACTIVE",
   "emailVerified": true,
-  "organisation": null,
+  "brand": null,
   "createdAt": "2026-02-07T10:00:00.000Z",
   "updatedAt": "2026-02-07T10:00:00.000Z"
 }
 ```
 
-**Note**: If user is a BA, `organisation` includes `{ "id": "...", "name": "...", "role": "OWNER|MEMBER" }`.
+**Note**: If user is a BA, `brand` includes `{ "id": "...", "name": "...", "role": "OWNER|MEMBER" }`.
 
 ---
 
@@ -453,11 +453,11 @@ Change the authenticated user's password. (Backlog: Story 2.2)
 
 ---
 
-## 3. Organisation Endpoints (`/api/v1/organisations`)
+## 3. Brand Endpoints (`/api/v1/brands`)
 
-### POST `/organisations`
+### POST `/brands`
 
-Create a new organisation. The creating user becomes the Owner and their role is upgraded to BUSINESS_ADMIN. (Backlog: Story 3.1)
+Create a new brand. The creating user becomes the Owner and their role is upgraded to BUSINESS_ADMIN. (Backlog: Story 3.1)
 
 - **Access**: P (Participants who want to become Business Admins)
 - **Audit Log**: Yes
@@ -477,7 +477,7 @@ Optional file: `logo` (image/jpeg, image/png, image/webp; max 2MB)
 - `name`: required, 1-200 characters
 - `contactEmail`: required, valid email
 - `logo`: optional, image file only, max 2MB
-- User must not already belong to an organisation
+- User must not already belong to an brand
 
 **Response** `201 Created`:
 
@@ -495,17 +495,17 @@ Optional file: `logo` (image/jpeg, image/png, image/webp; max 2MB)
 
 **Side Effects**:
 - User's role is changed from PARTICIPANT to BUSINESS_ADMIN
-- An OrganisationMember record is created with role OWNER
+- An BrandMember record is created with role OWNER
 
 **Error Responses**:
 - `400` - Validation error
-- `409` - User already belongs to an organisation
+- `409` - User already belongs to an brand
 
 ---
 
-### GET `/organisations/:id`
+### GET `/brands/:id`
 
-Get organisation details. (Backlog: Story 3.2)
+Get brand details. (Backlog: Story 3.2)
 
 - **Access**: BA (own org), SA
 
@@ -526,14 +526,14 @@ Get organisation details. (Backlog: Story 3.2)
 ```
 
 **Error Responses**:
-- `403` - Not a member of this organisation (BA), or not SA
-- `404` - Organisation not found
+- `403` - Not a member of this brand (BA), or not SA
+- `404` - Brand not found
 
 ---
 
-### PATCH `/organisations/:id`
+### PATCH `/brands/:id`
 
-Update organisation details. (Backlog: Story 3.3)
+Update brand details. (Backlog: Story 3.3)
 
 - **Access**: OrgOwner, SA
 - **Audit Log**: Yes
@@ -570,13 +570,13 @@ Optional file: `logo` (image/jpeg, image/png, image/webp; max 2MB). Send `logo: 
 **Error Responses**:
 - `400` - Validation error
 - `403` - Not org owner or SA
-- `404` - Organisation not found
+- `404` - Brand not found
 
 ---
 
-### GET `/organisations/:id/members`
+### GET `/brands/:id/members`
 
-List members of an organisation. (Backlog: Story 3.4)
+List members of an brand. (Backlog: Story 3.4)
 
 - **Access**: BA (own org), SA
 
@@ -613,9 +613,9 @@ List members of an organisation. (Backlog: Story 3.4)
 
 ---
 
-### POST `/organisations/:id/members`
+### POST `/brands/:id/members`
 
-Invite a user to join the organisation. (Backlog: Story 3.4)
+Invite a user to join the brand. (Backlog: Story 3.4)
 
 - **Access**: OrgOwner, SA
 - **Audit Log**: Yes
@@ -630,7 +630,7 @@ Invite a user to join the organisation. (Backlog: Story 3.4)
 
 **Validation Rules**:
 - `email`: required, valid email
-- User must exist and not already belong to an organisation
+- User must exist and not already belong to an brand
 - Invited user will receive an email invitation
 
 **Response** `201 Created`:
@@ -641,7 +641,7 @@ Invite a user to join the organisation. (Backlog: Story 3.4)
   "invitation": {
     "id": "invitation-uuid-1",
     "email": "newmember@example.com",
-    "organisationId": "org-uuid-1",
+    "brandId": "org-uuid-1",
     "status": "PENDING",
     "createdAt": "2026-02-07T12:00:00.000Z"
   }
@@ -650,18 +650,18 @@ Invite a user to join the organisation. (Backlog: Story 3.4)
 
 **Side Effects**:
 - An invitation email is sent to the user
-- On acceptance, user's role is changed to BUSINESS_ADMIN and an OrganisationMember record with role MEMBER is created
+- On acceptance, user's role is changed to BUSINESS_ADMIN and an BrandMember record with role MEMBER is created
 
 **Error Responses**:
 - `400` - Validation error, user not found
 - `403` - Not org owner or SA
-- `409` - User already belongs to an organisation
+- `409` - User already belongs to an brand
 
 ---
 
-### DELETE `/organisations/:id/members/:userId`
+### DELETE `/brands/:id/members/:userId`
 
-Remove a member from the organisation. (Backlog: Story 3.4)
+Remove a member from the brand. (Backlog: Story 3.4)
 
 - **Access**: OrgOwner, SA
 - **Audit Log**: Yes
@@ -674,12 +674,12 @@ Remove a member from the organisation. (Backlog: Story 3.4)
 
 ```json
 {
-  "message": "Member removed from organisation."
+  "message": "Member removed from brand."
 }
 ```
 
 **Error Responses**:
-- `400` - Cannot remove the organisation owner
+- `400` - Cannot remove the brand owner
 - `403` - Not org owner or SA
 - `404` - Member not found
 
@@ -691,7 +691,7 @@ Remove a member from the organisation. (Backlog: Story 3.4)
 
 List bounties with role-based filtering. (Backlog: Stories 4.4, 6.2)
 
-Participants see only LIVE bounties. Business Admins see their organisation's bounties in all statuses. Super Admins see all bounties.
+Participants see only LIVE bounties. Business Admins see their brand's bounties in all statuses. Super Admins see all bounties.
 
 - **Access**: P (LIVE only), BA (own org), SA (all)
 
@@ -701,7 +701,7 @@ Participants see only LIVE bounties. Business Admins see their organisation's bo
 - `category` - Filter by category string
 - `rewardType` - Filter by RewardType enum
 - `search` - Full-text search on title and shortDescription
-- `organisationId` - Filter by organisation (SA only)
+- `brandId` - Filter by brand (SA only)
 
 **Sorting options**: `createdAt` (newest), `rewardValue`, `endDate` (ending soon)
 
@@ -723,7 +723,7 @@ Participants see only LIVE bounties. Business Admins see their organisation's bo
       "endDate": "2026-03-01T00:00:00.000Z",
       "status": "LIVE",
       "submissionCount": 42,
-      "organisation": {
+      "brand": {
         "id": "org-uuid-1",
         "name": "Acme Corp",
         "logo": "https://cdn.example.com/logos/acme.png"
@@ -768,7 +768,7 @@ Get full bounty details. (Backlog: Story 4.5)
   "proofRequirements": "Submit the URL to your Instagram post. Post must be public and visible.",
   "status": "LIVE",
   "submissionCount": 42,
-  "organisation": {
+  "brand": {
     "id": "org-uuid-1",
     "name": "Acme Corp",
     "logo": "https://cdn.example.com/logos/acme.png"
@@ -836,7 +836,7 @@ Create a new bounty. (Backlog: Story 4.1)
 - `eligibilityRules`: required, 1-5000 characters
 - `proofRequirements`: required, 1-5000 characters
 
-**Note**: Bounty is created in `DRAFT` status. The `organisationId` is derived from the authenticated BA's organisation.
+**Note**: Bounty is created in `DRAFT` status. The `brandId` is derived from the authenticated BA's brand.
 
 **Response** `201 Created`:
 
@@ -856,7 +856,7 @@ Create a new bounty. (Backlog: Story 4.1)
   "eligibilityRules": "...",
   "proofRequirements": "...",
   "status": "DRAFT",
-  "organisationId": "org-uuid-1",
+  "brandId": "org-uuid-1",
   "createdById": "user-uuid-1",
   "createdAt": "2026-02-07T10:00:00.000Z",
   "updatedAt": "2026-02-07T10:00:00.000Z"
@@ -1064,7 +1064,7 @@ List the authenticated participant's submissions. (Backlog: Story 5.2)
         "title": "Share our product on Instagram",
         "rewardType": "CASH",
         "rewardValue": "25.00",
-        "organisation": {
+        "brand": {
           "id": "org-uuid-1",
           "name": "Acme Corp"
         }
@@ -1392,7 +1392,7 @@ List all users with filtering. (Backlog: Story 7.2)
       "role": "PARTICIPANT",
       "status": "ACTIVE",
       "emailVerified": true,
-      "organisation": null,
+      "brand": null,
       "createdAt": "2026-01-10T10:00:00.000Z",
       "updatedAt": "2026-02-07T10:00:00.000Z"
     }
@@ -1425,7 +1425,7 @@ Get detailed user information. (Backlog: Story 7.2)
   "role": "PARTICIPANT",
   "status": "ACTIVE",
   "emailVerified": true,
-  "organisation": null,
+  "brand": null,
   "submissionCount": 12,
   "approvedSubmissionCount": 8,
   "createdAt": "2026-01-10T10:00:00.000Z",
@@ -1508,15 +1508,15 @@ Force a password reset for a user (sends reset email). (Backlog: Story 7.2)
 
 ---
 
-### GET `/admin/organisations`
+### GET `/admin/brands`
 
-List all organisations. (Backlog: Story 7.3)
+List all brands. (Backlog: Story 7.3)
 
 - **Access**: SA
 
 **Query Parameters**:
 - `page`, `limit`, `sortBy`, `sortOrder` (standard pagination)
-- `status` - Filter by OrgStatus
+- `status` - Filter by BrandStatus
 - `search` - Search by name or contactEmail
 
 **Response** `200 OK`:
@@ -1546,9 +1546,9 @@ List all organisations. (Backlog: Story 7.3)
 
 ---
 
-### POST `/admin/organisations`
+### POST `/admin/brands`
 
-Create a new organisation and assign an owner (SA-initiated). (Backlog: Story 7.3)
+Create a new brand and assign an owner (SA-initiated). (Backlog: Story 7.3)
 
 - **Access**: SA
 - **Audit Log**: Yes
@@ -1568,11 +1568,11 @@ Create a new organisation and assign an owner (SA-initiated). (Backlog: Story 7.
 - `name`: required, 1-200 characters
 - `contactEmail`: required, valid email
 - `logo`: optional, valid URL
-- `ownerUserId`: required, must reference an existing user who is not already in an organisation
+- `ownerUserId`: required, must reference an existing user who is not already in an brand
 
 **Side Effects**:
 - User's role is changed to BUSINESS_ADMIN
-- An OrganisationMember record is created with role OWNER
+- An BrandMember record is created with role OWNER
 
 **Response** `201 Created`:
 
@@ -1595,13 +1595,13 @@ Create a new organisation and assign an owner (SA-initiated). (Backlog: Story 7.
 
 **Error Responses**:
 - `400` - Validation error, owner user not found, user already in an org
-- `409` - Organisation name already exists
+- `409` - Brand name already exists
 
 ---
 
-### PATCH `/admin/organisations/:id/status`
+### PATCH `/admin/brands/:id/status`
 
-Suspend or reinstate an organisation. (Backlog: Story 7.3)
+Suspend or reinstate an brand. (Backlog: Story 7.3)
 
 - **Access**: SA
 - **Audit Log**: Yes (mandatory, with reason)
@@ -1611,7 +1611,7 @@ Suspend or reinstate an organisation. (Backlog: Story 7.3)
 ```json
 {
   "status": "SUSPENDED",
-  "reason": "Organisation violated platform policies."
+  "reason": "Brand violated platform policies."
 }
 ```
 
@@ -1619,7 +1619,7 @@ Suspend or reinstate an organisation. (Backlog: Story 7.3)
 - `status`: required, one of `ACTIVE`, `SUSPENDED`
 - `reason`: required, 1-2000 characters
 
-**Side Effect**: Suspending an organisation automatically pauses all its LIVE bounties. Reinstating does NOT automatically re-publish paused bounties.
+**Side Effect**: Suspending an brand automatically pauses all its LIVE bounties. Reinstating does NOT automatically re-publish paused bounties.
 
 **Response** `200 OK`:
 
@@ -1633,7 +1633,7 @@ Suspend or reinstate an organisation. (Backlog: Story 7.3)
 
 **Error Responses**:
 - `400` - Validation error
-- `404` - Organisation not found
+- `404` - Brand not found
 
 ---
 
@@ -1832,7 +1832,7 @@ Get platform-wide counts and metrics for the Super Admin dashboard. (Backlog: St
       "SUPER_ADMIN": 5
     }
   },
-  "organisations": {
+  "brands": {
     "total": 25,
     "active": 23,
     "suspended": 2
@@ -2001,7 +2001,7 @@ Update global platform settings. (Backlog: Story 7.7, optional/lower priority)
 
 ### GET `/business/dashboard`
 
-Get organisation-level counts and metrics for the Business Admin dashboard. (Backlog: Stories 6.1, 9.1)
+Get brand-level counts and metrics for the Business Admin dashboard. (Backlog: Stories 6.1, 9.1)
 
 - **Access**: BA
 
@@ -2009,7 +2009,7 @@ Get organisation-level counts and metrics for the Business Admin dashboard. (Bac
 
 ```json
 {
-  "organisation": {
+  "brand": {
     "id": "org-uuid-1",
     "name": "Acme Corp"
   },
@@ -2091,11 +2091,11 @@ All actions that generate audit log entries:
 | `user.password_reset` | Password reset via email | User |
 | `user.status_change` | User suspended/reinstated | User |
 | `user.force_password_reset` | SA forces password reset | User |
-| `organisation.create` | Organisation created | Organisation |
-| `organisation.update` | Organisation details updated | Organisation |
-| `organisation.status_change` | Organisation suspended/reinstated | Organisation |
-| `organisation.member_add` | Member added to organisation | Organisation |
-| `organisation.member_remove` | Member removed from organisation | Organisation |
+| `brand.create` | Brand created | Brand |
+| `brand.update` | Brand details updated | Brand |
+| `brand.status_change` | Brand suspended/reinstated | Brand |
+| `brand.member_add` | Member added to brand | Brand |
+| `brand.member_remove` | Member removed from brand | Brand |
 | `bounty.create` | Bounty created | Bounty |
 | `bounty.update` | Bounty fields updated | Bounty |
 | `bounty.status_change` | Bounty status transition | Bounty |
@@ -2127,13 +2127,13 @@ All actions that generate audit log entries:
 | `GET /users/me` | Y | Y | Y |
 | `PATCH /users/me` | Y | Y | Y |
 | `POST /users/me/change-password` | Y | Y | Y |
-| **Organisations** | | | |
-| `POST /organisations` | Y | - | - |
-| `GET /organisations/:id` | - | Own | Y |
-| `PATCH /organisations/:id` | - | Owner | Y |
-| `GET /organisations/:id/members` | - | Own | Y |
-| `POST /organisations/:id/members` | - | Owner | Y |
-| `DELETE /organisations/:id/members/:userId` | - | Owner | Y |
+| **Brands** | | | |
+| `POST /brands` | Y | - | - |
+| `GET /brands/:id` | - | Own | Y |
+| `PATCH /brands/:id` | - | Owner | Y |
+| `GET /brands/:id/members` | - | Own | Y |
+| `POST /brands/:id/members` | - | Owner | Y |
+| `DELETE /brands/:id/members/:userId` | - | Owner | Y |
 | **Bounties** | | | |
 | `GET /bounties` | LIVE | Own org | Y |
 | `GET /bounties/:id` | LIVE | Own org | Y |
@@ -2156,9 +2156,9 @@ All actions that generate audit log entries:
 | `GET /admin/users/:id` | - | - | Y |
 | `PATCH /admin/users/:id/status` | - | - | Y |
 | `POST /admin/users/:id/force-password-reset` | - | - | Y |
-| `GET /admin/organisations` | - | - | Y |
-| `POST /admin/organisations` | - | - | Y |
-| `PATCH /admin/organisations/:id/status` | - | - | Y |
+| `GET /admin/brands` | - | - | Y |
+| `POST /admin/brands` | - | - | Y |
+| `PATCH /admin/brands/:id/status` | - | - | Y |
 | `PATCH /admin/bounties/:id/override` | - | - | Y |
 | `PATCH /admin/submissions/:id/override` | - | - | Y |
 | `GET /admin/audit-logs` | - | - | Y |
@@ -2173,7 +2173,7 @@ All actions that generate audit log entries:
 | **Health** | | | |
 | `GET /health` | Public | Public | Public |
 
-**Legend**: Y = full access, Own = own resource only, Own* = own resource only + status constraint (NEEDS_MORE_INFO), Own org = own organisation's resources, Owner = org owner only, LIVE = only LIVE status bounties, `-` = no access, Public = no auth required
+**Legend**: Y = full access, Own = own resource only, Own* = own resource only + status constraint (NEEDS_MORE_INFO), Own org = own brand's resources, Owner = org owner only, LIVE = only LIVE status bounties, `-` = no access, Public = no auth required
 
 ---
 
@@ -2183,11 +2183,11 @@ All actions that generate audit log entries:
 2. **No bulk operations**: MVP does not include bulk approve/reject. Each submission is reviewed individually.
 3. **Proof images uploaded with submission**: Proof images are uploaded as part of the submission creation/update (multipart form). A separate authenticated file-serving endpoint is provided for retrieval.
 4. **One submission per user per bounty**: Per backlog assumption #9. "Needs More Info" allows the participant to update their existing submission (Story 5.4), not create a new one.
-5. **Business Admin dashboard scoped to org**: BA dashboard metrics are automatically scoped to their organisation.
+5. **Business Admin dashboard scoped to org**: BA dashboard metrics are automatically scoped to their brand.
 6. **Audit log is append-only**: No endpoints to modify or delete audit logs.
 7. **SA overrides are distinct from regular operations**: Override endpoints (`/admin/bounties/:id/override`, `/admin/submissions/:id/override`) always require a reason, bypass normal transition rules, and create separate audit actions.
 8. **Refresh token rotation**: Login returns both access and refresh tokens. Refresh endpoint rotates the refresh token. Logout invalidates the refresh token.
-9. **Organisation creation by Participants**: Per Story 3.1, a Participant can create an organisation which promotes them to Business Admin. SA can also create organisations via the admin endpoint.
+9. **Brand creation by Participants**: Per Story 3.1, a Participant can create an brand which promotes them to Business Admin. SA can also create brands via the admin endpoint.
 10. **Soft delete for bounties**: Draft bounty deletion is a soft delete per Story 4.6. The bounty is marked as deleted but not purged from the database.
 11. **Live bounty limited editing**: Per Story 4.2, Live bounties can only have `eligibilityRules`, `proofRequirements`, `maxSubmissions`, and `endDate` edited.
 12. **Global toggles are optional/lower priority**: Per backlog Story 7.7. The signup and submission endpoints check toggle state if implemented.

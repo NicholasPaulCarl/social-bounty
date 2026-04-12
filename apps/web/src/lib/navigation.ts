@@ -33,7 +33,7 @@ const adminNav: NavItem[] = [
   { label: 'Inbox', icon: 'pi pi-inbox', href: '/inbox' },
   { label: 'Dashboard', icon: 'pi pi-chart-bar', href: '/admin/dashboard' },
   { label: 'Users', icon: 'pi pi-users', href: '/admin/users' },
-  { label: 'Organisations', icon: 'pi pi-building', href: '/admin/organisations' },
+  { label: 'Brands', icon: 'pi pi-building', href: '/admin/brands' },
   { label: 'Bounties', icon: 'pi pi-megaphone', href: '/admin/bounties' },
   { label: 'Submissions', icon: 'pi pi-inbox', href: '/admin/submissions' },
   { label: 'Hunters', icon: 'pi pi-users', href: '/hunters' },

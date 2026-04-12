@@ -17,7 +17,7 @@ Social Bounty is a bounty-based marketplace where businesses create tasks with r
 | Role | Purpose | Access |
 |------|---------|--------|
 | **Participant** | Browse bounties, submit proof, track earnings | Default role on signup |
-| **Business Admin** | Create bounties, review submissions, manage payouts | Gained by creating an organisation |
+| **Business Admin** | Create bounties, review submissions, manage payouts | Gained by creating an brand |
 | **Super Admin** | Full platform control, user management, system oversight | Seeded manually |
 
 ---
@@ -115,7 +115,7 @@ Participants browse available bounties, submit proof of completed tasks, and tra
 
 ## 3. Business Admin Features
 
-Business Admins create and manage bounties, review participant submissions, handle payouts, and manage their organisation.
+Business Admins create and manage bounties, review participant submissions, handle payouts, and manage their brand.
 
 ### 3.1 Business Dashboard
 
@@ -172,7 +172,7 @@ DRAFT ──→ LIVE ──→ PAUSED ──→ LIVE (resume)
 
 | Function | Description |
 |----------|-------------|
-| **Review Queue** | Centralized queue of all submissions across your organisation's bounties. Filter by status, bounty, and payout status. |
+| **Review Queue** | Centralized queue of all submissions across your brand's bounties. Filter by status, bounty, and payout status. |
 | **Review Submission** | View full submission proof (text, links, images, metrics) and take action. |
 | **Approve** | Mark submission as approved. Triggers email notification to participant. |
 | **Request More Info** | Ask participant for additional proof. Triggers email notification. Participant can update and resubmit. |
@@ -207,15 +207,15 @@ SUBMITTED ──→ IN_REVIEW ──→ APPROVED ──→ (payout)
 | **Idempotency** | Duplicate payment requests are prevented using idempotency keys. |
 | **Payment Failure Handling** | Failed payments are logged and the bounty remains in Draft status. |
 
-### 3.8 Organisation Management
+### 3.8 Brand Management
 
 | Function | Description |
 |----------|-------------|
-| **Create Organisation** | Set up your business with a name, contact email, and optional logo. Creating an organisation promotes your role from Participant to Business Admin. |
-| **Edit Organisation** | Update organisation name, contact email, and logo. |
-| **View Members** | See all organisation members and their roles (Owner, Member). |
-| **Invite Member** | Send an email invitation for another user to join your organisation as a Business Admin. |
-| **Remove Member** | Revoke a member's access to the organisation. |
+| **Create Brand** | Set up your business with a name, contact email, and optional logo. Creating an brand promotes your role from Participant to Business Admin. |
+| **Edit Brand** | Update brand name, contact email, and logo. |
+| **View Members** | See all brand members and their roles (Owner, Member). |
+| **Invite Member** | Send an email invitation for another user to join your brand as a Business Admin. |
+| **Remove Member** | Revoke a member's access to the brand. |
 
 ---
 
@@ -227,7 +227,7 @@ Super Admins have full platform access for user management, troubleshooting, com
 
 | Function | Description |
 |----------|-------------|
-| **Platform Metrics** | Total users, organisations, bounties, and submissions with status breakdowns. |
+| **Platform Metrics** | Total users, brands, bounties, and submissions with status breakdowns. |
 | **System Health** | Real-time status of Database, Redis, and File Storage services. |
 | **Recent Activity** | Live feed of recent platform actions from the audit log. |
 
@@ -236,28 +236,28 @@ Super Admins have full platform access for user management, troubleshooting, com
 | Function | Description |
 |----------|-------------|
 | **List Users** | Paginated list of all users with search, filter by role and status. |
-| **User Detail** | View full user profile, organisation memberships, and activity. |
+| **User Detail** | View full user profile, brand memberships, and activity. |
 | **Suspend User** | Suspend a user account with a required reason. Suspended users cannot log in. |
 | **Reinstate User** | Restore a suspended user to active status. |
 | **Force Password Reset** | Require a user to reset their password on next login. |
 
-### 4.3 Organisation Oversight
+### 4.3 Brand Oversight
 
 | Function | Description |
 |----------|-------------|
-| **List Organisations** | Paginated list of all organisations with search and status filter. |
-| **Organisation Detail** | View full organisation details, members, and associated bounties. |
-| **Create Organisation** | Create an organisation directly (without going through participant signup). |
-| **Suspend Organisation** | Suspend an organisation (ACTIVE → SUSPENDED). Requires reason. |
-| **Reactivate Organisation** | Restore a suspended organisation. |
+| **List Brands** | Paginated list of all brands with search and status filter. |
+| **Brand Detail** | View full brand details, members, and associated bounties. |
+| **Create Brand** | Create an brand directly (without going through participant signup). |
+| **Suspend Brand** | Suspend an brand (ACTIVE → SUSPENDED). Requires reason. |
+| **Reactivate Brand** | Restore a suspended brand. |
 
 ### 4.4 Bounty & Submission Oversight
 
 | Function | Description |
 |----------|-------------|
 | **View All Bounties** | Browse all bounties across the platform with filtering and sorting. |
-| **View All Submissions** | Browse all submissions platform-wide with filtering by status, payout, user, and organisation. |
-| **Bounty Detail** | View full bounty details from any organisation. |
+| **View All Submissions** | Browse all submissions platform-wide with filtering by status, payout, user, and brand. |
+| **Bounty Detail** | View full bounty details from any brand. |
 | **Submission Detail** | View full submission details for any user. |
 
 ### 4.5 Emergency Overrides
@@ -277,7 +277,7 @@ Super Admins have full platform access for user management, troubleshooting, com
 
 **Actions Tracked:**
 - User: password changes, resets, suspensions, reinstatements
-- Organisation: creation, updates, status changes, member additions/removals
+- Brand: creation, updates, status changes, member additions/removals
 - Bounty: creation, updates, status transitions, overrides, brand asset changes
 - Submission: creation, reviews, payout changes, overrides
 - Settings: platform configuration changes
@@ -388,7 +388,7 @@ All emails use branded HTML templates with retry logic (3 attempts with exponent
 |---------|-----------|----------|---------|
 | Submission Proof | 5 | 5 MB each | JPEG, PNG, GIF, WebP |
 | Brand Assets | 10 | 10 MB each | JPEG, PNG, GIF, WebP, PDF |
-| Organisation Logo | 1 | 2 MB | Image formats |
+| Brand Logo | 1 | 2 MB | Image formats |
 
 ---
 

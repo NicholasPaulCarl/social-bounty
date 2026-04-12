@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   BadRequestException,
   ConflictException,
   NotFoundException,
@@ -7,21 +8,25 @@ import {
 } from '@nestjs/common';
 import {
   UserRole,
-  OrgMemberRole,
+  BrandMemberRole,
   AUDIT_ACTIONS,
   ENTITY_TYPES,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { ApifyService } from '../apify/apify.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 const UUID_REGEX = /^[0-9a-f]{8}-/;
 
 @Injectable()
-export class OrganisationsService {
+export class BrandsService {
+  private readonly logger = new Logger(BrandsService.name);
+
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
+    private apify: ApifyService,
   ) {}
 
   async create(
@@ -40,7 +45,7 @@ export class OrganisationsService {
   ) {
     // If handle is provided, check uniqueness
     if (data.handle) {
-      const existing = await this.prisma.organisation.findUnique({
+      const existing = await this.prisma.brand.findUnique({
         where: { handle: data.handle },
       });
       if (existing) {
@@ -49,7 +54,7 @@ export class OrganisationsService {
     }
 
     const org = await this.prisma.$transaction(async (tx) => {
-      const organisation = await tx.organisation.create({
+      const organisation = await tx.brand.create({
         data: {
           name: data.name.trim(),
           contactEmail: data.contactEmail.toLowerCase().trim(),
@@ -62,11 +67,11 @@ export class OrganisationsService {
         },
       });
 
-      await tx.organisationMember.create({
+      await tx.brandMember.create({
         data: {
           userId: user.sub,
-          organisationId: organisation.id,
-          role: OrgMemberRole.OWNER,
+          brandId: organisation.id,
+          role: BrandMemberRole.OWNER,
         },
       });
 
@@ -87,11 +92,18 @@ export class OrganisationsService {
     this.auditService.log({
       actorId: user.sub,
       actorRole: UserRole.PARTICIPANT,
-      action: AUDIT_ACTIONS.ORGANISATION_CREATE,
-      entityType: ENTITY_TYPES.ORGANISATION,
+      action: AUDIT_ACTIONS.BRAND_CREATE,
+      entityType: ENTITY_TYPES.BRAND,
       entityId: org.id,
       afterState: { name: org.name, contactEmail: org.contactEmail },
       ipAddress,
+    });
+
+    // Fire-and-forget: pull social analytics for the new brand if handles were provided
+    setImmediate(() => {
+      this.apify.refreshIfStale(org.id).catch((err) => {
+        this.logger.error(`Background refresh after brand create failed for ${org.id}`, err);
+      });
     });
 
     return {
@@ -113,7 +125,7 @@ export class OrganisationsService {
   }
 
   async findById(orgId: string, user: AuthenticatedUser) {
-    const org = await this.prisma.organisation.findUnique({
+    const org = await this.prisma.brand.findUnique({
       where: { id: orgId },
       include: {
         _count: {
@@ -123,14 +135,14 @@ export class OrganisationsService {
     });
 
     if (!org) {
-      throw new NotFoundException('Organisation not found');
+      throw new NotFoundException('Brand not found');
     }
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      user.organisationId !== orgId
+      user.brandId !== orgId
     ) {
-      throw new ForbiddenException('Not authorized to view this organisation');
+      throw new ForbiddenException('Not authorized to view this brand');
     }
 
     return {
@@ -169,21 +181,21 @@ export class OrganisationsService {
     ipAddress?: string,
     logoFile?: Express.Multer.File,
   ) {
-    const org = await this.prisma.organisation.findUnique({
+    const org = await this.prisma.brand.findUnique({
       where: { id: orgId },
     });
 
     if (!org) {
-      throw new NotFoundException('Organisation not found');
+      throw new NotFoundException('Brand not found');
     }
 
     // Check ownership
     if (user.role !== UserRole.SUPER_ADMIN) {
-      const membership = await this.prisma.organisationMember.findFirst({
+      const membership = await this.prisma.brandMember.findFirst({
         where: {
           userId: user.sub,
-          organisationId: orgId,
-          role: OrgMemberRole.OWNER,
+          brandId: orgId,
+          role: BrandMemberRole.OWNER,
         },
       });
 
@@ -194,7 +206,7 @@ export class OrganisationsService {
 
     // If handle is being changed, check uniqueness
     if (data.handle && data.handle !== org.handle) {
-      const existingHandle = await this.prisma.organisation.findUnique({
+      const existingHandle = await this.prisma.brand.findUnique({
         where: { handle: data.handle },
       });
       if (existingHandle) {
@@ -219,7 +231,7 @@ export class OrganisationsService {
     if (data.messagingEnabled !== undefined) updateData.messagingEnabled = data.messagingEnabled;
     if (logoFile) updateData.logo = `/uploads/${logoFile.filename}`;
 
-    const updated = await this.prisma.organisation.update({
+    const updated = await this.prisma.brand.update({
       where: { id: orgId },
       data: updateData,
     });
@@ -227,12 +239,19 @@ export class OrganisationsService {
     this.auditService.log({
       actorId: user.sub,
       actorRole: user.role as UserRole,
-      action: AUDIT_ACTIONS.ORGANISATION_UPDATE,
-      entityType: ENTITY_TYPES.ORGANISATION,
+      action: AUDIT_ACTIONS.BRAND_UPDATE,
+      entityType: ENTITY_TYPES.BRAND,
       entityId: orgId,
       beforeState,
       afterState: { name: updated.name, contactEmail: updated.contactEmail },
       ipAddress,
+    });
+
+    // Fire-and-forget: refresh social analytics when social handles may have changed
+    setImmediate(() => {
+      this.apify.refreshIfStale(orgId).catch((err) => {
+        this.logger.error(`Background refresh after brand update failed for ${orgId}`, err);
+      });
     });
 
     return {
@@ -257,42 +276,38 @@ export class OrganisationsService {
     let org;
 
     if (UUID_REGEX.test(idOrHandle)) {
-      org = await this.prisma.organisation.findUnique({
+      org = await this.prisma.brand.findUnique({
         where: { id: idOrHandle },
-        include: {
-          _count: {
-            select: { bounties: true },
-          },
-        },
       });
     } else {
-      org = await this.prisma.organisation.findFirst({
+      org = await this.prisma.brand.findFirst({
         where: { handle: idOrHandle, status: 'ACTIVE' },
-        include: {
-          _count: {
-            select: { bounties: true },
-          },
-        },
       });
     }
 
     if (!org || org.status !== 'ACTIVE') {
-      throw new NotFoundException('Organisation not found');
+      throw new NotFoundException('Brand not found');
     }
 
-    // Compute stats
-    const bountiesPosted = org._count.bounties;
-
-    // Total bounty amount for LIVE or CLOSED bounties
-    const amountResult = await this.prisma.bounty.aggregate({
-      where: {
-        organisationId: org.id,
-        status: { in: ['LIVE', 'CLOSED'] },
-      },
-      _sum: {
-        rewardValue: true,
-      },
-    });
+    // Compute stats — only count bounties that were actually published (LIVE or CLOSED).
+    // DRAFT and PAUSED bounties are not visible to hunters and shouldn't inflate the count.
+    const [bountiesPosted, amountResult] = await Promise.all([
+      this.prisma.bounty.count({
+        where: {
+          brandId: org.id,
+          status: { in: ['LIVE', 'CLOSED'] },
+        },
+      }),
+      this.prisma.bounty.aggregate({
+        where: {
+          brandId: org.id,
+          status: { in: ['LIVE', 'CLOSED'] },
+        },
+        _sum: {
+          rewardValue: true,
+        },
+      }),
+    ]);
     const totalBountyAmount = amountResult._sum.rewardValue
       ? Number(amountResult._sum.rewardValue)
       : 0;
@@ -300,7 +315,7 @@ export class OrganisationsService {
     // Achievement rate: percentage of CLOSED bounties with at least one APPROVED submission
     const closedBounties = await this.prisma.bounty.count({
       where: {
-        organisationId: org.id,
+        brandId: org.id,
         status: 'CLOSED',
       },
     });
@@ -309,7 +324,7 @@ export class OrganisationsService {
     if (closedBounties > 0) {
       const bountiesWithApprovedSubmissions = await this.prisma.bounty.count({
         where: {
-          organisationId: org.id,
+          brandId: org.id,
           status: 'CLOSED',
           submissions: {
             some: {
@@ -332,6 +347,7 @@ export class OrganisationsService {
       bio: org.bio,
       websiteUrl: org.websiteUrl,
       socialLinks: org.socialLinks,
+      socialAnalytics: org.socialAnalytics,
       targetInterests: org.targetInterests,
       messagingEnabled: org.messagingEnabled,
       stats: {
@@ -371,7 +387,7 @@ export class OrganisationsService {
     }
 
     const [orgs, total] = await Promise.all([
-      this.prisma.organisation.findMany({
+      this.prisma.brand.findMany({
         where,
         include: {
           _count: {
@@ -382,7 +398,7 @@ export class OrganisationsService {
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.organisation.count({ where }),
+      this.prisma.brand.count({ where }),
     ]);
 
     return {
@@ -404,11 +420,11 @@ export class OrganisationsService {
     };
   }
 
-  async listMyOrganisations(userId: string) {
-    const memberships = await this.prisma.organisationMember.findMany({
+  async listMyBrands(userId: string) {
+    const memberships = await this.prisma.brandMember.findMany({
       where: { userId },
       include: {
-        organisation: {
+        brand: {
           include: {
             _count: {
               select: { bounties: true },
@@ -420,19 +436,19 @@ export class OrganisationsService {
     });
 
     return memberships.map((m) => ({
-      id: m.organisation.id,
-      name: m.organisation.name,
-      handle: m.organisation.handle,
-      logo: m.organisation.logo,
-      contactEmail: m.organisation.contactEmail,
-      status: m.organisation.status,
+      id: m.brand.id,
+      name: m.brand.name,
+      handle: m.brand.handle,
+      logo: m.brand.logo,
+      contactEmail: m.brand.contactEmail,
+      status: m.brand.status,
       role: m.role,
-      bountiesPosted: m.organisation._count.bounties,
+      bountiesPosted: m.brand._count.bounties,
     }));
   }
 
   async checkHandleAvailability(handle: string) {
-    const existing = await this.prisma.organisation.findUnique({
+    const existing = await this.prisma.brand.findUnique({
       where: { handle },
     });
 
@@ -447,21 +463,21 @@ export class OrganisationsService {
     user: AuthenticatedUser,
     file: Express.Multer.File,
   ) {
-    const org = await this.prisma.organisation.findUnique({
+    const org = await this.prisma.brand.findUnique({
       where: { id: orgId },
     });
 
     if (!org) {
-      throw new NotFoundException('Organisation not found');
+      throw new NotFoundException('Brand not found');
     }
 
     // Check ownership (same as update)
     if (user.role !== UserRole.SUPER_ADMIN) {
-      const membership = await this.prisma.organisationMember.findFirst({
+      const membership = await this.prisma.brandMember.findFirst({
         where: {
           userId: user.sub,
-          organisationId: orgId,
-          role: OrgMemberRole.OWNER,
+          brandId: orgId,
+          role: BrandMemberRole.OWNER,
         },
       });
 
@@ -470,7 +486,7 @@ export class OrganisationsService {
       }
     }
 
-    const updated = await this.prisma.organisation.update({
+    const updated = await this.prisma.brand.update({
       where: { id: orgId },
       data: { coverPhotoUrl: `/uploads/${file.filename}` },
     });
@@ -501,14 +517,14 @@ export class OrganisationsService {
   ) {
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      user.organisationId !== orgId
+      user.brandId !== orgId
     ) {
       throw new ForbiddenException('Not authorized');
     }
 
     const [members, total] = await Promise.all([
-      this.prisma.organisationMember.findMany({
-        where: { organisationId: orgId },
+      this.prisma.brandMember.findMany({
+        where: { brandId: orgId },
         include: {
           user: {
             select: {
@@ -524,8 +540,8 @@ export class OrganisationsService {
         take: limit,
         orderBy: { joinedAt: 'desc' },
       }),
-      this.prisma.organisationMember.count({
-        where: { organisationId: orgId },
+      this.prisma.brandMember.count({
+        where: { brandId: orgId },
       }),
     ]);
 
@@ -554,11 +570,11 @@ export class OrganisationsService {
   ) {
     // Check authorization: must be org owner or SA
     if (user.role !== UserRole.SUPER_ADMIN) {
-      const ownerMembership = await this.prisma.organisationMember.findFirst({
+      const ownerMembership = await this.prisma.brandMember.findFirst({
         where: {
           userId: user.sub,
-          organisationId: orgId,
-          role: OrgMemberRole.OWNER,
+          brandId: orgId,
+          role: BrandMemberRole.OWNER,
         },
       });
 
@@ -568,12 +584,12 @@ export class OrganisationsService {
     }
 
     // Find the organisation
-    const org = await this.prisma.organisation.findUnique({
+    const org = await this.prisma.brand.findUnique({
       where: { id: orgId },
     });
 
     if (!org) {
-      throw new NotFoundException('Organisation not found');
+      throw new NotFoundException('Brand not found');
     }
 
     // Find user by email
@@ -588,19 +604,19 @@ export class OrganisationsService {
 
     // Add user to org (check + create in transaction to prevent race condition)
     const member = await this.prisma.$transaction(async (tx) => {
-      const existingMembership = await tx.organisationMember.findFirst({
+      const existingMembership = await tx.brandMember.findFirst({
         where: { userId: targetUser.id },
       });
 
       if (existingMembership) {
-        throw new ConflictException('User already belongs to an organisation');
+        throw new ConflictException('User already belongs to a brand');
       }
 
-      const newMember = await tx.organisationMember.create({
+      const newMember = await tx.brandMember.create({
         data: {
           userId: targetUser.id,
-          organisationId: orgId,
-          role: OrgMemberRole.MEMBER,
+          brandId: orgId,
+          role: BrandMemberRole.MEMBER,
         },
       });
 
@@ -616,8 +632,8 @@ export class OrganisationsService {
     this.auditService.log({
       actorId: user.sub,
       actorRole: user.role as UserRole,
-      action: AUDIT_ACTIONS.ORGANISATION_MEMBER_ADD,
-      entityType: ENTITY_TYPES.ORGANISATION,
+      action: AUDIT_ACTIONS.BRAND_MEMBER_ADD,
+      entityType: ENTITY_TYPES.BRAND,
       entityId: orgId,
       afterState: { addedUserId: targetUser.id, email: normalizedEmail },
       ipAddress,
@@ -628,7 +644,7 @@ export class OrganisationsService {
       invitation: {
         id: member.id,
         email: normalizedEmail,
-        organisationId: orgId,
+        brandId: orgId,
         status: 'PENDING',
         createdAt: member.joinedAt.toISOString(),
       },
@@ -644,11 +660,11 @@ export class OrganisationsService {
     if (
       user.role !== UserRole.SUPER_ADMIN
     ) {
-      const ownerMembership = await this.prisma.organisationMember.findFirst({
+      const ownerMembership = await this.prisma.brandMember.findFirst({
         where: {
           userId: user.sub,
-          organisationId: orgId,
-          role: OrgMemberRole.OWNER,
+          brandId: orgId,
+          role: BrandMemberRole.OWNER,
         },
       });
 
@@ -657,20 +673,20 @@ export class OrganisationsService {
       }
     }
 
-    const membership = await this.prisma.organisationMember.findFirst({
-      where: { userId: targetUserId, organisationId: orgId },
+    const membership = await this.prisma.brandMember.findFirst({
+      where: { userId: targetUserId, brandId: orgId },
     });
 
     if (!membership) {
       throw new NotFoundException('Member not found');
     }
 
-    if (membership.role === OrgMemberRole.OWNER) {
-      throw new BadRequestException('Cannot remove the organisation owner');
+    if (membership.role === BrandMemberRole.OWNER) {
+      throw new BadRequestException('Cannot remove the brand owner');
     }
 
     await this.prisma.$transaction(async (tx) => {
-      await tx.organisationMember.delete({
+      await tx.brandMember.delete({
         where: { id: membership.id },
       });
 
@@ -683,13 +699,13 @@ export class OrganisationsService {
     this.auditService.log({
       actorId: user.sub,
       actorRole: user.role as UserRole,
-      action: AUDIT_ACTIONS.ORGANISATION_MEMBER_REMOVE,
-      entityType: ENTITY_TYPES.ORGANISATION,
+      action: AUDIT_ACTIONS.BRAND_MEMBER_REMOVE,
+      entityType: ENTITY_TYPES.BRAND,
       entityId: orgId,
       afterState: { removedUserId: targetUserId },
       ipAddress,
     });
 
-    return { message: 'Member removed from organisation.' };
+    return { message: 'Member removed from brand.' };
   }
 }

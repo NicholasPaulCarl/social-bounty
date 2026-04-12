@@ -92,7 +92,7 @@ export default function AdminBountyDetailPage() {
             <dl className="space-y-3">
               <div>
                 <dt className="text-sm text-text-muted">Organisation</dt>
-                <dd className="text-sm font-medium text-text-primary">{bounty.organisation?.name || '-'}</dd>
+                <dd className="text-sm font-medium text-text-primary">{bounty.brand?.name || '-'}</dd>
               </div>
               <div>
                 <dt className="text-sm text-text-muted">Created By</dt>

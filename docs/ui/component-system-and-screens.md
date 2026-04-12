@@ -195,7 +195,7 @@ Using Tailwind's default spacing scale. Key application patterns:
 | Context | Tailwind Class | Pixels | Usage |
 |---------|---------------|--------|-------|
 | Page padding | `p-6` | 24px | Main content area padding |
-| Card padding | `p-4` | 16px | Inside Card components |
+| Card padding | `p-4` | 16px | Inside Card components (`.glass-card` — borderless, white bg, 16px radius, subtle shadow) |
 | Section gap | `gap-6` | 24px | Between major sections |
 | Field gap | `gap-4` | 16px | Between form fields |
 | Inline gap | `gap-2` | 8px | Between inline elements (badge + text) |
@@ -243,7 +243,7 @@ Renders a PrimeReact `Tag` with the correct colour, label, and ARIA attributes b
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
-| `type` | `'bounty' \| 'submission' \| 'payout' \| 'user' \| 'organisation' \| 'role'` | Yes | Entity type for colour mapping lookup |
+| `type` | `'bounty' \| 'submission' \| 'payout' \| 'user' \| 'brand' \| 'role'` | Yes | Entity type for colour mapping lookup |
 | `value` | `string` | Yes | Enum value (e.g., `'LIVE'`, `'APPROVED'`, `'PAID'`) |
 | `size` | `'small' \| 'normal' \| 'large'` | No (default: `'normal'`) | Controls Tag size |
 
@@ -296,8 +296,8 @@ Application shell providing role-based sidebar, top bar, breadcrumbs, and toast 
 | Role | Items |
 |------|-------|
 | `PARTICIPANT` | Browse Bounties (`pi-search`), My Submissions (`pi-list`) |
-| `BUSINESS_ADMIN` | Dashboard (`pi-chart-bar`), Bounties (`pi-megaphone`), Organisation (`pi-building`) |
-| `SUPER_ADMIN` | Dashboard (`pi-chart-bar`), Users (`pi-users`), Organisations (`pi-building`), Bounties (`pi-megaphone`), Submissions (`pi-file`), Audit Logs (`pi-history`), System Health (`pi-server`), Settings (`pi-cog`) |
+| `BUSINESS_ADMIN` | Dashboard (`pi-chart-bar`), Bounties (`pi-megaphone`), Brand (`pi-building`) |
+| `SUPER_ADMIN` | Dashboard (`pi-chart-bar`), Users (`pi-users`), Brands (`pi-building`), Bounties (`pi-megaphone`), Submissions (`pi-file`), Audit Logs (`pi-history`), System Health (`pi-server`), Settings (`pi-cog`) |
 
 **Behaviour:**
 - Sidebar collapses to hamburger on `< md` breakpoints
@@ -699,7 +699,7 @@ Admin override modal for bounty status, submission status, and payout status ove
 | `ACTIVE` | `bg-success-100` | `text-success-700` |
 | `SUSPENDED` | `bg-danger-100` | `text-danger-700` |
 
-### 4.5 Organisation Status
+### 4.5 Brand Status
 
 | Status | Background | Text |
 |--------|------------|------|
@@ -714,7 +714,7 @@ Admin override modal for bounty status, submission status, and payout status ove
 | `BUSINESS_ADMIN` | `bg-primary-100` | `text-primary-700` |
 | `SUPER_ADMIN` | `bg-purple-100` | `text-purple-700` |
 
-### 4.7 Organisation Member Role
+### 4.7 Brand Member Role
 
 | Role | Background | Text |
 |------|------------|------|
@@ -749,7 +749,7 @@ export const STATUS_COLOUR_MAP = {
     ACTIVE:    { bg: 'bg-success-100', text: 'text-success-700', severity: 'success' },
     SUSPENDED: { bg: 'bg-danger-100',  text: 'text-danger-700',  severity: 'danger' },
   },
-  organisation: {
+  brand: {
     ACTIVE:    { bg: 'bg-success-100', text: 'text-success-700', severity: 'success' },
     SUSPENDED: { bg: 'bg-danger-100',  text: 'text-danger-700',  severity: 'danger' },
   },
@@ -1024,7 +1024,7 @@ export const STATUS_COLOUR_MAP = {
 
 ---
 
-#### Screen 4.8: View Organisation (`/organisation`)
+#### Screen 4.8: View Brand (`/brand`)
 
 | Attribute | Value |
 |-----------|-------|
@@ -1036,7 +1036,7 @@ export const STATUS_COLOUR_MAP = {
 
 ---
 
-#### Screen 4.9: Edit Organisation (`/organisation/edit`)
+#### Screen 4.9: Edit Brand (`/brand/edit`)
 
 | Attribute | Value |
 |-----------|-------|
@@ -1048,7 +1048,7 @@ export const STATUS_COLOUR_MAP = {
 
 ---
 
-#### Screen 4.10: Manage Organisation Members (`/organisation/members`)
+#### Screen 4.10: Manage Brand Members (`/brand/members`)
 
 | Attribute | Value |
 |-----------|-------|
@@ -1096,7 +1096,7 @@ export const STATUS_COLOUR_MAP = {
 
 ---
 
-#### Screen 5.4: Organisation Management List (`/admin/organisations`)
+#### Screen 5.4: Brand Management List (`/admin/brands`)
 
 | Attribute | Value |
 |-----------|-------|
@@ -1108,7 +1108,7 @@ export const STATUS_COLOUR_MAP = {
 
 ---
 
-#### Screen 5.5: Organisation Detail - Admin (`/admin/organisations/:id`)
+#### Screen 5.5: Brand Detail - Admin (`/admin/brands/:id`)
 
 | Attribute | Value |
 |-----------|-------|

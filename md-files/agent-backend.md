@@ -72,7 +72,7 @@ apps/api/src/
     users/                   # Profile, change password
     bounties/                # Bounty CRUD, status changes
     submissions/             # Create, update, review, payout, file upload
-    organisations/           # Create, update, members
+    brands/           # Create, update, members
     admin/                   # User/org management, overrides, audit logs, settings, health
     business/                # Business dashboard
     audit/                   # AuditService (fire-and-forget logging)
@@ -208,7 +208,7 @@ Standard error response format:
 ### JWT Strategy (`modules/auth/jwt.strategy.ts`)
 - Extracts token from `Authorization: Bearer <token>` header
 - Validates `type === 'access'` in payload
-- Returns `AuthenticatedUser`: `{ sub, email, role, organisationId }`
+- Returns `AuthenticatedUser`: `{ sub, email, role, brandId }`
 
 ### Token Management
 - **Access token**: 15m expiry, signed with `JWT_SECRET`
@@ -273,7 +273,7 @@ async list(user: AuthenticatedUser, params: ListParams) {
   if (user.role === UserRole.PARTICIPANT) {
     where.status = BountyStatus.LIVE;
   } else if (user.role === UserRole.BUSINESS_ADMIN) {
-    where.organisationId = user.organisationId;
+    where.brandId = user.brandId;
   }
   // SUPER_ADMIN sees all
   ...
@@ -282,7 +282,7 @@ async list(user: AuthenticatedUser, params: ListParams) {
 
 ### Ownership Checks
 ```typescript
-if (user.role === UserRole.BUSINESS_ADMIN && bounty.organisationId !== user.organisationId) {
+if (user.role === UserRole.BUSINESS_ADMIN && bounty.brandId !== user.brandId) {
   throw new ForbiddenException('Not authorized');
 }
 ```
@@ -293,7 +293,7 @@ const [items, total] = await Promise.all([
   this.prisma.bounty.findMany({
     where, skip: (page - 1) * limit, take: limit,
     orderBy: { [sortBy]: sortOrder },
-    include: { organisation: { select: { id: true, name: true } }, _count: { select: { submissions: true } } },
+    include: { brand: { select: { id: true, name: true } }, _count: { select: { submissions: true } } },
   }),
   this.prisma.bounty.count({ where }),
 ]);

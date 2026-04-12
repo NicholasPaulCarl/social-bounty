@@ -38,7 +38,7 @@ We're playful, clever, and energising — not corporate, not chaotic.
 | **Brand** | Client, company, advertiser |
 | **Claim** | Apply, sign up, accept |
 
-**Internal mapping**: Database `PARTICIPANT` = **Hunter** in UI. `Organisation` = **Brand** in casual copy.
+**Internal mapping**: Database `PARTICIPANT` = **Hunter** in UI. `Brand` = **Brand** in casual copy.
 
 ---
 

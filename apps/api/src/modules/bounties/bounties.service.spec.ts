@@ -29,21 +29,21 @@ describe('BountiesService', () => {
     sub: 'participant-id',
     email: 'participant@test.com',
     role: UserRole.PARTICIPANT,
-    organisationId: null,
+    brandId: null,
   };
 
   const mockBA: AuthenticatedUser = {
     sub: 'ba-id',
     email: 'ba@test.com',
     role: UserRole.BUSINESS_ADMIN,
-    organisationId: 'org-1',
+    brandId: 'org-1',
   };
 
   const mockSA: AuthenticatedUser = {
     sub: 'sa-id',
     email: 'admin@test.com',
     role: UserRole.SUPER_ADMIN,
-    organisationId: null,
+    brandId: null,
   };
 
   const baseBounty = {
@@ -61,7 +61,7 @@ describe('BountiesService', () => {
     eligibilityRules: 'Must have account',
     proofRequirements: 'Submit URL',
     status: BountyStatus.DRAFT,
-    organisationId: 'org-1',
+    brandId: 'org-1',
     createdById: 'ba-id',
     deletedAt: null,
     createdAt: new Date(),
@@ -178,10 +178,10 @@ describe('BountiesService', () => {
       );
     });
 
-    it('should throw if user has no organisationId', async () => {
+    it('should throw if user has no brandId', async () => {
       const noOrgUser: AuthenticatedUser = {
         ...mockBA,
-        organisationId: null,
+        brandId: null,
       };
 
       await expect(service.create(noOrgUser, createData)).rejects.toThrow(
@@ -219,7 +219,7 @@ describe('BountiesService', () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
         status: BountyStatus.DRAFT,
-        organisation: { id: 'org-1', name: 'Test', logo: null },
+        brand: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
         rewards: [baseReward],
         brandAssets: [],
@@ -242,7 +242,7 @@ describe('BountiesService', () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
         status: BountyStatus.DRAFT,
-        organisation: { id: 'org-1', name: 'Test', logo: null },
+        brand: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
         rewards: [],
         _count: { submissions: 0 },
@@ -256,8 +256,8 @@ describe('BountiesService', () => {
     it('should throw ForbiddenException if BA views other org bounty', async () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
-        organisationId: 'other-org',
-        organisation: { id: 'other-org', name: 'Other', logo: null },
+        brandId: 'other-org',
+        brand: { id: 'other-org', name: 'Other', logo: null },
         createdBy: { id: 'other-ba', firstName: 'O', lastName: 'B' },
         rewards: [],
         _count: { submissions: 0 },
@@ -272,7 +272,7 @@ describe('BountiesService', () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
         status: BountyStatus.LIVE,
-        organisation: { id: 'org-1', name: 'Test', logo: null },
+        brand: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
         rewards: [baseReward],
         brandAssets: [],
@@ -462,7 +462,7 @@ describe('BountiesService', () => {
     it('should throw ForbiddenException if BA not in bounty org', async () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
-        organisationId: 'other-org',
+        brandId: 'other-org',
       });
 
       await expect(
@@ -516,7 +516,7 @@ describe('BountiesService', () => {
       prisma.bounty.update.mockResolvedValue({
         ...baseBounty,
         title: 'Updated Title',
-        organisation: { id: 'org-1', name: 'Test', logo: null },
+        brand: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
         rewards: [baseReward],
         _count: { submissions: 0 },
@@ -562,7 +562,7 @@ describe('BountiesService', () => {
         ...baseBounty,
         status: BountyStatus.LIVE,
         eligibilityRules: 'Updated rules',
-        organisation: { id: 'org-1', name: 'Test', logo: null },
+        brand: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
         rewards: [baseReward],
         _count: { submissions: 0 },
@@ -587,7 +587,7 @@ describe('BountiesService', () => {
         proofRequirements: 'New proof',
         maxSubmissions: 50,
         endDate: new Date('2026-04-01'),
-        organisation: { id: 'org-1', name: 'Test', logo: null },
+        brand: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
         rewards: [baseReward],
         _count: { submissions: 0 },
@@ -615,7 +615,7 @@ describe('BountiesService', () => {
     it('should throw ForbiddenException if BA not in bounty org', async () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
-        organisationId: 'other-org',
+        brandId: 'other-org',
       });
 
       await expect(
@@ -626,13 +626,13 @@ describe('BountiesService', () => {
     it('should allow SA to update any org bounty', async () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
-        organisationId: 'other-org',
+        brandId: 'other-org',
         status: BountyStatus.DRAFT,
       });
       prisma.bounty.update.mockResolvedValue({
         ...baseBounty,
         title: 'SA Updated',
-        organisation: { id: 'other-org', name: 'Other', logo: null },
+        brand: { id: 'other-org', name: 'Other', logo: null },
         createdBy: { id: 'other-ba', firstName: 'O', lastName: 'B' },
         rewards: [baseReward],
         _count: { submissions: 0 },
@@ -708,7 +708,7 @@ describe('BountiesService', () => {
     it('should throw ForbiddenException if BA not in bounty org', async () => {
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
-        organisationId: 'other-org',
+        brandId: 'other-org',
         status: BountyStatus.DRAFT,
       });
 
@@ -742,7 +742,7 @@ describe('BountiesService', () => {
 
       expect(prisma.bounty.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ organisationId: 'org-1' }),
+          where: expect.objectContaining({ brandId: 'org-1' }),
         }),
       );
     });
@@ -755,7 +755,7 @@ describe('BountiesService', () => {
 
       const callArgs = prisma.bounty.findMany.mock.calls[0][0];
       expect(callArgs.where.status).toBeUndefined();
-      expect(callArgs.where.organisationId).toBeUndefined();
+      expect(callArgs.where.brandId).toBeUndefined();
     });
 
     it('should return correct pagination meta', async () => {

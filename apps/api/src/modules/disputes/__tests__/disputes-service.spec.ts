@@ -35,21 +35,21 @@ describe('DisputesService', () => {
     sub: 'participant-1',
     email: 'participant@test.com',
     role: UserRole.PARTICIPANT,
-    organisationId: null,
+    brandId: null,
   };
 
   const mockBA: AuthenticatedUser = {
     sub: 'ba-1',
     email: 'ba@test.com',
     role: UserRole.BUSINESS_ADMIN,
-    organisationId: 'org-1',
+    brandId: 'org-1',
   };
 
   const mockSA: AuthenticatedUser = {
     sub: 'sa-1',
     email: 'admin@test.com',
     role: UserRole.SUPER_ADMIN,
-    organisationId: null,
+    brandId: null,
   };
 
   const mockSubmission = {
@@ -61,8 +61,8 @@ describe('DisputesService', () => {
     bounty: {
       id: 'bounty-1',
       title: 'Test Bounty',
-      organisationId: 'org-1',
-      organisation: {
+      brandId: 'org-1',
+      brand: {
         id: 'org-1',
         name: 'Test Org',
         members: [{ user: { email: 'ba@test.com' } }],
@@ -81,7 +81,7 @@ describe('DisputesService', () => {
     desiredOutcome: 'Please pay me',
     submissionId: 'sub-1',
     bountyId: 'bounty-1',
-    organisationId: 'org-1',
+    brandId: 'org-1',
     openedByUserId: 'participant-1',
     openedByRole: UserRole.PARTICIPANT,
     assignedToUserId: null,
@@ -175,7 +175,7 @@ describe('DisputesService', () => {
         desiredOutcome: 'Please pay me',
         submissionId: 'sub-1',
         bountyId: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -246,7 +246,7 @@ describe('DisputesService', () => {
         desiredOutcome: 'Content correction',
         submissionId: 'sub-1',
         bountyId: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -358,7 +358,7 @@ describe('DisputesService', () => {
         bountyId: 'bounty-1',
         status: SubmissionStatus.APPROVED,
         payoutStatus: PayoutStatus.NOT_PAID,
-        bounty: { id: 'bounty-1', title: 'Test Bounty', organisationId: 'org-1', organisation: { name: 'Test Org' } },
+        bounty: { id: 'bounty-1', title: 'Test Bounty', brandId: 'org-1', brand: { name: 'Test Org' } },
       },
     };
 
@@ -367,7 +367,7 @@ describe('DisputesService', () => {
         sub: 'other-participant',
         email: 'other@test.com',
         role: UserRole.PARTICIPANT,
-        organisationId: null,
+        brandId: null,
       };
       prisma.dispute.findUnique.mockResolvedValue(fullDispute); // openedByUserId = participant-1
 
@@ -381,9 +381,9 @@ describe('DisputesService', () => {
         sub: 'ba-2',
         email: 'ba2@test.com',
         role: UserRole.BUSINESS_ADMIN,
-        organisationId: 'org-2', // different org
+        brandId: 'org-2', // different org
       };
-      prisma.dispute.findUnique.mockResolvedValue(fullDispute); // organisationId = org-1
+      prisma.dispute.findUnique.mockResolvedValue(fullDispute); // brandId = org-1
 
       await expect(service.findById('dispute-1', otherBA)).rejects.toThrow(ForbiddenException);
     });

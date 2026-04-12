@@ -5,12 +5,12 @@ import type {
   AdminUserDetailResponse,
   AdminUpdateUserStatusRequest,
   AdminUpdateUserStatusResponse,
-  AdminOrgListItem,
-  AdminOrgListParams,
-  AdminCreateOrgRequest,
-  AdminCreateOrgResponse,
-  AdminUpdateOrgStatusRequest,
-  AdminUpdateOrgStatusResponse,
+  AdminBrandListItem,
+  AdminBrandListParams,
+  AdminCreateBrandRequest,
+  AdminCreateBrandResponse,
+  AdminUpdateBrandStatusRequest,
+  AdminUpdateBrandStatusResponse,
   AdminOverrideBountyRequest,
   AdminOverrideBountyResponse,
   AdminOverrideSubmissionRequest,
@@ -46,18 +46,18 @@ export const adminApi = {
   updateUserStatus: (id: string, data: AdminUpdateUserStatusRequest): Promise<AdminUpdateUserStatusResponse> =>
     apiClient.patch(`/admin/users/${id}/status`, data),
 
-  // Organisations
-  listOrganisations: (params: AdminOrgListParams): Promise<PaginatedResponse<AdminOrgListItem>> =>
-    apiClient.get('/admin/organisations', params as Record<string, unknown>),
+  // Brands
+  listBrands: (params: AdminBrandListParams): Promise<PaginatedResponse<AdminBrandListItem>> =>
+    apiClient.get('/admin/brands', params as Record<string, unknown>),
 
-  createOrganisation: (data: AdminCreateOrgRequest): Promise<AdminCreateOrgResponse> =>
-    apiClient.post('/admin/organisations', data),
+  createBrand: (data: AdminCreateBrandRequest): Promise<AdminCreateBrandResponse> =>
+    apiClient.post('/admin/brands', data),
 
-  getOrgById: (id: string): Promise<AdminOrgListItem> =>
-    apiClient.get(`/admin/organisations/${id}`),
+  getBrandById: (id: string): Promise<AdminBrandListItem> =>
+    apiClient.get(`/admin/brands/${id}`),
 
-  updateOrgStatus: (id: string, data: AdminUpdateOrgStatusRequest): Promise<AdminUpdateOrgStatusResponse> =>
-    apiClient.patch(`/admin/organisations/${id}/status`, data),
+  updateBrandStatus: (id: string, data: AdminUpdateBrandStatusRequest): Promise<AdminUpdateBrandStatusResponse> =>
+    apiClient.patch(`/admin/brands/${id}/status`, data),
 
   // Bounties
   listBounties: (params: BountyListParams): Promise<PaginatedResponse<BountyListItem>> =>

@@ -2,19 +2,19 @@
 
 ## Overview
 
-This document defines the complete Prisma schema for the Social Bounty MVP. It covers all 7 entities (User, Organisation, OrganisationMember, Bounty, Submission, AuditLog, FileUpload), their relationships, enums, indexes, and cascade rules.
+This document defines the complete Prisma schema for the Social Bounty MVP. It covers all 7 entities (User, Brand, BrandMember, Bounty, Submission, AuditLog, FileUpload), their relationships, enums, indexes, and cascade rules.
 
 The schema lives at `packages/prisma/schema.prisma` per the planned project structure.
 
 ## Assumptions
 
-1. **Single organisation per Business Admin (MVP constraint)**: A Business Admin belongs to exactly one organisation. The `OrganisationMember` model still supports multiple members per org, but application logic enforces one org per Business Admin.
+1. **Single brand per Business Admin (MVP constraint)**: A Business Admin belongs to exactly one brand. The `BrandMember` model still supports multiple members per org, but application logic enforces one org per Business Admin.
 2. **UUID primary keys**: All entities use UUIDs (`@default(uuid())`) for security (non-enumerable) and distributed-system readiness.
 3. **Soft references in AuditLog**: `entityType` and `entityId` are strings (not foreign keys) so audit logs survive if the referenced entity is deleted.
 4. **proofLinks stored as JSON**: Submission proof links are stored as a JSON array since PostgreSQL handles JSON natively and the data is read-heavy with no need for relational queries on individual links.
 5. **Decimal for rewardValue**: Using `Decimal` for monetary values to avoid floating-point precision issues.
 6. **File uploads scoped to submissions**: In MVP, files are always attached to a submission. The `FileUpload` model includes `submissionId` as a required field.
-7. **Cascade deletes**: Deleting an Organisation cascades to its members and bounties. Deleting a Bounty cascades to its submissions. Deleting a Submission cascades to its file uploads. Users are not cascade-deleted to preserve audit trail integrity.
+7. **Cascade deletes**: Deleting an Brand cascades to its members and bounties. Deleting a Bounty cascades to its submissions. Deleting a Submission cascades to its file uploads. Users are not cascade-deleted to preserve audit trail integrity.
 
 ---
 
@@ -49,12 +49,12 @@ enum UserStatus {
   SUSPENDED
 }
 
-enum OrgStatus {
+enum BrandStatus {
   ACTIVE
   SUSPENDED
 }
 
-enum OrgMemberRole {
+enum BrandMemberRole {
   OWNER
   MEMBER
 }
@@ -106,7 +106,7 @@ model User {
   // Relations
   submissions             Submission[]          @relation("UserSubmissions")
   reviewedSubmissions     Submission[]          @relation("ReviewerSubmissions")
-  organisationMemberships OrganisationMember[]
+  brandMemberships BrandMember[]
   createdBounties         Bounty[]              @relation("BountyCreator")
   auditLogs               AuditLog[]            @relation("AuditActor")
   fileUploads             FileUpload[]          @relation("FileUploader")
@@ -117,43 +117,43 @@ model User {
   @@map("users")
 }
 
-model Organisation {
+model Brand {
   id           String    @id @default(uuid())
   name         String
   logo         String?
   contactEmail String
-  status       OrgStatus @default(ACTIVE)
+  status       BrandStatus @default(ACTIVE)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
   // Relations
-  members  OrganisationMember[]
+  members  BrandMember[]
   bounties Bounty[]
 
   @@index([status])
-  @@map("organisations")
+  @@map("brands")
 }
 
-model OrganisationMember {
+model BrandMember {
   id             String        @id @default(uuid())
   userId         String
-  organisationId String
-  role           OrgMemberRole @default(MEMBER)
+  brandId String
+  role           BrandMemberRole @default(MEMBER)
   joinedAt       DateTime      @default(now())
 
   // Relations
   user         User         @relation(fields: [userId], references: [id], onDelete: Restrict)
-  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, organisationId])
+  @@unique([userId, brandId])
   @@index([userId])
-  @@index([organisationId])
+  @@index([brandId])
   @@map("organisation_members")
 }
 
 model Bounty {
   id                String       @id @default(uuid())
-  organisationId    String
+  brandId    String
   createdById       String
   title             String
   shortDescription  String
@@ -172,11 +172,11 @@ model Bounty {
   updatedAt         DateTime     @updatedAt
 
   // Relations
-  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
   createdBy    User         @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
   submissions  Submission[]
 
-  @@index([organisationId])
+  @@index([brandId])
   @@index([status])
   @@index([category])
   @@index([createdById])
@@ -259,15 +259,15 @@ model FileUpload {
 ## Entity Relationship Diagram (Text)
 
 ```
-User 1──* OrganisationMember *──1 Organisation
+User 1──* BrandMember *──1 Brand
 User 1──* Submission
 User 1──* Bounty (as creator)
 User 1──* AuditLog (as actor)
 User 1──* FileUpload (as uploader)
 User 1──* Submission (as reviewer)
 
-Organisation 1──* OrganisationMember
-Organisation 1──* Bounty
+Brand 1──* BrandMember
+Brand 1──* Bounty
 
 Bounty 1──* Submission
 
@@ -282,8 +282,8 @@ Submission 1──* FileUpload
 |------|--------|---------|
 | `UserRole` | PARTICIPANT, BUSINESS_ADMIN, SUPER_ADMIN | User.role, AuditLog.actorRole |
 | `UserStatus` | ACTIVE, SUSPENDED | User.status |
-| `OrgStatus` | ACTIVE, SUSPENDED | Organisation.status |
-| `OrgMemberRole` | OWNER, MEMBER | OrganisationMember.role |
+| `BrandStatus` | ACTIVE, SUSPENDED | Brand.status |
+| `BrandMemberRole` | OWNER, MEMBER | BrandMember.role |
 | `BountyStatus` | DRAFT, LIVE, PAUSED, CLOSED | Bounty.status |
 | `RewardType` | CASH, PRODUCT, SERVICE, OTHER | Bounty.rewardType |
 | `SubmissionStatus` | SUBMITTED, IN_REVIEW, NEEDS_MORE_INFO, APPROVED, REJECTED | Submission.status |
@@ -298,11 +298,11 @@ Submission 1──* FileUpload
 | User | `email` (unique) | Login lookup, duplicate prevention |
 | User | `role` | Filter users by role (admin views) |
 | User | `status` | Filter active/suspended users |
-| OrganisationMember | `[userId, organisationId]` (unique) | Prevent duplicate memberships |
-| OrganisationMember | `userId` | Lookup user's organisations |
-| OrganisationMember | `organisationId` | List org members |
-| Organisation | `status` | Filter active/suspended orgs |
-| Bounty | `organisationId` | List bounties per org |
+| BrandMember | `[userId, brandId]` (unique) | Prevent duplicate memberships |
+| BrandMember | `userId` | Lookup user's brands |
+| BrandMember | `brandId` | List org members |
+| Brand | `status` | Filter active/suspended orgs |
+| Bounty | `brandId` | List bounties per org |
 | Bounty | `status` | Filter bounties by lifecycle status |
 | Bounty | `category` | Category-based browsing |
 | Bounty | `createdById` | Lookup bounties by creator |
@@ -325,9 +325,9 @@ Submission 1──* FileUpload
 
 | Relation | On Delete | Rationale |
 |----------|-----------|-----------|
-| OrganisationMember -> User | **Restrict** | Cannot delete a user who is an org member; must remove membership first |
-| OrganisationMember -> Organisation | **Cascade** | Deleting an org removes all memberships |
-| Bounty -> Organisation | **Cascade** | Deleting an org removes all its bounties |
+| BrandMember -> User | **Restrict** | Cannot delete a user who is an org member; must remove membership first |
+| BrandMember -> Brand | **Cascade** | Deleting an org removes all memberships |
+| Bounty -> Brand | **Cascade** | Deleting an org removes all its bounties |
 | Bounty -> User (creator) | **Restrict** | Cannot delete a user who created bounties |
 | Submission -> Bounty | **Cascade** | Deleting a bounty removes all submissions |
 | Submission -> User (submitter) | **Restrict** | Cannot delete a user who has submissions |
@@ -347,8 +347,8 @@ All models use `@@map` to follow PostgreSQL naming conventions (snake_case, plur
 | Prisma Model | DB Table Name |
 |--------------|---------------|
 | User | `users` |
-| Organisation | `organisations` |
-| OrganisationMember | `organisation_members` |
+| Brand | `brands` |
+| BrandMember | `organisation_members` |
 | Bounty | `bounties` |
 | Submission | `submissions` |
 | AuditLog | `audit_logs` |

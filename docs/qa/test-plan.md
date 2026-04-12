@@ -13,7 +13,7 @@
 - [2. Test Case Groups](#2-test-case-groups)
   - [Group A: Authentication Flows](#group-a-authentication-flows)
   - [Group B: User Profile](#group-b-user-profile)
-  - [Group C: Organisation Management](#group-c-organisation-management)
+  - [Group C: Brand Management](#group-c-brand-management)
   - [Group D: Bounty Management](#group-d-bounty-management)
   - [Group E: Participant Submission Flows](#group-e-participant-submission-flows)
   - [Group F: Business Admin Review Flows](#group-f-business-admin-review-flows)
@@ -333,7 +333,7 @@ Each test case follows this structure:
 | Type | API |
 | Preconditions | Authenticated user |
 | Steps | 1. GET `/users/me` |
-| Expected Result | 200 OK. Returns user's id, email, firstName, lastName, role, status, emailVerified, organisation (if BA), createdAt, updatedAt. |
+| Expected Result | 200 OK. Returns user's id, email, firstName, lastName, role, status, emailVerified, brand (if BA), createdAt, updatedAt. |
 
 #### B-02: Update Profile Name
 
@@ -387,97 +387,97 @@ Each test case follows this structure:
 
 ---
 
-### Group C: Organisation Management
+### Group C: Brand Management
 
-#### C-01: Create Organisation (Participant)
+#### C-01: Create Brand (Participant)
 
 | Field | Value |
 |-------|-------|
 | Priority | P1 |
 | Type | API |
 | Preconditions | Authenticated Participant, not in any org |
-| Steps | 1. POST `/organisations` with name, contactEmail |
-| Expected Result | 201 Created. Organisation created with status=ACTIVE. User's role promoted to BUSINESS_ADMIN. OrganisationMember created with role=OWNER. Audit log entry created. |
+| Steps | 1. POST `/brands` with name, contactEmail |
+| Expected Result | 201 Created. Brand created with status=ACTIVE. User's role promoted to BUSINESS_ADMIN. BrandMember created with role=OWNER. Audit log entry created. |
 
-#### C-02: Create Organisation - Already in Org
+#### C-02: Create Brand - Already in Org
 
 | Field | Value |
 |-------|-------|
 | Priority | P1 |
 | Type | API |
 | Preconditions | Authenticated Business Admin (already in an org) |
-| Steps | 1. POST `/organisations` with valid data |
-| Expected Result | 409 Conflict. Message: user already belongs to an organisation. |
+| Steps | 1. POST `/brands` with valid data |
+| Expected Result | 409 Conflict. Message: user already belongs to an brand. |
 
-#### C-03: View Organisation Details (Member)
+#### C-03: View Brand Details (Member)
 
 | Field | Value |
 |-------|-------|
 | Priority | P2 |
 | Type | API |
 | Preconditions | Authenticated BA, member of org |
-| Steps | 1. GET `/organisations/:id` |
+| Steps | 1. GET `/brands/:id` |
 | Expected Result | 200 OK. Returns org details including name, logo, contactEmail, status, memberCount, bountyCount. |
 
-#### C-04: View Organisation Details (Non-Member BA)
+#### C-04: View Brand Details (Non-Member BA)
 
 | Field | Value |
 |-------|-------|
 | Priority | P2 |
 | Type | API |
 | Preconditions | Authenticated BA, NOT a member of the requested org |
-| Steps | 1. GET `/organisations/:id` for a different org |
+| Steps | 1. GET `/brands/:id` for a different org |
 | Expected Result | 403 Forbidden. |
 
-#### C-05: Edit Organisation (Owner)
+#### C-05: Edit Brand (Owner)
 
 | Field | Value |
 |-------|-------|
 | Priority | P2 |
 | Type | API |
 | Preconditions | Authenticated BA with OWNER role in org |
-| Steps | 1. PATCH `/organisations/:id` with updated name and contactEmail |
+| Steps | 1. PATCH `/brands/:id` with updated name and contactEmail |
 | Expected Result | 200 OK. Fields updated. Audit log created. |
 
-#### C-06: Edit Organisation (Member, Not Owner)
+#### C-06: Edit Brand (Member, Not Owner)
 
 | Field | Value |
 |-------|-------|
 | Priority | P2 |
 | Type | API |
 | Preconditions | Authenticated BA with MEMBER role (not OWNER) |
-| Steps | 1. PATCH `/organisations/:id` with updated name |
+| Steps | 1. PATCH `/brands/:id` with updated name |
 | Expected Result | 403 Forbidden. Only owners can edit. |
 
-#### C-07: Invite Member to Organisation
+#### C-07: Invite Member to Brand
 
 | Field | Value |
 |-------|-------|
 | Priority | P2 |
 | Type | API |
 | Preconditions | Authenticated BA (owner), valid email of existing Participant |
-| Steps | 1. POST `/organisations/:id/members` with email |
-| Expected Result | 201 Created. Invitation sent. On acceptance: user becomes BUSINESS_ADMIN and OrganisationMember. |
+| Steps | 1. POST `/brands/:id/members` with email |
+| Expected Result | 201 Created. Invitation sent. On acceptance: user becomes BUSINESS_ADMIN and BrandMember. |
 
-#### C-08: Remove Member from Organisation
+#### C-08: Remove Member from Brand
 
 | Field | Value |
 |-------|-------|
 | Priority | P2 |
 | Type | API |
 | Preconditions | Authenticated BA (owner), org has multiple members |
-| Steps | 1. DELETE `/organisations/:id/members/:userId` for a MEMBER |
+| Steps | 1. DELETE `/brands/:id/members/:userId` for a MEMBER |
 | Expected Result | 200 OK. Member removed. User's role reverted to PARTICIPANT. Audit log created. |
 
-#### C-09: Cannot Remove Organisation Owner
+#### C-09: Cannot Remove Brand Owner
 
 | Field | Value |
 |-------|-------|
 | Priority | P2 |
 | Type | API |
 | Preconditions | Authenticated BA (owner) |
-| Steps | 1. DELETE `/organisations/:id/members/:ownerId` (trying to remove self) |
-| Expected Result | 400 Bad Request. Cannot remove the organisation owner. |
+| Steps | 1. DELETE `/brands/:id/members/:ownerId` (trying to remove self) |
+| Expected Result | 400 Bad Request. Cannot remove the brand owner. |
 
 ---
 
@@ -491,7 +491,7 @@ Each test case follows this structure:
 | Type | API, UI Smoke |
 | Preconditions | Authenticated BA |
 | Steps | 1. POST `/bounties` with all required fields |
-| Expected Result | 201 Created. Bounty created with status=DRAFT, organisationId from BA's org. Audit log created. |
+| Expected Result | 201 Created. Bounty created with status=DRAFT, brandId from BA's org. Audit log created. |
 
 #### D-02: Create Bounty - Missing Required Fields
 
@@ -1063,7 +1063,7 @@ Each test case follows this structure:
 | Type | API |
 | Preconditions | User exists |
 | Steps | 1. GET `/admin/users/:id` |
-| Expected Result | 200 OK. Full user details including submissionCount, approvedSubmissionCount, organisation info. |
+| Expected Result | 200 OK. Full user details including submissionCount, approvedSubmissionCount, brand info. |
 
 #### G-04: Suspend User
 
@@ -1115,24 +1115,24 @@ Each test case follows this structure:
 | Steps | 1. POST `/admin/users/:id/force-password-reset` with reason |
 | Expected Result | 200 OK. Password reset email sent to user. Audit log created. |
 
-#### G-09: Suspend Organisation
+#### G-09: Suspend Brand
 
 | Field | Value |
 |-------|-------|
 | Priority | P1 |
 | Type | API |
-| Preconditions | Active organisation with LIVE bounties |
-| Steps | 1. PATCH `/admin/organisations/:id/status` with status=SUSPENDED, reason="Policy violation" |
+| Preconditions | Active brand with LIVE bounties |
+| Steps | 1. PATCH `/admin/brands/:id/status` with status=SUSPENDED, reason="Policy violation" |
 | Expected Result | 200 OK. Org status=SUSPENDED. All LIVE bounties for this org automatically changed to PAUSED. Audit log created. |
 
-#### G-10: Reinstate Organisation
+#### G-10: Reinstate Brand
 
 | Field | Value |
 |-------|-------|
 | Priority | P1 |
 | Type | API |
-| Preconditions | Suspended organisation |
-| Steps | 1. PATCH `/admin/organisations/:id/status` with status=ACTIVE, reason="Investigation resolved" |
+| Preconditions | Suspended brand |
+| Steps | 1. PATCH `/admin/brands/:id/status` with status=ACTIVE, reason="Investigation resolved" |
 | Expected Result | 200 OK. Org status=ACTIVE. Bounties remain PAUSED (BA must manually re-publish). Audit log created. |
 
 #### G-11: Override Bounty Status
@@ -1366,7 +1366,7 @@ These tests verify that every endpoint rejects unauthorized access. Each test se
 |-------|-------|
 | Priority | P2 |
 | Type | API |
-| Steps | 1. POST `/organisations/:id/members` as BA with MEMBER role (not OWNER) |
+| Steps | 1. POST `/brands/:id/members` as BA with MEMBER role (not OWNER) |
 | Expected Result | 403 Forbidden. |
 
 #### H-14: File Access Scoped to Submission Access
@@ -1393,13 +1393,13 @@ These tests verify that audit log entries are correctly created for all required
 | Steps | 1. POST `/users/me/change-password` 2. GET `/admin/audit-logs?action=user.password_change` as SA |
 | Expected Result | Audit entry exists with correct actorId, action, entityType=User, entityId. |
 
-#### I-02: Audit Log Created on Organisation Create
+#### I-02: Audit Log Created on Brand Create
 
 | Field | Value |
 |-------|-------|
 | Priority | P2 |
 | Type | API |
-| Steps | 1. POST `/organisations` 2. Query audit logs for action=organisation.create |
+| Steps | 1. POST `/brands` 2. Query audit logs for action=brand.create |
 | Expected Result | Audit entry with afterState containing org name, status. |
 
 #### I-03: Audit Log Created on Bounty Status Change
@@ -1447,14 +1447,14 @@ These tests verify that audit log entries are correctly created for all required
 | Steps | 1. PATCH `/submissions/:id/payout` 2. Query audit logs for action=submission.payout_change |
 | Expected Result | Audit entry with beforeState={payoutStatus:NOT_PAID}, afterState={payoutStatus:PENDING}. |
 
-#### I-08: Audit Log Created on Organisation Suspend
+#### I-08: Audit Log Created on Brand Suspend
 
 | Field | Value |
 |-------|-------|
 | Priority | P2 |
 | Type | API |
-| Steps | 1. PATCH `/admin/organisations/:id/status` with SUSPENDED 2. Query audit logs |
-| Expected Result | Audit entry with reason, action=organisation.status_change. |
+| Steps | 1. PATCH `/admin/brands/:id/status` with SUSPENDED 2. Query audit logs |
+| Expected Result | Audit entry with reason, action=brand.status_change. |
 
 #### I-09: Audit Log Created on Global Settings Change
 

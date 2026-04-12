@@ -7,7 +7,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-import { OrganisationsModule } from './modules/organisations/organisations.module';
+import { BrandsModule } from './modules/organisations/organisations.module';
 import { BountiesModule } from './modules/bounties/bounties.module';
 import { SubmissionsModule } from './modules/submissions/submissions.module';
 import { DisputesModule } from './modules/disputes/disputes.module';
@@ -24,6 +24,7 @@ import { BountyAccessModule } from './modules/bounty-access/bounty-access.module
 import { SocialHandlesModule } from './modules/social-handles/social-handles.module';
 import { InboxModule } from './modules/inbox/inbox.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
+import { ApifyModule } from './modules/apify/apify.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { UserStatusGuard } from './common/guards/user-status.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -48,7 +49,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     SettingsModule,
     AuthModule,
     UsersModule,
-    OrganisationsModule,
+    BrandsModule,
     BountiesModule,
     SubmissionsModule,
     DisputesModule,
@@ -62,6 +63,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     SocialHandlesModule,
     InboxModule,
     SubscriptionsModule,
+    ApifyModule,
   ],
   providers: [
     {

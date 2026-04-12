@@ -50,7 +50,7 @@ USER ROLES
    - Track submission status
 
 2) Business Admin
-   - Create and manage bounties for their organisation
+   - Create and manage bounties for their brand
    - Publish / pause / close bounties
    - Review submissions (approve, reject, needs more info)
    - Manually mark payout status
@@ -59,7 +59,7 @@ USER ROLES
 3) Super Admin
    - Platform-wide access
    - User management (suspend, reinstate, force password reset)
-   - Organisation management
+   - Brand management
    - View and override bounties and submissions (with mandatory reason)
    - View audit logs
    - Troubleshoot errors and system health
@@ -76,8 +76,8 @@ AUTHENTICATION
 - Basic user profile
 
 ORGANISATIONS
-- Each Business Admin belongs to one organisation (MVP constraint)
-- Organisation has name, logo (optional), contact email, status
+- Each Business Admin belongs to one brand (MVP constraint)
+- Brand has name, logo (optional), contact email, status
 
 BOUNTIES
 Fields:
@@ -194,8 +194,8 @@ DATA MODEL (MVP)
 ────────────────────────
 Entities:
 - User
-- Organisation
-- OrganisationMember
+- Brand
+- BrandMember
 - Bounty
 - Submission
 - AuditLog

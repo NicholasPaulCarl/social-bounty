@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from 'primereact/button';
 import { useAuth } from '@/hooks/useAuth';
-import { useMyBrands } from '@/hooks/useOrganisation';
+import { useMyBrands } from '@/hooks/useBrand';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -16,14 +16,14 @@ import type { MyBrandListItem } from '@social-bounty/shared';
 
 export default function MyBrandsPage() {
   const router = useRouter();
-  const { user, switchOrganisation } = useAuth();
+  const { user, switchBrand } = useAuth();
   const { data: brands, isLoading, error, refetch } = useMyBrands();
   const toast = useToast();
 
   const handleSwitch = async (brand: MyBrandListItem) => {
-    if (user?.organisationId === brand.id) return;
+    if (user?.brandId === brand.id) return;
     try {
-      await switchOrganisation(brand.id);
+      await switchBrand(brand.id);
       toast.showSuccess(`Switched to ${brand.name}`);
     } catch {
       toast.showError('Failed to switch brand');
@@ -58,7 +58,7 @@ export default function MyBrandsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {brands.map((brand, i) => {
-            const isActive = user?.organisationId === brand.id;
+            const isActive = user?.brandId === brand.id;
             return (
               <div
                 key={brand.id}

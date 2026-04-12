@@ -11,7 +11,7 @@ import { SettingsService } from '../../settings/settings.service';
 import {
   UserRole,
   UserStatus,
-  OrgStatus,
+  BrandStatus,
   BountyStatus,
   SubmissionStatus,
   AUDIT_ACTIONS,
@@ -36,14 +36,14 @@ describe('AdminService - Edge Cases', () => {
     sub: 'sa-1',
     email: 'admin@test.com',
     role: UserRole.SUPER_ADMIN,
-    organisationId: null,
+    brandId: null,
   };
 
   const mockSA2: AuthenticatedUser = {
     sub: 'sa-2',
     email: 'admin2@test.com',
     role: UserRole.SUPER_ADMIN,
-    organisationId: null,
+    brandId: null,
   };
 
   beforeEach(async () => {
@@ -54,7 +54,7 @@ describe('AdminService - Edge Cases', () => {
         count: jest.fn(),
         update: jest.fn(),
       },
-      organisation: {
+      brand: {
         findUnique: jest.fn(),
         findMany: jest.fn(),
         count: jest.fn(),
@@ -546,7 +546,7 @@ describe('AdminService - Edge Cases', () => {
       const submissionCounts = overrides?.submissionCounts || [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
       userCounts.forEach((v) => prisma.user.count.mockResolvedValueOnce(v));
-      orgCounts.forEach((v) => prisma.organisation.count.mockResolvedValueOnce(v));
+      orgCounts.forEach((v) => prisma.brand.count.mockResolvedValueOnce(v));
       bountyCounts.forEach((v) => prisma.bounty.count.mockResolvedValueOnce(v));
       submissionCounts.forEach((v) => prisma.submission.count.mockResolvedValueOnce(v));
     };
@@ -647,7 +647,7 @@ describe('AdminService - Edge Cases', () => {
       await service.getDashboard();
 
       expect(prisma.user.count).toHaveBeenCalledTimes(6);
-      expect(prisma.organisation.count).toHaveBeenCalledTimes(3);
+      expect(prisma.brand.count).toHaveBeenCalledTimes(3);
       expect(prisma.bounty.count).toHaveBeenCalledTimes(5);
       expect(prisma.submission.count).toHaveBeenCalledTimes(9);
     });
@@ -676,7 +676,7 @@ describe('AdminService - Edge Cases', () => {
         role: UserRole.PARTICIPANT,
         status: UserStatus.ACTIVE,
         emailVerified: true,
-        organisationMemberships: [],
+        brandMemberships: [],
         _count: { submissions: 0 },
         createdAt: new Date('2026-01-01'),
         updatedAt: new Date('2026-01-01'),
@@ -685,7 +685,7 @@ describe('AdminService - Edge Cases', () => {
 
       const result = await service.getUserDetail('user-1');
 
-      expect(result.organisation).toBeNull();
+      expect(result.brand).toBeNull();
       expect(result.submissionCount).toBe(0);
       expect(result.approvedSubmissionCount).toBe(0);
     });
@@ -699,9 +699,9 @@ describe('AdminService - Edge Cases', () => {
         role: UserRole.BUSINESS_ADMIN,
         status: UserStatus.ACTIVE,
         emailVerified: true,
-        organisationMemberships: [
+        brandMemberships: [
           {
-            organisation: { id: 'org-1', name: 'Test Corp' },
+            brand: { id: 'org-1', name: 'Test Corp' },
           },
         ],
         _count: { submissions: 5 },
@@ -712,7 +712,7 @@ describe('AdminService - Edge Cases', () => {
 
       const result = await service.getUserDetail('user-2');
 
-      expect(result.organisation).toEqual({ id: 'org-1', name: 'Test Corp' });
+      expect(result.brand).toEqual({ id: 'org-1', name: 'Test Corp' });
       expect(result.submissionCount).toBe(5);
       expect(result.approvedSubmissionCount).toBe(3);
     });
@@ -834,8 +834,8 @@ describe('AdminService - Edge Cases', () => {
           role: UserRole.BUSINESS_ADMIN,
           status: UserStatus.ACTIVE,
           emailVerified: true,
-          organisationMemberships: [
-            { organisation: { id: 'org-1', name: 'Acme Inc' } },
+          brandMemberships: [
+            { brand: { id: 'org-1', name: 'Acme Inc' } },
           ],
           createdAt: now,
           updatedAt: now,
@@ -854,7 +854,7 @@ describe('AdminService - Edge Cases', () => {
         role: UserRole.BUSINESS_ADMIN,
         status: UserStatus.ACTIVE,
         emailVerified: true,
-        organisation: { id: 'org-1', name: 'Acme Inc' },
+        brand: { id: 'org-1', name: 'Acme Inc' },
         createdAt: now.toISOString(),
         updatedAt: now.toISOString(),
       });
@@ -871,7 +871,7 @@ describe('AdminService - Edge Cases', () => {
           role: UserRole.PARTICIPANT,
           status: UserStatus.ACTIVE,
           emailVerified: false,
-          organisationMemberships: [],
+          brandMemberships: [],
           createdAt: now,
           updatedAt: now,
         },
@@ -880,18 +880,18 @@ describe('AdminService - Edge Cases', () => {
 
       const result = await service.listUsers({});
 
-      expect(result.data[0].organisation).toBeNull();
+      expect(result.data[0].brand).toBeNull();
     });
   });
 
-  // ── createOrganisation - edge cases ───────────────────────────
+  // ── createBrand - edge cases ───────────────────────────
 
-  describe('createOrganisation - edge cases', () => {
+  describe('createBrand - edge cases', () => {
     it('should throw BadRequestException when owner user does not exist', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.createOrganisation(
+        service.createBrand(
           mockSA,
           {
             name: 'New Org',
@@ -902,7 +902,7 @@ describe('AdminService - Edge Cases', () => {
       ).rejects.toThrow(BadRequestException);
 
       await expect(
-        service.createOrganisation(
+        service.createBrand(
           mockSA,
           {
             name: 'New Org',
@@ -920,14 +920,14 @@ describe('AdminService - Edge Cases', () => {
         firstName: 'Test',
         lastName: 'User',
       });
-      prisma.organisationMember.findFirst.mockResolvedValue({
+      prisma.brandMember.findFirst.mockResolvedValue({
         id: 'member-1',
         userId: 'user-1',
-        organisationId: 'existing-org',
+        brandId: 'existing-org',
       });
 
       await expect(
-        service.createOrganisation(
+        service.createBrand(
           mockSA,
           {
             name: 'Second Org',
@@ -938,7 +938,7 @@ describe('AdminService - Edge Cases', () => {
       ).rejects.toThrow(BadRequestException);
 
       await expect(
-        service.createOrganisation(
+        service.createBrand(
           mockSA,
           {
             name: 'Second Org',
@@ -956,21 +956,21 @@ describe('AdminService - Edge Cases', () => {
         firstName: 'Test',
         lastName: 'User',
       });
-      prisma.organisationMember.findFirst.mockResolvedValue(null);
+      prisma.brandMember.findFirst.mockResolvedValue(null);
 
       const createdOrg = {
         id: 'org-new',
         name: 'Trimmed Corp',
         contactEmail: 'contact@test.com',
         logo: null,
-        status: OrgStatus.ACTIVE,
+        status: BrandStatus.ACTIVE,
         createdAt: new Date(),
       };
-      prisma.organisation.create.mockResolvedValue(createdOrg);
-      prisma.organisationMember.create.mockResolvedValue({});
+      prisma.brand.create.mockResolvedValue(createdOrg);
+      prisma.brandMember.create.mockResolvedValue({});
       prisma.user.update.mockResolvedValue({});
 
-      await service.createOrganisation(
+      await service.createBrand(
         mockSA,
         {
           name: '  Trimmed Corp  ',
@@ -979,7 +979,7 @@ describe('AdminService - Edge Cases', () => {
         },
       );
 
-      expect(prisma.organisation.create).toHaveBeenCalledWith(
+      expect(prisma.brand.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             name: 'Trimmed Corp',
@@ -1133,44 +1133,44 @@ describe('AdminService - Edge Cases', () => {
 
   // ── Org Status - edge cases ───────────────────────────────────
 
-  describe('updateOrgStatus - edge cases', () => {
+  describe('updateBrandStatus - edge cases', () => {
     it('should throw NotFoundException for non-existent organisation', async () => {
-      prisma.organisation.findUnique.mockResolvedValue(null);
+      prisma.brand.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.updateOrgStatus(
+        service.updateBrandStatus(
           'ghost-org',
           mockSA,
-          OrgStatus.SUSPENDED,
+          BrandStatus.SUSPENDED,
           'Test',
         ),
       ).rejects.toThrow(NotFoundException);
 
       await expect(
-        service.updateOrgStatus(
+        service.updateBrandStatus(
           'ghost-org',
           mockSA,
-          OrgStatus.SUSPENDED,
+          BrandStatus.SUSPENDED,
           'Test',
         ),
       ).rejects.toThrow('Organisation not found');
     });
 
     it('should not pause bounties when reinstating (setting to ACTIVE)', async () => {
-      prisma.organisation.findUnique.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue({
         id: 'org-1',
-        status: OrgStatus.SUSPENDED,
+        status: BrandStatus.SUSPENDED,
       });
-      prisma.organisation.update.mockResolvedValue({
+      prisma.brand.update.mockResolvedValue({
         id: 'org-1',
-        status: OrgStatus.ACTIVE,
+        status: BrandStatus.ACTIVE,
         updatedAt: new Date(),
       });
 
-      await service.updateOrgStatus(
+      await service.updateBrandStatus(
         'org-1',
         mockSA,
-        OrgStatus.ACTIVE,
+        BrandStatus.ACTIVE,
         'Reinstated',
       );
 
@@ -1178,57 +1178,57 @@ describe('AdminService - Edge Cases', () => {
     });
 
     it('should pause LIVE bounties when suspending', async () => {
-      prisma.organisation.findUnique.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue({
         id: 'org-1',
-        status: OrgStatus.ACTIVE,
+        status: BrandStatus.ACTIVE,
       });
-      prisma.organisation.update.mockResolvedValue({
+      prisma.brand.update.mockResolvedValue({
         id: 'org-1',
-        status: OrgStatus.SUSPENDED,
+        status: BrandStatus.SUSPENDED,
         updatedAt: new Date(),
       });
       prisma.bounty.updateMany.mockResolvedValue({ count: 2 });
 
-      await service.updateOrgStatus(
+      await service.updateBrandStatus(
         'org-1',
         mockSA,
-        OrgStatus.SUSPENDED,
+        BrandStatus.SUSPENDED,
         'Policy violation',
       );
 
       expect(prisma.bounty.updateMany).toHaveBeenCalledWith({
-        where: { organisationId: 'org-1', status: BountyStatus.LIVE },
+        where: { brandId: 'org-1', status: BountyStatus.LIVE },
         data: { status: BountyStatus.PAUSED },
       });
     });
 
     it('should include before and after state in audit log for org status change', async () => {
-      prisma.organisation.findUnique.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue({
         id: 'org-1',
-        status: OrgStatus.ACTIVE,
+        status: BrandStatus.ACTIVE,
       });
-      prisma.organisation.update.mockResolvedValue({
+      prisma.brand.update.mockResolvedValue({
         id: 'org-1',
-        status: OrgStatus.SUSPENDED,
+        status: BrandStatus.SUSPENDED,
         updatedAt: new Date(),
       });
       prisma.bounty.updateMany.mockResolvedValue({ count: 0 });
 
-      await service.updateOrgStatus(
+      await service.updateBrandStatus(
         'org-1',
         mockSA,
-        OrgStatus.SUSPENDED,
+        BrandStatus.SUSPENDED,
         'Compliance issue',
         '10.0.0.1',
       );
 
       expect(auditService.log).toHaveBeenCalledWith(
         expect.objectContaining({
-          action: AUDIT_ACTIONS.ORGANISATION_STATUS_CHANGE,
-          entityType: ENTITY_TYPES.ORGANISATION,
+          action: AUDIT_ACTIONS.BRAND_STATUS_CHANGE,
+          entityType: ENTITY_TYPES.BRAND,
           entityId: 'org-1',
-          beforeState: { status: OrgStatus.ACTIVE },
-          afterState: { status: OrgStatus.SUSPENDED },
+          beforeState: { status: BrandStatus.ACTIVE },
+          afterState: { status: BrandStatus.SUSPENDED },
           reason: 'Compliance issue',
           ipAddress: '10.0.0.1',
         }),

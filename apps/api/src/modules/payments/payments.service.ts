@@ -62,7 +62,7 @@ export class PaymentsService {
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      bounty.organisationId !== user.organisationId
+      bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -94,7 +94,7 @@ export class PaymentsService {
     }
 
     // Calculate admin fee based on org subscription tier
-    const orgTier = await this.subscriptionsService.getActiveOrgTier(bounty.organisationId);
+    const orgTier = await this.subscriptionsService.getActiveOrgTier(bounty.brandId);
     const adminFeeRate = orgTier === SubscriptionTier.PRO
       ? COMMISSION_RATES.BRAND_PRO
       : COMMISSION_RATES.BRAND_FREE;
@@ -129,7 +129,7 @@ export class PaymentsService {
         currency: stripeCurrency,
         metadata: {
           bountyId: bounty.id,
-          organisationId: bounty.organisationId,
+          brandId: bounty.brandId,
           userId: user.sub,
           adminFeePercent: (adminFeeRate * 100).toString(),
           adminFeeAmount: adminFeeAmount.toString(),

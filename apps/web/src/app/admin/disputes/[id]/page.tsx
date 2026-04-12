@@ -551,7 +551,7 @@ export default function AdminDisputeDetailPage() {
             {/* Organisation */}
             <div className="pt-3 border-t border-glass-border">
               <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">Organisation</p>
-              <p className="text-sm text-text-primary font-medium">{d.organisationName}</p>
+              <p className="text-sm text-text-primary font-medium">{d.brandName}</p>
               <Button
                 label="View Org"
                 icon="pi pi-building"
@@ -559,7 +559,7 @@ export default function AdminDisputeDetailPage() {
                 text
                 severity="secondary"
                 className="p-0 mt-1"
-                onClick={() => router.push(`/admin/organisations/${d.organisationId}`)}
+                onClick={() => router.push(`/admin/brands/${d.brandId}`)}
               />
             </div>
           </div>

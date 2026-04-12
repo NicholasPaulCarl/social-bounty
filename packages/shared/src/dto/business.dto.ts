@@ -6,7 +6,7 @@ import { BountyStatus, SubmissionStatus, PayoutStatus } from '../enums';
 
 // GET /business/dashboard
 export interface BusinessDashboardResponse {
-  organisation: {
+  brand: {
     id: string;
     name: string;
   };

@@ -18,18 +18,18 @@ This document defines the security architecture, role-based access control (RBAC
 | Role | Enum Value | Description | Scope |
 |------|-----------|-------------|-------|
 | **Participant** | `PARTICIPANT` | End user who browses bounties, submits proof, and tracks submissions | Own resources only |
-| **Business Admin** | `BUSINESS_ADMIN` | Manages bounties and reviews submissions for their organisation | Own organisation's resources |
+| **Business Admin** | `BUSINESS_ADMIN` | Manages bounties and reviews submissions for their brand | Own brand's resources |
 | **Super Admin** | `SUPER_ADMIN` | Full platform access, user/org management, troubleshooting | All resources |
 
 ### 1.2 Role Assignment Rules
 
 1. **Participant**: Default role on signup. All new users start as Participants.
 2. **Business Admin**: A user becomes a Business Admin when they:
-   - Create an organisation (promoted from Participant), or
-   - Accept an invitation to join an organisation
+   - Create an brand (promoted from Participant), or
+   - Accept an invitation to join an brand
 3. **Super Admin**: Seeded manually via database seed script or assigned by another Super Admin. No self-service registration.
 4. **Single role per user**: A user has exactly one role at any time (MVP constraint).
-5. **Role demotion**: If a Business Admin is removed from their organisation, their role reverts to Participant.
+5. **Role demotion**: If a Business Admin is removed from their brand, their role reverts to Participant.
 
 ### 1.3 Permission Matrix
 
@@ -42,10 +42,10 @@ This document defines the security architecture, role-based access control (RBAC
 | **User Profile** | View own | Y | Y | Y | Self only |
 | **User Profile** | Edit own | Y | Y | Y | Self only, name only |
 | **User Profile** | Change password | Y | Y | Y | Self only, requires current password |
-| **Organisation** | Create | Y | - | - | Must not already belong to an org |
-| **Organisation** | View | - | Own | Y | BA must be member of org |
-| **Organisation** | Edit | - | Owner | Y | Only org owner or SA |
-| **Organisation** | Manage members | - | Owner | Y | Invite/remove members |
+| **Brand** | Create | Y | - | - | Must not already belong to an org |
+| **Brand** | View | - | Own | Y | BA must be member of org |
+| **Brand** | Edit | - | Owner | Y | Only org owner or SA |
+| **Brand** | Manage members | - | Owner | Y | Invite/remove members |
 | **Bounty** | Browse/List | LIVE | Own org | Y | P sees only LIVE bounties |
 | **Bounty** | View detail | LIVE | Own org | Y | P sees only LIVE bounties |
 | **Bounty** | Create | - | Y | Y | Created in DRAFT, scoped to BA's org |
@@ -82,8 +82,8 @@ This document defines the security architecture, role-based access control (RBAC
 
 // Resource ownership decorator
 @ResourceOwner('userId')  // checks req.user.id === resource.userId
-@OrgMember()              // checks req.user belongs to the resource's organisation
-@OrgOwner()               // checks req.user is the OWNER of the resource's organisation
+@OrgMember()              // checks req.user belongs to the resource's brand
+@OrgOwner()               // checks req.user is the OWNER of the resource's brand
 ```
 
 #### 1.4.2 Guards (execution order)
@@ -101,10 +101,10 @@ Request → JwtAuthGuard → UserStatusGuard → RolesGuard → ResourceGuard �
 
 #### 1.4.3 Guard Implementation Notes
 
-- **JwtAuthGuard**: Uses `@nestjs/passport` with JWT strategy. Extracts `sub`, `email`, `role`, `organisationId` from token. Attaches to `request.user`.
+- **JwtAuthGuard**: Uses `@nestjs/passport` with JWT strategy. Extracts `sub`, `email`, `role`, `brandId` from token. Attaches to `request.user`.
 - **UserStatusGuard**: After JWT validation, checks `user.status === 'ACTIVE'` from the database (not just from the token, to catch recently-suspended users). Uses a lightweight cache (TTL: 60 seconds) to avoid hitting the DB on every request.
 - **RolesGuard**: Reads `@Roles()` metadata. If no roles are specified, allows all authenticated users. If roles are specified, checks `request.user.role` against the list.
-- **ResourceGuard**: For ownership checks, loads the resource and verifies the relationship. For org membership, checks `request.user.organisationId` against the resource's `organisationId`.
+- **ResourceGuard**: For ownership checks, loads the resource and verifies the relationship. For org membership, checks `request.user.brandId` against the resource's `brandId`.
 
 #### 1.4.4 Example Controller Usage
 
@@ -158,7 +158,7 @@ interface AuthContext {
     id: string;
     email: string;
     role: UserRole;
-    organisationId: string | null;
+    brandId: string | null;
     status: UserStatus;
   } | null;
   isAuthenticated: boolean;
@@ -196,7 +196,7 @@ Components use the auth context to conditionally render:
   "sub": "user-uuid",
   "email": "user@example.com",
   "role": "PARTICIPANT",
-  "organisationId": "org-uuid | null",
+  "brandId": "org-uuid | null",
   "type": "access",
   "iat": 1700000000,
   "exp": 1700000900
@@ -274,7 +274,7 @@ Every action that changes state on a protected resource is logged. See the Audit
 | Category | Actions |
 |----------|---------|
 | User | password_change, password_reset, status_change, force_password_reset |
-| Organisation | create, update, status_change, member_add, member_remove |
+| Brand | create, update, status_change, member_add, member_remove |
 | Bounty | create, update, status_change, delete, override |
 | Submission | create, update, review, payout_change, override |
 | Settings | update (global toggles) |
@@ -530,7 +530,7 @@ Permissions-Policy: camera=(), microphone=(), geolocation=()
 - Database user has only the permissions needed (SELECT, INSERT, UPDATE, DELETE on application tables). No DDL permissions in production.
 - API service account has no direct filesystem access except the upload directory.
 - Super Admin accounts are provisioned manually and audited.
-- Business Admins can only access their own organisation's data.
+- Business Admins can only access their own brand's data.
 - Participants can only access their own submissions and public (LIVE) bounties.
 
 ---

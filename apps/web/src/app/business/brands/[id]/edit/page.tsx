@@ -2,25 +2,29 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Button } from 'primereact/button';
-import { useOrganisation, useUpdateOrganisation } from '@/hooks/useOrganisation';
-import { organisationApi } from '@/lib/api/organisations';
+import { useBrand, useUpdateBrand } from '@/hooks/useBrand';
+import { brandsApi } from '@/lib/api/brands';
 import { useToast } from '@/hooks/useToast';
+import { queryKeys } from '@/lib/query-keys';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { HUNTER_INTERESTS, BRAND_PROFILE_LIMITS } from '@social-bounty/shared';
 import type { BrandSocialLinks } from '@social-bounty/shared';
+import { ImageCropDialog } from '@/components/common/ImageCropDialog';
 
 export default function EditBrandPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const toast = useToast();
-  const { data: org, isLoading, error, refetch } = useOrganisation(id);
-  const updateOrg = useUpdateOrganisation(id);
+  const { data: org, isLoading, error, refetch } = useBrand(id);
+  const updateOrg = useUpdateBrand(id);
 
   const [form, setForm] = useState({
     name: '',
@@ -34,6 +38,8 @@ export default function EditBrandPage() {
   });
   const [logo, setLogo] = useState<File | null | undefined>(undefined);
   const [coverPhoto, setCoverPhoto] = useState<File | undefined>();
+  const [logoPending, setLogoPending] = useState<File | null>(null);
+  const [coverPending, setCoverPending] = useState<File | null>(null);
   const [handleStatus, setHandleStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [initialized, setInitialized] = useState(false);
@@ -75,7 +81,7 @@ export default function EditBrandPage() {
     setHandleStatus('checking');
     const timer = setTimeout(async () => {
       try {
-        const result = await organisationApi.checkHandle(form.handle);
+        const result = await brandsApi.checkHandle(form.handle);
         setHandleStatus(result.available ? 'available' : 'taken');
       } catch {
         setHandleStatus('idle');
@@ -146,7 +152,9 @@ export default function EditBrandPage() {
           // Upload cover photo separately if provided
           if (coverPhoto) {
             try {
-              await organisationApi.uploadCoverPhoto(id, coverPhoto);
+              await brandsApi.uploadCoverPhoto(id, coverPhoto);
+              // Invalidate so the profile page shows the new image immediately
+              queryClient.invalidateQueries({ queryKey: queryKeys.brands.all });
             } catch {
               toast.showError('Cover photo upload failed. You can try again.');
             }
@@ -251,9 +259,14 @@ export default function EditBrandPage() {
               id="logo"
               type="file"
               accept="image/*"
-              onChange={(e) => setLogo(e.target.files?.[0] || undefined)}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) setLogoPending(file);
+                e.target.value = '';
+              }}
               className="text-sm text-text-secondary"
             />
+            {logo && <small className="text-accent-emerald text-xs mt-1 block">Cropped logo ready</small>}
             <small className="text-text-muted text-xs mt-1 block">Recommended: 200 x 200px, square. Max 2MB.</small>
           </div>
 
@@ -265,11 +278,36 @@ export default function EditBrandPage() {
               id="coverPhoto"
               type="file"
               accept="image/*"
-              onChange={(e) => setCoverPhoto(e.target.files?.[0] || undefined)}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) setCoverPending(file);
+                e.target.value = '';
+              }}
               className="text-sm text-text-secondary"
             />
+            {coverPhoto && <small className="text-accent-emerald text-xs mt-1 block">Cropped cover ready</small>}
             <small className="text-text-muted text-xs mt-1 block">Recommended: 1200 x 400px (3:1 ratio). Max 5MB.</small>
           </div>
+
+          {/* Logo crop dialog — 1:1 square */}
+          <ImageCropDialog
+            visible={!!logoPending}
+            onHide={() => setLogoPending(null)}
+            file={logoPending}
+            aspect={1}
+            title="Crop Logo"
+            onCropComplete={(cropped) => setLogo(cropped)}
+          />
+
+          {/* Cover photo crop dialog — 3:1 banner */}
+          <ImageCropDialog
+            visible={!!coverPending}
+            onHide={() => setCoverPending(null)}
+            file={coverPending}
+            aspect={3}
+            title="Crop Cover Photo"
+            onCropComplete={(cropped) => setCoverPhoto(cropped)}
+          />
         </div>
 
         {/* Online Presence */}

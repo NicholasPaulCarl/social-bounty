@@ -295,7 +295,6 @@ const config: Config = {
       addUtilities({
         '.glass-card': {
           background: '#ffffff',
-          border: '1px solid #e2e8f0',
           'border-radius': '16px',
           'box-shadow': '0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04)',
         },

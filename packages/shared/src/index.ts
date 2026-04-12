@@ -6,8 +6,8 @@
 export {
   UserRole,
   UserStatus,
-  OrgStatus,
-  OrgMemberRole,
+  BrandStatus,
+  BrandMemberRole,
   BountyStatus,
   RewardType,
   SubmissionStatus,
@@ -92,7 +92,7 @@ export type {
   RequestOtpRequest,
   VerifyOtpRequest,
   SignupWithOtpRequest,
-  SwitchOrganisationRequest,
+  SwitchBrandRequest,
   LoginUserResponse,
   LoginResponse,
   LogoutRequest,
@@ -103,7 +103,7 @@ export type {
 
 // User DTOs
 export type {
-  UserOrganisationInfo,
+  UserBrandInfo,
   UserSocialLinkInfo,
   UserProfileResponse,
   UserSearchResult,
@@ -141,27 +141,30 @@ export type {
   AdminFailWithdrawalRequest,
 } from './dto/wallet.dto';
 
-// Organisation DTOs
+// Brand DTOs
 export type {
   BrandSocialLinks,
-  CreateOrganisationRequest,
-  OrganisationResponse,
-  OrganisationDetailResponse,
-  UpdateOrganisationRequest,
+  ApifyPlatform,
+  BrandSocialAnalyticsCounters,
+  BrandSocialAnalyticsBlob,
+  CreateBrandRequest,
+  BrandResponse,
+  BrandDetailResponse,
+  UpdateBrandRequest,
   BrandProfileResponse,
   BrandListItem,
   BrandListParams,
   MyBrandListItem,
-  OrgMemberUserInfo,
-  OrgMemberResponse,
+  BrandMemberUserInfo,
+  BrandMemberResponse,
   InviteMemberRequest,
   InvitationResponse,
   InviteMemberResponse,
-} from './dto/organisation.dto';
+} from './dto/brand.dto';
 
 // Bounty DTOs
 export type {
-  BountyOrganisationInfo,
+  BountyBrandInfo,
   BountyCreatorInfo,
   BountyUserSubmissionInfo,
   BrandAssetInfo,
@@ -217,13 +220,13 @@ export type {
   AdminUserDetailResponse,
   AdminUpdateUserStatusRequest,
   AdminUpdateUserStatusResponse,
-  AdminOrgListItem,
-  AdminOrgListParams,
-  AdminCreateOrgRequest,
-  AdminCreateOrgOwnerInfo,
-  AdminCreateOrgResponse,
-  AdminUpdateOrgStatusRequest,
-  AdminUpdateOrgStatusResponse,
+  AdminBrandListItem,
+  AdminBrandListParams,
+  AdminCreateBrandRequest,
+  AdminCreateBrandOwnerInfo,
+  AdminCreateBrandResponse,
+  AdminUpdateBrandStatusRequest,
+  AdminUpdateBrandStatusResponse,
   AdminOverrideBountyRequest,
   AdminOverrideBountyResponse,
   AdminOverrideSubmissionRequest,

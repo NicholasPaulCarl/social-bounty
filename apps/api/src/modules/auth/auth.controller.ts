@@ -19,7 +19,9 @@ import {
   RequestOtpDto,
   VerifyOtpDto,
   SignupWithOtpDto,
-  SwitchOrganisationDto,
+  SwitchBrandDto,
+  RequestEmailChangeDto,
+  VerifyEmailChangeDto,
 } from './dto/auth.validators';
 
 const REFRESH_COOKIE_NAME = 'sb_refresh_token';
@@ -98,18 +100,40 @@ export class AuthController {
     return response;
   }
 
-  @Post('switch-organisation')
+  @Post('switch-brand')
   @HttpCode(HttpStatus.OK)
   @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
-  async switchOrganisation(
+  async switchBrand(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: SwitchOrganisationDto,
+    @Body() dto: SwitchBrandDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.switchOrganisation(user.sub, dto.organisationId);
+    const result = await this.authService.switchBrand(user.sub, dto.brandId);
     setRefreshCookie(res, result.refreshToken);
     const { refreshToken: _, ...response } = result;
     return response;
+  }
+
+  @Post('request-email-change')
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  async requestEmailChange(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: RequestEmailChangeDto,
+  ) {
+    return this.authService.requestEmailChange(user.sub, dto.newEmail);
+  }
+
+  @Post('verify-email-change')
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  async verifyEmailChange(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: VerifyEmailChangeDto,
+  ) {
+    return this.authService.verifyEmailChange(user.sub, dto.otp);
   }
 
   @Post('logout')

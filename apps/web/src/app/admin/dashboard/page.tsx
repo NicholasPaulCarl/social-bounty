@@ -38,7 +38,7 @@ export default function AdminDashboardPage() {
 
   const stats = [
     { label: 'Total Users', value: data.users.total, icon: 'pi-users', href: '/admin/users' },
-    { label: 'Total Organisations', value: data.organisations.total, icon: 'pi-building', href: '/admin/organisations' },
+    { label: 'Total Brands', value: data.brands.total, icon: 'pi-building', href: '/admin/brands' },
     { label: 'Total Bounties', value: data.bounties.total, icon: 'pi-megaphone', href: '/admin/bounties' },
     { label: 'Active Bounties', value: data.bounties.byStatus?.LIVE ?? 0, icon: 'pi-check-circle', href: '/admin/bounties' },
     { label: 'Total Submissions', value: data.submissions.total, icon: 'pi-file', href: '/admin/submissions' },

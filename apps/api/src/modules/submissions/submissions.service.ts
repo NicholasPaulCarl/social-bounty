@@ -191,7 +191,7 @@ export class SubmissionsService {
               rewardType: true,
               rewardValue: true,
               currency: true,
-              organisation: {
+              brand: {
                 select: { id: true, name: true },
               },
             },
@@ -215,7 +215,7 @@ export class SubmissionsService {
           rewardType: s.bounty.rewardType,
           rewardValue: s.bounty.rewardValue?.toString() || null,
           currency: s.bounty.currency,
-          organisation: s.bounty.organisation,
+          brand: s.bounty.brand,
         },
         proofText: s.proofText,
         proofLinks: s.proofLinks,
@@ -259,7 +259,7 @@ export class SubmissionsService {
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      bounty.organisationId !== user.organisationId
+      bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -330,7 +330,7 @@ export class SubmissionsService {
             rewardType: true,
             rewardValue: true,
             currency: true,
-            organisationId: true,
+            brandId: true,
           },
         },
         user: {
@@ -354,7 +354,7 @@ export class SubmissionsService {
 
     if (
       user.role === UserRole.BUSINESS_ADMIN &&
-      submission.bounty.organisationId !== user.organisationId
+      submission.bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -440,7 +440,7 @@ export class SubmissionsService {
             rewardType: true,
             rewardValue: true,
             currency: true,
-            organisationId: true,
+            brandId: true,
           },
         },
         user: {
@@ -499,7 +499,7 @@ export class SubmissionsService {
       where: { id },
       include: {
         bounty: {
-          select: { organisationId: true, title: true },
+          select: { brandId: true, title: true },
         },
         user: { select: { email: true, firstName: true } },
       },
@@ -511,7 +511,7 @@ export class SubmissionsService {
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      submission.bounty.organisationId !== user.organisationId
+      submission.bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -615,7 +615,7 @@ export class SubmissionsService {
       include: {
         bounty: {
           select: {
-            organisationId: true,
+            brandId: true,
             title: true,
             rewardValue: true,
             rewardType: true,
@@ -635,7 +635,7 @@ export class SubmissionsService {
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      submission.bounty.organisationId !== user.organisationId
+      submission.bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -771,18 +771,18 @@ export class SubmissionsService {
     const skip = (page - 1) * limit;
 
     // Determine org scope
-    let organisationId = filters.orgId;
+    let brandId = filters.orgId;
     if (user.role === UserRole.BUSINESS_ADMIN) {
-      const membership = await this.prisma.organisationMember.findFirst({
+      const membership = await this.prisma.brandMember.findFirst({
         where: { userId: user.sub },
       });
-      if (!membership) throw new ForbiddenException('Not a member of any organisation');
-      organisationId = membership.organisationId;
+      if (!membership) throw new ForbiddenException('Not a member of any brand');
+      brandId = membership.brandId;
     }
 
     const where: Prisma.SubmissionWhereInput = {
       bounty: {
-        ...(organisationId ? { organisationId } : {}),
+        ...(brandId ? { brandId } : {}),
         ...(filters.bountyId ? { id: filters.bountyId } : {}),
         deletedAt: null,
       },
@@ -793,7 +793,7 @@ export class SubmissionsService {
       this.prisma.submission.findMany({
         where,
         include: {
-          bounty: { select: { id: true, title: true, rewardValue: true, rewardType: true, currency: true, category: true, organisationId: true } },
+          bounty: { select: { id: true, title: true, rewardValue: true, rewardType: true, currency: true, category: true, brandId: true } },
           user: { select: { id: true, firstName: true, lastName: true, email: true } },
           reviewedBy: { select: { id: true, firstName: true, lastName: true } },
         },
@@ -809,7 +809,7 @@ export class SubmissionsService {
     today.setHours(0, 0, 0, 0);
 
     const statsWhere: Prisma.SubmissionWhereInput = {
-      bounty: { ...(organisationId ? { organisationId } : {}), deletedAt: null },
+      bounty: { ...(brandId ? { brandId } : {}), deletedAt: null },
     };
 
     const [pending, inReview, needsMoreInfo, approvedToday, rejectedToday] = await Promise.all([

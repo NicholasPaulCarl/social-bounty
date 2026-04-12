@@ -12,13 +12,28 @@ import {
   MinLength,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { BadRequestException } from '@nestjs/common';
 import { FIELD_LIMITS, BRAND_PROFILE_LIMITS } from '@social-bounty/shared';
 
-export class CreateOrganisationDto {
+// Safely parse a JSON string that arrives as a multipart form field. Returns
+// the value unchanged if it's not a string. Throws BadRequestException on
+// malformed JSON instead of crashing the process.
+function parseJsonField(fieldName: string) {
+  return ({ value }: { value: unknown }) => {
+    if (typeof value !== 'string') return value;
+    try {
+      return JSON.parse(value);
+    } catch {
+      throw new BadRequestException(`Invalid JSON in ${fieldName}`);
+    }
+  };
+}
+
+export class CreateBrandDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(1)
-  @MaxLength(FIELD_LIMITS.ORG_NAME_MAX)
+  @MaxLength(FIELD_LIMITS.BRAND_NAME_MAX)
   name!: string;
 
   @IsEmail()
@@ -45,22 +60,22 @@ export class CreateOrganisationDto {
   websiteUrl?: string;
 
   @IsOptional()
-  @Transform(({ value }) => (typeof value === 'string' ? JSON.parse(value) : value))
+  @Transform(parseJsonField('socialLinks'))
   @IsObject()
   socialLinks?: object;
 
   @IsOptional()
-  @Transform(({ value }) => (typeof value === 'string' ? JSON.parse(value) : value))
+  @Transform(parseJsonField('targetInterests'))
   @IsArray()
   @IsString({ each: true })
   targetInterests?: string[];
 }
 
-export class UpdateOrganisationDto {
+export class UpdateBrandDto {
   @IsOptional()
   @IsString()
   @MinLength(1)
-  @MaxLength(FIELD_LIMITS.ORG_NAME_MAX)
+  @MaxLength(FIELD_LIMITS.BRAND_NAME_MAX)
   name?: string;
 
   @IsOptional()
@@ -87,12 +102,12 @@ export class UpdateOrganisationDto {
   websiteUrl?: string;
 
   @IsOptional()
-  @Transform(({ value }) => (typeof value === 'string' ? JSON.parse(value) : value))
+  @Transform(parseJsonField('socialLinks'))
   @IsObject()
   socialLinks?: object;
 
   @IsOptional()
-  @Transform(({ value }) => (typeof value === 'string' ? JSON.parse(value) : value))
+  @Transform(parseJsonField('targetInterests'))
   @IsArray()
   @IsString({ each: true })
   targetInterests?: string[];

@@ -87,7 +87,7 @@ export interface DisputeListItem {
   submissionId: string;
   bountyTitle: string;
   openedBy: { id: string; firstName: string; lastName: string };
-  organisationName: string;
+  brandName: string;
   assignedTo: { id: string; firstName: string; lastName: string } | null;
   createdAt: string;
   updatedAt: string;
@@ -104,8 +104,8 @@ export interface DisputeDetailResponse {
   submission: DisputeSubmissionInfo;
   openedBy: DisputeUserInfo;
   openedByRole: UserRole;
-  organisationId: string;
-  organisationName: string;
+  brandId: string;
+  brandName: string;
   assignedTo: DisputeUserInfo | null;
   resolutionType: DisputeResolution | null;
   resolutionSummary: string | null;
@@ -172,7 +172,7 @@ export interface DisputeListParams {
 export interface AdminDisputeListParams extends DisputeListParams {
   assignedToUserId?: string;
   openedByUserId?: string;
-  organisationId?: string;
+  brandId?: string;
   search?: string;
 }
 

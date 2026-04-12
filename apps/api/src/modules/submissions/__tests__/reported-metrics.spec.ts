@@ -30,14 +30,14 @@ describe('SubmissionsService - Reported Metrics', () => {
     sub: 'participant-1',
     email: 'participant@test.com',
     role: UserRole.PARTICIPANT,
-    organisationId: null,
+    brandId: null,
   };
 
   const mockBA: AuthenticatedUser = {
     sub: 'ba-1',
     email: 'ba@test.com',
     role: UserRole.BUSINESS_ADMIN,
-    organisationId: 'org-1',
+    brandId: 'org-1',
   };
 
   const liveBounty = {
@@ -45,7 +45,7 @@ describe('SubmissionsService - Reported Metrics', () => {
     status: BountyStatus.LIVE,
     maxSubmissions: 100,
     endDate: new Date('2026-12-31'),
-    organisationId: 'org-1',
+    brandId: 'org-1',
     title: 'Test Bounty',
     _count: { submissions: 5 },
   };
@@ -66,7 +66,7 @@ describe('SubmissionsService - Reported Metrics', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     user: { id: 'participant-1', email: 'participant@test.com', firstName: 'Test', lastName: 'User' },
-    bounty: { id: 'bounty-1', title: 'Test Bounty', organisationId: 'org-1', rewardValue: 100, currency: 'ZAR' },
+    bounty: { id: 'bounty-1', title: 'Test Bounty', brandId: 'org-1', rewardValue: 100, currency: 'ZAR' },
   };
 
   beforeEach(async () => {
@@ -177,7 +177,7 @@ describe('SubmissionsService - Reported Metrics', () => {
         status: SubmissionStatus.SUBMITTED,
         bounty: {
           id: 'bounty-1',
-          organisationId: 'org-1',
+          brandId: 'org-1',
           title: 'Test Bounty',
           rewardType: 'CASH',
           rewardValue: 50,
@@ -220,7 +220,7 @@ describe('SubmissionsService - Reported Metrics', () => {
         status: SubmissionStatus.SUBMITTED,
         bounty: {
           id: 'bounty-1',
-          organisationId: 'org-1',
+          brandId: 'org-1',
           title: 'Test Bounty',
           rewardType: 'CASH',
           rewardValue: 50,

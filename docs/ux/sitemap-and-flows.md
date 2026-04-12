@@ -66,9 +66,9 @@ Social Bounty
 |   +-- /manage/bounties/:id/edit       Edit bounty form
 |   +-- /manage/bounties/:id/submissions  Submissions for a bounty (review list)
 |   +-- /manage/submissions/:id         Submission review detail
-|   +-- /organisation                   View organisation details
-|   +-- /organisation/edit              Edit organisation details
-|   +-- /organisation/members           Manage organisation members
+|   +-- /brand                   View brand details
+|   +-- /brand/edit              Edit brand details
+|   +-- /brand/members           Manage brand members
 |   +-- /profile                        View profile
 |   +-- /profile/edit                   Edit profile
 |
@@ -76,8 +76,8 @@ Social Bounty
 |   +-- /admin/dashboard                Platform-wide dashboard
 |   +-- /admin/users                    User management list
 |   +-- /admin/users/:id                User detail view
-|   +-- /admin/organisations            Organisation management list
-|   +-- /admin/organisations/:id        Organisation detail view
+|   +-- /admin/brands            Brand management list
+|   +-- /admin/brands/:id        Brand detail view
 |   +-- /admin/bounties                 All bounties (oversight)
 |   +-- /admin/bounties/:id             Bounty detail (with override controls)
 |   +-- /admin/submissions              All submissions (oversight)
@@ -125,14 +125,14 @@ My Submissions       /my-submissions
 ```
 Dashboard            /dashboard
 Bounties             /manage/bounties
-Organisation         /organisation
+Brand         /brand
 ```
 
 **Super Admin Sidebar:**
 ```
 Dashboard            /admin/dashboard
 Users                /admin/users
-Organisations        /admin/organisations
+Brands        /admin/brands
 Bounties             /admin/bounties
 Submissions          /admin/submissions
 Audit Logs           /admin/audit-logs
@@ -211,7 +211,7 @@ Settings             /admin/settings
     v
 /bounties/:id (Bounty Detail)
     - Full detail view: title, full instructions, category, reward type + value/description,
-      eligibility rules, proof requirements, organisation name, start/end dates,
+      eligibility rules, proof requirements, brand name, start/end dates,
       remaining submissions (if maxSubmissions is set)
     - Status badge: Live / Paused / Closed
     - Conditional elements:
@@ -346,7 +346,7 @@ Design decisions to hit this target:
     - Quick actions:
       * "Create New Bounty" button -> /manage/bounties/new
       * "Review Submissions" link -> filters submissions needing review
-    - Data is scoped to the Business Admin's organisation only
+    - Data is scoped to the Business Admin's brand only
     - All counts are simple numbers (no charts per spec)
 ```
 
@@ -406,7 +406,7 @@ Design decisions to hit this target:
 
 ```
 /manage/bounties (Bounty Management List)
-    - Shows ALL bounties for the organisation (Draft, Live, Paused, Closed)
+    - Shows ALL bounties for the brand (Draft, Live, Paused, Closed)
     - Each row: title, status badge, submission count, creation date
     - Filters: status dropdown
     - Sorting: newest, title (A-Z), status
@@ -552,7 +552,7 @@ Design decisions to hit this target:
 /admin/dashboard (Super Admin Dashboard)
     - Platform-wide summary cards:
       * Total Users (with breakdown by role: Participant / Business Admin / Super Admin)
-      * Total Organisations (breakdown: Active / Suspended)
+      * Total Brands (breakdown: Active / Suspended)
       * Total Bounties (breakdown: Draft / Live / Paused / Closed)
       * Total Submissions (breakdown: Submitted / In Review / Needs More Info / Approved / Rejected)
       * Payouts (breakdown: Not Paid / Pending / Paid)
@@ -580,7 +580,7 @@ Design decisions to hit this target:
 /admin/users/:id (User Detail)
     - Displays: full name, email, role badge, status badge, email verification status,
       creation date, last login date
-    - If user is Business Admin: organisation name (linked to org detail)
+    - If user is Business Admin: brand name (linked to org detail)
     - Submission history summary (count by status)
     - Action buttons:
       * [ACTIVE user]: "Suspend User" | "Force Password Reset"
@@ -611,44 +611,44 @@ Design decisions to hit this target:
 
 ---
 
-### Flow S3: Organisation Management
+### Flow S3: Brand Management
 
 ```
-/admin/organisations (Organisation Management List)
+/admin/brands (Brand Management List)
     - PrimeReact DataTable with columns:
       Name | Contact Email | Status | Members | Bounties | Created
-    - Search: by organisation name (server-side)
+    - Search: by brand name (server-side)
     - Filters: status dropdown
     - Pagination: server-side, 20 per page
-    - Empty state: "No organisations match your search criteria."
+    - Empty state: "No brands match your search criteria."
     |
-    | [Click organisation row]
+    | [Click brand row]
     v
-/admin/organisations/:id (Organisation Detail)
+/admin/brands/:id (Brand Detail)
     - Displays: name, logo, contact email, status badge, member list (names + roles),
       bounty count, creation date
     - Action buttons:
-      * [ACTIVE org]: "Suspend Organisation"
-      * [SUSPENDED org]: "Reinstate Organisation"
+      * [ACTIVE org]: "Suspend Brand"
+      * [SUSPENDED org]: "Reinstate Brand"
     |
-    +-- [Click "Suspend Organisation"]
+    +-- [Click "Suspend Brand"]
     |     - Confirmation dialog with mandatory reason field:
-    |       "Suspend this organisation? All its live bounties will be paused automatically."
+    |       "Suspend this brand? All its live bounties will be paused automatically."
     |       Reason: [_________________________] (required)
     |     - On confirm:
-    |       * Organisation status -> SUSPENDED
+    |       * Brand status -> SUSPENDED
     |       * All LIVE bounties for this org -> PAUSED
-    |       * Toast: "Organisation suspended. X bounties paused."
+    |       * Toast: "Brand suspended. X bounties paused."
     |       * Audit log created with reason
     |
-    +-- [Click "Reinstate Organisation"]
+    +-- [Click "Reinstate Brand"]
           - Confirmation dialog with mandatory reason field:
-            "Reinstate this organisation?"
+            "Reinstate this brand?"
             Reason: [_________________________] (required)
           - On confirm:
-            * Organisation status -> ACTIVE
+            * Brand status -> ACTIVE
             * Note: bounties remain PAUSED -- Business Admin must manually re-publish
-            * Toast: "Organisation reinstated"
+            * Toast: "Brand reinstated"
             * Audit log created with reason
 ```
 
@@ -659,9 +659,9 @@ Design decisions to hit this target:
 ```
 /admin/bounties (All Bounties -- Oversight View)
     - PrimeReact DataTable with columns:
-      Title | Organisation | Status | Submissions | Created
+      Title | Brand | Status | Submissions | Created
     - Search: keyword in title
-    - Filters: status dropdown, organisation dropdown
+    - Filters: status dropdown, brand dropdown
     - Pagination: server-side, 20 per page
     |
     | [Click bounty row]
@@ -736,7 +736,7 @@ Design decisions to hit this target:
     - Filters:
       * Actor: search by name/email
       * Action Type: dropdown (e.g., CREATE, UPDATE, DELETE, STATUS_CHANGE, OVERRIDE, LOGIN, etc.)
-      * Entity Type: dropdown (User, Organisation, Bounty, Submission, etc.)
+      * Entity Type: dropdown (User, Brand, Bounty, Submission, etc.)
       * Date Range: calendar range picker (start date, end date)
     - Sorting: newest first (default)
     - Pagination: server-side, 25 per page
@@ -969,7 +969,7 @@ Every list/table view must have a meaningful empty state. The pattern is:
 | Bounty Management (none) | "No bounties yet. Create your first bounty." | "Create Bounty" button |
 | Submission Review (none) | "No submissions yet for this bounty." | -- |
 | User Management (no results) | "No users match your search criteria." | Clear search link |
-| Org Management (no results) | "No organisations match your search criteria." | Clear search link |
+| Org Management (no results) | "No brands match your search criteria." | Clear search link |
 | Audit Logs (no results) | "No audit log entries match your filters." | Clear filters link |
 | Recent Errors (none) | "No recent errors. The system is running smoothly." | -- |
 
@@ -1000,10 +1000,10 @@ All confirmation dialogs follow a consistent pattern using PrimeReact ConfirmDia
 | Reject submission | Reject Submission | "Reject this submission? This action is final. The participant will be notified." | "Reject" (danger) | "Cancel" |
 | Suspend user | Suspend User | "Suspend this user? They will be unable to log in." + Reason field (required) | "Suspend" (danger) | "Cancel" |
 | Reinstate user | Reinstate User | "Reinstate this user? They will be able to log in again." + Reason field (required) | "Reinstate" (success) | "Cancel" |
-| Suspend organisation | Suspend Organisation | "Suspend this organisation? All its live bounties will be paused automatically." + Reason field (required) | "Suspend" (danger) | "Cancel" |
+| Suspend brand | Suspend Brand | "Suspend this brand? All its live bounties will be paused automatically." + Reason field (required) | "Suspend" (danger) | "Cancel" |
 | Override status | Override Status | "Override [entity] status from [current] to [new]?" + Reason field (required) | "Override" (warning) | "Cancel" |
 | Mark as paid | Confirm Payment | "Confirm this participant has been paid?" | "Confirm Paid" (success) | "Cancel" |
-| Remove org member | Remove Member | "Remove this member from the organisation? They will lose Business Admin privileges." | "Remove" (danger) | "Cancel" |
+| Remove org member | Remove Member | "Remove this member from the brand? They will lose Business Admin privileges." | "Remove" (danger) | "Cancel" |
 | Toggle global setting | Confirm Setting Change | "Are you sure you want to [enable/disable] [setting name]?" | "Confirm" (warning) | "Cancel" |
 
 ---

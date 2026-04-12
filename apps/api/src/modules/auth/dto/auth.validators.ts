@@ -67,10 +67,22 @@ export class SignupWithOtpDto {
   brandContactEmail?: string;
 }
 
-export class SwitchOrganisationDto {
+export class SwitchBrandDto {
   @IsUUID()
   @IsNotEmpty()
-  organisationId!: string;
+  brandId!: string;
+}
+
+export class RequestEmailChangeDto {
+  @IsEmail()
+  @IsNotEmpty()
+  newEmail!: string;
+}
+
+export class VerifyEmailChangeDto {
+  @IsString()
+  @Length(6, 6, { message: 'OTP must be exactly 6 digits' })
+  otp!: string;
 }
 
 export class LogoutDto {

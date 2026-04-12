@@ -210,11 +210,11 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     });
   });
 
-  // ── 4. Create without organisationId fails ────────────────────────
+  // ── 4. Create without brandId fails ────────────────────────
 
-  describe('Create without organisationId', () => {
-    it('should fail with BadRequestException when user.organisationId is null', async () => {
-      const noOrgUser = { ...mockBA, organisationId: null };
+  describe('Create without brandId', () => {
+    it('should fail with BadRequestException when user.brandId is null', async () => {
+      const noOrgUser = { ...mockBA, brandId: null };
       const data = validCreateBountyData();
 
       await expect(service.create(noOrgUser, data)).rejects.toThrow(
@@ -225,8 +225,8 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
       );
     });
 
-    it('should fail with BadRequestException when user.organisationId is undefined', async () => {
-      const noOrgUser = { ...mockBA, organisationId: undefined as any };
+    it('should fail with BadRequestException when user.brandId is undefined', async () => {
+      const noOrgUser = { ...mockBA, brandId: undefined as any };
       const data = validCreateBountyData();
 
       await expect(service.create(noOrgUser, data)).rejects.toThrow(
@@ -245,8 +245,8 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
       );
     });
 
-    it('should not call prisma.bounty.create when organisationId is missing', async () => {
-      const noOrgUser = { ...mockBA, organisationId: null };
+    it('should not call prisma.bounty.create when brandId is missing', async () => {
+      const noOrgUser = { ...mockBA, brandId: null };
       const data = validCreateBountyData();
 
       try {
@@ -266,7 +266,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should NOT crash when data.rewards is an empty array', async () => {
       const existingBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
       });
       prisma.bounty.findUnique.mockResolvedValue(existingBounty);
@@ -276,7 +276,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
         title: 'Updated Title',
         rewards: [],
         _count: { submissions: 0 },
-        organisation: { id: 'org-1', name: 'Test Org', logo: null },
+        brand: { id: 'org-1', name: 'Test Org', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'User' },
       };
       prisma.bounty.update.mockResolvedValue(updatedBounty);
@@ -297,7 +297,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should return empty rewards array without error', async () => {
       const existingBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
       });
       prisma.bounty.findUnique.mockResolvedValue(existingBounty);
@@ -306,7 +306,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
         ...existingBounty,
         rewards: [],
         _count: { submissions: 0 },
-        organisation: { id: 'org-1', name: 'Test Org', logo: null },
+        brand: { id: 'org-1', name: 'Test Org', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'User' },
       };
       prisma.bounty.update.mockResolvedValue(updatedBounty);
@@ -324,7 +324,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should succeed when structuredEligibility and engagementRequirements are null', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'Test Bounty',
         shortDescription: 'Description',
@@ -354,7 +354,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should succeed when payoutMetrics is null', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'Payout Test',
         shortDescription: 'Description',
@@ -385,7 +385,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should succeed when maxSubmissions, startDate, endDate are null', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'No Dates',
         shortDescription: 'Desc',
@@ -420,7 +420,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should fail when channels is null', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'Test Bounty',
         shortDescription: 'Description',
@@ -446,7 +446,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should fail when rewards array is empty (no reward rows)', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'Test Bounty',
         shortDescription: 'Description',
@@ -472,7 +472,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should fail when title is empty string', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: '',
         shortDescription: 'Description',
@@ -497,7 +497,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should fail when shortDescription is empty', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'Good Title',
         shortDescription: '',
@@ -522,7 +522,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should fail when fullInstructions is empty', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'Good Title',
         shortDescription: 'Good Desc',
@@ -547,7 +547,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should fail when postVisibilityRule is null', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'Good Title',
         shortDescription: 'Good Desc',
@@ -573,7 +573,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should fail when visibilityAcknowledged is false', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'Test',
         shortDescription: 'Description',
@@ -598,7 +598,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should include ALL missing fields in the error message', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: '',
         shortDescription: '',
@@ -639,7 +639,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should fail when paymentStatus is UNPAID', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'Paid Bounty',
         shortDescription: 'Description',
@@ -665,7 +665,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should fail when paymentStatus is PENDING', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'Pending Payment',
         shortDescription: 'Description',
@@ -691,7 +691,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
     it('should not update the bounty status when payment check fails', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
-        organisationId: 'org-1',
+        brandId: 'org-1',
         status: BountyStatus.DRAFT,
         title: 'No Payment',
         shortDescription: 'Description',

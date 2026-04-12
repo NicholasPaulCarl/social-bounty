@@ -46,12 +46,12 @@ export class BountyAccessService {
   }
 
   private assertBrandAdmin(
-    bounty: { organisationId: string },
+    bounty: { brandId: string },
     user: AuthenticatedUser,
   ) {
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      bounty.organisationId !== user.organisationId
+      bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }

@@ -6,6 +6,7 @@ import { Message } from 'primereact/message';
 import { useProfile, useSocialLinks } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
 import { getUploadUrl } from '@/lib/api/client';
+import { formatCount } from '@/lib/utils/format';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -23,13 +24,6 @@ const PLATFORM_LABELS: Record<SocialChannel, string> = {
   [SocialChannel.TIKTOK]: 'TikTok',
   [SocialChannel.FACEBOOK]: 'Facebook',
 };
-
-function formatCount(n: number | null): string {
-  if (n === null || n === undefined) return '—';
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
-}
 
 function computeCompletion(profile: {
   bio: string | null;

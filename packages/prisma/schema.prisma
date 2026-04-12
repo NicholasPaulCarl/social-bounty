@@ -27,15 +27,20 @@ enum UserStatus {
   SUSPENDED
 }
 
-enum OrgStatus {
+enum BrandStatus {
   ACTIVE
   SUSPENDED
   INACTIVE
+
+  // DB enum type stays "OrgStatus" to avoid a type-rename migration.
+  @@map("OrgStatus")
 }
 
-enum OrgMemberRole {
+enum BrandMemberRole {
   OWNER
   MEMBER
+
+  @@map("OrgMemberRole")
 }
 
 enum BountyStatus {
@@ -320,7 +325,7 @@ model User {
   submissions             Submission[]              @relation("UserSubmissions")
   socialLinks             SocialLink[]
   reviewedSubmissions     Submission[]              @relation("ReviewerSubmissions")
-  organisationMemberships OrganisationMember[]
+  brandMemberships        BrandMember[]
   createdBounties         Bounty[]                  @relation("BountyCreator")
   auditLogs               AuditLog[]                @relation("AuditActor")
   fileUploads             FileUpload[]              @relation("FileUploader")
@@ -366,52 +371,55 @@ model RefreshTokenAudit {
   @@map("refresh_token_audits")
 }
 
-model Organisation {
-  id               String    @id @default(uuid())
+model Brand {
+  id               String      @id @default(uuid())
   name             String
-  handle           String?   @unique
+  handle           String?     @unique
   logo             String?
   coverPhotoUrl    String?
   contactEmail     String
-  bio              String?   @db.VarChar(500)
+  bio              String?     @db.VarChar(500)
   websiteUrl       String?
-  socialLinks      Json?     // { instagram?, tiktok?, facebook?, x?, website? }
-  targetInterests  Json?     // string[] from HUNTER_INTERESTS
-  messagingEnabled Boolean   @default(true)
-  status           OrgStatus @default(ACTIVE)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  socialLinks      Json?       // { instagram?, tiktok?, facebook?, x?, website? }
+  socialAnalytics  Json?       // BrandSocialAnalyticsBlob — populated by ApifyService
+  targetInterests  Json?       // string[] from HUNTER_INTERESTS
+  messagingEnabled Boolean     @default(true)
+  status           BrandStatus @default(ACTIVE)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   // Relations
-  members      OrganisationMember[]
+  members      BrandMember[]
   bounties     Bounty[]
-  subscription Subscription?        @relation("OrgSubscription")
+  subscription Subscription? @relation("BrandSubscription")
 
   @@index([status])
   @@index([handle])
+  // DB table name preserved to avoid a table-rename migration; the TS model
+  // name is what consumers see, but the underlying table stays "organisations".
   @@map("organisations")
 }
 
-model OrganisationMember {
-  id             String        @id @default(uuid())
-  userId         String
-  organisationId String
-  role           OrgMemberRole @default(MEMBER)
-  joinedAt       DateTime      @default(now())
+model BrandMember {
+  id       String          @id @default(uuid())
+  userId   String
+  brandId  String          @map("organisationId")
+  role     BrandMemberRole @default(MEMBER)
+  joinedAt DateTime        @default(now())
 
   // Relations
-  user         User         @relation(fields: [userId], references: [id], onDelete: Restrict)
-  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, organisationId])
+  @@unique([userId, brandId])
   @@index([userId])
-  @@index([organisationId])
+  @@index([brandId])
   @@map("organisation_members")
 }
 
 model Bounty {
   id                String       @id @default(uuid())
-  organisationId    String
+  brandId           String       @map("organisationId")
   createdById       String
   title             String
   shortDescription  String       @default("")
@@ -450,7 +458,7 @@ model Bounty {
   adminFeeAmount         Decimal?            @db.Decimal(18, 2)
 
   // Relations
-  organisation Organisation        @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  brand        Brand               @relation(fields: [brandId], references: [id], onDelete: Cascade)
   createdBy    User                @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
   submissions  Submission[]
   rewards      BountyReward[]
@@ -458,7 +466,7 @@ model Bounty {
   applications BountyApplication[] @relation("BountyApplications")
   invitations  BountyInvitation[]  @relation("BountyInvitations")
 
-  @@index([organisationId])
+  @@index([brandId])
   @@index([status])
   @@index([category])
   @@index([createdById])
@@ -466,6 +474,8 @@ model Bounty {
   @@index([deletedAt])
   @@index([status, deletedAt])
   @@index([createdAt])
+  @@index([paymentStatus])
+  @@index([accessType])
   @@map("bounties")
 }
 
@@ -625,7 +635,7 @@ model Dispute {
   bountyId          String
   openedByUserId    String
   openedByRole      UserRole
-  organisationId    String
+  brandId           String             @map("organisationId")
   assignedToUserId  String?
   resolutionType    DisputeResolution?
   resolutionSummary String?            @db.Text
@@ -651,7 +661,7 @@ model Dispute {
   @@index([submissionId])
   @@index([bountyId])
   @@index([openedByUserId])
-  @@index([organisationId])
+  @@index([brandId])
   @@index([assignedToUserId])
   @@index([status])
   @@index([category])
@@ -987,7 +997,7 @@ model Message {
 model Subscription {
   id                 String                 @id @default(uuid())
   userId             String?                @unique
-  organisationId     String?                @unique
+  brandId            String?                @unique @map("organisationId")
   entityType         SubscriptionEntityType
   tier               SubscriptionTier       @default(FREE)
   status             SubscriptionStatus     @default(FREE)
@@ -1006,12 +1016,12 @@ model Subscription {
   createdAt          DateTime               @default(now())
   updatedAt          DateTime               @updatedAt
 
-  user         User?                 @relation("UserSubscription", fields: [userId], references: [id])
-  organisation Organisation?         @relation("OrgSubscription", fields: [organisationId], references: [id])
-  payments     SubscriptionPayment[]
+  user     User?                 @relation("UserSubscription", fields: [userId], references: [id])
+  brand    Brand?                @relation("BrandSubscription", fields: [brandId], references: [id])
+  payments SubscriptionPayment[]
 
   @@unique([userId, entityType])
-  @@unique([organisationId, entityType])
+  @@unique([brandId, entityType])
   @@index([status])
   @@index([currentPeriodEnd])
   @@index([tier])

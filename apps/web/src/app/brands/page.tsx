@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
-import { useBrandsPublicList } from '@/hooks/useOrganisation';
+import { useBrandsPublicList } from '@/hooks/useBrand';
 import { HUNTER_INTERESTS } from '@social-bounty/shared';
 import { getUploadUrl } from '@/lib/api/client';
 import type { BrandListItem } from '@social-bounty/shared';

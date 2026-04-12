@@ -6,9 +6,9 @@ import { queryKeys } from '@/lib/query-keys';
 import type {
   AdminUserListParams,
   AdminUpdateUserStatusRequest,
-  AdminOrgListParams,
-  AdminCreateOrgRequest,
-  AdminUpdateOrgStatusRequest,
+  AdminBrandListParams,
+  AdminCreateBrandRequest,
+  AdminUpdateBrandStatusRequest,
   AdminOverrideBountyRequest,
   AdminOverrideSubmissionRequest,
   AuditLogListParams,
@@ -52,18 +52,18 @@ export function useUpdateUserStatus(id: string) {
   });
 }
 
-// Organisations
-export function useAdminOrganisations(params: AdminOrgListParams) {
+// Brands
+export function useAdminBrands(params: AdminBrandListParams) {
   return useQuery({
-    queryKey: queryKeys.admin.organisations(params),
-    queryFn: () => adminApi.listOrganisations(params),
+    queryKey: queryKeys.admin.brands(params),
+    queryFn: () => adminApi.listBrands(params),
   });
 }
 
-export function useAdminOrgDetail(id: string) {
+export function useAdminBrandDetail(id: string) {
   return useQuery({
-    queryKey: queryKeys.admin.orgDetail(id),
-    queryFn: () => adminApi.getOrgById(id),
+    queryKey: queryKeys.admin.brandDetail(id),
+    queryFn: () => adminApi.getBrandById(id),
     enabled: !!id,
   });
 }
@@ -71,19 +71,19 @@ export function useAdminOrgDetail(id: string) {
 export function useAdminCreateOrg() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: AdminCreateOrgRequest) => adminApi.createOrganisation(data),
+    mutationFn: (data: AdminCreateBrandRequest) => adminApi.createBrand(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'organisations'] });
     },
   });
 }
 
-export function useUpdateOrgStatus(id: string) {
+export function useUpdateBrandStatus(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: AdminUpdateOrgStatusRequest) => adminApi.updateOrgStatus(id, data),
+    mutationFn: (data: AdminUpdateBrandStatusRequest) => adminApi.updateBrandStatus(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.orgDetail(id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.brandDetail(id) });
       queryClient.invalidateQueries({ queryKey: ['admin', 'organisations'] });
     },
   });

@@ -6,7 +6,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
-import { useAdminOrganisations } from '@/hooks/useAdmin';
+import { useAdminBrands } from '@/hooks/useAdmin';
 import { usePagination } from '@/hooks/usePagination';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -14,7 +14,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDate } from '@/lib/utils/format';
-import type { AdminOrgListItem, AdminOrgListParams } from '@social-bounty/shared';
+import type { AdminBrandListItem, AdminBrandListParams } from '@social-bounty/shared';
 
 const statusOptions = [
   { label: 'All Statuses', value: '' },
@@ -22,31 +22,31 @@ const statusOptions = [
   { label: 'Suspended', value: 'SUSPENDED' },
 ];
 
-export default function AdminOrganisationsPage() {
+export default function AdminBrandsPage() {
   const router = useRouter();
   const { page, limit, first, onPageChange } = usePagination();
-  const [filters, setFilters] = useState<AdminOrgListParams>({ page, limit });
+  const [filters, setFilters] = useState<AdminBrandListParams>({ page, limit });
 
-  const { data, isLoading, error, refetch } = useAdminOrganisations({ ...filters, page, limit });
+  const { data, isLoading, error, refetch } = useAdminBrands({ ...filters, page, limit });
 
   if (isLoading) return <LoadingState type="table" />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
 
-  const statusTemplate = (rowData: AdminOrgListItem) => (
+  const statusTemplate = (rowData: AdminBrandListItem) => (
     <StatusBadge type="organisation" value={rowData.status} />
   );
 
-  const dateTemplate = (rowData: AdminOrgListItem) => (
+  const dateTemplate = (rowData: AdminBrandListItem) => (
     <span className="text-text-secondary">{formatDate(rowData.createdAt)}</span>
   );
 
-  const actionsTemplate = (rowData: AdminOrgListItem) => (
+  const actionsTemplate = (rowData: AdminBrandListItem) => (
     <Button
       icon="pi pi-eye"
       rounded
       text
       severity="info"
-      onClick={() => router.push(`/admin/organisations/${rowData.id}`)}
+      onClick={() => router.push(`/admin/brands/${rowData.id}`)}
       tooltip="View Details"
     />
   );
@@ -54,16 +54,16 @@ export default function AdminOrganisationsPage() {
   return (
     <div className="animate-fade-up">
       <PageHeader
-        title="Organisations"
-        subtitle="Manage platform organisations"
+        title="Brands"
+        subtitle="Manage platform brands"
         actions={
-          <Button label="Create Organisation" icon="pi pi-plus" onClick={() => router.push('/admin/organisations/new')} />
+          <Button label="Create Brand" icon="pi pi-plus" onClick={() => router.push('/admin/brands/new')} />
         }
         toolbar={{
           search: {
             value: filters.search || '',
             onChange: (value) => setFilters({ ...filters, search: value || undefined, page: 1 }),
-            placeholder: 'Search organisations...',
+            placeholder: 'Search brands...',
           },
           filters: [
             { key: 'status', placeholder: 'Status', options: statusOptions, ariaLabel: 'Filter by status' },
@@ -99,7 +99,7 @@ export default function AdminOrganisationsPage() {
       ) : (
         <EmptyState
           icon="pi-building"
-          title="No organisations found"
+          title="No brands found"
           message="Nothing matches your current filters."
         />
       )}

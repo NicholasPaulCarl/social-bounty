@@ -96,7 +96,7 @@ export default function AdminDisputesPage() {
   );
 
   const orgTemplate = (rowData: DisputeListItem) => (
-    <span className="text-sm text-text-secondary">{rowData.organisationName || '—'}</span>
+    <span className="text-sm text-text-secondary">{rowData.brandName || '—'}</span>
   );
 
   const assignedToTemplate = (rowData: DisputeListItem) => (
@@ -182,7 +182,7 @@ export default function AdminDisputesPage() {
               <Column header="Category" body={categoryTemplate} sortField="category" sortable />
               <Column header="Status" body={statusTemplate} sortField="status" sortable />
               <Column header="Filed By" body={openedByTemplate} />
-              <Column header="Organisation" body={orgTemplate} sortField="organisationName" sortable />
+              <Column header="Brand" body={orgTemplate} sortField="brandName" sortable />
               <Column header="Assigned To" body={assignedToTemplate} />
               <Column header="Opened" body={dateTemplate} sortField="createdAt" sortable />
               <Column header="Age" body={ageTemplate} sortField="createdAt" sortable style={{ width: '5rem' }} />

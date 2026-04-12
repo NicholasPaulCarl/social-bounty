@@ -14,7 +14,7 @@ export class SubscriptionsController {
     return this.subscriptionsService.getSubscription(
       user.sub,
       user.role as UserRole,
-      user.organisationId ?? undefined,
+      user.brandId ?? undefined,
     );
   }
 
@@ -24,7 +24,7 @@ export class SubscriptionsController {
     return this.subscriptionsService.subscribe(
       user.sub,
       user.role as UserRole,
-      user.organisationId ?? undefined,
+      user.brandId ?? undefined,
     );
   }
 
@@ -34,7 +34,7 @@ export class SubscriptionsController {
     return this.subscriptionsService.cancel(
       user.sub,
       user.role as UserRole,
-      user.organisationId ?? undefined,
+      user.brandId ?? undefined,
     );
   }
 
@@ -44,7 +44,7 @@ export class SubscriptionsController {
     return this.subscriptionsService.reactivate(
       user.sub,
       user.role as UserRole,
-      user.organisationId ?? undefined,
+      user.brandId ?? undefined,
     );
   }
 
@@ -58,7 +58,7 @@ export class SubscriptionsController {
     return this.subscriptionsService.getPaymentHistory(
       user.sub,
       user.role as UserRole,
-      user.organisationId ?? undefined,
+      user.brandId ?? undefined,
       { page, limit },
     );
   }

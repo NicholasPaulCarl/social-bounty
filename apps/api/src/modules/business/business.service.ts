@@ -19,11 +19,11 @@ export class BusinessService {
   ) {}
 
   async getDashboard(user: AuthenticatedUser) {
-    if (!user.organisationId) {
-      throw new BadRequestException('You do not belong to an organisation');
+    if (!user.brandId) {
+      throw new BadRequestException('You do not belong to a brand');
     }
 
-    const cacheKey = `dashboard:${user.organisationId}`;
+    const cacheKey = `dashboard:${user.brandId}`;
 
     // Return cached result if available
     const cached = await this.redis.get(cacheKey);
@@ -31,16 +31,16 @@ export class BusinessService {
       return JSON.parse(cached);
     }
 
-    const org = await this.prisma.organisation.findUnique({
-      where: { id: user.organisationId },
+    const org = await this.prisma.brand.findUnique({
+      where: { id: user.brandId },
       select: { id: true, name: true },
     });
 
     if (!org) {
-      throw new BadRequestException('Organisation not found');
+      throw new BadRequestException('Brand not found');
     }
 
-    const orgId = user.organisationId;
+    const orgId = user.brandId;
 
     // Run bounty status counts and submission status/payout counts in parallel.
     // Each group uses a single groupBy query instead of N individual count queries,
@@ -50,20 +50,20 @@ export class BusinessService {
         // One query returns counts for every bounty status
         this.prisma.bounty.groupBy({
           by: ['status'],
-          where: { organisationId: orgId },
+          where: { brandId: orgId },
           _count: { _all: true },
         }),
         // One query returns submission counts for every submission status,
         // scoped to this org's bounties via a relation filter
         this.prisma.submission.groupBy({
           by: ['status'],
-          where: { bounty: { organisationId: orgId } },
+          where: { bounty: { brandId: orgId } },
           _count: { _all: true },
         }),
         // One query returns submission counts for every payout status
         this.prisma.submission.groupBy({
           by: ['payoutStatus'],
-          where: { bounty: { organisationId: orgId } },
+          where: { bounty: { brandId: orgId } },
           _count: { _all: true },
         }),
       ]);

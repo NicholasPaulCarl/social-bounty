@@ -70,7 +70,7 @@ export class FilesController {
           select: {
             userId: true,
             bounty: {
-              select: { organisationId: true },
+              select: { brandId: true },
             },
           },
         },
@@ -87,7 +87,7 @@ export class FilesController {
         throw new ForbiddenException('Not authorized');
       }
     } else if (user.role === UserRole.BUSINESS_ADMIN) {
-      if (file.submission.bounty.organisationId !== user.organisationId) {
+      if (file.submission.bounty.brandId !== user.brandId) {
         throw new ForbiddenException('Not authorized');
       }
     }

@@ -72,7 +72,7 @@ export class DisputesController {
 
   @Get('disputes/organisation')
   @Roles(UserRole.BUSINESS_ADMIN)
-  async listForOrganisation(
+  async listForBrand(
     @CurrentUser() user: AuthenticatedUser,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -81,7 +81,7 @@ export class DisputesController {
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
-    return this.disputesService.listForOrganisation(user, {
+    return this.disputesService.listForBrand(user, {
       page,
       limit,
       status,
@@ -212,7 +212,7 @@ export class DisputesController {
     @Query('category') category?: DisputeCategory,
     @Query('assignedToUserId') assignedToUserId?: string,
     @Query('openedByUserId') openedByUserId?: string,
-    @Query('organisationId') organisationId?: string,
+    @Query('brandId') brandId?: string,
     @Query('search') search?: string,
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
@@ -224,7 +224,7 @@ export class DisputesController {
       category,
       assignedToUserId,
       openedByUserId,
-      organisationId,
+      brandId,
       search,
       sortBy,
       sortOrder,

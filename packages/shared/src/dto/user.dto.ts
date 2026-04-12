@@ -5,7 +5,7 @@ import { UserRole, UserStatus, SocialChannel } from '../enums';
 // ─────────────────────────────────────
 
 // GET /users/me
-export interface UserOrganisationInfo {
+export interface UserBrandInfo {
   id: string;
   name: string;
   role: string;
@@ -33,7 +33,7 @@ export interface UserProfileResponse {
   profilePictureUrl: string | null;
   interests: string[];
   socialLinks: UserSocialLinkInfo[];
-  organisation: UserOrganisationInfo | null;
+  brand: UserBrandInfo | null;
   createdAt: string;
   updatedAt: string;
 }

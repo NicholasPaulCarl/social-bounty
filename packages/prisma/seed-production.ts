@@ -71,7 +71,7 @@ async function main() {
 
     // Create organisation + membership for Business Admin
     if (account.role === 'BUSINESS_ADMIN' && account.orgName) {
-      const org = await prisma.organisation.create({
+      const org = await prisma.brand.create({
         data: {
           name: account.orgName,
           contactEmail: account.email,

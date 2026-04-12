@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { OrganisationsController } from './organisations.controller';
-import { OrganisationsService } from './organisations.service';
+import { BrandsController } from './organisations.controller';
+import { BrandsService } from './organisations.service';
+import { ApifyModule } from '../apify/apify.module';
 
 @Module({
-  controllers: [OrganisationsController],
-  providers: [OrganisationsService],
-  exports: [OrganisationsService],
+  imports: [ApifyModule],
+  controllers: [BrandsController],
+  providers: [BrandsService],
+  exports: [BrandsService],
 })
-export class OrganisationsModule {}
+export class BrandsModule {}

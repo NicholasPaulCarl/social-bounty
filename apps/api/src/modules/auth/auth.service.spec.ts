@@ -141,7 +141,7 @@ describe('AuthService', () => {
       status: UserStatus.ACTIVE,
       role: UserRole.PARTICIPANT,
       emailVerified: true,
-      organisationMemberships: [],
+      brandMemberships: [],
     };
 
     it('should return tokens and user for valid OTP', async () => {
@@ -359,7 +359,7 @@ describe('AuthService', () => {
         status: UserStatus.ACTIVE,
         firstName: 'Test',
         lastName: 'User',
-        organisationMemberships: [],
+        brandMemberships: [],
       });
 
       const result = await service.refresh('valid-refresh-token');
@@ -402,7 +402,7 @@ describe('AuthService', () => {
         email: 'test@test.com',
         role: UserRole.PARTICIPANT,
         status: UserStatus.SUSPENDED,
-        organisationMemberships: [],
+        brandMemberships: [],
       });
 
       await expect(service.refresh('valid-token')).rejects.toThrow(

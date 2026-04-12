@@ -40,8 +40,8 @@ social-bounty/
 |---|---|
 | UserRole | PARTICIPANT, BUSINESS_ADMIN, SUPER_ADMIN |
 | UserStatus | ACTIVE, SUSPENDED |
-| OrgStatus | ACTIVE, SUSPENDED |
-| OrgMemberRole | OWNER, MEMBER |
+| BrandStatus | ACTIVE, SUSPENDED |
+| BrandMemberRole | OWNER, MEMBER |
 | BountyStatus | DRAFT, LIVE, PAUSED, CLOSED |
 | RewardType | CASH, PRODUCT, SERVICE, OTHER |
 | SubmissionStatus | SUBMITTED, IN_REVIEW, NEEDS_MORE_INFO, APPROVED, REJECTED |
@@ -53,24 +53,24 @@ social-bounty/
 - `id` (UUID PK), `email` (unique), `passwordHash`, `firstName`, `lastName`
 - `role` (UserRole, default PARTICIPANT), `status` (UserStatus, default ACTIVE)
 - `emailVerified` (bool, default false), `createdAt`, `updatedAt`
-- Relations: submissions, reviewedSubmissions, organisationMemberships, createdBounties, auditLogs, fileUploads
+- Relations: submissions, reviewedSubmissions, brandMemberships, createdBounties, auditLogs, fileUploads
 - Indexes: email, role, status
 
-**Organisation** — `@@map("organisations")`
-- `id` (UUID PK), `name`, `logo?`, `contactEmail`, `status` (OrgStatus), timestamps
+**Brand** — `@@map("brands")`
+- `id` (UUID PK), `name`, `logo?`, `contactEmail`, `status` (BrandStatus), timestamps
 - Relations: members, bounties
 
-**OrganisationMember** — `@@map("organisation_members")`
-- `id` (UUID PK), `userId`, `organisationId`, `role` (OrgMemberRole), `joinedAt`
-- Unique constraint: `[userId, organisationId]`
+**BrandMember** — `@@map("organisation_members")`
+- `id` (UUID PK), `userId`, `brandId`, `role` (BrandMemberRole), `joinedAt`
+- Unique constraint: `[userId, brandId]`
 - User delete: Restrict. Org delete: Cascade.
 
 **Bounty** — `@@map("bounties")`
-- `id`, `organisationId`, `createdById`, `title`, `shortDescription`
+- `id`, `brandId`, `createdById`, `title`, `shortDescription`
 - `fullInstructions` (Text), `category`, `rewardType`, `rewardValue` (Decimal(12,2)?), `rewardDescription?`
 - `maxSubmissions?`, `startDate?`, `endDate?`, `eligibilityRules` (Text), `proofRequirements` (Text)
 - `status` (BountyStatus, default DRAFT), `deletedAt?`, timestamps
-- Indexes: organisationId, status, category, createdById, [startDate, endDate]
+- Indexes: brandId, status, category, createdById, [startDate, endDate]
 
 **Submission** — `@@map("submissions")`
 - `id`, `bountyId`, `userId`, `proofText` (Text), `proofLinks` (Json?)
@@ -150,16 +150,16 @@ social-bounty/
 | PATCH | `/submissions/:id/payout` | BA, SA | Update payout status |
 | POST | `/submissions/:id/files` | Participant | Upload proof images |
 
-### Organisations (`/organisations`)
+### Brands (`/brands`)
 
 | Method | Path | Access | Description |
 |---|---|---|---|
-| POST | `/organisations` | Participant | Create org (becomes owner, role -> BA) |
-| GET | `/organisations/:id` | BA, SA | Get org details |
-| PATCH | `/organisations/:id` | BA, SA | Update org |
-| GET | `/organisations/:id/members` | BA, SA | List members |
-| POST | `/organisations/:id/members` | BA, SA | Invite member |
-| DELETE | `/organisations/:id/members/:userId` | BA, SA | Remove member |
+| POST | `/brands` | Participant | Create org (becomes owner, role -> BA) |
+| GET | `/brands/:id` | BA, SA | Get org details |
+| PATCH | `/brands/:id` | BA, SA | Update org |
+| GET | `/brands/:id/members` | BA, SA | List members |
+| POST | `/brands/:id/members` | BA, SA | Invite member |
+| DELETE | `/brands/:id/members/:userId` | BA, SA | Remove member |
 
 ### Business (`/business`)
 
@@ -176,9 +176,9 @@ social-bounty/
 | GET | `/admin/users/:id` | SA | User details |
 | PATCH | `/admin/users/:id/status` | SA | Suspend/activate user |
 | POST | `/admin/users/:id/force-password-reset` | SA | Force password reset |
-| GET | `/admin/organisations` | SA | List all orgs |
-| POST | `/admin/organisations` | SA | Create org |
-| PATCH | `/admin/organisations/:id/status` | SA | Suspend/activate org |
+| GET | `/admin/brands` | SA | List all orgs |
+| POST | `/admin/brands` | SA | Create org |
+| PATCH | `/admin/brands/:id/status` | SA | Suspend/activate org |
 | PATCH | `/admin/bounties/:id/override` | SA | Override bounty status |
 | PATCH | `/admin/submissions/:id/override` | SA | Override submission status |
 | GET | `/admin/audit-logs` | SA | List audit logs |
@@ -206,10 +206,10 @@ social-bounty/
 
 ### Exports (from `src/index.ts`)
 
-- **Enums**: UserRole, UserStatus, OrgStatus, OrgMemberRole, BountyStatus, RewardType, SubmissionStatus, PayoutStatus
+- **Enums**: UserRole, UserStatus, BrandStatus, BrandMemberRole, BountyStatus, RewardType, SubmissionStatus, PayoutStatus
 - **Constants**: PAGINATION_DEFAULTS, PASSWORD_RULES, FILE_UPLOAD_LIMITS, FIELD_LIMITS, RATE_LIMITS, JWT_CONFIG, AUDIT_ACTIONS, ENTITY_TYPES
 - **Common types**: SortOrder, PaginationParams, PaginationMeta, PaginatedResponse, ApiErrorDetail, ApiErrorResponse, MessageResponse
-- **DTOs**: ~143 request/response types across auth, user, bounty, submission, organisation, admin, business, health
+- **DTOs**: ~143 request/response types across auth, user, bounty, submission, brand, admin, business, health
 
 ### Key Constants
 
@@ -231,7 +231,7 @@ ENTITY_TYPES = { USER, ORGANISATION, BOUNTY, SUBMISSION, SETTINGS }
 4. **Global input sanitization** — `SanitizePipe` strips HTML from all request bodies before validation.
 5. **Consistent error format** — `HttpExceptionFilter` normalises all errors to `{ statusCode, error, message, details? }`.
 6. **Soft delete for bounties** — `deletedAt` field; hard delete only for DRAFT status.
-7. **Single org per Business Admin** (MVP constraint) — organisationId baked into JWT payload.
+7. **Single org per Business Admin** (MVP constraint) — brandId baked into JWT payload.
 
 ## Security Model
 

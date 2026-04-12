@@ -206,8 +206,8 @@ const prisma = {
   user: { findUnique: jest.fn(), findMany: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
   bounty: { findUnique: jest.fn(), findMany: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
   submission: { findUnique: jest.fn(), findMany: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
-  organisation: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
-  organisationMember: { findUnique: jest.fn(), create: jest.fn(), delete: jest.fn() },
+  brand: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
+  brandMember: { findUnique: jest.fn(), create: jest.fn(), delete: jest.fn() },
   auditLog: { findMany: jest.fn(), findUnique: jest.fn(), count: jest.fn() },
 };
 ```
@@ -262,7 +262,7 @@ it('should throw ConflictException for duplicate email', async () => {
 });
 
 it('should throw ForbiddenException when user is not owner', async () => {
-  prisma.bounty.findUnique.mockResolvedValue({ organisationId: 'other-org' });
+  prisma.bounty.findUnique.mockResolvedValue({ brandId: 'other-org' });
 
   await expect(
     service.update(user, bountyId, dto),

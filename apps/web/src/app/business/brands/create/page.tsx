@@ -6,18 +6,19 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { useAuth } from '@/hooks/useAuth';
-import { useCreateOrganisation } from '@/hooks/useOrganisation';
-import { organisationApi } from '@/lib/api/organisations';
+import { useCreateBrand } from '@/hooks/useBrand';
+import { brandsApi } from '@/lib/api/brands';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { HUNTER_INTERESTS, BRAND_PROFILE_LIMITS } from '@social-bounty/shared';
 import type { BrandSocialLinks } from '@social-bounty/shared';
+import { ImageCropDialog } from '@/components/common/ImageCropDialog';
 
 export default function CreateBrandPage() {
   const router = useRouter();
-  const { switchOrganisation } = useAuth();
+  const { switchBrand } = useAuth();
   const toast = useToast();
-  const createOrg = useCreateOrganisation();
+  const createOrg = useCreateBrand();
 
   const [form, setForm] = useState({
     name: '',
@@ -29,6 +30,9 @@ export default function CreateBrandPage() {
     targetInterests: [] as string[],
   });
   const [logo, setLogo] = useState<File | undefined>();
+  const [logoPending, setLogoPending] = useState<File | null>(null);
+  const [coverPhoto, setCoverPhoto] = useState<File | undefined>();
+  const [coverPending, setCoverPending] = useState<File | null>(null);
   const [handleStatus, setHandleStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -41,7 +45,7 @@ export default function CreateBrandPage() {
     setHandleStatus('checking');
     const timer = setTimeout(async () => {
       try {
-        const result = await organisationApi.checkHandle(form.handle);
+        const result = await brandsApi.checkHandle(form.handle);
         setHandleStatus(result.available ? 'available' : 'taken');
       } catch {
         setHandleStatus('idle');
@@ -73,7 +77,8 @@ export default function CreateBrandPage() {
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setLogo(file);
+    if (file) setLogoPending(file);
+    e.target.value = '';
   };
 
   const validate = (): boolean => {
@@ -114,8 +119,16 @@ export default function CreateBrandPage() {
       },
       {
         onSuccess: async (org) => {
+          // Upload cover photo if provided
+          if (coverPhoto) {
+            try {
+              await brandsApi.uploadCoverPhoto(org.id, coverPhoto);
+            } catch {
+              toast.showError('Cover photo upload failed. You can add it later.');
+            }
+          }
           try {
-            await switchOrganisation(org.id);
+            await switchBrand(org.id);
           } catch {
             // Non-blocking — user can switch manually
           }
@@ -129,14 +142,9 @@ export default function CreateBrandPage() {
     );
   };
 
-  const breadcrumbs = [
-    { label: 'Brands', url: '/business/brands' },
-    { label: 'Create' },
-  ];
-
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Create Brand" breadcrumbs={breadcrumbs} />
+      <PageHeader title="Create Brand" />
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
         {/* Name */}
@@ -217,7 +225,45 @@ export default function CreateBrandPage() {
               onChange={handleLogoChange}
               className="text-sm text-text-secondary"
             />
+            {logo && <small className="text-accent-emerald text-xs mt-1 block">Cropped logo ready</small>}
             <small className="text-text-muted text-xs mt-1 block">Recommended: 200 x 200px, square. Max 2MB.</small>
+
+            <ImageCropDialog
+              visible={!!logoPending}
+              onHide={() => setLogoPending(null)}
+              file={logoPending}
+              aspect={1}
+              title="Crop Logo"
+              onCropComplete={(cropped) => setLogo(cropped)}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="coverPhoto" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
+              Cover Photo
+            </label>
+            <input
+              id="coverPhoto"
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) setCoverPending(file);
+                e.target.value = '';
+              }}
+              className="text-sm text-text-secondary"
+            />
+            {coverPhoto && <small className="text-accent-emerald text-xs mt-1 block">Cropped cover ready</small>}
+            <small className="text-text-muted text-xs mt-1 block">Recommended: 1200 x 400px (3:1 ratio). Max 5MB.</small>
+
+            <ImageCropDialog
+              visible={!!coverPending}
+              onHide={() => setCoverPending(null)}
+              file={coverPending}
+              aspect={3}
+              title="Crop Cover Photo"
+              onCropComplete={(cropped) => setCoverPhoto(cropped)}
+            />
           </div>
         </div>
 

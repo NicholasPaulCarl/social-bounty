@@ -26,7 +26,7 @@ This feature introduces an **Agency layer** to Social Bounty, enabling PR compan
 | Aspect | Detail |
 |--------|--------|
 | **Who** | PR company employees, talent managers, agency owners |
-| **How they get the role** | Create an Agency (similar to how creating an Organisation promotes to BUSINESS_ADMIN) |
+| **How they get the role** | Create an Agency (similar to how creating an Brand promotes to BUSINESS_ADMIN) |
 | **What they can do** | Manage influencer roster, create teams, assign bounties, track posts, generate reports |
 | **What they cannot do** | Create bounties (that's the business), approve submissions (that's the business), access super admin |
 
@@ -162,7 +162,7 @@ model TeamMember {
 model Campaign {
   id             String         @id @default(uuid())
   agencyId       String
-  clientOrgId    String?        // the business Organisation this campaign serves
+  clientOrgId    String?        // the business Brand this campaign serves
   name           String
   description    String?        @db.Text
   brief          String?        @db.Text  // client's campaign brief
@@ -175,7 +175,7 @@ model Campaign {
   updatedAt      DateTime       @updatedAt
 
   agency      Agency               @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  clientOrg   Organisation?        @relation(fields: [clientOrgId], references: [id], onDelete: SetNull)
+  clientOrg   Brand?        @relation(fields: [clientOrgId], references: [id], onDelete: SetNull)
   bounties    CampaignBounty[]
   assignments CampaignAssignment[]
   reports     AgencyReport[]
@@ -346,7 +346,7 @@ Add these relations to existing models:
 agencyManagements  AgencyManager[]
 agencyMemberships  AgencyInfluencer[]
 
-// Add to Organisation model:
+// Add to Brand model:
 campaigns Campaign[]
 
 // Add to Bounty model:
@@ -441,8 +441,8 @@ A Campaign is a coordinated effort that links an agency's influencers to a clien
 
 | Function | Description |
 |----------|-------------|
-| **Create Campaign** | Name, client (Organisation), brief, date range, budget. |
-| **Link Bounties** | Connect existing bounties from the client's organisation to the campaign. |
+| **Create Campaign** | Name, client (Brand), brief, date range, budget. |
+| **Link Bounties** | Connect existing bounties from the client's brand to the campaign. |
 | **Assign Influencers** | Assign specific influencers to specific bounties within the campaign. Set individual deadlines and notes. |
 | **Campaign Brief** | Rich text brief from the client — shared with assigned influencers. |
 | **Campaign Timeline** | Visual timeline showing assignment dates, submission deadlines, post dates, reporting dates. |

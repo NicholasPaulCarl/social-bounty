@@ -13,13 +13,15 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   UserRole,
   UserStatus,
-  OrgMemberRole,
-  OrgStatus,
+  BrandMemberRole,
+  BrandStatus,
   OTP_RULES,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { MailService } from '../mail/mail.service';
 import { TokenStoreService } from './token-store.service';
+import { ApifyService } from '../apify/apify.service';
 
 @Injectable()
 export class AuthService {
@@ -29,8 +31,10 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private config: ConfigService,
+    private redis: RedisService,
     private mailService: MailService,
     private tokenStore: TokenStoreService,
+    private apify: ApifyService,
   ) {}
 
   async requestOtp(email: string) {
@@ -104,8 +108,8 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
       include: {
-        organisationMemberships: {
-          select: { organisationId: true },
+        brandMemberships: {
+          select: { brandId: true },
           take: 1,
         },
       },
@@ -127,19 +131,38 @@ export class AuthService {
       });
     }
 
-    const organisationId =
-      user.organisationMemberships.length > 0
-        ? user.organisationMemberships[0].organisationId
+    const brandId =
+      user.brandMemberships.length > 0
+        ? user.brandMemberships[0].brandId
         : null;
 
     const tokens = await this.generateTokens(
       user.id,
       user.email,
       user.role,
-      organisationId,
+      brandId,
       user.firstName,
       user.lastName,
     );
+
+    // Fire-and-forget: refresh brand social analytics in the background on a
+    // business-admin login. Respects its own 24h staleness guard and a Redis
+    // lock so rapid repeat logins don't hammer Apify. Never blocks the login
+    // response. Every branch of the promise chain is explicitly wrapped so
+    // no path can surface as an unhandled rejection and crash the process.
+    if (user.role === UserRole.BUSINESS_ADMIN && brandId) {
+      const capturedBrandId = brandId;
+      setImmediate(async () => {
+        try {
+          await this.apify.refreshIfStale(capturedBrandId);
+        } catch (err) {
+          this.logger.error(
+            `Background login-triggered refresh failed for ${capturedBrandId}`,
+            err,
+          );
+        }
+      });
+    }
 
     return {
       ...tokens,
@@ -151,7 +174,7 @@ export class AuthService {
         role: user.role,
         status: user.status,
         emailVerified: true,
-        organisationId,
+        brandId,
       },
     };
   }
@@ -228,30 +251,30 @@ export class AuthService {
           },
         });
 
-        const organisation = await tx.organisation.create({
+        const organisation = await tx.brand.create({
           data: {
             name: brandName!,
             contactEmail: brandContactEmail!,
-            status: OrgStatus.ACTIVE,
+            status: BrandStatus.ACTIVE,
           },
         });
 
-        await tx.organisationMember.create({
+        await tx.brandMember.create({
           data: {
             userId: user.id,
-            organisationId: organisation.id,
-            role: OrgMemberRole.OWNER,
+            brandId: organisation.id,
+            role: BrandMemberRole.OWNER,
           },
         });
 
-        return { user, organisationId: organisation.id };
+        return { user, brandId: organisation.id };
       });
 
       const tokens = await this.generateTokens(
         result.user.id,
         result.user.email,
         result.user.role,
-        result.organisationId,
+        result.brandId,
         result.user.firstName,
         result.user.lastName,
       );
@@ -266,7 +289,7 @@ export class AuthService {
           role: result.user.role,
           status: result.user.status,
           emailVerified: result.user.emailVerified,
-          organisationId: result.organisationId,
+          brandId: result.brandId,
         },
       };
     }
@@ -303,25 +326,25 @@ export class AuthService {
         role: user.role,
         status: user.status,
         emailVerified: user.emailVerified,
-        organisationId: null,
+        brandId: null,
       },
     };
   }
 
-  async switchOrganisation(userId: string, organisationId: string) {
-    // Verify the user is a member of the specified organisation
-    const membership = await this.prisma.organisationMember.findUnique({
+  async switchBrand(userId: string, brandId: string) {
+    // Verify the user is a member of the specified brand
+    const membership = await this.prisma.brandMember.findUnique({
       where: {
-        userId_organisationId: {
+        userId_brandId: {
           userId,
-          organisationId,
+          brandId,
         },
       },
     });
 
     if (!membership) {
       throw new ForbiddenException(
-        'You are not a member of this organisation',
+        'You are not a member of this brand',
       );
     }
 
@@ -338,7 +361,7 @@ export class AuthService {
       user.id,
       user.email,
       user.role,
-      organisationId,
+      brandId,
       user.firstName,
       user.lastName,
     );
@@ -353,7 +376,7 @@ export class AuthService {
         role: user.role,
         status: user.status,
         emailVerified: user.emailVerified,
-        organisationId,
+        brandId,
       },
     };
   }
@@ -402,14 +425,15 @@ export class AuthService {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      // Preserve the selected organisation from the refresh token
-      const organisationId = payload.organisationId ?? null;
+      // Preserve the selected brand from the refresh token. Fall back to
+      // the legacy organisationId claim for tokens issued before the rename.
+      const brandId = payload.brandId ?? payload.organisationId ?? null;
 
       return this.generateTokens(
         user.id,
         user.email,
         user.role,
-        organisationId,
+        brandId,
         user.firstName,
         user.lastName,
       );
@@ -419,11 +443,131 @@ export class AuthService {
     }
   }
 
+  // ── Email change (OTP-verified) ────────────
+
+  async requestEmailChange(userId: string, newEmail: string) {
+    const normalizedEmail = newEmail.toLowerCase().trim();
+
+    // Reject if user is changing to their own current email
+    const currentUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+    if (currentUser?.email === normalizedEmail) {
+      throw new BadRequestException('New email must be different from your current email.');
+    }
+
+    // Check new email isn't already taken by another account
+    const existing = await this.prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+    if (existing) {
+      throw new ConflictException('An account with this email already exists.');
+    }
+
+    // Cooldown per user (not per email) to prevent spam
+    const cooldownKey = `email_change_cooldown:${userId}`;
+    const hasCooldown = await this.redis.exists(cooldownKey);
+    if (hasCooldown) {
+      return { message: 'A verification code has been sent to your new email.' };
+    }
+
+    // Generate and store OTP keyed to the user
+    const otp = String(randomInt(100000, 999999));
+    const redisKey = `email_change:${userId}`;
+    await this.redis.set(
+      redisKey,
+      JSON.stringify({ newEmail: normalizedEmail, otp, attempts: 0 }),
+      300, // 5 minutes
+    );
+    await this.redis.set(cooldownKey, '1', 60); // 60s cooldown
+
+    // Send OTP to the NEW email
+    this.mailService.sendOtpEmail(normalizedEmail, otp).catch((err) => {
+      this.logger.error(`Failed to send email-change OTP to ${normalizedEmail}:`, err);
+    });
+
+    return { message: 'A verification code has been sent to your new email.' };
+  }
+
+  async verifyEmailChange(userId: string, otp: string) {
+    const redisKey = `email_change:${userId}`;
+    const raw = await this.redis.get(redisKey);
+    if (!raw) {
+      throw new BadRequestException('No pending email change. Please request a new code.');
+    }
+
+    const data = JSON.parse(raw) as { newEmail: string; otp: string; attempts: number };
+
+    // Max attempts
+    if (data.attempts >= 5) {
+      await this.redis.del(redisKey);
+      throw new ForbiddenException('Too many failed attempts. Please request a new code.');
+    }
+
+    // Timing-safe comparison
+    const otpBuffer = Buffer.from(otp.padEnd(6));
+    const storedBuffer = Buffer.from(data.otp.padEnd(6));
+    if (!timingSafeEqual(otpBuffer, storedBuffer)) {
+      data.attempts += 1;
+      const ttl = await this.redis.ttl(redisKey);
+      await this.redis.set(redisKey, JSON.stringify(data), ttl > 0 ? ttl : 300);
+      const remaining = 5 - data.attempts;
+      if (remaining > 0) {
+        throw new BadRequestException(
+          `Invalid code. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`,
+        );
+      }
+      await this.redis.del(redisKey);
+      throw new ForbiddenException('Too many failed attempts. Please request a new code.');
+    }
+
+    // OTP valid — check email not taken (race guard)
+    const conflict = await this.prisma.user.findUnique({
+      where: { email: data.newEmail },
+    });
+    if (conflict) {
+      await this.redis.del(redisKey);
+      throw new ConflictException('An account with this email was created while you were verifying.');
+    }
+
+    // Update email and get the full user for token generation
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { email: data.newEmail, emailVerified: true },
+      include: {
+        brandMemberships: {
+          select: { brandId: true },
+          take: 1,
+        },
+      },
+    });
+
+    await this.redis.del(redisKey);
+
+    // Return fresh tokens so the client JWT reflects the new email
+    const brandId = user.brandMemberships[0]?.brandId ?? null;
+    const tokens = await this.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+      brandId,
+      user.firstName,
+      user.lastName,
+    );
+
+    return {
+      message: 'Email updated successfully.',
+      email: data.newEmail,
+      ...tokens,
+    };
+  }
+
   private async generateTokens(
     userId: string,
     email: string,
     role: string,
-    organisationId: string | null,
+    brandId: string | null,
     firstName?: string,
     lastName?: string,
   ) {
@@ -434,7 +578,7 @@ export class AuthService {
         sub: userId,
         email,
         role,
-        organisationId,
+        brandId,
         firstName: firstName || '',
         lastName: lastName || '',
         type: 'access',
@@ -448,7 +592,7 @@ export class AuthService {
     const refreshToken = this.jwtService.sign(
       {
         sub: userId,
-        organisationId,
+        brandId,
         type: 'refresh',
         jti,
       },

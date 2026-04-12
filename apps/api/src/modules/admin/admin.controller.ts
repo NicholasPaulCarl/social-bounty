@@ -13,7 +13,7 @@ import { Roles, CurrentUser } from '../../common/decorators';
 import {
   UserRole,
   UserStatus,
-  OrgStatus,
+  BrandStatus,
   SubmissionStatus,
   PayoutStatus,
 } from '@social-bounty/shared';
@@ -21,7 +21,7 @@ import { AdminService } from './admin.service';
 import {
   AdminUpdateUserStatusDto,
   AdminCreateOrgDto,
-  AdminUpdateOrgStatusDto,
+  AdminUpdateBrandStatusDto,
   AdminOverrideBountyDto,
   AdminOverrideSubmissionDto,
   AdminUpdateSettingsDto,
@@ -69,37 +69,42 @@ export class AdminController {
 
   // ── Organisations ──────────────────
 
-  @Get('organisations')
-  async listOrganisations(
+  @Get('brands')
+  async listBrands(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
-    @Query('status') status?: OrgStatus,
+    @Query('status') status?: BrandStatus,
     @Query('search') search?: string,
   ) {
-    return this.adminService.listOrganisations({
+    return this.adminService.listBrands({
       page, limit, sortBy, sortOrder, status, search,
     });
   }
 
-  @Post('organisations')
-  async createOrganisation(
+  @Get('brands/:id')
+  async getBrandDetail(@Param('id') id: string) {
+    return this.adminService.getBrandDetail(id);
+  }
+
+  @Post('brands')
+  async createBrand(
     @CurrentUser() actor: AuthenticatedUser,
     @Body() dto: AdminCreateOrgDto,
     @Req() req: Request,
   ) {
-    return this.adminService.createOrganisation(actor, dto, req.ip);
+    return this.adminService.createBrand(actor, dto, req.ip);
   }
 
-  @Patch('organisations/:id/status')
-  async updateOrgStatus(
+  @Patch('brands/:id/status')
+  async updateBrandStatus(
     @Param('id') id: string,
     @CurrentUser() actor: AuthenticatedUser,
-    @Body() dto: AdminUpdateOrgStatusDto,
+    @Body() dto: AdminUpdateBrandStatusDto,
     @Req() req: Request,
   ) {
-    return this.adminService.updateOrgStatus(
+    return this.adminService.updateBrandStatus(
       id, actor, dto.status, dto.reason, req.ip,
     );
   }
@@ -115,11 +120,11 @@ export class AdminController {
     @Query('status') status?: SubmissionStatus,
     @Query('payoutStatus') payoutStatus?: PayoutStatus,
     @Query('userId') userId?: string,
-    @Query('organisationId') organisationId?: string,
+    @Query('brandId') brandId?: string,
     @Query('search') search?: string,
   ) {
     return this.adminService.listSubmissions({
-      page, limit, sortBy, sortOrder, status, payoutStatus, userId, organisationId, search,
+      page, limit, sortBy, sortOrder, status, payoutStatus, userId, brandId, search,
     });
   }
 

@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import {
   UserStatus,
-  OrgStatus,
+  BrandStatus,
   BountyStatus,
   SubmissionStatus,
   FIELD_LIMITS,
@@ -30,7 +30,7 @@ export class AdminUpdateUserStatusDto {
 export class AdminCreateOrgDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(FIELD_LIMITS.ORG_NAME_MAX)
+  @MaxLength(FIELD_LIMITS.BRAND_NAME_MAX)
   name!: string;
 
   @IsEmail()
@@ -46,9 +46,9 @@ export class AdminCreateOrgDto {
   ownerUserId!: string;
 }
 
-export class AdminUpdateOrgStatusDto {
-  @IsEnum(OrgStatus)
-  status!: OrgStatus;
+export class AdminUpdateBrandStatusDto {
+  @IsEnum(BrandStatus)
+  status!: BrandStatus;
 
   @IsString()
   @IsNotEmpty()

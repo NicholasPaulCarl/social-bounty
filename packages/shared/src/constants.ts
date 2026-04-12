@@ -47,7 +47,7 @@ export const BRAND_ASSET_LIMITS = {
 export const FIELD_LIMITS = {
   FIRST_NAME_MAX: 100,
   LAST_NAME_MAX: 100,
-  ORG_NAME_MAX: 200,
+  BRAND_NAME_MAX: 200,
   BOUNTY_TITLE_MAX: 200,
   SHORT_DESCRIPTION_MAX: 500,
   FULL_INSTRUCTIONS_MAX: 10000,
@@ -76,11 +76,11 @@ export const JWT_CONFIG = {
 
 export const AUDIT_ACTIONS = {
   USER_STATUS_CHANGE: 'user.status_change',
-  ORGANISATION_CREATE: 'organisation.create',
-  ORGANISATION_UPDATE: 'organisation.update',
-  ORGANISATION_STATUS_CHANGE: 'organisation.status_change',
-  ORGANISATION_MEMBER_ADD: 'organisation.member_add',
-  ORGANISATION_MEMBER_REMOVE: 'organisation.member_remove',
+  BRAND_CREATE: 'brand.create',
+  BRAND_UPDATE: 'brand.update',
+  BRAND_STATUS_CHANGE: 'brand.status_change',
+  BRAND_MEMBER_ADD: 'brand.member_add',
+  BRAND_MEMBER_REMOVE: 'brand.member_remove',
   BOUNTY_CREATE: 'bounty.create',
   BOUNTY_UPDATE: 'bounty.update',
   BOUNTY_STATUS_CHANGE: 'bounty.status_change',
@@ -115,7 +115,7 @@ export const AUDIT_ACTIONS = {
 
 export const ENTITY_TYPES = {
   USER: 'User',
-  ORGANISATION: 'Organisation',
+  BRAND: 'Brand',
   BOUNTY: 'Bounty',
   SUBMISSION: 'Submission',
   SETTINGS: 'Settings',

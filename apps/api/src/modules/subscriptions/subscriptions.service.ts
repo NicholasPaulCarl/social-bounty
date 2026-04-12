@@ -48,10 +48,10 @@ export class SubscriptionsService {
     return SubscriptionTier.FREE;
   }
 
-  async getActiveOrgTier(organisationId: string): Promise<SubscriptionTier> {
+  async getActiveOrgTier(brandId: string): Promise<SubscriptionTier> {
     const sub = await this.prisma.subscription.findFirst({
       where: {
-        organisationId,
+        brandId,
         entityType: SubscriptionEntityType.BRAND,
         status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.PAST_DUE, SubscriptionStatus.CANCELLED] },
       },
@@ -78,7 +78,7 @@ export class SubscriptionsService {
 
   // ─── Get Subscription (user-facing) ────────────────────
 
-  async getSubscription(userId: string, role: UserRole, organisationId?: string) {
+  async getSubscription(userId: string, role: UserRole, brandId?: string) {
     const isHunter = role === UserRole.PARTICIPANT;
     const entityType = isHunter ? SubscriptionEntityType.HUNTER : SubscriptionEntityType.BRAND;
 
@@ -87,9 +87,9 @@ export class SubscriptionsService {
       sub = await this.prisma.subscription.findFirst({
         where: { userId, entityType },
       });
-    } else if (organisationId) {
+    } else if (brandId) {
       sub = await this.prisma.subscription.findFirst({
-        where: { organisationId, entityType },
+        where: { brandId, entityType },
       });
     }
 
@@ -113,7 +113,7 @@ export class SubscriptionsService {
 
   // ─── Subscribe ─────────────────────────────────────────
 
-  async subscribe(userId: string, role: UserRole, organisationId?: string) {
+  async subscribe(userId: string, role: UserRole, brandId?: string) {
     const isHunter = role === UserRole.PARTICIPANT;
     const entityType = isHunter ? SubscriptionEntityType.HUNTER : SubscriptionEntityType.BRAND;
     const price = PRICING[entityType];
@@ -121,7 +121,7 @@ export class SubscriptionsService {
     // Check for existing active subscription
     const existing = isHunter
       ? await this.prisma.subscription.findFirst({ where: { userId, entityType } })
-      : await this.prisma.subscription.findFirst({ where: { organisationId, entityType } });
+      : await this.prisma.subscription.findFirst({ where: { brandId, entityType } });
 
     if (existing && [SubscriptionStatus.ACTIVE, SubscriptionStatus.PAST_DUE].includes(existing.status as SubscriptionStatus)) {
       throw new BadRequestException('Already have an active subscription');
@@ -129,7 +129,7 @@ export class SubscriptionsService {
 
     // If cancelled but still in period, just reactivate
     if (existing?.status === SubscriptionStatus.CANCELLED && existing.currentPeriodEnd && existing.currentPeriodEnd > new Date()) {
-      return this.reactivate(userId, role, organisationId);
+      return this.reactivate(userId, role, brandId);
     }
 
     const now = new Date();
@@ -154,7 +154,7 @@ export class SubscriptionsService {
           })
         : await tx.subscription.create({
             data: {
-              ...(isHunter ? { userId } : { organisationId }),
+              ...(isHunter ? { userId } : { brandId }),
               entityType,
               tier: SubscriptionTier.PRO,
               status: SubscriptionStatus.ACTIVE,
@@ -181,13 +181,13 @@ export class SubscriptionsService {
 
     this.logger.log(`Subscription created: ${sub.id} (${entityType} PRO)`);
 
-    return this.getSubscription(userId, role, organisationId);
+    return this.getSubscription(userId, role, brandId);
   }
 
   // ─── Cancel ────────────────────────────────────────────
 
-  async cancel(userId: string, role: UserRole, organisationId?: string) {
-    const sub = await this.findActiveSubscription(userId, role, organisationId);
+  async cancel(userId: string, role: UserRole, brandId?: string) {
+    const sub = await this.findActiveSubscription(userId, role, brandId);
 
     if (sub.cancelAtPeriodEnd) {
       throw new BadRequestException('Subscription is already cancelled');
@@ -202,18 +202,18 @@ export class SubscriptionsService {
       },
     });
 
-    return this.getSubscription(userId, role, organisationId);
+    return this.getSubscription(userId, role, brandId);
   }
 
   // ─── Reactivate ────────────────────────────────────────
 
-  async reactivate(userId: string, role: UserRole, organisationId?: string) {
+  async reactivate(userId: string, role: UserRole, brandId?: string) {
     const isHunter = role === UserRole.PARTICIPANT;
     const entityType = isHunter ? SubscriptionEntityType.HUNTER : SubscriptionEntityType.BRAND;
 
     const sub = isHunter
       ? await this.prisma.subscription.findFirst({ where: { userId, entityType } })
-      : await this.prisma.subscription.findFirst({ where: { organisationId, entityType } });
+      : await this.prisma.subscription.findFirst({ where: { brandId, entityType } });
 
     if (!sub) throw new NotFoundException('No subscription found');
 
@@ -234,13 +234,13 @@ export class SubscriptionsService {
       },
     });
 
-    return this.getSubscription(userId, role, organisationId);
+    return this.getSubscription(userId, role, brandId);
   }
 
   // ─── Payment History ───────────────────────────────────
 
-  async getPaymentHistory(userId: string, role: UserRole, organisationId?: string, params?: { page?: number; limit?: number }) {
-    const sub = await this.findSubscriptionRecord(userId, role, organisationId);
+  async getPaymentHistory(userId: string, role: UserRole, brandId?: string, params?: { page?: number; limit?: number }) {
+    const sub = await this.findSubscriptionRecord(userId, role, brandId);
     if (!sub) {
       return { data: [], meta: { page: 1, limit: 10, total: 0, totalPages: 0 } };
     }
@@ -325,20 +325,20 @@ export class SubscriptionsService {
 
   // ─── Helpers ───────────────────────────────────────────
 
-  private async findActiveSubscription(userId: string, role: UserRole, organisationId?: string) {
-    const sub = await this.findSubscriptionRecord(userId, role, organisationId);
+  private async findActiveSubscription(userId: string, role: UserRole, brandId?: string) {
+    const sub = await this.findSubscriptionRecord(userId, role, brandId);
     if (!sub || ![SubscriptionStatus.ACTIVE, SubscriptionStatus.PAST_DUE, SubscriptionStatus.CANCELLED].includes(sub.status as SubscriptionStatus)) {
       throw new NotFoundException('No active subscription found');
     }
     return sub;
   }
 
-  private async findSubscriptionRecord(userId: string, role: UserRole, organisationId?: string) {
+  private async findSubscriptionRecord(userId: string, role: UserRole, brandId?: string) {
     const isHunter = role === UserRole.PARTICIPANT;
     const entityType = isHunter ? SubscriptionEntityType.HUNTER : SubscriptionEntityType.BRAND;
 
     return isHunter
       ? this.prisma.subscription.findFirst({ where: { userId, entityType } })
-      : this.prisma.subscription.findFirst({ where: { organisationId, entityType } });
+      : this.prisma.subscription.findFirst({ where: { brandId, entityType } });
   }
 }

@@ -80,9 +80,9 @@ You cannot start until UI designs are approved. All completed work must be hande
 /business/bounties/[id]/edit                     page.tsx — Edit bounty
 /business/bounties/[id]/submissions              page.tsx — Review list
 /business/bounties/[id]/submissions/[submissionId]  page.tsx — Review detail
-/business/organisation                           page.tsx — Org details
-/business/organisation/edit                      page.tsx — Edit org
-/business/organisation/members                   page.tsx — Manage members
+/business/brand                           page.tsx — Org details
+/business/brand/edit                      page.tsx — Edit org
+/business/brand/members                   page.tsx — Manage members
 /business/profile                                page.tsx
 ```
 
@@ -92,9 +92,9 @@ You cannot start until UI designs are approved. All completed work must be hande
 /admin/dashboard          page.tsx — Platform metrics
 /admin/users              page.tsx — User list
 /admin/users/[id]         page.tsx — User detail + actions
-/admin/organisations      page.tsx — Org list
-/admin/organisations/new  page.tsx — Create org
-/admin/organisations/[id] page.tsx — Org detail
+/admin/brands      page.tsx — Org list
+/admin/brands/new  page.tsx — Create org
+/admin/brands/[id] page.tsx — Org detail
 /admin/bounties           page.tsx — All bounties
 /admin/bounties/[id]      page.tsx — Bounty detail + override
 /admin/submissions/[id]   page.tsx — Submission detail + override
@@ -108,7 +108,7 @@ You cannot start until UI designs are approved. All completed work must be hande
 ### Shared Routes — `src/app/(shared)/`
 
 ```
-/create-organisation      page.tsx — Org creation (post-signup)
+/create-brand      page.tsx — Org creation (post-signup)
 ```
 
 **Critical**: Route groups `(business)/` + `(admin)/` conflict if they share child route names. That's why `business/` and `admin/` use real path segments.
@@ -202,7 +202,7 @@ apiClient.delete<T>(path)          // DELETE
 | Auth | `src/lib/api/auth.ts` | signup, login, logout, forgotPassword, resetPassword, verifyEmail, refresh |
 | Bounties | `src/lib/api/bounties.ts` | list, getById, create, update, updateStatus, delete |
 | Submissions | `src/lib/api/submissions.ts` | create, listMine, listForBounty, getById, update, review, updatePayout |
-| Organisations | `src/lib/api/organisations.ts` | create, getById, update, listMembers, inviteMember, removeMember |
+| Brands | `src/lib/api/brands.ts` | create, getById, update, listMembers, inviteMember, removeMember |
 | Users | `src/lib/api/users.ts` | getMe, updateMe, changePassword |
 | Business | `src/lib/api/business.ts` | getDashboard |
 | Admin | `src/lib/api/admin.ts` | ~24 functions covering users, orgs, overrides, audit logs, settings, health |
@@ -255,7 +255,7 @@ export function useCreateBounty() {
 **Hook files**:
 - `src/hooks/useBounties.ts` — useBounties, useBounty, useCreateBounty, useUpdateBounty, useUpdateBountyStatus, useDeleteBounty
 - `src/hooks/useSubmissions.ts` — useMySubmissions, useSubmissionsForBounty, useSubmission, useCreateSubmission, useUpdateSubmission, useReviewSubmission, useUpdatePayout
-- `src/hooks/useOrganisation.ts` — useOrganisation, useOrganisationMembers, useCreateOrganisation, useUpdateOrganisation, useInviteMember, useRemoveMember
+- `src/hooks/useBrand.ts` — useBrand, useBrandMembers, useCreateBrand, useUpdateBrand, useInviteMember, useRemoveMember
 - `src/hooks/useAdmin.ts` — ~24 hooks for admin functions
 - `src/hooks/useProfile.ts` — useProfile, useUpdateProfile, useChangePassword
 - `src/hooks/useDashboard.ts` — useBusinessDashboard
@@ -402,8 +402,8 @@ Admin-only modal for overriding bounty/submission status with reason.
 
 Role-based nav items for sidebar:
 - **Participant**: Browse Bounties, My Submissions, Profile
-- **Business**: Dashboard, Bounties, Organisation, Profile
-- **Admin**: Dashboard, Users, Organisations, Bounties, Audit Logs, System Health, Settings, Profile
+- **Business**: Dashboard, Bounties, Brand, Profile
+- **Admin**: Dashboard, Users, Brands, Bounties, Audit Logs, System Health, Settings, Profile
 
 Active state: `pathname === item.href || pathname.startsWith(item.href + '/')`
 

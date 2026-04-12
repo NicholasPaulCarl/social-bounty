@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { TokenStoreService } from './token-store.service';
+import { ApifyModule } from '../apify/apify.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { TokenStoreService } from './token-store.service';
         },
       }),
     }),
+    ApifyModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, TokenStoreService],

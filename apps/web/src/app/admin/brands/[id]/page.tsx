@@ -6,9 +6,9 @@ import { Button } from 'primereact/button';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { useAdminOrgDetail, useUpdateOrgStatus, useAdminBounties, useAdminSubmissions } from '@/hooks/useAdmin';
+import { useAdminBrandDetail, useUpdateBrandStatus, useAdminBounties, useAdminSubmissions } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
-import { OrgStatus } from '@social-bounty/shared';
+import { BrandStatus } from '@social-bounty/shared';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -18,14 +18,14 @@ import { formatDate, formatDateTime, formatCurrency } from '@/lib/utils/format';
 
 function OrgBountiesTab({ orgId }: { orgId: string }) {
   const router = useRouter();
-  const { data, isLoading } = useAdminBounties({ organisationId: orgId, limit: 20 });
+  const { data, isLoading } = useAdminBounties({ brandId: orgId, limit: 20 });
 
   if (isLoading) return <LoadingState type="table" />;
 
   const bounties = data?.data ?? [];
 
   if (bounties.length === 0) {
-    return <p className="text-sm text-text-muted p-4">No bounties found for this organisation.</p>;
+    return <p className="text-sm text-text-muted p-4">No bounties found for this brand.</p>;
   }
 
   return (
@@ -41,14 +41,14 @@ function OrgBountiesTab({ orgId }: { orgId: string }) {
 
 function OrgSubmissionsTab({ orgId }: { orgId: string }) {
   const router = useRouter();
-  const { data, isLoading } = useAdminSubmissions({ organisationId: orgId, limit: 20 });
+  const { data, isLoading } = useAdminSubmissions({ brandId: orgId, limit: 20 });
 
   if (isLoading) return <LoadingState type="table" />;
 
   const submissions = data?.data ?? [];
 
   if (submissions.length === 0) {
-    return <p className="text-sm text-text-muted p-4">No submissions found for this organisation.</p>;
+    return <p className="text-sm text-text-muted p-4">No submissions found for this brand.</p>;
   }
 
   return (
@@ -62,14 +62,14 @@ function OrgSubmissionsTab({ orgId }: { orgId: string }) {
   );
 }
 
-export default function AdminOrgDetailPage() {
+export default function AdminBrandDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const toast = useToast();
   const [activeTab, setActiveTab] = useState(0);
 
-  const { data: org, isLoading, error, refetch } = useAdminOrgDetail(id);
-  const updateStatus = useUpdateOrgStatus(id);
+  const { data: org, isLoading, error, refetch } = useAdminBrandDetail(id);
+  const updateStatus = useUpdateBrandStatus(id);
 
   const [showSuspend, setShowSuspend] = useState(false);
   const [showActivate, setShowActivate] = useState(false);
@@ -78,30 +78,30 @@ export default function AdminOrgDetailPage() {
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
   if (!org) return null;
 
-  const handleStatusChange = (status: OrgStatus, reason?: string) => {
+  const handleStatusChange = (status: BrandStatus, reason?: string) => {
     updateStatus.mutate(
       { status, reason: reason || '' },
       {
         onSuccess: () => {
-          toast.showSuccess(`Organisation ${status === OrgStatus.ACTIVE ? 'activated' : 'suspended'}`);
+          toast.showSuccess(`Brand ${status === BrandStatus.ACTIVE ? 'activated' : 'suspended'}`);
           setShowSuspend(false);
           setShowActivate(false);
           refetch();
         },
-        onError: () => toast.showError('Couldn\'t update organisation status. Try again.'),
+        onError: () => toast.showError("Couldn't update brand status. Try again."),
       },
     );
   };
 
   const breadcrumbs = [
-    { label: 'Organisations', url: '/admin/organisations' },
-    { label: org.name || 'Organisation' },
+    { label: 'Brands', url: '/admin/brands' },
+    { label: org.name || 'Brand' },
   ];
 
   return (
     <>
       <PageHeader
-        title={org.name || 'Organisation'}
+        title={org.name || 'Brand'}
         breadcrumbs={breadcrumbs}
         actions={
           <div className="flex gap-2">
@@ -119,7 +119,7 @@ export default function AdminOrgDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4 animate-fade-up">
             <div className="lg:col-span-2">
               <div className="glass-card p-6">
-                <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Organisation Information</h3>
+                <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Brand Information</h3>
                 <dl className="grid grid-cols-2 gap-4">
                   <div>
                     <dt className="text-sm text-text-muted">Name</dt>
@@ -175,24 +175,24 @@ export default function AdminOrgDetailPage() {
       <ConfirmAction
         visible={showSuspend}
         onHide={() => setShowSuspend(false)}
-        title="Suspend Organisation"
+        title="Suspend Brand"
         message={`Are you sure you want to suspend "${org.name}"? All members will lose access and active bounties will be paused.`}
         confirmLabel="Suspend"
         confirmSeverity="danger"
         requireReason
-        onConfirm={(reason) => handleStatusChange(OrgStatus.SUSPENDED, reason)}
+        onConfirm={(reason) => handleStatusChange(BrandStatus.SUSPENDED, reason)}
         loading={updateStatus.isPending}
       />
 
       <ConfirmAction
         visible={showActivate}
         onHide={() => setShowActivate(false)}
-        title="Activate Organisation"
+        title="Activate Brand"
         message={`Are you sure you want to reactivate "${org.name}"?`}
         confirmLabel="Activate"
         confirmSeverity="success"
         requireReason
-        onConfirm={(reason) => handleStatusChange(OrgStatus.ACTIVE, reason)}
+        onConfirm={(reason) => handleStatusChange(BrandStatus.ACTIVE, reason)}
         loading={updateStatus.isPending}
       />
     </>

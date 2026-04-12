@@ -1,7 +1,7 @@
-import { OrgStatus, OrgMemberRole, UserStatus } from '../enums';
+import { BrandStatus, BrandMemberRole, UserStatus } from '../enums';
 
 // ─────────────────────────────────────
-// Organisation DTOs
+// Brand DTOs
 // ─────────────────────────────────────
 
 export interface BrandSocialLinks {
@@ -12,8 +12,29 @@ export interface BrandSocialLinks {
   website?: string;
 }
 
-// POST /organisations
-export interface CreateOrganisationRequest {
+// ─── Apify-sourced social analytics ──
+
+export type ApifyPlatform = 'instagram' | 'facebook' | 'tiktok';
+
+export interface BrandSocialAnalyticsCounters {
+  followersCount: number | null;
+  followingCount: number | null;
+  postsCount: number | null;
+  totalLikes: number | null; // TikTok heart total; null for IG/FB
+  avgLikes: number | null; // computed when source data allows
+  engagementRate: number | null; // percent, 1 decimal
+  error: string | null; // per-platform error or "not connected"; null on success
+}
+
+export interface BrandSocialAnalyticsBlob {
+  fetchedAt: string; // ISO timestamp of the last refresh
+  instagram: BrandSocialAnalyticsCounters;
+  facebook: BrandSocialAnalyticsCounters;
+  tiktok: BrandSocialAnalyticsCounters;
+}
+
+// POST /brands
+export interface CreateBrandRequest {
   name: string;
   contactEmail: string;
   handle?: string;
@@ -23,7 +44,7 @@ export interface CreateOrganisationRequest {
   targetInterests?: string[];
 }
 
-export interface OrganisationResponse {
+export interface BrandResponse {
   id: string;
   name: string;
   handle: string | null;
@@ -35,13 +56,13 @@ export interface OrganisationResponse {
   socialLinks: BrandSocialLinks | null;
   targetInterests: string[] | null;
   messagingEnabled: boolean;
-  status: OrgStatus;
+  status: BrandStatus;
   createdAt: string;
   updatedAt: string;
 }
 
-// GET /organisations/:id
-export interface OrganisationDetailResponse {
+// GET /brands/:id
+export interface BrandDetailResponse {
   id: string;
   name: string;
   handle: string | null;
@@ -53,15 +74,15 @@ export interface OrganisationDetailResponse {
   socialLinks: BrandSocialLinks | null;
   targetInterests: string[] | null;
   messagingEnabled: boolean;
-  status: OrgStatus;
+  status: BrandStatus;
   memberCount: number;
   bountyCount: number;
   createdAt: string;
   updatedAt: string;
 }
 
-// PATCH /organisations/:id
-export interface UpdateOrganisationRequest {
+// PATCH /brands/:id
+export interface UpdateBrandRequest {
   name?: string;
   contactEmail?: string;
   handle?: string;
@@ -83,6 +104,7 @@ export interface BrandProfileResponse {
   bio: string | null;
   websiteUrl: string | null;
   socialLinks: BrandSocialLinks | null;
+  socialAnalytics: BrandSocialAnalyticsBlob | null;
   targetInterests: string[] | null;
   messagingEnabled: boolean;
   stats: {
@@ -116,15 +138,15 @@ export interface MyBrandListItem {
   handle: string | null;
   logo: string | null;
   contactEmail: string;
-  status: OrgStatus;
-  role: OrgMemberRole;
+  status: BrandStatus;
+  role: BrandMemberRole;
   bountiesPosted: number;
 }
 
 // ─── Members ──────────────────────────
 
-// GET /organisations/:id/members
-export interface OrgMemberUserInfo {
+// GET /brands/:id/members
+export interface BrandMemberUserInfo {
   id: string;
   email: string;
   firstName: string;
@@ -132,15 +154,15 @@ export interface OrgMemberUserInfo {
   status: UserStatus;
 }
 
-export interface OrgMemberResponse {
+export interface BrandMemberResponse {
   id: string;
   userId: string;
-  user: OrgMemberUserInfo;
-  role: OrgMemberRole;
+  user: BrandMemberUserInfo;
+  role: BrandMemberRole;
   joinedAt: string;
 }
 
-// POST /organisations/:id/members
+// POST /brands/:id/members
 export interface InviteMemberRequest {
   email: string;
 }
@@ -148,7 +170,7 @@ export interface InviteMemberRequest {
 export interface InvitationResponse {
   id: string;
   email: string;
-  organisationId: string;
+  brandId: string;
   status: string;
   createdAt: string;
 }

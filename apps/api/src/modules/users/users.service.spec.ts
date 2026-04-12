@@ -23,7 +23,7 @@ describe('UsersService', () => {
     interests: [],
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-01'),
-    organisationMemberships: [],
+    brandMemberships: [],
     socialLinks: [],
   };
 
@@ -86,10 +86,10 @@ describe('UsersService', () => {
     it('should include organisation info when user has a membership', async () => {
       const userWithOrg = {
         ...baseUser,
-        organisationMemberships: [
+        brandMemberships: [
           {
             role: 'OWNER',
-            organisation: { id: 'org-1', name: 'Acme Corp' },
+            brand: { id: 'org-1', name: 'Acme Corp' },
           },
         ],
       };

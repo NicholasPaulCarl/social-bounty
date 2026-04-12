@@ -333,7 +333,7 @@ export class BountiesService {
       category?: string;
       rewardType?: RewardType;
       search?: string;
-      organisationId?: string;
+      brandId?: string;
     },
   ) {
     const page = params.page || PAGINATION_DEFAULTS.PAGE;
@@ -350,13 +350,13 @@ export class BountiesService {
     if (user.role === UserRole.PARTICIPANT) {
       where.status = BountyStatus.LIVE;
     } else if (user.role === UserRole.BUSINESS_ADMIN) {
-      where.organisationId = user.organisationId || undefined;
+      where.brandId = user.brandId || undefined;
       if (params.status) where.status = params.status;
     } else {
       // Super Admin sees all
       if (params.status) where.status = params.status;
-      if (params.organisationId)
-        where.organisationId = params.organisationId;
+      if (params.brandId)
+        where.brandId = params.brandId;
     }
 
     if (params.category) where.category = params.category;
@@ -377,7 +377,7 @@ export class BountiesService {
       this.prisma.bounty.findMany({
         where,
         include: {
-          organisation: {
+          brand: {
             select: { id: true, name: true, logo: true },
           },
           rewards: {
@@ -406,7 +406,7 @@ export class BountiesService {
         endDate: b.endDate?.toISOString() || null,
         status: b.status,
         submissionCount: b._count.submissions,
-        organisation: b.organisation,
+        organisation: b.brand,
         channels: b.channels as Record<string, string[]> | null,
         currency: b.currency,
         totalRewardValue:
@@ -432,7 +432,7 @@ export class BountiesService {
     const bounty = await this.prisma.bounty.findUnique({
       where: { id },
       include: {
-        organisation: {
+        brand: {
           select: { id: true, name: true, logo: true },
         },
         createdBy: {
@@ -460,7 +460,7 @@ export class BountiesService {
 
     if (
       user.role === UserRole.BUSINESS_ADMIN &&
-      bounty.organisationId !== user.organisationId
+      bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized to view this bounty');
     }
@@ -504,7 +504,7 @@ export class BountiesService {
       proofRequirements: bounty.proofRequirements,
       status: bounty.status,
       submissionCount,
-      organisation: bounty.organisation,
+      organisation: bounty.brand,
       createdBy: bounty.createdBy,
       userSubmission,
       createdAt: bounty.createdAt.toISOString(),
@@ -587,13 +587,13 @@ export class BountiesService {
     },
     ipAddress?: string,
   ) {
-    if (!user.organisationId) {
-      throw new BadRequestException('You must belong to an organisation to create bounties');
+    if (!user.brandId) {
+      throw new BadRequestException('You must belong to a brand to create bounties');
     }
 
     // Gate closed bounty creation by subscription tier
     if (data.accessType === BountyAccessType.CLOSED) {
-      const orgTier = await this.subscriptionsService.getActiveOrgTier(user.organisationId);
+      const orgTier = await this.subscriptionsService.getActiveOrgTier(user.brandId);
       if (orgTier !== SubscriptionTier.PRO) {
         throw new ForbiddenException('Closed bounties require a Pro Brand subscription. Upgrade to create closed bounties.');
       }
@@ -650,7 +650,7 @@ export class BountiesService {
     const result = await this.prisma.$transaction(async (tx) => {
       const bounty = await tx.bounty.create({
         data: {
-          organisationId: user.organisationId!,
+          brandId: user.brandId!,
           createdById: user.sub,
           title: data.title.trim(),
           shortDescription: data.shortDescription?.trim() ?? '',
@@ -735,7 +735,7 @@ export class BountiesService {
       eligibilityRules: result.bounty.eligibilityRules,
       proofRequirements: result.bounty.proofRequirements,
       status: result.bounty.status,
-      organisationId: result.bounty.organisationId,
+      brandId: result.bounty.brandId,
       createdById: result.bounty.createdById,
       createdAt: result.bounty.createdAt.toISOString(),
       updatedAt: result.bounty.updatedAt.toISOString(),
@@ -783,7 +783,7 @@ export class BountiesService {
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      bounty.organisationId !== user.organisationId
+      bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -884,7 +884,7 @@ export class BountiesService {
               rewardDescription: rewardInputs.map((r) => r.name).join(', '),
             },
             include: {
-              organisation: { select: { id: true, name: true, logo: true } },
+              brand: { select: { id: true, name: true, logo: true } },
               createdBy: { select: { id: true, firstName: true, lastName: true } },
               _count: { select: { submissions: true } },
             },
@@ -916,7 +916,7 @@ export class BountiesService {
           where: { id },
           data: updateData,
           include: {
-            organisation: { select: { id: true, name: true, logo: true } },
+            brand: { select: { id: true, name: true, logo: true } },
             createdBy: { select: { id: true, firstName: true, lastName: true } },
             rewards: { orderBy: { sortOrder: 'asc' } },
             _count: { select: { submissions: true } },
@@ -929,7 +929,7 @@ export class BountiesService {
         where: { id },
         data: updateData,
         include: {
-          organisation: { select: { id: true, name: true, logo: true } },
+          brand: { select: { id: true, name: true, logo: true } },
           createdBy: { select: { id: true, firstName: true, lastName: true } },
           rewards: { orderBy: { sortOrder: 'asc' } },
           _count: { select: { submissions: true } },
@@ -968,7 +968,7 @@ export class BountiesService {
       proofRequirements: updatedBounty.proofRequirements,
       status: updatedBounty.status,
       submissionCount: updatedBounty._count.submissions,
-      organisation: updatedBounty.organisation,
+      organisation: updatedBounty.brand,
       createdBy: updatedBounty.createdBy,
       userSubmission: null,
       createdAt: updatedBounty.createdAt.toISOString(),
@@ -1014,7 +1014,7 @@ export class BountiesService {
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      bounty.organisationId !== user.organisationId
+      bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -1121,7 +1121,7 @@ export class BountiesService {
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      bounty.organisationId !== user.organisationId
+      bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -1164,7 +1164,7 @@ export class BountiesService {
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      bounty.organisationId !== user.organisationId
+      bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -1203,7 +1203,7 @@ export class BountiesService {
 
     // Verify user belongs to the same org (for BUSINESS_ADMIN)
     if (user.role === UserRole.BUSINESS_ADMIN) {
-      if (original.organisationId !== user.organisationId) {
+      if (original.brandId !== user.brandId) {
         throw new ForbiddenException('Not authorized');
       }
     }
@@ -1229,7 +1229,7 @@ export class BountiesService {
         postMinDurationUnit: original.postMinDurationUnit,
         structuredEligibility: original.structuredEligibility as Prisma.InputJsonValue ?? undefined,
         payoutMetrics: (original as any).payoutMetrics as Prisma.InputJsonValue ?? undefined,
-        organisationId: original.organisationId,
+        brandId: original.brandId,
         createdById: user.sub,
         status: BountyStatus.DRAFT,
       },
@@ -1264,7 +1264,7 @@ export class BountiesService {
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      bounty.organisationId !== user.organisationId
+      bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -1329,7 +1329,7 @@ export class BountiesService {
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      bounty.organisationId !== user.organisationId
+      bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
@@ -1378,7 +1378,7 @@ export class BountiesService {
       where: { id: assetId },
       include: {
         bounty: {
-          select: { organisationId: true, status: true, deletedAt: true },
+          select: { brandId: true, status: true, deletedAt: true },
         },
       },
     });
@@ -1395,7 +1395,7 @@ export class BountiesService {
     // Business admins can only access their own org's assets
     if (
       user.role === UserRole.BUSINESS_ADMIN &&
-      asset.bounty.organisationId !== user.organisationId
+      asset.bounty.brandId !== user.brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
