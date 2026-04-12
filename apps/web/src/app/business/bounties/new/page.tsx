@@ -32,6 +32,17 @@ export default function CreateBountyPage() {
     }
   };
 
+  const extractErrorMessage = (err: unknown): string => {
+    if (err && typeof err === 'object') {
+      const apiErr = err as { message?: string; details?: Array<{ field: string; message: string }> };
+      if (apiErr.details && apiErr.details.length > 0) {
+        return apiErr.details.map((d) => `${d.field}: ${d.message}`).join('; ');
+      }
+      if (apiErr.message) return apiErr.message;
+    }
+    return 'Please try again.';
+  };
+
   const handleSubmit = (data: CreateBountyRequest) => {
     setIsDraftSave(false);
     setFormError('');
@@ -41,8 +52,8 @@ export default function CreateBountyPage() {
         toast.showSuccess('Bounty created! Ready to go live.');
         router.push(`/business/bounties/${res.id}`);
       },
-      onError: () => {
-        setFormError('Couldn\'t create bounty. Try again.');
+      onError: (err) => {
+        setFormError(`Couldn't create bounty: ${extractErrorMessage(err)}`);
       },
     });
   };
@@ -56,8 +67,8 @@ export default function CreateBountyPage() {
         toast.showSuccess('Draft saved. Pick it up anytime.');
         router.push(`/business/bounties/${res.id}`);
       },
-      onError: () => {
-        setFormError('Couldn\'t save draft. Try again.');
+      onError: (err) => {
+        setFormError(`Couldn't save draft: ${extractErrorMessage(err)}`);
       },
     });
   };
