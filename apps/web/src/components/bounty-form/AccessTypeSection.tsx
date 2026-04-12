@@ -6,6 +6,7 @@ import { InputText } from 'primereact/inputtext';
 import { BountyAccessType } from '@social-bounty/shared';
 import type { HunterListItem } from '@social-bounty/shared';
 import { hunterApi } from '@/lib/api/hunters';
+import { getUploadUrl } from '@/lib/api/client';
 import type { BountyFormAction } from './types';
 
 interface AccessTypeSectionProps {
@@ -173,7 +174,7 @@ export function AccessTypeSection({ accessType, selectedHunters, dispatch }: Acc
                     >
                       {hunter.profilePictureUrl ? (
                         <img
-                          src={hunter.profilePictureUrl}
+                          src={getUploadUrl(hunter.profilePictureUrl) ?? ''}
                           alt=""
                           className="w-8 h-8 rounded-full object-cover shrink-0"
                         />
@@ -221,7 +222,7 @@ export function AccessTypeSection({ accessType, selectedHunters, dispatch }: Acc
                     <div className="flex items-center gap-2">
                       {hunter.profilePictureUrl ? (
                         <img
-                          src={hunter.profilePictureUrl}
+                          src={getUploadUrl(hunter.profilePictureUrl) ?? ''}
                           alt=""
                           className="w-6 h-6 rounded-full object-cover"
                         />
