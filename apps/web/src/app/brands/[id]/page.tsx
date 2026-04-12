@@ -146,7 +146,7 @@ export default function BrandProfilePage() {
                 key={interest}
                 className="px-3 py-1.5 rounded-full text-sm bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/30"
               >
-                {interest.replace(/&amp;/g, '&')}
+                {interest}
               </span>
             ))}
           </div>
