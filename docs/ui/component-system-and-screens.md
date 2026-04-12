@@ -195,7 +195,7 @@ Using Tailwind's default spacing scale. Key application patterns:
 | Context | Tailwind Class | Pixels | Usage |
 |---------|---------------|--------|-------|
 | Page padding | `p-6` | 24px | Main content area padding |
-| Card padding | `p-4` | 16px | Inside Card components |
+| Card padding | `p-4` | 16px | Inside Card components (`.glass-card` — borderless, white bg, 16px radius, subtle shadow) |
 | Section gap | `gap-6` | 24px | Between major sections |
 | Field gap | `gap-4` | 16px | Between form fields |
 | Inline gap | `gap-2` | 8px | Between inline elements (badge + text) |

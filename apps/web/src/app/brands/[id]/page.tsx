@@ -107,11 +107,11 @@ export default function BrandProfilePage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="glass-card border-0 p-5 text-center">
+        <div className="glass-card p-5 text-center">
           <p className="text-2xl font-heading font-bold text-accent-cyan">{brand.stats.bountiesPosted}</p>
           <p className="text-sm text-text-muted mt-1">Bounties Posted</p>
         </div>
-        <div className="glass-card border-0 p-5 text-center">
+        <div className="glass-card p-5 text-center">
           <p className="text-2xl font-heading font-bold text-accent-cyan">
             {brand.stats.bountiesPosted > 0
               ? formatCurrency(brand.stats.totalBountyAmount)
@@ -119,7 +119,7 @@ export default function BrandProfilePage() {
           </p>
           <p className="text-sm text-text-muted mt-1">Total Rewards</p>
         </div>
-        <div className="glass-card border-0 p-5 text-center">
+        <div className="glass-card p-5 text-center">
           <p className="text-2xl font-heading font-bold text-accent-cyan">
             {brand.stats.bountiesPosted > 0
               ? `${brand.stats.achievementRate}%`
@@ -170,7 +170,7 @@ export default function BrandProfilePage() {
       )}
 
       {/* CTA */}
-      <div className="glass-card border-0 p-6 text-center">
+      <div className="glass-card p-6 text-center">
         <p className="text-text-secondary mb-4">Interested in this brand&apos;s bounties?</p>
         <Link
           href={`/bounties?brand=${brand.id}`}
