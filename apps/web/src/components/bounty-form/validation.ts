@@ -156,11 +156,6 @@ export function validateFull(state: BountyFormState): Record<string, string> {
     });
   }
 
-  // --- Section 3: Proof Requirements ---
-  if (state.proofRequirements.length === 0) {
-    errors.proofRequirements = 'At least one proof requirement is required';
-  }
-
   // --- Section 8: Max Submissions ---
   if (state.maxSubmissions !== null && state.maxSubmissions < 1) {
     errors.maxSubmissions = 'Max submissions must be at least 1';
@@ -266,7 +261,7 @@ export function isSectionComplete(sectionKey: string, state: BountyFormState): b
     case 'bountyContent':
       return state.rewards.length > 0 && state.rewards.every((r) => r.name.trim() && r.monetaryValue > 0);
     case 'bountyRules':
-      return state.proofRequirements.length > 0;
+      return true; // Optional rules
     case 'brandAssets':
       return true; // Optional
     default:

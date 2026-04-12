@@ -1,9 +1,8 @@
 'use client';
 
-import { RadioButton } from 'primereact/radiobutton';
+import { InputSwitch } from 'primereact/inputswitch';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
-import { Checkbox } from 'primereact/checkbox';
 import { PostVisibilityRule, DurationUnit } from '@social-bounty/shared';
 import type { PostVisibilityInput } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
@@ -30,95 +29,72 @@ export function PostVisibilitySection({
   submitAttempted,
 }: PostVisibilitySectionProps) {
   const currentRule = postVisibility?.rule ?? null;
+  const mustNotRemove = currentRule === PostVisibilityRule.MUST_NOT_REMOVE;
+  const minDuration = currentRule === PostVisibilityRule.MINIMUM_DURATION;
 
   return (
-    <>
-      <div className="space-y-3">
-        <div className="flex items-start gap-3">
-          <RadioButton
-            inputId="vis_must_not_remove"
-            value={PostVisibilityRule.MUST_NOT_REMOVE}
-            checked={currentRule === PostVisibilityRule.MUST_NOT_REMOVE}
-            onChange={() => dispatch({ type: 'SET_VISIBILITY_RULE', payload: PostVisibilityRule.MUST_NOT_REMOVE })}
+    <div className="space-y-4">
+      {/* Must not remove toggle */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 min-w-[14rem]">
+          <InputSwitch
+            checked={mustNotRemove}
+            onChange={(e) => dispatch({
+              type: 'SET_VISIBILITY_RULE',
+              payload: e.value ? PostVisibilityRule.MUST_NOT_REMOVE : null,
+            })}
           />
-          <label htmlFor="vis_must_not_remove" className="cursor-pointer">
-            <span className="text-sm font-medium text-text-primary">Must not remove</span>
-            <span className="block text-xs text-text-muted">Post must never be deleted</span>
-          </label>
-        </div>
-
-        <div className="flex items-start gap-3">
-          <RadioButton
-            inputId="vis_min_duration"
-            value={PostVisibilityRule.MINIMUM_DURATION}
-            checked={currentRule === PostVisibilityRule.MINIMUM_DURATION}
-            onChange={() => dispatch({ type: 'SET_VISIBILITY_RULE', payload: PostVisibilityRule.MINIMUM_DURATION })}
-          />
-          <label htmlFor="vis_min_duration" className="cursor-pointer">
-            <span className="text-sm font-medium text-text-primary">Minimum duration</span>
-            <span className="block text-xs text-text-muted">Post must stay up for a set time</span>
-          </label>
+          <span className="text-sm text-text-primary">Post must not be removed</span>
         </div>
       </div>
 
-      {currentRule === PostVisibilityRule.MINIMUM_DURATION && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3 ml-6">
-          <div>
-            <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-              Duration Value <span className="text-accent-rose">*</span>
-            </label>
+      {/* Minimum duration toggle */}
+      <div className="flex items-start gap-4 flex-wrap">
+        <div className="flex items-center gap-3 min-w-[14rem]">
+          <InputSwitch
+            checked={minDuration}
+            onChange={(e) => dispatch({
+              type: 'SET_VISIBILITY_RULE',
+              payload: e.value ? PostVisibilityRule.MINIMUM_DURATION : null,
+            })}
+          />
+          <span className="text-sm text-text-primary">Minimum posting duration</span>
+        </div>
+        {minDuration && (
+          <div className="flex items-center gap-2">
             <InputNumber
               value={postVisibility?.minDurationValue ?? null}
               onValueChange={(e) => dispatch({ type: 'SET_DURATION_VALUE', payload: e.value ?? null })}
               min={1}
-              className={`w-full ${submitAttempted && errors.durationValue ? 'p-invalid' : ''}`}
+              className={`w-28 ${submitAttempted && errors.durationValue ? 'p-invalid' : ''}`}
               placeholder="e.g. 7"
             />
-            {submitAttempted && errors.durationValue && (
-              <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
-                <i className="pi pi-exclamation-circle text-xs" />
-                {errors.durationValue}
-              </small>
-            )}
-          </div>
-          <div>
-            <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-              Duration Unit <span className="text-accent-rose">*</span>
-            </label>
             <Dropdown
               value={postVisibility?.minDurationUnit ?? null}
               options={DURATION_UNIT_OPTIONS}
               onChange={(e) => dispatch({ type: 'SET_DURATION_UNIT', payload: e.value })}
-              className={`w-full ${submitAttempted && errors.durationUnit ? 'p-invalid' : ''}`}
-              placeholder="Select unit"
+              className={`w-32 ${submitAttempted && errors.durationUnit ? 'p-invalid' : ''}`}
+              placeholder="Unit"
             />
-            {submitAttempted && errors.durationUnit && (
-              <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
-                <i className="pi pi-exclamation-circle text-xs" />
-                {errors.durationUnit}
-              </small>
-            )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
+      {/* Acknowledgment toggle */}
       {postVisibility && (
-        <div className="mt-4 p-3 bg-warning-50 border border-warning-200 rounded-lg">
-          <div className="flex items-start gap-3">
-            <Checkbox
-              inputId="visibility-ack"
-              checked={visibilityAcknowledged}
-              onChange={(e) => dispatch({ type: 'SET_VISIBILITY_ACKNOWLEDGED', payload: e.checked ?? false })}
-            />
-            <label htmlFor="visibility-ack" className="text-sm text-text-primary cursor-pointer">
-              I understand and confirm the post visibility requirements above.
-              <span className="block text-xs text-text-muted mt-1">
-                This must be acknowledged before the bounty can be published.
-              </span>
-            </label>
+        <div className="flex items-center gap-3 p-3 bg-warning-50 border border-warning-200 rounded-lg">
+          <InputSwitch
+            checked={visibilityAcknowledged}
+            onChange={(e) => dispatch({ type: 'SET_VISIBILITY_ACKNOWLEDGED', payload: e.value })}
+          />
+          <div>
+            <span className="text-sm text-text-primary">I understand and confirm the post visibility requirements above</span>
+            <p className="text-xs text-text-muted mt-0.5">
+              This must be acknowledged before the bounty can be published.
+            </p>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

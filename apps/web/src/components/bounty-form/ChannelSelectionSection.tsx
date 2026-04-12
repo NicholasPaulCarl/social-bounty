@@ -1,6 +1,5 @@
 'use client';
 
-import { Checkbox } from 'primereact/checkbox';
 import { SocialChannel, PostFormat, CHANNEL_POST_FORMATS } from '@social-bounty/shared';
 import type { ChannelSelection } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
@@ -39,7 +38,10 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
   };
 
   return (
-    <>
+    <div>
+      <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-2">
+        Social Platforms <span className="text-accent-rose">*</span>
+      </label>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {CHANNEL_META.map(({ channel, label, icon }) => {
           const selected = isChannelSelected(channel);
@@ -47,43 +49,49 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
           return (
             <div
               key={channel}
-              role="button"
-              tabIndex={0}
-              className={`border rounded-lg p-4 cursor-pointer transition-colors ${
+              className={`border rounded-lg p-4 transition-colors ${
                 selected
                   ? 'border-2 border-accent-cyan bg-accent-cyan/10'
                   : 'border-glass-border bg-surface hover:border-accent-cyan'
               }`}
-              onClick={(e) => {
-                // Only toggle if the click didn't come from a nested checkbox
-                if ((e.target as HTMLElement).closest('.p-checkbox')) return;
-                toggleChannel(channel);
-              }}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleChannel(channel); } }}
             >
-              <div className="flex items-center gap-3">
-                <Checkbox
-                  inputId={`channel-${channel}`}
-                  checked={selected}
-                  onChange={() => toggleChannel(channel)}
-                />
+              <button
+                type="button"
+                onClick={() => toggleChannel(channel)}
+                className="w-full flex items-center gap-3 text-left"
+              >
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
+                  selected
+                    ? 'border-accent-cyan bg-accent-cyan'
+                    : 'border-glass-border bg-white'
+                }`}>
+                  {selected && <i className="pi pi-check text-white text-[10px] font-bold" />}
+                </div>
                 <i className={`pi ${icon} text-lg ${selected ? 'text-accent-cyan' : 'text-text-muted'}`} />
                 <span className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>
                   {label}
                 </span>
-              </div>
+              </button>
               {selected && (
-                <div className="flex flex-wrap gap-3 mt-3 ml-8" onClick={(e) => e.stopPropagation()}>
-                  {formats.map((fmt) => (
-                    <div key={fmt} className="flex items-center gap-2">
-                      <Checkbox
-                        inputId={`format-${channel}-${fmt}`}
-                        checked={isFormatSelected(channel, fmt)}
-                        onChange={() => toggleFormat(channel, fmt)}
-                      />
-                      <label htmlFor={`format-${channel}-${fmt}`} className="text-sm text-text-primary cursor-pointer">{FORMAT_LABELS[fmt]}</label>
-                    </div>
-                  ))}
+                <div className="flex flex-wrap gap-2 mt-3 ml-8">
+                  {formats.map((fmt) => {
+                    const fmtSelected = isFormatSelected(channel, fmt);
+                    return (
+                      <button
+                        key={fmt}
+                        type="button"
+                        onClick={() => toggleFormat(channel, fmt)}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs transition-colors ${
+                          fmtSelected
+                            ? 'border-accent-cyan bg-accent-cyan text-white'
+                            : 'border-glass-border bg-white text-text-primary hover:border-accent-cyan'
+                        }`}
+                      >
+                        {fmtSelected && <i className="pi pi-check text-[10px]" />}
+                        {FORMAT_LABELS[fmt]}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -91,11 +99,11 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
         })}
       </div>
       {submitAttempted && errors.channels && (
-        <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+        <small className="text-xs text-accent-rose mt-2 flex items-center gap-1">
           <i className="pi pi-exclamation-circle text-xs" />
           {errors.channels}
         </small>
       )}
-    </>
+    </div>
   );
 }

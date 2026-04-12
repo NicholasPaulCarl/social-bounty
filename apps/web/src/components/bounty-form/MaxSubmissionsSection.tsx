@@ -16,7 +16,7 @@ export function MaxSubmissionsSection({ maxSubmissions, dispatch, errors, submit
       <label htmlFor="maxSubmissions" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
         Maximum Submissions
       </label>
-      <div className="max-submissions-stepper">
+      <div className="stepper-horizontal">
         <InputNumber
           id="maxSubmissions"
           value={maxSubmissions}
@@ -26,11 +26,12 @@ export function MaxSubmissionsSection({ maxSubmissions, dispatch, errors, submit
           buttonLayout="horizontal"
           incrementButtonIcon="pi pi-plus"
           decrementButtonIcon="pi pi-minus"
-          className={`w-56 ${submitAttempted && errors.maxSubmissions ? 'p-invalid' : ''}`}
+          inputClassName="w-28 text-center"
+          className={submitAttempted && errors.maxSubmissions ? 'p-invalid' : ''}
           placeholder="Unlimited"
         />
       </div>
-      <small className="text-xs text-text-muted mt-1 block">Leave empty for unlimited submissions</small>
+      <small className="text-xs text-text-muted mt-1.5 block">Leave empty for unlimited submissions</small>
       {submitAttempted && errors.maxSubmissions && (
         <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
           <i className="pi pi-exclamation-circle text-xs" />

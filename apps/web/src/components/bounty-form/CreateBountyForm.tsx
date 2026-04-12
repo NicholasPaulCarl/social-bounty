@@ -15,7 +15,7 @@ import { ChannelSelectionSection } from './ChannelSelectionSection';
 import { PostVisibilitySection } from './PostVisibilitySection';
 import { RewardLinesSection } from './RewardLinesSection';
 import { EligibilityRulesSection } from './EligibilityRulesSection';
-import { ProofRequirementsSection } from './ProofRequirementsSection';
+import { CustomRulesSection } from './CustomRulesSection';
 import { MaxSubmissionsSection } from './MaxSubmissionsSection';
 import { ScheduleSection } from './ScheduleSection';
 import { PayoutMetricsSection } from './PayoutMetricsSection';
@@ -322,15 +322,45 @@ export function CreateBountyForm({
                 onChange={(e) => dispatch({ type: 'SET_AI_CONTENT_PERMITTED', payload: e.value })}
               />
             </div>
+
+            {/* Schedule (Start / End Date) */}
+            <ScheduleSection
+              startDate={state.startDate}
+              endDate={state.endDate}
+              dispatch={dispatch}
+              errors={state.errors}
+              submitAttempted={state.submitAttempted}
+              onBlur={handleBlur}
+              disableStartDate={isLocked}
+            />
+
+            {/* Payout Metrics */}
+            <PayoutMetricsSection
+              payoutMetrics={state.payoutMetrics}
+              dispatch={dispatch}
+              errors={state.errors}
+              submitAttempted={state.submitAttempted}
+            />
+
+            {/* Post link requirement notice */}
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-accent-cyan/30 bg-accent-cyan/5">
+              <i className="pi pi-info-circle text-accent-cyan mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-text-primary">Post links are required for all submissions</p>
+                <p className="text-xs text-text-muted mt-0.5">
+                  Hunters must provide a public URL to their published post as proof of completion.
+                </p>
+              </div>
+            </div>
           </SectionPanel>
         </div>
 
-        {/* Section 2: Bounty Content */}
+        {/* Section 2: Bounty Reward */}
         <div data-section="bountyContent" className={lockedClass}>
           <SectionPanel
             number={2}
-            title={`Bounty Content${isLocked ? ' (Locked)' : ''}`}
-            icon="pi-sliders-h"
+            title={`Bounty Reward${isLocked ? ' (Locked)' : ''}`}
+            icon="pi-dollar"
             isComplete={isSectionComplete('bountyContent', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyContent', state.errors).length > 0}
           >
@@ -383,47 +413,29 @@ export function CreateBountyForm({
                     <span className="text-sm text-text-primary">Hunter must leave a comment</span>
                   </div>
                 </div>
+                <PostVisibilitySection
+                  postVisibility={state.postVisibility}
+                  visibilityAcknowledged={state.visibilityAcknowledged}
+                  dispatch={dispatch}
+                  errors={state.errors}
+                  submitAttempted={state.submitAttempted}
+                />
               </div>
             </div>
 
-            {/* Post Visibility toggles */}
-            <PostVisibilitySection
-              postVisibility={state.postVisibility}
-              visibilityAcknowledged={state.visibilityAcknowledged}
-              dispatch={dispatch}
-              errors={state.errors}
-              submitAttempted={state.submitAttempted}
-            />
-
-            <ProofRequirementsSection
-              proofRequirements={state.proofRequirements}
-              dispatch={dispatch}
-              errors={state.errors}
-              submitAttempted={state.submitAttempted}
-            />
             <MaxSubmissionsSection
               maxSubmissions={state.maxSubmissions}
               dispatch={dispatch}
               errors={state.errors}
               submitAttempted={state.submitAttempted}
             />
-            <ScheduleSection
-              startDate={state.startDate}
-              endDate={state.endDate}
+
+            <CustomRulesSection
+              customRules={state.structuredEligibility.customRules || []}
               dispatch={dispatch}
               errors={state.errors}
               submitAttempted={state.submitAttempted}
-              onBlur={handleBlur}
-              disableStartDate={isLocked}
             />
-            <div className={isLocked ? 'opacity-60 pointer-events-none' : ''}>
-              <PayoutMetricsSection
-                payoutMetrics={state.payoutMetrics}
-                dispatch={dispatch}
-                errors={state.errors}
-                submitAttempted={state.submitAttempted}
-              />
-            </div>
           </SectionPanel>
         </div>
 

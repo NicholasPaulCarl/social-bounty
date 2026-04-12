@@ -151,7 +151,7 @@ export const INITIAL_FORM_STATE: BountyFormState = {
     noCompetingBrandDays: null,
     customRules: [],
   },
-  proofRequirements: [],
+  proofRequirements: ['url'],
   maxSubmissions: null,
   startDate: null,
   endDate: null,

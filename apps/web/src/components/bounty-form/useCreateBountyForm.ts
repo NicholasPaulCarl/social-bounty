@@ -362,7 +362,8 @@ export function buildCreateBountyRequest(
     } else if (state.fullInstructions.trim()) {
       request.fullInstructions = state.fullInstructions.trim();
     }
-    if (state.proofRequirements.length > 0) request.proofRequirements = state.proofRequirements.join(',');
+    // Always require post URL as proof
+    request.proofRequirements = state.proofRequirements.length > 0 ? state.proofRequirements.join(',') : 'url';
     if (state.maxSubmissions !== null) request.maxSubmissions = state.maxSubmissions;
     if (state.startDate) request.startDate = state.startDate.toISOString();
     if (state.endDate) request.endDate = state.endDate.toISOString();
@@ -392,7 +393,7 @@ export function buildCreateBountyRequest(
       ? filteredSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
       : state.fullInstructions.trim(),
     ...(filteredSteps.length > 0 ? { instructionSteps: filteredSteps } : {}),
-    proofRequirements: state.proofRequirements.join(','),
+    proofRequirements: state.proofRequirements.length > 0 ? state.proofRequirements.join(',') : 'url',
     maxSubmissions: state.maxSubmissions,
     startDate: state.startDate?.toISOString() ?? null,
     endDate: state.endDate?.toISOString() ?? null,
