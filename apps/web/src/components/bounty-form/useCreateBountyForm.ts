@@ -247,11 +247,17 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         accessType: action.payload,
         // Clear invitations when switching back to public
         invitations: action.payload === BountyAccessType.PUBLIC ? [] : state.invitations,
+        selectedHunters: action.payload === BountyAccessType.PUBLIC ? [] : state.selectedHunters,
       };
     case 'ADD_INVITATION':
       return { ...state, invitations: [...state.invitations, action.payload] };
     case 'REMOVE_INVITATION':
       return { ...state, invitations: state.invitations.filter((_, i) => i !== action.payload) };
+    case 'ADD_SELECTED_HUNTER':
+      if (state.selectedHunters.some((h) => h.id === action.payload.id)) return state;
+      return { ...state, selectedHunters: [...state.selectedHunters, action.payload] };
+    case 'REMOVE_SELECTED_HUNTER':
+      return { ...state, selectedHunters: state.selectedHunters.filter((h) => h.id !== action.payload) };
 
     // Validation
     case 'SET_TOUCHED':
@@ -305,6 +311,7 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         stagedBrandAssetFiles: [],
         accessType: (b as unknown as { accessType?: BountyAccessType }).accessType ?? BountyAccessType.PUBLIC,
         invitations: [],
+        selectedHunters: [],
         errors: {},
         touched: {},
         submitAttempted: false,

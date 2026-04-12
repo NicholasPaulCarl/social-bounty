@@ -333,6 +333,7 @@ export class UsersService {
       where.OR = [
         { firstName: { contains: params.search, mode: 'insensitive' } },
         { lastName: { contains: params.search, mode: 'insensitive' } },
+        { socialLinks: { some: { handle: { contains: params.search, mode: 'insensitive' } } } },
       ];
     }
 
@@ -343,6 +344,7 @@ export class UsersService {
           socialLinks: {
             select: {
               platform: true,
+              handle: true,
               followerCount: true,
             },
           },
@@ -363,6 +365,7 @@ export class UsersService {
       interests: Array.isArray(user.interests) ? user.interests as string[] : [],
       socialLinks: user.socialLinks.map((link) => ({
         platform: link.platform,
+        handle: link.handle,
         followerCount: link.followerCount,
       })),
       createdAt: user.createdAt.toISOString(),

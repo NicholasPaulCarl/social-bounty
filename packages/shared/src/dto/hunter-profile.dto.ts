@@ -67,7 +67,7 @@ export interface HunterListItem {
   bio: string | null;
   profilePictureUrl: string | null;
   interests: string[];
-  socialLinks: { platform: SocialChannel; followerCount: number | null }[];
+  socialLinks: { platform: SocialChannel; handle: string; followerCount: number | null }[];
   createdAt: string;
 }
 

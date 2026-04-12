@@ -6,12 +6,12 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
+import { InputSwitch } from 'primereact/inputswitch';
 import { FIELD_LIMITS, ContentFormat } from '@social-bounty/shared';
 import type { BountyDetailResponse, CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useCreateBountyForm } from './useCreateBountyForm';
 import { SectionPanel } from './SectionPanel';
 import { ChannelSelectionSection } from './ChannelSelectionSection';
-import { ContentRulesSection } from './ContentRulesSection';
 import { PostVisibilitySection } from './PostVisibilitySection';
 import { RewardLinesSection } from './RewardLinesSection';
 import { EligibilityRulesSection } from './EligibilityRulesSection';
@@ -201,11 +201,11 @@ export function CreateBountyForm({
       {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
 
       <form ref={formRef} className="flex flex-col gap-6 pb-24 md:pb-24 max-w-4xl mx-auto" onSubmit={(e) => e.preventDefault()}>
-        {/* Section 1: Bounty Basic Information */}
+        {/* Section 1: Bounty Information */}
         <div data-section="bountyBasicInfo" className={lockedClass}>
           <SectionPanel
             number={1}
-            title={`Bounty Basic Information${isLocked ? ' (Locked)' : ''}`}
+            title={`Bounty Information${isLocked ? ' (Locked)' : ''}`}
             icon="pi-file-edit"
             isComplete={isSectionComplete('bountyBasicInfo', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyBasicInfo', state.errors).length > 0}
@@ -310,6 +310,18 @@ export function CreateBountyForm({
               submitAttempted={state.submitAttempted}
               isLocked={isLocked}
             />
+
+            {/* AI-Generated Content toggle */}
+            <div className="flex items-center justify-between p-3 bg-elevated rounded-lg">
+              <div>
+                <span className="text-sm font-medium text-text-primary">AI-Generated Content</span>
+                <p className="text-xs text-text-muted mt-0.5">Allow Hunters to use AI-generated content</p>
+              </div>
+              <InputSwitch
+                checked={state.aiContentPermitted}
+                onChange={(e) => dispatch({ type: 'SET_AI_CONTENT_PERMITTED', payload: e.value })}
+              />
+            </div>
           </SectionPanel>
         </div>
 
@@ -322,20 +334,6 @@ export function CreateBountyForm({
             isComplete={isSectionComplete('bountyContent', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyContent', state.errors).length > 0}
           >
-            <ContentRulesSection
-              aiContentPermitted={state.aiContentPermitted}
-              engagementRequirements={state.engagementRequirements}
-              dispatch={dispatch}
-              errors={state.errors}
-              onBlur={handleBlur}
-            />
-            <PostVisibilitySection
-              postVisibility={state.postVisibility}
-              visibilityAcknowledged={state.visibilityAcknowledged}
-              dispatch={dispatch}
-              errors={state.errors}
-              submitAttempted={state.submitAttempted}
-            />
             <RewardLinesSection
               rewards={state.rewards}
               currency={state.currency}
@@ -362,6 +360,41 @@ export function CreateBountyForm({
               errors={state.errors}
               submitAttempted={state.submitAttempted}
             />
+
+            {/* Engagement & Visibility toggles */}
+            <div className="mt-4 pt-4 border-t border-glass-border">
+              <h4 className="text-sm font-semibold text-text-primary mb-3">Engagement &amp; Visibility</h4>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 min-w-[14rem]">
+                    <InputSwitch
+                      checked={state.engagementRequirements.mention || false}
+                      onChange={(e) => dispatch({ type: 'SET_MENTION', payload: e.value })}
+                    />
+                    <span className="text-sm text-text-primary">Hunter must mention brand</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 min-w-[14rem]">
+                    <InputSwitch
+                      checked={state.engagementRequirements.comment || false}
+                      onChange={(e) => dispatch({ type: 'SET_COMMENT', payload: e.value })}
+                    />
+                    <span className="text-sm text-text-primary">Hunter must leave a comment</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Post Visibility toggles */}
+            <PostVisibilitySection
+              postVisibility={state.postVisibility}
+              visibilityAcknowledged={state.visibilityAcknowledged}
+              dispatch={dispatch}
+              errors={state.errors}
+              submitAttempted={state.submitAttempted}
+            />
+
             <ProofRequirementsSection
               proofRequirements={state.proofRequirements}
               dispatch={dispatch}
@@ -405,7 +438,7 @@ export function CreateBountyForm({
           >
             <AccessTypeSection
               accessType={state.accessType}
-              invitations={state.invitations}
+              selectedHunters={state.selectedHunters}
               dispatch={dispatch}
             />
           </SectionPanel>

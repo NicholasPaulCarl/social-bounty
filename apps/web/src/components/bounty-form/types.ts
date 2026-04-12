@@ -52,6 +52,7 @@ export interface BountyFormState {
   // Section 5: Access Type
   accessType: BountyAccessType;
   invitations: Array<{ platform: SocialPlatform; handle: string }>;
+  selectedHunters: Array<{ id: string; firstName: string; lastName: string; profilePictureUrl: string | null }>;
 
   // UI state
   errors: Record<string, string>;
@@ -111,6 +112,8 @@ export type BountyFormAction =
   | { type: 'SET_ACCESS_TYPE'; payload: BountyAccessType }
   | { type: 'ADD_INVITATION'; payload: { platform: SocialPlatform; handle: string } }
   | { type: 'REMOVE_INVITATION'; payload: number }
+  | { type: 'ADD_SELECTED_HUNTER'; payload: { id: string; firstName: string; lastName: string; profilePictureUrl: string | null } }
+  | { type: 'REMOVE_SELECTED_HUNTER'; payload: string }
   // Validation
   | { type: 'SET_TOUCHED'; payload: string }
   | { type: 'SET_ERRORS'; payload: Record<string, string> }
@@ -160,6 +163,7 @@ export const INITIAL_FORM_STATE: BountyFormState = {
   stagedBrandAssetFiles: [],
   accessType: BountyAccessType.PUBLIC,
   invitations: [],
+  selectedHunters: [],
   errors: {},
   touched: {},
   submitAttempted: false,
@@ -170,7 +174,7 @@ export const INITIAL_FORM_STATE: BountyFormState = {
 // ---------------------------------------------------------------------------
 
 export const SECTIONS = [
-  { number: 1, title: 'Bounty Basic Information', icon: 'pi-file-edit', key: 'bountyBasicInfo' },
+  { number: 1, title: 'Bounty Information', icon: 'pi-file-edit', key: 'bountyBasicInfo' },
   { number: 2, title: 'Bounty Content', icon: 'pi-sliders-h', key: 'bountyContent' },
   { number: 3, title: 'Bounty Rules', icon: 'pi-shield', key: 'bountyRules' },
   { number: 4, title: 'Brand Assets', icon: 'pi-images', key: 'brandAssets' },
