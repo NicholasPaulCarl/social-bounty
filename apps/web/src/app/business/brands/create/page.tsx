@@ -31,6 +31,8 @@ export default function CreateBrandPage() {
   });
   const [logo, setLogo] = useState<File | undefined>();
   const [logoPending, setLogoPending] = useState<File | null>(null);
+  const [coverPhoto, setCoverPhoto] = useState<File | undefined>();
+  const [coverPending, setCoverPending] = useState<File | null>(null);
   const [handleStatus, setHandleStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -117,6 +119,14 @@ export default function CreateBrandPage() {
       },
       {
         onSuccess: async (org) => {
+          // Upload cover photo if provided
+          if (coverPhoto) {
+            try {
+              await brandsApi.uploadCoverPhoto(org.id, coverPhoto);
+            } catch {
+              toast.showError('Cover photo upload failed. You can add it later.');
+            }
+          }
           try {
             await switchBrand(org.id);
           } catch {
@@ -132,14 +142,9 @@ export default function CreateBrandPage() {
     );
   };
 
-  const breadcrumbs = [
-    { label: 'Brands', url: '/business/brands' },
-    { label: 'Create' },
-  ];
-
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Create Brand" breadcrumbs={breadcrumbs} />
+      <PageHeader title="Create Brand" />
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
         {/* Name */}
@@ -230,6 +235,34 @@ export default function CreateBrandPage() {
               aspect={1}
               title="Crop Logo"
               onCropComplete={(cropped) => setLogo(cropped)}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="coverPhoto" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
+              Cover Photo
+            </label>
+            <input
+              id="coverPhoto"
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) setCoverPending(file);
+                e.target.value = '';
+              }}
+              className="text-sm text-text-secondary"
+            />
+            {coverPhoto && <small className="text-accent-emerald text-xs mt-1 block">Cropped cover ready</small>}
+            <small className="text-text-muted text-xs mt-1 block">Recommended: 1200 x 400px (3:1 ratio). Max 5MB.</small>
+
+            <ImageCropDialog
+              visible={!!coverPending}
+              onHide={() => setCoverPending(null)}
+              file={coverPending}
+              aspect={3}
+              title="Crop Cover Photo"
+              onCropComplete={(cropped) => setCoverPhoto(cropped)}
             />
           </div>
         </div>
