@@ -1,6 +1,5 @@
 'use client';
 
-import { PageHeaderBreadcrumbs } from './PageHeaderBreadcrumbs';
 import { PageHeaderTitle } from './PageHeaderTitle';
 import { PageHeaderTabs } from './PageHeaderTabs';
 import { PageHeaderPills } from './PageHeaderPills';
@@ -10,7 +9,6 @@ import type { PageHeaderProps } from './types';
 export function PageHeader({
   title,
   subtitle,
-  breadcrumbs,
   actions,
   tabs,
   pills,
@@ -22,9 +20,8 @@ export function PageHeader({
 
   return (
     <div className="mb-8 space-y-4">
-      {breadcrumbs && breadcrumbs.length > 0 && (
-        <PageHeaderBreadcrumbs items={breadcrumbs} />
-      )}
+      {/* Breadcrumbs removed globally from design system. The `breadcrumbs` prop
+          on PageHeaderProps is preserved for back-compat but is now ignored. */}
 
       <PageHeaderTitle title={title} subtitle={subtitle} actions={actions} />
 

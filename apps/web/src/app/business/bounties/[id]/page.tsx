@@ -98,16 +98,22 @@ export default function BusinessBountyDetailPage() {
     });
   };
 
-  const breadcrumbs = [
-    { label: 'Bounties', url: '/business/bounties' },
-    { label: bounty.title },
-  ];
+  const handlePreview = () => {
+    // Open the hunter-facing bounty view in a new tab
+    window.open(`/bounties/${id}?preview=1`, '_blank', 'noopener,noreferrer');
+  };
 
   const statusButtons = () => {
-    const actions: { label: string; status: string; severity: 'success' | 'warning' | 'danger' | 'secondary' }[] = [];
+    const actions: {
+      label: string;
+      status: string;
+      severity?: 'success' | 'warning' | 'danger' | 'secondary';
+      primary?: boolean;
+    }[] = [];
     switch (bounty.status) {
       case 'DRAFT':
-        actions.push({ label: 'Go Live', status: 'LIVE', severity: 'success' });
+        // Primary CTA on the launch page
+        actions.push({ label: 'Go Live', status: 'LIVE', primary: true });
         break;
       case 'LIVE':
         actions.push({ label: 'Pause', status: 'PAUSED', severity: 'warning' });
@@ -129,15 +135,21 @@ export default function BusinessBountyDetailPage() {
     <div className="animate-fade-up">
       <PageHeader
         title={bounty.title}
-        breadcrumbs={breadcrumbs}
         actions={
           <div className="flex gap-2">
+            <Button
+              icon="pi pi-eye"
+              label="Preview"
+              outlined
+              severity="secondary"
+              onClick={handlePreview}
+            />
             {statusButtons().map((action) => (
               <Button
                 key={action.status}
                 label={action.label}
                 severity={action.severity}
-                outlined
+                outlined={!action.primary}
                 loading={action.status === 'LIVE' && paymentLoading}
                 onClick={() => setStatusAction(action.status)}
               />
