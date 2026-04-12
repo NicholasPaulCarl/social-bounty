@@ -27,7 +27,7 @@ export function SectionPanel({ number, title, icon, isComplete, hasError, helper
   );
 
   return (
-    <Panel header={header} className="glass-card !border-glass-border">
+    <Panel header={header} className="bounty-section-panel">
       {helperText && <p className="text-sm text-text-secondary mb-5">{helperText}</p>}
       <div className="space-y-5">{children}</div>
     </Panel>

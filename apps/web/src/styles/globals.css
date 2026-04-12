@@ -1193,6 +1193,17 @@
   color: #475569 !important;
 }
 
+/* Bounty form sections — borderless */
+.bounty-section-panel.p-panel {
+  border: none !important;
+  background: #ffffff !important;
+  border-radius: 16px !important;
+}
+.bounty-section-panel.p-panel .p-panel-header {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+}
+
 /* ─── Chip ─── */
 
 .p-chip {

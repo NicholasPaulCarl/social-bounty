@@ -14,7 +14,7 @@ interface PayoutMetricsSectionProps {
 
 export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAttempted }: PayoutMetricsSectionProps) {
   return (
-    <div className="space-y-4 mt-4 pt-4 border-t border-glass-border">
+    <div className="space-y-4">
       <div>
         <h4 className="text-sm font-semibold text-text-primary mb-1">Payout Metrics</h4>
         <p className="text-xs text-text-muted mb-3">Set minimum engagement thresholds that submissions must reach.</p>

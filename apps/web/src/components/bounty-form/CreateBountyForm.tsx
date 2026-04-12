@@ -392,7 +392,7 @@ export function CreateBountyForm({
             />
 
             {/* Engagement & Visibility toggles */}
-            <div className="mt-4 pt-4 border-t border-glass-border">
+            <div>
               <h4 className="text-sm font-semibold text-text-primary mb-3">Engagement &amp; Visibility</h4>
               <div className="space-y-4">
                 <div className="flex items-center gap-4">

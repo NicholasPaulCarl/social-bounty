@@ -14,7 +14,7 @@ interface CustomRulesSectionProps {
 
 export function CustomRulesSection({ customRules, dispatch, errors, submitAttempted }: CustomRulesSectionProps) {
   return (
-    <div className="mt-4 pt-4 border-t border-glass-border">
+    <div>
       <h4 className="text-sm font-semibold text-text-primary mb-1">Custom Rules</h4>
       <p className="text-xs text-text-muted mb-3">Add any additional rules specific to this bounty.</p>
       <div className="space-y-3">

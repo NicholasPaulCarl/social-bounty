@@ -200,7 +200,7 @@ export function RewardLinesSection({
         )}
       </div>
 
-      <div className="flex justify-end mt-4 pt-3 border-t border-glass-border">
+      <div className="flex justify-end mt-4">
         <div className="text-right">
           <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward Value</span>
           <p className="text-lg font-bold text-text-primary mt-0.5">

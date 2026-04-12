@@ -140,7 +140,6 @@ export function AccessTypeSection({ accessType, selectedHunters, dispatch }: Acc
       {/* Hunter search — only shown when CLOSED */}
       {accessType === BountyAccessType.CLOSED && (
         <div className="space-y-4 pt-1">
-          <div className="h-px bg-glass-border" />
 
           <div>
             <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
