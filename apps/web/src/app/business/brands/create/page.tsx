@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { HUNTER_INTERESTS, BRAND_PROFILE_LIMITS } from '@social-bounty/shared';
 import type { BrandSocialLinks } from '@social-bounty/shared';
+import { ImageCropDialog } from '@/components/common/ImageCropDialog';
 
 export default function CreateBrandPage() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function CreateBrandPage() {
     targetInterests: [] as string[],
   });
   const [logo, setLogo] = useState<File | undefined>();
+  const [logoPending, setLogoPending] = useState<File | null>(null);
   const [handleStatus, setHandleStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -73,7 +75,8 @@ export default function CreateBrandPage() {
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setLogo(file);
+    if (file) setLogoPending(file);
+    e.target.value = '';
   };
 
   const validate = (): boolean => {
@@ -217,7 +220,17 @@ export default function CreateBrandPage() {
               onChange={handleLogoChange}
               className="text-sm text-text-secondary"
             />
+            {logo && <small className="text-accent-emerald text-xs mt-1 block">Cropped logo ready</small>}
             <small className="text-text-muted text-xs mt-1 block">Recommended: 200 x 200px, square. Max 2MB.</small>
+
+            <ImageCropDialog
+              visible={!!logoPending}
+              onHide={() => setLogoPending(null)}
+              file={logoPending}
+              aspect={1}
+              title="Crop Logo"
+              onCropComplete={(cropped) => setLogo(cropped)}
+            />
           </div>
         </div>
 
