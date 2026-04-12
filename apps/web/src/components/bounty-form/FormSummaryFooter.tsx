@@ -39,7 +39,7 @@ export function FormSummaryFooter({
   return (
     <>
       {/* Desktop footer — 3-column grid aligned with form above (max-w-4xl) */}
-      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl border-t border-glass-border">
+      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto px-0 py-3 grid grid-cols-[1fr_auto_auto] items-center gap-6">
           {/* Col 1 — Total Reward (left) */}
           <div className="flex flex-col">
@@ -73,7 +73,7 @@ export function FormSummaryFooter({
       </div>
 
       {/* Mobile footer */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl border-t border-glass-border p-3">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl p-3">
         <div className="grid grid-cols-[1fr_auto] items-center gap-3 mb-2">
           <div className="flex flex-col">
             <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
