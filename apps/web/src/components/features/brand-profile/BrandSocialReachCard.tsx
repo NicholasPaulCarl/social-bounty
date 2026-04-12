@@ -7,11 +7,6 @@ import type {
   BrandSocialLinks,
 } from '@social-bounty/shared';
 import { formatCount, formatRelativeTime } from '@/lib/utils/format';
-import {
-  MOCK_PLATFORMS,
-  getMockBrandSocialAnalytics,
-  type MockPlatform,
-} from '@/lib/mock/apify';
 
 interface BrandSocialReachCardProps {
   orgId: string;
@@ -19,7 +14,11 @@ interface BrandSocialReachCardProps {
   analytics: BrandSocialAnalyticsBlob | null;
 }
 
-const PLATFORM_META: Record<MockPlatform, { label: string; icon: string; color: string; urlPrefix: string }> = {
+type Platform = 'instagram' | 'tiktok' | 'facebook';
+
+const PLATFORMS: Platform[] = ['instagram', 'tiktok', 'facebook'];
+
+const PLATFORM_META: Record<Platform, { label: string; icon: string; color: string; urlPrefix: string }> = {
   instagram: {
     label: 'Instagram',
     icon: 'pi pi-instagram',
@@ -40,57 +39,32 @@ const PLATFORM_META: Record<MockPlatform, { label: string; icon: string; color: 
   },
 };
 
-interface TileData {
-  followers: number;
-  postCount: number;
-  avgLikes: number;
-  engagementRate: number;
-  isReal: boolean;
-  error: string | null;
-}
-
-function counterHasRealData(c: BrandSocialAnalyticsCounters | undefined): boolean {
+function hasRealCounters(c: BrandSocialAnalyticsCounters | undefined): boolean {
   if (!c) return false;
   if (c.error && c.error !== 'not connected') return false;
   return (
     c.followersCount !== null ||
-    c.followingCount !== null ||
     c.postsCount !== null ||
-    c.totalLikes !== null ||
     c.avgLikes !== null
   );
 }
 
-function buildTile(orgId: string, platform: MockPlatform, real: BrandSocialAnalyticsCounters | undefined): TileData {
-  const mock = getMockBrandSocialAnalytics(orgId, platform);
-  if (real && counterHasRealData(real)) {
-    return {
-      followers: real.followersCount ?? mock.followers,
-      postCount: real.postsCount ?? mock.postCount,
-      avgLikes: real.avgLikes ?? mock.avgLikes,
-      engagementRate: real.engagementRate ?? mock.engagementRate,
-      isReal: true,
-      error: null,
-    };
-  }
-  return {
-    ...mock,
-    isReal: false,
-    error: real?.error && real.error !== 'not connected' ? real.error : null,
-  };
+/** Format a counter value: real number → formatted, null/undefined → '--' */
+function display(n: number | null | undefined): string {
+  if (n === null || n === undefined) return '--';
+  return formatCount(n);
 }
 
-function BrandSocialReachCardImpl({ orgId, socialLinks, analytics }: BrandSocialReachCardProps) {
-  // Memoize the whole tile set so parent re-renders don't re-hash the mock
-  // for each platform. Deps: orgId + the two data blobs.
+function BrandSocialReachCardImpl({ socialLinks, analytics }: BrandSocialReachCardProps) {
   const tiles = useMemo(() => {
     const links = socialLinks ?? {};
-    return MOCK_PLATFORMS.map((platform) => ({
-      platform,
-      handle: (links[platform] as string | undefined) ?? null,
-      data: buildTile(orgId, platform, analytics?.[platform]),
-    }));
-  }, [orgId, socialLinks, analytics]);
+    return PLATFORMS.map((platform) => {
+      const handle = (links[platform] as string | undefined) ?? null;
+      const counters = analytics?.[platform];
+      const real = hasRealCounters(counters);
+      return { platform, handle, counters, real };
+    });
+  }, [socialLinks, analytics]);
 
   const footerText = analytics?.fetchedAt
     ? `Last updated ${formatRelativeTime(analytics.fetchedAt)}`
@@ -102,7 +76,7 @@ function BrandSocialReachCardImpl({ orgId, socialLinks, analytics }: BrandSocial
         Social Reach
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {tiles.map(({ platform, handle, data }) => {
+        {tiles.map(({ platform, handle, counters, real }) => {
           const meta = PLATFORM_META[platform];
           const href = handle ? `${meta.urlPrefix}${handle}` : null;
           return (
@@ -113,15 +87,10 @@ function BrandSocialReachCardImpl({ orgId, socialLinks, analytics }: BrandSocial
                   <span className="text-text-primary font-heading font-semibold text-sm">
                     {meta.label}
                   </span>
-                  {!data.isReal && (
-                    <span className="text-[10px] uppercase tracking-wider text-text-muted border border-glass-border rounded px-1.5 py-0.5">
-                      Sample
-                    </span>
-                  )}
-                  {data.error && (
+                  {counters?.error && counters.error !== 'not connected' && (
                     <i
                       className="pi pi-exclamation-circle text-accent-rose text-xs"
-                      title={data.error}
+                      title={counters.error}
                     />
                   )}
                 </div>
@@ -143,25 +112,27 @@ function BrandSocialReachCardImpl({ orgId, socialLinks, analytics }: BrandSocial
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <p className="text-xl font-heading font-bold text-accent-cyan">
-                    {formatCount(data.followers)}
+                    {real ? display(counters?.followersCount) : '--'}
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">Followers</p>
                 </div>
                 <div>
                   <p className="text-xl font-heading font-bold text-accent-cyan">
-                    {formatCount(data.postCount)}
+                    {real ? display(counters?.postsCount) : '--'}
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">Posts</p>
                 </div>
                 <div>
                   <p className="text-xl font-heading font-bold text-accent-cyan">
-                    {formatCount(data.avgLikes)}
+                    {real ? display(counters?.avgLikes) : '--'}
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">Avg Likes</p>
                 </div>
                 <div>
                   <p className="text-xl font-heading font-bold text-accent-cyan">
-                    {data.engagementRate.toFixed(1)}%
+                    {real && counters?.engagementRate != null
+                      ? `${counters.engagementRate.toFixed(1)}%`
+                      : '--'}
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">Engagement</p>
                 </div>
