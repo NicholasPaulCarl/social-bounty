@@ -95,28 +95,28 @@ This makes webhook replays, retries, and at-least-once delivery safe.
 
 ## 6. Reconciliation Engine
 
-Runs every 15 minutes and on-demand. Findings raise exceptions on the Finance Reconciliation Dashboard (`admin-dashboard.md`).
+Runs every 15 minutes and on-demand. Findings raise exceptions on the Finance Reconciliation Dashboard (`admin-dashboard.md`). All seven checks are implemented in `apps/api/src/modules/reconciliation/reconciliation.service.ts`; method names are given in parentheses.
 
-### Balance check
+### Balance check (`checkGroupBalance`)
 For every `transactionGroupId`, `sum(credits) == sum(debits)`. Any mismatch creates a Critical KB entry and triggers the Financial Kill Switch.
 
-### Duplicate detection
-Any `(referenceId, actionType)` pair with more than one row indicates an idempotency bypass. Should be impossible with the DB constraint; if seen, it is a structural flaw.
+### Duplicate detection (`checkDuplicateGroups`)
+Any `(referenceId, actionType)` pair with more than one row indicates an idempotency bypass. Should be impossible with the DB constraint; if seen, it is a structural flaw. Critical.
 
-### Missing legs
-`transactionGroupId`s with entries in `pending` status older than the configured retry window (default 30 minutes for inbound, 4 hours for outbound).
+### Missing legs (`checkMissingLegs`)
+Every `transactionGroupId` must have at least two legs (one debit, one credit). A group with fewer than two entries is a half-written transaction. Critical.
 
-### Status consistency
-No group should have a mix of `completed` and `reversed` without a compensating entry chain linking them.
+### Status consistency (`checkStatusConsistency`)
+Bounty `paymentStatus=PAID` must have a matching `stitch_payment_settled` group (and vice versa); submission `status=APPROVED` must have a matching `submission_approved` group (and vice versa). Four anti-joins. Warning severity — webhook-vs-DB lag is noisy; recurrence is caught via the KB confidence loop.
 
-### Wallet balance vs ledger
-Cached balances (if any) must equal `sum(credits) - sum(debits)` filtered by `userId`, `account`, and `completed` status. Drift means the cache is wrong — ledger wins.
+### Wallet balance vs ledger (`checkWalletProjectionDrift`)
+Per ADR 0002 `Wallet.balance` is a cached projection over `LedgerEntry` filtered by `userId`, `account='hunter_available'`, and `status='COMPLETED'`. Drift (`cached_balance_cents <> projected_balance_cents`) means the cache is wrong — ledger wins. Warning.
 
-### Stitch vs ledger
-For each module (inbound, payouts, refunds), match Stitch records against ledger records by `externalReference`. Statuses: `matched | mismatch | missing | duplicate`. See `payment-gateway.md` §15.
+### Stitch vs ledger (`checkStitchVsLedger`)
+A `StitchPaymentLink` in terminal status `SETTLED` requires a matching `stitch_payment_settled` ledger group keyed on `stitchPaymentId`; a `StitchPayout` in terminal status `SETTLED` requires a matching `stitch_payout_settled` group keyed on `stitchPayoutId`. Two index-driven anti-joins. Critical — Stitch confirmed money moved but the ledger has no record. See `payment-gateway.md` §15.
 
-### Reserve vs bounty
-Sum of `brand_reserve` credits minus debits, grouped by bounty, must equal `bounty.face_value` for every open bounty.
+### Reserve vs bounty (`checkReserveVsBounty`)
+Sum of `brand_reserve` credits minus debits, grouped by bounty, must equal `bounty.faceValueCents` for every PAID bounty. Single `GROUP BY` with `LEFT JOIN` (batch 11B perf rewrite). Warning.
 
 ---
 
