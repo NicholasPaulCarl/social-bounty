@@ -1,11 +1,23 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JobRunStatus, LedgerAccount, LedgerEntryType, Prisma } from '@prisma/client';
+import { UserRole } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService } from '../ledger/ledger.service';
+import { KbService } from '../kb/kb.service';
 
 export interface ReconciliationFinding {
   category: string;
+  /**
+   * Legacy field retained for in-memory grouping during a single run. The
+   * persisted signature is hashed by KbService from (category, system, errorCode)
+   * — this string is only used in logs / report output.
+   */
   signature: string;
+  /** Logical system for KB grouping (ledger, reconciliation, …). */
+  system: string;
+  /** Distinct incident id (e.g. groupId, bountyId) — fed to KbService.signature. */
+  errorCode: string;
   severity: 'info' | 'warning' | 'critical';
   title: string;
   detail: Record<string, unknown>;
@@ -24,7 +36,19 @@ export class ReconciliationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly ledger: LedgerService,
+    @Optional() private readonly kb?: KbService,
+    @Optional() private readonly config?: ConfigService,
   ) {}
+
+  /**
+   * System actor for AuditLog writes by this job. AuditLog.actorId has a FK to
+   * users.id — hard-coded strings fail the constraint. Returns null if env is
+   * unset; callers treat that as "skip audit log but still activate the kill
+   * switch" rather than aborting the whole job.
+   */
+  private systemActorId(): string | null {
+    return this.config?.get<string>('STITCH_SYSTEM_ACTOR_ID', '') || null;
+  }
 
   /**
    * Runs the Phase 1 subset of reconciliation checks:
@@ -55,13 +79,50 @@ export class ReconciliationService {
     const hasCritical = findings.some((f) => f.severity === 'critical');
     let killSwitchActivated = false;
     if (hasCritical) {
+      // Guard against re-tripping on every cron tick: only flip when OFF.
       const alreadyActive = await this.ledger.isKillSwitchActive();
       if (!alreadyActive) {
+        const criticalFindings = findings.filter((f) => f.severity === 'critical');
         await this.ledger.setKillSwitch(true, 'reconciliation-job');
         killSwitchActivated = true;
         this.logger.error(
-          `reconciliation found ${findings.filter((f) => f.severity === 'critical').length} critical finding(s); Kill Switch activated`,
+          `reconciliation found ${criticalFindings.length} critical finding(s); Kill Switch activated`,
         );
+
+        // Audit log the activation (Hard Rule #3 + Non-Negotiable #6). If the
+        // system actor id isn't configured we log and continue — the ledger
+        // state change is already committed and the JobRun record carries the
+        // full finding list for traceability.
+        const actorId = this.systemActorId();
+        if (actorId) {
+          try {
+            await this.prisma.auditLog.create({
+              data: {
+                actorId,
+                actorRole: UserRole.SUPER_ADMIN,
+                action: 'KILL_SWITCH_ACTIVATED',
+                entityType: 'SystemSetting',
+                entityId: 'financial.kill_switch.active',
+                beforeState: { value: 'false' } as Prisma.InputJsonValue,
+                afterState: {
+                  value: 'true',
+                  trigger: 'reconciliation-job',
+                  runId: run.id,
+                  criticalFindings: criticalFindings.length,
+                } as Prisma.InputJsonValue,
+                reason: `auto-activated after ${criticalFindings.length} critical reconciliation finding(s)`,
+              },
+            });
+          } catch (err) {
+            this.logger.error(
+              `failed to write kill-switch audit log: ${err instanceof Error ? err.message : String(err)}`,
+            );
+          }
+        } else {
+          this.logger.warn(
+            'STITCH_SYSTEM_ACTOR_ID not set — kill-switch activation not audit-logged',
+          );
+        }
       }
     }
 
@@ -98,6 +159,8 @@ export class ReconciliationService {
     return rows.map((r) => ({
       category: 'ledger-imbalance',
       signature: `imbalance:${r.transactionGroupId}`,
+      system: 'ledger',
+      errorCode: `imbalance:${r.transactionGroupId}`,
       severity: 'critical',
       title: `Ledger group ${r.transactionGroupId} is unbalanced`,
       detail: {
@@ -120,6 +183,8 @@ export class ReconciliationService {
     return rows.map((r) => ({
       category: 'duplicate-group',
       signature: `dup:${r.actionType}:${r.referenceId}`,
+      system: 'ledger',
+      errorCode: `dup:${r.actionType}:${r.referenceId}`,
       severity: 'critical',
       title: `Duplicate (referenceId, actionType) pair: ${r.actionType}:${r.referenceId}`,
       detail: { referenceId: r.referenceId, actionType: r.actionType, count: Number(r.n) },
@@ -169,6 +234,8 @@ export class ReconciliationService {
         findings.push({
           category: 'reserve-drift',
           signature: `reserve:${b.id}`,
+          system: 'ledger',
+          errorCode: `reserve:${b.id}`,
           severity: 'warning',
           title: `Bounty reserve drift on ${b.id}`,
           detail: {
@@ -183,24 +250,45 @@ export class ReconciliationService {
     return findings;
   }
 
+  /**
+   * Route RecurringIssue writes through KbService so reconciliation findings
+   * share the same signature hashing + bump-vs-create semantics as webhook
+   * failure findings. metadata.system is populated so the admin dashboard's
+   * per-system confidence score can group correctly.
+   *
+   * Falls back to the legacy prisma.recurringIssue.upsert path only if KbService
+   * isn't wired (which shouldn't happen in production — KbModule is @Global —
+   * but keeps older unit tests green).
+   */
   private async persistFindings(findings: ReconciliationFinding[]): Promise<void> {
     for (const f of findings) {
-      await this.prisma.recurringIssue.upsert({
-        where: { category_signature: { category: f.category, signature: f.signature } },
-        create: {
+      if (this.kb) {
+        await this.kb.recordRecurrence({
           category: f.category,
-          signature: f.signature,
+          system: f.system,
+          errorCode: f.errorCode,
           title: f.title,
           severity: f.severity,
-          metadata: f.detail as Prisma.InputJsonValue,
-        },
-        update: {
-          lastSeenAt: new Date(),
-          occurrences: { increment: 1 },
-          metadata: f.detail as Prisma.InputJsonValue,
-          severity: f.severity,
-        },
-      });
+          metadata: { ...f.detail, system: f.system },
+        });
+      } else {
+        await this.prisma.recurringIssue.upsert({
+          where: { category_signature: { category: f.category, signature: f.signature } },
+          create: {
+            category: f.category,
+            signature: f.signature,
+            title: f.title,
+            severity: f.severity,
+            metadata: f.detail as Prisma.InputJsonValue,
+          },
+          update: {
+            lastSeenAt: new Date(),
+            occurrences: { increment: 1 },
+            metadata: f.detail as Prisma.InputJsonValue,
+            severity: f.severity,
+          },
+        });
+      }
     }
   }
 }

@@ -16,6 +16,8 @@ const keys = {
   exceptions: ['financeAdmin', 'exceptions'] as const,
   auditTrail: (limit: number) => ['financeAdmin', 'auditTrail', limit] as const,
   confidence: ['financeAdmin', 'confidence'] as const,
+  subscriptions: (page: number, limit: number) =>
+    ['financeAdmin', 'subscriptions', page, limit] as const,
 };
 
 export function useFinanceOverview() {
@@ -88,6 +90,15 @@ export function useRunReconciliation() {
       qc.invalidateQueries({ queryKey: keys.overview });
       qc.invalidateQueries({ queryKey: keys.exceptions });
     },
+  });
+}
+
+export function useFinanceSubscriptions(params?: { page?: number; limit?: number }) {
+  const page = params?.page ?? 1;
+  const limit = params?.limit ?? 25;
+  return useQuery({
+    queryKey: keys.subscriptions(page, limit),
+    queryFn: () => financeAdminApi.listSubscriptions({ page, limit }),
   });
 }
 

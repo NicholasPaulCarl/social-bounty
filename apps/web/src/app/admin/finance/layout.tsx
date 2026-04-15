@@ -9,6 +9,7 @@ const TABS = [
   { label: 'Reserves', href: '/admin/finance/reserves' },
   { label: 'Earnings & Payouts', href: '/admin/finance/earnings-payouts' },
   { label: 'Refunds', href: '/admin/finance/refunds' },
+  { label: 'Subscriptions', href: '/admin/finance/subscriptions' },
   { label: 'Exceptions', href: '/admin/finance/exceptions' },
   { label: 'Audit Trail', href: '/admin/finance/audit-trail' },
   { label: 'Overrides', href: '/admin/finance/overrides' },

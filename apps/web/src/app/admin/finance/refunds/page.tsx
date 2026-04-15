@@ -8,12 +8,14 @@ import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { useAdminRefunds, useApproveRefundBefore } from '@/hooks/useFinanceAdmin';
+import { financeAdminApi } from '@/lib/api/finance-admin';
 import { useToast } from '@/hooks/useToast';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatCents, formatDateTime, formatEnumLabel } from '@/lib/utils/format';
+import { csvFilename, saveBlob } from '@/lib/utils/download';
 
 const STATE_SEVERITY: Record<string, 'success' | 'warning' | 'danger' | 'info' | undefined> = {
   REQUESTED: 'info',
@@ -29,6 +31,19 @@ export default function FinanceRefundsPage() {
   const { data, isLoading, error, refetch } = useAdminRefunds();
   const approve = useApproveRefundBefore();
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const blob = await financeAdminApi.downloadExport('refunds');
+      saveBlob(blob, csvFilename('refunds'));
+    } catch (err) {
+      toast.showError(err instanceof Error ? err.message : 'Could not download CSV.');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   if (isLoading) return <LoadingState type="table" />;
   if (error) return <ErrorState error={error as Error} onRetry={() => refetch()} />;
@@ -50,7 +65,18 @@ export default function FinanceRefundsPage() {
       <PageHeader
         title="Refunds"
         subtitle="Pre-approval, post-approval, and post-payout refund requests"
-        actions={<Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />}
+        actions={
+          <div className="flex gap-2">
+            <Button
+              label="Download CSV"
+              icon="pi pi-download"
+              outlined
+              loading={downloading}
+              onClick={handleDownload}
+            />
+            <Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />
+          </div>
+        }
       />
       <Card>
         <DataTable value={data ?? []} size="small" stripedRows paginator rows={20}>

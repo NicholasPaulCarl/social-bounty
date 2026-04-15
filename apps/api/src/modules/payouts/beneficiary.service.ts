@@ -29,6 +29,10 @@ export class BeneficiaryService {
     this.key = scryptSync(secret, 'stitch-beneficiary', 32);
   }
 
+  // PEACH MIGRATION (ADR 0007): the local-fallback branch (synthetic
+  // `local:{userId}` id when Stitch is disabled) is removed when Peach is
+  // integrated — Peach's beneficiary API returns a real provider id in all
+  // environments, so `stitchBeneficiaryId` becomes `peachBeneficiaryId`.
   async upsertForUser(userId: string, input: BeneficiaryInput) {
     if (!/^\d{6,20}$/.test(input.accountNumber)) {
       throw new BadRequestException('accountNumber must be 6-20 digits');

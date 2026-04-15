@@ -14,11 +14,13 @@ import {
   useToggleKillSwitch,
   useRunReconciliation,
 } from '@/hooks/useFinanceAdmin';
+import { financeAdminApi } from '@/lib/api/finance-admin';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { formatCents, formatDateTime } from '@/lib/utils/format';
+import { csvFilename, saveBlob } from '@/lib/utils/download';
 
 export default function FinanceOverviewPage() {
   const toast = useToast();
@@ -28,6 +30,20 @@ export default function FinanceOverviewPage() {
   const [killDialogOpen, setKillDialogOpen] = useState(false);
   const [killReason, setKillReason] = useState('');
   const [reconResult, setReconResult] = useState<{ findings: number; killActivated: boolean } | null>(null);
+  const [downloadingLedger, setDownloadingLedger] = useState(false);
+
+  const handleDownloadLedger = async () => {
+    setDownloadingLedger(true);
+    try {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const blob = await financeAdminApi.downloadExport('ledger', { since: sevenDaysAgo });
+      saveBlob(blob, csvFilename('ledger'));
+    } catch (err) {
+      toast.showError(err instanceof Error ? err.message : 'Could not download CSV.');
+    } finally {
+      setDownloadingLedger(false);
+    }
+  };
 
   if (isLoading) return <LoadingState type="cards-grid" cards={4} />;
   if (error) return <ErrorState error={error as Error} onRetry={() => refetch()} />;
@@ -79,6 +95,13 @@ export default function FinanceOverviewPage() {
               outlined
               loading={recon.isPending}
               onClick={onRunRecon}
+            />
+            <Button
+              label="Download ledger CSV"
+              icon="pi pi-download"
+              outlined
+              loading={downloadingLedger}
+              onClick={handleDownloadLedger}
             />
           </div>
         }

@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -34,6 +36,10 @@ export class ApprovalLedgerService {
     private readonly prisma: PrismaService,
     private readonly ledger: LedgerService,
     private readonly fees: FeeCalculatorService,
+    // forwardRef required: SubscriptionsModule ↔ LedgerModule now cycle each
+    // other (see module files). This @Inject + forwardRef pair tells Nest to
+    // defer the provider lookup until both modules are initialised.
+    @Inject(forwardRef(() => SubscriptionsService))
     private readonly subscriptions: SubscriptionsService,
     private readonly config?: ConfigService,
   ) {}

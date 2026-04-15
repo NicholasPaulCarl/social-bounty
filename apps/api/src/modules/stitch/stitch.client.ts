@@ -164,6 +164,10 @@ export class StitchClient {
     return json.data;
   }
 
+  // PEACH MIGRATION (ADR 0007): createPayout currently hits Stitch's
+  // single-beneficiary /api/v1/withdrawal. Peach supports multi-recipient
+  // payouts with a real beneficiaryId — body shape and endpoint both change
+  // here when we cut over.
   async createPayout(
     params: CreatePayoutParams,
     idempotencyKey: string,
@@ -211,6 +215,10 @@ export class StitchClient {
    *
    * Returned `id` is prefixed `local:` so monitoring can flag any row that
    * should have a real Stitch id.
+   *
+   * PEACH MIGRATION (ADR 0007): this entire method is replaced when Peach
+   * Payments is integrated — Peach exposes a first-class beneficiary API, so
+   * the local-synth id path and the `local:*` audit markers go away.
    */
   async createBeneficiary(
     payload: {

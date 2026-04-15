@@ -324,6 +324,7 @@ enum LedgerAccount {
   bank_charges
   gateway_clearing
   payout_in_transit
+  subscription_revenue
 }
 
 enum LedgerEntryType {
@@ -1168,6 +1169,9 @@ model SubscriptionPayment {
   attemptNumber      Int                       @default(1)
   failureReason      String?
   paidAt             DateTime?
+  // Plan snapshot (Non-Negotiable #9): tier captured at charge creation time
+  // so in-flight transactions are never re-priced on plan change.
+  tierSnapshot       SubscriptionTier?
   createdAt          DateTime                  @default(now())
 
   subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)

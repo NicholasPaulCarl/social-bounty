@@ -55,6 +55,11 @@ export class PayoutsService {
    * Enumerates hunters with spare available balance, creates a StitchPayout row,
    * posts hunter_available → payout_in_transit, and calls Stitch. Payout settlement
    * (and the corresponding ledger move to hunter_paid) arrives via webhook.
+   *
+   * PEACH MIGRATION (ADR 0007): eligibility + ledger legs stay, but the
+   * Stitch dispatch call inside initiatePayout is swapped for Peach's payout
+   * API. Webhook settlement handlers (onPayoutSettled / onPayoutFailed) also
+   * change shape.
    */
   async runBatch(batchSize = 100): Promise<{ initiated: number; skipped: number; failed: number }> {
     const jobRun = await this.prisma.jobRun.create({
@@ -130,6 +135,9 @@ export class PayoutsService {
     return { initiated, skipped, failed };
   }
 
+  // PEACH MIGRATION (ADR 0007): the stitch.createPayout() call inside this
+  // method is replaced by the Peach payouts API. beneficiary lookup switches
+  // from the local-synth path to Peach's real beneficiary id.
   async initiatePayout(userId: string, beneficiaryId: string, amountCents: bigint) {
     // Stitch merchantReference + our Idempotency-Key: alphanumeric only.
     const stamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
@@ -255,6 +263,8 @@ export class PayoutsService {
     }
   }
 
+  // PEACH MIGRATION (ADR 0007): replace stitch.createPayout() retry call with
+  // Peach's equivalent; retry/backoff policy itself is provider-agnostic.
   async retryBatch(batchSize = 50): Promise<{ retried: number }> {
     const now = new Date();
     const candidates = await this.prisma.stitchPayout.findMany({
@@ -309,6 +319,9 @@ export class PayoutsService {
     return { retried };
   }
 
+  // PEACH MIGRATION (ADR 0007): webhook payload + provider id field change
+  // when Peach is live; the ledger legs (payout_in_transit → hunter_paid)
+  // stay the same.
   async onPayoutSettled(stitchPayoutId: string): Promise<void> {
     const payout = await this.prisma.stitchPayout.findUnique({
       where: { stitchPayoutId },
@@ -354,6 +367,9 @@ export class PayoutsService {
     });
   }
 
+  // PEACH MIGRATION (ADR 0007): webhook payload + provider id field change
+  // when Peach is live; the compensating legs (payout_in_transit → hunter_available)
+  // stay the same.
   async onPayoutFailed(stitchPayoutId: string, reason: string): Promise<void> {
     const payout = await this.prisma.stitchPayout.findUnique({
       where: { stitchPayoutId },
