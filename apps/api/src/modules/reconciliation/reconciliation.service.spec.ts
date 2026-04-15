@@ -30,6 +30,11 @@ describe('ReconciliationService KB auto-feed', () => {
         create: jest.fn().mockResolvedValue({ id: 'run_1' }),
         update: jest.fn().mockResolvedValue({}),
       },
+      // The 11A checks (4–7) all use $queryRaw; every test in this suite
+      // stubs the public check methods to inject a deterministic finding,
+      // so $queryRaw should never actually be hit. Provide a benign default
+      // anyway in case a future test forgets to stub one of the new checks.
+      $queryRaw: jest.fn().mockResolvedValue([]),
       // NOTE: recurringIssue is intentionally absent here — a failure to
       // delegate to KbService would surface as a TypeError.
       recurringIssue: undefined,

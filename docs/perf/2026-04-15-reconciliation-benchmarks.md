@@ -115,7 +115,7 @@ pre-launch), the check runs in ~350 ms. Plenty of headroom against the
 ~6.4 s — still fine for a 15 min cron, but it's a regression waiting to
 happen if the bounty count or clearance window grows.
 
-**Mitigation (NOT applied in this batch — documentation only)**: rewrite the
+**Mitigation (applied in batch 11B — see §5.2 below)**: rewrite the
 loop as a **single** `GROUP BY bountyId` query joined against
 `bounties.faceValueCents`, e.g.
 
@@ -141,10 +141,55 @@ via the existing `ledger_entries_bountyId_idx` + `bounties_paymentStatus_idx`.
 Expected drop: from 3.2 s → < 200 ms at B = 10 000.
 
 This is a structural fix (per `claude.md` §2 "if an issue recurs, treat it
-as a structural flaw, not a bug"). Routing through Agent Team Lead as a
-separate batch when reconciliation touches come up again.
+as a structural flaw, not a bug"). Routed through Agent Team Lead in
+batch 11B; results captured in §5.2.
 
-### 5.2 No other red flags
+### 5.2 Mitigation applied in batch 11B
+
+The §5.1 fix landed in batch 11B (Backend agent, `apps/api/src/modules/
+reconciliation/reconciliation.service.ts:212-287`). Implementation matches
+the documented SQL: a single `prisma.$queryRaw` issuing one
+`GROUP BY b.id, b."faceValueCents"` over `bounties LEFT JOIN ledger_entries`
+with the drift filter pushed into a `HAVING` clause so only drifted rows
+cross the wire.
+
+Semantics are identical: the same two healthy states
+(`reserveBalance == faceValueCents` OR `reserveBalance == 0`) are excluded;
+all other states surface a `reserve-drift` warning with the same
+`ReconciliationFinding` shape (category, signature, errorCode, severity,
+title, detail.bountyId / detail.faceValueCents / detail.reserveBalanceCents).
+The `detail.sumDeprecated` field is retained for shape compatibility — it
+now mirrors `reserveBalanceCents`, since the standalone credit-only sum is
+no longer queried.
+
+**Re-bench results** (same host, same script, same seed profile):
+
+| Series | B | `checkReserveVsBounty` (before) | `checkReserveVsBounty` (after) | Speedup |
+| --- | ---: | ---: | ---: | ---: |
+| Primary | 1 000 | 349.3 ms | **1.9 ms** | **184×** |
+| Stress  | 10 000 | 3 212 ms | **6.5 ms** | **494×** |
+
+End-to-end `run()` collapses correspondingly — at B=10 000 the full job
+now finishes in ~34 ms (vs ~3.2 s before), giving the 15-min cron
+~26 000× safety margin at the previous worst-tested point.
+
+The check no longer dominates `run()`; `checkGroupBalance` (~16 ms at
+N=100 000) is now the largest single contributor.
+
+Reproduction:
+
+```bash
+BENCH_PAID_BOUNTIES=1000  npm run bench:recon:run -- --n 100000
+BENCH_PAID_BOUNTIES=10000 npm run bench:recon:run -- --n 100000
+```
+
+Test coverage for the structural change:
+- `apps/api/src/modules/reconciliation/reconciliation.fault-injection.spec.ts`
+  scenario 3 (existing reserve-drift detection — still green against the new
+  query path) and scenario 4b (new regression guard for a compensating-entry
+  with a missing leg).
+
+### 5.3 No other red flags
 
 None of the three checks exceeded 30 s at any tested scale. Group-balance
 and duplicate-groups both stayed well under 20 ms up to 100 k entries.
@@ -190,24 +235,69 @@ need** to partition the sweep today. The one structural risk
 
 ---
 
-## 7. What this benchmark does NOT cover
+## 7. Phase-2 checks 4–7 — analytical coverage (batch 11A, 2026-04-15)
 
-The spec and `claude.md` both reference a 7-check reconciliation engine. As
-of 2026-04-15 only three are in code. The other four will need bench
-coverage when they land:
+Batch 11A landed the four remaining reconciliation checks
+(`checkMissingLegs`, `checkStatusConsistency`,
+`checkWalletProjectionDrift`, `checkStitchVsLedger`). They are all
+**single round-trip set-based scans** that compose with the existing checks
+in `ReconciliationService.run()`. No N+1 loops, no per-row aggregates.
+Big-O and an analytical projection follow; a re-run of `npm run
+bench:recon` against a freshly-seeded DB is deferred to the next batch
+(the harness already accepts new public methods per §7.3 below).
 
-1. `missingLegs` — orphan `LedgerEntry` rows whose transaction group is
-   incomplete.
-2. `statusConsistency` — cross-table drift between `Bounty.paymentStatus`
-   and the ledger.
-3. `walletProjectionDrift` — `Wallet.balanceCents` vs the ledger's derived
-   balance.
-4. `stitchVsLedger` — `StitchPayment`, `StitchPayout` state mismatch vs the
-   ledger.
+| Check | Big-O | Round-trips | Indexes used | Notes |
+| --- | --- | ---: | --- | --- |
+| `checkMissingLegs` | O(G + E) | 1 | `ledger_entries_transactionGroupId_idx` | LEFT JOIN + GROUP BY g.id; HAVING COUNT < 2. Same shape as `checkGroupBalance`'s GROUP BY (16 ms at 100 k entries in §3) — projected <30 ms at G=25 k / E=100 k. |
+| `checkStatusConsistency` | O(B + S + G) | 4 | `bounties_paymentStatus_idx`, `submissions_status_idx`, `ledger_transaction_groups_referenceId_actionType_uniq`, `stitch_payment_links_bountyId_idx` | Four anti-joins (PAID-without-group, group-without-PAID, APPROVED-without-group, group-without-APPROVED). Postgres uses the unique `(referenceId, actionType)` index for the EXISTS lookups. Projected ~80 ms total at B=10 k / S=20 k / G=25 k. |
+| `checkWalletProjectionDrift` | O(U + E_h) | 1 | `wallets_userId_uniq`, `ledger_entries_userId_account_status_idx` | Single CTE: GROUP BY userId on `hunter_available` COMPLETED entries, FULL OUTER JOIN against wallets. Projected ~50 ms at U=50 k wallets and E_h=200 k hunter entries. |
+| `checkStitchVsLedger` | O(L + P) | 2 | `stitch_payment_links_status_idx`, `stitch_payouts_status_nextRetryAt_idx`, `ledger_transaction_groups_referenceId_actionType_uniq` | Two index-driven anti-joins (one per Stitch artefact type). <20 ms for any plausible L+P. |
 
-The benchmark harness is **already scoped to discover new checks**: to
-measure them, expose them as public methods on `ReconciliationService` and
-add their timer to `runBench` in `scripts/bench-reconciliation.ts`.
+### 7.1 Updated end-to-end projection (all 7 checks)
+
+Adding the four new checks at **B = 10 000 paid bounties** (a 10× of the
+current pre-launch state):
+
+| Check | Projected wall-clock (B = 10 k) |
+| --- | ---: |
+| `checkGroupBalance` | ~17 ms |
+| `checkDuplicateGroups` | ~5 ms |
+| `checkReserveVsBounty` (post-batch-11B mitigation) | <200 ms |
+| `checkMissingLegs` | ~30 ms |
+| `checkStatusConsistency` | ~80 ms |
+| `checkWalletProjectionDrift` | ~50 ms |
+| `checkStitchVsLedger` | <20 ms |
+| **Total `run()` end-to-end** | **~400 ms** |
+
+That is well within the 15-min cron envelope.
+
+### 7.2 Refreshed safe-cadence recommendation
+
+The 15-minute cron cadence remains safe with all 7 checks landed.
+Re-projecting the §6 stress table with the additive ~150 ms overhead from
+checks 4–7:
+
+| Paid bounties (B) | Projected `run()` (all 7) | Safe for 15-min cron? |
+| ---: | ---: | --- |
+| 1 000 | 0.5 s | Yes, 1 800 × |
+| 10 000 | ~0.4 s | Yes, 2 250 × (post-batch-11B reserve mitigation) |
+| 100 000 | ~3 s | Yes, 300 × |
+| 1 000 000 | ~25 s | Yes, 36 × |
+
+So **no cadence change is required**. The 11B reserve-check mitigation
+combined with the new set-based checks 4–7 actually moves the break-even
+point further out than the pre-batch-10 baseline. A measured re-bench
+should be scheduled when the platform passes 5 k paid bounties or when
+any new check is added.
+
+### 7.3 Original "what this benchmark does NOT cover" — historical note
+
+Prior to batch 11A, this section listed `missingLegs`,
+`statusConsistency`, `walletProjectionDrift`, and `stitchVsLedger` as
+missing. They are now implemented and analytically covered above. To
+produce *measured* numbers for them, expose each as a public method on
+`ReconciliationService` and add a timer to `runBench` in
+`scripts/bench-reconciliation.ts`.
 
 ---
 
@@ -235,9 +325,13 @@ the superuser's cluster (default db: `postgres`). The real dev DB
 
 ---
 
-## 9. Production code changes in this batch
+## 9. Production code changes
 
-**None.** The reconciliation service, ledger service, Prisma schema, and
-migrations were not modified. The mitigation in §5.1 is documentation only
-— routing through Agent Team Lead as a separate batch in line with
-`claude.md` §3.
+**Batch 10 (original publication of this report)**: none. The mitigation in
+§5.1 was documented but not applied.
+
+**Batch 11B (this revision)**: `checkReserveVsBounty` rewritten in
+`apps/api/src/modules/reconciliation/reconciliation.service.ts:212-287`
+to issue one `GROUP BY` query instead of `2 × B` aggregate round-trips.
+Ledger service, Prisma schema, and migrations untouched. Before/after
+numbers in §5.2.

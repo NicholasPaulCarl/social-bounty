@@ -39,8 +39,17 @@ Stitch Express is integrated as the **inbound** rail (brand-side bounty funding)
 - Compensating-entry bypass enforced per [ADR 0006](adr/0006-compensating-entries-bypass-kill-switch.md) and guarded by `npm run check:kill-switch-bypass` in CI.
 
 ### Reconciliation engine
-- Batch every 15 min. Checks per `financial-architecture.md` §6: balance, duplicate, missing legs, status consistency, wallet vs ledger, Stitch vs ledger, reserve vs bounty.
-- Findings feed the Exception module and the auto-trip Kill Switch pathway.
+- Batch every 15 min. All 7 checks per `financial-architecture.md` §6 are now implemented (batch 11A, 2026-04-15):
+  1. **Balance** — `checkGroupBalance` (sum credits == sum debits per group; critical).
+  2. **Duplicate groups** — `checkDuplicateGroups` (UNIQUE `(referenceId, actionType)` integrity; critical).
+  3. **Reserve vs bounty** — `checkReserveVsBounty` (per-bounty `brand_reserve` balance; warning). Single-`GROUP BY` after batch 11B perf mitigation.
+  4. **Missing legs** — `checkMissingLegs` (every transaction group has ≥ 2 legs; critical).
+  5. **Status consistency** — `checkStatusConsistency` (Bounty PAID ⇔ `stitch_payment_settled` group; Submission APPROVED ⇔ `submission_approved` group; warning, four anti-joins).
+  6. **Wallet projection drift** — `checkWalletProjectionDrift` (cached `Wallet.balance` vs ledger projection per ADR 0002; warning).
+  7. **Stitch vs ledger** — `checkStitchVsLedger` (SETTLED `StitchPaymentLink` / `StitchPayout` requires the matching ledger group; critical).
+- All checks are read-only set-based scans; Kill-Switch state is immaterial to safety.
+- Findings feed the Exception module and the auto-trip Kill Switch pathway (any `critical` finding flips the switch via `LedgerService.setKillSwitch`).
+- Performance projection at B = 10 k paid bounties: ~400 ms end-to-end across all 7 checks. 15-min cadence remains safe well past 100 k. See `docs/perf/2026-04-15-reconciliation-benchmarks.md` §7.
 
 ### Finance admin dashboard — 9 modules
 1. Overview (live balances + kill switch state)
