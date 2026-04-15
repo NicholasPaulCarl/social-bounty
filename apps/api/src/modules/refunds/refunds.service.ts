@@ -18,6 +18,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService } from '../ledger/ledger.service';
 import { StitchClient } from '../stitch/stitch.client';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
+import { feeCents } from '../finance/rounding';
 
 @Injectable()
 export class RefundsService {
@@ -122,8 +123,28 @@ export class RefundsService {
    * Idempotent via action=refund_processed, referenceId=refund.id.
    */
   /**
-   * Post-approval, pre-payout refund. Super Admin approval required.
-   * Reverses the earnings split AND returns face value to brand, then triggers Stitch refund.
+   * Post-approval, pre-payout refund. Super Admin initiates (one-step, no dual approval).
+   *
+   * Per payment-gateway.md §11: reverses the earnings split AND returns face value to
+   * brand_reserve, then triggers the Stitch refund. The compensating ledger group is
+   * posted in the same call (state=APPROVED immediately — we skip REQUESTED).
+   *
+   * Leg layout (mirrors ApprovalLedgerService.postApproval, reversed):
+   *   Step 1 — undo the split:
+   *     DEBIT  commission_revenue
+   *     DEBIT  global_fee_revenue
+   *     DEBIT  hunter_net_payable
+   *     CREDIT hunter_pending   (== faceValue)
+   *   Step 2 — drain hunter_pending → brand_reserve:
+   *     DEBIT  hunter_pending   (== faceValue)
+   *     CREDIT brand_reserve
+   *
+   * Financial Non-Negotiables #1 (balanced), #2 (idempotent via referenceId=refund.id),
+   * #3 (single group), #5 (append-only), #6 (AuditLog in same tx), #9 (amounts rebuilt
+   * from submission + bounty snapshots — never re-priced).
+   *
+   * Webhook `onStitchRefundProcessed` then flips state REFUND → COMPLETED once Stitch
+   * confirms; no second ledger group is needed for the after-approval path.
    */
   async requestAfterApproval(submissionId: string, reason: string, user: AuthenticatedUser) {
     if (user.role !== UserRole.SUPER_ADMIN) {
@@ -131,7 +152,10 @@ export class RefundsService {
     }
     const submission = await this.prisma.submission.findUnique({
       where: { id: submissionId },
-      include: { bounty: true, payout: true },
+      include: {
+        bounty: { include: { stitchPaymentLinks: true } },
+        payout: true,
+      },
     });
     if (!submission) throw new NotFoundException('Submission not found');
     if (submission.payout?.paidAt) {
@@ -140,17 +164,128 @@ export class RefundsService {
     if (!submission.bounty.faceValueCents || !submission.hunterNetCents) {
       throw new BadRequestException('Submission is missing ledger snapshot; cannot refund');
     }
-    return this.prisma.refund.create({
+    const bounty = submission.bounty;
+    const faceValue: bigint = submission.bounty.faceValueCents;
+    const hunterNet: bigint = submission.hunterNetCents;
+    const globalBps = bounty.globalFeeRateBps ?? 0;
+    // Rebuild from snapshots (Non-Negotiable #9). Commission is derived so the
+    // group is guaranteed to reconcile to faceValue regardless of rounding path
+    // — hunterNet = face - commission - globalFee at approval time.
+    const globalFee = feeCents(faceValue, globalBps);
+    const commission = faceValue - hunterNet - globalFee;
+    if (commission < 0n) {
+      throw new BadRequestException(
+        `Refund reversal arithmetic failed: derived commission=${commission} (face=${faceValue} net=${hunterNet} globalFee=${globalFee})`,
+      );
+    }
+
+    const settledLink = bounty.stitchPaymentLinks.find(
+      (l) => l.status === StitchPaymentLinkStatus.SETTLED && l.stitchPaymentId,
+    );
+    if (!settledLink?.stitchPaymentId) {
+      throw new BadRequestException('No settled Stitch payment to refund');
+    }
+
+    // Refund row goes in APPROVED (one-step) — mirrors the after-payout pattern.
+    const refund = await this.prisma.refund.create({
       data: {
         bountyId: submission.bountyId,
         submissionId: submission.id,
         scenario: RefundScenario.AFTER_APPROVAL,
-        state: RefundState.REQUESTED,
-        amountCents: submission.bounty.faceValueCents,
+        state: RefundState.APPROVED,
+        amountCents: faceValue,
         reason,
         requestedByUserId: user.sub,
+        approvedByUserId: user.sub,
       },
     });
+
+    const { transactionGroupId } = await this.ledger.postTransactionGroup({
+      actionType: 'refund_processed',
+      referenceId: refund.id,
+      referenceType: 'Refund',
+      description: `After-approval refund reversal: submission ${submission.id}`,
+      postedBy: user.sub,
+      currency: bounty.currency,
+      legs: [
+        // Step 1: undo earnings split back into hunter_pending.
+        {
+          account: LedgerAccount.commission_revenue,
+          type: LedgerEntryType.DEBIT,
+          amountCents: commission,
+          userId: submission.userId,
+        },
+        {
+          account: LedgerAccount.global_fee_revenue,
+          type: LedgerEntryType.DEBIT,
+          amountCents: globalFee,
+          userId: submission.userId,
+        },
+        {
+          account: LedgerAccount.hunter_net_payable,
+          type: LedgerEntryType.DEBIT,
+          amountCents: hunterNet,
+          userId: submission.userId,
+          submissionId: submission.id,
+        },
+        {
+          account: LedgerAccount.hunter_pending,
+          type: LedgerEntryType.CREDIT,
+          amountCents: faceValue,
+          userId: submission.userId,
+          submissionId: submission.id,
+        },
+        // Step 2: drain hunter_pending back into brand_reserve.
+        {
+          account: LedgerAccount.hunter_pending,
+          type: LedgerEntryType.DEBIT,
+          amountCents: faceValue,
+          userId: submission.userId,
+          submissionId: submission.id,
+        },
+        {
+          account: LedgerAccount.brand_reserve,
+          type: LedgerEntryType.CREDIT,
+          amountCents: faceValue,
+          brandId: bounty.brandId,
+          bountyId: bounty.id,
+        },
+      ],
+      audit: {
+        actorId: user.sub,
+        actorRole: UserRole.SUPER_ADMIN,
+        action: 'REFUND_AFTER_APPROVAL',
+        entityType: 'Refund',
+        entityId: refund.id,
+        reason,
+        afterState: {
+          faceValueCents: faceValue.toString(),
+          commissionCents: commission.toString(),
+          globalFeeCents: globalFee.toString(),
+          hunterNetCents: hunterNet.toString(),
+        },
+      },
+    });
+
+    // Trigger the Stitch refund on the original settled payment.
+    const stitchRefund = await this.stitch.createRefund(
+      settledLink.stitchPaymentId,
+      faceValue,
+      'REQUESTED_BY_CUSTOMER',
+    );
+
+    const updated = await this.prisma.refund.update({
+      where: { id: refund.id },
+      data: {
+        state: RefundState.PROCESSING,
+        stitchRefundId: stitchRefund.id,
+        transactionGroupId,
+      },
+    });
+    this.logger.log(
+      `after-approval refund initiated: ${refund.id} stitchRefundId=${stitchRefund.id} group=${transactionGroupId}`,
+    );
+    return updated;
   }
 
   /**

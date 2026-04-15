@@ -251,4 +251,13 @@ Non-Stitch system vars that the payment stack depends on:
 
 ---
 
+## Batch 8 additions (2026-04-15)
+
+- **Refund after-approval** now posts a balanced compensating ledger group and calls the Stitch refund API with an idempotent key — no longer a bare `Refund` row. Webhook transitions the compensating group to `COMPLETED`; replay is idempotent.
+- **Transaction-group drill-down:** new read-only `GET /admin/finance/groups/:transactionGroupId` (SUPER_ADMIN only) returns group header, all legs, linked `AuditLog`, and Stitch external refs.
+- **UI drill-down:** recent-groups rows on the Finance overview and reserves rows are now clickable into `/admin/finance/groups/[id]` (SUPER_ADMIN only; cross-tenant guard server-side).
+- **ADR 0009 drafted (Proposed).** TradeSafe integration skeleton — adapter contract, env vars, routing, schema reshape. Not Accepted; references ADR 0008. No migration lands this batch; `PAYOUTS_ENABLED=false` unchanged.
+
+---
+
 *Document owner: Architect. Update after every payment-stack material change or new ADR.*

@@ -116,6 +116,14 @@ export class FinanceAdminController {
     return this.svc.auditTrail(limit ? parseInt(limit, 10) : undefined);
   }
 
+  @Get('groups/:transactionGroupId')
+  @Audited('FINANCE_GROUP_VIEW', 'LedgerTransactionGroup')
+  async groupDetail(
+    @Param('transactionGroupId') transactionGroupId: string,
+  ) {
+    return this.svc.getTransactionGroup(transactionGroupId);
+  }
+
   @Post('kill-switch')
   @Audited('KILL_SWITCH_TOGGLE', 'System')
   async toggleKillSwitch(

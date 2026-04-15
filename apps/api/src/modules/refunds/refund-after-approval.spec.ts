@@ -3,17 +3,19 @@
  * (payment-gateway.md §11 — "refund after approval").
  *
  * Exercises RefundsService.requestAfterApproval with in-memory Prisma stubs at the
- * service boundary. Matches the pattern in refund-approval-flow.spec.ts.
+ * service boundary. Matches the pattern in refund-approval-flow.spec.ts and
+ * refund-after-payout.spec.ts.
  *
- * Note on current production behaviour: as of this writing,
- * `requestAfterApproval` creates a Refund row in REQUESTED state and does NOT
- * yet post the compensating ledger group (the "Super Admin approves"
- * follow-up is not yet wired). Tests assert the actual shipped contract.
- * If / when the compensating ledger posting is added, these tests should be
- * extended — not changed.
+ * Contract under test: `requestAfterApproval` is a one-step SUPER_ADMIN-only
+ * action. It creates a Refund (APPROVED), posts a compensating ledger group
+ * that reverses the earnings split and returns face value to brand_reserve,
+ * then calls Stitch. Final state is PROCESSING with stitchRefundId +
+ * transactionGroupId captured. The webhook flips state → COMPLETED (covered
+ * by refund-approval-flow.spec.ts).
  */
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import {
+  LedgerAccount,
   PaymentStatus,
   RefundScenario,
   RefundState,
@@ -250,8 +252,8 @@ function buildService(
 
 describe('RefundsService — after-approval (post-approval, pre-payout) refund', () => {
   describe('happy path', () => {
-    it('creates a Refund row scenario=AFTER_APPROVAL, state=REQUESTED, pinned to the bounty face value', async () => {
-      const { service, prisma } = buildService();
+    it('creates a Refund row (APPROVED → PROCESSING), posts a balanced compensating group, and calls Stitch', async () => {
+      const { service, prisma, ledger, stitch } = buildService();
 
       const refund = await service.requestAfterApproval(
         'submission_1',
@@ -259,15 +261,106 @@ describe('RefundsService — after-approval (post-approval, pre-payout) refund',
         SUPER_ADMIN,
       );
 
+      // Final persisted state after the one-step flow.
       expect(refund.scenario).toBe(RefundScenario.AFTER_APPROVAL);
-      expect(refund.state).toBe(RefundState.REQUESTED);
+      expect(refund.state).toBe(RefundState.PROCESSING);
       expect(refund.amountCents).toBe(50000n);
       expect(refund.bountyId).toBe('bounty_1');
       expect(refund.submissionId).toBe('submission_1');
       expect(refund.requestedByUserId).toBe(SUPER_ADMIN.sub);
+      expect(refund.approvedByUserId).toBe(SUPER_ADMIN.sub);
+      expect(refund.stitchRefundId).toBe('stitch_r_1');
+      expect(refund.transactionGroupId).toMatch(/^grp_/);
 
       // Row was actually persisted in our in-memory stub.
       expect(prisma._refunds.size).toBe(1);
+
+      // Ledger group: posted exactly once, balanced, reverses the earnings split.
+      expect(ledger.postTransactionGroup).toHaveBeenCalledTimes(1);
+      const posted = ledger.postTransactionGroup.mock.calls[0][0];
+      expect(posted.actionType).toBe('refund_processed');
+      expect(posted.referenceId).toBe(refund.id);
+      expect(posted.referenceType).toBe('Refund');
+      expect(posted.postedBy).toBe(SUPER_ADMIN.sub);
+      expect(posted.audit.action).toBe('REFUND_AFTER_APPROVAL');
+      expect(posted.audit.entityId).toBe(refund.id);
+
+      // Double-entry integrity.
+      // With faceValue=50000, globalFeeRateBps=350, hunterNet=45000:
+      //   globalFee = 50000 * 350 / 10000 = 1750
+      //   commission = 50000 - 45000 - 1750 = 3250
+      // Leg sum (each side) = commission + globalFee + hunterNet (== faceValue) + faceValue = 100000
+      // because the split-undo is 50000 and the drain leg is another 50000.
+      let debit = 0n;
+      let credit = 0n;
+      for (const leg of posted.legs) {
+        if (leg.type === 'DEBIT') debit += leg.amountCents;
+        else credit += leg.amountCents;
+      }
+      expect(debit).toBe(credit);
+      expect(debit).toBe(100000n);
+
+      // Leg presence: reversed CREDITs of the approval group become DEBITs,
+      // and brand_reserve is credited for the face value.
+      const byAccountType = (acc: LedgerAccount, type: 'DEBIT' | 'CREDIT') =>
+        posted.legs.find((l: any) => l.account === acc && l.type === type);
+
+      expect(byAccountType(LedgerAccount.commission_revenue, 'DEBIT')!.amountCents).toBe(3250n);
+      expect(byAccountType(LedgerAccount.global_fee_revenue, 'DEBIT')!.amountCents).toBe(1750n);
+      expect(byAccountType(LedgerAccount.hunter_net_payable, 'DEBIT')!.amountCents).toBe(45000n);
+
+      // hunter_pending appears on both sides (split-undo CREDIT + drain DEBIT).
+      const pendingLegs = posted.legs.filter(
+        (l: any) => l.account === LedgerAccount.hunter_pending,
+      );
+      expect(pendingLegs).toHaveLength(2);
+      expect(pendingLegs.find((l: any) => l.type === 'CREDIT')!.amountCents).toBe(50000n);
+      expect(pendingLegs.find((l: any) => l.type === 'DEBIT')!.amountCents).toBe(50000n);
+
+      // Face value lands back in brand_reserve (pinned to the bounty + brand).
+      const reserveCredit = byAccountType(LedgerAccount.brand_reserve, 'CREDIT');
+      expect(reserveCredit).toBeDefined();
+      expect(reserveCredit!.amountCents).toBe(50000n);
+      expect(reserveCredit!.brandId).toBe('brand-1');
+      expect(reserveCredit!.bountyId).toBe('bounty_1');
+
+      // Stitch refund call: exactly one, with the settled payment id + face value.
+      expect(stitch.createRefund).toHaveBeenCalledTimes(1);
+      expect(stitch.createRefund).toHaveBeenCalledWith(
+        'stitch_pay_1',
+        50000n,
+        'REQUESTED_BY_CUSTOMER',
+      );
+    });
+
+    it('rejects when the bounty has no settled Stitch payment link → BadRequestException', async () => {
+      const { service } = buildService({
+        bounty: { stitchPaymentLinks: [] },
+      });
+      await expect(
+        service.requestAfterApproval('submission_1', 'no link', SUPER_ADMIN),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+  });
+
+  describe('idempotency at the ledger boundary', () => {
+    it('replaying the same (referenceId, actionType) is a no-op — no second group', async () => {
+      const { service, ledger } = buildService();
+
+      const refund = await service.requestAfterApproval(
+        'submission_1',
+        'brand changed mind',
+        SUPER_ADMIN,
+      );
+      expect(ledger.postTransactionGroup).toHaveBeenCalledTimes(1);
+      expect(ledger._groups.size).toBe(1);
+
+      // Simulate a webhook replay using the same (referenceId, actionType).
+      const firstCallInput = ledger.postTransactionGroup.mock.calls[0][0];
+      const replay = await ledger.postTransactionGroup(firstCallInput);
+      expect(replay.idempotent).toBe(true);
+      expect(replay.transactionGroupId).toBe(refund.transactionGroupId);
+      expect(ledger._groups.size).toBe(1);
     });
   });
 

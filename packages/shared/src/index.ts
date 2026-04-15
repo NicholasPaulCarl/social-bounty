@@ -273,6 +273,10 @@ export type {
   ReconciliationReport,
   ConfidenceScore,
   KbSystemIssueRow,
+  TransactionGroupDetail,
+  TransactionGroupDetailEntry,
+  TransactionGroupDetailGroup,
+  TransactionGroupDetailAuditLog,
 } from './dto/admin.dto';
 
 // Business DTOs

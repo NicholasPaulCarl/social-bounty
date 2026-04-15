@@ -372,6 +372,61 @@ export interface FinanceAuditRow {
   createdAt: string;
 }
 
+// GET /admin/finance/groups/:transactionGroupId
+// Full drill-down view of a single ledger transaction group: the group header,
+// every ledger entry in the group, and the linked AuditLog row (if any).
+// BigInt amounts serialized as strings, Dates as ISO strings — match the
+// existing finance admin DTOs (e.g. FinanceOverviewResponse.balancesByAccount).
+export interface TransactionGroupDetailEntry {
+  id: string;
+  account: string;
+  type: 'DEBIT' | 'CREDIT';
+  amountCents: string;
+  currency: string;
+  status: string;
+  userId: string | null;
+  brandId: string | null;
+  bountyId: string | null;
+  submissionId: string | null;
+  referenceId: string;
+  referenceType: string;
+  actionType: string;
+  externalReference: string | null;
+  parentEntryId: string | null;
+  clearanceReleaseAt: string | null;
+  metadata: Record<string, unknown> | null;
+  postedBy: string;
+  createdAt: string;
+}
+
+export interface TransactionGroupDetailGroup {
+  id: string;
+  referenceId: string;
+  actionType: string;
+  description: string;
+  createdAt: string;
+  auditLogId: string | null;
+}
+
+export interface TransactionGroupDetailAuditLog {
+  id: string;
+  actorId: string;
+  actorRole: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  beforeState: Record<string, unknown> | null;
+  afterState: Record<string, unknown> | null;
+  reason: string | null;
+  createdAt: string;
+}
+
+export interface TransactionGroupDetail {
+  group: TransactionGroupDetailGroup;
+  entries: TransactionGroupDetailEntry[];
+  auditLog: TransactionGroupDetailAuditLog | null;
+}
+
 // POST /admin/finance/kill-switch
 export interface KillSwitchToggleRequest {
   active: boolean;

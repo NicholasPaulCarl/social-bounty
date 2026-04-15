@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
@@ -24,6 +25,7 @@ import { csvFilename, saveBlob } from '@/lib/utils/download';
 
 export default function FinanceOverviewPage() {
   const toast = useToast();
+  const router = useRouter();
   const { data, isLoading, error, refetch } = useFinanceOverview();
   const toggle = useToggleKillSwitch();
   const recon = useRunReconciliation();
@@ -162,7 +164,12 @@ export default function FinanceOverviewPage() {
       </Card>
 
       <Card title="Recent transaction groups">
-        <DataTable value={data.recentGroups} size="small">
+        <DataTable
+          value={data.recentGroups}
+          size="small"
+          className="cursor-pointer"
+          onRowClick={(e) => router.push(`/admin/finance/groups/${(e.data as { id: string }).id}`)}
+        >
           <Column field="actionType" header="Action" />
           <Column field="referenceId" header="Reference" body={(r) => <span className="font-mono text-xs">{r.referenceId}</span>} />
           <Column field="description" header="Description" />

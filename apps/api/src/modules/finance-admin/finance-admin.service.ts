@@ -3,13 +3,14 @@ import {
   ForbiddenException,
   Injectable,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   LedgerAccount,
   LedgerEntryType,
 } from '@prisma/client';
-import { UserRole } from '@social-bounty/shared';
+import { TransactionGroupDetail, UserRole } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService, PostLedgerLeg } from '../ledger/ledger.service';
 
@@ -280,6 +281,77 @@ export class FinanceAdminService {
         },
       },
     });
+  }
+
+  /**
+   * Fetch a ledger transaction group + its entries + linked AuditLog row.
+   *
+   * Drill-down view for the Admin Finance Reconciliation Dashboard. Values are
+   * normalised into the shared `TransactionGroupDetail` shape: BigInt → string,
+   * Date → ISO string. Throws NotFoundException on unknown id.
+   */
+  async getTransactionGroup(id: string): Promise<TransactionGroupDetail> {
+    const group = await this.prisma.ledgerTransactionGroup.findUnique({
+      where: { id },
+      include: { entries: { orderBy: { createdAt: 'asc' } } },
+    });
+    if (!group) {
+      throw new NotFoundException(`LedgerTransactionGroup ${id} not found`);
+    }
+
+    const auditLog = group.auditLogId
+      ? await this.prisma.auditLog.findUnique({ where: { id: group.auditLogId } })
+      : null;
+
+    return {
+      group: {
+        id: group.id,
+        referenceId: group.referenceId,
+        actionType: group.actionType,
+        description: group.description,
+        createdAt: group.createdAt.toISOString(),
+        auditLogId: group.auditLogId ?? null,
+      },
+      entries: group.entries.map((e) => ({
+        id: e.id,
+        account: e.account,
+        type: e.type as 'DEBIT' | 'CREDIT',
+        amountCents: e.amount.toString(),
+        currency: e.currency,
+        status: e.status,
+        userId: e.userId ?? null,
+        brandId: e.brandId ?? null,
+        bountyId: e.bountyId ?? null,
+        submissionId: e.submissionId ?? null,
+        referenceId: e.referenceId,
+        referenceType: e.referenceType,
+        actionType: e.actionType,
+        externalReference: e.externalReference ?? null,
+        parentEntryId: e.parentEntryId ?? null,
+        clearanceReleaseAt: e.clearanceReleaseAt
+          ? e.clearanceReleaseAt.toISOString()
+          : null,
+        metadata: (e.metadata as Record<string, unknown> | null) ?? null,
+        postedBy: e.postedBy,
+        createdAt: e.createdAt.toISOString(),
+      })),
+      auditLog: auditLog
+        ? {
+            id: auditLog.id,
+            actorId: auditLog.actorId,
+            actorRole: auditLog.actorRole,
+            action: auditLog.action,
+            entityType: auditLog.entityType,
+            entityId: auditLog.entityId,
+            beforeState:
+              (auditLog.beforeState as Record<string, unknown> | null) ?? null,
+            afterState:
+              (auditLog.afterState as Record<string, unknown> | null) ?? null,
+            reason: auditLog.reason ?? null,
+            createdAt: auditLog.createdAt.toISOString(),
+          }
+        : null,
+    };
   }
 
   /**

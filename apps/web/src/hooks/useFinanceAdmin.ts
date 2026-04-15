@@ -19,6 +19,7 @@ const keys = {
   systemInsights: (system: string) => ['financeAdmin', 'systemInsights', system] as const,
   subscriptions: (page: number, limit: number) =>
     ['financeAdmin', 'subscriptions', page, limit] as const,
+  transactionGroup: (id: string) => ['financeAdmin', 'transactionGroup', id] as const,
 };
 
 export function useFinanceOverview() {
@@ -26,6 +27,15 @@ export function useFinanceOverview() {
     queryKey: keys.overview,
     queryFn: () => financeAdminApi.getOverview(),
     refetchInterval: 15000,
+  });
+}
+
+export function useTransactionGroup(id: string) {
+  return useQuery({
+    queryKey: keys.transactionGroup(id),
+    queryFn: () => financeAdminApi.getTransactionGroup(id),
+    enabled: Boolean(id),
+    retry: false,
   });
 }
 

@@ -44,9 +44,54 @@ export interface FinanceSubscriptionListResponse {
   meta: { page: number; limit: number; total: number; totalPages: number };
 }
 
+// TODO: replace with `TransactionGroupDetail` from '@social-bounty/shared'
+// once backend-8 lands it. Shapes mirror the backend's expected response.
+export interface TransactionGroupDetailEntry {
+  id: string;
+  account: string;
+  type: 'DEBIT' | 'CREDIT';
+  amountCents: string;
+  externalReference: string | null;
+  userId: string | null;
+  brandId: string | null;
+  bountyId: string | null;
+  submissionId: string | null;
+  createdAt: string;
+}
+
+export interface TransactionGroupDetailGroup {
+  id: string;
+  referenceId: string;
+  actionType: string;
+  description: string | null;
+  createdAt: string;
+  totalCents?: string;
+}
+
+export interface TransactionGroupDetailAuditLog {
+  id: string;
+  actorId: string | null;
+  actorEmail?: string | null;
+  actorRole?: string | null;
+  action: string;
+  reason: string | null;
+  beforeState: Record<string, unknown> | null;
+  afterState: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export interface TransactionGroupDetailResponse {
+  group: TransactionGroupDetailGroup;
+  entries: TransactionGroupDetailEntry[];
+  auditLog: TransactionGroupDetailAuditLog[];
+}
+
 export const financeAdminApi = {
   getOverview: (): Promise<FinanceOverviewResponse> =>
     apiClient.get('/admin/finance/overview'),
+
+  getTransactionGroup: (id: string): Promise<TransactionGroupDetailResponse> =>
+    apiClient.get(`/admin/finance/groups/${encodeURIComponent(id)}`),
 
   getInbound: (limit = 50): Promise<InboundFundingRow[]> =>
     apiClient.get('/admin/finance/inbound', { limit: String(limit) }),

@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -20,6 +20,7 @@ import { csvFilename, saveBlob } from '@/lib/utils/download';
 export default function ReservesPage() {
   const { data, isLoading, error, refetch } = useReserves();
   const toast = useToast();
+  const router = useRouter();
   const [downloading, setDownloading] = useState(false);
 
   const handleDownload = async () => {
@@ -71,16 +72,14 @@ export default function ReservesPage() {
           stripedRows
           paginator
           rows={25}
+          className="cursor-pointer"
           rowClassName={(r) => (r.drift ? 'bg-yellow-50' : '')}
+          onRowClick={(e) => router.push(`/admin/bounties/${(e.data as { bountyId: string }).bountyId}`)}
         >
           <Column
             field="bountyId"
             header="Bounty"
-            body={(r) => (
-              <Link href={`/admin/bounties/${r.bountyId}`} className="text-primary underline">
-                {r.title}
-              </Link>
-            )}
+            body={(r) => <span className="text-primary">{r.title}</span>}
           />
           <Column
             field="paymentStatus"
