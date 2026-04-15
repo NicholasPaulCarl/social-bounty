@@ -111,6 +111,7 @@ export const AUDIT_ACTIONS = {
   WITHDRAWAL_COMPLETE: 'withdrawal.complete',
   WITHDRAWAL_FAIL: 'withdrawal.fail',
   WITHDRAWAL_CANCEL: 'withdrawal.cancel',
+  SUBSCRIPTION_AUTO_DOWNGRADE: 'subscription.auto_downgrade',
 } as const;
 
 export const ENTITY_TYPES = {
@@ -123,6 +124,7 @@ export const ENTITY_TYPES = {
   DISPUTE: 'Dispute',
   WALLET: 'Wallet',
   WITHDRAWAL: 'Withdrawal',
+  SUBSCRIPTION: 'Subscription',
 } as const;
 
 export const CHANNEL_POST_FORMATS: Record<SocialChannel, PostFormat[]> = {

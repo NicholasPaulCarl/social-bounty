@@ -87,6 +87,87 @@ npx husky add .husky/pre-commit "npm run check:kill-switch-bypass"
 Until then, running the npm script manually (or in your editor's
 save-hook) is the contract.
 
+## KB context for Claude
+
+**Script:** `scripts/kb-context.ts`
+**npm alias:** `npm run kb:context -- <flags>`
+**Spec source:** `md-files/implementation-phases.md` Phase 4, `claude.md` §11
+
+Before proposing any payment-related fix, paste the top-N most relevant
+Knowledge Base entries into your Claude prompt (per `claude.md` §7 step 2).
+This script surfaces them for a given file path, system name, or
+root-cause signature. It merges two sources:
+
+1. Narrative entries in `md-files/knowledge-base.md` (matched by the KB
+   entry's `System`, `Module`, `Tags`, and `Files / Services Affected`
+   list, with path nesting — `apps/api/src/modules/payouts/` matches a
+   query for `apps/api/src/modules/payouts/payouts.service.ts`).
+2. Live `recurring_issues` rows in the database (matched by
+   `metadata.system`, `metadata.paths`, and exact signature).
+
+### Usage
+
+From the repo root:
+
+```bash
+# By file path (nested matching)
+npx tsx scripts/kb-context.ts --path apps/api/src/modules/payouts/payouts.service.ts
+
+# By system (payments | wallet | bounty | admin | auth | integration)
+npx tsx scripts/kb-context.ts --system payments
+
+# By recurrence signature (exact hex match against recurring_issues.signature)
+npx tsx scripts/kb-context.ts --signature 1a2b3c4d5e6f7890
+
+# Optional flags
+npx tsx scripts/kb-context.ts --system payments --limit 5 --output json
+```
+
+Or via the npm alias (note the `--` before script flags):
+
+```bash
+npm run kb:context -- --path apps/api/src/modules/payouts/payouts.service.ts
+```
+
+### Output
+
+Markdown by default — ready to paste directly into a Claude prompt.
+Pass `--output json` for machine consumption. Each entry is rendered as:
+
+- KB id (or `RI-<uuid>` for a live `recurring_issues` row)
+- Title
+- Category, system, severity
+- Occurrence count and resolved / open status
+- A one-paragraph "what to know before fixing" derived from the entry's
+  `Root Cause` / `mitigation` field (falling back to the summary or
+  title when those are missing).
+
+Results are sorted by relevance (direct file-path or system hit first,
+then signature matches), with open issues ranked above resolved ones
+and ties broken by recurrence count then `lastSeenAt`.
+
+### Fallbacks
+
+- If `tsx` is not installed, `npx ts-node scripts/kb-context.ts ...`
+  also works, or compile with `tsc` and run the emitted `.js` with
+  plain `node`.
+- If the DB is unreachable (no `DATABASE_URL`, container down, etc.)
+  the script prints only `md-files/knowledge-base.md` matches and
+  emits a warning — it never fails hard. That makes it safe to run
+  from any dev machine, including CI-only checkouts.
+
+### Tests
+
+Unit tests for the relevance scorer live in `scripts/kb-context.spec.ts`
+and run via:
+
+```bash
+npm run test:scripts
+```
+
+They cover path-nesting matches, system/signature exact matches, sort
+order (open before resolved), and the `--limit` cap.
+
 ## Related Reading
 
 - `CLAUDE.md` — Financial Non-Negotiables, Hard Rules

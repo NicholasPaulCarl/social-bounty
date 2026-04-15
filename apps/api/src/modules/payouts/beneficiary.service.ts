@@ -52,6 +52,27 @@ export class BeneficiaryService {
       stitchBeneficiaryId = `local:${userId}`;
     }
 
+    // KB R12/R13 — silent-local-fallback antipattern.
+    //
+    // StitchClient.createBeneficiary always mints a synthetic `local:<...>`
+    // id because Stitch Express has no beneficiary endpoint (see ADR 0007 —
+    // Peach Payments migration pending). That is acceptable in
+    // dev / stitch_sandbox because payouts in those envs are exercised
+    // against the local flow / test doubles. In production
+    // (`PAYMENTS_PROVIDER=stitch_live`) a synthetic id is useless: the
+    // downstream `POST /api/v1/withdrawal` call would silently pay the
+    // merchant's single verified bank account instead of the hunter's,
+    // which is a Critical financial-impact failure.
+    //
+    // Fail loud BEFORE we insert the row so the hunter sees a clear error
+    // instead of a silent break at payout time.
+    const provider = this.config.get<string>('PAYMENTS_PROVIDER', 'none');
+    if (provider === 'stitch_live' && stitchBeneficiaryId.startsWith('local:')) {
+      throw new BadRequestException(
+        'Beneficiary creation requires a real Stitch beneficiary id but the provider returned a local fallback. ADR 0007: Peach Payments integration pending — payouts are not yet supported in stitch_live.',
+      );
+    }
+
     return this.prisma.stitchBeneficiary.create({
       data: {
         userId,

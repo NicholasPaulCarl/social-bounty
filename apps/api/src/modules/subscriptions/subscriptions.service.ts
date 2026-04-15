@@ -490,6 +490,68 @@ export class SubscriptionsService {
     this.logger.log(`Subscription expired: ${subscriptionId}`);
   }
 
+  /**
+   * Auto-downgrade a PAST_DUE subscription whose grace period has ended.
+   *
+   * Per payment-gateway.md §12: when grace expires, the subscription drops
+   * to the active FREE tier (status=FREE, tier=FREE), NOT to EXPIRED. This
+   * distinguishes a user who let their card fail (still an active platform
+   * user, just on FREE) from one whose subscription was cancelled and let
+   * run out (EXPIRED, which implies they have to re-subscribe from scratch).
+   *
+   * Non-Negotiable #9: we DO NOT re-price any in-flight transactions. The
+   * bounty's `planSnapshotBrand` and submission's `planSnapshotHunter` were
+   * captured at creation / approval time and remain untouched. This downgrade
+   * only affects FUTURE bounties / approvals / feature gates.
+   *
+   * No ledger posting — there is no money movement on a downgrade. Audit log
+   * only (Hard Rule #3).
+   *
+   * Returns the updated subscription's before/after tier+status for audit.
+   */
+  async autoDowngradeToFree(subscriptionId: string): Promise<{
+    before: { tier: SubscriptionTier; status: SubscriptionStatus };
+    after: { tier: SubscriptionTier; status: SubscriptionStatus };
+    userId: string | null;
+    brandId: string | null;
+  }> {
+    const existing = await this.prisma.subscription.findUnique({
+      where: { id: subscriptionId },
+      select: { tier: true, status: true, userId: true, brandId: true },
+    });
+    if (!existing) {
+      throw new NotFoundException(`Subscription ${subscriptionId} not found`);
+    }
+
+    await this.prisma.subscription.update({
+      where: { id: subscriptionId },
+      data: {
+        tier: SubscriptionTier.FREE,
+        status: SubscriptionStatus.FREE,
+        cancelAtPeriodEnd: false,
+        gracePeriodEndsAt: null,
+        failedPaymentCount: 0,
+      },
+    });
+
+    this.logger.log(
+      `Subscription auto-downgraded to FREE: ${subscriptionId} (was ${existing.tier}/${existing.status})`,
+    );
+
+    return {
+      before: {
+        tier: existing.tier as SubscriptionTier,
+        status: existing.status as SubscriptionStatus,
+      },
+      after: {
+        tier: SubscriptionTier.FREE,
+        status: SubscriptionStatus.FREE,
+      },
+      userId: existing.userId,
+      brandId: existing.brandId,
+    };
+  }
+
   async renewSubscription(subscriptionId: string) {
     const sub = await this.prisma.subscription.findUnique({ where: { id: subscriptionId } });
     if (!sub) return;
