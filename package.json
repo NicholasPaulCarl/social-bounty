@@ -22,6 +22,8 @@
     "db:studio": "npm run studio --workspace=packages/prisma",
     "check:kill-switch-bypass": "bash scripts/check-kill-switch-bypass.sh",
     "kb:context": "tsx scripts/kb-context.ts",
+    "bench:recon": "cd apps/api && NODE_PATH=\"../../packages/prisma/node_modules:../../apps/api/node_modules:../../node_modules\" ts-node --transpile-only ../../scripts/bench-reconciliation.ci.ts",
+    "bench:recon:run": "cd apps/api && NODE_PATH=\"../../packages/prisma/node_modules:../../apps/api/node_modules:../../node_modules\" ts-node --transpile-only ../../scripts/bench-reconciliation.ts",
     "test:scripts": "jest --config scripts/jest.config.js",
     "prepare": "husky"
   },

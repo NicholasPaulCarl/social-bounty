@@ -81,7 +81,7 @@ Stitch Express is integrated as the **inbound** rail (brand-side bounty funding)
 | Gate | State | Reason |
 |---|---|---|
 | `PAYOUTS_ENABLED` | `false` by default | Hunter payout rail is TradeSafe per [ADR 0008](adr/0008-tradesafe-for-hunter-payouts.md). Stitch has no multi-recipient surface. Integration workstream pending. |
-| Upgrade CTA (Free → Pro) | Disabled in UI | No live card-consent flow yet. Subscription billing surface is ready; consent capture is not. |
+| Upgrade CTA (Free → Pro) | Live (batch 10, task B) | `POST /subscription/upgrade` → Stitch `/api/v1/subscriptions` returns hosted consent URL; webhook router dispatches `SUBSCRIPTION/AUTHORISED`, `SUBSCRIPTION/PAID`, `SUBSCRIPTION/FAILED`; balanced `subscription_charged` ledger group (idempotent on `stitchPaymentId`). |
 | `stitch_live` provider mode | Rejects `local:` beneficiary ids | Synthetic `local:<userId>` beneficiaries are dev-only; `BeneficiaryService` guard blocks them in live mode. |
 | Kill Switch | Auto-trip armed | Fires on any Critical reconciliation finding. Manual release required — not auto-reset. |
 
@@ -267,6 +267,25 @@ Non-Stitch system vars that the payment stack depends on:
 - **`/admin/finance/payouts` (SUPER_ADMIN) shipped** listing all `StitchPayout` rows platform-wide. Retry button is a no-op-plus-AuditLog while `PAYOUTS_ENABLED=false`; tooltip states TradeSafe outbound rail is not yet live.
 - **Severity filter on `/admin/finance/exceptions`** (cosmetic, query-string driven; no reconciliation-engine change).
 - **Playwright reconciliation spec** walks run → exceptions filter → drill-in; skips gracefully on an empty exceptions table.
+
+---
+
+## Performance
+
+The reconciliation engine was benchmarked at N = 1 k, 10 k, and 100 k ledger
+entries on 2026-04-15 — full write-up in
+[`docs/perf/2026-04-15-reconciliation-benchmarks.md`](perf/2026-04-15-reconciliation-benchmarks.md).
+End-to-end `run()` completes in 345 ms at N = 100 k (1 000 paid bounties),
+comfortably inside the 15-minute cron cadence. `checkGroupBalance` and
+`checkDuplicateGroups` are effectively constant-time at this scale;
+`checkReserveVsBounty` is O(B) with two round-trips per paid bounty — a 10×
+bounty increase costs ~9× runtime, confirming the structural smell. A single
+`GROUP BY`-based rewrite (documented §5.1 of the report) would collapse
+2 × B round-trips into one; the current implementation remains safe until the
+platform reaches roughly 100 000 paid bounties. A reusable benchmark harness
+(`scripts/bench-reconciliation.ts`) plus an opt-in CI guard (`npm run
+bench:recon`) are committed so any reconciliation change can be regression-
+tested before merge. No production code was modified in this batch.
 
 ---
 

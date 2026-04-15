@@ -23,6 +23,18 @@ export enum StitchPayoutSpeed {
   DEFAULT = 'DEFAULT',
 }
 
+/**
+ * Outbound payout provider selector (ADR 0009). Defaults to `stitch` —
+ * the current live inbound rail and gated outbound rail. `tradesafe` is
+ * the forthcoming TradeSafe escrow adapter (scaffolded, not live). `mock`
+ * routes through the TradeSafe adapter in mock mode for dev / CI.
+ */
+export enum PayoutProvider {
+  STITCH = 'stitch',
+  TRADESAFE = 'tradesafe',
+  MOCK = 'mock',
+}
+
 class EnvironmentVariables {
   @IsEnum(PaymentsProvider)
   PAYMENTS_PROVIDER!: PaymentsProvider;
@@ -59,6 +71,33 @@ class EnvironmentVariables {
   @IsOptional()
   @IsBooleanString()
   FINANCIAL_KILL_SWITCH?: string;
+
+  // ADR 0009 — TradeSafe adapter scaffolding. All optional except
+  // PAYOUT_PROVIDER which defaults to 'stitch'. Live TradeSafe calls require
+  // TRADESAFE_CLIENT_ID + TRADESAFE_CLIENT_SECRET AND TRADESAFE_MOCK != 'true'.
+  @IsOptional()
+  @IsEnum(PayoutProvider)
+  PAYOUT_PROVIDER?: PayoutProvider;
+
+  @IsOptional()
+  @IsUrl({ require_tld: false, require_protocol: true })
+  TRADESAFE_API_BASE?: string;
+
+  @IsOptional()
+  @IsString()
+  TRADESAFE_CLIENT_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  TRADESAFE_CLIENT_SECRET?: string;
+
+  @IsOptional()
+  @IsString()
+  TRADESAFE_WEBHOOK_SECRET?: string;
+
+  @IsOptional()
+  @IsBooleanString()
+  TRADESAFE_MOCK?: string;
 
   // Dev-only override for Free-tier clearance window, in hours.
   // When set, ApprovalLedgerService uses this instead of CLEARANCE_HOURS.FREE (72).

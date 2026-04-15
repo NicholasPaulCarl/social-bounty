@@ -261,10 +261,18 @@ Every refund writes compensating ledger entries. No row in `LedgerEntry` is ever
 
 ## 12. Subscription Handling
 
-- Monthly recurring via Stitch.
-- **Prepaid**: billing happens at period start; access granted only after successful capture.
-- **Plan snapshot**: on every bounty creation and submission approval, the active plan is captured onto the transaction. In-flight transactions are not re-priced when a plan changes.
+- Monthly recurring via Stitch `/api/v1/subscriptions` (card-consent + recurrence wrapped in one hosted flow).
+- **Prepaid**: billing happens at period start; access granted only after successful capture (Stitch charges `initialAmount == amount` at consent).
+- **Upgrade flow (live)**:
+  1. User clicks Upgrade → API creates a `StitchSubscription` row (local mandate), calls Stitch `POST /api/v1/subscriptions`.
+  2. Stitch returns a hosted `authorizationUrl`; the web app redirects the browser there for card capture.
+  3. Stitch sends a `SUBSCRIPTION/AUTHORISED` webhook → mandate flips to `AUTHORISED`.
+  4. Stitch sends a `SUBSCRIPTION/PAID` webhook with the concrete `paymentId` → we post the `subscription_charged` ledger group (idempotent on `(stitchPaymentId, subscription_charged)`), create the `SubscriptionPayment` with `tierSnapshot`, and flip the platform `Subscription` to `PRO/ACTIVE` with `currentPeriodEnd = now + 30d`.
+  5. User lands on `/settings/subscription?upgrade=return` → page refetches; handles both webhook-before-return and return-before-webhook.
+- **Ledger recipe (subscription charge)**: DEBIT `gateway_clearing` by chargedCents; CREDIT `subscription_revenue` by (chargedCents - processingFee - bankCharge); CREDIT `processing_expense` + `bank_charges` only when Stitch reports them. No `global_fee_revenue` leg on recurring — the 3.5% global fee applies to bounty flows only.
+- **Plan snapshot**: on every bounty creation and submission approval, the active plan is captured onto the transaction. In-flight transactions are not re-priced when a plan changes. Subscription charges also snapshot the tier on the `SubscriptionPayment.tierSnapshot` column at charge time.
 - **Failed billing**: grace period 3 days, then automatic downgrade to Free tier. In-flight transactions keep their snapshotted plan.
+- **Idempotency**: mandate creation is guarded by `StitchSubscription.subscriptionId UNIQUE` (one mandate per subscription); ledger posts are guarded by `LedgerTransactionGroup UNIQUE(referenceId, actionType)` with `referenceId = stitchPaymentId`. `SubscriptionPayment.providerPaymentId` is also UNIQUE so webhook replays resolve the existing row.
 
 ---
 

@@ -95,7 +95,7 @@ HEAD: `9fbcd8b feat: batch 6 — TradeSafe plan (ADR 0008), Phase 4 complete, ho
 
 **Explicitly gated — do not remove without Team Lead sign-off:**
 - `PAYOUTS_ENABLED=false` — outbound rail is compiled but inert; flipping requires TradeSafe integration (ADR 0008) and a new ADR 0009.
-- **Live Upgrade CTA** is disabled in the subscription UI — the card-consent charge path is not wired. UI confirms the user flow; backend billing call is stubbed.
+- **Live Upgrade CTA** — wired as of batch 10 task B. `POST /subscription/upgrade` → Stitch `/api/v1/subscriptions` hosted consent URL; `StitchSubscription` mandate row; `subscription_charged` ledger group (idempotent on `stitchPaymentId`). Requires `PAYMENTS_PROVIDER ≠ none` + `STITCH_CLIENT_*` env wired to activate.
 
 **Out of scope for this MVP cycle:**
 - **TradeSafe integration** (ADR 0008) — the decision is recorded; the adapter, webhook route, and clearance-window reshape are Phase 2 work blocked on ADR 0009.

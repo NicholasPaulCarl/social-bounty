@@ -60,6 +60,7 @@ export class PayoutsService {
    * Stitch dispatch call inside initiatePayout is swapped for TradeSafe's payout
    * API. Webhook settlement handlers (onPayoutSettled / onPayoutFailed) also
    * change shape.
+   * Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
    */
   async runBatch(batchSize = 100): Promise<{ initiated: number; skipped: number; failed: number }> {
     const jobRun = await this.prisma.jobRun.create({
@@ -138,6 +139,7 @@ export class PayoutsService {
   // TRADESAFE MIGRATION (ADR 0008): the stitch.createPayout() call inside this
   // method is replaced by the TradeSafe payouts API. beneficiary lookup switches
   // from the local-synth path to TradeSafe's real beneficiary id.
+  // Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
   async initiatePayout(userId: string, beneficiaryId: string, amountCents: bigint) {
     // Stitch merchantReference + our Idempotency-Key: alphanumeric only.
     const stamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
@@ -265,6 +267,7 @@ export class PayoutsService {
 
   // TRADESAFE MIGRATION (ADR 0008): replace stitch.createPayout() retry call with
   // TradeSafe's equivalent; retry/backoff policy itself is provider-agnostic.
+  // Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
   async retryBatch(batchSize = 50): Promise<{ retried: number }> {
     const now = new Date();
     const candidates = await this.prisma.stitchPayout.findMany({
@@ -322,6 +325,7 @@ export class PayoutsService {
   // TRADESAFE MIGRATION (ADR 0008): webhook payload + provider id field change
   // when TradeSafe is live; the ledger legs (payout_in_transit → hunter_paid)
   // stay the same.
+  // Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
   async onPayoutSettled(stitchPayoutId: string): Promise<void> {
     const payout = await this.prisma.stitchPayout.findUnique({
       where: { stitchPayoutId },
@@ -370,6 +374,7 @@ export class PayoutsService {
   // TRADESAFE MIGRATION (ADR 0008): webhook payload + provider id field change
   // when TradeSafe is live; the compensating legs (payout_in_transit → hunter_available)
   // stay the same.
+  // Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
   async onPayoutFailed(stitchPayoutId: string, reason: string): Promise<void> {
     const payout = await this.prisma.stitchPayout.findUnique({
       where: { stitchPayoutId },

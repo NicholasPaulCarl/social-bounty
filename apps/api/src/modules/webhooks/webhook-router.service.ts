@@ -4,6 +4,7 @@ import { WebhookEvent } from '@prisma/client';
 import { BrandFundingHandler } from '../payments/brand-funding.handler';
 import { RefundsService } from '../refunds/refunds.service';
 import { PayoutsService } from '../payouts/payouts.service';
+import { UpgradeService } from '../subscriptions/upgrade.service';
 
 /**
  * Dispatches a verified, recorded webhook event to the appropriate domain handler.
@@ -58,6 +59,32 @@ export class WebhookRouterService {
       const refundId = this.extractStitchRefundId(payload);
       if (refundId) await refunds.onStitchRefundProcessed(refundId);
       return;
+    }
+    if (resource === 'CONSENT') {
+      const upgrade = this.moduleRef.get(UpgradeService, { strict: false });
+      if (status === 'AUTHORISED' || status === 'AUTHORIZED' || status === 'CONSENTED') {
+        await upgrade.processConsentAuthorised(payload);
+        return;
+      }
+      if (status === 'UNAUTHORISED' || status === 'UNAUTHORIZED' || status === 'FAILED') {
+        await upgrade.processChargeFailed(payload);
+        return;
+      }
+    }
+    if (resource === 'SUBSCRIPTION') {
+      const upgrade = this.moduleRef.get(UpgradeService, { strict: false });
+      if (status === 'AUTHORISED' || status === 'AUTHORIZED') {
+        await upgrade.processConsentAuthorised(payload);
+        return;
+      }
+      if (status === 'PAID' || status === 'SETTLED') {
+        await upgrade.processRecurringCharge(payload);
+        return;
+      }
+      if (status === 'FAILED' || status === 'UNAUTHORISED' || status === 'EXPIRED' || status === 'CANCELLED') {
+        await upgrade.processChargeFailed(payload);
+        return;
+      }
     }
     this.logger.debug(`no handler wired for ${resource}/${status}`);
   }

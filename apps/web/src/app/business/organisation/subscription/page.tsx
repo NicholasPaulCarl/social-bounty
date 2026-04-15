@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -10,6 +12,7 @@ import { Message } from 'primereact/message';
 import {
   useSubscription,
   useSubscribe,
+  useInitiateUpgrade,
   useCancelSubscription,
   useReactivateSubscription,
   useSubscriptionPayments,
@@ -44,16 +47,20 @@ const BRAND_FEATURES = {
   ],
 };
 
-// Live Stitch card-consent isn't integrated yet, so the Upgrade CTA would
-// otherwise fake-upgrade the brand. Keep disabled until the real billing
-// flow lands — flip to true once the Stitch card consent UX is wired.
-const LIVE_UPGRADE_ENABLED = false;
+// Live Stitch card-consent is now wired (batch 10, task B). The Upgrade CTA
+// calls `POST /subscription/upgrade`, receives the hosted Stitch URL, and
+// redirects the browser there for card capture. Webhooks flip the tier to PRO
+// asynchronously; the return page refetches the subscription on mount.
+const LIVE_UPGRADE_ENABLED = true;
 
 export default function BrandSubscriptionPage() {
   const { user } = useAuth();
   const toast = useToast();
+  const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
   const { data: sub, isLoading } = useSubscription();
   const subscribe = useSubscribe();
+  const initiateUpgrade = useInitiateUpgrade();
   const cancel = useCancelSubscription();
   const reactivate = useReactivateSubscription();
   const [showCancel, setShowCancel] = useState(false);
@@ -61,6 +68,15 @@ export default function BrandSubscriptionPage() {
   const [showPayments, setShowPayments] = useState(false);
   const { page, limit, first, onPageChange } = usePagination(10);
   const { data: payments } = useSubscriptionPayments(showPayments ? { page, limit } : undefined);
+
+  // Return handler: same dual-case logic as the hunter page. Refetch on
+  // mount; show a "pending / confirmed" banner based on current tier.
+  const upgradeReturnMode = searchParams.get('upgrade');
+  useEffect(() => {
+    if (upgradeReturnMode === 'return') {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+    }
+  }, [upgradeReturnMode, queryClient]);
 
   const brandId = user?.brandId;
   // Hard Rule #6: dialog copy must reference the canonical price from
@@ -86,6 +102,23 @@ export default function BrandSubscriptionPage() {
   const isPastDue = sub.status === SubscriptionStatus.PAST_DUE;
 
   const handleSubscribe = () => {
+    // Live upgrade path: POST /subscription/upgrade → Stitch hosted URL for
+    // card-consent capture. The brand stays on Free until Stitch webhooks
+    // confirm the charge — the user lands on the return page and refetches.
+    if (LIVE_UPGRADE_ENABLED) {
+      initiateUpgrade.mutate(SubscriptionTier.PRO, {
+        onSuccess: (data) => {
+          setShowUpgrade(false);
+          toast.showSuccess('Redirecting to secure card capture…');
+          window.location.href = data.authorizationUrl;
+        },
+        onError: (err) => {
+          toast.showError((err as Error).message || "Couldn't start upgrade. Try again.");
+          setShowUpgrade(false);
+        },
+      });
+      return;
+    }
     subscribe.mutate(undefined, {
       onSuccess: () => {
         toast.showSuccess('Welcome to Pro Brand! Your perks are now active.');
@@ -146,6 +179,20 @@ export default function BrandSubscriptionPage() {
           rounded
         />
       </div>
+
+      {/* Return from Stitch: webhook-before-return vs return-before-webhook. */}
+      {upgradeReturnMode === 'return' && (
+        <Message
+          severity={isPro ? 'success' : 'info'}
+          className="w-full mb-6"
+          data-testid="upgrade-return-banner"
+          text={
+            isPro
+              ? 'Upgrade confirmed — Pro Brand perks are now active.'
+              : 'Card capture complete. The brand will move to Pro shortly; this page will refresh automatically.'
+          }
+        />
+      )}
 
       {/* PAST_DUE warning — surface the grace-period end date when present. */}
       {isPastDue && (
@@ -278,7 +325,7 @@ export default function BrandSubscriptionPage() {
                 icon="pi pi-star"
                 className="w-full"
                 disabled={!LIVE_UPGRADE_ENABLED}
-                loading={subscribe.isPending}
+                loading={subscribe.isPending || initiateUpgrade.isPending}
                 onClick={() => setShowUpgrade(true)}
               />
             </span>
@@ -320,11 +367,11 @@ export default function BrandSubscriptionPage() {
         visible={showUpgrade}
         onHide={() => setShowUpgrade(false)}
         title="Upgrade brand to Pro?"
-        message={`Upgrading to Pro starts a monthly billing cycle at R${proPrice}. You can cancel anytime. Continue?`}
+        message={`Upgrading to Pro starts a monthly billing cycle at R${proPrice}. You'll be redirected to Stitch to save your card — you can cancel anytime. Continue?`}
         confirmLabel="Upgrade"
         confirmSeverity="warning"
         onConfirm={handleSubscribe}
-        loading={subscribe.isPending}
+        loading={subscribe.isPending || initiateUpgrade.isPending}
       />
 
       <ConfirmAction

@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -10,6 +12,7 @@ import { Message } from 'primereact/message';
 import {
   useSubscription,
   useSubscribe,
+  useInitiateUpgrade,
   useCancelSubscription,
   useReactivateSubscription,
   useSubscriptionPayments,
@@ -59,18 +62,20 @@ const BRAND_FEATURES = {
   ],
 };
 
-// Live Stitch card-consent isn't integrated yet, so the Upgrade CTA would
-// otherwise fake-upgrade the user (backend `subscribe` marks a payment
-// SUCCEEDED without a real card consent flow). Per Front-End agent scope,
-// disable the CTA until the live flow lands, rather than silently calling
-// the mutation. Flip this flag to `true` once Stitch card consent is wired.
-const LIVE_UPGRADE_ENABLED = false;
+// Live Stitch card-consent is now wired (batch 10, task B). The Upgrade CTA
+// calls `POST /subscription/upgrade`, receives the hosted Stitch URL, and
+// redirects the user there for card capture. Webhooks flip the tier to PRO
+// asynchronously; the return page refetches the subscription.
+const LIVE_UPGRADE_ENABLED = true;
 
 export default function SubscriptionPage() {
   const { user } = useAuth();
   const toast = useToast();
+  const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
   const { data: sub, isLoading } = useSubscription();
   const subscribe = useSubscribe();
+  const initiateUpgrade = useInitiateUpgrade();
   const cancel = useCancelSubscription();
   const reactivate = useReactivateSubscription();
   const [showCancel, setShowCancel] = useState(false);
@@ -78,6 +83,20 @@ export default function SubscriptionPage() {
   const [showPayments, setShowPayments] = useState(false);
   const { page, limit, first, onPageChange } = usePagination(10);
   const { data: payments } = useSubscriptionPayments(showPayments ? { page, limit } : undefined);
+
+  // Return handler: Stitch redirects the user back here with
+  // `?upgrade=return` after card consent. The webhook may or may not have
+  // fired yet — we always refetch on mount so whichever happens first
+  // resolves correctly. Handles both "webhook-before-return" (subscription
+  // is already ACTIVE) and "return-before-webhook" (still FREE, will flip
+  // on next invalidation cycle). Non-Negotiable #7: the webhook is
+  // idempotent, so extra refetches are cheap.
+  const upgradeReturnMode = searchParams.get('upgrade');
+  useEffect(() => {
+    if (upgradeReturnMode === 'return') {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+    }
+  }, [upgradeReturnMode, queryClient]);
 
   const isHunter = user?.role === UserRole.PARTICIPANT;
   const features = isHunter ? HUNTER_FEATURES : BRAND_FEATURES;
@@ -96,6 +115,24 @@ export default function SubscriptionPage() {
   const isPastDue = sub.status === SubscriptionStatus.PAST_DUE;
 
   const handleSubscribe = () => {
+    // Live upgrade path: POST /subscription/upgrade → Stitch hosted URL.
+    // Fallback to legacy `subscribe()` only if LIVE_UPGRADE_ENABLED is off
+    // (for dev/local where card billing isn't provisioned).
+    if (LIVE_UPGRADE_ENABLED) {
+      initiateUpgrade.mutate(SubscriptionTier.PRO, {
+        onSuccess: (data) => {
+          setShowUpgrade(false);
+          toast.showSuccess('Redirecting to secure card capture…');
+          // Use window.location so we leave the SPA and hand off to Stitch.
+          window.location.href = data.authorizationUrl;
+        },
+        onError: (err) => {
+          toast.showError((err as Error).message || "Couldn't start upgrade. Try again.");
+          setShowUpgrade(false);
+        },
+      });
+      return;
+    }
     subscribe.mutate(undefined, {
       onSuccess: () => {
         toast.showSuccess('Welcome to Pro! Your perks are now active.');
@@ -156,6 +193,20 @@ export default function SubscriptionPage() {
           rounded
         />
       </div>
+
+      {/* Return from Stitch: webhook-before-return vs return-before-webhook. */}
+      {upgradeReturnMode === 'return' && (
+        <Message
+          severity={isPro ? 'success' : 'info'}
+          className="w-full mb-6"
+          data-testid="upgrade-return-banner"
+          text={
+            isPro
+              ? 'Upgrade confirmed — your Pro perks are now active.'
+              : 'Card capture complete. Your Pro upgrade will activate shortly; this page will refresh automatically.'
+          }
+        />
+      )}
 
       {/* PAST_DUE warning — show grace period end if available. */}
       {isPastDue && (
@@ -290,7 +341,7 @@ export default function SubscriptionPage() {
                 icon="pi pi-star"
                 className="w-full"
                 disabled={!LIVE_UPGRADE_ENABLED}
-                loading={subscribe.isPending}
+                loading={subscribe.isPending || initiateUpgrade.isPending}
                 onClick={() => setShowUpgrade(true)}
               />
             </span>
@@ -332,11 +383,11 @@ export default function SubscriptionPage() {
         visible={showUpgrade}
         onHide={() => setShowUpgrade(false)}
         title="Upgrade to Pro?"
-        message={`Upgrading to Pro starts a monthly billing cycle at R${proPrice}. You can cancel anytime. Continue?`}
+        message={`Upgrading to Pro starts a monthly billing cycle at R${proPrice}. You'll be redirected to Stitch to save your card — you can cancel anytime. Continue?`}
         confirmLabel="Upgrade"
         confirmSeverity="warning"
         onConfirm={handleSubscribe}
-        loading={subscribe.isPending}
+        loading={subscribe.isPending || initiateUpgrade.isPending}
       />
 
       <ConfirmAction

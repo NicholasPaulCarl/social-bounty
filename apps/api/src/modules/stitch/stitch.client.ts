@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
 
+// Base key; actual cache key is suffixed with the scope so tokens obtained
+// for `client_paymentrequest` don't collide with recurring-consent tokens.
 const TOKEN_CACHE_KEY = 'stitch:token:v1';
 const TOKEN_LOCK_KEY = 'stitch:token:lock:v1';
 const TOKEN_TTL_SECONDS = 840; // 14 min (Stitch tokens live 15 min)
@@ -23,6 +25,48 @@ export interface CreatePayoutParams {
   speed?: 'INSTANT' | 'DEFAULT';
   beneficiaryId: string;
   merchantReference: string;
+}
+
+export interface CreateSubscriptionParams {
+  amountCents: bigint;
+  merchantReference: string;
+  payerFullName: string;
+  payerEmail: string;
+  payerId: string;
+  /**
+   * Recurrence config. Social Bounty only does monthly billing today; the
+   * adapter accepts the shape Stitch's /api/v1/subscriptions expects so we
+   * don't have to change the client when we add yearly billing.
+   */
+  recurrence: {
+    frequency: 'Monthly' | 'Weekly' | 'Yearly';
+    interval: number;
+    byMonthDay?: number;
+    byWeekDay?: string;
+    byMonth?: number;
+  };
+  startDate: Date;
+  endDate: Date;
+  /**
+   * Amount to charge immediately when consent is authorised. We always set
+   * this equal to amountCents so the first period is paid up-front, matching
+   * payment-gateway.md §12 ("prepaid: billing happens at period start").
+   */
+  initialAmountCents: bigint;
+}
+
+export interface StitchSubscriptionResponse {
+  id: string;
+  status: 'PENDING' | 'AUTHORISED' | 'UNAUTHORISED' | 'EXPIRED' | 'FAILED' | 'CANCELLED';
+  /**
+   * Hosted URL the customer is redirected to for card-consent capture.
+   */
+  authorizationUrl: string;
+  /**
+   * Stitch's payment-authorization-request identifier. Webhooks for the
+   * consent flow carry this so we can correlate back to the mandate.
+   */
+  paymentAuthorizationRequestId?: string;
 }
 
 export interface StitchTokenResponse {
@@ -168,6 +212,7 @@ export class StitchClient {
   // single-beneficiary /api/v1/withdrawal. TradeSafe supports multi-recipient
   // payouts with a real beneficiaryId — body shape and endpoint both change
   // here when we cut over.
+  // Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
   async createPayout(
     params: CreatePayoutParams,
     idempotencyKey: string,
@@ -219,6 +264,7 @@ export class StitchClient {
    * TRADESAFE MIGRATION (ADR 0008): this entire method is replaced when
    * TradeSafe is integrated — TradeSafe exposes a first-class beneficiary API,
    * so the local-synth id path and the `local:*` audit markers go away.
+   * Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
    */
   async createBeneficiary(
     payload: {
@@ -236,6 +282,89 @@ export class StitchClient {
       `createBeneficiary: Stitch Express has no beneficiary endpoint; storing locally (holder=${payload.accountHolderName})`,
     );
     return { id: `local:${slug}:${rand}` };
+  }
+
+  /**
+   * Create a Stitch recurring subscription (card-consent + recurrence).
+   *
+   * Wraps `POST /api/v1/subscriptions`. Stitch returns a hosted authorisation
+   * URL — the customer completes card-consent there, Stitch then charges the
+   * initialAmount and (from there on) auto-charges per the recurrence rule.
+   *
+   * Idempotency: caller must pass a stable `merchantReference`. Stitch
+   * rejects duplicate references with 4xx, so retries on transient network
+   * errors remain safe (our wrapper only retries 5xx).
+   */
+  async createSubscription(
+    params: CreateSubscriptionParams,
+  ): Promise<StitchSubscriptionResponse> {
+    const body = {
+      amount: Number(params.amountCents),
+      merchantReference: params.merchantReference,
+      startDate: params.startDate.toISOString(),
+      endDate: params.endDate.toISOString(),
+      payerFullName: params.payerFullName,
+      email: params.payerEmail,
+      payerId: params.payerId,
+      recurrence: {
+        frequency: params.recurrence.frequency,
+        interval: params.recurrence.interval,
+        ...(params.recurrence.byMonthDay !== undefined
+          ? { byMonthDay: params.recurrence.byMonthDay }
+          : {}),
+        ...(params.recurrence.byWeekDay !== undefined
+          ? { byWeekDay: params.recurrence.byWeekDay }
+          : {}),
+        ...(params.recurrence.byMonth !== undefined
+          ? { byMonth: params.recurrence.byMonth }
+          : {}),
+      },
+      initialAmount: Number(params.initialAmountCents),
+    };
+    const res = await this.authedRequest(
+      'POST',
+      '/api/v1/subscriptions',
+      body,
+    );
+    const json = (await res.json()) as {
+      data?: {
+        subscription?: {
+          id: string;
+          status: StitchSubscriptionResponse['status'];
+          authorizationUrl?: string;
+          link?: string;
+          paymentAuthorizationRequestId?: string;
+        };
+      };
+    };
+    const sub = json.data?.subscription;
+    if (!sub?.id || !(sub.authorizationUrl || sub.link)) {
+      throw new StitchApiError('Invalid subscription response', 500, json);
+    }
+    return {
+      id: sub.id,
+      status: sub.status ?? 'PENDING',
+      authorizationUrl: sub.authorizationUrl ?? sub.link!,
+      paymentAuthorizationRequestId: sub.paymentAuthorizationRequestId,
+    };
+  }
+
+  async getSubscription(stitchSubscriptionId: string): Promise<Record<string, unknown>> {
+    const res = await this.authedRequest(
+      'GET',
+      `/api/v1/subscriptions/${stitchSubscriptionId}`,
+    );
+    const json = (await res.json()) as { data?: Record<string, unknown> };
+    return json.data ?? {};
+  }
+
+  async cancelStitchSubscription(stitchSubscriptionId: string): Promise<{ status: string }> {
+    const res = await this.authedRequest(
+      'POST',
+      `/api/v1/subscriptions/${stitchSubscriptionId}/cancel`,
+    );
+    const json = (await res.json()) as { data?: { status: string } };
+    return json.data ?? { status: 'CANCELLED' };
   }
 
   async registerWebhook(url: string): Promise<{ id: string }> {

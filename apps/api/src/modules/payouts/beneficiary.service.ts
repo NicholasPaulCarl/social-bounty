@@ -33,6 +33,7 @@ export class BeneficiaryService {
   // `local:{userId}` id when Stitch is disabled) is removed when TradeSafe is
   // integrated — TradeSafe's beneficiary API returns a real provider id in all
   // environments, so `stitchBeneficiaryId` becomes `tradesafeBeneficiaryId`.
+  // Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
   async upsertForUser(userId: string, input: BeneficiaryInput) {
     if (!/^\d{6,20}$/.test(input.accountNumber)) {
       throw new BadRequestException('accountNumber must be 6-20 digits');

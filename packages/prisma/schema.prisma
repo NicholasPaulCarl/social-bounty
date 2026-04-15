@@ -341,6 +341,7 @@ enum LedgerEntryStatus {
 enum WebhookProvider {
   STITCH
   STRIPE
+  TRADESAFE
 }
 
 enum WebhookStatus {
@@ -367,6 +368,19 @@ enum StitchPayoutStatus {
   SETTLED
   FAILED
   RETRY_PENDING
+  CANCELLED
+}
+
+// Stitch recurring-subscription mandate statuses. Matches Stitch's
+// /api/v1/subscriptions state machine (PENDING is our local initial state
+// between create-request and first authorised webhook).
+// Source: md-files/payment-gateway.md §12.
+enum StitchSubscriptionMandateStatus {
+  PENDING
+  AUTHORISED
+  UNAUTHORISED
+  FAILED
+  EXPIRED
   CANCELLED
 }
 
@@ -1144,9 +1158,10 @@ model Subscription {
   createdAt          DateTime               @default(now())
   updatedAt          DateTime               @updatedAt
 
-  user     User?                 @relation("UserSubscription", fields: [userId], references: [id])
-  brand    Brand?                @relation("BrandSubscription", fields: [brandId], references: [id])
-  payments SubscriptionPayment[]
+  user               User?                 @relation("UserSubscription", fields: [userId], references: [id])
+  brand              Brand?                @relation("BrandSubscription", fields: [brandId], references: [id])
+  payments           SubscriptionPayment[]
+  stitchSubscription StitchSubscription?
 
   @@unique([userId, entityType])
   @@unique([brandId, entityType])
@@ -1156,6 +1171,37 @@ model Subscription {
   @@map("subscriptions")
 }
 
+// Stitch recurring-subscription mandate (card-consent + recurrence).
+// One-to-one with our Subscription row. Stores the Stitch-side identifiers
+// (subscriptionId + paymentAuthorizationRequestId) so we can correlate
+// webhook payments back to our Subscription. The first successful charge
+// flips the mandate to AUTHORISED and the Subscription to ACTIVE.
+//
+// Non-Negotiable #2: processSubscriptionCharge() uses UNIQUE(referenceId,
+// actionType) on LedgerTransactionGroup with referenceId=stitchPaymentId so
+// webhook replays are idempotent.
+model StitchSubscription {
+  id                            String                           @id @default(uuid())
+  subscriptionId                String                           @unique
+  stitchSubscriptionId          String                           @unique
+  stitchPaymentAuthorizationId  String?                          @unique
+  hostedConsentUrl              String
+  merchantReference             String
+  amountCents                   BigInt
+  currency                      Currency                         @default(ZAR)
+  tierSnapshot                  SubscriptionTier
+  mandateStatus                 StitchSubscriptionMandateStatus  @default(PENDING)
+  lastErrorMessage              String?
+  metadata                      Json?
+  createdAt                     DateTime                         @default(now())
+  updatedAt                     DateTime                         @updatedAt
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([mandateStatus])
+  @@map("stitch_subscriptions")
+}
+
 model SubscriptionPayment {
   id                 String                    @id @default(uuid())
   subscriptionId     String
@@ -1163,7 +1209,7 @@ model SubscriptionPayment {
   currency           Currency                  @default(ZAR)
   status             SubscriptionPaymentStatus @default(PENDING)
   provider           String?
-  providerPaymentId  String?
+  providerPaymentId  String?                   @unique
   billingPeriodStart DateTime
   billingPeriodEnd   DateTime
   attemptNumber      Int                       @default(1)
