@@ -271,3 +271,28 @@ export interface AdminUpdateSettingsRequest {
   signupsEnabled?: boolean;
   submissionsEnabled?: boolean;
 }
+
+// GET /admin/payments-health
+export interface PaymentsHealthResponse {
+  paymentsProvider: string;
+  stitchTokenProbe: {
+    ok: boolean;
+    latencyMs: number;
+    error?: string;
+  };
+  lastWebhook: {
+    receivedAt: string;
+    eventType: string;
+    status: string;
+    externalEventId: string;
+  } | null;
+  killSwitch: {
+    active: boolean;
+    reason?: string;
+  };
+  credsHashes: {
+    clientId: string;
+    clientSecret: string;
+    webhookSecret: string;
+  };
+}

@@ -179,6 +179,15 @@ export function useSystemHealth() {
   });
 }
 
+// Payments Health (Stitch)
+export function usePaymentsHealth() {
+  return useQuery({
+    queryKey: ['admin', 'paymentsHealth'] as const,
+    queryFn: () => adminApi.getPaymentsHealth(),
+    refetchInterval: 30000,
+  });
+}
+
 export function useRecentErrors(params: AdminRecentErrorsParams) {
   return useQuery({
     queryKey: queryKeys.admin.recentErrors(params),
