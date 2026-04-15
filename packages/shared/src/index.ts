@@ -272,6 +272,7 @@ export type {
   ReconciliationFinding,
   ReconciliationReport,
   ConfidenceScore,
+  KbSystemIssueRow,
 } from './dto/admin.dto';
 
 // Business DTOs

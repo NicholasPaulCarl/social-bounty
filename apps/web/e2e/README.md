@@ -110,3 +110,37 @@ Total: 5 passing, 1 passing-or-skipped.
   either by capturing the `hostedUrl` from `POST /bounties/:id/fund` or by
   observing a `framenavigated` event to a Stitch URL. We never complete the
   checkout, so the test is safe against the sandbox.
+
+## 2026-04-15 live run
+
+Environment: API `http://localhost:3001/api/v1/health` → 200, web `:3000` → 200,
+Postgres + Redis up. Chromium installed via `npx playwright install chromium`.
+Command: `cd apps/web && npx playwright test --grep @smoke --reporter=list`.
+
+| Spec | Outcome |
+|---|---|
+| `smoke-finance-kill-switch` | **2 passed** (overview + Kill Switch dialog Cancel) |
+| `smoke-brand-go-live` | **1 skipped** — no DRAFT bounty in seed, as documented above |
+| `smoke-hunter-payouts` | **1 passed** |
+| `smoke-admin-finance-tabs` | **2 passed** (exceptions + insights) |
+
+Final: **5 passed, 1 skipped, 0 failed** in ~48s (single worker).
+
+Test-only fixes applied during this run (no production code touched):
+
+1. `helpers.ts` — the `loginAs()` helper previously assumed the backend
+   accepted `000000` as a magic OTP in dev mode. It does not: the OTP is a
+   real random 6-digit code stored in Redis at `otp:<email>` with a 5/min
+   request throttle. The helper now:
+   - seeds the OTP key directly into Redis (`redis-cli SET otp:<email> ...`)
+     with the known value `424242` before visiting the login page,
+   - stubs `POST /api/v1/auth/request-otp` via `page.route()` to always
+     return `200 OK`, sidestepping the per-IP 5/min throttle, and
+   - submits `424242` into the OTP input.
+   This keeps the end-to-end UX covered (email → continue → OTP → dashboard)
+   while being immune to throttle + cooldown state between tests.
+2. `smoke-finance-kill-switch.spec.ts` — the ACTIVATE Kill Switch dialog is a
+   PrimeReact `<Dialog>`, which renders the title via `role="dialog"` +
+   `aria-labelledby` rather than a semantic `<h*>`. The spec was asserting
+   `getByRole('heading', { name: /activate kill switch/i })` which no longer
+   matches. Switched to `getByRole('dialog', { name: ... })`.

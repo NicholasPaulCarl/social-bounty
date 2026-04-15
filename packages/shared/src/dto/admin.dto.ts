@@ -409,6 +409,24 @@ export interface ReconciliationReport {
   killSwitchActivated: boolean;
 }
 
+// GET /admin/kb/insights/:system
+// One RecurringIssue row filtered to those whose metadata.system matches the
+// path param. Used by the per-system KB drill-down page on the Insights tab.
+export interface KbSystemIssueRow {
+  id: string;
+  category: string;
+  signature: string;
+  title: string;
+  severity: string; // info | warning | critical
+  occurrences: number;
+  ineffectiveFix: boolean;
+  resolved: boolean;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  kbEntryRef: string | null;
+  metadata: Record<string, unknown> | null;
+}
+
 // GET /admin/kb/confidence
 export interface ConfidenceScore {
   system: string;

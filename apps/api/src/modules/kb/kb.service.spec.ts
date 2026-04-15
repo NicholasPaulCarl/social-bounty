@@ -225,6 +225,38 @@ describe('KbService', () => {
       expect(prisma.auditLog.create).not.toHaveBeenCalled();
     });
 
+    it('info-severity recurrence on a RESOLVED-within-90d row → bump only, NO flag, NO AuditLog (R23)', async () => {
+      // R23: info severity is too weak a signal to invalidate a resolved fix.
+      // The occurrences bump must still happen, but the Ineffective Fix
+      // auto-flag and its AuditLog entry must NOT fire.
+      const resolvedAt = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000); // 10 days ago — well inside 90d window
+      prisma.recurringIssue.findUnique.mockResolvedValue({
+        id: 'r1',
+        occurrences: 1,
+        resolved: true,
+        resolvedAt,
+        ineffectiveFix: false,
+      });
+      prisma.recurringIssue.update.mockResolvedValue({ id: 'r1', occurrences: 2 });
+
+      const { isNew, issue } = await service.recordRecurrence({
+        category: 'ledger-imbalance',
+        system: 'payments',
+        title: 'imbalance',
+        severity: 'info',
+      });
+
+      // Bump still happened.
+      expect(isNew).toBe(false);
+      expect(issue.occurrences).toBe(2);
+      // Only the occurrences-bump update — NO second update for the flag.
+      expect(prisma.recurringIssue.update).toHaveBeenCalledTimes(1);
+      const bumpCall = prisma.recurringIssue.update.mock.calls[0][0];
+      expect(bumpCall.data.occurrences).toEqual({ increment: 1 });
+      // No audit log.
+      expect(prisma.auditLog.create).not.toHaveBeenCalled();
+    });
+
     it('recurrence within the same run as first occurrence → no flag', async () => {
       // First occurrence: findUnique returns null → create path → no auto-flag possible.
       prisma.recurringIssue.findUnique.mockResolvedValue(null);

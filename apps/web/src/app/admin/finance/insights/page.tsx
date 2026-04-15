@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
@@ -24,6 +25,7 @@ function scoreToneClass(score: number): string {
 }
 
 export default function FinanceInsightsPage() {
+  const router = useRouter();
   const { data, isLoading, error, refetch } = useConfidenceScores();
 
   if (isLoading) return <LoadingState type="cards-grid" cards={6} />;
@@ -51,8 +53,22 @@ export default function FinanceInsightsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {scores.map((s) => {
             const severity = severityForScore(s.score);
+            const href = `/admin/finance/insights/${encodeURIComponent(s.system)}`;
             return (
-              <Card key={s.system}>
+              <Card
+                key={s.system}
+                role="link"
+                tabIndex={0}
+                aria-label={`View KB drill-down for ${s.system}`}
+                className="cursor-pointer hover:shadow-lg transition-shadow focus:outline-none focus:ring-2 focus:ring-accent-cyan/60"
+                onClick={() => router.push(href)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    router.push(href);
+                  }
+                }}
+              >
                 <div className="flex items-start justify-between mb-4 gap-2">
                   <span className="font-mono text-sm text-text-secondary break-all">
                     {s.system}

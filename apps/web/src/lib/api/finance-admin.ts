@@ -12,6 +12,7 @@ import type {
   OverrideRequest,
   ReconciliationReport,
   ConfidenceScore,
+  KbSystemIssueRow,
   SubscriptionTier,
   SubscriptionStatus,
   SubscriptionEntityType,
@@ -82,6 +83,9 @@ export const financeAdminApi = {
 
   getConfidenceScores: (): Promise<ConfidenceScore[]> =>
     apiClient.get('/admin/kb/confidence'),
+
+  getSystemInsights: (system: string): Promise<KbSystemIssueRow[]> =>
+    apiClient.get(`/admin/kb/insights/${encodeURIComponent(system)}`),
 
   listSubscriptions: (params?: {
     page?: number;

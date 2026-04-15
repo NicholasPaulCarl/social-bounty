@@ -22,9 +22,13 @@
     "db:studio": "npm run studio --workspace=packages/prisma",
     "check:kill-switch-bypass": "bash scripts/check-kill-switch-bypass.sh",
     "kb:context": "tsx scripts/kb-context.ts",
-    "test:scripts": "jest --config scripts/jest.config.js"
+    "test:scripts": "jest --config scripts/jest.config.js",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }

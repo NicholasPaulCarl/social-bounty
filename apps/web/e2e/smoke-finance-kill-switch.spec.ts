@@ -39,9 +39,11 @@ test.describe('@smoke Super Admin — Finance Overview + Kill Switch dialog', ()
 
     await page.getByRole('button', { name: /activate kill switch/i }).click();
 
-    // Dialog heading should appear. Depending on current state, it reads
+    // Dialog should appear. Depending on current state, its accessible name reads
     // "Activate Kill Switch" (default) or "Deactivate Kill Switch" (if already active).
-    const dialogHeading = page.getByRole('heading', { name: /activate kill switch|deactivate kill switch/i });
+    // PrimeReact's Dialog exposes the title via role="dialog" + aria-labelledby rather
+    // than via a semantic <h*>, so we match on the dialog's accessible name.
+    const dialogHeading = page.getByRole('dialog', { name: /activate kill switch|deactivate kill switch/i });
     await expect(dialogHeading).toBeVisible({ timeout: 5_000 });
 
     // Reason textarea is visible

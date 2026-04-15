@@ -81,6 +81,34 @@ I) Deployment plan + runbook
 
 ---
 
+## Current Implementation Status (2026-04-15)
+
+HEAD: `9fbcd8b feat: batch 6 — TradeSafe plan (ADR 0008), Phase 4 complete, holdover gates`. Test state: **1061 tests across 66 suites, 100% green** (Hard Rule #4 held).
+
+**Live and tested:**
+- **Stitch Express inbound rail** — brand funding (account debit → platform custody), idempotent via `UNIQUE(referenceId, actionType)`, Svix webhook ingestion with replay-safe handling.
+- **Append-only ledger** — double-entry, integer minor units, plan snapshot per transaction, compensating-entry refunds (ADR 0005, 0006).
+- **Reconciliation engine** — daily sweeps, exception feed, fault-injection coverage.
+- **Finance admin dashboard** — kill switch, reconciliation drill-down, exception review, per-system confidence scores.
+- **KB automation (Phase 4)** — `recordRecurrence` signature-stable and called from reconciliation + webhook-failure paths (`apps/api/src/modules/webhooks/stitch-webhook.controller.ts:125`), Ineffective-Fix auto-flag with AuditLog, `scripts/kb-context.ts` CLI.
+- **Subscription lifecycle (non-billing)** — tier snapshot, auto-downgrade state machine, grace period, self-service cancel-at-period-end UI.
+
+**Explicitly gated — do not remove without Team Lead sign-off:**
+- `PAYOUTS_ENABLED=false` — outbound rail is compiled but inert; flipping requires TradeSafe integration (ADR 0008) and a new ADR 0009.
+- **Live Upgrade CTA** is disabled in the subscription UI — the card-consent charge path is not wired. UI confirms the user flow; backend billing call is stubbed.
+
+**Out of scope for this MVP cycle:**
+- **TradeSafe integration** (ADR 0008) — the decision is recorded; the adapter, webhook route, and clearance-window reshape are Phase 2 work blocked on ADR 0009.
+- **Standalone TradeSafe escrow layer** alongside platform custody (ADR 0003, still in force for that scope).
+- **Peach Payments** — superseded by ADR 0008 before any code was written; markers in source now read `TRADESAFE MIGRATION (ADR 0008)` (8 sites).
+
+**References for future agents:**
+- `docs/STITCH-IMPLEMENTATION-STATUS.md` — day-by-day implementation log (maintained by agent-architect-7).
+- `docs/adr/0001-stripe-retirement-timing.md` through `docs/adr/0008-tradesafe-for-hunter-payouts.md` — all 8 architectural decisions.
+- `docs/reviews/2026-04-15-team-lead-audit-phases-0-3.md`, `…-batch-2.md`, `…-batch-3.md`, `…-batch-4.md`, `…-batch-5.md`, `…-batch-6.md` — the six prior Team Lead audits.
+
+---
+
 # Knowledge Base & Financial Integrity Framework
 
 ## 1. Purpose

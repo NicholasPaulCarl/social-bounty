@@ -92,7 +92,17 @@ export class KbService {
       // Auto-flag if this is a recurrence on a previously-resolved entry
       // within the 90d window. Only possible on the update branch — the
       // create branch below has no prior resolution to invalidate.
-      if (existing.resolved && existing.resolvedAt) {
+      //
+      // R23 severity gate: an `info` recurrence is too weak a signal to
+      // invalidate a resolved fix. Only `warning` and `critical` recurrences
+      // can auto-flag Ineffective Fix. The occurrences counter and
+      // lastSeenAt still bump for info-severity recurrences above — we just
+      // don't escalate to flagging.
+      if (
+        existing.resolved &&
+        existing.resolvedAt &&
+        (input.severity === 'warning' || input.severity === 'critical')
+      ) {
         const sinceResolved = now.getTime() - existing.resolvedAt.getTime();
         if (sinceResolved >= 0 && sinceResolved <= INEFFECTIVE_FIX_WINDOW_MS) {
           await this.flagIneffectiveFix(input.category, signature);

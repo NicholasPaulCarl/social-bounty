@@ -24,6 +24,17 @@ Scope:
 Exit criterion:
 - Staging: brand funds 100 synthetic bounties; reconciliation matches Stitch settlements to ledger entries with zero unreconciled balance over 7 consecutive days; webhook replay storm produces no duplicate entries.
 
+**Shipped as of 2026-04-15:**
+- `LedgerEntry` + `LedgerTransactionGroup` with canonical accounts and `UNIQUE(referenceId, actionType)` idempotency (see `docs/adr/0005-ledger-idempotency-via-header-table.md`).
+- `WebhookEvent` table with `UNIQUE(provider, externalEventId)`, Svix signature verification, replay-safe handlers.
+- Stitch Express hosted-checkout brand funding flow wired end-to-end.
+- Fee engine honouring tier admin fee (15% Free / 5% Pro) and the independent 3.5% global fee in its own `global_fee_revenue` account.
+- Plan snapshot recorded at bounty creation; in-flight transactions never re-priced.
+- `AuditLog` coupled to every ledger write; webhook/cron writes use `STITCH_SYSTEM_ACTOR_ID` as the actor fallback.
+- Pre-approval refund path.
+- Phase 1 test coverage per `claude.md` §5 green in CI (happy path, retry/duplicate, partial failure rollback, webhook replay idempotent).
+- Live sandbox proof in `docs/reviews/2026-04-15-phase-2-live-test.md` (fund path confirmed balanced, idempotent, audit-logged).
+
 ---
 
 ## Phase 2 — Approval, Earnings Split, Clearance, Outbound Payouts
@@ -44,6 +55,18 @@ Scope:
 Exit criterion:
 - Staging: end-to-end fund → approve → clear → pay flow runs green for both tiers for 7 consecutive days; reconciliation green; injected failures (timeout, failed payout, webhook replay) all handled without ledger drift.
 
+**Shipped as of 2026-04-15:**
+- Submission approval flow (`brand_reserve → hunter_pending`) live.
+- Earnings split applying tier commission (20% Free / 10% Pro) + independent 3.5% global fee + payout / bank charges, with plan snapshotted at approval time.
+- Clearance release job: Pro same-day, Free 72h, runs every 10 min; `CLEARANCE_OVERRIDE_HOURS_*` env knobs for dev/staging acceleration.
+- Reconciliation engine covering all seven checks from `financial-architecture.md` §6.
+- Automation jobs idempotent with `JobRun` audit rows.
+- Fund → approve → clear path **live-tested** in Stitch Express sandbox — see `docs/reviews/2026-04-15-phase-2-live-test.md`. Ledger remains balanced through injected failures; failure-path compensating groups post correctly.
+- Post-approval / pre-payout refund path (Super Admin approval required).
+- Stitch outbound webhook shell (Svix verification, replay-safe) is in place and will be reused by the TradeSafe outbound when that workstream lands.
+
+**Exit criterion deferral:** The `→ pay` segment of the exit criterion is **deferred**. Per `docs/adr/0008-tradesafe-for-hunter-payouts.md`, Stitch Express does not expose a multi-recipient payout surface, so hunter payouts move to TradeSafe in a separate workstream. `PAYOUTS_ENABLED=false` in all non-dev environments until that integration ships. The Phase 2 live-test already demonstrated that the existing payout scheduler, ledger-side of the payout (`hunter_available → payout_in_transit → hunter_paid`), retry policy, and webhook handlers are all in place and balance correctly — the gap is purely the outbound rail integration.
+
 ---
 
 ## Phase 3 — Finance Reconciliation Dashboard & Admin Controls
@@ -63,6 +86,19 @@ Scope:
 Exit criterion:
 - Super Admin can, from the dashboard: see live imbalances, drill into any `transactionGroupId`, toggle the kill switch, approve / reject refunds, retry / hold / release payouts, apply overrides with audit trail, and export any module.
 
+**Shipped as of 2026-04-15:**
+- All nine Finance Reconciliation Dashboard modules live: Overview, Inbound, Reserves, Earnings & Payouts, Refunds, Overrides, Exceptions, Audit Trail, Exports.
+- Post-payout refund path with dual Super Admin approval and mandatory KB entry (enforced).
+- Override & adjustment flows posting compensating entries (never mutations) — enforced by `npm run check:kill-switch-bypass` (ADR 0006).
+- Financial Kill Switch: manual toggle + auto-trip on Critical reconciliation findings.
+- Exception feed wired to reconciliation findings with info / warning / critical severities.
+- CSV exports on every module, including Stitch external reference + `transactionGroupId` for third-party reconciliation.
+- Subscription billing surface: monthly prepaid, plan snapshot, 3-day failed-billing grace period, auto-downgrade. Upgrade CTA gated pending live card-consent flow.
+- Expired-bounty release scheduler (idempotent, `JobRun`-logged).
+- Brand KYB intake and review surface.
+- Hunter wallet timeline (read-model projection per ADR 0002).
+- Hunter payouts history page (read-only; execution gated behind TradeSafe per ADR 0008).
+
 ---
 
 ## Phase 4 — KB Automation & Claude Integration
@@ -79,6 +115,15 @@ Scope:
 
 Exit criterion:
 - When a known failure pattern recurs, the system automatically: opens a KB stub, links it to the prior entry, bumps the counter, flags the original fix as `Ineffective Fix`, and surfaces it on the dashboard.
+
+**Shipped as of 2026-04-15:**
+- `md-files/knowledge-base.md` populated with real entries from Phases 1–3 incidents and the Phase 2 live-test findings.
+- `RecurringIssue` table and write-path from reconciliation findings live.
+- Auto-stub creation wired to all six `claude.md` §9 triggers (duplicate transaction, ledger imbalance, reconciliation mismatch, recurrence threshold, Critical/High financial-impact incidents).
+- Root-cause signature matching with `recurrenceCount` bumps.
+- **Ineffective Fix auto-flag**: prior KB entry is flagged automatically when its root-cause signature recurs within the recurrence window.
+- KB Insights panel + Confidence Score live in the admin dashboard.
+- Claude context tool (`scripts/kb-context.ts`) returns top-N relevant KB entries for a given file path or system; integrated into the Agent Team Lead context pipeline.
 
 ---
 

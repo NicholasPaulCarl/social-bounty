@@ -16,6 +16,7 @@ const keys = {
   exceptions: ['financeAdmin', 'exceptions'] as const,
   auditTrail: (limit: number) => ['financeAdmin', 'auditTrail', limit] as const,
   confidence: ['financeAdmin', 'confidence'] as const,
+  systemInsights: (system: string) => ['financeAdmin', 'systemInsights', system] as const,
   subscriptions: (page: number, limit: number) =>
     ['financeAdmin', 'subscriptions', page, limit] as const,
 };
@@ -61,6 +62,14 @@ export function useFinanceAuditTrail(limit = 100) {
 
 export function useConfidenceScores() {
   return useQuery({ queryKey: keys.confidence, queryFn: () => financeAdminApi.getConfidenceScores() });
+}
+
+export function useSystemInsights(system: string) {
+  return useQuery({
+    queryKey: keys.systemInsights(system),
+    queryFn: () => financeAdminApi.getSystemInsights(system),
+    enabled: Boolean(system),
+  });
 }
 
 export function useToggleKillSwitch() {
