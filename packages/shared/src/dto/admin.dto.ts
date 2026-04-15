@@ -272,6 +272,153 @@ export interface AdminUpdateSettingsRequest {
   submissionsEnabled?: boolean;
 }
 
+// ─────────────────────────────────────
+// Finance Admin (Stitch / double-entry ledger)
+// Source: md-files/admin-dashboard.md
+// ─────────────────────────────────────
+
+// GET /admin/finance/overview
+export interface FinanceOverviewResponse {
+  killSwitchActive: boolean;
+  openExceptions: number;
+  balancesByAccount: Record<string, string>; // account name -> integer cents as string
+  recentGroups: Array<{
+    id: string;
+    referenceId: string;
+    actionType: string;
+    description: string;
+    createdAt: string;
+    totalCents: string;
+  }>;
+}
+
+// GET /admin/finance/inbound
+export interface InboundFundingRow {
+  id: string;
+  bountyId: string;
+  stitchPaymentLinkId: string;
+  stitchPaymentId: string | null;
+  hostedUrl: string;
+  merchantReference: string;
+  amountCents: string;
+  currency: string;
+  status: string;
+  expiresAt: string | null;
+  createdAt: string;
+  bounty?: { id: string; title: string; brandId: string };
+}
+
+// GET /admin/finance/reserves
+export interface ReserveRow {
+  bountyId: string;
+  title: string;
+  brandId: string;
+  paymentStatus: string;
+  faceValueCents: string;
+  reserveBalanceCents: string;
+  drift: boolean;
+}
+
+// GET /admin/finance/earnings-payouts — totals per hunter-side account
+export type EarningsPayoutsResponse = Record<string, string>;
+
+// GET /admin/finance/refunds
+export interface AdminRefundRow {
+  id: string;
+  bountyId: string;
+  submissionId: string | null;
+  scenario: string;
+  state: string;
+  amountCents: string;
+  reason: string;
+  requestedByUserId: string;
+  approvedByUserId: string | null;
+  dualApprovalByUserId: string | null;
+  kbEntryId: string | null;
+  stitchRefundId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// GET /admin/finance/exceptions
+export interface ExceptionRow {
+  id: string;
+  category: string;
+  signature: string;
+  title: string;
+  severity: string;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  occurrences: number;
+  resolved: boolean;
+  resolvedAt: string | null;
+  rootCause: string | null;
+  mitigation: string | null;
+  kbEntryRef: string | null;
+  metadata: Record<string, unknown> | null;
+}
+
+// GET /admin/finance/audit-trail
+export interface FinanceAuditRow {
+  id: string;
+  actorId: string;
+  actorRole: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  beforeState: Record<string, unknown> | null;
+  afterState: Record<string, unknown> | null;
+  reason: string | null;
+  createdAt: string;
+}
+
+// POST /admin/finance/kill-switch
+export interface KillSwitchToggleRequest {
+  active: boolean;
+  reason: string;
+}
+
+// POST /admin/finance/overrides
+export interface OverrideLeg {
+  account: string;
+  type: 'DEBIT' | 'CREDIT';
+  amountCents: string;
+  userId?: string;
+  brandId?: string;
+  bountyId?: string;
+}
+
+export interface OverrideRequest {
+  reason: string;
+  description: string;
+  legs: OverrideLeg[];
+}
+
+// POST /admin/finance/reconciliation/run
+export interface ReconciliationFinding {
+  category: string;
+  signature: string;
+  severity: 'info' | 'warning' | 'critical';
+  title: string;
+  detail: Record<string, unknown>;
+}
+
+export interface ReconciliationReport {
+  runId: string;
+  findings: ReconciliationFinding[];
+  killSwitchActivated: boolean;
+}
+
+// GET /admin/kb/confidence
+export interface ConfidenceScore {
+  system: string;
+  score: number;
+  criticalOpen: number;
+  highOpen: number;
+  recurrences90d: number;
+  failedRecon7d: number;
+}
+
 // GET /admin/payments-health
 export interface PaymentsHealthResponse {
   paymentsProvider: string;

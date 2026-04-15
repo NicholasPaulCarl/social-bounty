@@ -22,7 +22,7 @@ Social Bounty is a bounty-based marketplace platform where businesses create tas
 5. **PrimeReact + Tailwind CSS** must be used for all UI.
 6. All destructive actions require confirmation dialogs.
 7. Document assumptions; don't invent requirements.
-8. **Use agents for every task** /md-files/agent-overview.md
+8. **Use agents for every task and run them in paralell** /md-files/agent-overview.md
 
 ## User Roles
 

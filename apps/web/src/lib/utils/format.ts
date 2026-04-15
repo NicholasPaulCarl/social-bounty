@@ -23,6 +23,18 @@ const CURRENCY_LOCALE_MAP: Record<string, string> = {
   EUR: 'de-DE',
 };
 
+/**
+ * Format integer minor units (cents) as a currency string.
+ * Used by the finance admin / ledger surfaces where amounts are BigInt cents
+ * serialised as strings over the wire.
+ */
+export function formatCents(cents: string | bigint | null | undefined, currency = 'ZAR'): string {
+  if (cents === null || cents === undefined) return '';
+  const asNumber = typeof cents === 'bigint' ? Number(cents) : Number(cents);
+  if (!Number.isFinite(asNumber)) return '';
+  return formatCurrency(asNumber / 100, currency);
+}
+
 export function formatCurrency(value: string | number | null, currency?: string): string {
   if (value === null || value === undefined) return '';
   const num = typeof value === 'string' ? parseFloat(value) : value;

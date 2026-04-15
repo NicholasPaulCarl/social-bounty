@@ -253,6 +253,19 @@ export type {
   AdminSettingsResponse,
   AdminUpdateSettingsRequest,
   PaymentsHealthResponse,
+  FinanceOverviewResponse,
+  InboundFundingRow,
+  ReserveRow,
+  EarningsPayoutsResponse,
+  AdminRefundRow,
+  ExceptionRow,
+  FinanceAuditRow,
+  KillSwitchToggleRequest,
+  OverrideLeg,
+  OverrideRequest,
+  ReconciliationFinding,
+  ReconciliationReport,
+  ConfidenceScore,
 } from './dto/admin.dto';
 
 // Business DTOs
