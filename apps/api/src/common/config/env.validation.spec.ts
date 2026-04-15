@@ -60,9 +60,18 @@ describe('validateEnv', () => {
   });
 
   describe('feature flags (H2 — orphan sweep)', () => {
-    it('accepts PAYOUTS_ENABLED=true|false', () => {
+    it('accepts PAYOUTS_ENABLED=true|false (with BENEFICIARY_ENC_KEY when true — R29)', () => {
       expect(() => validateEnv({ ...base, PAYOUTS_ENABLED: 'false' })).not.toThrow();
-      expect(() => validateEnv({ ...base, PAYOUTS_ENABLED: 'true' })).not.toThrow();
+      // R29 (batch 14A): flipping PAYOUTS_ENABLED=true also requires a
+      // strong BENEFICIARY_ENC_KEY. See the dedicated R29 test block
+      // below for the full matrix.
+      expect(() =>
+        validateEnv({
+          ...base,
+          PAYOUTS_ENABLED: 'true',
+          BENEFICIARY_ENC_KEY: 'a'.repeat(32),
+        }),
+      ).not.toThrow();
     });
 
     it('rejects PAYOUTS_ENABLED with a non-boolean string', () => {
@@ -102,6 +111,62 @@ describe('validateEnv', () => {
       expect(() =>
         validateEnv({ ...base, BENEFICIARY_ENC_KEY: 'super-secret-key' }),
       ).not.toThrow();
+    });
+
+    // R29 hardening (batch 14A, 2026-04-15) — BENEFICIARY_ENC_KEY is
+    // required (and must be ≥32 chars) when PAYOUTS_ENABLED=true. The
+    // JWT_SECRET fallback in BeneficiaryService is only acceptable while
+    // the outbound rail is gated (ADR 0008). These tests lock the gate.
+    describe('BENEFICIARY_ENC_KEY — R29 conditional hardening', () => {
+      const strongKey = 'a'.repeat(32);
+
+      it('throws when PAYOUTS_ENABLED=true and BENEFICIARY_ENC_KEY is missing', () => {
+        expect(() =>
+          validateEnv({ ...base, PAYOUTS_ENABLED: 'true' }),
+        ).toThrow(/BENEFICIARY_ENC_KEY/);
+      });
+
+      it('throws when PAYOUTS_ENABLED=true and BENEFICIARY_ENC_KEY is shorter than 32 chars', () => {
+        expect(() =>
+          validateEnv({
+            ...base,
+            PAYOUTS_ENABLED: 'true',
+            BENEFICIARY_ENC_KEY: 'short-key',
+          }),
+        ).toThrow(/BENEFICIARY_ENC_KEY/);
+      });
+
+      it('passes when PAYOUTS_ENABLED=true and BENEFICIARY_ENC_KEY is exactly 32 chars', () => {
+        expect(() =>
+          validateEnv({
+            ...base,
+            PAYOUTS_ENABLED: 'true',
+            BENEFICIARY_ENC_KEY: strongKey,
+          }),
+        ).not.toThrow();
+      });
+
+      it('passes when PAYOUTS_ENABLED=false and BENEFICIARY_ENC_KEY is unset (dev fallback path)', () => {
+        expect(() =>
+          validateEnv({ ...base, PAYOUTS_ENABLED: 'false' }),
+        ).not.toThrow();
+      });
+
+      it('passes when PAYOUTS_ENABLED is absent and BENEFICIARY_ENC_KEY is unset (unchanged current-state behaviour)', () => {
+        expect(() => validateEnv({ ...base })).not.toThrow();
+      });
+
+      it('passes when PAYOUTS_ENABLED=false and BENEFICIARY_ENC_KEY is a short string (tolerated in dev)', () => {
+        // Intentional: dev environments can carry a throwaway value. The
+        // MinLength(32) floor only bites when payouts are live.
+        expect(() =>
+          validateEnv({
+            ...base,
+            PAYOUTS_ENABLED: 'false',
+            BENEFICIARY_ENC_KEY: 'short-dev-key',
+          }),
+        ).not.toThrow();
+      });
     });
 
     it('accepts APIFY_ACTOR_TIMEOUT_MS as an int >= 1000', () => {

@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  MinLength,
   Min,
   ValidateIf,
   validateSync,
@@ -154,13 +155,24 @@ class EnvironmentVariables {
   STITCH_SYSTEM_ACTOR_ID?: string;
 
   // AES-256-GCM key used to encrypt bank account numbers on
-  // `StitchBeneficiary`. SECURITY-SENSITIVE. `BeneficiaryService` falls
-  // back to `JWT_SECRET` when unset (legacy dev behaviour, preserved by
-  // this validator), but operators MUST set a dedicated key in any
-  // environment that accepts real bank details. Validated as a string
-  // when set; not marked required to preserve existing dev behaviour.
-  @IsOptional()
+  // `StitchBeneficiary`. SECURITY-SENSITIVE.
+  //
+  // R29 hardening (batch 14A, 2026-04-15): required when
+  // `PAYOUTS_ENABLED=true`. The JWT_SECRET fallback in `BeneficiaryService`
+  // is tolerated ONLY when payouts are gated off (current pre-TradeSafe
+  // state, ADR 0008) — no live beneficiary rows are written in that mode.
+  // Flipping `PAYOUTS_ENABLED=true` without a dedicated key would re-use
+  // the token-signing secret to encrypt real bank account numbers; a
+  // single key compromise would then decrypt every stored account.
+  //
+  // Minimum length 32: AES-256 key material needs ≥32 bytes of entropy.
+  // Shorter secrets get stretched via scrypt but yield a weak derived key.
+  @ValidateIf((o) => o.PAYOUTS_ENABLED === 'true')
   @IsString()
+  @MinLength(32, {
+    message:
+      'BENEFICIARY_ENC_KEY must be at least 32 characters when PAYOUTS_ENABLED=true (AES-256 key material)',
+  })
   BENEFICIARY_ENC_KEY?: string;
 
   // Stripe (ADR 0001 legacy). Kept optional until the retirement batch

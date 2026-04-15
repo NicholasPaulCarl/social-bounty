@@ -73,7 +73,18 @@ export interface InitiateUpgradeResult {
  *  #10 global fee: subscription revenue is one account; the 3.5% global fee
  *     applies to bounty flows, not subscription flows (payment-gateway.md §12
  *     — "monthly recurring", no 3.5% on recurring). We add optional legs for
- *     processing/bank fees only when Stitch reports them.
+ *     processing/bank fees only when Stitch reports them (> 0).
+ *
+ * Leg-shape note (R25, closed 2026-04-15 batch 14B):
+ *   Both brand-funding (`stitch_payment_settled`) and subscription_charged use
+ *   CONDITIONAL posting for `processing_expense` / `bank_charges`: the leg is
+ *   only emitted when Stitch reports a positive fee amount. This is canonical
+ *   and REQUIRED — `LedgerService.postTransactionGroup` rejects
+ *   `amountCents <= 0n` (ledger.service.ts:108), so a "zero-amount leg" is not
+ *   a representable state. A zero or omitted fee from Stitch both resolve to
+ *   "no leg posted"; both shapes are balanced, both reconcile cleanly.
+ *   Gross / expense reporting is handled in the Finance dashboard by joining
+ *   over `gateway_clearing` DEBITs and the net `subscription_revenue` CREDIT.
  */
 @Injectable()
 export class UpgradeService {

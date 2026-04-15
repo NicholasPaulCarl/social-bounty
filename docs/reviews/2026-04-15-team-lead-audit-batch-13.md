@@ -92,6 +92,12 @@ Sign-off: **PASS**.
 - **Why not Critical-escalate now:** payouts are still gated (`PAYOUTS_ENABLED=false`); no live beneficiary records are created in production yet. The time-to-flip-live is the deadline.
 - **Required action before `PAYOUTS_ENABLED=true`:** add a conditional validator (`@ValidateIf(NODE_ENV==='production')` + `@IsString()` with a minimum length), fail boot if unset, and key-rotate any records written under the fallback during dev. Owner: Agent Team Lead to route on next batch.
 - **KB entry:** required (automatic trigger — new High-severity financial risk). Template at `md-files/knowledge-base.md#entry-template`.
+- **Status:** **Fixed in batch 14A, commit `<sha-placeholder>`.**
+  - `env.validation.ts`: `BENEFICIARY_ENC_KEY` is now `@ValidateIf(o => o.PAYOUTS_ENABLED === 'true') @IsString() @MinLength(32)`. Boot fails with a clear message when payouts are live and the key is missing or shorter than 32 characters. The 32-char floor is documented inline — AES-256 key material needs ≥32 bytes of entropy; shorter input yields a weak scrypt-derived key.
+  - `beneficiary.service.ts`: constructor throws a `Configuration error: BENEFICIARY_ENC_KEY is required when PAYOUTS_ENABLED=true…` before any encryption attempt. The JWT_SECRET fallback survives ONLY on the `PAYOUTS_ENABLED=false` path and logs a loud warn at boot (`BENEFICIARY_ENC_KEY unset — using JWT_SECRET derivation. ONLY VALID WITH PAYOUTS_ENABLED=false.`).
+  - `.env.example`: `BENEFICIARY_ENC_KEY` now carries a placeholder plus documentation of the 32-char minimum and the `PAYOUTS_ENABLED` coupling.
+  - Tests: 6 new cases in `env.validation.spec.ts` (throws on missing/short key with payouts on; passes with 32-char key; passes with payouts off regardless of key) and 4 new cases in `beneficiary.service.spec.ts` (constructor throws with clear message, does not read JWT_SECRET on the payouts-on missing-key path, warns on the dev fallback, silent when explicitly configured).
+  - `PAYOUTS_ENABLED` remains `false` — this change only hardens the gate, it does not flip it.
 
 ### R30 — `users.passwordHash` drop on stale local DB
 

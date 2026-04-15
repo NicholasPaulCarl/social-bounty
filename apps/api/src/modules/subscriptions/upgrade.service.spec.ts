@@ -447,6 +447,67 @@ describe('UpgradeService', () => {
       // LedgerService's UNIQUE(referenceId, actionType) makes retry safe.
     });
 
+    // ─── R25 closure: leg-shape consistency with brand-funding ───
+    //
+    // LedgerService rejects amountCents <= 0n (ledger.service.ts:108), so a
+    // zero-amount leg is not representable. Brand-funding uses the same
+    // conditional shape (brand-funding.handler.ts:109). These two cases lock
+    // in that both "Stitch reports 0" and "Stitch omits fees entirely"
+    // resolve to the same canonical shape: no fee leg posted, net revenue
+    // equals the full charge.
+
+    it('R25: Stitch reports zero processing fee → no processing_expense leg (conditional posting is canonical)', async () => {
+      await service.processRecurringCharge({
+        type: 'SUBSCRIPTION',
+        status: 'PAID',
+        subscriptionId: 'stitch-sub-1',
+        paymentId: 'stitch-pay-zero',
+        amount: 35000,
+        fees: [
+          { type: 'PAYMENT_LINKS', amount: 0 },
+          { type: 'BANK_CHARGE', amount: 0 },
+        ],
+      });
+
+      const input = ledger.postTransactionGroup.mock.calls[0][0];
+      const accounts = input.legs.map((l: any) => l.account as string).sort();
+      // Only gateway_clearing + subscription_revenue — no processing_expense,
+      // no bank_charges. Posting a zero leg would throw in LedgerService.
+      expect(accounts).toEqual(['gateway_clearing', 'subscription_revenue']);
+      // All legs strictly positive (Non-Negotiable guard).
+      for (const leg of input.legs) {
+        expect(leg.amountCents > 0n).toBe(true);
+      }
+      // Net revenue == full charge when fees are zero.
+      const revenue = input.legs.find(
+        (l: any) => l.account === LedgerAccount.subscription_revenue,
+      );
+      expect(revenue.amountCents).toBe(35000n);
+    });
+
+    it('R25: Stitch omits fees entirely → no processing_expense / bank_charges legs', async () => {
+      // No `fees` key at all on the payload — the common Stitch shape for a
+      // clean charge. Must behave identically to the zero-fee case above.
+      await service.processRecurringCharge({
+        type: 'SUBSCRIPTION',
+        status: 'PAID',
+        subscriptionId: 'stitch-sub-1',
+        paymentId: 'stitch-pay-omitted',
+        amount: 35000,
+      });
+
+      const input = ledger.postTransactionGroup.mock.calls[0][0];
+      const accounts = input.legs.map((l: any) => l.account as string).sort();
+      expect(accounts).toEqual(['gateway_clearing', 'subscription_revenue']);
+      for (const leg of input.legs) {
+        expect(leg.amountCents > 0n).toBe(true);
+      }
+      const revenue = input.legs.find(
+        (l: any) => l.account === LedgerAccount.subscription_revenue,
+      );
+      expect(revenue.amountCents).toBe(35000n);
+    });
+
     it('fee legs present when Stitch reports processing / bank fees', async () => {
       await service.processRecurringCharge({
         type: 'SUBSCRIPTION',

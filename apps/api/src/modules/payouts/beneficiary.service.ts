@@ -23,9 +23,37 @@ export class BeneficiaryService {
     private readonly stitch: StitchClient,
     private readonly config: ConfigService,
   ) {
-    const secret =
-      this.config.get<string>('BENEFICIARY_ENC_KEY') ??
-      this.config.get<string>('JWT_SECRET', 'dev-only-key');
+    // R29 hardening (batch 14A, 2026-04-15).
+    //
+    // When `PAYOUTS_ENABLED=true` the outbound rail is live and we are
+    // writing real bank account numbers at rest. BENEFICIARY_ENC_KEY MUST
+    // be explicitly set — no JWT_SECRET fallback, because re-using the
+    // token-signing secret means one key compromise decrypts every
+    // beneficiary row. Missing = boot failure (thrown from the constructor
+    // so the Nest DI container surfaces it during module init).
+    //
+    // When `PAYOUTS_ENABLED=false` (current pre-TradeSafe state, ADR 0008)
+    // the fallback is preserved for dev ergonomics — no live encryption is
+    // happening because no live beneficiary rows are being written.
+    const explicit = this.config.get<string>('BENEFICIARY_ENC_KEY');
+    const payoutsEnabled = this.config.get<string>('PAYOUTS_ENABLED') === 'true';
+
+    if (payoutsEnabled && !explicit) {
+      throw new Error(
+        'Configuration error: BENEFICIARY_ENC_KEY is required when PAYOUTS_ENABLED=true. Set a dedicated 32+ character secret in the environment; JWT_SECRET fallback is not permitted with live payouts (R29, ADR 0008).',
+      );
+    }
+
+    let secret: string;
+    if (explicit) {
+      secret = explicit;
+    } else {
+      this.logger.warn(
+        'BENEFICIARY_ENC_KEY unset — using JWT_SECRET derivation. ONLY VALID WITH PAYOUTS_ENABLED=false.',
+      );
+      secret = this.config.get<string>('JWT_SECRET', 'dev-only-key');
+    }
+
     this.key = scryptSync(secret, 'stitch-beneficiary', 32);
   }
 
