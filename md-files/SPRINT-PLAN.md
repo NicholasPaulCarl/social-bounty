@@ -37,7 +37,7 @@
 | S0-2 | Review all MD documentation files | Team Lead | ✅ Done |
 | S0-3 | Create agent team roster (AGENTS.md) | PM | ✅ Done |
 | S0-4 | Create sprint plan (SPRINT-PLAN.md) | PM | 🔄 In Progress |
-| S0-5 | Create codebase audit report (AUDIT-REPORT.md) | Solutions Architect | ⬜ Pending |
+| S0-5 | Create codebase audit report (archive/AUDIT-REPORT-2026-03-27.md) | Solutions Architect | ⬜ Pending |
 | S0-6 | Define futuristic design system (DESIGN-SYSTEM.md) | UI Designer | ⬜ Pending |
 | S0-7 | Research: Futuristic marketplace UI inspiration | UX Researcher | ⬜ Pending |
 | S0-8 | Inventory technical debt from audit | Team Lead | ⬜ Pending |

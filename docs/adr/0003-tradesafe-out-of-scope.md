@@ -5,7 +5,7 @@
 
 ## Context
 
-`payment-gateway-review.docx` (2026-04-09) recommended pairing Stitch Money with TradeSafe (a registered SA escrow service) as a second layer of chargeback protection. Evaluated whether TradeSafe should ship with Phases 1–3 or be deferred.
+`md-files/payment-gateway-review.docx` (2026-04-09) recommended pairing Stitch Money with TradeSafe (a registered SA escrow service) as a second layer of chargeback protection. Evaluated whether TradeSafe should ship with Phases 1–3 or be deferred.
 
 ## Decision
 

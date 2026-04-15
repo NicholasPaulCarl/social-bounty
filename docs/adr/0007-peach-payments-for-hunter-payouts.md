@@ -10,7 +10,7 @@ The Phase 2 live-test agent (2026-04-15) discovered that Stitch Express does not
 
 This means **multi-recipient payouts are not possible** on Stitch Express. The platform-custody payout flow described in `md-files/payment-gateway.md` §8 cannot be completed against this product.
 
-The consultant review at `payment-gateway-review.docx` (2026-04-09) had flagged Peach Payments as the other strong fit for SA marketplace platforms, with explicit "Marketplaces" vertical, real-time payouts to SA bank accounts, zero payout fees, and transparent pricing (2.85% + R0.99 per collection).
+The consultant review at `md-files/payment-gateway-review.docx` (2026-04-09) had flagged Peach Payments as the other strong fit for SA marketplace platforms, with explicit "Marketplaces" vertical, real-time payouts to SA bank accounts, zero payout fees, and transparent pricing (2.85% + R0.99 per collection).
 
 ## Decision
 

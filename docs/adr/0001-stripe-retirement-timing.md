@@ -5,7 +5,7 @@
 
 ## Context
 
-`apps/api/src/modules/payments/payments.service.ts` currently integrates Stripe for brand bounty funding. The canonical payment spec (`md-files/payment-gateway.md`) mandates Stitch Express. Paystack was declined 2026-04-09 (see `payment-gateway-review.docx`). The plan approved in `.claude/plans/modular-skipping-teapot.md` replaces Stripe with Stitch rather than running hybrid.
+`apps/api/src/modules/payments/payments.service.ts` currently integrates Stripe for brand bounty funding. The canonical payment spec (`md-files/payment-gateway.md`) mandates Stitch Express. Paystack was declined 2026-04-09 (see `md-files/payment-gateway-review.docx`). The plan approved in `.claude/plans/modular-skipping-teapot.md` replaces Stripe with Stitch rather than running hybrid.
 
 ## Decision
 

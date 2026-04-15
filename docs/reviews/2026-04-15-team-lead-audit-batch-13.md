@@ -53,7 +53,7 @@ Evidence gathered:
 - `Grep passwordHash packages/prisma/schema.prisma` → zero matches; the column is not declared in the current schema.
 - `Grep -r "password|bcrypt|argon" apps/api/src/modules/auth` → zero matches. The auth module does not implement password auth at all; the codebase uses JWT issued by other identity flows.
 - `packages/prisma/migrations/20260207124607_init/migration.sql:29` — the only migration that ever created `passwordHash` (as `TEXT NOT NULL`).
-- Documentation references (`md-files/agent-backend.md`, `docs/architecture/database-schema.md`) describe a *future* password-auth design, not current behaviour.
+- Documentation references (`md-files/agents/agent-backend.md`, `docs/architecture/database-schema.md`) describe a *future* password-auth design, not current behaviour.
 
 Impact assessment:
 - On any env whose schema was already synced via `db push` against current `schema.prisma`: column is already gone → `IF EXISTS` makes this a no-op.

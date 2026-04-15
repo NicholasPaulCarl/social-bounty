@@ -362,4 +362,4 @@ Any PR violating these without written justification is a blocker.
 3. Read `md-files/knowledge-base.md` for prior payment incidents.
 4. Verify the change against §17 non-negotiables.
 5. State root cause (if a fix) and cite affected ledger accounts.
-6. Route implementation via `md-files/agent-team-lead.md`.
+6. Route implementation via `md-files/agents/agent-team-lead.md`.

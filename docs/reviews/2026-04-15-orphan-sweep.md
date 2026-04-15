@@ -148,7 +148,7 @@ behaviour-spanning specs in `__tests__/` sibling folders or in
 Files: `agent-architect.md`, `agent-backend.md`, `agent-devops.md`,
 `agent-frontend.md`, `agent-overview.md`, `agent-qa-testing.md`,
 `agent-team-lead.md`, `agent-ui-designer.md`, `agent-ux-designer.md`.
-All linked from `md-files/agent-overview.md` (the orchestration
+All linked from `md-files/agents/agent-overview.md` (the orchestration
 entrypoint from `CLAUDE.md` rule 8). **Zero dead docs.**
 
 ---

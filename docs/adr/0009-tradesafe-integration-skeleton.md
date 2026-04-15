@@ -343,7 +343,7 @@ These block ADR 0010 from being written. They are the pre-sandbox unknowns.
    but engineering sequencing depends on it.
 2. **API surface documentation.** We need the full TradeSafe API reference to
    write ADR 0010. Current understanding is inferential from the
-   `payment-gateway-review.docx` summary.
+   `md-files/payment-gateway-review.docx` summary.
 3. **Per-transaction escrow release semantics.** Does TradeSafe require an
    explicit `release` call per transaction, or can we batch releases? Per-
    transaction changes the scheduler loop shape. Batch changes reconciliation.
@@ -461,6 +461,6 @@ Three phases, gated, no concurrent work with existing Stitch inbound.
 - `md-files/knowledge-base.md` — KB entry template, failure-pattern library.
 - `md-files/implementation-phases.md` — Phase 1–4 delivery plan; this ADR
   slots into the Phase 2→3 boundary as a bolt-on workstream.
-- `payment-gateway-review.docx` (2026-04-09) — original TradeSafe
+- `md-files/payment-gateway-review.docx` (2026-04-09) — original TradeSafe
   recommendation.
 - TradeSafe public materials — to be catalogued in ADR 0010.

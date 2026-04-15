@@ -161,7 +161,7 @@ No gaps identified.
 | **Status** | PASS |
 | **Evidence** | `apps/api/src/common/pipes/sanitize.pipe.ts` |
 
-**Finding:** `SanitizePipe` is applied globally at bootstrap. It uses the `sanitize-html` library (not regex) with `allowedTags: []` and `allowedAttributes: {}` — all HTML is stripped from string inputs in request bodies. This is applied recursively to nested objects and arrays. The previous regex-based approach flagged in `AUDIT-REPORT.md §3.3` has been replaced.
+**Finding:** `SanitizePipe` is applied globally at bootstrap. It uses the `sanitize-html` library (not regex) with `allowedTags: []` and `allowedAttributes: {}` — all HTML is stripped from string inputs in request bodies. This is applied recursively to nested objects and arrays. The previous regex-based approach flagged in `md-files/archive/AUDIT-REPORT-2026-03-27.md §3.3` has been replaced.
 
 No gaps identified.
 
@@ -189,7 +189,7 @@ No gaps identified.
 
 **Finding:** `RolesGuard` is implemented and checks decorator-specified roles against `request.user.role`. `UserStatusGuard` blocks suspended users from accessing protected routes. RBAC is applied at the controller level across all modules.
 
-**Gap:** No role hierarchy is defined (see `AUDIT-REPORT.md §3.9`). Each role must be listed explicitly in every `@Roles()` decorator. A `SUPER_ADMIN` role does not automatically include `BUSINESS_ADMIN` permissions — this must be handled manually and creates a risk of authorization gaps as the permission surface grows.
+**Gap:** No role hierarchy is defined (see `md-files/archive/AUDIT-REPORT-2026-03-27.md §3.9`). Each role must be listed explicitly in every `@Roles()` decorator. A `SUPER_ADMIN` role does not automatically include `BUSINESS_ADMIN` permissions — this must be handled manually and creates a risk of authorization gaps as the permission surface grows.
 
 **Remediation Plan:**
 - Define a `hasRole()` utility in `packages/shared` that evaluates implied roles (e.g., `SUPER_ADMIN` implies all permissions).
@@ -203,7 +203,7 @@ No gaps identified.
 | | |
 |---|---|
 | **Status** | PARTIAL |
-| **Evidence** | `apps/api/src/modules/audit/audit.service.ts`; `AUDIT-REPORT.md §5.7` |
+| **Evidence** | `apps/api/src/modules/audit/audit.service.ts`; `md-files/archive/AUDIT-REPORT-2026-03-27.md §5.7` |
 
 **Finding:** `AuditService` is implemented and writes structured records to a dedicated `AuditLog` database table (actor, role, action, entity type, entity ID, before/after state, IP address, timestamp). The service is correctly used in the auth module and several other modules.
 
@@ -221,7 +221,7 @@ No gaps identified.
 | | |
 |---|---|
 | **Status** | PARTIAL |
-| **Evidence** | `apps/api/src/common/filters/http-exception.filter.ts`; `AUDIT-REPORT.md §5.8` |
+| **Evidence** | `apps/api/src/common/filters/http-exception.filter.ts`; `md-files/archive/AUDIT-REPORT-2026-03-27.md §5.8` |
 
 **Finding:** `HttpExceptionFilter` is applied globally and structures all error responses. It records errors in the admin system health dashboard.
 
@@ -241,11 +241,11 @@ No gaps identified.
 | | |
 |---|---|
 | **Status** | PARTIAL |
-| **Evidence** | `.env.example` (if present); `apps/api/src/modules/auth/auth.service.ts`; `AUDIT-REPORT.md §3.7` |
+| **Evidence** | `.env.example` (if present); `apps/api/src/modules/auth/auth.service.ts`; `md-files/archive/AUDIT-REPORT-2026-03-27.md §3.7` |
 
 **Finding:** JWT secrets, database credentials, and Redis configuration are consumed via `ConfigService` — no hardcoded secrets were found in the API codebase. CI uses appropriately scoped test secrets via GitHub Actions environment variables.
 
-**Gap:** Demo/seed account passwords are hardcoded in frontend source code (`apps/web`). These are visible in production JavaScript bundles. (See `AUDIT-REPORT.md §3.7`.)
+**Gap:** Demo/seed account passwords are hardcoded in frontend source code (`apps/web`). These are visible in production JavaScript bundles. (See `md-files/archive/AUDIT-REPORT-2026-03-27.md §3.7`.)
 
 **Remediation Plan:**
 - Remove all hardcoded credentials from frontend code.
@@ -260,7 +260,7 @@ No gaps identified.
 | | |
 |---|---|
 | **Status** | FAIL |
-| **Evidence** | `apps/web` auth implementation; `AUDIT-REPORT.md §3.1` |
+| **Evidence** | `apps/web` auth implementation; `md-files/archive/AUDIT-REPORT-2026-03-27.md §3.1` |
 
 **Finding:** Refresh tokens are stored in `localStorage`, which is accessible to any JavaScript running on the page. A single XSS vulnerability (in application code or a third-party script) allows an attacker to steal long-lived refresh tokens and take over user accounts.
 
@@ -280,7 +280,7 @@ No gaps identified.
 | | |
 |---|---|
 | **Status** | FAIL |
-| **Evidence** | `.github/workflows/ci.yml`; `AUDIT-REPORT.md §3.8` |
+| **Evidence** | `.github/workflows/ci.yml`; `md-files/archive/AUDIT-REPORT-2026-03-27.md §3.8` |
 
 **Finding:** The CI pipeline runs lint, type-check, unit tests, integration tests (with real PostgreSQL and Redis), and E2E tests. Coverage is uploaded as an artifact. Secrets are managed via GitHub Actions environment variables.
 
@@ -332,7 +332,7 @@ No gaps identified.
 | Error handling | `apps/api/src/common/filters/http-exception.filter.ts` | Full file |
 | CI/CD pipeline | `.github/workflows/ci.yml` | Full file |
 | Dependabot config | `.github/dependabot.yml` | Full file |
-| Broader codebase audit | `AUDIT-REPORT.md` | All sections |
+| Broader codebase audit | `md-files/archive/AUDIT-REPORT-2026-03-27.md` | All sections |
 
 ---
 

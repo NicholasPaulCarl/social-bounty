@@ -8,10 +8,12 @@ Social Bounty is a bounty-based marketplace platform where businesses create tas
 
 ## Tech Stack
 
-- **Front-end**: Next.js (React), PrimeReact, Tailwind CSS, TypeScript
-- **Back-end**: Node.js (NestJS), PostgreSQL, Prisma ORM, REST API
+- **Front-end**: Next.js 14 (App Router), PrimeReact 10, Tailwind CSS, TypeScript, TanStack Query 5
+- **Back-end**: Node.js (NestJS), PostgreSQL, Prisma ORM, REST API, Redis (Stitch token cache + webhook replay guard)
+- **Payments**: Stitch Express (inbound — live), TradeSafe (outbound — adapter scaffolded, `PAYOUTS_ENABLED=false` gate)
+- **Webhooks**: Svix-verified (HMAC-SHA256, ≤5 min timestamp skew)
 - **Infrastructure**: Local / Staging / Production, Sentry for error tracking
-- **Auth**: JWT or server-side sessions, email + password
+- **Auth**: JWT (access + refresh), email verification via OTP. Password-auth implementation is roadmap — see `docs/reviews/2026-04-15-team-lead-audit-batch-13.md` for the current gap.
 
 ## Hard Rules
 
@@ -22,7 +24,7 @@ Social Bounty is a bounty-based marketplace platform where businesses create tas
 5. **PrimeReact + Tailwind CSS** must be used for all UI.
 6. All destructive actions require confirmation dialogs.
 7. Document assumptions; don't invent requirements.
-8. **Use agents for every task and run them in paralell** /md-files/agent-overview.md
+8. **Use agents for every task and run them in paralell** md-files/agents/agent-overview.md
 
 ## User Roles
 
@@ -32,19 +34,33 @@ Social Bounty is a bounty-based marketplace platform where businesses create tas
 
 ## Data Model Entities
 
-User, Organisation, OrganisationMember, Bounty, Submission, AuditLog, FileUpload
+User, Brand, BrandMember, Bounty, Submission, AuditLog, FileUpload, LedgerEntry, LedgerTransactionGroup, WebhookEvent, StitchPaymentLink, StitchPayout, StitchBeneficiary, Subscription, SubscriptionPayment, Refund, RecurringIssue, JobRun, SystemSetting.
 
-## Project Structure (Planned)
+> Organisation was renamed to Brand in commit `539467e` (2026-04-15). A legacy JWT claim compatibility shim lives in commit `8c50d38` for existing sessions.
+
+## Project Structure
 
 ```
 social-bounty/
+  claude.md         # This file — project charter + financial non-negotiables
   apps/
-    web/          # Next.js front-end
-    api/          # NestJS back-end
+    web/            # Next.js front-end
+    api/            # NestJS back-end
   packages/
-    shared/       # Shared types, constants, utilities
-    prisma/       # Prisma schema and migrations
-  docs/           # Architecture docs, API contracts
+    shared/         # Shared types, DTOs, enums, ledger constants
+    prisma/         # Prisma schema and migrations
+  docs/             # Architecture docs, ADRs, reviews, runbooks
+    adr/            # Architectural Decision Records (0001–0009)
+    reviews/        # Team-lead audit reports (2026-04-15 batches 2–13)
+    perf/           # Reconciliation benchmarks, perf evidence
+  md-files/         # Product + domain specs and agent play-books
+    agents/         # 9 per-role agent specs (entry: agent-overview.md)
+    archive/        # Superseded historical docs (dated filenames)
+    *.md            # Canonical specs: payment-gateway, financial-architecture,
+                    # knowledge-base, admin-dashboard, implementation-phases,
+                    # social-bounty-mvp, brand-profile-and-signup,
+                    # AGENTS (team roster), DESIGN-SYSTEM, SPRINT-PLAN, RELEASE-NOTES
+  scripts/          # CLI tools (kb-context.ts, bench-reconciliation.ts)
 ```
 
 ## Conventions
@@ -59,13 +75,16 @@ social-bounty/
 
 ## Agent Team Roles
 
-When working as an agent team, use these role guidelines:
+Full play-books in `md-files/agents/` (entry point: `agent-overview.md`). Routing rules in §3 below.
 
-- **Architect**: Database schema, API contracts, system design decisions
-- **Frontend**: Next.js pages, PrimeReact components, routing, state management
-- **Backend**: NestJS modules, controllers, services, Prisma queries, auth/RBAC
-- **QA/Testing**: Test strategy, unit tests, integration tests, E2E smoke tests
-- **DevOps**: Project scaffolding, CI/CD, environment config, deployment
+- **Team Lead** (`agent-team-lead.md`): Approval gates, RBAC sign-off, financial-non-negotiable enforcement
+- **Architect** (`agent-architect.md`): Database schema, API contracts, system design decisions, ADRs
+- **UX Designer** (`agent-ux-designer.md`): Flows, edge cases, destructive-action confirmation copy
+- **UI Designer** (`agent-ui-designer.md`): PrimeReact composition, Tailwind tokens, screen inventory
+- **Front-End** (`agent-frontend.md`): Next.js App Router, TanStack Query, routing, state
+- **Back-End** (`agent-backend.md`): NestJS modules, Prisma, auth/RBAC, ledger writers, webhook handlers
+- **QA/Testing** (`agent-qa-testing.md`): 5-test matrix per ledger handler, Playwright E2E, smoke gates
+- **DevOps** (`agent-devops.md`): CI/CD, migrations, env validation, Docker/deployment
 
 ## Key Delivery Outputs
 
@@ -83,18 +102,24 @@ I) Deployment plan + runbook
 
 ## Current Implementation Status (2026-04-15)
 
-HEAD: `715fc90 feat: batch 14 — close R25, R29, and stale Stripe agent specs`. Test state: **1190 tests across 77 suites, 100% green** (Hard Rule #4 held).
+HEAD: `7ea904b fix: admin dashboard returns brands key not organisations`. Test state: **1190 tests across 77 suites, 100% green** (Hard Rule #4 held). Working tree: MD file reorganization staged (see "Documentation layout" below).
 
 **Live and tested:**
 - **Stitch Express inbound rail** — brand funding (account debit → platform custody), idempotent via `UNIQUE(referenceId, actionType)`, Svix webhook ingestion with replay-safe handling.
 - **Append-only ledger** — double-entry, integer minor units, plan snapshot per transaction, compensating-entry refunds (ADR 0005, 0006).
 - **Reconciliation engine** — 7 checks (group balance, duplicate detection, missing legs, status consistency, wallet-projection drift, Stitch-vs-ledger, reserve-vs-bounty). Reserve check runs single GROUP BY (184×–494× faster than per-bounty aggregate). 15-min cadence safe to ~1M paid bounties. Fault-injection coverage for each check.
-- **Finance admin dashboard** — kill switch, reconciliation drill-down, exception review, per-system confidence scores.
+- **Finance admin dashboard** — kill switch, reconciliation drill-down, exception review, per-system confidence scores. Stat-card response key aligned with the Organisation→Brand rename (`data.brands.total`, fixed 2026-04-15).
 - **KB automation (Phase 4)** — `recordRecurrence` signature-stable and called from reconciliation + webhook-failure paths, Ineffective-Fix auto-flag with AuditLog, `scripts/kb-context.ts` CLI.
 - **Subscription lifecycle** — tier snapshot, auto-downgrade state machine, grace period, cancel-at-period-end UI, **live Upgrade CTA** wired to Stitch card-consent (POST `/subscription/upgrade` → hosted consent → `subscription_charged` ledger group).
 - **TradeSafe payout adapter scaffold** (batch 10A) — behind `PAYOUT_PROVIDER` flag with mock mode; `PAYOUTS_ENABLED=false` remains the outbound gate; no ledger paths live.
 - **Migration history reconciled** (batch 13A) — fresh-DB `prisma migrate deploy` green from empty Postgres; 16 tables, 16 enums, 23 columns, 56 indexes, 22 FKs brought back into migration history via idempotent SQL; `schema.prisma` untouched; existing envs verified no-op via pg_dump snapshot diff.
 - **Env validation hardened** (batches 13B + 14A) — 9 previously-unchecked flags now typed at boot; `BENEFICIARY_ENC_KEY` required when `PAYOUTS_ENABLED=true` with 32-char minimum + defence-in-depth throw in `BeneficiaryService` constructor; dead `FINANCIAL_KILL_SWITCH` env removed (operator-misleading; real kill switch is `SystemSetting.financial.kill_switch.active`).
+
+**Documentation layout (reorganized 2026-04-15, uncommitted):**
+- Repo root now holds only `claude.md`; five loose docs (`AGENTS.md`, `DESIGN-SYSTEM.md`, `RELEASE-NOTES.md`, `SPRINT-PLAN.md`, `payment-gateway-review.docx`) moved into `md-files/`.
+- Nine per-role agent specs moved into `md-files/agents/` (entry point: `md-files/agents/agent-overview.md`).
+- Outdated 2026-03-27 codebase audit archived at `md-files/archive/AUDIT-REPORT-2026-03-27.md`; still cited from `docs/SECURITY-COMPLIANCE.md` and `docs/BACKUP-STRATEGY.md` as historical evidence.
+- Live cross-references rewritten in 13 files (2 ADRs, `docs/contributing.md`, `docs/BACKUP-STRATEGY.md`, `docs/SECURITY-COMPLIANCE.md`, 2 review audits, etc.). `git mv` preserved history on all tracked moves.
 
 **Explicitly gated — do not remove without Team Lead sign-off:**
 - `PAYOUTS_ENABLED=false` — outbound rail is compiled and adapter-routed but inert; flipping requires live TradeSafe creds (ADR 0008/0009).
@@ -133,7 +158,7 @@ If an issue recurs, treat it as a structural flaw, not a bug. Every fix must aim
 
 ## 3. Agent Routing (extends Hard Rule #8)
 
-All development work routes through `md-files/agent-overview.md` → `md-files/agent-team-lead.md`.
+All development work routes through `md-files/agents/agent-overview.md` → `md-files/agents/agent-team-lead.md`.
 
 Claude may:
 - Analyse the task

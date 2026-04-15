@@ -2,7 +2,7 @@
 
 This document covers the local guard-rails and checks every contributor
 must run before pushing changes. It is not a style guide — see
-`CLAUDE.md` for project conventions, `md-files/agent-overview.md` for
+`CLAUDE.md` for project conventions, `md-files/agents/agent-overview.md` for
 agent routing, and the ADRs in `docs/adr/` for design decisions.
 
 ## Pre-commit / Pre-push Checks
@@ -175,4 +175,4 @@ order (open before resolved), and the `--limit` cap.
   authoritative ADR the guard enforces
 - `md-files/payment-gateway.md` — canonical Stitch Express spec
 - `md-files/financial-architecture.md` — ledger mechanics
-- `md-files/agent-qa-testing.md` — QA gate + smoke-test checklist
+- `md-files/agents/agent-qa-testing.md` — QA gate + smoke-test checklist

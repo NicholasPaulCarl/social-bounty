@@ -266,7 +266,7 @@ Redis data is transient. Longer retention adds cost without meaningful benefit g
 
 ## 5. File Upload Backup Strategy
 
-**Current state:** Files are stored on local disk (`/uploads` on the API server). This is a known critical issue (see AUDIT-REPORT.md §2.4). Migration to object storage is required before production.
+**Current state:** Files are stored on local disk (`/uploads` on the API server). This is a known critical issue (see md-files/archive/AUDIT-REPORT-2026-03-27.md §2.4). Migration to object storage is required before production.
 
 ### 5.1 Pre-Migration (Local Disk) — Interim Backup
 

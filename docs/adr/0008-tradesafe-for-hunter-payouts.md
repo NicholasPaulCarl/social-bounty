@@ -8,7 +8,7 @@
 
 ADR 0007 (earlier today) locked Peach Payments as the outbound rail for hunter payouts because Stitch Express has no multi-recipient payout surface. That decision has been revised.
 
-**TradeSafe** is now the chosen outbound rail. TradeSafe is South Africa's longest-running digital escrow service, explicitly recommended as a second layer in `payment-gateway-review.docx` (2026-04-09) but originally deferred by ADR 0003 (TradeSafe Out of Scope). The plan has moved on: TradeSafe gives us a registered-escrow payout rail with multi-recipient disbursement and a stronger compliance posture than direct-to-bank bank rails.
+**TradeSafe** is now the chosen outbound rail. TradeSafe is South Africa's longest-running digital escrow service, explicitly recommended as a second layer in `md-files/payment-gateway-review.docx` (2026-04-09) but originally deferred by ADR 0003 (TradeSafe Out of Scope). The plan has moved on: TradeSafe gives us a registered-escrow payout rail with multi-recipient disbursement and a stronger compliance posture than direct-to-bank bank rails.
 
 ## Decision
 
