@@ -133,9 +133,14 @@ export class StitchClient {
       expiresAt: params.expiresAt?.toISOString(),
     };
     const res = await this.authedRequest('POST', '/api/v1/payment-links', body);
-    const json = (await res.json()) as { data?: { id: string; url: string; status: string } };
-    if (!json.data) throw new StitchApiError('Invalid payment-link response', 500, json);
-    return json.data;
+    const json = (await res.json()) as {
+      data?: { payment?: { id: string; link: string; status: string } };
+    };
+    const payment = json.data?.payment;
+    if (!payment?.id || !payment?.link) {
+      throw new StitchApiError('Invalid payment-link response', 500, json);
+    }
+    return { id: payment.id, url: payment.link, status: payment.status };
   }
 
   async getPayment(stitchPaymentId: string): Promise<Record<string, unknown>> {
@@ -229,10 +234,10 @@ export class StitchClient {
         clearTimeout(timeout);
         if (res.ok) return res;
         if (res.status >= 400 && res.status < 500) {
-          // 4xx is a business error; don't retry.
+          // 4xx is a business error; don't retry. Surface field errors in the message.
           const text = await res.text().catch(() => '');
           throw new StitchApiError(
-            `Stitch ${init.method} ${url} returned ${res.status}`,
+            `Stitch ${init.method} ${url} returned ${res.status}: ${text}`,
             res.status,
             text,
           );

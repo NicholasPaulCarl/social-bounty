@@ -1,4 +1,5 @@
 import { LedgerAccount, LedgerEntryType } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService } from '../ledger/ledger.service';
 import { BrandFundingHandler } from './brand-funding.handler';
@@ -48,7 +49,16 @@ describe('BrandFundingHandler.onPaymentSettled', () => {
     };
     postMock = jest.fn().mockResolvedValue({ transactionGroupId: 'grp_1', idempotent: false });
     ledger = { postTransactionGroup: postMock };
-    handler = new BrandFundingHandler(prisma as PrismaService, ledger as LedgerService);
+    const config = {
+      get: jest.fn((key: string, fallback?: unknown) =>
+        key === 'STITCH_SYSTEM_ACTOR_ID' ? 'system-actor-id' : fallback,
+      ),
+    } as unknown as ConfigService;
+    handler = new BrandFundingHandler(
+      prisma as PrismaService,
+      ledger as LedgerService,
+      config,
+    );
   });
 
   it('posts the canonical brand-funding ledger group for a zero-fee settlement', async () => {

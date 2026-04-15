@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   BountyStatus,
   LedgerAccount,
@@ -24,7 +25,12 @@ export class BrandFundingHandler {
   constructor(
     private readonly prisma: PrismaService,
     private readonly ledger: LedgerService,
+    private readonly config: ConfigService,
   ) {}
+
+  private systemActorId(): string {
+    return this.config.get<string>('STITCH_SYSTEM_ACTOR_ID', '');
+  }
 
   async onPaymentSettled(payload: Record<string, unknown>): Promise<void> {
     const { stitchPaymentId, stitchPaymentLinkId, processingFeeCents, bankChargeCents } =
@@ -64,6 +70,7 @@ export class BrandFundingHandler {
     // and the fees come out of net revenue, not from the brand.
     const gatewayDebit = link.amountCents + processingFee + bankCharge;
 
+    const originatorId = (meta.userId as string) || this.systemActorId();
     await this.ledger.postTransactionGroup({
       actionType: 'stitch_payment_settled',
       referenceId: stitchPaymentId,
@@ -119,8 +126,8 @@ export class BrandFundingHandler {
           : []),
       ],
       audit: {
-        actorId: 'stitch-webhook',
-        actorRole: UserRole.SUPER_ADMIN,
+        actorId: originatorId,
+        actorRole: UserRole.BUSINESS_ADMIN,
         action: 'BOUNTY_FUNDED',
         entityType: 'Bounty',
         entityId: bounty.id,
@@ -197,10 +204,17 @@ export class BrandFundingHandler {
     processingFeeCents?: bigint;
     bankChargeCents?: bigint;
   } {
+    // Stitch LINK webhook shape: { id, linkId, type: "LINK", status: "PAID", amount }
+    // For backwards-compat also accept a nested {data: {payment: {...}}} shape.
     const data = (payload.data as Record<string, unknown>) ?? payload;
     const payment = (data.payment as Record<string, unknown>) ?? data;
-    const id = this.readString(payment.id) ?? this.readString(payment.paymentId);
-    const linkId = this.readString(payment.paymentLinkId) ?? this.readString(payment.linkId);
+    const id =
+      this.readString(payment.id) ??
+      this.readString(payment.paymentId) ??
+      this.readString(payment.linkId);
+    const linkId =
+      this.readString(payment.linkId) ??
+      this.readString(payment.paymentLinkId);
     const fees = (payment.fees as Array<Record<string, unknown>>) ?? [];
     let processingFeeCents = 0n;
     let bankChargeCents = 0n;

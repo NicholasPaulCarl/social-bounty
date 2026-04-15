@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   Param,
+  Query,
   Req,
   Headers,
   RawBodyRequest,
@@ -46,6 +48,23 @@ export class PaymentsController {
       name: body.payerName,
       email: body.payerEmail,
     });
+  }
+
+  // Used by the /business/bounties/funded return page to resolve a bounty from
+  // whatever identifier Stitch's redirect carries (bountyId, paymentId,
+  // merchantReference), then poll until the webhook has flipped it to PAID.
+  @Get('payments/funding-status')
+  @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  async fundingStatus(
+    @Query('bountyId') bountyId: string | undefined,
+    @Query('stitchPaymentId') stitchPaymentId: string | undefined,
+    @Query('merchantReference') merchantReference: string | undefined,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.stitchPayments.resolveFundingStatus(
+      { bountyId, stitchPaymentId, merchantReference },
+      user,
+    );
   }
 
   // Stripe (legacy — retires in Phase 3 per ADR 0001)

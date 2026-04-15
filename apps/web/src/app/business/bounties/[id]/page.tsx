@@ -63,6 +63,12 @@ export default function BusinessBountyDetailPage() {
           payerName,
           payerEmail: user?.email,
         });
+        // Stitch's redirect URL is registered globally and may not carry our
+        // bountyId in the query string — stash it so the /funded page can
+        // resolve even if Stitch appends nothing.
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('stitchFundingBountyId', id);
+        }
         window.location.href = hostedUrl;
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Couldn\'t start funding. Try again.';

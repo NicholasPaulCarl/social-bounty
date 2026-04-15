@@ -56,6 +56,19 @@ export const bountyApi = {
   ): Promise<{ id: string; state: string }> =>
     apiClient.post(`/refunds/bounties/${bountyId}/before-approval`, { reason }),
 
+  fundingStatus: (params: {
+    bountyId?: string;
+    stitchPaymentId?: string;
+    merchantReference?: string;
+  }): Promise<{
+    bountyId: string;
+    bountyTitle: string;
+    status: string;
+    paymentStatus: string;
+    stitchPaymentLinkStatus: string | null;
+  }> =>
+    apiClient.get('/payments/funding-status', params as Record<string, unknown>),
+
   uploadBrandAssets: (bountyId: string, files: File[]): Promise<BrandAssetInfo[]> => {
     const formData = new FormData();
     files.forEach((f) => formData.append('files', f));

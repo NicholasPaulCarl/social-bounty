@@ -116,8 +116,11 @@ export class PayoutsService {
   }
 
   async initiatePayout(userId: string, beneficiaryId: string, amountCents: bigint) {
-    const idempotencyKey = `payout:${userId}:${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '')}`;
-    const merchantReference = `payout:${userId.slice(0, 8)}:${Date.now().toString(36)}`.slice(0, 50);
+    // Stitch merchantReference + our Idempotency-Key: alphanumeric only.
+    const stamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+    const userSlug = userId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
+    const idempotencyKey = `payout${userSlug}${stamp}`;
+    const merchantReference = `payout${userSlug}${stamp}`.slice(0, 50);
 
     const payout = await this.prisma.stitchPayout.create({
       data: {

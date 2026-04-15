@@ -21,68 +21,70 @@ export class WebhookRouterService {
   constructor(private readonly moduleRef: ModuleRef) {}
 
   async dispatch(event: WebhookEvent, payload: Record<string, unknown>): Promise<void> {
+    // Stitch sends { type: "LINK" | "WITHDRAWAL" | "REFUND", status: "PAID" | "SETTLED" | "FAILED" | ... }
+    // We route on (type, status) rather than eventType alone.
+    const resource = this.readString(payload.type) ?? event.eventType;
+    const status = this.readString(payload.status) ?? '';
     this.logger.log(
-      `routing ${event.provider} event ${event.eventType} (id=${event.externalEventId})`,
+      `routing ${event.provider} ${resource}/${status} (id=${event.externalEventId})`,
     );
-    switch (event.eventType) {
-      case 'payment.settled': {
-        const handler = this.moduleRef.get(BrandFundingHandler, { strict: false });
+
+    if (resource === 'LINK') {
+      const handler = this.moduleRef.get(BrandFundingHandler, { strict: false });
+      if (status === 'PAID' || status === 'SETTLED') {
         await handler.onPaymentSettled(payload);
         return;
       }
-      case 'payment.failed': {
-        const handler = this.moduleRef.get(BrandFundingHandler, { strict: false });
+      if (status === 'FAILED' || status === 'EXPIRED') {
         await handler.onPaymentFailed(payload);
         return;
       }
-      case 'refund.processed': {
-        const refunds = this.moduleRef.get(RefundsService, { strict: false });
-        const refundId = this.extractStitchRefundId(payload);
-        if (refundId) await refunds.onStitchRefundProcessed(refundId);
-        return;
-      }
-      case 'payout.settled': {
-        const payouts = this.moduleRef.get(PayoutsService, { strict: false });
-        const payoutId = this.extractStitchPayoutId(payload);
-        if (payoutId) await payouts.onPayoutSettled(payoutId);
-        return;
-      }
-      case 'payout.failed': {
-        const payouts = this.moduleRef.get(PayoutsService, { strict: false });
-        const payoutId = this.extractStitchPayoutId(payload);
-        if (payoutId) {
-          const reason = this.extractReason(payload) ?? 'unknown';
-          await payouts.onPayoutFailed(payoutId, reason);
-        }
-        return;
-      }
-      default:
-        this.logger.debug(`no handler wired for event type ${event.eventType}`);
     }
+    if (resource === 'WITHDRAWAL') {
+      const payouts = this.moduleRef.get(PayoutsService, { strict: false });
+      const payoutId = this.extractStitchPayoutId(payload);
+      if (!payoutId) return;
+      if (status === 'PAID' || status === 'SETTLED') {
+        await payouts.onPayoutSettled(payoutId);
+        return;
+      }
+      if (status === 'FAILED') {
+        await payouts.onPayoutFailed(payoutId, this.extractReason(payload) ?? 'unknown');
+        return;
+      }
+    }
+    if (resource === 'REFUND' && (status === 'PROCESSED' || status === 'COMPLETED')) {
+      const refunds = this.moduleRef.get(RefundsService, { strict: false });
+      const refundId = this.extractStitchRefundId(payload);
+      if (refundId) await refunds.onStitchRefundProcessed(refundId);
+      return;
+    }
+    this.logger.debug(`no handler wired for ${resource}/${status}`);
+  }
+
+  async replay(eventId: string, prisma: { webhookEvent: { findUnique: Function } }): Promise<{ replayed: boolean }> {
+    const event = await prisma.webhookEvent.findUnique({ where: { id: eventId } });
+    if (!event) return { replayed: false };
+    await this.dispatch(event as unknown as WebhookEvent, event.payload as Record<string, unknown>);
+    return { replayed: true };
+  }
+
+  private readString(v: unknown): string | undefined {
+    return typeof v === 'string' ? v : undefined;
   }
 
   private extractStitchRefundId(payload: Record<string, unknown>): string | undefined {
-    const data = (payload.data as Record<string, unknown>) ?? payload;
-    const refund = (data.refund as Record<string, unknown>) ?? data;
-    const id = refund.id ?? refund.refundId;
+    const id = payload.refundId ?? payload.id;
     return typeof id === 'string' ? id : undefined;
   }
 
   private extractStitchPayoutId(payload: Record<string, unknown>): string | undefined {
-    const data = (payload.data as Record<string, unknown>) ?? payload;
-    const payout = (data.payout as Record<string, unknown>) ??
-      (data.withdrawal as Record<string, unknown>) ??
-      data;
-    const id = payout.id ?? payout.payoutId ?? payout.withdrawalId;
+    const id = payload.withdrawalId ?? payload.payoutId ?? payload.id;
     return typeof id === 'string' ? id : undefined;
   }
 
   private extractReason(payload: Record<string, unknown>): string | undefined {
-    const data = (payload.data as Record<string, unknown>) ?? payload;
-    const payout = (data.payout as Record<string, unknown>) ??
-      (data.withdrawal as Record<string, unknown>) ??
-      data;
-    const reason = payout.failureReason ?? payout.reason ?? payout.error;
+    const reason = payload.failureReason ?? payload.reason ?? payload.error;
     return typeof reason === 'string' ? reason : undefined;
   }
 }

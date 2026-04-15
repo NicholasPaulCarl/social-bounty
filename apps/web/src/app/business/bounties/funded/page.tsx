@@ -1,53 +1,122 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { useBounty } from '@/hooks/useBounties';
-import { PaymentStatus } from '@social-bounty/shared';
+import { bountyApi } from '@/lib/api/bounties';
+
+interface Status {
+  bountyId: string;
+  bountyTitle: string;
+  status: string;
+  paymentStatus: string;
+  stitchPaymentLinkStatus: string | null;
+}
+
+const MAX_POLLS = 30; // ~90s at 3s interval
 
 export default function BountyFundedReturnPage() {
   const router = useRouter();
   const params = useSearchParams();
-  const bountyId = params.get('bountyId');
-  const { data: bounty, refetch } = useBounty(bountyId ?? '');
-  const [pollCount, setPollCount] = useState(0);
 
-  // Poll every 3s for up to ~90s while waiting for the webhook to mark PAID.
+  // Stitch may return with any of these identifier keys — or none of them, if
+  // the redirect was stripped. Accept them all, and fall back to a bountyId
+  // stashed in sessionStorage before the Go Live redirect left our site.
+  const identifiers = useMemo(() => {
+    const fromUrl = {
+      bountyId: params.get('bountyId') ?? undefined,
+      stitchPaymentId:
+        params.get('stitchPaymentId') ??
+        params.get('paymentId') ??
+        params.get('id') ??
+        undefined,
+      merchantReference:
+        params.get('merchantReference') ?? params.get('reference') ?? undefined,
+    };
+    if (
+      !fromUrl.bountyId &&
+      !fromUrl.stitchPaymentId &&
+      !fromUrl.merchantReference &&
+      typeof window !== 'undefined'
+    ) {
+      const stashed = sessionStorage.getItem('stitchFundingBountyId');
+      if (stashed) fromUrl.bountyId = stashed;
+    }
+    return fromUrl;
+  }, [params]);
+
+  const hasIdentifier = Boolean(
+    identifiers.bountyId || identifiers.stitchPaymentId || identifiers.merchantReference,
+  );
+
+  const [status, setStatus] = useState<Status | null>(null);
+  const [pollCount, setPollCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchOnce = useCallback(async () => {
+    if (!hasIdentifier) return;
+    try {
+      const next = await bountyApi.fundingStatus(identifiers);
+      setStatus(next);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load funding status');
+    }
+  }, [hasIdentifier, identifiers]);
+
   useEffect(() => {
-    if (!bountyId) return;
-    if (bounty?.paymentStatus === PaymentStatus.PAID) return;
-    if (pollCount >= 30) return;
+    fetchOnce();
+  }, [fetchOnce]);
+
+  // Poll every 3s until paid, errored, or timed out.
+  useEffect(() => {
+    if (!hasIdentifier) return;
+    if (status?.paymentStatus === 'PAID') return;
+    if (pollCount >= MAX_POLLS) return;
     const t = setTimeout(() => {
       setPollCount((c) => c + 1);
-      refetch();
+      fetchOnce();
     }, 3000);
     return () => clearTimeout(t);
-  }, [bountyId, bounty?.paymentStatus, pollCount, refetch]);
+  }, [hasIdentifier, status?.paymentStatus, pollCount, fetchOnce]);
 
-  if (!bountyId) {
+  if (!hasIdentifier) {
+    // Stitch sometimes returns without any identifier in the URL (e.g. cancelled
+    // or the redirect has been stripped). Webhook will still flip server-side.
     return (
-      <Card title="Funding confirmation">
-        <Message severity="warn" text="Missing bounty reference. Return to bounties list." />
+      <Card title="Payment completed">
+        <Message
+          severity="info"
+          className="w-full"
+          text="We couldn't pick up your bounty from the return URL, but your payment will be reconciled automatically. Check your bounty list."
+        />
         <div className="mt-4">
-          <Button label="Back to bounties" onClick={() => router.push('/business/bounties')} />
+          <Button
+            label="Back to bounties"
+            icon="pi pi-arrow-left"
+            onClick={() => router.push('/business/bounties')}
+          />
         </div>
       </Card>
     );
   }
 
-  const isPaid = bounty?.paymentStatus === PaymentStatus.PAID;
-  const stillWaiting = !isPaid && pollCount < 30;
-  const timedOut = !isPaid && pollCount >= 30;
+  const isPaid = status?.paymentStatus === 'PAID';
+  const waiting = !isPaid && pollCount < MAX_POLLS;
+  const timedOut = !isPaid && pollCount >= MAX_POLLS;
 
   return (
     <Card title={isPaid ? 'Funding confirmed' : 'Finalising funding...'}>
-      {isPaid && (
+      {isPaid && status && (
         <>
-          <Message severity="success" text={`Bounty "${bounty?.title ?? ''}" is now funded and live.`} />
+          <Message
+            severity="success"
+            className="w-full"
+            text={`Bounty "${status.bountyTitle}" is now funded and live.`}
+          />
           <p className="text-sm text-text-muted mt-4">
             Your ledger shows the funds in reserve. Hunters can now see and apply to this bounty.
           </p>
@@ -55,7 +124,7 @@ export default function BountyFundedReturnPage() {
             <Button
               label="View bounty"
               icon="pi pi-eye"
-              onClick={() => router.push(`/business/bounties/${bountyId}`)}
+              onClick={() => router.push(`/business/bounties/${status.bountyId}`)}
             />
             <Button
               label="Back to bounties"
@@ -66,7 +135,7 @@ export default function BountyFundedReturnPage() {
           </div>
         </>
       )}
-      {stillWaiting && (
+      {waiting && (
         <div className="flex flex-col items-center gap-4 py-6">
           <ProgressSpinner style={{ width: 40, height: 40 }} />
           <p className="text-sm text-text-muted">
@@ -78,10 +147,18 @@ export default function BountyFundedReturnPage() {
         <>
           <Message
             severity="warn"
-            text="We haven't received settlement confirmation from Stitch yet. This can take a few minutes. Refresh to check again."
+            className="w-full"
+            text="We haven't received settlement confirmation from Stitch yet. This can take a few minutes."
           />
           <div className="mt-4 flex gap-2">
-            <Button label="Refresh" icon="pi pi-refresh" onClick={() => { setPollCount(0); refetch(); }} />
+            <Button
+              label="Refresh"
+              icon="pi pi-refresh"
+              onClick={() => {
+                setPollCount(0);
+                fetchOnce();
+              }}
+            />
             <Button
               label="Back to bounties"
               icon="pi pi-arrow-left"
@@ -90,6 +167,9 @@ export default function BountyFundedReturnPage() {
             />
           </div>
         </>
+      )}
+      {error && !isPaid && (
+        <Message severity="error" className="w-full mt-3" text={error} />
       )}
     </Card>
   );

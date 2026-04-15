@@ -46,9 +46,21 @@ export class StitchPaymentsService {
     user: AuthenticatedUser,
     payer: { name: string; email?: string },
   ): Promise<CreateBountyFundingResult> {
+    const now = new Date();
     const bounty = await this.prisma.bounty.findUnique({
       where: { id: bountyId },
-      include: { rewards: true, stitchPaymentLinks: { where: { status: { in: ['CREATED', 'INITIATED'] } } } },
+      include: {
+        rewards: true,
+        // Only resumable links: CREATED or INITIATED, and not expired.
+        stitchPaymentLinks: {
+          where: {
+            status: { in: [StitchPaymentLinkStatus.CREATED, StitchPaymentLinkStatus.INITIATED] },
+            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+      },
     });
     if (!bounty || bounty.deletedAt) throw new NotFoundException('Bounty not found');
     if (user.role !== UserRole.SUPER_ADMIN && bounty.brandId !== user.brandId) {
@@ -100,7 +112,12 @@ export class StitchPaymentsService {
       bankChargeCents: 0n,
     });
 
-    const merchantReference = `bounty:${bountyId}:fund`.slice(0, 50);
+    // Stitch merchantReference rejects special chars (colons, hyphens, etc.) and
+    // must be unique per attempt — Stitch will 400 on a second payment with the
+    // same reference. Alphanumeric only, capped at 50 chars.
+    const bountySlug = bountyId.replace(/[^a-zA-Z0-9]/g, '');
+    const stamp = now.toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+    const merchantReference = `bountyfund${bountySlug}t${stamp}`.slice(0, 50);
     const link = await this.stitch.createPaymentLink({
       amountCents: breakdown.brandTotalChargeCents,
       merchantReference,
@@ -154,6 +171,58 @@ export class StitchPaymentsService {
       faceValueCents: breakdown.faceValueCents.toString(),
       brandAdminFeeCents: breakdown.brandAdminFeeCents.toString(),
       globalFeeCents: breakdown.globalFeeCents.toString(),
+    };
+  }
+
+  /**
+   * Resolves a bounty-funding status from any identifier Stitch might send back
+   * on the redirect: bountyId, stitchPaymentId, or merchantReference. Used by
+   * the /business/bounties/funded return page to poll until the webhook
+   * commits.
+   */
+  async resolveFundingStatus(
+    opts: { bountyId?: string; stitchPaymentId?: string; merchantReference?: string },
+    user: AuthenticatedUser,
+  ): Promise<{
+    bountyId: string;
+    bountyTitle: string;
+    status: string;
+    paymentStatus: string;
+    stitchPaymentLinkStatus: string | null;
+  }> {
+    let bountyId = opts.bountyId;
+    if (!bountyId && opts.stitchPaymentId) {
+      const link = await this.prisma.stitchPaymentLink.findUnique({
+        where: { stitchPaymentLinkId: opts.stitchPaymentId },
+      });
+      bountyId = link?.bountyId;
+    }
+    if (!bountyId && opts.merchantReference) {
+      const link = await this.prisma.stitchPaymentLink.findFirst({
+        where: { merchantReference: opts.merchantReference },
+        orderBy: { createdAt: 'desc' },
+      });
+      bountyId = link?.bountyId;
+    }
+    if (!bountyId) {
+      throw new NotFoundException('Could not resolve bounty from provided identifiers');
+    }
+    const bounty = await this.prisma.bounty.findUnique({
+      where: { id: bountyId },
+      include: {
+        stitchPaymentLinks: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+    });
+    if (!bounty) throw new NotFoundException('Bounty not found');
+    if (user.role !== UserRole.SUPER_ADMIN && bounty.brandId !== user.brandId) {
+      throw new ForbiddenException('Not authorized');
+    }
+    return {
+      bountyId: bounty.id,
+      bountyTitle: bounty.title,
+      status: bounty.status,
+      paymentStatus: bounty.paymentStatus,
+      stitchPaymentLinkStatus: bounty.stitchPaymentLinks[0]?.status ?? null,
     };
   }
 

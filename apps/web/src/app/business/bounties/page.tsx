@@ -86,6 +86,9 @@ export default function BusinessBountiesPage() {
           payerName,
           payerEmail: user?.email,
         });
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('stitchFundingBountyId', id);
+        }
         window.location.href = hostedUrl;
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Couldn\'t start funding. Try again.';

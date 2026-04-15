@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { WebhookProvider, WebhookStatus } from '@prisma/client';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { StitchWebhookController } from './stitch-webhook.controller';
+import { PrismaService } from '../prisma/prisma.service';
 import { SvixVerifier } from './svix.verifier';
 import { WebhookEventService } from './webhook-event.service';
 import { WebhookRouterService } from './webhook-router.service';
@@ -44,7 +45,8 @@ describe('StitchWebhookController', () => {
     config = {
       get: jest.fn((k: string) => (k === 'STITCH_WEBHOOK_SECRET' ? secret : undefined)),
     } as unknown as ConfigService;
-    controller = new StitchWebhookController(config, verifier, events, router);
+    const prisma = { webhookEvent: { findUnique: jest.fn() } } as unknown as PrismaService;
+    controller = new StitchWebhookController(config, verifier, events, router, prisma);
   });
 
   function buildRequest(body: string, headers: Record<string, string>) {

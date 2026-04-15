@@ -1,8 +1,10 @@
 import {
   BadRequestException,
   Controller,
+  ForbiddenException,
   HttpCode,
   Logger,
+  Param,
   Post,
   Req,
   UnauthorizedException,
@@ -11,7 +13,9 @@ import { ConfigService } from '@nestjs/config';
 import { WebhookProvider } from '@prisma/client';
 import type { RawBodyRequest } from '@nestjs/common';
 import type { Request } from 'express';
-import { Public } from '../../common/decorators';
+import { UserRole } from '@social-bounty/shared';
+import { Public, Roles, Audited } from '../../common/decorators';
+import { PrismaService } from '../prisma/prisma.service';
 import { SvixVerificationError, SvixVerifier } from './svix.verifier';
 import { WebhookEventService } from './webhook-event.service';
 import { WebhookRouterService } from './webhook-router.service';
@@ -25,7 +29,24 @@ export class StitchWebhookController {
     private readonly verifier: SvixVerifier,
     private readonly events: WebhookEventService,
     private readonly router: WebhookRouterService,
+    private readonly prisma: PrismaService,
   ) {}
+
+  /**
+   * Dev-only: replay a stored webhook event through the router. Bypasses Svix
+   * verification (the event was already verified when received). Guarded to
+   * Super Admin + non-live providers so it's never callable in prod.
+   */
+  @Roles(UserRole.SUPER_ADMIN)
+  @Audited('WEBHOOK_REPLAY', 'WebhookEvent')
+  @Post('stitch/replay/:eventId')
+  async replay(@Param('eventId') eventId: string) {
+    const provider = this.config.get<string>('PAYMENTS_PROVIDER', 'none');
+    if (provider === 'stitch_live') {
+      throw new ForbiddenException('replay is disabled in stitch_live');
+    }
+    return this.router.replay(eventId, this.prisma);
+  }
 
   @Public()
   @Post('stitch')
