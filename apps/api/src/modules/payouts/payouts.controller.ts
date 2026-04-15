@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 import { UserRole } from '@social-bounty/shared';
 import { Audited, CurrentUser, Roles } from '../../common/decorators';
@@ -33,6 +33,12 @@ export class PayoutsController {
     private readonly beneficiaries: BeneficiaryService,
     private readonly payouts: PayoutsService,
   ) {}
+
+  @Get('me')
+  @Roles(UserRole.PARTICIPANT)
+  async listMine(@CurrentUser() user: AuthenticatedUser) {
+    return this.payouts.listForUser(user.sub);
+  }
 
   @Post('me/beneficiary')
   @Roles(UserRole.PARTICIPANT)

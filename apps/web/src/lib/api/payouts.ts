@@ -1,4 +1,5 @@
 import { apiClient } from './client';
+import type { HunterPayoutRow } from '@social-bounty/shared';
 
 export interface UpsertBeneficiaryRequest {
   accountHolderName: string;
@@ -15,4 +16,5 @@ export interface BeneficiaryResponse {
 export const payoutsApi = {
   upsertMyBeneficiary: (body: UpsertBeneficiaryRequest): Promise<BeneficiaryResponse> =>
     apiClient.post('/payouts/me/beneficiary', body),
+  listMine: (): Promise<HunterPayoutRow[]> => apiClient.get('/payouts/me'),
 };

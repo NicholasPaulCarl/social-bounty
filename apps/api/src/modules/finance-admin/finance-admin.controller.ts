@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import {
   IsBoolean,
+  IsEnum,
   IsOptional,
   IsString,
   IsUUID,
@@ -10,6 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { LedgerAccount, LedgerEntryType } from '@prisma/client';
 import { UserRole } from '@social-bounty/shared';
 import { Audited, CurrentUser, Roles } from '../../common/decorators';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
@@ -26,11 +28,11 @@ class KillSwitchDto {
 }
 
 class OverrideLegDto {
-  @IsString()
-  account!: string;
+  @IsEnum(LedgerAccount)
+  account!: LedgerAccount;
 
-  @IsString()
-  type!: 'DEBIT' | 'CREDIT';
+  @IsEnum(LedgerEntryType)
+  type!: LedgerEntryType;
 
   @IsString()
   amountCents!: string;
@@ -151,8 +153,8 @@ export class FinanceAdminController {
         reason: body.reason,
         description: body.description,
         legs: body.legs.map((l) => ({
-          account: l.account as any,
-          type: l.type as any,
+          account: l.account as LedgerAccount,
+          type: l.type as LedgerEntryType,
           amountCents: BigInt(l.amountCents),
           userId: l.userId,
           brandId: l.brandId,

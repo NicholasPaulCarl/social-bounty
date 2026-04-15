@@ -385,6 +385,39 @@ export class PayoutsService {
     });
   }
 
+  /**
+   * List this hunter's StitchPayout rows, newest first. Returns a shape safe
+   * to hand back over HTTP: bigint cents → string.
+   */
+  async listForUser(userId: string) {
+    const rows = await this.prisma.stitchPayout.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        amountCents: true,
+        currency: true,
+        status: true,
+        attempts: true,
+        lastError: true,
+        createdAt: true,
+        lastAttemptAt: true,
+        stitchPayoutId: true,
+      },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      amountCents: r.amountCents.toString(),
+      currency: r.currency,
+      status: r.status,
+      attempts: r.attempts,
+      lastError: r.lastError,
+      createdAt: r.createdAt.toISOString(),
+      lastAttemptAt: r.lastAttemptAt ? r.lastAttemptAt.toISOString() : null,
+      stitchPayoutId: r.stitchPayoutId,
+    }));
+  }
+
   async adminRetry(payoutId: string, actor: { role: string; sub: string }) {
     if (actor.role !== UserRole.SUPER_ADMIN) {
       throw new ForbiddenException('Only SUPER_ADMIN can retry payouts');

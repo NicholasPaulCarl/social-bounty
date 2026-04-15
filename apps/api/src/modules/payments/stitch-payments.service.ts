@@ -4,6 +4,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -14,6 +15,7 @@ import {
 import { SubscriptionTier, UserRole } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { FeeCalculatorService } from '../finance/fee-calculator.service';
+import { LedgerService } from '../ledger/ledger.service';
 import { StitchClient } from '../stitch/stitch.client';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
@@ -39,6 +41,7 @@ export class StitchPaymentsService {
     private readonly stitch: StitchClient,
     private readonly fees: FeeCalculatorService,
     private readonly subscriptions: SubscriptionsService,
+    private readonly ledger: LedgerService,
   ) {}
 
   async createBountyFunding(
@@ -72,6 +75,15 @@ export class StitchPaymentsService {
     if (bounty.paymentStatus === PaymentStatus.PAID) {
       throw new BadRequestException('Payment has already been completed');
     }
+
+    // Kill-switch pre-flight (Financial Non-Negotiables). If on, abort before we
+    // create (or re-surface) any payment link — otherwise the payer would complete
+    // checkout and the settlement webhook would fail posting the ledger group,
+    // triggering infinite Svix retries.
+    if (await this.ledger.isKillSwitchActive()) {
+      throw new ServiceUnavailableException('Funding paused');
+    }
+
     if (bounty.stitchPaymentLinks.length > 0) {
       const existing = bounty.stitchPaymentLinks[0];
       this.logger.log(`returning existing link ${existing.id} for bounty ${bountyId}`);

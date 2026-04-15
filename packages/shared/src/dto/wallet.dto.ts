@@ -139,3 +139,20 @@ export interface AdminCompleteWithdrawalRequest {
 export interface AdminFailWithdrawalRequest {
   reason: string;
 }
+
+// ─────────────────────────────────────
+// Hunter Payouts (Stitch Express)
+// ─────────────────────────────────────
+// Serialised StitchPayout row returned by GET /payouts/me. Cents are strings to
+// preserve bigint precision across the wire.
+export interface HunterPayoutRow {
+  id: string;
+  amountCents: string;
+  currency: string;
+  status: 'CREATED' | 'INITIATED' | 'SETTLED' | 'FAILED' | 'RETRY_PENDING' | 'CANCELLED';
+  attempts: number;
+  lastError: string | null;
+  createdAt: string;
+  lastAttemptAt: string | null;
+  stitchPayoutId: string | null;
+}

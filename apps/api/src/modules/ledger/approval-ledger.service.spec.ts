@@ -1,6 +1,6 @@
-import { LedgerAccount, LedgerEntryType, SubmissionStatus } from '@prisma/client';
+import { LedgerAccount, LedgerEntryType, Prisma, SubmissionStatus } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
-import { SubscriptionTier } from '@social-bounty/shared';
+import { SubscriptionTier, UserRole } from '@social-bounty/shared';
 import { ApprovalLedgerService } from './approval-ledger.service';
 import { FeeCalculatorService } from '../finance/fee-calculator.service';
 import { LedgerService } from './ledger.service';
@@ -185,5 +185,144 @@ describe('ApprovalLedgerService.postApproval', () => {
         approverRole: 'BUSINESS_ADMIN' as any,
       }),
     ).rejects.toThrow(/must be APPROVED/);
+  });
+});
+
+/**
+ * Non-Negotiable #9 regression test: once a ledger group has been posted for
+ * a submission approval, a second `postApproval` call for the same submission
+ * must be a no-op at the ledger level even if the hunter's plan has changed
+ * since. The fees snapshotted at first call must not be recomputed on replay.
+ *
+ * Strategy: wire a REAL LedgerService against a mocked PrismaClient whose
+ * $transaction runs the callback with a tx client that:
+ *   1. On first call, lets `ledgerTransactionGroup.create` succeed → FREE fees
+ *      are posted.
+ *   2. On second call, has `ledgerTransactionGroup.create` throw P2002 and
+ *      `findUnique` return the existing group → LedgerService returns the
+ *      existing transactionGroupId without writing entries or recomputing fees.
+ */
+describe('ApprovalLedgerService idempotency — plan snapshot (Non-Negotiable #9)', () => {
+  const fees = new FeeCalculatorService();
+
+  const bounty = {
+    brandId: 'brand_1',
+    id: 'bounty_1',
+    faceValueCents: 50_000n,
+    currency: 'ZAR',
+  };
+  const submission = {
+    id: 'sub_1',
+    userId: 'hunter_1',
+    status: SubmissionStatus.APPROVED,
+    bounty,
+    user: { id: 'hunter_1' },
+  };
+
+  it('second approval call on the same submission is idempotent and does not re-price with the new plan', async () => {
+    // --- First call (FREE plan) ---
+    const firstTx = {
+      ledgerTransactionGroup: {
+        create: jest.fn().mockResolvedValue({ id: 'grp_appr_1' }),
+        findUnique: jest.fn(),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      auditLog: { create: jest.fn().mockResolvedValue({ id: 'audit_1' }) },
+      ledgerEntry: { createMany: jest.fn().mockResolvedValue({ count: 6 }) },
+      systemSetting: { findUnique: jest.fn().mockResolvedValue(null) },
+    };
+
+    // --- Second call (simulating hunter has moved to PRO since) ---
+    // create() throws P2002 → findUnique returns the previously-posted group.
+    const p2002 = new Prisma.PrismaClientKnownRequestError('duplicate', {
+      code: 'P2002',
+      clientVersion: 'test',
+    });
+    const secondTx = {
+      ledgerTransactionGroup: {
+        create: jest.fn().mockRejectedValue(p2002),
+        findUnique: jest.fn().mockResolvedValue({ id: 'grp_appr_1' }),
+        update: jest.fn(),
+      },
+      auditLog: { create: jest.fn() },
+      ledgerEntry: { createMany: jest.fn() },
+      systemSetting: { findUnique: jest.fn().mockResolvedValue(null) },
+    };
+
+    let txCall = 0;
+    const prisma: any = {
+      submission: {
+        findUnique: jest.fn().mockResolvedValue(submission),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      systemSetting: { findUnique: jest.fn().mockResolvedValue(null) },
+      $transaction: jest.fn(async (fn: (tx: unknown) => Promise<unknown>) => {
+        txCall += 1;
+        return fn(txCall === 1 ? firstTx : secondTx);
+      }),
+    };
+
+    // Real LedgerService — exercises the idempotency path end-to-end.
+    const ledger = new LedgerService(prisma as PrismaService);
+
+    // getActiveTier: FREE on the first approval, PRO on the second.
+    const getActiveTier = jest
+      .fn()
+      .mockResolvedValueOnce(SubscriptionTier.FREE)
+      .mockResolvedValueOnce(SubscriptionTier.PRO);
+    const subs = { getActiveTier } as unknown as SubscriptionsService;
+    const config = { get: jest.fn().mockReturnValue(undefined) } as unknown as ConfigService;
+
+    const service = new ApprovalLedgerService(
+      prisma as PrismaService,
+      ledger,
+      fees,
+      subs,
+      config,
+    );
+
+    // ---- First approval: writes FREE-rate ledger entries ----
+    await service.postApproval({
+      submissionId: 'sub_1',
+      approverId: 'admin_1',
+      approverRole: UserRole.BUSINESS_ADMIN,
+    });
+
+    expect(firstTx.ledgerTransactionGroup.create).toHaveBeenCalledTimes(1);
+    expect(firstTx.ledgerEntry.createMany).toHaveBeenCalledTimes(1);
+
+    // Verify the FREE-rate split was posted (20% commission + 3.5% global on R500 → net 38250c).
+    const firstEntries = firstTx.ledgerEntry.createMany.mock.calls[0][0].data as Array<{
+      account: LedgerAccount;
+      type: LedgerEntryType;
+      amount: bigint;
+    }>;
+    const netLeg = firstEntries.find(
+      (e) =>
+        e.account === LedgerAccount.hunter_net_payable && e.type === LedgerEntryType.CREDIT,
+    );
+    expect(netLeg?.amount).toBe(38_250n);
+    const commissionLeg = firstEntries.find(
+      (e) => e.account === LedgerAccount.commission_revenue,
+    );
+    // FREE commission = 20% of 50_000 = 10_000c.
+    expect(commissionLeg?.amount).toBe(10_000n);
+
+    // ---- Second approval: idempotent — no new entries, no re-pricing ----
+    await service.postApproval({
+      submissionId: 'sub_1',
+      approverId: 'admin_2',
+      approverRole: UserRole.BUSINESS_ADMIN,
+    });
+
+    // Hit the idempotency path: create threw P2002, findUnique returned existing.
+    expect(secondTx.ledgerTransactionGroup.create).toHaveBeenCalledTimes(1);
+    expect(secondTx.ledgerTransactionGroup.findUnique).toHaveBeenCalledTimes(1);
+
+    // Critical: the second call must NOT have written any new ledger entries,
+    // audit logs, or group updates — nothing is repriced with the PRO plan.
+    expect(secondTx.ledgerEntry.createMany).not.toHaveBeenCalled();
+    expect(secondTx.auditLog.create).not.toHaveBeenCalled();
+    expect(secondTx.ledgerTransactionGroup.update).not.toHaveBeenCalled();
   });
 });

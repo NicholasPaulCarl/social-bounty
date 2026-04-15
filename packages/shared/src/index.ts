@@ -151,6 +151,7 @@ export type {
   AdminWithdrawalListParams,
   AdminCompleteWithdrawalRequest,
   AdminFailWithdrawalRequest,
+  HunterPayoutRow,
 } from './dto/wallet.dto';
 
 // Brand DTOs
