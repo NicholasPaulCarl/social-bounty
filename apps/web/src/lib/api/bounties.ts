@@ -38,6 +38,24 @@ export const bountyApi = {
   createPaymentIntent: (bountyId: string): Promise<{ clientSecret: string }> =>
     apiClient.post(`/bounties/${bountyId}/payment-intent`),
 
+  fundBounty: (
+    bountyId: string,
+    payer: { payerName: string; payerEmail?: string },
+  ): Promise<{
+    paymentLinkId: string;
+    hostedUrl: string;
+    amountCents: string;
+    faceValueCents: string;
+    brandAdminFeeCents: string;
+    globalFeeCents: string;
+  }> => apiClient.post(`/bounties/${bountyId}/fund`, payer),
+
+  requestRefundBeforeApproval: (
+    bountyId: string,
+    reason: string,
+  ): Promise<{ id: string; state: string }> =>
+    apiClient.post(`/refunds/bounties/${bountyId}/before-approval`, { reason }),
+
   uploadBrandAssets: (bountyId: string, files: File[]): Promise<BrandAssetInfo[]> => {
     const formData = new FormData();
     files.forEach((f) => formData.append('files', f));
