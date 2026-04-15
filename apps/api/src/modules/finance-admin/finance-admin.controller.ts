@@ -1,5 +1,14 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { IsBoolean, IsOptional, IsString, MaxLength, MinLength, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Matches,
+  MaxLength,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { UserRole } from '@social-bounty/shared';
 import { Audited, CurrentUser, Roles } from '../../common/decorators';
@@ -37,6 +46,16 @@ class OverrideLegDto {
   @IsOptional()
   @IsString()
   bountyId?: string;
+}
+
+class DevSeedPayableDto {
+  @IsUUID()
+  userId!: string;
+
+  // amounts passed as string to avoid JS number precision loss; parsed to bigint.
+  @IsString()
+  @Matches(/^[1-9][0-9]*$/)
+  faceValueCents!: string;
 }
 
 class OverrideDto {
@@ -102,6 +121,23 @@ export class FinanceAdminController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.svc.toggleKillSwitch(body.active, body.reason, user);
+  }
+
+  /**
+   * DEV-ONLY. Seeds a fully-cleared hunter_net_payable position for a user so
+   * the payout pipeline can be smoke-tested without brand-funding + approval.
+   * Gated to PAYMENTS_PROVIDER != 'stitch_live' in the service.
+   */
+  @Post('dev/seed-payable')
+  @Audited('DEV_SEED_PAYABLE', 'User')
+  async devSeedPayable(
+    @Body() body: DevSeedPayableDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.svc.devSeedPayable(
+      { userId: body.userId, faceValueCents: BigInt(body.faceValueCents) },
+      user,
+    );
   }
 
   @Post('overrides')

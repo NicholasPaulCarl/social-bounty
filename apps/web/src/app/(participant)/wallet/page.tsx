@@ -3,13 +3,75 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
-import { useWalletDashboard } from '@/hooks/useWallet';
+import { Tag } from 'primereact/tag';
+import { useWalletDashboard, useWalletLedgerSnapshot } from '@/hooks/useWallet';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
-import { formatCurrency, formatDate } from '@/lib/utils/format';
+import { formatCurrency, formatCents, formatDate } from '@/lib/utils/format';
 import { WalletTxType } from '@social-bounty/shared';
-import type { WalletTransactionListItem } from '@social-bounty/shared';
+import type { WalletTransactionListItem, LedgerWalletSnapshot } from '@social-bounty/shared';
+
+// Ledger journey stage descriptor — drives the 4-column panel.
+interface LedgerJourneyStage {
+  key: 'pending' | 'clearing' | 'available' | 'paid';
+  label: string;
+  description: string;
+  cents: string;
+  severity: 'warning' | 'info' | 'success' | 'secondary';
+  icon: string;
+  colorClass: string;
+}
+
+function buildJourneyStages(snapshot: LedgerWalletSnapshot | undefined): LedgerJourneyStage[] {
+  // TODO: split pending vs clearing once the projection exposes finer-grained
+  // accounts (hunter_pending vs hunter_clearing vs hunter_net_payable).
+  // For now pendingCents aggregates all three; surface it under "Clearing" and
+  // show "Pending" as zero until the approval writer lands.
+  const pending = '0';
+  const clearing = snapshot?.pendingCents ?? '0';
+  const available = snapshot?.availableCents ?? '0';
+  const paid = snapshot?.paidCents ?? '0';
+
+  return [
+    {
+      key: 'pending',
+      label: 'Pending',
+      description: 'Awaiting business approval',
+      cents: pending,
+      severity: 'warning',
+      icon: 'pi pi-hourglass',
+      colorClass: 'text-accent-amber',
+    },
+    {
+      key: 'clearing',
+      label: 'Clearing',
+      description: 'Approved, in clearance window',
+      cents: clearing,
+      severity: 'info',
+      icon: 'pi pi-clock',
+      colorClass: 'text-accent-cyan',
+    },
+    {
+      key: 'available',
+      label: 'Available',
+      description: 'Ready for payout',
+      cents: available,
+      severity: 'success',
+      icon: 'pi pi-check-circle',
+      colorClass: 'text-accent-emerald',
+    },
+    {
+      key: 'paid',
+      label: 'Paid',
+      description: 'Settled to your bank',
+      cents: paid,
+      severity: 'secondary',
+      icon: 'pi pi-wallet',
+      colorClass: 'text-text-primary',
+    },
+  ];
+}
 
 function TxTypeLabel({ type }: { type: WalletTxType }) {
   const config: Record<WalletTxType, { label: string; className: string }> = {
@@ -28,6 +90,7 @@ function TxTypeLabel({ type }: { type: WalletTxType }) {
 export default function WalletPage() {
   const router = useRouter();
   const { data, isLoading, error, refetch } = useWalletDashboard();
+  const { data: ledgerSnapshot, isLoading: isLedgerLoading } = useWalletLedgerSnapshot();
 
   if (isLoading) return <LoadingState type="page" />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
@@ -49,6 +112,7 @@ export default function WalletPage() {
 
   const { balance, recentTransactions } = data;
   const currency = balance.currency;
+  const journeyStages = buildJourneyStages(ledgerSnapshot);
 
   return (
     <>
@@ -64,6 +128,42 @@ export default function WalletPage() {
           />
         }
       />
+
+      {/* Ledger journey — ledger-projected lifecycle of each earning */}
+      <div className="glass-card p-6 mb-6 animate-fade-up">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-base font-semibold text-text-primary">Ledger journey</h2>
+            <p className="text-xs text-text-muted mt-0.5">Track every earning from submission to bank settlement.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {journeyStages.map((stage) => (
+            <div
+              key={stage.key}
+              className="rounded-lg border border-glass-border bg-elevated/40 p-4 flex flex-col gap-2"
+            >
+              <div className="flex items-center justify-between">
+                <Tag value={stage.label} severity={stage.severity} />
+                <i className={`${stage.icon} text-text-muted text-sm`} />
+              </div>
+              {isLedgerLoading ? (
+                <div className="h-7 w-24 rounded bg-elevated animate-pulse" />
+              ) : (
+                <p className={`text-2xl font-bold tracking-tight ${stage.colorClass}`}>
+                  {formatCents(stage.cents, currency)}
+                </p>
+              )}
+              <p className="text-xs text-text-muted leading-snug">{stage.description}</p>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-xs text-text-muted mt-4">
+          Free hunters: 72-hour clearance after approval. Pro hunters: instant. Payouts run every 10 minutes.
+        </p>
+      </div>
 
       {/* Balance cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 animate-fade-up">

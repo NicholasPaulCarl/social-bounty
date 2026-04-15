@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   JobRunStatus,
   LedgerAccount,
@@ -16,7 +17,23 @@ export class ClearanceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly ledger: LedgerService,
+    private readonly config: ConfigService,
   ) {}
+
+  /**
+   * Resolve the STITCH_SYSTEM_ACTOR_ID — required because AuditLog.actorId has
+   * a FK to users.id. Previously this passed the string 'clearance-job' which
+   * would fail the FK constraint (mirrors the brand-funding bug).
+   */
+  private systemActorId(): string {
+    const id = this.config.get<string>('STITCH_SYSTEM_ACTOR_ID', '');
+    if (!id) {
+      throw new Error(
+        'STITCH_SYSTEM_ACTOR_ID is not set; scheduled clearance cannot write AuditLog rows',
+      );
+    }
+    return id;
+  }
 
   /**
    * Finds hunter_net_payable entries whose clearanceReleaseAt has passed and that
@@ -47,6 +64,7 @@ export class ClearanceService {
         orderBy: { clearanceReleaseAt: 'asc' },
       });
 
+      const actorId = this.systemActorId();
       for (const entry of candidates) {
         try {
           const res = await this.ledger.postTransactionGroup({
@@ -54,7 +72,7 @@ export class ClearanceService {
             referenceId: entry.id,
             referenceType: 'LedgerEntry',
             description: `Clearance released for hunter ${entry.userId} (entry ${entry.id})`,
-            postedBy: 'clearance-job',
+            postedBy: actorId,
             currency: entry.currency,
             legs: [
               {
@@ -74,7 +92,7 @@ export class ClearanceService {
               },
             ],
             audit: {
-              actorId: 'clearance-job',
+              actorId,
               actorRole: UserRole.SUPER_ADMIN,
               action: 'CLEARANCE_RELEASED',
               entityType: 'LedgerEntry',

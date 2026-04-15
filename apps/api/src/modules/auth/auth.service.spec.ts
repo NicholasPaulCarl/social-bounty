@@ -11,6 +11,8 @@ import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { TokenStoreService } from './token-store.service';
+import { RedisService } from '../redis/redis.service';
+import { ApifyService } from '../apify/apify.service';
 import { UserRole, UserStatus, OTP_RULES } from '@social-bounty/shared';
 
 describe('AuthService', () => {
@@ -86,6 +88,24 @@ describe('AuthService', () => {
         },
         { provide: MailService, useValue: mailService },
         { provide: TokenStoreService, useValue: tokenStore },
+        {
+          provide: RedisService,
+          useValue: {
+            get: jest.fn().mockResolvedValue(null),
+            set: jest.fn().mockResolvedValue(undefined),
+            del: jest.fn().mockResolvedValue(undefined),
+            exists: jest.fn().mockResolvedValue(false),
+            ttl: jest.fn().mockResolvedValue(-2),
+            setNxEx: jest.fn().mockResolvedValue(true),
+          },
+        },
+        {
+          provide: ApifyService,
+          useValue: {
+            refreshIfStale: jest.fn().mockResolvedValue(undefined),
+            refreshForBrand: jest.fn().mockResolvedValue(null),
+          },
+        },
       ],
     }).compile();
 

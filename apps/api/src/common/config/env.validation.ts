@@ -3,6 +3,7 @@ import {
   IsBooleanString,
   IsEnum,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   IsUrl,
@@ -58,6 +59,22 @@ class EnvironmentVariables {
   @IsOptional()
   @IsBooleanString()
   FINANCIAL_KILL_SWITCH?: string;
+
+  // Dev-only override for Free-tier clearance window, in hours.
+  // When set, ApprovalLedgerService uses this instead of CLEARANCE_HOURS.FREE (72).
+  // Fractional values are allowed so we can simulate near-instant clearance in
+  // live-testing (e.g. 0.0083 ≈ 30s). Ignored unless set.
+  @IsOptional()
+  @IsNumber({ allowInfinity: false, allowNaN: false })
+  @Min(0)
+  CLEARANCE_OVERRIDE_HOURS_FREE?: number;
+
+  // Dev-only override for Pro-tier clearance window, in hours.
+  // When set, ApprovalLedgerService uses this instead of CLEARANCE_HOURS.PRO (0).
+  @IsOptional()
+  @IsNumber({ allowInfinity: false, allowNaN: false })
+  @Min(0)
+  CLEARANCE_OVERRIDE_HOURS_PRO?: number;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

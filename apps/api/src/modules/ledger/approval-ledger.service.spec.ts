@@ -1,4 +1,5 @@
 import { LedgerAccount, LedgerEntryType, SubmissionStatus } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 import { SubscriptionTier } from '@social-bounty/shared';
 import { ApprovalLedgerService } from './approval-ledger.service';
 import { FeeCalculatorService } from '../finance/fee-calculator.service';
@@ -38,13 +39,26 @@ describe('ApprovalLedgerService.postApproval', () => {
     post = jest.fn().mockResolvedValue({ transactionGroupId: 'grp_appr_1', idempotent: false });
     ledger = { postTransactionGroup: post };
     subs = { getActiveTier: jest.fn().mockResolvedValue(SubscriptionTier.FREE) };
+    const config = { get: jest.fn().mockReturnValue(undefined) } as unknown as ConfigService;
     service = new ApprovalLedgerService(
       prisma as PrismaService,
       ledger as LedgerService,
       fees,
       subs as SubscriptionsService,
+      config,
     );
   });
+
+  function buildService(envGet: (k: string) => unknown): ApprovalLedgerService {
+    const config = { get: jest.fn(envGet) } as unknown as ConfigService;
+    return new ApprovalLedgerService(
+      prisma as PrismaService,
+      ledger as LedgerService,
+      fees,
+      subs as SubscriptionsService,
+      config,
+    );
+  }
 
   it('posts a balanced earnings split with Free hunter rates', async () => {
     await service.postApproval({
@@ -89,6 +103,74 @@ describe('ApprovalLedgerService.postApproval', () => {
     );
     const releaseDelta = creditLeg.clearanceReleaseAt.getTime() - Date.now();
     expect(releaseDelta).toBeLessThan(60 * 1000); // ~now for Pro
+  });
+
+  it('honors CLEARANCE_OVERRIDE_HOURS_FREE when set (Free hunter clears in seconds)', async () => {
+    // 0.0083h ≈ 30s — used for local live-testing of approve → clear → payout.
+    const overrideService = buildService((k) =>
+      k === 'CLEARANCE_OVERRIDE_HOURS_FREE' ? '0.0083' : undefined,
+    );
+
+    await overrideService.postApproval({
+      submissionId: 'sub_1',
+      approverId: 'admin_1',
+      approverRole: 'BUSINESS_ADMIN' as any,
+    });
+
+    const legs: any[] = post.mock.calls[0][0].legs;
+    const creditLeg = legs.find(
+      (l) =>
+        l.account === LedgerAccount.hunter_net_payable && l.type === LedgerEntryType.CREDIT,
+    );
+    const deltaMs = creditLeg.clearanceReleaseAt.getTime() - Date.now();
+    // 0.0083h = 29.88s. Allow generous bounds for test jitter.
+    expect(deltaMs).toBeGreaterThan(0);
+    expect(deltaMs).toBeLessThan(60 * 1000);
+  });
+
+  it('honors CLEARANCE_OVERRIDE_HOURS_PRO when set (Pro hunter)', async () => {
+    (subs.getActiveTier as jest.Mock).mockResolvedValueOnce(SubscriptionTier.PRO);
+    const overrideService = buildService((k) =>
+      k === 'CLEARANCE_OVERRIDE_HOURS_PRO' ? '1' : undefined,
+    );
+
+    await overrideService.postApproval({
+      submissionId: 'sub_1',
+      approverId: 'admin_1',
+      approverRole: 'BUSINESS_ADMIN' as any,
+    });
+
+    const legs: any[] = post.mock.calls[0][0].legs;
+    const creditLeg = legs.find(
+      (l) =>
+        l.account === LedgerAccount.hunter_net_payable && l.type === LedgerEntryType.CREDIT,
+    );
+    const deltaMs = creditLeg.clearanceReleaseAt.getTime() - Date.now();
+    // 1h override, Pro would normally be 0.
+    expect(deltaMs).toBeGreaterThan(55 * 60 * 1000);
+    expect(deltaMs).toBeLessThan(65 * 60 * 1000);
+  });
+
+  it('ignores invalid override values and falls back to canonical CLEARANCE_HOURS.FREE', async () => {
+    const overrideService = buildService((k) =>
+      k === 'CLEARANCE_OVERRIDE_HOURS_FREE' ? 'garbage' : undefined,
+    );
+
+    await overrideService.postApproval({
+      submissionId: 'sub_1',
+      approverId: 'admin_1',
+      approverRole: 'BUSINESS_ADMIN' as any,
+    });
+
+    const legs: any[] = post.mock.calls[0][0].legs;
+    const creditLeg = legs.find(
+      (l) =>
+        l.account === LedgerAccount.hunter_net_payable && l.type === LedgerEntryType.CREDIT,
+    );
+    const deltaMs = creditLeg.clearanceReleaseAt.getTime() - Date.now();
+    // Canonical FREE = 72h.
+    expect(deltaMs).toBeGreaterThan(71 * 60 * 60 * 1000);
+    expect(deltaMs).toBeLessThan(73 * 60 * 60 * 1000);
   });
 
   it('rejects submissions not in APPROVED state', async () => {

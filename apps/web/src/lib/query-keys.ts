@@ -80,6 +80,7 @@ export const queryKeys = {
   wallet: {
     all: ['wallet'] as const,
     dashboard: () => [...queryKeys.wallet.all, 'dashboard'] as const,
+    ledgerSnapshot: () => [...queryKeys.wallet.all, 'ledger-snapshot'] as const,
     transactions: (params: WalletTransactionListParams) => [...queryKeys.wallet.all, 'transactions', params] as const,
     withdrawals: (params: WithdrawalListParams) => [...queryKeys.wallet.all, 'withdrawals', params] as const,
     adminLists: () => [...queryKeys.wallet.all, 'admin', 'list'] as const,

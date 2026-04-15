@@ -12,6 +12,7 @@ import { MailService } from '../../mail/mail.service';
 import { WalletService } from '../../wallet/wallet.service';
 import { BountyAccessService } from '../../bounty-access/bounty-access.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
+import { ApprovalLedgerService } from '../../ledger/approval-ledger.service';
 import {
   UserRole,
   BountyStatus,
@@ -145,6 +146,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
         { provide: WalletService, useValue: { creditWallet: jest.fn().mockResolvedValue({}) } },
         { provide: BountyAccessService, useValue: { canSubmitToBounty: jest.fn().mockResolvedValue(true) } },
         { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
+        { provide: ApprovalLedgerService, useValue: { postApproval: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

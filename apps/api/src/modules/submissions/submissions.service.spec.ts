@@ -19,6 +19,7 @@ import {
 } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+import { ApprovalLedgerService } from '../ledger/approval-ledger.service';
 
 describe('SubmissionsService', () => {
   let service: SubmissionsService;
@@ -119,6 +120,7 @@ describe('SubmissionsService', () => {
         { provide: WalletService, useValue: { creditWallet: jest.fn().mockResolvedValue({}) } },
         { provide: BountyAccessService, useValue: { canSubmitToBounty: jest.fn().mockResolvedValue(true) } },
         { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
+        { provide: ApprovalLedgerService, useValue: { postApproval: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

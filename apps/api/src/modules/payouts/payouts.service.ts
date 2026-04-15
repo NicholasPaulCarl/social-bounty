@@ -37,6 +37,21 @@ export class PayoutsService {
   }
 
   /**
+   * Resolve the STITCH_SYSTEM_ACTOR_ID — required because AuditLog.actorId has
+   * a FK to users.id. Previously this passed 'payout-job' which would fail the
+   * FK constraint (mirrors the brand-funding bug).
+   */
+  private systemActorId(): string {
+    const id = this.config.get<string>('STITCH_SYSTEM_ACTOR_ID', '');
+    if (!id) {
+      throw new Error(
+        'STITCH_SYSTEM_ACTOR_ID is not set; payout jobs cannot write AuditLog rows',
+      );
+    }
+    return id;
+  }
+
+  /**
    * Enumerates hunters with spare available balance, creates a StitchPayout row,
    * posts hunter_available → payout_in_transit, and calls Stitch. Payout settlement
    * (and the corresponding ledger move to hunter_paid) arrives via webhook.
@@ -134,12 +149,13 @@ export class PayoutsService {
       },
     });
 
+    const actorId = this.systemActorId();
     await this.ledger.postTransactionGroup({
       actionType: 'payout_initiated',
       referenceId: payout.id,
       referenceType: 'StitchPayout',
       description: `Payout initiated: hunter ${userId}`,
-      postedBy: 'payout-job',
+      postedBy: actorId,
       legs: [
         {
           account: LedgerAccount.hunter_available,
@@ -155,7 +171,7 @@ export class PayoutsService {
         },
       ],
       audit: {
-        actorId: 'payout-job',
+        actorId,
         actorRole: UserRole.SUPER_ADMIN,
         action: 'PAYOUT_INITIATED',
         entityType: 'StitchPayout',
@@ -195,7 +211,7 @@ export class PayoutsService {
         referenceId: payout.id, // use internal id since no stitchPayoutId yet
         referenceType: 'StitchPayout',
         description: `Payout dispatch failed: ${err instanceof Error ? err.message : 'unknown'}`,
-        postedBy: 'payout-job',
+        postedBy: actorId,
         legs: [
           {
             account: LedgerAccount.payout_in_transit,
@@ -211,7 +227,7 @@ export class PayoutsService {
           },
         ],
         audit: {
-          actorId: 'payout-job',
+          actorId,
           actorRole: UserRole.SUPER_ADMIN,
           action: 'PAYOUT_DISPATCH_FAILED',
           entityType: 'StitchPayout',
@@ -279,12 +295,13 @@ export class PayoutsService {
       this.logger.warn(`payout.settled for unknown stitchPayoutId=${stitchPayoutId}`);
       return;
     }
+    const actorId = this.systemActorId();
     await this.ledger.postTransactionGroup({
       actionType: 'stitch_payout_settled',
       referenceId: stitchPayoutId,
       referenceType: 'StitchPayout',
       description: `Payout settled: ${payout.id}`,
-      postedBy: 'stitch-webhook',
+      postedBy: actorId,
       legs: [
         {
           account: LedgerAccount.payout_in_transit,
@@ -302,7 +319,7 @@ export class PayoutsService {
         },
       ],
       audit: {
-        actorId: 'stitch-webhook',
+        actorId,
         actorRole: UserRole.SUPER_ADMIN,
         action: 'PAYOUT_SETTLED',
         entityType: 'StitchPayout',
@@ -323,12 +340,13 @@ export class PayoutsService {
       this.logger.warn(`payout.failed for unknown stitchPayoutId=${stitchPayoutId}`);
       return;
     }
+    const actorId = this.systemActorId();
     await this.ledger.postTransactionGroup({
       actionType: 'stitch_payout_failed',
       referenceId: stitchPayoutId,
       referenceType: 'StitchPayout',
       description: `Payout failed: ${reason}`,
-      postedBy: 'stitch-webhook',
+      postedBy: actorId,
       legs: [
         {
           account: LedgerAccount.payout_in_transit,
@@ -346,7 +364,7 @@ export class PayoutsService {
         },
       ],
       audit: {
-        actorId: 'stitch-webhook',
+        actorId,
         actorRole: UserRole.SUPER_ADMIN,
         action: 'PAYOUT_FAILED',
         entityType: 'StitchPayout',

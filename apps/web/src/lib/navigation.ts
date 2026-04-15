@@ -26,6 +26,7 @@ const businessNav: NavItem[] = [
   { label: 'Hunters', icon: 'pi pi-users', href: '/hunters' },
   { label: 'Disputes', icon: 'pi pi-flag', href: '/business/disputes' },
   { label: 'Brands', icon: 'pi pi-building', href: '/business/brands' },
+  { label: 'KYB Verification', icon: 'pi pi-id-card', href: '/business/organisation/kyb' },
   { label: 'Profile', icon: 'pi pi-user', href: '/business/profile' },
 ];
 

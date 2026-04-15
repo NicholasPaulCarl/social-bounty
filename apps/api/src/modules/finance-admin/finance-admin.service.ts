@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   LedgerAccount,
   LedgerEntryType,
@@ -20,6 +26,7 @@ export class FinanceAdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly ledger: LedgerService,
+    private readonly config: ConfigService,
   ) {}
 
   async overview() {
@@ -202,6 +209,77 @@ export class FinanceAdminService {
       },
     });
     return { active };
+  }
+
+  /**
+   * DEV-ONLY: seed a fully-cleared hunter_net_payable position for a user so
+   * the payout job can pick them up immediately, bypassing brand-funding and
+   * approval. Refuses to run when PAYMENTS_PROVIDER === 'stitch_live'.
+   *
+   * The ledger group is balanced by debiting compensating_entry — it does NOT
+   * represent real economic activity and is intended only for smoke-testing
+   * the outbound payout loop.
+   */
+  async devSeedPayable(
+    input: { userId: string; faceValueCents: bigint },
+    actor: { sub: string; role: string },
+  ) {
+    if (actor.role !== UserRole.SUPER_ADMIN) {
+      throw new ForbiddenException('Only SUPER_ADMIN can seed payable');
+    }
+    const provider = this.config.get<string>('PAYMENTS_PROVIDER', 'none');
+    if (provider === 'stitch_live') {
+      throw new ForbiddenException(
+        'devSeedPayable is disabled when PAYMENTS_PROVIDER=stitch_live',
+      );
+    }
+    if (input.faceValueCents <= 0n) {
+      throw new BadRequestException('faceValueCents must be positive');
+    }
+    const user = await this.prisma.user.findUnique({ where: { id: input.userId } });
+    if (!user) throw new BadRequestException('userId not found');
+
+    // Unique-per-call reference so repeated seeds work for the same user.
+    const referenceId = `devseed:${input.userId}:${Date.now()}`;
+    // clearanceReleaseAt in the past so the clearance job picks it up immediately.
+    const releaseAt = new Date(Date.now() - 60 * 1000);
+
+    return this.ledger.postTransactionGroup({
+      actionType: 'compensating_entry',
+      referenceId,
+      referenceType: 'DevSeed',
+      description: `DEV seed hunter_net_payable ${input.faceValueCents} for ${input.userId}`,
+      postedBy: actor.sub,
+      allowDuringKillSwitch: true,
+      legs: [
+        {
+          // Parking account for the debit side — a compensating entry the
+          // reconciliation engine will flag as out-of-band on purpose.
+          account: LedgerAccount.brand_reserve,
+          type: LedgerEntryType.DEBIT,
+          amountCents: input.faceValueCents,
+        },
+        {
+          account: LedgerAccount.hunter_net_payable,
+          type: LedgerEntryType.CREDIT,
+          amountCents: input.faceValueCents,
+          userId: input.userId,
+          clearanceReleaseAt: releaseAt,
+        },
+      ],
+      audit: {
+        actorId: actor.sub,
+        actorRole: UserRole.SUPER_ADMIN,
+        action: 'DEV_SEED_PAYABLE',
+        entityType: 'User',
+        entityId: input.userId,
+        reason: 'Dev-only seed for payout smoke test',
+        afterState: {
+          faceValueCents: input.faceValueCents.toString(),
+          clearanceReleaseAt: releaseAt.toISOString(),
+        },
+      },
+    });
   }
 
   /**

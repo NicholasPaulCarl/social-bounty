@@ -3,6 +3,7 @@ import { ConflictException, ForbiddenException, NotFoundException } from '@nestj
 import { BrandsService } from './organisations.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { ApifyService } from '../apify/apify.service';
 import { UserRole } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
@@ -50,13 +51,15 @@ describe('BrandsService', () => {
         findUnique: jest.fn(),
         update: jest.fn(),
       },
-      organisationMember: {
+      brandMember: {
         findFirst: jest.fn(),
         create: jest.fn(),
+        delete: jest.fn(),
         findMany: jest.fn(),
         count: jest.fn(),
       },
       user: {
+        findUnique: jest.fn(),
         update: jest.fn(),
       },
       $transaction: jest.fn((fn: any) => fn(prisma)),
@@ -69,6 +72,15 @@ describe('BrandsService', () => {
         BrandsService,
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: auditService },
+        {
+          provide: ApifyService,
+          useValue: {
+            refreshForBrand: jest.fn().mockResolvedValue(undefined),
+            refreshIfStale: jest.fn().mockResolvedValue(undefined),
+            getStaleness: jest.fn().mockResolvedValue(null),
+            normalizeHandles: jest.fn().mockReturnValue({}),
+          },
+        },
       ],
     }).compile();
 
@@ -79,9 +91,12 @@ describe('BrandsService', () => {
 
   describe('create', () => {
     it('should create an organisation and run within a transaction', async () => {
-      prisma.brandMember.findFirst.mockResolvedValue(null);
       prisma.brand.create.mockResolvedValue(baseOrg);
       prisma.brandMember.create.mockResolvedValue({});
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-1',
+        role: UserRole.PARTICIPANT,
+      });
       prisma.user.update.mockResolvedValue({});
 
       const result = await service.create(
@@ -93,15 +108,22 @@ describe('BrandsService', () => {
       expect(result.name).toBe('Acme Corp');
       expect(result.contactEmail).toBe('contact@acme.com');
       expect(auditService.log).toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'organisation.create' }),
+        expect.objectContaining({ action: 'brand.create' }),
       );
     });
 
-    it('should throw ConflictException if user already belongs to an org', async () => {
-      prisma.brandMember.findFirst.mockResolvedValue({ id: 'mem-1' });
+    it('should throw ConflictException if handle is already taken', async () => {
+      prisma.brand.findUnique.mockResolvedValue({
+        id: 'existing-org',
+        handle: 'taken',
+      });
 
       await expect(
-        service.create(mockParticipant, { name: 'New Org', contactEmail: 'new@org.com' }),
+        service.create(mockParticipant, {
+          name: 'New Org',
+          contactEmail: 'new@org.com',
+          handle: 'taken',
+        }),
       ).rejects.toThrow(ConflictException);
     });
   });
@@ -171,7 +193,7 @@ describe('BrandsService', () => {
 
       expect(result.name).toBe('Acme Updated');
       expect(auditService.log).toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'organisation.update' }),
+        expect.objectContaining({ action: 'brand.update' }),
       );
     });
 

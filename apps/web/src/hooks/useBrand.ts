@@ -8,6 +8,7 @@ import type {
   UpdateBrandRequest,
   InviteMemberRequest,
   BrandListParams,
+  SubmitKybRequest,
 } from '@social-bounty/shared';
 import { authApi } from '@/lib/api/auth';
 
@@ -96,6 +97,38 @@ export function useBrandsPublicList(params: BrandListParams) {
   return useQuery({
     queryKey: queryKeys.brands.publicList(params),
     queryFn: () => brandsApi.listPublic(params),
+  });
+}
+
+export function useSubmitKyb(brandId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: SubmitKybRequest) => brandsApi.submitKyb(brandId, data),
+    onSuccess: () => {
+      // Invalidate the whole brands branch so the detail view reflects the new
+      // kybStatus / kybSubmittedAt, and any list that surfaces KYB state refreshes.
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.all });
+    },
+  });
+}
+
+export function useApproveKyb(brandId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => brandsApi.approveKyb(brandId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.all });
+    },
+  });
+}
+
+export function useRejectKyb(brandId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (reason: string) => brandsApi.rejectKyb(brandId, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.all });
+    },
   });
 }
 

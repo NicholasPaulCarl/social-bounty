@@ -19,6 +19,13 @@ export enum BrandStatus {
   INACTIVE = 'INACTIVE',
 }
 
+export enum KybStatus {
+  NOT_STARTED = 'NOT_STARTED',
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
 export enum BrandMemberRole {
   OWNER = 'OWNER',
   MEMBER = 'MEMBER',

@@ -61,7 +61,7 @@ describe('AdminService - Edge Cases', () => {
         create: jest.fn(),
         update: jest.fn(),
       },
-      organisationMember: {
+      brandMember: {
         findFirst: jest.fn(),
         create: jest.fn(),
       },
@@ -946,7 +946,7 @@ describe('AdminService - Edge Cases', () => {
             ownerUserId: 'user-1',
           },
         ),
-      ).rejects.toThrow('User already belongs to an organisation');
+      ).rejects.toThrow('User already belongs to a brand');
     });
 
     it('should trim org name and lowercase contact email', async () => {
@@ -1153,7 +1153,7 @@ describe('AdminService - Edge Cases', () => {
           BrandStatus.SUSPENDED,
           'Test',
         ),
-      ).rejects.toThrow('Organisation not found');
+      ).rejects.toThrow('Brand not found');
     });
 
     it('should not pause bounties when reinstating (setting to ACTIVE)', async () => {

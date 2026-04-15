@@ -4,6 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   LedgerAccount,
   LedgerEntryType,
@@ -34,7 +35,38 @@ export class ApprovalLedgerService {
     private readonly ledger: LedgerService,
     private readonly fees: FeeCalculatorService,
     private readonly subscriptions: SubscriptionsService,
+    private readonly config?: ConfigService,
   ) {}
+
+  /**
+   * Resolves the clearance window for a given tier, honouring the dev-only
+   * CLEARANCE_OVERRIDE_HOURS_FREE / CLEARANCE_OVERRIDE_HOURS_PRO env vars when
+   * set. Falls back to the canonical constants from @social-bounty/shared.
+   *
+   * Rationale: lets us shrink the 72h Free-tier window down to seconds in
+   * dev/staging so the approve → clearance → payout loop is live-testable.
+   * Production must leave these unset.
+   */
+  private clearanceHoursFor(tier: SubscriptionTier): number {
+    const envKey =
+      tier === SubscriptionTier.PRO
+        ? 'CLEARANCE_OVERRIDE_HOURS_PRO'
+        : 'CLEARANCE_OVERRIDE_HOURS_FREE';
+    const raw = this.config?.get<string | number>(envKey);
+    if (raw !== undefined && raw !== null && `${raw}`.length > 0) {
+      const parsed = typeof raw === 'number' ? raw : Number(raw);
+      if (Number.isFinite(parsed) && parsed >= 0) {
+        this.logger.warn(
+          `clearance window overridden via ${envKey}=${parsed}h (tier=${tier}); DO NOT USE IN PRODUCTION`,
+        );
+        return parsed;
+      }
+      this.logger.error(
+        `${envKey} is set to an invalid value (${raw}); falling back to canonical CLEARANCE_HOURS`,
+      );
+    }
+    return tier === SubscriptionTier.PRO ? CLEARANCE_HOURS.PRO : CLEARANCE_HOURS.FREE;
+  }
 
   /**
    * Post the approval earnings split ledger group for a submission.
@@ -64,8 +96,7 @@ export class ApprovalLedgerService {
       bankChargeCents: 0n,
     });
 
-    const clearanceHours =
-      hunterTier === SubscriptionTier.PRO ? CLEARANCE_HOURS.PRO : CLEARANCE_HOURS.FREE;
+    const clearanceHours = this.clearanceHoursFor(hunterTier);
     const clearanceReleaseAt = new Date(Date.now() + clearanceHours * 60 * 60 * 1000);
 
     const { transactionGroupId } = await this.ledger.postTransactionGroup({

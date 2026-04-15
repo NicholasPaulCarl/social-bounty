@@ -224,7 +224,7 @@ describe('AdminService', () => {
       });
       expect(auditService.log).toHaveBeenCalledWith(
         expect.objectContaining({
-          action: 'organisation.status_change',
+          action: 'brand.status_change',
           reason: 'Policy violation',
         }),
       );

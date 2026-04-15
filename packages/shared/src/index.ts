@@ -7,6 +7,7 @@ export {
   UserRole,
   UserStatus,
   BrandStatus,
+  KybStatus,
   BrandMemberRole,
   BountyStatus,
   RewardType,
@@ -137,6 +138,7 @@ export type {
   WalletTransactionListItem,
   WalletTransactionListParams,
   WalletDashboardResponse,
+  LedgerWalletSnapshot,
   PaginatedWalletTransactions,
   RequestWithdrawalRequest,
   WithdrawalListItem,
@@ -170,6 +172,9 @@ export type {
   InviteMemberRequest,
   InvitationResponse,
   InviteMemberResponse,
+  SubmitKybRequest,
+  RejectKybRequest,
+  KybActionResponse,
 } from './dto/brand.dto';
 
 // Bounty DTOs

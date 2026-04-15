@@ -1,4 +1,4 @@
-import { BrandStatus, BrandMemberRole, UserStatus } from '../enums';
+import { BrandStatus, BrandMemberRole, KybStatus, UserStatus } from '../enums';
 
 // ─────────────────────────────────────
 // Brand DTOs
@@ -75,10 +75,36 @@ export interface BrandDetailResponse {
   targetInterests: string[] | null;
   messagingEnabled: boolean;
   status: BrandStatus;
+  kybStatus: KybStatus;
+  kybSubmittedAt: string | null;
+  kybApprovedAt: string | null;
   memberCount: number;
   bountyCount: number;
   createdAt: string;
   updatedAt: string;
+}
+
+// POST /brands/:brandId/kyb
+export interface SubmitKybRequest {
+  registeredName: string;
+  registrationNumber: string;
+  vatNumber?: string;
+  country: string;
+  contactEmail: string;
+  documentsRef?: string;
+}
+
+// POST /brands/:brandId/kyb/reject
+export interface RejectKybRequest {
+  reason: string;
+}
+
+// Response returned by submit / approve / reject KYB endpoints
+export interface KybActionResponse {
+  id: string;
+  kybStatus: KybStatus;
+  kybSubmittedAt: string | null;
+  kybApprovedAt: string | null;
 }
 
 // PATCH /brands/:id

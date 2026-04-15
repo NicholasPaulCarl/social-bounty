@@ -42,6 +42,17 @@ export interface WalletDashboardResponse {
   recentTransactions: WalletTransactionListItem[];
 }
 
+// ─────────────────────────────────────
+// Ledger-Projected Wallet Snapshot
+// ─────────────────────────────────────
+// Derived from LedgerEntry (ADR 0002). Cents are serialized as strings to
+// preserve bigint precision across the wire.
+export interface LedgerWalletSnapshot {
+  availableCents: string;
+  pendingCents: string;
+  paidCents: string;
+}
+
 export interface PaginatedWalletTransactions {
   data: WalletTransactionListItem[];
   meta: PaginationMeta;

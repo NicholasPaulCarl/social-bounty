@@ -22,6 +22,14 @@ export function useWalletDashboard() {
   });
 }
 
+export function useWalletLedgerSnapshot() {
+  return useQuery({
+    queryKey: queryKeys.wallet.ledgerSnapshot(),
+    queryFn: () => walletApi.getLedgerSnapshot(),
+    staleTime: 30_000,
+  });
+}
+
 export function useWalletTransactions(params: WalletTransactionListParams) {
   return useQuery({
     queryKey: queryKeys.wallet.transactions(params),

@@ -12,7 +12,9 @@ import { Request } from 'express';
 import { Roles, CurrentUser } from '../../common/decorators';
 import { UserRole, WalletTxType, WithdrawalStatus } from '@social-bounty/shared';
 import { WalletService } from './wallet.service';
+import { WalletProjectionService } from './wallet-projection.service';
 import { WithdrawalService } from './withdrawal.service';
+import type { LedgerWalletSnapshot } from '@social-bounty/shared';
 import {
   RequestWithdrawalDto,
   AdminAdjustWalletDto,
@@ -26,6 +28,7 @@ export class WalletController {
   constructor(
     private walletService: WalletService,
     private withdrawalService: WithdrawalService,
+    private walletProjectionService: WalletProjectionService,
   ) {}
 
   // ── User Routes ─────────────────────────────────────────
@@ -34,6 +37,20 @@ export class WalletController {
   @Roles(UserRole.PARTICIPANT)
   async getDashboard(@CurrentUser() user: AuthenticatedUser) {
     return this.walletService.getDashboard(user.sub);
+  }
+
+  @Get('wallet/ledger-snapshot')
+  @Roles(UserRole.PARTICIPANT)
+  async getLedgerSnapshot(
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<LedgerWalletSnapshot> {
+    const snap = await this.walletProjectionService.snapshot(user.sub);
+    // Serialize bigint cents as strings to preserve precision on the wire.
+    return {
+      availableCents: snap.availableCents.toString(),
+      pendingCents: snap.pendingCents.toString(),
+      paidCents: snap.paidCents.toString(),
+    };
   }
 
   @Get('wallet/transactions')
