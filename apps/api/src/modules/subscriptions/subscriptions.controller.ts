@@ -1,8 +1,12 @@
-import { Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
 import { Roles, CurrentUser } from '../../common/decorators';
 import { UserRole } from '@social-bounty/shared';
 import { SubscriptionsService } from './subscriptions.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
+
+interface RequestWithIp {
+  ip?: string;
+}
 
 @Controller('subscription')
 export class SubscriptionsController {
@@ -30,11 +34,21 @@ export class SubscriptionsController {
 
   @Post('cancel')
   @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN)
-  async cancel(@CurrentUser() user: AuthenticatedUser) {
+  async cancel(
+    @CurrentUser() user: AuthenticatedUser,
+    @Req() req: RequestWithIp,
+    @Body() body?: { immediate?: boolean },
+  ) {
     return this.subscriptionsService.cancel(
       user.sub,
       user.role as UserRole,
       user.brandId ?? undefined,
+      {
+        immediate: body?.immediate === true,
+        actorId: user.sub,
+        actorRole: user.role as UserRole,
+        ipAddress: req?.ip ?? null,
+      },
     );
   }
 

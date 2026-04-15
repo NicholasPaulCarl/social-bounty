@@ -259,15 +259,21 @@ describe('SubscriptionsService', () => {
       );
     });
 
-    it('should throw if already cancelled', async () => {
+    it('should be idempotent when already cancelled (no second update, no throw)', async () => {
+      // Both findFirst calls (findActiveSubscription + getSubscription) see
+      // the already-cancelled row. Cancel is now idempotent — see
+      // subscription-cancel.spec.ts for full coverage of the soft-fix path.
       prisma.subscription.findFirst.mockResolvedValue({
         id: 'sub-1',
+        tier: 'PRO',
         status: 'CANCELLED',
         cancelAtPeriodEnd: true,
+        currentPeriodEnd: new Date(Date.now() + 86400000),
       });
       await expect(
         service.cancel('user-1', UserRole.PARTICIPANT),
-      ).rejects.toThrow(BadRequestException);
+      ).resolves.toBeDefined();
+      expect(prisma.subscription.update).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException if no active subscription', async () => {

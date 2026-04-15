@@ -1,6 +1,7 @@
 import {
   Injectable,
   BadRequestException,
+  ForbiddenException,
   NotFoundException,
   Logger,
   forwardRef,
@@ -17,9 +18,12 @@ import {
   UserRole,
   SUBSCRIPTION_CONSTANTS,
   PAGINATION_DEFAULTS,
+  AUDIT_ACTIONS,
+  ENTITY_TYPES,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService } from '../ledger/ledger.service';
+import { AuditService } from '../audit/audit.service';
 import { PRICING, FEATURE_MATRIX, buildFeaturesDto } from './subscription.constants';
 
 @Injectable()
@@ -33,6 +37,10 @@ export class SubscriptionsService {
     @Inject(forwardRef(() => LedgerService))
     private readonly ledger?: LedgerService,
     @Optional() private readonly config?: ConfigService,
+    // Optional so unit tests that don't boot AuditModule still work. Audit
+    // writes are still required in production (Hard Rule #3 + #4.6). The
+    // AuditModule is @Global() so it's always available when the API runs.
+    @Optional() private readonly auditService?: AuditService,
   ) {}
 
   /**
@@ -305,23 +313,187 @@ export class SubscriptionsService {
 
   // ─── Cancel ────────────────────────────────────────────
 
-  async cancel(userId: string, role: UserRole, brandId?: string) {
+  /**
+   * Cancel the caller's own subscription.
+   *
+   * Semantics:
+   * - Default (`options.immediate` unset/false): schedule cancel — the user
+   *   keeps PRO through `currentPeriodEnd`, then auto-drops to FREE. Sets
+   *   `status=CANCELLED`, `cancelAtPeriodEnd=true`, `cancelledAt=now()`.
+   *   This matches what `getActiveTier`/`getActiveOrgTier` expect: a
+   *   CANCELLED row with a future `currentPeriodEnd` still returns PRO.
+   * - Immediate (`options.immediate=true`): drop to FREE now. Sets
+   *   `tier=FREE`, `status=CANCELLED`, `cancelAtPeriodEnd=false`,
+   *   `cancelledAt=now()`. No refund / no ledger compensation here — if
+   *   that's ever required, it must be a separate refund flow posted via
+   *   LedgerService (payment-gateway.md §8).
+   *
+   * Non-Negotiable #9: this method NEVER touches `planSnapshotBrand` on
+   * Bounty rows or `planSnapshotHunter` on Submission rows. In-flight
+   * transactions stay priced at the tier they were created under.
+   *
+   * Idempotency: a second cancel on an already-cancelled subscription is a
+   * no-op — returns the existing state and writes an AuditLog entry noting
+   * that the call was a duplicate. This lets the UI retry safely and
+   * avoids masking a real "already cancelled, did nothing" signal.
+   *
+   * AuditLog (Hard Rule #3): every call writes a
+   * `SUBSCRIPTION_CANCELLED` entry, even duplicates, so we have a full
+   * trail of who-tried-what-when.
+   */
+  async cancel(
+    userId: string,
+    role: UserRole,
+    brandId?: string,
+    options?: { immediate?: boolean; actorId?: string; actorRole?: UserRole; ipAddress?: string | null },
+  ) {
     const sub = await this.findActiveSubscription(userId, role, brandId);
+    const actorId = options?.actorId ?? userId;
+    const actorRole = options?.actorRole ?? role;
 
-    if (sub.cancelAtPeriodEnd) {
-      throw new BadRequestException('Subscription is already cancelled');
+    return this.performCancel(sub, {
+      immediate: options?.immediate ?? false,
+      actorId,
+      actorRole,
+      ipAddress: options?.ipAddress ?? null,
+      returnForUser: { userId, role, brandId },
+    });
+  }
+
+  /**
+   * Admin-triggered cancel by subscription id. SUPER_ADMIN only — the
+   * caller (controller layer) is responsible for the RBAC decorator.
+   *
+   * Routes to `performCancel` with the admin as the audit actor. Returns
+   * the affected subscription's public shape so the admin UI can reflect
+   * the new state.
+   */
+  async cancelById(
+    subscriptionId: string,
+    admin: { actorId: string; actorRole: UserRole; ipAddress?: string | null },
+    options?: { immediate?: boolean },
+  ) {
+    if (admin.actorRole !== UserRole.SUPER_ADMIN) {
+      throw new ForbiddenException('Only SUPER_ADMIN may cancel other subscriptions');
     }
+
+    const sub = await this.prisma.subscription.findUnique({
+      where: { id: subscriptionId },
+    });
+    if (!sub) {
+      throw new NotFoundException('Subscription not found');
+    }
+
+    // Resolve the target's "view" so getSubscription returns the right shape.
+    const targetRole =
+      sub.entityType === SubscriptionEntityType.HUNTER
+        ? UserRole.PARTICIPANT
+        : UserRole.BUSINESS_ADMIN;
+
+    return this.performCancel(sub, {
+      immediate: options?.immediate ?? false,
+      actorId: admin.actorId,
+      actorRole: admin.actorRole,
+      ipAddress: admin.ipAddress ?? null,
+      returnForUser: {
+        userId: sub.userId ?? '',
+        role: targetRole,
+        brandId: sub.brandId ?? undefined,
+      },
+    });
+  }
+
+  private async performCancel(
+    sub: { id: string; tier: string; status: string; cancelAtPeriodEnd: boolean },
+    ctx: {
+      immediate: boolean;
+      actorId: string;
+      actorRole: UserRole;
+      ipAddress: string | null;
+      returnForUser: { userId: string; role: UserRole; brandId?: string };
+    },
+  ) {
+    const beforeState = {
+      tier: sub.tier,
+      status: sub.status,
+    };
+
+    // Idempotency: already-cancelled (either scheduled or immediate) — no
+    // DB write, log the duplicate, return existing state. Second call is
+    // safe to retry.
+    const alreadyCancelled =
+      sub.status === SubscriptionStatus.CANCELLED ||
+      sub.cancelAtPeriodEnd === true;
+
+    if (alreadyCancelled) {
+      this.logger.log(
+        `Subscription ${sub.id}: cancel called but already cancelled — no-op`,
+      );
+      this.auditService?.log({
+        actorId: ctx.actorId,
+        actorRole: ctx.actorRole,
+        action: AUDIT_ACTIONS.SUBSCRIPTION_CANCELLED,
+        entityType: ENTITY_TYPES.SUBSCRIPTION,
+        entityId: sub.id,
+        beforeState,
+        afterState: {
+          cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+          status: sub.status,
+          duplicate: true,
+        },
+        ipAddress: ctx.ipAddress,
+      });
+      return this.getSubscription(
+        ctx.returnForUser.userId,
+        ctx.returnForUser.role,
+        ctx.returnForUser.brandId,
+      );
+    }
+
+    const now = new Date();
+    const data = ctx.immediate
+      ? {
+          tier: SubscriptionTier.FREE,
+          status: SubscriptionStatus.CANCELLED,
+          cancelAtPeriodEnd: false,
+          cancelledAt: now,
+        }
+      : {
+          status: SubscriptionStatus.CANCELLED,
+          cancelAtPeriodEnd: true,
+          cancelledAt: now,
+        };
 
     await this.prisma.subscription.update({
       where: { id: sub.id },
-      data: {
-        status: SubscriptionStatus.CANCELLED,
-        cancelAtPeriodEnd: true,
-        cancelledAt: new Date(),
-      },
+      data,
     });
 
-    return this.getSubscription(userId, role, brandId);
+    this.auditService?.log({
+      actorId: ctx.actorId,
+      actorRole: ctx.actorRole,
+      action: AUDIT_ACTIONS.SUBSCRIPTION_CANCELLED,
+      entityType: ENTITY_TYPES.SUBSCRIPTION,
+      entityId: sub.id,
+      beforeState,
+      afterState: {
+        cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+        cancelledAt: now.toISOString(),
+        status: data.status,
+        ...(ctx.immediate ? { tier: SubscriptionTier.FREE } : {}),
+      },
+      ipAddress: ctx.ipAddress,
+    });
+
+    this.logger.log(
+      `Subscription ${sub.id}: cancelled (${ctx.immediate ? 'immediate' : 'at_period_end'}) by ${ctx.actorId}`,
+    );
+
+    return this.getSubscription(
+      ctx.returnForUser.userId,
+      ctx.returnForUser.role,
+      ctx.returnForUser.brandId,
+    );
   }
 
   // ─── Reactivate ────────────────────────────────────────

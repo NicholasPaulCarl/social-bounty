@@ -495,6 +495,31 @@ export interface ConfidenceScore {
   ineffectiveFixCount: number;
 }
 
+// GET /admin/finance/payouts
+// Admin-wide StitchPayout listing (SUPER_ADMIN). Mirrors HunterPayoutRow but
+// includes hunter identity (joined from User) so operators can triage by
+// person, not just payout id.
+export interface AdminPayoutRow {
+  id: string;
+  userId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  amountCents: string;
+  currency: string;
+  status: 'CREATED' | 'INITIATED' | 'SETTLED' | 'FAILED' | 'RETRY_PENDING' | 'CANCELLED';
+  attempts: number;
+  lastError: string | null;
+  nextRetryAt: string | null;
+  createdAt: string;
+  stitchPayoutId: string | null;
+}
+
+export interface AdminPayoutListResponse {
+  data: AdminPayoutRow[];
+  meta: { page: number; limit: number; total: number; totalPages: number };
+}
+
 // GET /admin/payments-health
 export interface PaymentsHealthResponse {
   paymentsProvider: string;

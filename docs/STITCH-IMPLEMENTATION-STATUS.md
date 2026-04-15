@@ -260,4 +260,14 @@ Non-Stitch system vars that the payment stack depends on:
 
 ---
 
+## Batch 9 additions (2026-04-15)
+
+- **Subscription cancel flow verified:** AuditLog on cancel includes previous tier + status; cancel is reversible while `cancelAtPeriodEnd=true` and the period has not elapsed; no re-pricing of in-flight transactions (plan snapshot immutable per Non-Negotiable #9); RBAC limits BUSINESS_ADMIN to own org.
+- **KB seeded with 3 real entries:** Stitch payment-links response-shape mismatch, `merchantReference` special-char rejection, webhook event-type routing mismatch. Template-compliant with real file paths, line numbers, and fix commits. Phase 4 is now truly exit-complete.
+- **`/admin/finance/payouts` (SUPER_ADMIN) shipped** listing all `StitchPayout` rows platform-wide. Retry button is a no-op-plus-AuditLog while `PAYOUTS_ENABLED=false`; tooltip states TradeSafe outbound rail is not yet live.
+- **Severity filter on `/admin/finance/exceptions`** (cosmetic, query-string driven; no reconciliation-engine change).
+- **Playwright reconciliation spec** walks run → exceptions filter → drill-in; skips gracefully on an empty exceptions table.
+
+---
+
 *Document owner: Architect. Update after every payment-stack material change or new ADR.*

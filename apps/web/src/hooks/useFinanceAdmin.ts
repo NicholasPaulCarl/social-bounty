@@ -19,6 +19,8 @@ const keys = {
   systemInsights: (system: string) => ['financeAdmin', 'systemInsights', system] as const,
   subscriptions: (page: number, limit: number) =>
     ['financeAdmin', 'subscriptions', page, limit] as const,
+  payouts: (page: number, limit: number) =>
+    ['financeAdmin', 'payouts', page, limit] as const,
   transactionGroup: (id: string) => ['financeAdmin', 'transactionGroup', id] as const,
 };
 
@@ -118,6 +120,29 @@ export function useFinanceSubscriptions(params?: { page?: number; limit?: number
   return useQuery({
     queryKey: keys.subscriptions(page, limit),
     queryFn: () => financeAdminApi.listSubscriptions({ page, limit }),
+  });
+}
+
+/**
+ * Platform-wide StitchPayout listing (SUPER_ADMIN). Paginated, newest-first.
+ */
+export function usePayoutsAdmin(page = 1, limit = 25) {
+  return useQuery({
+    queryKey: keys.payouts(page, limit),
+    queryFn: () => financeAdminApi.listPayouts(page, limit),
+  });
+}
+
+/**
+ * POST /payouts/:id/retry — SUPER_ADMIN reset of retry clock + attempts.
+ * Invalidates all payout list pages so the row reflects its new state.
+ */
+export function useRetryPayoutAdmin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payoutId: string) => financeAdminApi.retryPayout(payoutId),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['financeAdmin', 'payouts'] }),
   });
 }
 

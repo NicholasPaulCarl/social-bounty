@@ -259,6 +259,8 @@ export type {
   AdminSettingsResponse,
   AdminUpdateSettingsRequest,
   PaymentsHealthResponse,
+  AdminPayoutRow,
+  AdminPayoutListResponse,
   FinanceOverviewResponse,
   InboundFundingRow,
   ReserveRow,

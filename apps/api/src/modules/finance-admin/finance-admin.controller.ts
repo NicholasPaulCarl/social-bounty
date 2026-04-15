@@ -101,6 +101,18 @@ export class FinanceAdminController {
     return this.svc.earningsPayouts();
   }
 
+  @Get('payouts')
+  @Audited('FINANCE_PAYOUTS_LIST', 'StitchPayout')
+  async payouts(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.svc.listPayouts(
+      page ? parseInt(page, 10) : undefined,
+      limit ? parseInt(limit, 10) : undefined,
+    );
+  }
+
   @Get('refunds')
   async refunds() {
     return this.svc.listRefunds();

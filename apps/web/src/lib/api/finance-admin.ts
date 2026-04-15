@@ -16,6 +16,7 @@ import type {
   SubscriptionTier,
   SubscriptionStatus,
   SubscriptionEntityType,
+  AdminPayoutListResponse,
 } from '@social-bounty/shared';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
@@ -102,6 +103,15 @@ export const financeAdminApi = {
     apiClient.get('/admin/finance/earnings-payouts'),
 
   getRefunds: (): Promise<AdminRefundRow[]> => apiClient.get('/admin/finance/refunds'),
+
+  listPayouts: (page = 1, limit = 25): Promise<AdminPayoutListResponse> =>
+    apiClient.get('/admin/finance/payouts', {
+      page: String(page),
+      limit: String(limit),
+    }),
+
+  retryPayout: (payoutId: string): Promise<{ retried: boolean }> =>
+    apiClient.post(`/payouts/${encodeURIComponent(payoutId)}/retry`),
 
   getExceptions: (): Promise<ExceptionRow[]> => apiClient.get('/admin/finance/exceptions'),
 
