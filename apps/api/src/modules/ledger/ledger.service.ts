@@ -9,6 +9,11 @@ import {
 import { UserRole } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 
+// The Financial Kill Switch is a DB row — never an env var.
+// A stale `FINANCIAL_KILL_SWITCH` env var was removed 2026-04-15 (orphan
+// sweep C2): it was declared and seeded but read by nobody, which meant
+// operators flipping it believed payments were halted when they weren't.
+// Toggle via LedgerService.setKillSwitch / the Finance admin dashboard.
 const KILL_SWITCH_KEY = 'financial.kill_switch.active';
 
 export interface PostLedgerLeg {

@@ -34,7 +34,8 @@ Stitch Express is integrated as the **inbound** rail (brand-side bounty funding)
 - Every ledger write is accompanied by an `AuditLog` row (Hard Rule #3). Webhook and scheduler-driven writes use `STITCH_SYSTEM_ACTOR_ID` as the actor fallback.
 
 ### Financial Kill Switch
-- Manual toggle via `FINANCIAL_KILL_SWITCH=true` and Super Admin dashboard control.
+- Authoritative store: `SystemSetting` row `financial.kill_switch.active` (DB, not env). Read by `LedgerService.isKillSwitchActive`; written by `LedgerService.setKillSwitch`.
+- Manual toggle from the Super Admin Finance dashboard. (A stale `FINANCIAL_KILL_SWITCH` env var was removed 2026-04-15 — it was read by nobody and gave operators a false sense of control.)
 - Auto-trip on Critical reconciliation findings (ledger imbalance, duplicate transaction, missing leg).
 - Compensating-entry bypass enforced per [ADR 0006](adr/0006-compensating-entries-bypass-kill-switch.md) and guarded by `npm run check:kill-switch-bypass` in CI.
 
@@ -244,8 +245,10 @@ Cross-reference [`.env.example`](../.env.example) for templates. Stitch + system
 | `STITCH_PAYOUT_SPEED` | `DEFAULT` (used when the TradeSafe cutover happens; currently unused in live payout). |
 | `STITCH_MIN_PAYOUT_CENTS` | Payout skip threshold. Default `2000` (ZAR 20.00). |
 | `STITCH_SYSTEM_ACTOR_ID` | Users.id of the system actor used by webhook/cron-driven ledger writes. AuditLog FK to users.id, so must be a real row. Seeded as `00000000-0000-0000-0000-000000000001`. |
-| `FINANCIAL_KILL_SWITCH` | `true` halts all ledger writes except compensating entries (ADR 0006). |
 | `PAYOUTS_ENABLED` | Gates the payout scheduler. `false` everywhere until TradeSafe is live. |
+| `RECONCILIATION_ENABLED` | Gates the 15-min reconciliation scheduler. Default `true`. |
+| `EXPIRED_BOUNTY_RELEASE_ENABLED` | Per-job override for the expired-bounty scheduler; falls back to `PAYOUTS_ENABLED`. |
+| `BENEFICIARY_ENC_KEY` | AES-256-GCM key encrypting stored bank account numbers on `StitchBeneficiary`. Required in any env that accepts real bank details. |
 | `CLEARANCE_OVERRIDE_HOURS_FREE` | DEV/STAGING ONLY. Fractional hours. Bypasses the 72h Free-tier clearance window. Leave unset in production. |
 | `CLEARANCE_OVERRIDE_HOURS_PRO` | DEV/STAGING ONLY. Bypasses Pro-tier clearance (default 0h). Leave unset in production. |
 

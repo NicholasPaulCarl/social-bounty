@@ -32,9 +32,13 @@ Drafts live outside `migrations/` so operator error cannot apply them.
 
 ## Current drafts
 
-- `ineffective_fix_flag/` — adds `metadata.ineffectiveFix` handling for the
-  Phase 4 auto-flag work.
-- `subscription_revenue_ledger/` — adds the `subscription_revenue` enum
-  value and `subscription_payments.tierSnapshot` column. Previously lived at
-  `migrations/20260415_subscription_revenue_ledger_draft/` — moved out
-  under ADR 0008 batch 6 (R19).
+_None._ All previously listed drafts were promoted during R28 (batch 12B,
+`docs/reviews/2026-04-15-r28-migration-reconciliation.md`):
+
+- `ineffective_fix_flag/` → folded into
+  `packages/prisma/migrations/20260415200100_reconcile_missing_columns/`.
+- `subscription_revenue_ledger/` → `tierSnapshot` column was already live in
+  `20260415142500_subscription_tables/`; the `LedgerAccount` enum value is
+  now in `20260415200000_reconcile_missing_enums/`.
+- `tradesafe_webhook_provider/` → folded into
+  `20260415200000_reconcile_missing_enums/`.

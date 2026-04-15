@@ -68,9 +68,10 @@ class EnvironmentVariables {
   @Min(0)
   STITCH_MIN_PAYOUT_CENTS?: number;
 
-  @IsOptional()
-  @IsBooleanString()
-  FINANCIAL_KILL_SWITCH?: string;
+  // NOTE: `FINANCIAL_KILL_SWITCH` was removed 2026-04-15 (orphan sweep C2).
+  // The kill switch is a DB row (`SystemSetting.financial.kill_switch.active`)
+  // flipped via the Finance admin dashboard — NOT an env var. See
+  // `apps/api/src/modules/ledger/ledger.service.ts` (`isKillSwitchActive`).
 
   // ADR 0009 — TradeSafe adapter scaffolding. All optional except
   // PAYOUT_PROVIDER which defaults to 'stitch'. Live TradeSafe calls require
@@ -114,6 +115,74 @@ class EnvironmentVariables {
   @IsNumber({ allowInfinity: false, allowNaN: false })
   @Min(0)
   CLEARANCE_OVERRIDE_HOURS_PRO?: number;
+
+  // ────────────────────────────────────────────────────────────────
+  // Feature-flag validation (orphan sweep H2, 2026-04-15).
+  // These env vars are read by schedulers/services and previously went
+  // unvalidated at boot — a typo in staging would silently disable
+  // financial jobs. Defaults live in the reading code; validation here
+  // only guards against malformed values.
+  // ────────────────────────────────────────────────────────────────
+
+  // Gates `PayoutsScheduler`, `ClearanceScheduler`, and (via fallback)
+  // `ExpiredBountyScheduler`. Default `false` (outbound rail gated
+  // until TradeSafe integration per ADR 0008). Do not flip without
+  // ADR sign-off.
+  @IsOptional()
+  @IsBooleanString()
+  PAYOUTS_ENABLED?: string;
+
+  // Gates `ReconciliationScheduler`. Default `true` (reconciliation is
+  // always-on in Phase 1+). Set to `false` only for controlled drills.
+  @IsOptional()
+  @IsBooleanString()
+  RECONCILIATION_ENABLED?: string;
+
+  // Per-job override for `ExpiredBountyScheduler`. When unset, falls back
+  // to `PAYOUTS_ENABLED`. Explicit `true`/`false` wins.
+  @IsOptional()
+  @IsBooleanString()
+  EXPIRED_BOUNTY_RELEASE_ENABLED?: string;
+
+  // Users.id of the dedicated system-actor row used as the fallback
+  // AuditLog actor for webhook- and scheduler-driven ledger writes.
+  // Required when payments are live — several services throw loudly
+  // at runtime if this is unset and they need to write an AuditLog.
+  // Optional for `PAYMENTS_PROVIDER=none` so dev boots cleanly.
+  @ValidateIf((o) => o.PAYMENTS_PROVIDER !== PaymentsProvider.NONE)
+  @IsString()
+  STITCH_SYSTEM_ACTOR_ID?: string;
+
+  // AES-256-GCM key used to encrypt bank account numbers on
+  // `StitchBeneficiary`. SECURITY-SENSITIVE. `BeneficiaryService` falls
+  // back to `JWT_SECRET` when unset (legacy dev behaviour, preserved by
+  // this validator), but operators MUST set a dedicated key in any
+  // environment that accepts real bank details. Validated as a string
+  // when set; not marked required to preserve existing dev behaviour.
+  @IsOptional()
+  @IsString()
+  BENEFICIARY_ENC_KEY?: string;
+
+  // Stripe (ADR 0001 legacy). Kept optional until the retirement batch
+  // lands; still read by `PaymentsService` for any in-flight legacy flow.
+  @IsOptional()
+  @IsString()
+  STRIPE_SECRET_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  STRIPE_WEBHOOK_SECRET?: string;
+
+  // Apify — optional social analytics scraper. When unset, the service
+  // logs a warning and the front-end falls back to the deterministic mock.
+  @IsOptional()
+  @IsString()
+  APIFY_API_TOKEN?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1000)
+  APIFY_ACTOR_TIMEOUT_MS?: number;
 }
 
 export function validateEnv(config: Record<string, unknown>) {
