@@ -680,7 +680,7 @@ export class AdminService {
           SUPER_ADMIN: superAdminCount,
         },
       },
-      organisations: {
+      brands: {
         total: totalOrgs,
         active: activeOrgs,
         suspended: suspendedOrgs,

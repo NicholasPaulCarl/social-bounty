@@ -562,9 +562,9 @@ describe('AdminService - Edge Cases', () => {
       expect(result.users.byRole.PARTICIPANT).toBe(0);
       expect(result.users.byRole.BUSINESS_ADMIN).toBe(0);
       expect(result.users.byRole.SUPER_ADMIN).toBe(0);
-      expect(result.organisations.total).toBe(0);
-      expect(result.organisations.active).toBe(0);
-      expect(result.organisations.suspended).toBe(0);
+      expect(result.brands.total).toBe(0);
+      expect(result.brands.active).toBe(0);
+      expect(result.brands.suspended).toBe(0);
       expect(result.bounties.total).toBe(0);
       expect(result.bounties.byStatus.DRAFT).toBe(0);
       expect(result.bounties.byStatus.LIVE).toBe(0);

@@ -429,7 +429,7 @@ describe('AdminService', () => {
 
       expect(result.users.total).toBe(350);
       expect(result.users.active).toBe(340);
-      expect(result.organisations.total).toBe(25);
+      expect(result.brands.total).toBe(25);
       expect(result.bounties.total).toBe(150);
       expect(result.bounties.byStatus.LIVE).toBe(80);
       expect(result.submissions.total).toBe(2500);
