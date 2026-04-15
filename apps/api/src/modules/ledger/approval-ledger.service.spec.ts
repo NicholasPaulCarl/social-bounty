@@ -173,6 +173,69 @@ describe('ApprovalLedgerService.postApproval', () => {
     expect(deltaMs).toBeLessThan(73 * 60 * 60 * 1000);
   });
 
+  it('throws in live mode when any clearance override is set', async () => {
+    const liveOverrideService = buildService((k) => {
+      if (k === 'PAYMENTS_PROVIDER') return 'stitch_live';
+      if (k === 'CLEARANCE_OVERRIDE_HOURS_FREE') return '0.0083';
+      return undefined;
+    });
+
+    await expect(
+      liveOverrideService.postApproval({
+        submissionId: 'sub_1',
+        approverId: 'admin_1',
+        approverRole: 'BUSINESS_ADMIN' as any,
+      }),
+    ).rejects.toThrow(/Refusing to apply clearance override in live mode/);
+    // Ledger write must NOT happen if the override check trips.
+    expect(post).not.toHaveBeenCalled();
+  });
+
+  it('allows clearance override in sandbox mode (uses the overridden value)', async () => {
+    const sandboxOverrideService = buildService((k) => {
+      if (k === 'PAYMENTS_PROVIDER') return 'stitch_sandbox';
+      if (k === 'CLEARANCE_OVERRIDE_HOURS_FREE') return '0.0083';
+      return undefined;
+    });
+
+    await sandboxOverrideService.postApproval({
+      submissionId: 'sub_1',
+      approverId: 'admin_1',
+      approverRole: 'BUSINESS_ADMIN' as any,
+    });
+
+    const legs: any[] = post.mock.calls[0][0].legs;
+    const creditLeg = legs.find(
+      (l) =>
+        l.account === LedgerAccount.hunter_net_payable && l.type === LedgerEntryType.CREDIT,
+    );
+    const deltaMs = creditLeg.clearanceReleaseAt.getTime() - Date.now();
+    expect(deltaMs).toBeGreaterThan(0);
+    expect(deltaMs).toBeLessThan(60 * 1000);
+  });
+
+  it('uses canonical CLEARANCE_HOURS.FREE in live mode when no override is set', async () => {
+    const liveNoOverrideService = buildService((k) => {
+      if (k === 'PAYMENTS_PROVIDER') return 'stitch_live';
+      return undefined;
+    });
+
+    await liveNoOverrideService.postApproval({
+      submissionId: 'sub_1',
+      approverId: 'admin_1',
+      approverRole: 'BUSINESS_ADMIN' as any,
+    });
+
+    const legs: any[] = post.mock.calls[0][0].legs;
+    const creditLeg = legs.find(
+      (l) =>
+        l.account === LedgerAccount.hunter_net_payable && l.type === LedgerEntryType.CREDIT,
+    );
+    const deltaMs = creditLeg.clearanceReleaseAt.getTime() - Date.now();
+    expect(deltaMs).toBeGreaterThan(71 * 60 * 60 * 1000);
+    expect(deltaMs).toBeLessThan(73 * 60 * 60 * 1000);
+  });
+
   it('rejects submissions not in APPROVED state', async () => {
     (prisma.submission.findUnique as jest.Mock).mockResolvedValueOnce({
       ...submission,

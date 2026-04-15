@@ -137,6 +137,17 @@ export class PayoutsService {
     const idempotencyKey = `payout${userSlug}${stamp}`;
     const merchantReference = `payout${userSlug}${stamp}`.slice(0, 50);
 
+    // Load the beneficiary up-front: we need its Stitch-side id for the
+    // createPayout call. `beneficiaryId` here is our internal PK; Stitch wants
+    // the stitchBeneficiaryId it minted (or, for local-only placeholders, the
+    // synthetic `local:...` id).
+    const beneficiary = await this.prisma.stitchBeneficiary.findUnique({
+      where: { id: beneficiaryId },
+    });
+    if (!beneficiary) {
+      throw new Error(`Beneficiary ${beneficiaryId} not found for user ${userId}`);
+    }
+
     const payout = await this.prisma.stitchPayout.create({
       data: {
         userId,
@@ -182,7 +193,13 @@ export class PayoutsService {
 
     try {
       const stitchResult = await this.stitch.createPayout(
-        { amountCents, beneficiaryId: payout.beneficiaryId, merchantReference, speed: this.speed },
+        {
+          amountCents,
+          // Stitch wants the id it minted, NOT our internal FK.
+          beneficiaryId: beneficiary.stitchBeneficiaryId,
+          merchantReference,
+          speed: this.speed,
+        },
         idempotencyKey,
       );
       await this.prisma.stitchPayout.update({
@@ -246,15 +263,20 @@ export class PayoutsService {
         attempts: { lt: 3 },
         OR: [{ nextRetryAt: null }, { nextRetryAt: { lte: now } }],
       },
+      include: { beneficiary: true },
       take: batchSize,
     });
     let retried = 0;
     for (const p of candidates) {
       try {
+        if (!p.beneficiary) {
+          throw new Error(`StitchPayout ${p.id} has no beneficiary loaded`);
+        }
         const result = await this.stitch.createPayout(
           {
             amountCents: p.amountCents,
-            beneficiaryId: p.beneficiaryId,
+            // Use the Stitch-side id (same fix as initiatePayout).
+            beneficiaryId: p.beneficiary.stitchBeneficiaryId,
             merchantReference: p.merchantReference,
             speed: (p.speed as 'INSTANT' | 'DEFAULT') ?? 'DEFAULT',
           },

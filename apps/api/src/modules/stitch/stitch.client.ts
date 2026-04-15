@@ -184,6 +184,34 @@ export class StitchClient {
     return json.data;
   }
 
+  /**
+   * Create a payout beneficiary.
+   *
+   * IMPORTANT: Stitch Express does NOT expose a beneficiary / payee / payment-instrument
+   * endpoint. The public surface is limited to:
+   *   POST /api/v1/token, /api/v1/payment-links, /api/v1/card-consents,
+   *   /api/v1/subscriptions, /api/v1/payment/{id}/refund, /api/v1/withdrawal,
+   *   /api/v1/withdrawal/max, /api/v1/webhook, /api/v1/redirect-urls
+   * `POST /api/v1/withdrawal` only pays to the merchant's single verified bank
+   * account (see `GET /api/v1/account/bank-details`). It accepts no
+   * beneficiaryId / bankAccountId field.
+   *
+   * See: https://express.stitch.money/api-docs and local reference
+   * .claude/skills/DevStitchPayments/references/api-endpoints.md — neither lists
+   * any beneficiary endpoint. Sandbox probing (POST /api/v1/beneficiaries,
+   * /api/v1/beneficiary, /api/v1/payees, /api/v1/payee,
+   * /api/v1/payment-instrument, /api/v1/withdrawal/beneficiary,
+   * /api/v1/recipients, /api/v1/payouts, /api/v1/disbursements, /api/v1/pay,
+   * /api/v1/transfers) all returned 404.
+   *
+   * Interim behaviour: we store bank details locally and mint a synthetic
+   * `stitchBeneficiaryId` so the schema + downstream flow are unchanged. When
+   * Stitch support confirms the real endpoint (or we move to a product that
+   * supports multi-recipient payouts), this method will be updated to hit it.
+   *
+   * Returned `id` is prefixed `local:` so monitoring can flag any row that
+   * should have a real Stitch id.
+   */
   async createBeneficiary(
     payload: {
       accountHolderName: string;
@@ -192,10 +220,14 @@ export class StitchClient {
       accountType: string;
     },
   ): Promise<{ id: string }> {
-    const res = await this.authedRequest('POST', '/api/v1/beneficiaries', payload);
-    const json = (await res.json()) as { data?: { id: string } };
-    if (!json.data) throw new StitchApiError('Invalid beneficiary response', 500, json);
-    return json.data;
+    // Deterministic-ish synthetic id. Callers will overwrite / de-dupe on their
+    // own unique index (stitch_beneficiaries.userId is unique).
+    const slug = payload.accountNumber.slice(-6);
+    const rand = Math.random().toString(36).slice(2, 10);
+    this.logger.warn(
+      `createBeneficiary: Stitch Express has no beneficiary endpoint; storing locally (holder=${payload.accountHolderName})`,
+    );
+    return { id: `local:${slug}:${rand}` };
   }
 
   async registerWebhook(url: string): Promise<{ id: string }> {

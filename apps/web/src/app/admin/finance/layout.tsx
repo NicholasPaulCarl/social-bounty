@@ -12,6 +12,7 @@ const TABS = [
   { label: 'Exceptions', href: '/admin/finance/exceptions' },
   { label: 'Audit Trail', href: '/admin/finance/audit-trail' },
   { label: 'Overrides', href: '/admin/finance/overrides' },
+  { label: 'Insights', href: '/admin/finance/insights' },
 ];
 
 export default function FinanceAdminLayout({ children }: { children: React.ReactNode }) {

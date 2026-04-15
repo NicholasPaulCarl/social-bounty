@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
+import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { KybStatus } from '@social-bounty/shared';
 import { ApiError } from '@/lib/api/client';
 import { formatDateTime } from '@/lib/utils/format';
@@ -41,6 +42,8 @@ export default function BrandKybPage() {
   const [contactEmail, setContactEmail] = useState('');
   const [documentsRef, setDocumentsRef] = useState('');
   const [formError, setFormError] = useState('');
+  // Hard Rule #6 — confirm dialog for non-rollbackable action (NOT_STARTED → PENDING).
+  const [showConfirm, setShowConfirm] = useState(false);
 
   if (!brandId) {
     return (
@@ -58,7 +61,7 @@ export default function BrandKybPage() {
   const status = brand.kybStatus;
   const canSubmit = status === KybStatus.NOT_STARTED || status === KybStatus.REJECTED;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
 
@@ -88,6 +91,13 @@ export default function BrandKybPage() {
       return;
     }
 
+    // Validation passed — open the confirm dialog. The mutation only fires on
+    // explicit confirmation because KYB submission flips the brand into PENDING
+    // and locks edits until a Super Admin reviews.
+    setShowConfirm(true);
+  };
+
+  const handleConfirmSubmit = async () => {
     try {
       await submitKyb.mutateAsync({
         registeredName: registeredName.trim(),
@@ -97,8 +107,10 @@ export default function BrandKybPage() {
         contactEmail: contactEmail.trim(),
         documentsRef: documentsRef.trim() || undefined,
       });
+      setShowConfirm(false);
       toast.showSuccess('KYB submitted. Awaiting Super Admin review.');
     } catch (err) {
+      setShowConfirm(false);
       if (err instanceof ApiError) setFormError(err.message);
       else setFormError("Couldn't submit KYB. Please try again.");
     }
@@ -277,6 +289,17 @@ export default function BrandKybPage() {
           </form>
         </Card>
       )}
+
+      <ConfirmAction
+        visible={showConfirm}
+        onHide={() => setShowConfirm(false)}
+        title="Submit KYB for review?"
+        message="Once submitted, the brand cannot edit KYB details until a Super Admin reviews and either approves or rejects the submission."
+        confirmLabel="Submit for review"
+        confirmSeverity="warning"
+        onConfirm={handleConfirmSubmit}
+        loading={submitKyb.isPending}
+      />
     </div>
   );
 }
