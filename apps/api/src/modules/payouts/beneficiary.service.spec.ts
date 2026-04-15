@@ -86,7 +86,7 @@ describe('BeneficiaryService.upsertForUser — R12/R13 silent-local-fallback gua
       BadRequestException,
     );
     await expect(service.upsertForUser('user-1', input)).rejects.toThrow(
-      /ADR 0007|local fallback|Peach/,
+      /ADR 0008|local fallback|TradeSafe/,
     );
     expect(prisma.stitchBeneficiary.create).not.toHaveBeenCalled();
   });

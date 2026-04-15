@@ -26,6 +26,7 @@ export interface SubscriptionResponseDto {
   currentPeriodStart: string | null;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
+  gracePeriodEndsAt: string | null;
   features: SubscriptionFeaturesDto;
 }
 

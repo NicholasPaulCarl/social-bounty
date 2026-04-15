@@ -202,6 +202,7 @@ export class SubscriptionsService {
       currentPeriodStart: sub?.currentPeriodStart?.toISOString() ?? null,
       currentPeriodEnd: sub?.currentPeriodEnd?.toISOString() ?? null,
       cancelAtPeriodEnd: sub?.cancelAtPeriodEnd ?? false,
+      gracePeriodEndsAt: sub?.gracePeriodEndsAt?.toISOString() ?? null,
       features: buildFeaturesDto(entityType, tier),
     };
   }

@@ -53,11 +53,20 @@ export default function FinanceInsightsPage() {
             const severity = severityForScore(s.score);
             return (
               <Card key={s.system}>
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-4 gap-2">
                   <span className="font-mono text-sm text-text-secondary break-all">
                     {s.system}
                   </span>
-                  <Tag value={severity.toUpperCase()} severity={severity} />
+                  <div className="flex flex-col items-end gap-1">
+                    <Tag value={severity.toUpperCase()} severity={severity} />
+                    {s.ineffectiveFixCount > 0 && (
+                      <Tag
+                        severity="danger"
+                        icon="pi pi-exclamation-triangle"
+                        value={`Ineffective fix${s.ineffectiveFixCount > 1 ? 'es' : ''}`}
+                      />
+                    )}
+                  </div>
                 </div>
 
                 <div className="mb-4">

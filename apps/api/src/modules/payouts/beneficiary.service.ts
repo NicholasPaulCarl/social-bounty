@@ -29,10 +29,10 @@ export class BeneficiaryService {
     this.key = scryptSync(secret, 'stitch-beneficiary', 32);
   }
 
-  // PEACH MIGRATION (ADR 0007): the local-fallback branch (synthetic
-  // `local:{userId}` id when Stitch is disabled) is removed when Peach is
-  // integrated — Peach's beneficiary API returns a real provider id in all
-  // environments, so `stitchBeneficiaryId` becomes `peachBeneficiaryId`.
+  // TRADESAFE MIGRATION (ADR 0008): the local-fallback branch (synthetic
+  // `local:{userId}` id when Stitch is disabled) is removed when TradeSafe is
+  // integrated — TradeSafe's beneficiary API returns a real provider id in all
+  // environments, so `stitchBeneficiaryId` becomes `tradesafeBeneficiaryId`.
   async upsertForUser(userId: string, input: BeneficiaryInput) {
     if (!/^\d{6,20}$/.test(input.accountNumber)) {
       throw new BadRequestException('accountNumber must be 6-20 digits');
@@ -55,8 +55,8 @@ export class BeneficiaryService {
     // KB R12/R13 — silent-local-fallback antipattern.
     //
     // StitchClient.createBeneficiary always mints a synthetic `local:<...>`
-    // id because Stitch Express has no beneficiary endpoint (see ADR 0007 —
-    // Peach Payments migration pending). That is acceptable in
+    // id because Stitch Express has no beneficiary endpoint (see ADR 0008 —
+    // TradeSafe migration pending). That is acceptable in
     // dev / stitch_sandbox because payouts in those envs are exercised
     // against the local flow / test doubles. In production
     // (`PAYMENTS_PROVIDER=stitch_live`) a synthetic id is useless: the
@@ -69,7 +69,7 @@ export class BeneficiaryService {
     const provider = this.config.get<string>('PAYMENTS_PROVIDER', 'none');
     if (provider === 'stitch_live' && stitchBeneficiaryId.startsWith('local:')) {
       throw new BadRequestException(
-        'Beneficiary creation requires a real Stitch beneficiary id but the provider returned a local fallback. ADR 0007: Peach Payments integration pending — payouts are not yet supported in stitch_live.',
+        'Beneficiary creation requires a real TradeSafe beneficiary id but the provider returned a local fallback. ADR 0008: TradeSafe integration pending — payouts are not yet supported in stitch_live.',
       );
     }
 

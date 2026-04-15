@@ -16,6 +16,7 @@ import type { Request } from 'express';
 import { UserRole } from '@social-bounty/shared';
 import { Public, Roles, Audited } from '../../common/decorators';
 import { PrismaService } from '../prisma/prisma.service';
+import { KbService } from '../kb/kb.service';
 import { SvixVerificationError, SvixVerifier } from './svix.verifier';
 import { WebhookEventService } from './webhook-event.service';
 import { WebhookRouterService } from './webhook-router.service';
@@ -30,6 +31,7 @@ export class StitchWebhookController {
     private readonly events: WebhookEventService,
     private readonly router: WebhookRouterService,
     private readonly prisma: PrismaService,
+    private readonly kb: KbService,
   ) {}
 
   /**
@@ -116,6 +118,24 @@ export class StitchWebhookController {
       const message = err instanceof Error ? err.message : String(err);
       await this.events.markFailed(event.id, message, event.attempts + 1);
       this.logger.error(`webhook dispatch failed for ${svixId}: ${message}`);
+      // Feed the failure into the KB so repeated handler errors on the same
+      // (provider, eventType) collapse into one RecurringIssue row with a
+      // bumped occurrence counter. Same shape as reconciliation's call so the
+      // admin dashboard's per-system confidence score can group on `system`.
+      await this.kb
+        .recordRecurrence({
+          category: 'webhook-failure',
+          system: 'webhooks',
+          errorCode: event.eventType,
+          severity: 'warning',
+          title: `Webhook ${event.eventType} failed`,
+          metadata: { svixId, errorMessage: message, system: 'webhooks' },
+        })
+        .catch((kbErr) =>
+          this.logger.warn(
+            `KB record failed: ${kbErr instanceof Error ? kbErr.message : String(kbErr)}`,
+          ),
+        );
     }
 
     return { received: true, duplicate: false };

@@ -86,12 +86,14 @@ describe('StitchWebhookController /replay RBAC contract', () => {
     routerReplay = jest.fn().mockResolvedValue({ ok: true });
     const router = { dispatch: jest.fn(), replay: routerReplay };
     const prisma = {};
+    const kb = { recordRecurrence: jest.fn().mockResolvedValue({ isNew: true, issue: {} }) };
     controller = new StitchWebhookController(
       config as any,
       verifier as any,
       events as any,
       router as any,
       prisma as any,
+      kb as any,
     );
     reflector = new Reflector();
     rolesGuard = new RolesGuard(reflector);

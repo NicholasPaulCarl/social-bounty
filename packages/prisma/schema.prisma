@@ -1402,6 +1402,13 @@ model RecurringIssue {
   kbEntryRef  String?
   metadata    Json?
 
+  // Phase 4 exit criterion: when a resolved KB entry recurs within 90d of
+  // resolution, the entry is auto-flagged as an "Ineffective Fix" by
+  // KbService.flagIneffectiveFix(). Surfaced on admin/finance/insights.
+  ineffectiveFix       Boolean   @default(false)
+  ineffectiveFlaggedAt DateTime?
+  ineffectiveFlaggedBy String?   // actorId of the auto-flagger (system actor)
+
   @@unique([category, signature])
   @@index([resolved, lastSeenAt])
   @@map("recurring_issues")

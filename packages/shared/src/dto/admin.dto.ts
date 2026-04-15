@@ -417,6 +417,9 @@ export interface ConfidenceScore {
   highOpen: number;
   recurrences90d: number;
   failedRecon7d: number;
+  // Count of RecurringIssue rows where ineffectiveFix=true for this system.
+  // UI renders a red "Ineffective fix(es)" Tag when > 0.
+  ineffectiveFixCount: number;
 }
 
 // GET /admin/payments-health

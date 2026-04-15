@@ -112,6 +112,7 @@ export const AUDIT_ACTIONS = {
   WITHDRAWAL_FAIL: 'withdrawal.fail',
   WITHDRAWAL_CANCEL: 'withdrawal.cancel',
   SUBSCRIPTION_AUTO_DOWNGRADE: 'subscription.auto_downgrade',
+  KB_INEFFECTIVE_FIX_FLAGGED: 'KB_INEFFECTIVE_FIX_FLAGGED',
 } as const;
 
 export const ENTITY_TYPES = {

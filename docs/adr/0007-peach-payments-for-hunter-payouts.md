@@ -1,6 +1,6 @@
 # ADR 0007 — Peach Payments for Hunter Payouts (Outbound Rail)
 
-**Status:** Accepted
+**Status:** Superseded by ADR 0008 (2026-04-15). TradeSafe replaces Peach as the outbound rail; no Peach integration work was started, so unwind is documentation-only.
 **Date:** 2026-04-15
 **Supersedes (in part):** ADR 0001 implicitly, by introducing a second provider for the outbound leg.
 

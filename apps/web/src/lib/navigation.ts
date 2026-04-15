@@ -15,6 +15,7 @@ const participantNav: NavItem[] = [
   { label: 'My Submissions', icon: 'pi pi-list', href: '/my-submissions' },
   { label: 'My Disputes', icon: 'pi pi-flag', href: '/my-disputes' },
   { label: 'Wallet', icon: 'pi pi-wallet', href: '/wallet' },
+  { label: 'Subscription', icon: 'pi pi-star', href: '/settings/subscription' },
   { label: 'Profile', icon: 'pi pi-user', href: '/profile' },
 ];
 
@@ -27,6 +28,7 @@ const businessNav: NavItem[] = [
   { label: 'Disputes', icon: 'pi pi-flag', href: '/business/disputes' },
   { label: 'Brands', icon: 'pi pi-building', href: '/business/brands' },
   { label: 'KYB Verification', icon: 'pi pi-id-card', href: '/business/organisation/kyb' },
+  { label: 'Subscription', icon: 'pi pi-star', href: '/business/organisation/subscription' },
   { label: 'Profile', icon: 'pi pi-user', href: '/business/profile' },
 ];
 

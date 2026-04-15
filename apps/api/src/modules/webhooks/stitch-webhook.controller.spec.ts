@@ -4,6 +4,7 @@ import { WebhookProvider, WebhookStatus } from '@prisma/client';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { StitchWebhookController } from './stitch-webhook.controller';
 import { PrismaService } from '../prisma/prisma.service';
+import { KbService } from '../kb/kb.service';
 import { SvixVerifier } from './svix.verifier';
 import { WebhookEventService } from './webhook-event.service';
 import { WebhookRouterService } from './webhook-router.service';
@@ -29,6 +30,8 @@ describe('StitchWebhookController', () => {
   let markProcessedMock: jest.Mock;
   let markFailedMock: jest.Mock;
   let dispatchMock: jest.Mock;
+  let kbRecordMock: jest.Mock;
+  let kb: KbService;
 
   beforeEach(() => {
     verifier = new SvixVerifier();
@@ -46,7 +49,9 @@ describe('StitchWebhookController', () => {
       get: jest.fn((k: string) => (k === 'STITCH_WEBHOOK_SECRET' ? secret : undefined)),
     } as unknown as ConfigService;
     const prisma = { webhookEvent: { findUnique: jest.fn() } } as unknown as PrismaService;
-    controller = new StitchWebhookController(config, verifier, events, router, prisma);
+    kbRecordMock = jest.fn().mockResolvedValue({ isNew: true, issue: {} });
+    kb = { recordRecurrence: kbRecordMock } as unknown as KbService;
+    controller = new StitchWebhookController(config, verifier, events, router, prisma, kb);
   });
 
   function buildRequest(body: string, headers: Record<string, string>) {
@@ -142,5 +147,81 @@ describe('StitchWebhookController', () => {
 
     expect(result).toEqual({ received: true, duplicate: false });
     expect(markFailedMock).toHaveBeenCalledWith('evt_4', 'handler boom', 1);
+  });
+
+  it('routes a dispatch failure through KbService.recordRecurrence with stable (category, system, errorCode)', async () => {
+    // Locks the Phase 4 webhook-failure → KB auto-stub wiring. Stable triple is
+    //   (category='webhook-failure', system='webhooks', errorCode=eventType)
+    // so KbService.signature hashes to the same RecurringIssue on repeat and
+    // the admin dashboard confidence score for `webhooks` can group on
+    // metadata.system.
+    const ts = String(Math.floor(Date.now() / 1000));
+    const body = JSON.stringify({ type: 'payout.failed' });
+    const signature = sign('svix_kb', ts, body, raw);
+    recordMock.mockResolvedValue({
+      event: {
+        id: 'evt_kb',
+        attempts: 0,
+        externalEventId: 'svix_kb',
+        provider: WebhookProvider.STITCH,
+        status: WebhookStatus.RECEIVED,
+        eventType: 'payout.failed',
+      },
+      isDuplicate: false,
+    });
+    dispatchMock.mockRejectedValueOnce(new Error('handler boom'));
+
+    await controller.receive(
+      buildRequest(body, {
+        'svix-id': 'svix_kb',
+        'svix-timestamp': ts,
+        'svix-signature': signature,
+      }),
+    );
+
+    expect(kbRecordMock).toHaveBeenCalledTimes(1);
+    const arg = kbRecordMock.mock.calls[0][0];
+    expect(arg.category).toBe('webhook-failure');
+    expect(arg.system).toBe('webhooks');
+    expect(arg.errorCode).toBe('payout.failed');
+    expect(arg.severity).toBe('warning');
+    expect(arg.title).toContain('payout.failed');
+    expect(arg.metadata).toMatchObject({
+      svixId: 'svix_kb',
+      errorMessage: 'handler boom',
+      system: 'webhooks',
+    });
+  });
+
+  it('swallows KbService errors so a broken KB never 500s the webhook', async () => {
+    // Webhook endpoint must stay 200 on dispatch failure so Svix doesn't retry
+    // storm. Same contract must hold when the KB write itself throws.
+    const ts = String(Math.floor(Date.now() / 1000));
+    const body = JSON.stringify({ type: 'payment.failed' });
+    const signature = sign('svix_kb_err', ts, body, raw);
+    recordMock.mockResolvedValue({
+      event: {
+        id: 'evt_kb_err',
+        attempts: 0,
+        externalEventId: 'svix_kb_err',
+        provider: WebhookProvider.STITCH,
+        status: WebhookStatus.RECEIVED,
+        eventType: 'payment.failed',
+      },
+      isDuplicate: false,
+    });
+    dispatchMock.mockRejectedValueOnce(new Error('handler boom'));
+    kbRecordMock.mockRejectedValueOnce(new Error('kb down'));
+
+    const result = await controller.receive(
+      buildRequest(body, {
+        'svix-id': 'svix_kb_err',
+        'svix-timestamp': ts,
+        'svix-signature': signature,
+      }),
+    );
+
+    expect(result).toEqual({ received: true, duplicate: false });
+    expect(markFailedMock).toHaveBeenCalledWith('evt_kb_err', 'handler boom', 1);
   });
 });

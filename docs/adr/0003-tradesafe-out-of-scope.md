@@ -1,6 +1,6 @@
 # ADR 0003 — TradeSafe Escrow Layer Out of Scope
 
-**Status:** Accepted
+**Status:** Partially superseded by ADR 0008 (2026-04-15) — TradeSafe is now **in scope** as the outbound hunter-payout rail; it remains **out of scope** as a standalone escrow layer sitting alongside the platform reserve.
 **Date:** 2026-04-15
 
 ## Context
