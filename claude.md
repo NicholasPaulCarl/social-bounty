@@ -83,29 +83,36 @@ I) Deployment plan + runbook
 
 ## Current Implementation Status (2026-04-15)
 
-HEAD: `9fbcd8b feat: batch 6 — TradeSafe plan (ADR 0008), Phase 4 complete, holdover gates`. Test state: **1061 tests across 66 suites, 100% green** (Hard Rule #4 held).
+HEAD: `715fc90 feat: batch 14 — close R25, R29, and stale Stripe agent specs`. Test state: **1190 tests across 77 suites, 100% green** (Hard Rule #4 held).
 
 **Live and tested:**
 - **Stitch Express inbound rail** — brand funding (account debit → platform custody), idempotent via `UNIQUE(referenceId, actionType)`, Svix webhook ingestion with replay-safe handling.
 - **Append-only ledger** — double-entry, integer minor units, plan snapshot per transaction, compensating-entry refunds (ADR 0005, 0006).
-- **Reconciliation engine** — daily sweeps, exception feed, fault-injection coverage.
+- **Reconciliation engine** — 7 checks (group balance, duplicate detection, missing legs, status consistency, wallet-projection drift, Stitch-vs-ledger, reserve-vs-bounty). Reserve check runs single GROUP BY (184×–494× faster than per-bounty aggregate). 15-min cadence safe to ~1M paid bounties. Fault-injection coverage for each check.
 - **Finance admin dashboard** — kill switch, reconciliation drill-down, exception review, per-system confidence scores.
-- **KB automation (Phase 4)** — `recordRecurrence` signature-stable and called from reconciliation + webhook-failure paths (`apps/api/src/modules/webhooks/stitch-webhook.controller.ts:125`), Ineffective-Fix auto-flag with AuditLog, `scripts/kb-context.ts` CLI.
-- **Subscription lifecycle (non-billing)** — tier snapshot, auto-downgrade state machine, grace period, self-service cancel-at-period-end UI.
+- **KB automation (Phase 4)** — `recordRecurrence` signature-stable and called from reconciliation + webhook-failure paths, Ineffective-Fix auto-flag with AuditLog, `scripts/kb-context.ts` CLI.
+- **Subscription lifecycle** — tier snapshot, auto-downgrade state machine, grace period, cancel-at-period-end UI, **live Upgrade CTA** wired to Stitch card-consent (POST `/subscription/upgrade` → hosted consent → `subscription_charged` ledger group).
+- **TradeSafe payout adapter scaffold** (batch 10A) — behind `PAYOUT_PROVIDER` flag with mock mode; `PAYOUTS_ENABLED=false` remains the outbound gate; no ledger paths live.
+- **Migration history reconciled** (batch 13A) — fresh-DB `prisma migrate deploy` green from empty Postgres; 16 tables, 16 enums, 23 columns, 56 indexes, 22 FKs brought back into migration history via idempotent SQL; `schema.prisma` untouched; existing envs verified no-op via pg_dump snapshot diff.
+- **Env validation hardened** (batches 13B + 14A) — 9 previously-unchecked flags now typed at boot; `BENEFICIARY_ENC_KEY` required when `PAYOUTS_ENABLED=true` with 32-char minimum + defence-in-depth throw in `BeneficiaryService` constructor; dead `FINANCIAL_KILL_SWITCH` env removed (operator-misleading; real kill switch is `SystemSetting.financial.kill_switch.active`).
 
 **Explicitly gated — do not remove without Team Lead sign-off:**
-- `PAYOUTS_ENABLED=false` — outbound rail is compiled but inert; flipping requires TradeSafe integration (ADR 0008) and a new ADR 0009.
-- **Live Upgrade CTA** — wired as of batch 10 task B. `POST /subscription/upgrade` → Stitch `/api/v1/subscriptions` hosted consent URL; `StitchSubscription` mandate row; `subscription_charged` ledger group (idempotent on `stitchPaymentId`). Requires `PAYMENTS_PROVIDER ≠ none` + `STITCH_CLIENT_*` env wired to activate.
+- `PAYOUTS_ENABLED=false` — outbound rail is compiled and adapter-routed but inert; flipping requires live TradeSafe creds (ADR 0008/0009).
 
 **Out of scope for this MVP cycle:**
-- **TradeSafe integration** (ADR 0008) — the decision is recorded; the adapter, webhook route, and clearance-window reshape are Phase 2 work blocked on ADR 0009.
+- **TradeSafe live integration** (ADR 0009) — adapter scaffolded in batch 10A; live endpoint paths speculative pending commercial onboarding. **R24** in risk register.
 - **Standalone TradeSafe escrow layer** alongside platform custody (ADR 0003, still in force for that scope).
-- **Peach Payments** — superseded by ADR 0008 before any code was written; markers in source now read `TRADESAFE MIGRATION (ADR 0008)` (8 sites).
+- **Peach Payments** — superseded by ADR 0008; markers in source read `TRADESAFE MIGRATION (ADR 0008)` (8 sites).
+
+**Open risks:** R24 (TradeSafe creds — external blocker). R25/R26/R27/R28/R29/R30 closed.
 
 **References for future agents:**
-- `docs/STITCH-IMPLEMENTATION-STATUS.md` — day-by-day implementation log (maintained by agent-architect-7).
-- `docs/adr/0001-stripe-retirement-timing.md` through `docs/adr/0008-tradesafe-for-hunter-payouts.md` — all 8 architectural decisions.
-- `docs/reviews/2026-04-15-team-lead-audit-phases-0-3.md`, `…-batch-2.md`, `…-batch-3.md`, `…-batch-4.md`, `…-batch-5.md`, `…-batch-6.md` — the six prior Team Lead audits.
+- `docs/STITCH-IMPLEMENTATION-STATUS.md` — implementation log.
+- `docs/adr/0001` through `docs/adr/0009` — 9 architectural decisions.
+- `docs/reviews/2026-04-15-team-lead-audit-batch-*.md` — audits for batches 2 through 13 (batch 14 was small-scope, not audited; individual agents self-verified).
+- `docs/reviews/2026-04-15-r28-migration-reconciliation.md` — migration reconciliation evidence.
+- `docs/reviews/2026-04-15-orphan-sweep.md` — codebase hygiene inventory.
+- `docs/perf/2026-04-15-reconciliation-benchmarks.md` — perf report + mitigation evidence.
 
 ---
 
