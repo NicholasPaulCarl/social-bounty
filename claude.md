@@ -36,7 +36,7 @@ Social Bounty is a bounty-based marketplace platform where businesses create tas
 
 User, Brand, BrandMember, Bounty, Submission, AuditLog, FileUpload, LedgerEntry, LedgerTransactionGroup, WebhookEvent, StitchPaymentLink, StitchPayout, StitchBeneficiary, Subscription, SubscriptionPayment, Refund, RecurringIssue, JobRun, SystemSetting.
 
-> Organisation was renamed to Brand in commit `539467e` (2026-04-15). A legacy JWT claim compatibility shim lives in commit `8c50d38` for existing sessions.
+> Organisation was renamed to Brand in commit `539467e` (2026-04-15). A legacy JWT claim compatibility shim lives in commit `8c50d38` for existing sessions. The residual `/business/organisation/*` routes were consolidated into `/business/brands/*` in commit `8e4c21f` (2026-04-16).
 
 ## Project Structure
 
@@ -100,22 +100,26 @@ I) Deployment plan + runbook
 
 ---
 
-## Current Implementation Status (2026-04-15)
+## Current Implementation Status (2026-04-16)
 
-HEAD: `7ea904b fix: admin dashboard returns brands key not organisations`. Test state: **1190 tests across 77 suites, 100% green** (Hard Rule #4 held). Working tree: MD file reorganization staged (see "Documentation layout" below).
+HEAD: `f5353d2 fix: bounty form no longer sneaks proofRequirements into drafts`. Test state: **1453 tests across 85 suites, 100% green** — api 1190 / 77 suites + web 263 / 8 suites (Hard Rule #4 held). Web jest came back online this cycle after a TypeScript 6.0 config fix; it had been silently broken before. Working tree is clean apart from build artifacts (`tsconfig.tsbuildinfo`, `apps/web/test-results/`).
 
 **Live and tested:**
 - **Stitch Express inbound rail** — brand funding (account debit → platform custody), idempotent via `UNIQUE(referenceId, actionType)`, Svix webhook ingestion with replay-safe handling.
 - **Append-only ledger** — double-entry, integer minor units, plan snapshot per transaction, compensating-entry refunds (ADR 0005, 0006).
 - **Reconciliation engine** — 7 checks (group balance, duplicate detection, missing legs, status consistency, wallet-projection drift, Stitch-vs-ledger, reserve-vs-bounty). Reserve check runs single GROUP BY (184×–494× faster than per-bounty aggregate). 15-min cadence safe to ~1M paid bounties. Fault-injection coverage for each check.
-- **Finance admin dashboard** — kill switch, reconciliation drill-down, exception review, per-system confidence scores. Stat-card response key aligned with the Organisation→Brand rename (`data.brands.total`, fixed 2026-04-15).
+- **Finance admin dashboard** — kill switch, reconciliation drill-down, exception review, per-system confidence scores. Stat-card response key aligned with the Organisation→Brand rename (`data.brands.total`, fixed 2026-04-15). `getDashboard()` collapsed from 23 parallel `count()` round-trips to 6 `groupBy` queries (2026-04-16, commit `6e110ca`); response shape byte-identical, ~100-150ms → ~30-50ms dashboard load. Transaction-group drill-down audit log rendered a wrong shape (local type declared `auditLog` as array; backend returns single-or-null); swapped to shared `TransactionGroupDetail` and fixed consumer page (commit `2eb7a0a`).
 - **KB automation (Phase 4)** — `recordRecurrence` signature-stable and called from reconciliation + webhook-failure paths, Ineffective-Fix auto-flag with AuditLog, `scripts/kb-context.ts` CLI.
 - **Subscription lifecycle** — tier snapshot, auto-downgrade state machine, grace period, cancel-at-period-end UI, **live Upgrade CTA** wired to Stitch card-consent (POST `/subscription/upgrade` → hosted consent → `subscription_charged` ledger group).
 - **TradeSafe payout adapter scaffold** (batch 10A) — behind `PAYOUT_PROVIDER` flag with mock mode; `PAYOUTS_ENABLED=false` remains the outbound gate; no ledger paths live.
 - **Migration history reconciled** (batch 13A) — fresh-DB `prisma migrate deploy` green from empty Postgres; 16 tables, 16 enums, 23 columns, 56 indexes, 22 FKs brought back into migration history via idempotent SQL; `schema.prisma` untouched; existing envs verified no-op via pg_dump snapshot diff.
 - **Env validation hardened** (batches 13B + 14A) — 9 previously-unchecked flags now typed at boot; `BENEFICIARY_ENC_KEY` required when `PAYOUTS_ENABLED=true` with 32-char minimum + defence-in-depth throw in `BeneficiaryService` constructor; dead `FINANCIAL_KILL_SWITCH` env removed (operator-misleading; real kill switch is `SystemSetting.financial.kill_switch.active`).
+- **Brand route consolidation** (2026-04-16, commit `8e4c21f`) — completed the half-done Organisation→Brand rename. `edit/`, `kyb/`, `members/`, `subscription/` moved from `/business/organisation/*` to `/business/brands/*` via `git mv` (history preserved); `navigation.ts` hrefs repointed; stale "Organisation" breadcrumbs fixed; redirect shim deleted. `/business/brands/edit/` (single-brand, `user.brandId`) and `/business/brands/[id]/edit/` (multi-brand, URL param) coexist intentionally.
+- **Bounty form proof-requirements integrity** (2026-04-16, commit `f5353d2`) — a partially-landed refactor left four inconsistencies: `INITIAL_FORM_STATE.proofRequirements` seeded with `['url']` (drafts carried a value the user never selected), `buildCreateBountyRequest` defaulted empty arrays to the literal string `'url'` (draft + full), `isSectionComplete('bountyRules')` hardcoded `return true`, and `validateFull` never checked `proofRequirements`. All four fixed; UX change: the "URL" proof checkbox no longer pre-ticks — brands must explicitly select at least one proof type.
+- **Web jest unblocked under TS 6.0** (2026-04-16, commit `a1527ff`) — `apps/web/tsconfig.json` missing `rootDir` (TS5011 promoted to error in 6.0) and ts-jest hard-codes `moduleResolution: Node10` (TS5107 deprecation). Added `rootDir: "./src"` + `ignoreDeprecations: "6.0"`. Web suite went from 8/8 fail at type-check to 8/8 green.
+- **Public website styling reference** (2026-04-16, commit `b8e2ce9`) — `docs/brand/WEBSITE-STYLING.md` captures the implemented marketing-site design (tokens, brand colors, Tailwind tokens, layout anatomy, component patterns, accessibility). Cross-referenced from `docs/brand/BRAND-GUIDELINES.md` and `md-files/DESIGN-SYSTEM.md`. Code remains the source of truth.
 
-**Documentation layout (reorganized 2026-04-15, uncommitted):**
+**Documentation layout (reorganized 2026-04-15, committed in `b4f96ac`):**
 - Repo root now holds only `claude.md`; five loose docs (`AGENTS.md`, `DESIGN-SYSTEM.md`, `RELEASE-NOTES.md`, `SPRINT-PLAN.md`, `payment-gateway-review.docx`) moved into `md-files/`.
 - Nine per-role agent specs moved into `md-files/agents/` (entry point: `md-files/agents/agent-overview.md`).
 - Outdated 2026-03-27 codebase audit archived at `md-files/archive/AUDIT-REPORT-2026-03-27.md`; still cited from `docs/SECURITY-COMPLIANCE.md` and `docs/BACKUP-STRATEGY.md` as historical evidence.
@@ -138,6 +142,7 @@ HEAD: `7ea904b fix: admin dashboard returns brands key not organisations`. Test 
 - `docs/reviews/2026-04-15-r28-migration-reconciliation.md` — migration reconciliation evidence.
 - `docs/reviews/2026-04-15-orphan-sweep.md` — codebase hygiene inventory.
 - `docs/perf/2026-04-15-reconciliation-benchmarks.md` — perf report + mitigation evidence.
+- `docs/brand/WEBSITE-STYLING.md` — implemented styling reference for the public marketing site.
 
 ---
 
