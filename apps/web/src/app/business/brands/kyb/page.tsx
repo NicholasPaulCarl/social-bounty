@@ -117,7 +117,7 @@ export default function BrandKybPage() {
   };
 
   const breadcrumbs = [
-    { label: 'Organisation' },
+    { label: 'Brands', url: '/business/brands' },
     { label: 'KYB' },
   ];
 

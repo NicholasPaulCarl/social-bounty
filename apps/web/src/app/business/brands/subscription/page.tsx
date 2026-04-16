@@ -167,7 +167,7 @@ export default function BrandSubscriptionPage() {
       <PageHeader
         title="Brand Subscription"
         subtitle="Your brand's plan and billing"
-        breadcrumbs={[{ label: 'Organisation' }, { label: 'Subscription' }]}
+        breadcrumbs={[{ label: 'Brands', url: '/business/brands' }, { label: 'Subscription' }]}
       />
 
       {/* Current tier badge — PrimeReact Tag with brand-tier label. */}
