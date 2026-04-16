@@ -17,7 +17,13 @@ import type {
   SubscriptionStatus,
   SubscriptionEntityType,
   AdminPayoutListResponse,
+  TransactionGroupDetail,
+  TransactionGroupDetailEntry,
 } from '@social-bounty/shared';
+
+// Re-export the shared entry type so existing `@/lib/api/finance-admin` imports
+// (e.g. the detail page) keep working without touching every call site.
+export type { TransactionGroupDetailEntry };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
@@ -45,53 +51,11 @@ export interface FinanceSubscriptionListResponse {
   meta: { page: number; limit: number; total: number; totalPages: number };
 }
 
-// TODO: replace with `TransactionGroupDetail` from '@social-bounty/shared'
-// once backend-8 lands it. Shapes mirror the backend's expected response.
-export interface TransactionGroupDetailEntry {
-  id: string;
-  account: string;
-  type: 'DEBIT' | 'CREDIT';
-  amountCents: string;
-  externalReference: string | null;
-  userId: string | null;
-  brandId: string | null;
-  bountyId: string | null;
-  submissionId: string | null;
-  createdAt: string;
-}
-
-export interface TransactionGroupDetailGroup {
-  id: string;
-  referenceId: string;
-  actionType: string;
-  description: string | null;
-  createdAt: string;
-  totalCents?: string;
-}
-
-export interface TransactionGroupDetailAuditLog {
-  id: string;
-  actorId: string | null;
-  actorEmail?: string | null;
-  actorRole?: string | null;
-  action: string;
-  reason: string | null;
-  beforeState: Record<string, unknown> | null;
-  afterState: Record<string, unknown> | null;
-  createdAt: string;
-}
-
-export interface TransactionGroupDetailResponse {
-  group: TransactionGroupDetailGroup;
-  entries: TransactionGroupDetailEntry[];
-  auditLog: TransactionGroupDetailAuditLog[];
-}
-
 export const financeAdminApi = {
   getOverview: (): Promise<FinanceOverviewResponse> =>
     apiClient.get('/admin/finance/overview'),
 
-  getTransactionGroup: (id: string): Promise<TransactionGroupDetailResponse> =>
+  getTransactionGroup: (id: string): Promise<TransactionGroupDetail> =>
     apiClient.get(`/admin/finance/groups/${encodeURIComponent(id)}`),
 
   getInbound: (limit = 50): Promise<InboundFundingRow[]> =>

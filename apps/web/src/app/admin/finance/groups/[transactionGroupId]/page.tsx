@@ -159,12 +159,6 @@ export default function TransactionGroupDetailPage() {
             <div className="text-xs text-text-muted mb-1">Created</div>
             <div className="text-sm">{formatDateTime(group.createdAt)}</div>
           </div>
-          {group.totalCents && (
-            <div>
-              <div className="text-xs text-text-muted mb-1">Total</div>
-              <div className="font-mono text-sm">{formatCents(group.totalCents)}</div>
-            </div>
-          )}
         </div>
         {group.description && (
           <div className="mt-4">
@@ -210,41 +204,37 @@ export default function TransactionGroupDetailPage() {
       </Card>
 
       <Card title="Audit log">
-        {auditLog.length === 0 ? (
-          <p className="text-sm text-text-muted">No audit log entries for this transaction group.</p>
+        {auditLog === null ? (
+          <p className="text-sm text-text-muted">No audit log entry for this transaction group.</p>
         ) : (
-          <div className="space-y-6">
-            {auditLog.map((log) => (
-              <div key={log.id} className="border-b border-glass-border pb-6 last:border-b-0 last:pb-0">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                  <div>
-                    <div className="text-xs text-text-muted mb-1">Actor</div>
-                    <div className="text-sm">
-                      {log.actorEmail || log.actorId || 'system'}
-                      {log.actorRole && (
-                        <span className="text-text-muted text-xs ml-2">({log.actorRole})</span>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-text-muted mb-1">Action</div>
-                    <div className="text-sm font-medium">{log.action}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-text-muted mb-1">When</div>
-                    <div className="text-sm">{formatDateTime(log.createdAt)}</div>
-                  </div>
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+              <div>
+                <div className="text-xs text-text-muted mb-1">Actor</div>
+                <div className="text-sm">
+                  {auditLog.actorId || 'system'}
+                  {auditLog.actorRole && (
+                    <span className="text-text-muted text-xs ml-2">({auditLog.actorRole})</span>
+                  )}
                 </div>
-                {log.reason && (
-                  <div className="mb-3">
-                    <div className="text-xs text-text-muted mb-1">Reason</div>
-                    <p className="text-sm text-text-secondary">{log.reason}</p>
-                  </div>
-                )}
-                <JsonBlock label="Before" value={log.beforeState} />
-                <JsonBlock label="After" value={log.afterState} />
               </div>
-            ))}
+              <div>
+                <div className="text-xs text-text-muted mb-1">Action</div>
+                <div className="text-sm font-medium">{auditLog.action}</div>
+              </div>
+              <div>
+                <div className="text-xs text-text-muted mb-1">When</div>
+                <div className="text-sm">{formatDateTime(auditLog.createdAt)}</div>
+              </div>
+            </div>
+            {auditLog.reason && (
+              <div className="mb-3">
+                <div className="text-xs text-text-muted mb-1">Reason</div>
+                <p className="text-sm text-text-secondary">{auditLog.reason}</p>
+              </div>
+            )}
+            <JsonBlock label="Before" value={auditLog.beforeState} />
+            <JsonBlock label="After" value={auditLog.afterState} />
           </div>
         )}
       </Card>
