@@ -240,12 +240,6 @@ export class SettingsService implements OnModuleInit {
     return setting.value === 'true';
   }
 
-  async getString(key: string, defaultValue: string): Promise<string> {
-    const setting = await this.getSetting(key);
-    if (!setting) return defaultValue;
-    return setting.value;
-  }
-
   // ─── Internals ─────────────────────────────────────────────
 
   private async seedDefaults(): Promise<void> {

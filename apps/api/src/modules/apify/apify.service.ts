@@ -154,14 +154,6 @@ export class ApifyService {
     }
   }
 
-  /**
-   * Back-compat alias — the scheduler still calls refreshForOrganisation.
-   * @deprecated use refreshForBrand
-   */
-  async refreshForOrganisation(brandId: string): Promise<BrandSocialAnalyticsBlob | null> {
-    return this.refreshForBrand(brandId);
-  }
-
   // ─── Private scrapers ─────────────────────────────────────────
 
   private async scrapeInstagram(handle: string | undefined): Promise<BrandSocialAnalyticsCounters> {
