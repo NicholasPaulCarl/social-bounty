@@ -38,7 +38,12 @@ export default function SubmissionDetailPage() {
             <Button
               label="Update Submission"
               icon="pi pi-pencil"
-              onClick={() => router.push(`/my-submissions/${id}/update`)}
+              // Route to the per-format submit page — it detects existing
+              // NEEDS_MORE_INFO submissions and switches into resubmit
+              // mode (verified URLs read-only, only failed URLs editable).
+              // The legacy /my-submissions/[id]/update route was removed
+              // alongside the per-format flow rollout.
+              onClick={() => router.push(`/bounties/${submission.bountyId}/submit`)}
             />
           ) : undefined
         }

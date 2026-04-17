@@ -47,3 +47,7 @@ uploads/
 # Sentry
 .sentryclirc
 .vercel
+
+# Claude Code session artefacts
+.claude/scheduled_tasks.lock
+.claude/worktrees/
