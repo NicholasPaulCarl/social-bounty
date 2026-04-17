@@ -13,8 +13,6 @@ const CURRENCY_SYMBOLS: Record<Currency, string> = {
 interface FormSummaryFooterProps {
   currency: Currency;
   totalRewardValue: number;
-  completedSections: number;
-  totalSections: number;
   onSaveDraft: () => void;
   onCreate: () => void;
   isSaving: boolean;
@@ -24,45 +22,26 @@ interface FormSummaryFooterProps {
 export function FormSummaryFooter({
   currency,
   totalRewardValue,
-  completedSections,
-  totalSections,
   onSaveDraft,
   onCreate,
   isSaving,
   isCreating,
 }: FormSummaryFooterProps) {
   const currencySymbol = CURRENCY_SYMBOLS[currency];
-  const progressPct = totalSections > 0 ? (completedSections / totalSections) * 100 : 0;
 
   return (
     <>
-      {/* Desktop footer — 3-column grid aligned with form above (max-w-4xl) */}
+      {/* Desktop footer — Total Reward + Buttons right-aligned */}
       <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl">
-        <div className="max-w-4xl mx-auto px-0 py-3 grid grid-cols-[1fr_auto_auto] items-center gap-6">
-          {/* Col 1 — Total Reward (left) */}
-          <div className="flex flex-col">
+        <div className="max-w-4xl mx-auto px-0 py-3 flex items-center justify-end gap-6">
+          <div className="flex flex-col items-end">
             <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
             <p className="text-base font-heading font-semibold text-accent-emerald leading-tight">
               <span className="text-text-muted text-sm font-normal mr-1">{currencySymbol}</span>
               {totalRewardValue.toFixed(2)}
             </p>
           </div>
-
-          {/* Col 2 — Progress */}
-          <div className="flex items-center gap-2">
-            <div className="w-24 h-1.5 bg-elevated rounded-full overflow-hidden">
-              <div
-                className="h-full bg-accent-cyan rounded-full transition-all duration-500"
-                style={{ width: `${progressPct}%` }}
-              />
-            </div>
-            <span className="text-sm text-text-muted whitespace-nowrap">
-              <span className="font-medium text-text-secondary">{completedSections}</span>/{totalSections}
-            </span>
-          </div>
-
-          {/* Col 3 — Buttons (right) */}
-          <div className="flex items-center gap-3 justify-end">
+          <div className="flex items-center gap-3">
             <Button label="Save as Draft" outlined onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
             <Button label="Create Bounty" icon="pi pi-check" onClick={onCreate} loading={isCreating} disabled={isSaving} />
           </div>
@@ -78,16 +57,13 @@ export function FormSummaryFooter({
         CreateBountyForm for the matching pb-[calc()] class.
       */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]">
-        <div className="grid grid-cols-[1fr_auto] items-center gap-3 mb-2">
-          <div className="flex flex-col">
+        <div className="flex justify-end mb-2">
+          <div className="flex flex-col items-end">
             <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
             <p className="text-sm font-heading font-semibold text-accent-emerald leading-tight">
               {currencySymbol} {totalRewardValue.toFixed(2)}
             </p>
           </div>
-          <span className="text-xs text-text-muted whitespace-nowrap">
-            {completedSections}/{totalSections} complete
-          </span>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Button label="Save as Draft" outlined className="text-sm" onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />

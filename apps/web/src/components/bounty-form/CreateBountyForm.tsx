@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo, useCallback, useState } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
@@ -157,11 +157,6 @@ export function CreateBountyForm({
   const formRef = useRef<HTMLFormElement>(null);
 
   const { state, dispatch, totalRewardValue, validate, handleBlur, toRequest } = useCreateBountyForm(initialBounty);
-
-  const completedSections = useMemo(
-    () => SECTIONS.filter((s) => isSectionComplete(s.key, state)).length,
-    [state],
-  );
 
   const handleCreate = useCallback(() => {
     if (!validate('full')) {
@@ -491,8 +486,6 @@ export function CreateBountyForm({
       <FormSummaryFooter
         currency={state.currency}
         totalRewardValue={totalRewardValue}
-        completedSections={completedSections}
-        totalSections={SECTIONS.length}
         onSaveDraft={handleDraft}
         onCreate={handleCreate}
         isSaving={isSavingDraft}
