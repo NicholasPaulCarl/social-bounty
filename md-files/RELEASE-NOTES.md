@@ -17,7 +17,7 @@ Social Bounty is a bounty-based marketplace where businesses create tasks with r
 | Role | Purpose | Access |
 |------|---------|--------|
 | **Participant** | Browse bounties, submit proof, track earnings | Default role on signup |
-| **Business Admin** | Create bounties, review submissions, manage payouts | Gained by creating an brand |
+| **Business Admin** | Create bounties, review submissions, manage payouts | Gained by creating a brand |
 | **Super Admin** | Full platform control, user management, system oversight | Seeded manually |
 
 ---

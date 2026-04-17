@@ -177,8 +177,9 @@ export class PaymentsService {
         signature,
         webhookSecret,
       );
-    } catch (err: any) {
-      this.logger.error(`Webhook signature verification failed: ${err.message}`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Webhook signature verification failed: ${message}`);
       throw new BadRequestException('Webhook signature verification failed');
     }
 

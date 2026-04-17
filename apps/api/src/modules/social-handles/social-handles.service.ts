@@ -154,13 +154,14 @@ export class SocialHandlesService {
           },
         });
       }
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error && err.message ? err.message : 'Validation request failed';
       await this.prisma.userSocialHandle.update({
         where: { id: handleId },
         data: {
           status: SocialHandleStatus.FAILED_VALIDATION,
           lastValidatedAt: new Date(),
-          validationError: err.message || 'Validation request failed',
+          validationError: message,
         },
       });
     }
