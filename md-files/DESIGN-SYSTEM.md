@@ -1392,6 +1392,63 @@ The dashboard uses a barely visible gradient that adds depth without distraction
 </div>
 ```
 
+### Mobile Tightening Checklist
+
+Every new component or screen must pass this checklist before merge. Most of the existing component library was built desktop-first; new work must scale *up* from mobile, not down from desktop.
+
+**Typography — scale one step up at `sm:`**
+
+| Role | Mobile | `sm:` and up |
+|---|---|---|
+| Page / section heading | `text-xl` | `sm:text-2xl` |
+| Card title | `text-sm` or `text-base` | `sm:text-base` or `sm:text-lg` |
+| Body copy | `text-sm` | (stay) `text-sm` |
+| Helper / metadata | `text-xs` | (stay) `text-xs` |
+| Display (hero, price) | `text-2xl` or `text-3xl` | `sm:text-3xl` or `sm:text-4xl` |
+
+**Never shrink below `text-sm` (14px) for primary content.** `text-xs` (12px) is reserved for labels, metadata, and uppercase-tracking-wider captions.
+
+**Spacing — tighten at mobile**
+
+| Context | Mobile | `sm:` and up |
+|---|---|---|
+| Card padding (standard) | `p-4` | `sm:p-6` |
+| Card padding (dense, e.g. list cards) | `p-3` | `sm:p-5` |
+| Empty / error state container | `py-10` | `sm:py-16` |
+| Vertical rhythm — tight | `space-y-3` | `sm:space-y-4` |
+| Vertical rhythm — standard | `space-y-4` | `sm:space-y-6` |
+| Vertical rhythm — section | `space-y-6` | `sm:space-y-8` |
+| Page-level form `pb-` | `pb-20` | `sm:pb-24` |
+| Page padding | `px-4 py-4` | `sm:px-6 sm:py-6` / `lg:px-8 lg:py-8` |
+
+**Tap targets — do not shrink**
+
+- Interactive buttons / nav items / icon buttons: **`min-h-[44px] min-w-[44px]`** (WCAG AA, §11.5).
+- Form input heights: leave at PrimeReact default (the `globals.css` override already sets ~40-44px).
+- You may tighten padding *around* inputs (labels, helper text, gaps), but not internal input padding.
+
+**Modals — responsive width**
+
+- PrimeReact `Dialog` fixed `style={{ width: 'NNNpx' }}` overflows small phones. Always pair with `breakpoints={{ '640px': '95vw' }}`.
+- Modal body padding: `p-4 sm:p-6` is the safe default. Action buttons inside modals stay at standard sizing.
+
+**Reference components (copy this pattern)**
+
+- `BountyCard.tsx` — dense card, `p-3 sm:p-5`, `text-sm sm:text-base` title
+- `PageHeaderTitle.tsx` — `text-xl sm:text-2xl` title, `flex-col sm:flex-row`
+- `SectionPanel.tsx` — form section wrapper, `text-sm sm:text-base` title, `space-y-4 sm:space-y-5` body
+- `MainLayout.tsx` — `p-4 md:p-6 lg:p-8` progressive page padding
+- `FormSummaryFooter.tsx` — distinct mobile vs desktop layouts (when scaling isn't enough)
+
+**Smoke test before merge**
+
+At 375×667 (iPhone SE) and 390×844 (iPhone 14):
+- [ ] Primary action visible above the fold on empty/error/form states
+- [ ] No horizontal scroll
+- [ ] Modal fits viewport with visible Cancel + Confirm
+- [ ] Every button / nav target ≥ 44×44px
+- [ ] Heading doesn't dominate (≤ ~30% of visible height)
+
 ---
 
 ## 11. Accessibility in Dark Mode
