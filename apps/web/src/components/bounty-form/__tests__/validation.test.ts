@@ -141,18 +141,26 @@ describe('validateFull', () => {
   });
 
   // Reward validation
-  it('should fail with reward missing name', () => {
+  it('should fail with non-CASH reward missing name', () => {
     const errors = validateFull(makeState({
       ...fullyValidState,
-      rewards: [{ rewardType: RewardType.CASH, name: '', monetaryValue: 100 }],
+      rewards: [{ rewardType: RewardType.PRODUCT, name: '', monetaryValue: 100 }],
     }));
     expect(errors.reward_0_name).toBeDefined();
   });
 
-  it('should fail with reward name exceeding max length', () => {
+  it('should allow CASH reward with empty name (name is auto-filled, input hidden)', () => {
     const errors = validateFull(makeState({
       ...fullyValidState,
-      rewards: [{ rewardType: RewardType.CASH, name: 'a'.repeat(BOUNTY_REWARD_LIMITS.REWARD_NAME_MAX + 1), monetaryValue: 100 }],
+      rewards: [{ rewardType: RewardType.CASH, name: '', monetaryValue: 100 }],
+    }));
+    expect(errors.reward_0_name).toBeUndefined();
+  });
+
+  it('should fail with non-CASH reward name exceeding max length', () => {
+    const errors = validateFull(makeState({
+      ...fullyValidState,
+      rewards: [{ rewardType: RewardType.PRODUCT, name: 'a'.repeat(BOUNTY_REWARD_LIMITS.REWARD_NAME_MAX + 1), monetaryValue: 100 }],
     }));
     expect(errors.reward_0_name).toBeDefined();
   });
@@ -634,10 +642,16 @@ describe('isSectionComplete', () => {
     }))).toBe(true);
   });
 
-  it('should mark bountyContent incomplete with missing reward name', () => {
+  it('should mark bountyContent incomplete with non-CASH reward missing name', () => {
+    expect(isSectionComplete('bountyContent', makeState({
+      rewards: [{ rewardType: RewardType.PRODUCT, name: '', monetaryValue: 50 }],
+    }))).toBe(false);
+  });
+
+  it('should mark bountyContent complete for CASH reward with empty name (name is auto-filled)', () => {
     expect(isSectionComplete('bountyContent', makeState({
       rewards: [{ rewardType: RewardType.CASH, name: '', monetaryValue: 50 }],
-    }))).toBe(false);
+    }))).toBe(true);
   });
 
   it('should mark bountyContent incomplete with zero reward value', () => {

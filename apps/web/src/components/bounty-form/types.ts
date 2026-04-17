@@ -141,7 +141,9 @@ export const INITIAL_FORM_STATE: BountyFormState = {
   postVisibility: null,
   visibilityAcknowledged: false,
   currency: Currency.ZAR,
-  rewards: [{ rewardType: RewardType.CASH, name: '', monetaryValue: 0 }],
+  // CASH rewards use 'Cash' as the auto-filled name (the value + currency
+  // is self-describing); the UI hides the name input entirely for CASH.
+  rewards: [{ rewardType: RewardType.CASH, name: 'Cash', monetaryValue: 0 }],
   payoutMethod: null,
   structuredEligibility: {
     minFollowers: null,

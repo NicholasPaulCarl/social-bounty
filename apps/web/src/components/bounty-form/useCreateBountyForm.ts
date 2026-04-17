@@ -139,7 +139,9 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
     case 'ADD_REWARD':
       return {
         ...state,
-        rewards: [...state.rewards, { rewardType: RewardType.CASH, name: '', monetaryValue: 0 }],
+        // New reward defaults to CASH, so seed name='Cash' to match the
+        // UPDATE_REWARD auto-fill convention (see below).
+        rewards: [...state.rewards, { rewardType: RewardType.CASH, name: 'Cash', monetaryValue: 0 }],
       };
     case 'REMOVE_REWARD': {
       const rewards = state.rewards.filter((_, i) => i !== action.payload);
@@ -148,7 +150,19 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
     case 'UPDATE_REWARD': {
       const rewards = state.rewards.map((r, i) => {
         if (i !== action.payload.index) return r;
-        return { ...r, [action.payload.field]: action.payload.value };
+        const next = { ...r, [action.payload.field]: action.payload.value };
+        // CASH rewards don't need a description — the value + currency is
+        // self-describing. Auto-set name to 'Cash' when switching TO cash,
+        // and clear it when switching FROM cash so the user re-enters a
+        // meaningful name for Product/Service/Other.
+        if (action.payload.field === 'rewardType') {
+          if (action.payload.value === RewardType.CASH) {
+            next.name = 'Cash';
+          } else if (r.rewardType === RewardType.CASH) {
+            next.name = '';
+          }
+        }
+        return next;
       });
       return { ...state, rewards };
     }
@@ -289,7 +303,7 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
               name: r.name,
               monetaryValue: parseFloat(r.monetaryValue),
             }))
-          : [{ rewardType: RewardType.CASH, name: '', monetaryValue: 0 }],
+          : [{ rewardType: RewardType.CASH, name: 'Cash', monetaryValue: 0 }],
         payoutMethod: b.payoutMethod ?? null,
         structuredEligibility: b.structuredEligibility || {
           minFollowers: null,
@@ -327,7 +341,12 @@ export function buildCreateBountyRequest(
   state: BountyFormState,
   mode: 'draft' | 'full' = 'full',
 ): CreateBountyRequest {
-  const filteredRewards = state.rewards.filter((r) => r.name.trim() && r.monetaryValue > 0);
+  // CASH rewards are kept even if the user cleared the auto-filled name
+  // (defensive — the reducer keeps name='Cash' for CASH, but if the
+  // backend ever persists an empty CASH name we still want it to submit).
+  const filteredRewards = state.rewards.filter(
+    (r) => (r.rewardType === RewardType.CASH || r.name.trim()) && r.monetaryValue > 0,
+  );
 
   const hasEligibility = state.structuredEligibility.minFollowers !== null ||
     state.structuredEligibility.publicProfile ||

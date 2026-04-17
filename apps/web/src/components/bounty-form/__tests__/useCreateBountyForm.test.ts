@@ -150,18 +150,19 @@ describe('buildCreateBountyRequest', () => {
       expect(result).not.toHaveProperty('channels');
     });
 
-    it('should filter out incomplete rewards (missing name or zero value)', () => {
+    it('should filter out incomplete rewards (non-CASH missing name, any zero value); keep CASH regardless of name', () => {
       const state = makeState({
         rewards: [
           { rewardType: RewardType.CASH, name: 'Good', monetaryValue: 100 },
-          { rewardType: RewardType.PRODUCT, name: '', monetaryValue: 50 },
-          { rewardType: RewardType.CASH, name: 'Zero', monetaryValue: 0 },
-          { rewardType: RewardType.CASH, name: '  ', monetaryValue: 200 },
+          { rewardType: RewardType.PRODUCT, name: '', monetaryValue: 50 },    // filtered — non-CASH needs name
+          { rewardType: RewardType.CASH, name: 'Zero', monetaryValue: 0 },    // filtered — zero value
+          { rewardType: RewardType.CASH, name: '  ', monetaryValue: 200 },   // kept — CASH skips name check
         ],
       });
       const result = buildCreateBountyRequest(state, 'draft');
       expect(result.rewards).toEqual([
         { rewardType: RewardType.CASH, name: 'Good', monetaryValue: 100 },
+        { rewardType: RewardType.CASH, name: '  ', monetaryValue: 200 },
       ]);
     });
 
@@ -441,7 +442,22 @@ describe('buildCreateBountyRequest', () => {
   // Reward filtering edge cases
   // --------------------------------------------------------------------------
   describe('reward filtering', () => {
-    it('should filter rewards where name is only whitespace', () => {
+    it('should filter non-CASH rewards where name is only whitespace', () => {
+      const result = buildCreateBountyRequest(
+        makeFilledState({
+          rewards: [
+            { rewardType: RewardType.PRODUCT, name: '   ', monetaryValue: 100 },
+            { rewardType: RewardType.PRODUCT, name: 'Valid', monetaryValue: 200 },
+          ],
+        }),
+        'draft',
+      );
+      expect(result.rewards).toEqual([
+        { rewardType: RewardType.PRODUCT, name: 'Valid', monetaryValue: 200 },
+      ]);
+    });
+
+    it('should keep CASH rewards regardless of name (the name input is hidden for CASH)', () => {
       const result = buildCreateBountyRequest(
         makeFilledState({
           rewards: [
@@ -452,6 +468,7 @@ describe('buildCreateBountyRequest', () => {
         'draft',
       );
       expect(result.rewards).toEqual([
+        { rewardType: RewardType.CASH, name: '   ', monetaryValue: 100 },
         { rewardType: RewardType.CASH, name: 'Valid', monetaryValue: 200 },
       ]);
     });
@@ -471,19 +488,19 @@ describe('buildCreateBountyRequest', () => {
       ]);
     });
 
-    it('should require BOTH name and value for a reward to pass the filter', () => {
+    it('should require BOTH name and value for non-CASH rewards to pass the filter', () => {
       const result = buildCreateBountyRequest(
         makeFilledState({
           rewards: [
-            { rewardType: RewardType.CASH, name: 'HasName', monetaryValue: 0 },
-            { rewardType: RewardType.CASH, name: '', monetaryValue: 100 },
-            { rewardType: RewardType.CASH, name: 'Complete', monetaryValue: 75 },
+            { rewardType: RewardType.PRODUCT, name: 'HasName', monetaryValue: 0 },
+            { rewardType: RewardType.PRODUCT, name: '', monetaryValue: 100 },
+            { rewardType: RewardType.PRODUCT, name: 'Complete', monetaryValue: 75 },
           ],
         }),
         'full',
       );
       expect(result.rewards).toEqual([
-        { rewardType: RewardType.CASH, name: 'Complete', monetaryValue: 75 },
+        { rewardType: RewardType.PRODUCT, name: 'Complete', monetaryValue: 75 },
       ]);
     });
   });

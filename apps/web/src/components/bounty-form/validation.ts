@@ -4,6 +4,7 @@ import {
   PAYOUT_METRICS_LIMITS,
   CHANNEL_POST_FORMATS,
   PostVisibilityRule,
+  RewardType,
   SocialChannel,
   PostFormat,
 } from '@social-bounty/shared';
@@ -112,14 +113,18 @@ export function validateFull(state: BountyFormState): Record<string, string> {
   }
 
   // --- Section 5: Rewards ---
+  // CASH rewards skip the name check — the reducer auto-fills name='Cash'
+  // and the UI hides the input (the value + currency is self-describing).
   if (state.rewards.length === 0) {
     errors.rewards = 'At least one reward is required';
   } else {
     state.rewards.forEach((reward, i) => {
-      if (!reward.name.trim()) {
-        errors[`reward_${i}_name`] = 'Reward name is required';
-      } else if (reward.name.length > BOUNTY_REWARD_LIMITS.REWARD_NAME_MAX) {
-        errors[`reward_${i}_name`] = `Reward name must be at most ${BOUNTY_REWARD_LIMITS.REWARD_NAME_MAX} characters`;
+      if (reward.rewardType !== RewardType.CASH) {
+        if (!reward.name.trim()) {
+          errors[`reward_${i}_name`] = 'Reward name is required';
+        } else if (reward.name.length > BOUNTY_REWARD_LIMITS.REWARD_NAME_MAX) {
+          errors[`reward_${i}_name`] = `Reward name must be at most ${BOUNTY_REWARD_LIMITS.REWARD_NAME_MAX} characters`;
+        }
       }
       if (!reward.monetaryValue || reward.monetaryValue <= 0) {
         errors[`reward_${i}_value`] = 'Reward value must be greater than 0';
@@ -264,7 +269,10 @@ export function isSectionComplete(sectionKey: string, state: BountyFormState): b
       return !!state.title.trim() && !!state.shortDescription.trim() && hasInstructions && hasChannelSelection(state);
     }
     case 'bountyContent':
-      return state.rewards.length > 0 && state.rewards.every((r) => r.name.trim() && r.monetaryValue > 0);
+      // CASH rewards skip the name check — see validateFull for rationale.
+      return state.rewards.length > 0 && state.rewards.every(
+        (r) => (r.rewardType === RewardType.CASH || r.name.trim()) && r.monetaryValue > 0,
+      );
     case 'bountyRules':
       return state.proofRequirements.length > 0;
     case 'brandAssets':
