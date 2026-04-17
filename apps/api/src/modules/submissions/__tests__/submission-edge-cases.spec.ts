@@ -13,6 +13,7 @@ import { WalletService } from '../../wallet/wallet.service';
 import { BountyAccessService } from '../../bounty-access/bounty-access.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { ApprovalLedgerService } from '../../ledger/approval-ledger.service';
+import { SubmissionScraperService } from '../submission-scraper.service';
 import {
   UserRole,
   BountyStatus,
@@ -113,6 +114,13 @@ describe('SubmissionsService - Submission Edge Cases', () => {
         create: jest.fn(),
         update: jest.fn(),
       },
+      submissionUrlScrape: {
+        createMany: jest.fn().mockResolvedValue({ count: 0 }),
+        findMany: jest.fn().mockResolvedValue([]),
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+        update: jest.fn().mockResolvedValue({}),
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
       fileUpload: {
         create: jest.fn(),
         deleteMany: jest.fn(),
@@ -147,6 +155,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
         { provide: BountyAccessService, useValue: { canSubmitToBounty: jest.fn().mockResolvedValue(true) } },
         { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
         { provide: ApprovalLedgerService, useValue: { postApproval: jest.fn().mockResolvedValue(undefined) } },
+        { provide: SubmissionScraperService, useValue: { scrapeAndVerify: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

@@ -32,13 +32,36 @@ import { BountyAccessService } from '../bounty-access/bounty-access.service';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { ApprovalLedgerService } from '../ledger/approval-ledger.service';
 import { COMMISSION_RATES, SubscriptionTier, SubscriptionEntityType } from '@social-bounty/shared';
+import type { SubmissionUrlScrapeInfo, ScrapedPostData, VerificationCheck, UrlScrapeStatus } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 import { validateProofLinkCoverage } from './submission-coverage.validator';
+import { SubmissionScraperService } from './submission-scraper.service';
 
-// Empty-array placeholder for the new `urlScrapes` response field.
-// PR 1 introduces the field on all responses; PR 2 (submission-scraper
-// service) populates it with real per-URL rows written in-transaction.
-const EMPTY_URL_SCRAPES: unknown[] = [];
+/**
+ * Map a Prisma SubmissionUrlScrape row to the shared `SubmissionUrlScrapeInfo`
+ * shape used in API responses. Lives at module scope so every response
+ * builder uses identical mapping (one round-trip on every list/detail call).
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatUrlScrape(s: any): SubmissionUrlScrapeInfo {
+  return {
+    id: s.id,
+    url: s.url,
+    channel: s.channel,
+    format: s.format,
+    scrapeStatus: s.scrapeStatus as UrlScrapeStatus,
+    scrapeResult: (s.scrapeResult as ScrapedPostData | null) ?? null,
+    verificationChecks: (s.verificationChecks as VerificationCheck[] | null) ?? null,
+    errorMessage: s.errorMessage ?? null,
+    scrapedAt: s.scrapedAt ? new Date(s.scrapedAt).toISOString() : null,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatUrlScrapes(rows: any[] | undefined | null): SubmissionUrlScrapeInfo[] {
+  if (!Array.isArray(rows)) return [];
+  return rows.map(formatUrlScrape);
+}
 
 const REVIEW_TRANSITIONS: Record<string, string[]> = {
   SUBMITTED: ['IN_REVIEW', 'APPROVED', 'REJECTED', 'NEEDS_MORE_INFO'],
@@ -64,6 +87,7 @@ export class SubmissionsService {
     private bountyAccessService: BountyAccessService,
     private subscriptionsService: SubscriptionsService,
     private approvalLedger: ApprovalLedgerService,
+    private submissionScraper: SubmissionScraperService,
   ) {}
 
   private formatProofImages(images: any[]) {
@@ -126,7 +150,7 @@ export class SubmissionsService {
     // forward, the source of truth is SubmissionUrlScrape rows (PR 2).
     const derivedProofLinks = data.proofLinks.map((p) => p.url);
 
-    // Atomic: check for existing + create in transaction
+    // Atomic: check for existing + create + per-URL scrape rows
     const submission = await this.prisma.$transaction(async (tx) => {
       const existing = await tx.submission.findFirst({
         where: { bountyId, userId: user.sub },
@@ -136,7 +160,7 @@ export class SubmissionsService {
         throw new ConflictException('You already have a submission for this bounty');
       }
 
-      return tx.submission.create({
+      const created = await tx.submission.create({
         data: {
           bountyId,
           userId: user.sub,
@@ -152,6 +176,32 @@ export class SubmissionsService {
           proofImages: true,
         },
       });
+
+      // Persist one SubmissionUrlScrape row per submitted URL so the scraper
+      // service has work to pick up. Status defaults to PENDING; the
+      // background trigger flips them to IN_PROGRESS / VERIFIED / FAILED.
+      if (data.proofLinks.length === 0) {
+        // No URLs to scrape — return the created row directly with empty
+        // urlScrapes (avoids an extra round-trip when there's nothing to
+        // re-read).
+        return { ...created, urlScrapes: [] };
+      }
+
+      await tx.submissionUrlScrape.createMany({
+        data: data.proofLinks.map((p) => ({
+          submissionId: created.id,
+          url: p.url,
+          channel: p.channel,
+          format: p.format,
+        })),
+      });
+
+      // Re-read with urlScrapes so the response carries them on the wire.
+      const withScrapes = await tx.submission.findUnique({
+        where: { id: created.id },
+        include: { proofImages: true, urlScrapes: { orderBy: { createdAt: 'asc' } } },
+      });
+      return withScrapes ?? { ...created, urlScrapes: [] };
     });
 
     this.auditService.log({
@@ -162,6 +212,21 @@ export class SubmissionsService {
       entityId: submission.id,
       afterState: { bountyId, status: submission.status },
       ipAddress,
+    });
+
+    // Fire-and-forget post scrape — never block the create response on
+    // Apify (10-60s actor runs). Failures are logged; the per-URL state
+    // machine surfaces them in the verification panel.
+    const capturedId = submission.id;
+    setImmediate(async () => {
+      try {
+        await this.submissionScraper.scrapeAndVerify(capturedId);
+      } catch (err) {
+        this.logger.error(
+          `Background scrape failed for submission ${capturedId}`,
+          err,
+        );
+      }
     });
 
     return {
@@ -175,7 +240,7 @@ export class SubmissionsService {
       payoutStatus: submission.payoutStatus,
       reportedMetrics: (submission as any).reportedMetrics as ReportedMetricsInput | null ?? null,
       verificationDeadline: (submission as any).verificationDeadline?.toISOString() ?? null,
-      urlScrapes: EMPTY_URL_SCRAPES,
+      urlScrapes: formatUrlScrapes((submission as any).urlScrapes),
       createdAt: submission.createdAt.toISOString(),
     };
   }
@@ -220,6 +285,7 @@ export class SubmissionsService {
             },
           },
           proofImages: true,
+          urlScrapes: { orderBy: { createdAt: 'asc' } },
         },
         skip: (page - 1) * limit,
         take: limit,
@@ -248,7 +314,7 @@ export class SubmissionsService {
         payoutStatus: s.payoutStatus,
         reportedMetrics: (s as any).reportedMetrics as ReportedMetricsInput | null ?? null,
         verificationDeadline: (s as any).verificationDeadline?.toISOString() ?? null,
-        urlScrapes: EMPTY_URL_SCRAPES,
+        urlScrapes: formatUrlScrapes((s as any).urlScrapes),
         createdAt: s.createdAt.toISOString(),
         updatedAt: s.updatedAt.toISOString(),
       })),
@@ -309,6 +375,7 @@ export class SubmissionsService {
             select: { id: true, firstName: true, lastName: true },
           },
           proofImages: true,
+          urlScrapes: { orderBy: { createdAt: 'asc' } },
         },
         skip: (page - 1) * limit,
         take: limit,
@@ -331,7 +398,7 @@ export class SubmissionsService {
         payoutStatus: s.payoutStatus,
         reportedMetrics: (s as any).reportedMetrics as ReportedMetricsInput | null ?? null,
         verificationDeadline: (s as any).verificationDeadline?.toISOString() ?? null,
-        urlScrapes: EMPTY_URL_SCRAPES,
+        urlScrapes: formatUrlScrapes((s as any).urlScrapes),
         createdAt: s.createdAt.toISOString(),
         updatedAt: s.updatedAt.toISOString(),
       })),
@@ -365,6 +432,7 @@ export class SubmissionsService {
           select: { id: true, firstName: true, lastName: true },
         },
         proofImages: true,
+        urlScrapes: { orderBy: { createdAt: 'asc' } },
       },
     });
 
@@ -405,7 +473,7 @@ export class SubmissionsService {
       payoutStatus: submission.payoutStatus,
       reportedMetrics: (submission as any).reportedMetrics as ReportedMetricsInput | null ?? null,
       verificationDeadline: (submission as any).verificationDeadline?.toISOString() ?? null,
-      urlScrapes: EMPTY_URL_SCRAPES,
+      urlScrapes: formatUrlScrapes((submission as any).urlScrapes),
       createdAt: submission.createdAt.toISOString(),
       updatedAt: submission.updatedAt.toISOString(),
     };
@@ -471,28 +539,73 @@ export class SubmissionsService {
       updateData.proofLinks = data.proofLinks.map((p) => p.url);
     }
 
-    const updated = await this.prisma.submission.update({
-      where: { id },
-      data: updateData,
-      include: {
-        bounty: {
-          select: {
-            id: true,
-            title: true,
-            rewardType: true,
-            rewardValue: true,
-            currency: true,
-            brandId: true,
+    // Re-trigger flag — only `true` if URLs changed AND there are
+    // PENDING / FAILED rows after the upsert that need work.
+    let shouldRescrape = false;
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      // Reconcile SubmissionUrlScrape rows with the new proofLinks set:
+      //  - URLs no longer present → delete (drops cached scrape too)
+      //  - New URLs → insert PENDING (scraper picks up)
+      //  - Existing URLs that already match → leave as-is (cache hit)
+      // The unique (submissionId, url) constraint guarantees we can match
+      // on URL alone within a single submission.
+      if (data.proofLinks !== undefined) {
+        const newUrls = new Set(data.proofLinks.map((p) => p.url));
+        const existing = await tx.submissionUrlScrape.findMany({
+          where: { submissionId: id },
+        });
+        const existingUrls = new Set(existing.map((e) => e.url));
+        const toDelete = existing.filter((e) => !newUrls.has(e.url));
+        if (toDelete.length > 0) {
+          await tx.submissionUrlScrape.deleteMany({
+            where: { id: { in: toDelete.map((d) => d.id) } },
+          });
+        }
+        const toInsert = data.proofLinks.filter((p) => !existingUrls.has(p.url));
+        if (toInsert.length > 0) {
+          await tx.submissionUrlScrape.createMany({
+            data: toInsert.map((p) => ({
+              submissionId: id,
+              url: p.url,
+              channel: p.channel,
+              format: p.format,
+            })),
+          });
+          shouldRescrape = true;
+        }
+        // Even with no new URLs, if any existing rows are still PENDING /
+        // FAILED the resubmit should kick the scraper to retry.
+        const stillPending = existing.some(
+          (e) => newUrls.has(e.url) && (e.scrapeStatus === 'PENDING' || e.scrapeStatus === 'FAILED'),
+        );
+        if (stillPending) shouldRescrape = true;
+      }
+
+      return tx.submission.update({
+        where: { id },
+        data: updateData,
+        include: {
+          bounty: {
+            select: {
+              id: true,
+              title: true,
+              rewardType: true,
+              rewardValue: true,
+              currency: true,
+              brandId: true,
+            },
           },
+          user: {
+            select: { id: true, firstName: true, lastName: true, email: true },
+          },
+          reviewedBy: {
+            select: { id: true, firstName: true, lastName: true },
+          },
+          proofImages: true,
+          urlScrapes: { orderBy: { createdAt: 'asc' } },
         },
-        user: {
-          select: { id: true, firstName: true, lastName: true, email: true },
-        },
-        reviewedBy: {
-          select: { id: true, firstName: true, lastName: true },
-        },
-        proofImages: true,
-      },
+      });
     });
 
     this.auditService.log({
@@ -505,6 +618,20 @@ export class SubmissionsService {
       afterState: { status: updated.status },
       ipAddress,
     });
+
+    if (shouldRescrape) {
+      const capturedId = id;
+      setImmediate(async () => {
+        try {
+          await this.submissionScraper.scrapeAndVerify(capturedId);
+        } catch (err) {
+          this.logger.error(
+            `Background re-scrape failed for submission ${capturedId}`,
+            err,
+          );
+        }
+      });
+    }
 
     return {
       id: updated.id,
@@ -527,7 +654,7 @@ export class SubmissionsService {
       payoutStatus: updated.payoutStatus,
       reportedMetrics: (updated as any).reportedMetrics as ReportedMetricsInput | null ?? null,
       verificationDeadline: (updated as any).verificationDeadline?.toISOString() ?? null,
-      urlScrapes: EMPTY_URL_SCRAPES,
+      urlScrapes: formatUrlScrapes((updated as any).urlScrapes),
       createdAt: updated.createdAt.toISOString(),
       updatedAt: updated.updatedAt.toISOString(),
     };
@@ -547,6 +674,7 @@ export class SubmissionsService {
           select: { brandId: true, title: true },
         },
         user: { select: { email: true, firstName: true } },
+        urlScrapes: { orderBy: { createdAt: 'asc' } },
       },
     });
 
@@ -566,6 +694,29 @@ export class SubmissionsService {
       throw new BadRequestException(
         `Cannot transition from ${submission.status} to ${newStatus}`,
       );
+    }
+
+    // Hard approval gate — brand cannot APPROVE until every URL scrape has
+    // verified successfully. Failed / pending URLs surface in `details`
+    // shaped per the established error contract so the frontend can render
+    // a per-URL fix-this list. A submission with no URLs (legacy or
+    // proof-text-only) skips the gate entirely.
+    if (newStatus === SubmissionStatus.APPROVED) {
+      const urlScrapes = submission.urlScrapes ?? [];
+      const incomplete = urlScrapes.filter(
+        (s) => s.scrapeStatus !== 'VERIFIED',
+      );
+      if (incomplete.length > 0) {
+        throw new BadRequestException({
+          message: 'Cannot approve — verification incomplete',
+          details: incomplete.map((s) => ({
+            field: `urlScrapes.${s.id}`,
+            message: `${s.channel} ${s.format}: ${s.scrapeStatus}${
+              s.errorMessage ? ` (${s.errorMessage})` : ''
+            }`,
+          })),
+        });
+      }
     }
 
     const beforeState = {

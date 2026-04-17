@@ -7,18 +7,28 @@ import type {
   BrandSocialAnalyticsBlob,
   BrandSocialAnalyticsCounters,
   BrandSocialLinks,
+  ScrapedPostData,
 } from '@social-bounty/shared';
 import {
   emptyCounters,
   mapFacebookItem,
+  mapFacebookPostItem,
   mapInstagramItem,
+  mapInstagramPostItem,
   mapTiktokItem,
+  mapTiktokPostItem,
   normalizeHandle,
 } from './apify.mappers';
 
 const INSTAGRAM_ACTOR = 'apify/instagram-profile-scraper';
 const FACEBOOK_ACTOR = 'apify/facebook-pages-scraper';
 const TIKTOK_ACTOR = 'clockworks/tiktok-scraper';
+
+const INSTAGRAM_POST_ACTOR = 'apify/instagram-scraper';
+const FACEBOOK_POST_ACTOR = 'apify/facebook-posts-scraper';
+const TIKTOK_POST_ACTOR = 'clockworks/tiktok-scraper';
+
+export type PostScrapeResult = ScrapedPostData | { error: string };
 
 const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24 hours
 // How long a refresh lock is valid before auto-expiring. Sized to be longer
@@ -217,5 +227,146 @@ export class ApifyService {
       this.logger.error(`TikTok scrape failed for @${username}: ${msg}`);
       return emptyCounters(msg);
     }
+  }
+
+  // ─── Post-level scrapers (PR 2: per-URL submission verification) ────
+  //
+  // Each accepts an array of URLs, batches them into a SINGLE actor run
+  // (one billable invocation per channel per submission), and returns a
+  // Map keyed by the original input URL. On per-URL failure we record an
+  // `{ error }` entry rather than throwing — the caller persists those
+  // alongside successful scrapes so brands see a partial verification
+  // report instead of a 500.
+
+  /**
+   * Scrape Instagram posts. Accepts the URLs to pass via `directUrls`.
+   * Returns a Map keyed by the input URL → ScrapedPostData OR `{ error }`.
+   */
+  async scrapeInstagramPosts(
+    urls: string[],
+  ): Promise<Map<string, PostScrapeResult>> {
+    const out = new Map<string, PostScrapeResult>();
+    if (urls.length === 0) return out;
+    if (!this.client) {
+      for (const u of urls) out.set(u, { error: 'Apify not configured' });
+      return out;
+    }
+    try {
+      const run = await this.client.actor(INSTAGRAM_POST_ACTOR).call(
+        {
+          directUrls: urls,
+          resultsType: 'posts',
+          resultsLimit: urls.length,
+        },
+        { waitSecs: this.waitSecs },
+      );
+      const { items } = await this.client
+        .dataset(run.defaultDatasetId)
+        .listItems({ limit: Math.max(urls.length, 50) });
+      // Build URL → item index. Apify items expose the source URL as `url`
+      // (sometimes `inputUrl` for batch runs); match either.
+      for (const url of urls) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const item = items.find((it: any) => it.url === url || it.inputUrl === url);
+        if (!item) {
+          out.set(url, { error: 'No data returned from actor' });
+          continue;
+        }
+        out.set(url, mapInstagramPostItem(item, url));
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      this.logger.error(`Instagram post scrape failed for ${urls.length} URL(s): ${msg}`);
+      for (const u of urls) out.set(u, { error: msg });
+    }
+    return out;
+  }
+
+  /**
+   * Scrape TikTok posts. Uses the same `clockworks/tiktok-scraper` actor
+   * as the profile scraper, but in post mode (`postURLs`).
+   */
+  async scrapeTiktokPosts(
+    urls: string[],
+  ): Promise<Map<string, PostScrapeResult>> {
+    const out = new Map<string, PostScrapeResult>();
+    if (urls.length === 0) return out;
+    if (!this.client) {
+      for (const u of urls) out.set(u, { error: 'Apify not configured' });
+      return out;
+    }
+    try {
+      const run = await this.client.actor(TIKTOK_POST_ACTOR).call(
+        {
+          postURLs: urls,
+          resultsPerPage: Math.max(urls.length, 1),
+        },
+        { waitSecs: this.waitSecs },
+      );
+      const { items } = await this.client
+        .dataset(run.defaultDatasetId)
+        .listItems({ limit: Math.max(urls.length, 50) });
+      for (const url of urls) {
+        // TikTok actor surfaces the post URL as `webVideoUrl` (sometimes
+        // also `videoUrl`). Match either.
+        const item = items.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (it: any) => it.webVideoUrl === url || it.videoUrl === url || it.url === url,
+        );
+        if (!item) {
+          out.set(url, { error: 'No data returned from actor' });
+          continue;
+        }
+        out.set(url, mapTiktokPostItem(item, url));
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      this.logger.error(`TikTok post scrape failed for ${urls.length} URL(s): ${msg}`);
+      for (const u of urls) out.set(u, { error: msg });
+    }
+    return out;
+  }
+
+  /**
+   * Scrape Facebook posts. Known to be flaky on private/limited posts —
+   * we surface per-URL errors but never throw.
+   */
+  async scrapeFacebookPosts(
+    urls: string[],
+  ): Promise<Map<string, PostScrapeResult>> {
+    const out = new Map<string, PostScrapeResult>();
+    if (urls.length === 0) return out;
+    if (!this.client) {
+      for (const u of urls) out.set(u, { error: 'Apify not configured' });
+      return out;
+    }
+    try {
+      const run = await this.client.actor(FACEBOOK_POST_ACTOR).call(
+        {
+          startUrls: urls.map((url) => ({ url })),
+          resultsLimit: urls.length,
+        },
+        { waitSecs: this.waitSecs },
+      );
+      const { items } = await this.client
+        .dataset(run.defaultDatasetId)
+        .listItems({ limit: Math.max(urls.length, 50) });
+      for (const url of urls) {
+        const item = items.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (it: any) => it.url === url || it.postUrl === url || it.facebookUrl === url,
+        );
+        if (!item) {
+          out.set(url, { error: 'Facebook scrape unavailable' });
+          continue;
+        }
+        out.set(url, mapFacebookPostItem(item, url));
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      this.logger.error(`Facebook post scrape failed for ${urls.length} URL(s): ${msg}`);
+      for (const u of urls) out.set(u, { error: 'Facebook scrape unavailable' });
+    }
+    return out;
   }
 }
