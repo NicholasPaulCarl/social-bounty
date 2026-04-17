@@ -114,7 +114,10 @@ export default function ConversationPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Mark as read on mount
+  // Mark as read on mount. `markRead` is a useMutation result that
+  // re-identifies on every render; depending on it would fire the
+  // effect on every render. We only want to mark read when the
+  // conversation id changes.
   useEffect(() => {
     if (id) {
       markRead.mutate();

@@ -18,7 +18,7 @@ import type {
   RewardLineInput,
 } from '@social-bounty/shared';
 import type { BountyFormState, BountyFormAction } from './types';
-import { INITIAL_FORM_STATE, PayoutMethod } from './types';
+import { INITIAL_FORM_STATE } from './types';
 import { validateFull, validateDraft, validateField } from './validation';
 
 // ---------------------------------------------------------------------------
@@ -274,11 +274,9 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         ...state,
         title: b.title,
         shortDescription: b.shortDescription,
-        contentFormat: ((b as unknown as { contentFormat?: ContentFormat }).contentFormat) ?? ContentFormat.BOTH,
+        contentFormat: b.contentFormat ?? ContentFormat.BOTH,
         fullInstructions: b.fullInstructions,
-        instructionSteps: ((b as unknown as { instructionSteps?: string[] }).instructionSteps?.length)
-          ? (b as unknown as { instructionSteps: string[] }).instructionSteps
-          : [''],
+        instructionSteps: b.instructionSteps?.length ? b.instructionSteps : [''],
         channels: b.channels || {},
         aiContentPermitted: b.aiContentPermitted,
         engagementRequirements: b.engagementRequirements || { tagAccount: null, mention: false, comment: false },
@@ -292,9 +290,7 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
               monetaryValue: parseFloat(r.monetaryValue),
             }))
           : [{ rewardType: RewardType.CASH, name: '', monetaryValue: 0 }],
-        payoutMethod: (b as unknown as { payoutMethod?: string }).payoutMethod
-          ? ((b as unknown as { payoutMethod: string }).payoutMethod as PayoutMethod)
-          : null,
+        payoutMethod: b.payoutMethod ?? null,
         structuredEligibility: b.structuredEligibility || {
           minFollowers: null,
           publicProfile: false,
