@@ -75,6 +75,9 @@ describe('LedgerService.postTransactionGroup', () => {
     prisma = {
       $transaction: jest.fn(async (fn: (client: TxMock) => Promise<unknown>) => fn(tx)),
       systemSetting: { findUnique: jest.fn().mockResolvedValue(null) },
+      // Outer-client idempotency pre-check (lives outside the tx so it can
+      // run after a P2002 rollback; see ledger.service.ts).
+      ledgerTransactionGroup: { findUnique: jest.fn().mockResolvedValue(null) },
     };
     service = new LedgerService(prisma as PrismaService);
   });
@@ -126,17 +129,38 @@ describe('LedgerService.postTransactionGroup', () => {
     await expect(service.postTransactionGroup(input)).rejects.toThrow(/must be positive/);
   });
 
-  it('returns existing group id on (referenceId, actionType) conflict (idempotent)', async () => {
-    const p2002 = new Prisma.PrismaClientKnownRequestError('dup', {
-      code: 'P2002',
-      clientVersion: '6.0.0',
-    });
-    tx.ledgerTransactionGroup.create.mockRejectedValueOnce(p2002);
-    tx.ledgerTransactionGroup.findUnique.mockResolvedValueOnce({ id: 'grp_existing' });
+  it('returns existing group id via fast-path pre-check (no tx opened)', async () => {
+    // The common idempotency case: the group already exists when we're called.
+    // We should short-circuit BEFORE opening a tx so a later insert can't
+    // abort it with 25P02 (the bug this fix closes).
+    prisma.ledgerTransactionGroup.findUnique.mockResolvedValueOnce({ id: 'grp_existing' });
 
     const out = await service.postTransactionGroup(baseInput());
 
     expect(out).toEqual({ transactionGroupId: 'grp_existing', idempotent: true });
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(tx.ledgerTransactionGroup.create).not.toHaveBeenCalled();
+    expect(tx.auditLog.create).not.toHaveBeenCalled();
+    expect(tx.ledgerEntry.createMany).not.toHaveBeenCalled();
+  });
+
+  it('returns existing group id when a concurrent writer wins the race (P2002 after pre-check)', async () => {
+    // Race path: the pre-check said "not exists", we opened a tx and tried
+    // to create, another writer got there first, P2002 rolled us back.
+    // The recovery re-read happens on the OUTER client (the tx is gone).
+    const p2002 = new Prisma.PrismaClientKnownRequestError('dup', {
+      code: 'P2002',
+      clientVersion: '6.0.0',
+    });
+    prisma.ledgerTransactionGroup.findUnique
+      .mockResolvedValueOnce(null) // pre-check: not exists yet
+      .mockResolvedValueOnce({ id: 'grp_raced' }); // post-rollback: the winner's row
+    tx.ledgerTransactionGroup.create.mockRejectedValueOnce(p2002);
+
+    const out = await service.postTransactionGroup(baseInput());
+
+    expect(out).toEqual({ transactionGroupId: 'grp_raced', idempotent: true });
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
     expect(tx.auditLog.create).not.toHaveBeenCalled();
     expect(tx.ledgerEntry.createMany).not.toHaveBeenCalled();
   });

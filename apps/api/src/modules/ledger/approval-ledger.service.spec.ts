@@ -258,12 +258,12 @@ describe('ApprovalLedgerService.postApproval', () => {
  * since. The fees snapshotted at first call must not be recomputed on replay.
  *
  * Strategy: wire a REAL LedgerService against a mocked PrismaClient whose
- * $transaction runs the callback with a tx client that:
- *   1. On first call, lets `ledgerTransactionGroup.create` succeed → FREE fees
- *      are posted.
- *   2. On second call, has `ledgerTransactionGroup.create` throw P2002 and
- *      `findUnique` return the existing group → LedgerService returns the
- *      existing transactionGroupId without writing entries or recomputing fees.
+ * outer `ledgerTransactionGroup.findUnique` acts as the fast-path idempotency
+ * check (ADR 0005 — the pre-check that runs before any tx is opened).
+ *   1. On first call, the pre-check returns null, the tx runs, FREE fees are
+ *      posted.
+ *   2. On second call, the pre-check returns the previously-posted group and
+ *      LedgerService short-circuits → no tx is opened, no re-pricing.
  */
 describe('ApprovalLedgerService idempotency — plan snapshot (Non-Negotiable #9)', () => {
   const fees = new FeeCalculatorService();
@@ -296,15 +296,13 @@ describe('ApprovalLedgerService idempotency — plan snapshot (Non-Negotiable #9
     };
 
     // --- Second call (simulating hunter has moved to PRO since) ---
-    // create() throws P2002 → findUnique returns the previously-posted group.
-    const p2002 = new Prisma.PrismaClientKnownRequestError('duplicate', {
-      code: 'P2002',
-      clientVersion: 'test',
-    });
+    // Outer pre-check returns the previously-posted group → LedgerService
+    // short-circuits before ever opening a tx. The secondTx below is a
+    // safety net that MUST NOT be reached.
     const secondTx = {
       ledgerTransactionGroup: {
-        create: jest.fn().mockRejectedValue(p2002),
-        findUnique: jest.fn().mockResolvedValue({ id: 'grp_appr_1' }),
+        create: jest.fn(),
+        findUnique: jest.fn(),
         update: jest.fn(),
       },
       auditLog: { create: jest.fn() },
@@ -313,12 +311,21 @@ describe('ApprovalLedgerService idempotency — plan snapshot (Non-Negotiable #9
     };
 
     let txCall = 0;
+    let findUniqueCall = 0;
     const prisma: any = {
       submission: {
         findUnique: jest.fn().mockResolvedValue(submission),
         update: jest.fn().mockResolvedValue({}),
       },
       systemSetting: { findUnique: jest.fn().mockResolvedValue(null) },
+      ledgerTransactionGroup: {
+        // 1st call: pre-check before the FIRST approval → not posted yet
+        // 2nd call: pre-check before the SECOND approval → already posted
+        findUnique: jest.fn(async () => {
+          findUniqueCall += 1;
+          return findUniqueCall === 1 ? null : { id: 'grp_appr_1' };
+        }),
+      },
       $transaction: jest.fn(async (fn: (tx: unknown) => Promise<unknown>) => {
         txCall += 1;
         return fn(txCall === 1 ? firstTx : secondTx);
@@ -378,9 +385,12 @@ describe('ApprovalLedgerService idempotency — plan snapshot (Non-Negotiable #9
       approverRole: UserRole.BUSINESS_ADMIN,
     });
 
-    // Hit the idempotency path: create threw P2002, findUnique returned existing.
-    expect(secondTx.ledgerTransactionGroup.create).toHaveBeenCalledTimes(1);
-    expect(secondTx.ledgerTransactionGroup.findUnique).toHaveBeenCalledTimes(1);
+    // Hit the idempotency path: the outer pre-check found the group, so no
+    // second tx was opened at all.
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(prisma.ledgerTransactionGroup.findUnique).toHaveBeenCalledTimes(2);
+    expect(secondTx.ledgerTransactionGroup.create).not.toHaveBeenCalled();
+    expect(secondTx.ledgerTransactionGroup.findUnique).not.toHaveBeenCalled();
 
     // Critical: the second call must NOT have written any new ledger entries,
     // audit logs, or group updates — nothing is repriced with the PRO plan.

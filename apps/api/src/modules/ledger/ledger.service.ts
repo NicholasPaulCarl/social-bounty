@@ -120,29 +120,41 @@ export class LedgerService {
       if (active) throw new KillSwitchActiveError();
     }
 
-    const run = async (tx: TxClient) => this.runInTx(tx, input);
-    if (existingTx) return run(existingTx);
-    return this.prisma.$transaction(run);
-  }
-
-  private async runInTx(
-    tx: TxClient,
-    input: PostTransactionGroupInput,
-  ): Promise<PostTransactionGroupResult> {
-    // Header-table idempotency: try to insert, catch P2002, return existing (ADR 0005).
-    let groupId: string;
-    try {
-      const group = await tx.ledgerTransactionGroup.create({
-        data: {
+    // Fast-path idempotency pre-check (ADR 0005). Safe to run against either
+    // the outer client or the caller's tx — it's a pure read. We cannot do
+    // this check *after* a failed insert inside the same tx: Postgres marks
+    // the transaction as aborted (SQLSTATE 25P02) and rejects all subsequent
+    // queries, which historically manifested as a crashloop in ClearanceService.
+    const idempotencyClient = existingTx ?? this.prisma;
+    const existing = await idempotencyClient.ledgerTransactionGroup.findUnique({
+      where: {
+        referenceId_actionType: {
           referenceId: input.referenceId,
           actionType: input.actionType,
-          description: input.description,
         },
-      });
-      groupId = group.id;
+      },
+    });
+    if (existing) {
+      return { transactionGroupId: existing.id, idempotent: true };
+    }
+
+    const run = async (tx: TxClient) => this.runInTx(tx, input);
+    if (existingTx) {
+      // Caller owns the tx. If a concurrent writer races us between the
+      // pre-check above and the create below, we'll throw P2002 and the
+      // caller's whole tx will be aborted — which is the correct outcome:
+      // they must decide how to handle a lost race, we can't do it for them.
+      return run(existingTx);
+    }
+    try {
+      return await this.prisma.$transaction(run);
     } catch (err) {
+      // We own the tx. If a concurrent writer won the race between the
+      // pre-check and our create, the tx is rolled back and the P2002 has
+      // surfaced here — re-read with the outer client (tx is gone) and
+      // return idempotent.
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-        const existing = await tx.ledgerTransactionGroup.findUnique({
+        const raced = await this.prisma.ledgerTransactionGroup.findUnique({
           where: {
             referenceId_actionType: {
               referenceId: input.referenceId,
@@ -150,11 +162,28 @@ export class LedgerService {
             },
           },
         });
-        if (!existing) throw err;
-        return { transactionGroupId: existing.id, idempotent: true };
+        if (raced) return { transactionGroupId: raced.id, idempotent: true };
       }
       throw err;
     }
+  }
+
+  private async runInTx(
+    tx: TxClient,
+    input: PostTransactionGroupInput,
+  ): Promise<PostTransactionGroupResult> {
+    // Create the group header. If another writer snuck in between our
+    // caller's pre-check and this create, P2002 will bubble up; recovery
+    // (re-read + return idempotent) happens in postTransactionGroup AFTER
+    // the tx has rolled back.
+    const group = await tx.ledgerTransactionGroup.create({
+      data: {
+        referenceId: input.referenceId,
+        actionType: input.actionType,
+        description: input.description,
+      },
+    });
+    const groupId = group.id;
 
     // Write audit log in the same transaction (Non-Negotiable #6).
     const audit = await tx.auditLog.create({
