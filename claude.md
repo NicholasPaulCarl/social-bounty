@@ -102,7 +102,7 @@ I) Deployment plan + runbook
 
 ## Current Implementation Status (2026-04-16)
 
-HEAD: `f5353d2 fix: bounty form no longer sneaks proofRequirements into drafts`. Test state: **1453 tests across 85 suites, 100% green** — api 1190 / 77 suites + web 263 / 8 suites (Hard Rule #4 held). Web jest came back online this cycle after a TypeScript 6.0 config fix; it had been silently broken before. Working tree is clean apart from build artifacts (`tsconfig.tsbuildinfo`, `apps/web/test-results/`).
+HEAD: `f5b0fc3 docs: update claude.md status — 2026-04-16 cool-down cleanup`. Test state: **1453 tests across 85 suites, 100% green** — api 1190 / 77 suites + web 263 / 8 suites (Hard Rule #4 held). Web jest came back online this cycle after a TypeScript 6.0 config fix; it had been silently broken before. Working tree is clean apart from build artifacts (`tsconfig.tsbuildinfo`, `apps/web/test-results/`).
 
 **Live and tested:**
 - **Stitch Express inbound rail** — brand funding (account debit → platform custody), idempotent via `UNIQUE(referenceId, actionType)`, Svix webhook ingestion with replay-safe handling.
@@ -138,7 +138,7 @@ HEAD: `f5353d2 fix: bounty form no longer sneaks proofRequirements into drafts`.
 **References for future agents:**
 - `docs/STITCH-IMPLEMENTATION-STATUS.md` — implementation log.
 - `docs/adr/0001` through `docs/adr/0009` — 9 architectural decisions.
-- `docs/reviews/2026-04-15-team-lead-audit-batch-*.md` — audits for batches 2 through 13 (batch 14 was small-scope, not audited; individual agents self-verified).
+- `docs/reviews/2026-04-15-team-lead-audit-batch-*.md` — audits for batches 2–11, 13 (batches 12 & 14 delivered without formal audit write-ups; individual agents self-verified).
 - `docs/reviews/2026-04-15-r28-migration-reconciliation.md` — migration reconciliation evidence.
 - `docs/reviews/2026-04-15-orphan-sweep.md` — codebase hygiene inventory.
 - `docs/perf/2026-04-15-reconciliation-benchmarks.md` — perf report + mitigation evidence.
