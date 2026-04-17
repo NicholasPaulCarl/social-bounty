@@ -41,8 +41,8 @@ export function PayoutActionBar({ currentPayoutStatus, onAction, loading = false
   return (
     <>
       <Card className="mt-4">
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-text-primary">Payout Actions</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="text-base sm:text-lg font-semibold text-text-primary">Payout Actions</h3>
 
           <div>
             <label htmlFor="payout-note" className="block text-sm font-medium text-text-secondary mb-2">

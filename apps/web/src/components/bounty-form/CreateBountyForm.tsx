@@ -1,13 +1,13 @@
 'use client';
 
-import { useRef, useMemo, useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRef, useCallback, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { InputSwitch } from 'primereact/inputswitch';
-import { FIELD_LIMITS, ContentFormat } from '@social-bounty/shared';
+import { Tag } from 'primereact/tag';
+import { FIELD_LIMITS, ContentFormat, BountyAccessType, SocialChannel } from '@social-bounty/shared';
 import type { BountyDetailResponse, CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useCreateBountyForm } from './useCreateBountyForm';
 import { SectionPanel } from './SectionPanel';
@@ -22,7 +22,7 @@ import { PayoutMetricsSection } from './PayoutMetricsSection';
 import { BrandAssetsSection } from './BrandAssetsSection';
 import { AccessTypeSection } from './AccessTypeSection';
 import { FormSummaryFooter } from './FormSummaryFooter';
-import { getSectionErrors, isSectionComplete } from './validation';
+import { getSectionErrors, isSectionComplete, bountyRulesHasContent } from './validation';
 import { SECTIONS } from './types';
 
 // ---------------------------------------------------------------------------
@@ -155,15 +155,9 @@ export function CreateBountyForm({
   onStagedFilesReady,
   readOnlyMode,
 }: CreateBountyFormProps) {
-  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
 
   const { state, dispatch, totalRewardValue, validate, handleBlur, toRequest } = useCreateBountyForm(initialBounty);
-
-  const completedSections = useMemo(
-    () => SECTIONS.filter((s) => isSectionComplete(s.key, state)).length,
-    [state],
-  );
 
   const handleCreate = useCallback(() => {
     if (!validate('full')) {
@@ -189,10 +183,6 @@ export function CreateBountyForm({
     onSaveDraft(toRequest('draft'));
   }, [validate, state.stagedBrandAssetFiles, toRequest, onSaveDraft, onStagedFilesReady]);
 
-  const handleCancel = useCallback(() => {
-    router.push('/business/bounties');
-  }, [router]);
-
   const isLocked = readOnlyMode === 'live';
   const lockedClass = isLocked ? 'opacity-60 pointer-events-none' : '';
 
@@ -200,7 +190,13 @@ export function CreateBountyForm({
     <>
       {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
 
-      <form ref={formRef} className="flex flex-col gap-6 pb-24 md:pb-24 max-w-4xl mx-auto" onSubmit={(e) => e.preventDefault()}>
+      {/*
+        pb clears the fixed FormSummaryFooter height + iOS safe-area inset.
+        Mobile footer ≈ 52px (single row, amount + buttons); desktop ≈ 56px.
+        calc() adds env(safe-area-inset-bottom) so iOS notched devices clear
+        the home-indicator area. See DESIGN-SYSTEM.md §10 (fixed-footer rule).
+      */}
+      <form ref={formRef} className="flex flex-col gap-4 sm:gap-6 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pb-[calc(6rem+env(safe-area-inset-bottom,0px))] max-w-4xl mx-auto" onSubmit={(e) => e.preventDefault()}>
         {/* Section 1: Bounty Information */}
         <div data-section="bountyBasicInfo" className={lockedClass}>
           <SectionPanel
@@ -273,33 +269,66 @@ export function CreateBountyForm({
               <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-2">
                 Accepted Formats <span className="text-accent-rose">*</span>
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {([
-                  { value: ContentFormat.VIDEO_ONLY, label: 'Video Only', icon: 'pi-video', desc: 'Only video content accepted' },
-                  { value: ContentFormat.PHOTO_ONLY, label: 'Photo Only', icon: 'pi-image', desc: 'Only photo content accepted' },
-                  { value: ContentFormat.BOTH, label: 'Both', icon: 'pi-images', desc: 'Video and photo accepted' },
-                ] as const).map(({ value, label, icon, desc }) => {
-                  const selected = state.contentFormat === value;
-                  return (
-                    <div
-                      key={value}
-                      role="button"
-                      tabIndex={0}
-                      className={`border rounded-lg p-4 cursor-pointer transition-colors text-center ${
-                        selected
-                          ? 'border-2 border-accent-cyan bg-accent-cyan/10'
-                          : 'border-glass-border bg-surface hover:border-accent-cyan'
-                      }`}
-                      onClick={() => dispatch({ type: 'SET_CONTENT_FORMAT', payload: value })}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dispatch({ type: 'SET_CONTENT_FORMAT', payload: value }); } }}
-                    >
-                      <i className={`pi ${icon} text-2xl ${selected ? 'text-accent-cyan' : 'text-text-muted'} mb-2`} />
-                      <p className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>{label}</p>
-                      <p className="text-xs text-text-muted mt-0.5">{desc}</p>
-                    </div>
-                  );
-                })}
-              </div>
+              {(() => {
+                const tiktokSelected = SocialChannel.TIKTOK in state.channels;
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {([
+                      { value: ContentFormat.VIDEO_ONLY, label: 'Video Only', icon: 'pi-video', desc: 'Only video content accepted' },
+                      { value: ContentFormat.PHOTO_ONLY, label: 'Photo Only', icon: 'pi-image', desc: 'Only photo content accepted' },
+                      { value: ContentFormat.BOTH, label: 'Both', icon: 'pi-images', desc: 'Video and photo accepted' },
+                    ] as const).map(({ value, label, icon, desc }) => {
+                      const selected = state.contentFormat === value;
+                      // TikTok is a video-only platform: when it's one of the
+                      // selected channels, Photo Only becomes an invalid choice.
+                      const disabled = tiktokSelected && value === ContentFormat.PHOTO_ONLY;
+                      const showTiktokBadge = tiktokSelected && value === ContentFormat.VIDEO_ONLY;
+                      return (
+                        <div
+                          key={value}
+                          role="button"
+                          tabIndex={disabled ? -1 : 0}
+                          aria-disabled={disabled}
+                          className={`relative border rounded-lg p-4 transition-colors text-center ${
+                            disabled
+                              ? 'border-glass-border bg-surface/40 opacity-50 cursor-not-allowed'
+                              : selected
+                                ? 'border-2 border-accent-cyan bg-accent-cyan/10 cursor-pointer'
+                                : 'border-glass-border bg-surface hover:border-accent-cyan cursor-pointer'
+                          }`}
+                          onClick={() => {
+                            if (disabled) return;
+                            dispatch({ type: 'SET_CONTENT_FORMAT', payload: value });
+                          }}
+                          onKeyDown={(e) => {
+                            if (disabled) return;
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              dispatch({ type: 'SET_CONTENT_FORMAT', payload: value });
+                            }
+                          }}
+                        >
+                          {showTiktokBadge && (
+                            <Tag
+                              value="Required for TikTok"
+                              severity="info"
+                              className="absolute top-1.5 right-1.5 text-[10px] py-0 px-1.5"
+                            />
+                          )}
+                          <i className={`pi ${icon} text-2xl ${selected ? 'text-accent-cyan' : 'text-text-muted'} mb-2`} />
+                          <p className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>{label}</p>
+                          <p className="text-xs text-text-muted mt-0.5">{desc}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+              {SocialChannel.TIKTOK in state.channels && (
+                <p className="text-xs text-text-muted mt-2">
+                  TikTok only accepts video — switch to <span className="font-medium">Both</span> if you also want photos from Instagram/Facebook.
+                </p>
+              )}
             </div>
 
             {/* Instruction Steps Builder */}
@@ -375,7 +404,9 @@ export function CreateBountyForm({
           </SectionPanel>
         </div>
 
-        {/* Section 3: Bounty Rules */}
+        {/* Section 3: Bounty Rules — all inputs are optional (proofRequirements
+            is auto-seeded to ['url'] to match the inline notice). Pill reads
+            "Optional" until the brand adds at least one rule. */}
         <div data-section="bountyRules">
           <SectionPanel
             number={3}
@@ -383,6 +414,8 @@ export function CreateBountyForm({
             icon="pi-shield"
             isComplete={isSectionComplete('bountyRules', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyRules', state.errors).length > 0}
+            optional
+            hasContent={bountyRulesHasContent(state)}
           >
             <EligibilityRulesSection
               eligibility={state.structuredEligibility}
@@ -395,8 +428,8 @@ export function CreateBountyForm({
             <div>
               <h4 className="text-sm font-semibold text-text-primary mb-3">Engagement &amp; Visibility</h4>
               <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3 min-w-[14rem]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <div className="flex items-center gap-3 sm:min-w-[14rem]">
                     <InputSwitch
                       checked={state.engagementRequirements.mention || false}
                       onChange={(e) => dispatch({ type: 'SET_MENTION', payload: e.value })}
@@ -404,8 +437,8 @@ export function CreateBountyForm({
                     <span className="text-sm text-text-primary">Hunter must mention brand</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3 min-w-[14rem]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <div className="flex items-center gap-3 sm:min-w-[14rem]">
                     <InputSwitch
                       checked={state.engagementRequirements.comment || false}
                       onChange={(e) => dispatch({ type: 'SET_COMMENT', payload: e.value })}
@@ -415,7 +448,6 @@ export function CreateBountyForm({
                 </div>
                 <PostVisibilitySection
                   postVisibility={state.postVisibility}
-                  visibilityAcknowledged={state.visibilityAcknowledged}
                   dispatch={dispatch}
                   errors={state.errors}
                   submitAttempted={state.submitAttempted}
@@ -447,6 +479,14 @@ export function CreateBountyForm({
             icon="pi-lock"
             isComplete={true}
             hasError={false}
+            optional
+            // hasContent → brand has moved off the default public access
+            // (picked CLOSED or invited specific hunters). Keeping PUBLIC
+            // is the zero-friction default, so it reads as "Optional".
+            hasContent={
+              state.accessType === BountyAccessType.CLOSED ||
+              state.selectedHunters.length > 0
+            }
           >
             <AccessTypeSection
               accessType={state.accessType}
@@ -464,6 +504,12 @@ export function CreateBountyForm({
             icon="pi-images"
             isComplete={isSectionComplete('brandAssets', state)}
             hasError={false}
+            optional
+            // hasContent → user has uploaded or staged at least one asset.
+            hasContent={
+              state.stagedBrandAssetFiles.length > 0 ||
+              (initialBounty?.brandAssets?.length ?? 0) > 0
+            }
           >
             <BrandAssetsSection
               bountyId={initialBounty?.id ?? null}
@@ -478,9 +524,6 @@ export function CreateBountyForm({
       <FormSummaryFooter
         currency={state.currency}
         totalRewardValue={totalRewardValue}
-        completedSections={completedSections}
-        totalSections={SECTIONS.length}
-        onCancel={handleCancel}
         onSaveDraft={handleDraft}
         onCreate={handleCreate}
         isSaving={isSavingDraft}

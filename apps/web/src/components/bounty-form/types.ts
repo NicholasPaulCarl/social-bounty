@@ -33,7 +33,6 @@ export interface BountyFormState {
   aiContentPermitted: boolean;
   engagementRequirements: EngagementRequirementsInput;
   postVisibility: PostVisibilityInput | null;
-  visibilityAcknowledged: boolean;
   currency: Currency;
   rewards: RewardLineInput[];
   payoutMethod: PayoutMethod | null;
@@ -83,7 +82,6 @@ export type BountyFormAction =
   | { type: 'SET_VISIBILITY_RULE'; payload: PostVisibilityRule | null }
   | { type: 'SET_DURATION_VALUE'; payload: number | null }
   | { type: 'SET_DURATION_UNIT'; payload: DurationUnit | null }
-  | { type: 'SET_VISIBILITY_ACKNOWLEDGED'; payload: boolean }
   | { type: 'SET_CURRENCY'; payload: Currency }
   | { type: 'SET_PAYOUT_METHOD'; payload: PayoutMethod | null }
   | { type: 'ADD_REWARD' }
@@ -139,9 +137,10 @@ export const INITIAL_FORM_STATE: BountyFormState = {
     comment: false,
   },
   postVisibility: null,
-  visibilityAcknowledged: false,
   currency: Currency.ZAR,
-  rewards: [{ rewardType: RewardType.CASH, name: '', monetaryValue: 0 }],
+  // CASH rewards use 'Cash' as the auto-filled name (the value + currency
+  // is self-describing); the UI hides the name input entirely for CASH.
+  rewards: [{ rewardType: RewardType.CASH, name: 'Cash', monetaryValue: 0 }],
   payoutMethod: null,
   structuredEligibility: {
     minFollowers: null,
@@ -151,7 +150,11 @@ export const INITIAL_FORM_STATE: BountyFormState = {
     noCompetingBrandDays: null,
     customRules: [],
   },
-  proofRequirements: [],
+  // URL is always required per the inline notice on Section 1
+  // ("Post links are required for all submissions") — seed it so the
+  // validation passes and the form is submittable. Brands can add
+  // 'screenshot' via any future UI without needing this default first.
+  proofRequirements: ['url'],
   maxSubmissions: null,
   startDate: null,
   endDate: null,

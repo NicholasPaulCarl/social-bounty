@@ -51,10 +51,10 @@ function PaymentForm({ amount, currency, onSuccess, onCancel }: PaymentFormProps
   }, [stripe, elements, onSuccess]);
 
   return (
-    <div className="space-y-5">
-      <div className="glass-card p-5 text-center">
+    <div className="space-y-4 sm:space-y-5">
+      <div className="glass-card p-4 sm:p-5 text-center">
         <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Total Amount</p>
-        <p className="text-3xl font-heading font-bold text-accent-emerald">
+        <p className="text-2xl sm:text-3xl font-heading font-bold text-accent-emerald">
           {currency} {amount}
         </p>
       </div>
@@ -104,6 +104,7 @@ export function PaymentDialog({ visible, onHide, clientSecret, amount, currency,
       visible={visible}
       onHide={onHide}
       style={{ width: '480px' }}
+      breakpoints={{ '640px': '95vw' }}
       modal
       closable={false}
       draggable={false}

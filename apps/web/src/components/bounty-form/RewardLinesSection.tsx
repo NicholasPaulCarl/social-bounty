@@ -67,6 +67,15 @@ export function RewardLinesSection({
         />
       </div>
 
+      <div className="mb-2">
+        <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1">
+          Rewards <span className="text-accent-rose">*</span>
+        </label>
+        <p className="text-xs text-text-muted">
+          At least one reward with a value greater than zero is required.
+        </p>
+      </div>
+
       {/* Desktop table layout */}
       <div className="hidden md:block border border-glass-border rounded-lg overflow-hidden">
         <div className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 bg-elevated border-b border-glass-border">
@@ -75,7 +84,9 @@ export function RewardLinesSection({
           <span className="text-xs font-semibold text-text-secondary uppercase">Value ({currencySymbol})</span>
           <span />
         </div>
-        {rewards.map((reward, index) => (
+        {rewards.map((reward, index) => {
+          const isCash = reward.rewardType === RewardType.CASH;
+          return (
           <div
             key={index}
             className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 border-b border-glass-border last:border-b-0 items-center"
@@ -87,20 +98,24 @@ export function RewardLinesSection({
               itemTemplate={rewardTypeTemplate}
               className="w-full"
             />
-            <div>
-              <InputText
-                value={reward.name}
-                onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'name', value: e.target.value } })}
-                className={`w-full ${submitAttempted && errors[`reward_${index}_name`] ? 'p-invalid' : ''}`}
-                placeholder="e.g. Cash reward"
-              />
-              {submitAttempted && errors[`reward_${index}_name`] && (
-                <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
-                  <i className="pi pi-exclamation-circle text-xs" />
-                  {errors[`reward_${index}_name`]}
-                </small>
-              )}
-            </div>
+            {isCash ? (
+              <span className="text-xs text-text-muted italic">No description needed for cash</span>
+            ) : (
+              <div>
+                <InputText
+                  value={reward.name}
+                  onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'name', value: e.target.value } })}
+                  className={`w-full ${submitAttempted && errors[`reward_${index}_name`] ? 'p-invalid' : ''}`}
+                  placeholder="e.g. 3-month gym membership"
+                />
+                {submitAttempted && errors[`reward_${index}_name`] && (
+                  <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+                    <i className="pi pi-exclamation-circle text-xs" />
+                    {errors[`reward_${index}_name`]}
+                  </small>
+                )}
+              </div>
+            )}
             <div>
               <InputNumber
                 value={reward.monetaryValue || null}
@@ -131,12 +146,15 @@ export function RewardLinesSection({
               />
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Mobile card layout */}
       <div className="md:hidden space-y-3">
-        {rewards.map((reward, index) => (
+        {rewards.map((reward, index) => {
+          const isCash = reward.rewardType === RewardType.CASH;
+          return (
           <div key={index} className="space-y-3 p-4 border border-glass-border rounded-lg">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-text-primary">Reward {index + 1}</span>
@@ -157,12 +175,14 @@ export function RewardLinesSection({
               itemTemplate={rewardTypeTemplate}
               className="w-full"
             />
-            <InputText
-              value={reward.name}
-              onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'name', value: e.target.value } })}
-              className={`w-full ${submitAttempted && errors[`reward_${index}_name`] ? 'p-invalid' : ''}`}
-              placeholder="e.g. Cash reward"
-            />
+            {!isCash && (
+              <InputText
+                value={reward.name}
+                onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'name', value: e.target.value } })}
+                className={`w-full ${submitAttempted && errors[`reward_${index}_name`] ? 'p-invalid' : ''}`}
+                placeholder="e.g. 3-month gym membership"
+              />
+            )}
             <InputNumber
               value={reward.monetaryValue || null}
               onValueChange={(e) =>
@@ -176,7 +196,8 @@ export function RewardLinesSection({
               placeholder="0.00"
             />
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {submitAttempted && errors.rewards && (

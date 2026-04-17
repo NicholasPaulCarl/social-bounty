@@ -570,7 +570,11 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
       ).rejects.toThrow(/postVisibilityRule/i);
     });
 
-    it('should fail when visibilityAcknowledged is false', async () => {
+    // "should fail when visibilityAcknowledged is false" removed:
+    // visibilityAcknowledged is no longer a DRAFT->LIVE precondition.
+    // The acknowledgment toggle was removed from the brand UX so the
+    // field is stored but never checked at publish time.
+    it('should succeed when visibilityAcknowledged is false (no longer required)', async () => {
       const draftBounty = baseBountyRecord({
         id: 'bounty-1',
         brandId: 'org-1',
@@ -584,15 +588,17 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
         postVisibilityRule: PostVisibilityRule.MUST_NOT_REMOVE,
         visibilityAcknowledged: false,
         paymentStatus: PaymentStatus.PAID,
+        statusHistory: [],
       });
       prisma.bounty.findUnique.mockResolvedValue(draftBounty);
+      prisma.bountyReward.findMany.mockResolvedValue([baseBountyRewardRecord()]);
+      prisma.bounty.update.mockResolvedValue({
+        ...draftBounty,
+        status: BountyStatus.LIVE,
+      });
 
-      await expect(
-        service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE),
-      ).rejects.toThrow(/visibilityAcknowledged/i);
+      const result = await service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE);
+      expect(result.status).toBe(BountyStatus.LIVE);
     });
 
     it('should include ALL missing fields in the error message', async () => {
@@ -628,7 +634,10 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
         expect(message).toContain('channels');
         expect(message).toContain('postVisibilityRule');
         expect(message).toContain('rewards');
-        expect(message).toContain('visibilityAcknowledged');
+        // visibilityAcknowledged intentionally NOT in this list — the
+        // acknowledgment toggle was removed from the brand UX so the
+        // field is no longer checked at publish time.
+        expect(message).not.toContain('visibilityAcknowledged');
       }
     });
   });

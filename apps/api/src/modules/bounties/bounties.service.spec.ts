@@ -509,18 +509,11 @@ describe('BountiesService', () => {
       );
     });
 
-    it('should reject DRAFT -> LIVE without visibilityAcknowledged', async () => {
-      prisma.bounty.findUnique.mockResolvedValue({
-        ...baseBounty,
-        status: BountyStatus.DRAFT,
-        visibilityAcknowledged: false,
-      });
-      prisma.bountyReward.findMany.mockResolvedValue([baseReward]);
-
-      await expect(
-        service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE),
-      ).rejects.toThrow(BadRequestException);
-    });
+    // visibilityAcknowledged requirement removed from DRAFT->LIVE gating.
+    // The acknowledgment toggle was removed from the brand UX; the field
+    // remains on the Bounty model for historical rows but is no longer
+    // checked on status transitions. Prior test "should reject DRAFT ->
+    // LIVE without visibilityAcknowledged" is intentionally deleted.
   });
 
   // ── update ──────────────────────────────────────────

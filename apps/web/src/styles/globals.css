@@ -494,6 +494,31 @@
 }
 
 /* ──────────────────────────────────────────────
+ * Form-control height normalization (design token)
+ *
+ * All single-line form controls render at exactly 2.5rem (40px) so
+ * inputs sit flush next to each other in mixed layouts — the canonical
+ * case is Duration (InputNumber) + Unit (Dropdown) side by side, but
+ * applies everywhere InputText, InputNumber, Dropdown, MultiSelect,
+ * or Calendar are combined.
+ *
+ * Uses `height` (not just `min-height`) because PrimeReact's lara
+ * theme sets its own padding/min-height per component, leading to
+ * 1–2px rendering drift between InputText and Dropdown. Locking
+ * `height` guarantees pixel-perfect alignment.
+ *
+ * Excluded: `.p-inputtextarea` (textarea tag, not <input>) keeps
+ * its `min-height: 5rem` and grows with content.
+ *
+ * See DESIGN-SYSTEM.md §13 for the canonical rule + rationale.
+ * ────────────────────────────────────────────── */
+input.p-inputtext,
+.p-dropdown,
+.p-multiselect {
+  height: 2.5rem !important;
+}
+
+/* ──────────────────────────────────────────────
  * Horizontal Stepper (InputNumber +/- buttons)
  *
  * Design-system tokens applied:
@@ -723,6 +748,22 @@
   font-size: 0.875rem !important;
 }
 
+/*
+ * PrimeReact's Dropdown renders an internal <input class="p-dropdown-label
+ * p-inputtext"> for keyboard a11y. The global .p-inputtext { border: 1px }
+ * rule cascades to it, producing a visible inner border INSIDE the outer
+ * .p-dropdown border — the reported "double border". Nullify all inner
+ * borders / backgrounds / shadows so only the outer .p-dropdown chrome
+ * renders. The visible label's padding (0.5rem 0.75rem above) is kept.
+ */
+.p-dropdown .p-inputtext,
+.p-dropdown input.p-dropdown-label {
+  background: transparent !important;
+  border: 0 none !important;
+  box-shadow: none !important;
+  min-height: 0 !important;
+}
+
 .p-dropdown:hover:not(.p-focus) {
   border-color: #cbd5e1 !important;
 }
@@ -889,6 +930,43 @@
 
 .p-toast .p-toast-message.p-toast-message-error .p-toast-message-icon {
   color: #e11d48 !important;
+}
+
+/*
+ * Mobile (<640px) — toast container stretches edge-to-edge with a 12px
+ * margin instead of using the desktop fixed 25rem width. Without this
+ * override, "top-right" anchoring + 25rem width pushes the toast off
+ * the right edge on phones (375px and narrower).
+ *
+ * Top position respects env(safe-area-inset-top) so iOS notched devices
+ * don't render the toast under the status bar.
+ *
+ * Long messages wrap inside the constrained width via overflow-wrap.
+ */
+@media (max-width: 640px) {
+  .p-toast {
+    width: auto !important;
+    max-width: calc(100vw - 1.5rem) !important;
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+    top: max(0.75rem, env(safe-area-inset-top, 0.75rem)) !important;
+  }
+
+  .p-toast .p-toast-message {
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .p-toast .p-toast-message .p-toast-message-content {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .p-toast .p-toast-message .p-toast-message-text,
+  .p-toast .p-toast-message .p-toast-summary,
+  .p-toast .p-toast-message .p-toast-detail {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
 }
 
 /* ─── Tooltip ─── */

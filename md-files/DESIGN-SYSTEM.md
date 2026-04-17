@@ -1392,6 +1392,120 @@ The dashboard uses a barely visible gradient that adds depth without distraction
 </div>
 ```
 
+### Mobile Tightening Checklist
+
+Every new component or screen must pass this checklist before merge. Most of the existing component library was built desktop-first; new work must scale *up* from mobile, not down from desktop.
+
+**Typography — scale one step up at `sm:`**
+
+| Role | Mobile | `sm:` and up |
+|---|---|---|
+| Page / section heading | `text-xl` | `sm:text-2xl` |
+| Card title | `text-sm` or `text-base` | `sm:text-base` or `sm:text-lg` |
+| Body copy | `text-sm` | (stay) `text-sm` |
+| Helper / metadata | `text-xs` | (stay) `text-xs` |
+| Display (hero, price) | `text-2xl` or `text-3xl` | `sm:text-3xl` or `sm:text-4xl` |
+
+**Never shrink below `text-sm` (14px) for primary content.** `text-xs` (12px) is reserved for labels, metadata, and uppercase-tracking-wider captions.
+
+**Spacing — tighten at mobile**
+
+| Context | Mobile | `sm:` and up |
+|---|---|---|
+| Card padding (standard) | `p-4` | `sm:p-6` |
+| Card padding (dense, e.g. list cards) | `p-3` | `sm:p-5` |
+| Empty / error state container | `py-10` | `sm:py-16` |
+| Vertical rhythm — tight | `space-y-3` | `sm:space-y-4` |
+| Vertical rhythm — standard | `space-y-4` | `sm:space-y-6` |
+| Vertical rhythm — section | `space-y-6` | `sm:space-y-8` |
+| Page-level form `pb-` (no fixed footer) | `pb-20` | `sm:pb-24` |
+| Page-level form `pb-` (above `fixed bottom-0` footer) | `pb-[calc(8rem+env(safe-area-inset-bottom,0px))]` | `sm:pb-[calc(6rem+env(safe-area-inset-bottom,0px))]` |
+| Page padding | `px-4 py-4` | `sm:px-6 sm:py-6` / `lg:px-8 lg:py-8` |
+
+**Tap targets — do not shrink**
+
+- Interactive buttons / nav items / icon buttons: **`min-h-[44px] min-w-[44px]`** (WCAG AA, §11.5).
+- Form input heights: **fixed at `2.5rem` (40px)** via the global rule on `input.p-inputtext, .p-dropdown, .p-multiselect` — see §13.6. Do **not** override per-component with `h-*` Tailwind classes; let the token own it. `InputTextarea` is the only exception (grows with content, `min-height: 5rem`).
+- You may tighten padding *around* inputs (labels, helper text, gaps), but not internal input padding.
+
+**Modals — responsive width**
+
+- PrimeReact `Dialog` fixed `style={{ width: 'NNNpx' }}` overflows small phones. Always pair with `breakpoints={{ '640px': '95vw' }}`.
+- Modal body padding: `p-4 sm:p-6` is the safe default. Action buttons inside modals stay at standard sizing.
+
+**Fixed-footer pages — clearance + iOS safe-area**
+
+A `fixed bottom-0` footer (e.g. `FormSummaryFooter`, action bars) takes no space in flow, so the scrollable content above it must pad for the footer's height **plus** the iOS home-indicator area on notched devices, or the last form field / CTA gets hidden.
+
+```tsx
+// Footer — absorbs iOS safe-area into its own bottom padding so the
+// Create button stays tappable above the home indicator.
+<div className="fixed bottom-0 left-0 right-0 z-40 px-3 pt-3
+                pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]">
+  ...
+</div>
+
+// Consumer content above the footer — pads by footer height + safe-area.
+// 8rem mobile covers a ~108px two-row footer; 6rem desktop covers a ~64px
+// single-row footer. Tune the rem values per footer.
+<form className="pb-[calc(8rem+env(safe-area-inset-bottom,0px))]
+                sm:pb-[calc(6rem+env(safe-area-inset-bottom,0px))]">
+  ...
+</form>
+```
+
+Rules:
+- **Never** rely on a plain Tailwind `pb-20` / `pb-24` above a fixed footer — on iOS notched devices the home indicator adds ~34px that the number doesn't account for.
+- The footer's own `pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]` makes buttons reachable; without it, tapping the bottom 34px falls through to the OS.
+- When footer content changes (adding/removing button rows), re-measure and update both the footer's intrinsic height and the consumer's `pb-[calc()]` value together.
+
+**Toggle + revealed input rows — stack on mobile**
+
+A recurring pattern in forms: an `InputSwitch` toggles a conditional `InputText` / `InputNumber` / `Dropdown` beside it. On a 375px viewport with standard page + card padding (~311px content width), a fixed-width label cluster (e.g. `min-w-[14rem]` = 224px) plus a 128px revealed input overflows by ~57px → horizontal scroll.
+
+```tsx
+// ❌ Wrong — fixed 224px label column + revealed input = overflow on mobile
+<div className="flex items-center gap-4">
+  <div className="flex items-center gap-3 min-w-[14rem]">
+    <InputSwitch ... />
+    <span className="text-sm">Minimum followers</span>
+  </div>
+  {enabled && <InputNumber className="w-32" ... />}
+</div>
+
+// ✅ Right — stack vertically on mobile, horizontal cluster on sm+
+<div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+  <div className="flex items-center gap-3 sm:min-w-[14rem]">
+    <InputSwitch ... />
+    <span className="text-sm">Minimum followers</span>
+  </div>
+  {enabled && <InputNumber className="w-32" ... />}
+</div>
+```
+
+Rules:
+- Outer row: `flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4`
+- Label cluster: drop the `min-w-[14rem]` floor on mobile — use `sm:min-w-[14rem]` only
+- Full-width revealed text inputs: `w-full sm:flex-1` (so they fill the stacked mobile width, then flex on desktop)
+- Fixed-width numeric revealed inputs (`w-32`, `w-28`): leave as-is — they'll sit left-aligned below the toggle on mobile, which reads fine
+
+**Reference components (copy this pattern)**
+
+- `BountyCard.tsx` — dense card, `p-3 sm:p-5`, `text-sm sm:text-base` title
+- `PageHeaderTitle.tsx` — `text-xl sm:text-2xl` title, `flex-col sm:flex-row`
+- `SectionPanel.tsx` — form section wrapper, `text-sm sm:text-base` title, `space-y-4 sm:space-y-5` body
+- `MainLayout.tsx` — `p-4 md:p-6 lg:p-8` progressive page padding
+- `FormSummaryFooter.tsx` — distinct mobile vs desktop layouts (when scaling isn't enough)
+
+**Smoke test before merge**
+
+At 375×667 (iPhone SE) and 390×844 (iPhone 14):
+- [ ] Primary action visible above the fold on empty/error/form states
+- [ ] No horizontal scroll
+- [ ] Modal fits viewport with visible Cancel + Confirm
+- [ ] Every button / nav target ≥ 44×44px
+- [ ] Heading doesn't dominate (≤ ~30% of visible height)
+
 ---
 
 ## 11. Accessibility in Dark Mode
@@ -1821,6 +1935,30 @@ PrimeReact's Lara theme uses CSS variables. Override these in your global styles
 }
 ```
 
+### 13.6 Form-Control Height (design token)
+
+All single-line form controls render at exactly **2.5rem (40px)**. This is a design-system contract: when any of `InputText`, `InputNumber`, `Dropdown`, `MultiSelect`, or `Calendar` sit next to each other (Duration + Unit, reward Type + Name + Value, filter bar), their heights must be pixel-identical.
+
+```css
+/* Single-line form controls render at exactly 40px */
+input.p-inputtext,
+.p-dropdown,
+.p-multiselect {
+  height: 2.5rem !important;
+}
+```
+
+**Why `height`, not `min-height`**: PrimeReact's lara theme sets its own padding + min-height per component (`.p-dropdown` vs `.p-inputtext` differ by 2px internally), producing 1–2px drift visible wherever two different control types are rendered in the same row. `height: 2.5rem !important` forces exact alignment.
+
+**Selector notes:**
+- `input.p-inputtext` matches the `<input>` element itself, covering standalone InputText, Password, Calendar's internal input, and InputNumber's inner input (which also carries `.p-inputnumber-input`).
+- `<textarea class="p-inputtext p-inputtextarea">` is **not** matched (tagname is `textarea`), so textareas keep their `min-height: 5rem` and grow with content.
+- `.p-dropdown` and `.p-multiselect` are wrapper divs; children stretch vertically via `inline-flex` default.
+
+**Do not** set component-local heights (e.g. `className="h-10"`) on these controls — let the global rule own the height, and use Tailwind only for **width**, **padding around the control**, or **label+input stacks**. This keeps the design token in one place and prevents pixel drift.
+
+**Related tap-target note (§11.5 / §10):** the 44px tap-target minimum applies to **buttons, nav items, and interactive icons** — not to form inputs. A 40px text input is WCAG-compliant (users interact with text, not tap area) and standard across major design systems (Material, Ant, HIG).
+
 ### 13.6 Additional Component Overrides
 
 ```css
@@ -1877,6 +2015,20 @@ PrimeReact's Lara theme uses CSS variables. Override these in your global styles
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
   border-radius: 8px !important;
   color: #f1f5f9 !important;
+}
+
+/*
+ * Dropdown renders an internal <input class="p-dropdown-label p-inputtext">
+ * for keyboard a11y. The global .p-inputtext border cascades to it and
+ * creates a visible inner border INSIDE the outer .p-dropdown border.
+ * Always nullify to avoid a double-border visual.
+ */
+.p-dropdown .p-inputtext,
+.p-dropdown input.p-dropdown-label {
+  background: transparent !important;
+  border: 0 none !important;
+  box-shadow: none !important;
+  min-height: 0 !important;
 }
 
 .p-dropdown-panel {

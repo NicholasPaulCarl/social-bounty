@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBrand } from '@/hooks/useBrand';
 import { CreateBountyForm } from '@/components/bounty-form';
 import { bountyApi } from '@/lib/api/bounties';
+import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
 import type { CreateBountyRequest } from '@social-bounty/shared';
 import { useState } from 'react';
 
@@ -19,6 +20,10 @@ export default function CreateBountyPage() {
   const createBounty = useCreateBounty();
   const [formError, setFormError] = useState('');
   const [isDraftSave, setIsDraftSave] = useState(false);
+  // isFunding covers the gap between the create-bounty mutation settling
+  // and the Stitch hosted redirect firing — keeps the Create Bounty
+  // button in its loading state across both steps.
+  const [isFunding, setIsFunding] = useState(false);
   const stagedFilesRef = useRef<File[]>([]);
 
   const uploadStagedFiles = async (bountyId: string) => {
@@ -49,8 +54,40 @@ export default function CreateBountyPage() {
     createBounty.mutate(data, {
       onSuccess: async (res) => {
         await uploadStagedFiles(res.id);
-        toast.showSuccess('Bounty created! Ready to go live.');
-        router.push(`/business/bounties/${res.id}`);
+        // Go straight to the Stitch hosted checkout — no detour through the
+        // detail page. Mirrors the "Go Live" flow on the detail page
+        // (/business/bounties/[id] handleStatusChange DRAFT→LIVE).
+        setIsFunding(true);
+        try {
+          const payerName =
+            `${user?.firstName ?? ''} ${user?.lastName ?? ''}`
+              .trim()
+              .slice(0, 40) || 'Brand Admin';
+          const { hostedUrl } = await bountyApi.fundBounty(res.id, {
+            payerName,
+            payerEmail: user?.email,
+          });
+          // Helper handles the same-page redirect in production and the
+          // new-tab open in dev (preview iframes block external nav).
+          // It also stashes bountyId in sessionStorage either way so the
+          // /funded page can resolve the bounty on return.
+          redirectToHostedCheckout(hostedUrl, res.id, {
+            onDevNotice: (msg) => toast.showInfo(msg),
+            onDevSettled: () => setIsFunding(false),
+          });
+          // In production the page unloads here; in dev the helper opens
+          // a new tab and the brand stays on the form (isFunding cleared
+          // by onDevSettled).
+        } catch (err) {
+          // Bounty is already created as DRAFT; payment setup failed. Take
+          // the brand to the detail page so they can retry via "Go Live".
+          const message = err instanceof Error ? err.message : 'Unknown error';
+          toast.showError(
+            `Bounty saved as draft, but we couldn't start payment: ${message}. Try "Go Live" on the bounty detail page.`,
+          );
+          setIsFunding(false);
+          router.push(`/business/bounties/${res.id}`);
+        }
       },
       onError: (err) => {
         setFormError(`Couldn't create bounty: ${extractErrorMessage(err)}`);
@@ -92,7 +129,7 @@ export default function CreateBountyPage() {
       <CreateBountyForm
         onSubmit={handleSubmit as (data: unknown) => void}
         onSaveDraft={handleSaveDraft as (data: unknown) => void}
-        isSubmitting={!isDraftSave && createBounty.isPending}
+        isSubmitting={!isDraftSave && (createBounty.isPending || isFunding)}
         isSavingDraft={isDraftSave && createBounty.isPending}
         formError={formError}
         onStagedFilesReady={handleStagedFilesReady}

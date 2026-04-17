@@ -57,11 +57,11 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-4">
         <p className="text-sm text-text-secondary">
           Upload logos, banners, and brand guidelines for Hunters to download.
         </p>
-        <span className="text-sm text-text-muted whitespace-nowrap ml-4">
+        <span className="text-sm text-text-muted whitespace-nowrap">
           {totalFiles} / {BRAND_ASSET_LIMITS.MAX_FILES_PER_BOUNTY} files
         </span>
       </div>
@@ -93,20 +93,23 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
       {stagedFiles.length > 0 && (
         <div className="border border-glass-border rounded-md divide-y divide-glass-border">
           {stagedFiles.map((file, index) => (
-            <div key={`staged-${index}`} className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <i className={`pi ${file.type === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-text-muted`} />
-                <div className="min-w-0">
+            <div key={`staged-${index}`} className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <i className={`pi ${file.type === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-text-muted shrink-0`} />
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-text-primary truncate">{file.name}</p>
-                  <p className="text-xs text-text-muted">{formatBytes(file.size)}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-xs text-text-muted">{formatBytes(file.size)}</p>
+                    <Tag value="Pending" severity="warning" className="text-xs py-0 px-1.5 shrink-0" />
+                  </div>
                 </div>
-                <Tag value="Pending" severity="warning" className="ml-2" />
               </div>
               <Button
                 icon="pi pi-times"
                 severity="danger"
                 text
                 size="small"
+                className="shrink-0"
                 onClick={() => dispatch({ type: 'REMOVE_STAGED_BRAND_ASSET', payload: index })}
               />
             </div>
@@ -118,10 +121,10 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
       {brandAssets.length > 0 && (
         <div className="border border-glass-border rounded-md divide-y divide-glass-border">
           {brandAssets.map((asset) => (
-            <div key={asset.id} className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <i className={`pi ${asset.mimeType === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-text-muted`} />
-                <div className="min-w-0">
+            <div key={asset.id} className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <i className={`pi ${asset.mimeType === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-text-muted shrink-0`} />
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-text-primary truncate">{asset.fileName}</p>
                   <p className="text-xs text-text-muted">{formatBytes(asset.fileSize)}</p>
                 </div>
@@ -131,6 +134,7 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
                 severity="danger"
                 text
                 size="small"
+                className="shrink-0"
                 onClick={() => handleDelete(asset.id)}
                 loading={deleteMutation.isPending && deleteMutation.variables === asset.id}
               />

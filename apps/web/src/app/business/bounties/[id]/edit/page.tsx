@@ -3,13 +3,16 @@
 import { useRouter, useParams } from 'next/navigation';
 import { useBounty, useUpdateBounty } from '@/hooks/useBounties';
 import { useToast } from '@/hooks/useToast';
+import { useAuth } from '@/hooks/useAuth';
 import { Message } from 'primereact/message';
 import { Button } from 'primereact/button';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { CreateBountyForm } from '@/components/bounty-form';
-import { BountyStatus } from '@social-bounty/shared';
+import { bountyApi } from '@/lib/api/bounties';
+import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
+import { BountyStatus, PaymentStatus } from '@social-bounty/shared';
 import type { CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useState } from 'react';
 
@@ -18,11 +21,16 @@ export default function EditBountyPage() {
   const params = useParams();
   const id = params.id as string;
   const toast = useToast();
+  const { user } = useAuth();
 
   const { data: bounty, isLoading, error, refetch } = useBounty(id);
   const updateBounty = useUpdateBounty(id);
   const [formError, setFormError] = useState('');
   const [isDraftSave, setIsDraftSave] = useState(false);
+  // isFunding bridges the gap between the update-bounty mutation settling
+  // and the Stitch hosted redirect firing — keeps the Create Bounty
+  // button in its loading state across both steps.
+  const [isFunding, setIsFunding] = useState(false);
 
   if (isLoading) return <LoadingState type="form" />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
@@ -32,9 +40,45 @@ export default function EditBountyPage() {
     setIsDraftSave(false);
     setFormError('');
     updateBounty.mutate(data as UpdateBountyRequest, {
-      onSuccess: () => {
-        toast.showSuccess('Bounty updated.');
-        router.push(`/business/bounties/${id}`);
+      onSuccess: async () => {
+        // DRAFT + unpaid → chain straight into the Stitch hosted checkout.
+        // Same flow the new-bounty page uses (commit bd2480b) and the
+        // detail-page "Go Live" button (handleStatusChange DRAFT→LIVE).
+        // LIVE / PAUSED / already-PAID bounties skip this and just save.
+        const needsPayment =
+          bounty.status === BountyStatus.DRAFT &&
+          bounty.paymentStatus !== PaymentStatus.PAID;
+
+        if (!needsPayment) {
+          toast.showSuccess('Bounty updated.');
+          router.push(`/business/bounties/${id}`);
+          return;
+        }
+
+        setIsFunding(true);
+        try {
+          const payerName =
+            `${user?.firstName ?? ''} ${user?.lastName ?? ''}`
+              .trim()
+              .slice(0, 40) || 'Brand Admin';
+          const { hostedUrl } = await bountyApi.fundBounty(id, {
+            payerName,
+            payerEmail: user?.email,
+          });
+          redirectToHostedCheckout(hostedUrl, id, {
+            onDevNotice: (msg) => toast.showInfo(msg),
+            onDevSettled: () => setIsFunding(false),
+          });
+          // Production: page unloads. Dev: helper opens a new tab + clears
+          // isFunding via onDevSettled so the brand can keep using the form.
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Unknown error';
+          toast.showError(
+            `Saved, but couldn't start payment: ${message}. Try "Go Live" on the bounty detail page.`,
+          );
+          setIsFunding(false);
+          router.push(`/business/bounties/${id}`);
+        }
       },
       onError: () => {
         setFormError('Couldn\'t update bounty. Try again.');
@@ -107,7 +151,7 @@ export default function EditBountyPage() {
         initialBounty={bounty}
         onSubmit={handleSubmit}
         onSaveDraft={handleSaveDraft}
-        isSubmitting={!isDraftSave && updateBounty.isPending}
+        isSubmitting={!isDraftSave && (updateBounty.isPending || isFunding)}
         isSavingDraft={isDraftSave && updateBounty.isPending}
         formError={formError}
         readOnlyMode={isLive ? 'live' : isPaused ? 'paused' : undefined}

@@ -707,7 +707,7 @@ The badge appears next to the bounty status badge in the header area.
 
 The publish flow enforces:
 1. All required fields must be filled (existing validation).
-2. Visibility must be acknowledged (existing check).
+2. ~~Visibility must be acknowledged~~ **DEPRECATED 2026-04-17** — the acknowledgment toggle was removed from the brand UX; the gate is no longer enforced.
 3. Payment must be completed (`paymentStatus === PAID`).
 
 If payment is not completed, the API returns 400: "Payment must be completed before publishing."

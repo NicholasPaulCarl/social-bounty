@@ -25,8 +25,8 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
     <>
       <div className="space-y-4">
         {/* Min Followers */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 min-w-[14rem]">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-3 sm:min-w-[14rem]">
             <InputSwitch
               checked={minFollowersEnabled}
               onChange={(e) => dispatch({ type: 'SET_MIN_FOLLOWERS', payload: e.value ? 500 : null })}
@@ -45,8 +45,8 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
         </div>
 
         {/* Public Profile */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 min-w-[14rem]">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-3 sm:min-w-[14rem]">
             <InputSwitch
               checked={eligibility.publicProfile || false}
               onChange={(e) => dispatch({ type: 'SET_PUBLIC_PROFILE', payload: e.value })}
@@ -56,8 +56,8 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
         </div>
 
         {/* Min Account Age */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 min-w-[14rem]">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-3 sm:min-w-[14rem]">
             <InputSwitch
               checked={minAccountAgeEnabled}
               onChange={(e) => dispatch({ type: 'SET_MIN_ACCOUNT_AGE', payload: e.value ? 90 : null })}
@@ -76,8 +76,8 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
         </div>
 
         {/* Location Restriction */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 min-w-[14rem]">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-3 sm:min-w-[14rem]">
             <InputSwitch
               checked={locationEnabled}
               onChange={(e) => dispatch({ type: 'SET_LOCATION_RESTRICTION', payload: e.value ? '' : null })}
@@ -88,7 +88,7 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
             <InputText
               value={eligibility.locationRestriction || ''}
               onChange={(e) => dispatch({ type: 'SET_LOCATION_RESTRICTION', payload: e.target.value })}
-              className={`flex-1 ${submitAttempted && errors.locationRestriction ? 'p-invalid' : ''}`}
+              className={`w-full sm:flex-1 ${submitAttempted && errors.locationRestriction ? 'p-invalid' : ''}`}
               placeholder="e.g. South Africa, United States"
               maxLength={200}
             />
@@ -96,8 +96,8 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
         </div>
 
         {/* No Competing Brand */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 min-w-[14rem]">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-3 sm:min-w-[14rem]">
             <InputSwitch
               checked={noCompetingEnabled}
               onChange={(e) => dispatch({ type: 'SET_NO_COMPETING_BRAND_DAYS', payload: e.value ? 30 : null })}

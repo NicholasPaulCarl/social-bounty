@@ -6,6 +6,8 @@ This document defines the complete data model, business rules, state machine, an
 
 **Scope**: This spec covers only the Create Bounty form and its supporting APIs. Submission review, payout, and participant-facing bounty display are not in scope.
 
+> **Deprecation notice (2026-04-17)** — The `visibilityAcknowledged` field and the `POST /bounties/:id/acknowledge-visibility` endpoint are **deprecated**. The acknowledgment toggle ("I understand and confirm the post visibility requirements above") was removed from the brand UX, and the backend no longer enforces `visibilityAcknowledged = true` as a DRAFT → LIVE precondition. The column is still stored on the `Bounty` model for historical rows but is ignored for all business rules going forward. References to it below are kept for historical context — they describe the pre-2026-04-17 behavior.
+
 ---
 
 ## 1. Data Model
@@ -245,24 +247,17 @@ Constants from `BOUNTY_REWARD_LIMITS`:
 
 | From | To | Preconditions |
 |------|----|---------------|
-| `DRAFT` | `LIVE` | All required fields populated AND `visibilityAcknowledged = true` |
+| `DRAFT` | `LIVE` | All required fields populated (see §3.4) |
 | `LIVE` | `PAUSED` | None |
-| `PAUSED` | `LIVE` | `visibilityAcknowledged` must still be true |
+| `PAUSED` | `LIVE` | None |
 | `LIVE` | `CLOSED` | None (terminal) |
 | `PAUSED` | `CLOSED` | None (terminal) |
 
 **`CLOSED` is terminal.** A closed bounty cannot be reopened by a BA.
 
-### 3.3 Visibility Acknowledgment Gate
+### 3.3 Visibility Acknowledgment Gate (DEPRECATED 2026-04-17)
 
-Before a bounty can transition from `DRAFT` to `LIVE`, the BA must explicitly acknowledge the post visibility rule. This is a separate API call:
-
-- `POST /bounties/:id/acknowledge-visibility`
-- Sets `visibilityAcknowledged = true` on the bounty.
-- Can only be called when the bounty has a valid `postVisibilityRule` set.
-- This gate prevents accidental publishing without understanding the visibility terms.
-
-**When visibility rule changes**: If the BA updates the `postVisibilityRule` or duration fields on a draft bounty, `visibilityAcknowledged` resets to `false`, requiring re-acknowledgment.
+> Historical: prior to 2026-04-17 the BA had to call `POST /bounties/:id/acknowledge-visibility` to set `visibilityAcknowledged = true` before publishing; changing `postVisibilityRule` on a DRAFT reset the flag, forcing re-acknowledgment. The acknowledgment toggle was removed from the brand UX and this gate is no longer enforced — the field is stored but ignored. The endpoint may still exist but is a no-op for business rules.
 
 ### 3.4 Required Fields for DRAFT to LIVE
 
@@ -281,7 +276,6 @@ All of the following must be non-null/non-empty:
 | `structuredEligibility` | Must be present (can have all null fields) |
 | `engagementRequirements` | Must be present (can have all false/null fields) |
 | `currency` | Must be set (has default ZAR) |
-| `visibilityAcknowledged` | Must be `true` |
 
 ### 3.5 Edit Rules by Status
 
@@ -458,7 +452,7 @@ Updates bounty fields. Edit rules depend on bounty status (see Section 3.5).
 
 **Rewards update behavior**: When `rewards` is provided, the existing reward lines are **replaced entirely** (delete all existing, insert new). This is a full replacement, not a merge.
 
-**Visibility acknowledgment reset**: If `postVisibility` is changed, `visibilityAcknowledged` is automatically reset to `false`.
+**Visibility acknowledgment reset (DEPRECATED 2026-04-17)**: Historically, if `postVisibility` was changed, `visibilityAcknowledged` was reset to `false`. This reset was removed along with the acknowledgment gate; the field is no longer touched on update.
 
 **Response** `200 OK`: Full bounty object (same shape as `CreateBountyResponse`).
 
@@ -467,32 +461,9 @@ Updates bounty fields. Edit rules depend on bounty status (see Section 3.5).
 - `403` - Not authorized
 - `404` - Bounty not found
 
-### 4.3 POST `/bounties/:id/acknowledge-visibility`
+### 4.3 POST `/bounties/:id/acknowledge-visibility` (DEPRECATED 2026-04-17)
 
-Acknowledges the post visibility rule. Required before DRAFT to LIVE transition.
-
-**Access**: BA (own org), SA
-**Audit Log**: No (lightweight acknowledgment, no state change beyond the flag)
-
-**Request Body**: None
-
-**Preconditions**:
-- Bounty must be in `DRAFT` or `PAUSED` status.
-- Bounty must have a `postVisibilityRule` set.
-
-**Response** `200 OK`:
-```json
-{
-  "id": "bounty-uuid-1",
-  "visibilityAcknowledged": true,
-  "updatedAt": "2026-02-07T11:00:00.000Z"
-}
-```
-
-**Error Responses**:
-- `400` - Bounty has no visibility rule set, or bounty is not in DRAFT/PAUSED
-- `403` - Not authorized
-- `404` - Bounty not found
+> Historical: this endpoint set `visibilityAcknowledged = true` and was required before a DRAFT → LIVE transition. The acknowledgment gate has been removed from the business rules. The endpoint may still exist in the controller for backward compatibility, but it is a no-op from a workflow perspective — callers no longer need to invoke it.
 
 ### 4.4 PATCH `/bounties/:id/status` (Updated)
 
@@ -500,9 +471,8 @@ Same as existing contract, with updated preconditions for DRAFT to LIVE.
 
 **Updated precondition for `DRAFT -> LIVE`**:
 - All required fields must be populated (see Section 3.4).
-- `visibilityAcknowledged` must be `true`.
 
-If either condition fails, the API returns `400` with a descriptive error listing the missing fields.
+If the condition fails, the API returns `400` with a descriptive error listing the missing fields.
 
 **Error response example**:
 ```json
@@ -511,7 +481,6 @@ If either condition fails, the API returns `400` with a descriptive error listin
   "error": "Bad Request",
   "message": "Cannot publish bounty. Missing required fields.",
   "details": [
-    { "field": "visibilityAcknowledged", "message": "Post visibility must be acknowledged before publishing" },
     { "field": "rewards", "message": "At least one reward line is required" }
   ]
 }

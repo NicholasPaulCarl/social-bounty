@@ -52,12 +52,21 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
     case 'TOGGLE_CHANNEL': {
       const ch = action.payload.channel as SocialChannel;
       const current = { ...state.channels };
+      let contentFormat = state.contentFormat;
       if (current[ch]) {
         delete current[ch];
       } else {
         current[ch] = action.payload.formats as PostFormat[];
+        // TikTok is a video-only platform — Photo Only is invalid once
+        // TikTok is in play. Auto-set Accepted Formats to VIDEO_ONLY so
+        // the brand doesn't have to do it manually; they can still
+        // switch to BOTH (video + photo) afterwards if they want photos
+        // from non-TikTok channels alongside.
+        if (ch === SocialChannel.TIKTOK) {
+          contentFormat = ContentFormat.VIDEO_ONLY;
+        }
       }
-      return { ...state, channels: current };
+      return { ...state, channels: current, contentFormat };
     }
     case 'TOGGLE_FORMAT': {
       const ch = action.payload.channel as SocialChannel;
@@ -99,7 +108,6 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         return {
           ...state,
           postVisibility: null,
-          visibilityAcknowledged: false,
         };
       }
       return {
@@ -109,7 +117,6 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
           minDurationValue: action.payload === PostVisibilityRule.MINIMUM_DURATION ? state.postVisibility?.minDurationValue ?? null : null,
           minDurationUnit: action.payload === PostVisibilityRule.MINIMUM_DURATION ? state.postVisibility?.minDurationUnit ?? null : null,
         },
-        visibilityAcknowledged: false,
       };
     }
     case 'SET_DURATION_VALUE':
@@ -118,7 +125,6 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         postVisibility: state.postVisibility
           ? { ...state.postVisibility, minDurationValue: action.payload }
           : null,
-        visibilityAcknowledged: false,
       };
     case 'SET_DURATION_UNIT':
       return {
@@ -126,10 +132,7 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         postVisibility: state.postVisibility
           ? { ...state.postVisibility, minDurationUnit: action.payload }
           : null,
-        visibilityAcknowledged: false,
       };
-    case 'SET_VISIBILITY_ACKNOWLEDGED':
-      return { ...state, visibilityAcknowledged: action.payload };
 
     // Section 5
     case 'SET_CURRENCY':
@@ -139,7 +142,9 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
     case 'ADD_REWARD':
       return {
         ...state,
-        rewards: [...state.rewards, { rewardType: RewardType.CASH, name: '', monetaryValue: 0 }],
+        // New reward defaults to CASH, so seed name='Cash' to match the
+        // UPDATE_REWARD auto-fill convention (see below).
+        rewards: [...state.rewards, { rewardType: RewardType.CASH, name: 'Cash', monetaryValue: 0 }],
       };
     case 'REMOVE_REWARD': {
       const rewards = state.rewards.filter((_, i) => i !== action.payload);
@@ -148,7 +153,19 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
     case 'UPDATE_REWARD': {
       const rewards = state.rewards.map((r, i) => {
         if (i !== action.payload.index) return r;
-        return { ...r, [action.payload.field]: action.payload.value };
+        const next = { ...r, [action.payload.field]: action.payload.value };
+        // CASH rewards don't need a description — the value + currency is
+        // self-describing. Auto-set name to 'Cash' when switching TO cash,
+        // and clear it when switching FROM cash so the user re-enters a
+        // meaningful name for Product/Service/Other.
+        if (action.payload.field === 'rewardType') {
+          if (action.payload.value === RewardType.CASH) {
+            next.name = 'Cash';
+          } else if (r.rewardType === RewardType.CASH) {
+            next.name = '';
+          }
+        }
+        return next;
       });
       return { ...state, rewards };
     }
@@ -281,7 +298,6 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         aiContentPermitted: b.aiContentPermitted,
         engagementRequirements: b.engagementRequirements || { tagAccount: null, mention: false, comment: false },
         postVisibility: b.postVisibility || null,
-        visibilityAcknowledged: b.visibilityAcknowledged,
         currency: b.currency,
         rewards: b.rewards.length > 0
           ? b.rewards.map((r) => ({
@@ -289,7 +305,7 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
               name: r.name,
               monetaryValue: parseFloat(r.monetaryValue),
             }))
-          : [{ rewardType: RewardType.CASH, name: '', monetaryValue: 0 }],
+          : [{ rewardType: RewardType.CASH, name: 'Cash', monetaryValue: 0 }],
         payoutMethod: b.payoutMethod ?? null,
         structuredEligibility: b.structuredEligibility || {
           minFollowers: null,
@@ -327,7 +343,12 @@ export function buildCreateBountyRequest(
   state: BountyFormState,
   mode: 'draft' | 'full' = 'full',
 ): CreateBountyRequest {
-  const filteredRewards = state.rewards.filter((r) => r.name.trim() && r.monetaryValue > 0);
+  // CASH rewards are kept even if the user cleared the auto-filled name
+  // (defensive — the reducer keeps name='Cash' for CASH, but if the
+  // backend ever persists an empty CASH name we still want it to submit).
+  const filteredRewards = state.rewards.filter(
+    (r) => (r.rewardType === RewardType.CASH || r.name.trim()) && r.monetaryValue > 0,
+  );
 
   const hasEligibility = state.structuredEligibility.minFollowers !== null ||
     state.structuredEligibility.publicProfile ||

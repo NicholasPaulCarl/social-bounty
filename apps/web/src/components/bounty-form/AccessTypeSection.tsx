@@ -88,7 +88,7 @@ export function AccessTypeSection({ accessType, selectedHunters, dispatch }: Acc
         <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-3">
           Access Type
         </label>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             type="button"
             onClick={() => dispatch({ type: 'SET_ACCESS_TYPE', payload: BountyAccessType.PUBLIC })}
