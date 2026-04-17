@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { Image } from 'primereact/image';
-import { useSubmission, useReviewSubmission, useUpdatePayout } from '@/hooks/useSubmissions';
+import { useSubmissionWithPolling, useReviewSubmission, useUpdatePayout } from '@/hooks/useSubmissions';
 import { useBounty } from '@/hooks/useBounties';
 import { useToast } from '@/hooks/useToast';
 import { SubmissionStatus, PayoutStatus } from '@social-bounty/shared';
@@ -12,6 +12,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ReviewActionBar } from '@/components/features/submission/ReviewActionBar';
 import { PayoutActionBar } from '@/components/features/submission/PayoutActionBar';
+import { VerificationReportPanel } from '@/components/features/submission/VerificationReportPanel';
 import { formatDate, formatDateTime } from '@/lib/utils/format';
 
 export default function BusinessSubmissionReviewPage() {
@@ -21,7 +22,7 @@ export default function BusinessSubmissionReviewPage() {
   const submissionId = params.submissionId as string;
   const toast = useToast();
 
-  const { data: submission, isLoading, error, refetch } = useSubmission(submissionId);
+  const { data: submission, isLoading, error, refetch } = useSubmissionWithPolling(submissionId);
   const { data: bounty } = useBounty(bountyId);
   const reviewSubmission = useReviewSubmission(submissionId);
   const updatePayout = useUpdatePayout(submissionId);
@@ -126,10 +127,16 @@ export default function BusinessSubmissionReviewPage() {
             </div>
           </div>
 
+          <VerificationReportPanel
+            urlScrapes={submission.urlScrapes ?? []}
+            reportedMetrics={submission.reportedMetrics}
+          />
+
           <ReviewActionBar
             currentStatus={submission.status}
             onAction={handleReview}
             loading={reviewSubmission.isPending}
+            urlScrapes={submission.urlScrapes ?? []}
           />
 
           {submission.status === SubmissionStatus.APPROVED && (

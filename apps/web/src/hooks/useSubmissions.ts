@@ -35,6 +35,27 @@ export function useSubmission(id: string) {
   });
 }
 
+// Same shape as `useSubmission`, but polls every 3s while any URL scrape
+// is still PENDING/IN_PROGRESS. Stops once every URL is settled
+// (VERIFIED or FAILED). Use only on the brand review page so participants
+// don't pay for the extra requests.
+export function useSubmissionWithPolling(id: string) {
+  return useQuery({
+    queryKey: queryKeys.submissions.detail(id),
+    queryFn: () => submissionApi.getById(id),
+    enabled: !!id,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      const scrapes = data?.urlScrapes;
+      if (!scrapes || scrapes.length === 0) return false;
+      const inFlight = scrapes.some(
+        (u) => u.scrapeStatus === 'PENDING' || u.scrapeStatus === 'IN_PROGRESS',
+      );
+      return inFlight ? 3000 : false;
+    },
+  });
+}
+
 export function useCreateSubmission(bountyId: string) {
   const queryClient = useQueryClient();
   return useMutation({
