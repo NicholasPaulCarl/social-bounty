@@ -1432,6 +1432,36 @@ Every new component or screen must pass this checklist before merge. Most of the
 - PrimeReact `Dialog` fixed `style={{ width: 'NNNpx' }}` overflows small phones. Always pair with `breakpoints={{ '640px': '95vw' }}`.
 - Modal body padding: `p-4 sm:p-6` is the safe default. Action buttons inside modals stay at standard sizing.
 
+**Toggle + revealed input rows — stack on mobile**
+
+A recurring pattern in forms: an `InputSwitch` toggles a conditional `InputText` / `InputNumber` / `Dropdown` beside it. On a 375px viewport with standard page + card padding (~311px content width), a fixed-width label cluster (e.g. `min-w-[14rem]` = 224px) plus a 128px revealed input overflows by ~57px → horizontal scroll.
+
+```tsx
+// ❌ Wrong — fixed 224px label column + revealed input = overflow on mobile
+<div className="flex items-center gap-4">
+  <div className="flex items-center gap-3 min-w-[14rem]">
+    <InputSwitch ... />
+    <span className="text-sm">Minimum followers</span>
+  </div>
+  {enabled && <InputNumber className="w-32" ... />}
+</div>
+
+// ✅ Right — stack vertically on mobile, horizontal cluster on sm+
+<div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+  <div className="flex items-center gap-3 sm:min-w-[14rem]">
+    <InputSwitch ... />
+    <span className="text-sm">Minimum followers</span>
+  </div>
+  {enabled && <InputNumber className="w-32" ... />}
+</div>
+```
+
+Rules:
+- Outer row: `flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4`
+- Label cluster: drop the `min-w-[14rem]` floor on mobile — use `sm:min-w-[14rem]` only
+- Full-width revealed text inputs: `w-full sm:flex-1` (so they fill the stacked mobile width, then flex on desktop)
+- Fixed-width numeric revealed inputs (`w-32`, `w-28`): leave as-is — they'll sit left-aligned below the toggle on mobile, which reads fine
+
 **Reference components (copy this pattern)**
 
 - `BountyCard.tsx` — dense card, `p-3 sm:p-5`, `text-sm sm:text-base` title

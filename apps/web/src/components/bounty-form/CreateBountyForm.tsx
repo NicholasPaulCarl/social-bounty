@@ -395,8 +395,8 @@ export function CreateBountyForm({
             <div>
               <h4 className="text-sm font-semibold text-text-primary mb-3">Engagement &amp; Visibility</h4>
               <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3 min-w-[14rem]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <div className="flex items-center gap-3 sm:min-w-[14rem]">
                     <InputSwitch
                       checked={state.engagementRequirements.mention || false}
                       onChange={(e) => dispatch({ type: 'SET_MENTION', payload: e.value })}
@@ -404,8 +404,8 @@ export function CreateBountyForm({
                     <span className="text-sm text-text-primary">Hunter must mention brand</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3 min-w-[14rem]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <div className="flex items-center gap-3 sm:min-w-[14rem]">
                     <InputSwitch
                       checked={state.engagementRequirements.comment || false}
                       onChange={(e) => dispatch({ type: 'SET_COMMENT', payload: e.value })}

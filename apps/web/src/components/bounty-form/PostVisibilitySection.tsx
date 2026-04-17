@@ -35,8 +35,8 @@ export function PostVisibilitySection({
   return (
     <div className="space-y-4">
       {/* Must not remove toggle */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-3 min-w-[14rem]">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-3 sm:min-w-[14rem]">
           <InputSwitch
             checked={mustNotRemove}
             onChange={(e) => dispatch({
@@ -49,8 +49,8 @@ export function PostVisibilitySection({
       </div>
 
       {/* Minimum duration toggle */}
-      <div className="flex items-start gap-4 flex-wrap">
-        <div className="flex items-center gap-3 min-w-[14rem]">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:flex-wrap gap-2 sm:gap-4">
+        <div className="flex items-center gap-3 sm:min-w-[14rem]">
           <InputSwitch
             checked={minDuration}
             onChange={(e) => dispatch({
