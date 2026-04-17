@@ -20,12 +20,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import { Roles, CurrentUser, Public } from '../../common/decorators';
 import { UserRole, BRAND_PROFILE_LIMITS } from '@social-bounty/shared';
-import { BrandsService } from './organisations.service';
+import { BrandsService } from './brands.service';
 import {
   CreateBrandDto,
   UpdateBrandDto,
   InviteMemberDto,
-} from './dto/organisations.validators';
+} from './dto/brands.validators';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 @Controller('brands')

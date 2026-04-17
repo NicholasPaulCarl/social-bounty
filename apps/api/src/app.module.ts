@@ -7,7 +7,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-import { BrandsModule } from './modules/organisations/organisations.module';
+import { BrandsModule } from './modules/brands/brands.module';
 import { BountiesModule } from './modules/bounties/bounties.module';
 import { SubmissionsModule } from './modules/submissions/submissions.module';
 import { DisputesModule } from './modules/disputes/disputes.module';

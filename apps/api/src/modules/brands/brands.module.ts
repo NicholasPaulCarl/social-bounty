@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { BrandsController } from './organisations.controller';
-import { BrandsService } from './organisations.service';
+import { BrandsController } from './brands.controller';
+import { BrandsService } from './brands.service';
 import { KybController } from './kyb.controller';
 import { KybService } from './kyb.service';
 import { ApifyModule } from '../apify/apify.module';
