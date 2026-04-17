@@ -56,10 +56,10 @@ export function FormSummaryFooter({
         Consumers must pad above this footer to prevent overlap — see
         CreateBountyForm for the matching pb-[calc()] class.
       */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
-          <p className="text-sm font-heading font-semibold text-accent-emerald leading-tight whitespace-nowrap">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl px-3 pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]">
+        <div className="flex items-center justify-between mb-1 leading-none">
+          <span className="text-[10px] text-text-muted uppercase tracking-wider">Total Reward</span>
+          <p className="text-sm font-heading font-semibold text-accent-emerald leading-none whitespace-nowrap">
             {currencySymbol} {totalRewardValue.toFixed(2)}
           </p>
         </div>
