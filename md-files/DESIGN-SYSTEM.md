@@ -1418,7 +1418,8 @@ Every new component or screen must pass this checklist before merge. Most of the
 | Vertical rhythm — tight | `space-y-3` | `sm:space-y-4` |
 | Vertical rhythm — standard | `space-y-4` | `sm:space-y-6` |
 | Vertical rhythm — section | `space-y-6` | `sm:space-y-8` |
-| Page-level form `pb-` | `pb-20` | `sm:pb-24` |
+| Page-level form `pb-` (no fixed footer) | `pb-20` | `sm:pb-24` |
+| Page-level form `pb-` (above `fixed bottom-0` footer) | `pb-[calc(8rem+env(safe-area-inset-bottom,0px))]` | `sm:pb-[calc(6rem+env(safe-area-inset-bottom,0px))]` |
 | Page padding | `px-4 py-4` | `sm:px-6 sm:py-6` / `lg:px-8 lg:py-8` |
 
 **Tap targets — do not shrink**
@@ -1431,6 +1432,32 @@ Every new component or screen must pass this checklist before merge. Most of the
 
 - PrimeReact `Dialog` fixed `style={{ width: 'NNNpx' }}` overflows small phones. Always pair with `breakpoints={{ '640px': '95vw' }}`.
 - Modal body padding: `p-4 sm:p-6` is the safe default. Action buttons inside modals stay at standard sizing.
+
+**Fixed-footer pages — clearance + iOS safe-area**
+
+A `fixed bottom-0` footer (e.g. `FormSummaryFooter`, action bars) takes no space in flow, so the scrollable content above it must pad for the footer's height **plus** the iOS home-indicator area on notched devices, or the last form field / CTA gets hidden.
+
+```tsx
+// Footer — absorbs iOS safe-area into its own bottom padding so the
+// Create button stays tappable above the home indicator.
+<div className="fixed bottom-0 left-0 right-0 z-40 px-3 pt-3
+                pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]">
+  ...
+</div>
+
+// Consumer content above the footer — pads by footer height + safe-area.
+// 8rem mobile covers a ~108px two-row footer; 6rem desktop covers a ~64px
+// single-row footer. Tune the rem values per footer.
+<form className="pb-[calc(8rem+env(safe-area-inset-bottom,0px))]
+                sm:pb-[calc(6rem+env(safe-area-inset-bottom,0px))]">
+  ...
+</form>
+```
+
+Rules:
+- **Never** rely on a plain Tailwind `pb-20` / `pb-24` above a fixed footer — on iOS notched devices the home indicator adds ~34px that the number doesn't account for.
+- The footer's own `pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]` makes buttons reachable; without it, tapping the bottom 34px falls through to the OS.
+- When footer content changes (adding/removing button rows), re-measure and update both the footer's intrinsic height and the consumer's `pb-[calc()]` value together.
 
 **Toggle + revealed input rows — stack on mobile**
 

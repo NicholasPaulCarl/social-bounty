@@ -194,7 +194,13 @@ export function CreateBountyForm({
     <>
       {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
 
-      <form ref={formRef} className="flex flex-col gap-4 sm:gap-6 pb-20 sm:pb-24 max-w-4xl mx-auto" onSubmit={(e) => e.preventDefault()}>
+      {/*
+        pb clears the fixed FormSummaryFooter height + iOS safe-area inset.
+        Mobile footer ≈ 108px (status row + button grid + p-3); desktop ≈ 64px.
+        calc() adds env(safe-area-inset-bottom) so iOS notched devices clear
+        the home-indicator area. See DESIGN-SYSTEM.md §10 (fixed-footer rule).
+      */}
+      <form ref={formRef} className="flex flex-col gap-4 sm:gap-6 pb-[calc(8rem+env(safe-area-inset-bottom,0px))] sm:pb-[calc(6rem+env(safe-area-inset-bottom,0px))] max-w-4xl mx-auto" onSubmit={(e) => e.preventDefault()}>
         {/* Section 1: Bounty Information */}
         <div data-section="bountyBasicInfo" className={lockedClass}>
           <SectionPanel

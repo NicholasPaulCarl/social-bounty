@@ -69,8 +69,15 @@ export function FormSummaryFooter({
         </div>
       </div>
 
-      {/* Mobile footer */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl p-3">
+      {/*
+        Mobile footer.
+        pb uses max(12px, env(safe-area-inset-bottom)) so the Create button
+        sits above the iOS home-indicator area on notched devices while still
+        having a standard 12px bottom margin on everything else.
+        Consumers must pad above this footer to prevent overlap — see
+        CreateBountyForm for the matching pb-[calc()] class.
+      */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]">
         <div className="grid grid-cols-[1fr_auto] items-center gap-3 mb-2">
           <div className="flex flex-col">
             <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
