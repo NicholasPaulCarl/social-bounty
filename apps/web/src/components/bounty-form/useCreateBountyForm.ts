@@ -99,7 +99,6 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         return {
           ...state,
           postVisibility: null,
-          visibilityAcknowledged: false,
         };
       }
       return {
@@ -109,7 +108,6 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
           minDurationValue: action.payload === PostVisibilityRule.MINIMUM_DURATION ? state.postVisibility?.minDurationValue ?? null : null,
           minDurationUnit: action.payload === PostVisibilityRule.MINIMUM_DURATION ? state.postVisibility?.minDurationUnit ?? null : null,
         },
-        visibilityAcknowledged: false,
       };
     }
     case 'SET_DURATION_VALUE':
@@ -118,7 +116,6 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         postVisibility: state.postVisibility
           ? { ...state.postVisibility, minDurationValue: action.payload }
           : null,
-        visibilityAcknowledged: false,
       };
     case 'SET_DURATION_UNIT':
       return {
@@ -126,10 +123,7 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         postVisibility: state.postVisibility
           ? { ...state.postVisibility, minDurationUnit: action.payload }
           : null,
-        visibilityAcknowledged: false,
       };
-    case 'SET_VISIBILITY_ACKNOWLEDGED':
-      return { ...state, visibilityAcknowledged: action.payload };
 
     // Section 5
     case 'SET_CURRENCY':
@@ -295,7 +289,6 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         aiContentPermitted: b.aiContentPermitted,
         engagementRequirements: b.engagementRequirements || { tagAccount: null, mention: false, comment: false },
         postVisibility: b.postVisibility || null,
-        visibilityAcknowledged: b.visibilityAcknowledged,
         currency: b.currency,
         rewards: b.rewards.length > 0
           ? b.rewards.map((r) => ({

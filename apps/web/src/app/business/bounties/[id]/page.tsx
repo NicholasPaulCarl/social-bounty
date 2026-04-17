@@ -468,9 +468,6 @@ export default function BusinessBountyDetailPage() {
                     {bounty.postVisibility.minDurationValue} {bounty.postVisibility.minDurationUnit?.toLowerCase()}
                   </p>
                 )}
-                <p className={bounty.visibilityAcknowledged ? 'text-accent-emerald' : 'text-warning-600'}>
-                  {bounty.visibilityAcknowledged ? 'Visibility acknowledged' : 'Visibility not yet acknowledged'}
-                </p>
               </div>
             </div>
           )}

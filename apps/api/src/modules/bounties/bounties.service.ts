@@ -862,8 +862,9 @@ export class BountiesService {
       updateData.postVisibilityRule = pv.rule;
       updateData.postMinDurationValue = pv.minDurationValue ?? null;
       updateData.postMinDurationUnit = pv.minDurationUnit ?? null;
-      // Reset acknowledgment when visibility rule changes
-      updateData.visibilityAcknowledged = false;
+      // NOTE: visibilityAcknowledged used to reset to false here so the user
+      // had to re-acknowledge after changing the rule. The acknowledgment
+      // concept has been removed from the brand UX; we no longer touch it.
     }
     if (data.structuredEligibility !== undefined) {
       const se = data.structuredEligibility as StructuredEligibilityInput;
@@ -1050,9 +1051,11 @@ export class BountiesService {
     if (bounty.status === BountyStatus.DRAFT && newStatus === BountyStatus.LIVE) {
       const missing: string[] = [];
 
-      if (!bounty.visibilityAcknowledged) {
-        missing.push('visibilityAcknowledged');
-      }
+      // visibilityAcknowledged was previously required here — removed because
+      // acknowledgment is no longer part of the brand UX (the "I understand
+      // and confirm the post visibility requirements above" toggle was
+      // removed from the create-bounty form). The column is still stored on
+      // the Bounty model but never blocks publishing.
       if (!bounty.title) missing.push('title');
       if (!bounty.shortDescription) missing.push('shortDescription');
       if (!bounty.fullInstructions) missing.push('fullInstructions');

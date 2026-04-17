@@ -198,21 +198,10 @@ describe('BountiesService - Status Transitions & DRAFT->LIVE Gate', () => {
   // ── DRAFT -> LIVE Preconditions ──────────────────
 
   describe('DRAFT -> LIVE preconditions', () => {
-    it('VE-21: should reject DRAFT -> LIVE without visibilityAcknowledged', async () => {
-      prisma.bounty.findUnique.mockResolvedValue(
-        baseBountyRecord({
-          status: BountyStatus.DRAFT,
-          visibilityAcknowledged: false,
-          channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
-          postVisibilityRule: PostVisibilityRule.MINIMUM_DURATION,
-        }),
-      );
-      prisma.bountyReward.findMany.mockResolvedValue([baseBountyRewardRecord()]);
-
-      await expect(
-        service.updateStatus('bounty-1', mockBA, BountyStatus.LIVE),
-      ).rejects.toThrow(BadRequestException);
-    });
+    // VE-21 removed: visibilityAcknowledged is no longer required to
+    // publish. The acknowledgment toggle was removed from the brand
+    // UX (see PostVisibilitySection.tsx) so the field is stored on
+    // the Bounty model but never blocks status transitions.
 
     it('VE-22: should reject DRAFT -> LIVE with no rewards', async () => {
       prisma.bounty.findUnique.mockResolvedValue(

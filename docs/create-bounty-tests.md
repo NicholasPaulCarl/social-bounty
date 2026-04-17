@@ -81,9 +81,9 @@
 
 | Transition | Preconditions | Error Message | Edge Cases |
 |------------|--------------|---------------|------------|
-| DRAFT -> LIVE | All required fields + `visibilityAcknowledged = true` | "Cannot publish bounty. Missing required fields." with details array | Missing one field, visibilityAcknowledged=false |
+| DRAFT -> LIVE | All required fields populated (visibilityAcknowledged no longer required — DEPRECATED 2026-04-17) | "Cannot publish bounty. Missing required fields." with details array | Missing one field |
 | LIVE -> PAUSED | None | n/a | |
-| PAUSED -> LIVE | `visibilityAcknowledged` still true | "Post visibility must be acknowledged before publishing" | Visibility changed while paused |
+| PAUSED -> LIVE | No acknowledgment gate (DEPRECATED 2026-04-17) | All standard required fields | Missing required field |
 | LIVE -> CLOSED | None (terminal) | n/a | |
 | PAUSED -> CLOSED | None (terminal) | n/a | |
 | CLOSED -> any | Rejected | "Cannot transition from CLOSED to {status}" | CLOSED -> LIVE, CLOSED -> DRAFT |
@@ -102,11 +102,11 @@
 | HP-02 | Create bounty with multiple channels and formats | BA with org | POST /bounties with INSTAGRAM [STORY,REEL] + TIKTOK [VIDEO_POST] | 201, channels object matches input |
 | HP-03 | Create bounty with 3 reward lines (Cash + Product + Service) | BA with org | POST /bounties with 3 rewards | 201, rewards array has 3 items, totalRewardValue = sum |
 | HP-04 | Create bounty with all eligibility rules enabled | BA with org | POST with minFollowers, publicProfile, minAccountAgeDays, locationRestriction, noCompetingBrandDays, 2 customRules | 201, structuredEligibility matches, eligibilityRules text generated |
-| HP-05 | Create bounty with MINIMUM_DURATION visibility rule | BA with org | POST with rule=MINIMUM_DURATION, value=7, unit=DAYS | 201, postVisibility in response, visibilityAcknowledged=false |
+| HP-05 | Create bounty with MINIMUM_DURATION visibility rule | BA with org | POST with rule=MINIMUM_DURATION, value=7, unit=DAYS | 201, postVisibility in response (visibilityAcknowledged field is stored but no longer enforced) |
 | HP-06 | Create bounty with MUST_NOT_REMOVE visibility rule | BA with org | POST with rule=MUST_NOT_REMOVE, no duration fields | 201, postVisibility.rule=MUST_NOT_REMOVE |
 | HP-07 | Save as draft with minimal fields | BA with org | POST /bounties with only required fields, minimal values | 201, status=DRAFT |
-| HP-08 | DRAFT to LIVE with visibility acknowledged | BA, draft bounty with all fields, visibilityAcknowledged=true | PATCH /bounties/:id/status { status: LIVE } | 200, status=LIVE |
-| HP-09 | Acknowledge visibility | BA, draft bounty with postVisibilityRule set | POST /bounties/:id/acknowledge-visibility | 200, visibilityAcknowledged=true |
+| HP-08 | DRAFT to LIVE | BA, draft bounty with all required fields | PATCH /bounties/:id/status { status: LIVE } | 200, status=LIVE (visibilityAcknowledged no longer required — DEPRECATED 2026-04-17) |
+| HP-09 | ~~Acknowledge visibility~~ | — | — | **DEPRECATED 2026-04-17** — endpoint is a no-op for backward compat |
 | HP-10 | Update rewards on DRAFT bounty (full replacement) | Draft bounty with 2 rewards | PATCH /bounties/:id with new rewards array | 200, old rewards replaced, new rewards match |
 | HP-11 | Create bounty with all engagement requirements | BA with org | POST with tagAccount, mention=true, comment=true | 201, engagementRequirements matches |
 | HP-12 | Create bounty with AI content permitted | BA with org | POST with aiContentPermitted=true | 201, aiContentPermitted=true |
@@ -136,7 +136,7 @@
 | VE-18 | Tag account without @ prefix | `engagementRequirements: { tagAccount: 'acmecorp' }` | 400, "Tag account must start with @" |
 | VE-19 | Tag account with just "@" | `engagementRequirements: { tagAccount: '@' }` | 400, regex mismatch |
 | VE-20 | Tag account with special chars | `engagementRequirements: { tagAccount: '@acme corp!' }` | 400, regex mismatch |
-| VE-21 | DRAFT to LIVE without visibilityAcknowledged | Draft bounty, visibilityAcknowledged=false | 400, "Post visibility must be acknowledged before publishing" |
+| VE-21 | ~~DRAFT to LIVE without visibilityAcknowledged~~ | — | **REMOVED 2026-04-17** — the acknowledgment gate is deprecated; the field is no longer checked at publish time |
 | VE-22 | DRAFT to LIVE with missing rewards | Draft bounty, no BountyReward rows | 400, "At least one reward line is required" |
 | VE-23 | DRAFT to LIVE with missing channels | Draft bounty, channels=null | 400, "Missing required fields" with details |
 | VE-24 | minFollowers = 0 | `structuredEligibility: { minFollowers: 0 }` | 400, "Minimum followers must be a positive integer" |
@@ -150,7 +150,7 @@
 | VE-32 | CLOSED bounty edit any field | CLOSED bounty, try to update `maxSubmissions` | 400, "Cannot edit a closed bounty" |
 | VE-33 | Acknowledge visibility without postVisibilityRule set | Draft bounty, postVisibilityRule=null | 400, "Bounty has no visibility rule set" |
 | VE-34 | Acknowledge visibility on LIVE bounty | LIVE bounty | 400, "Bounty must be in DRAFT or PAUSED status" |
-| VE-35 | Visibility acknowledgment reset on postVisibility update | Draft bounty, visibilityAcknowledged=true, update postVisibility | 200, visibilityAcknowledged reset to false |
+| VE-35 | ~~Visibility acknowledgment reset on postVisibility update~~ | — | **REMOVED 2026-04-17** — the reset-on-update behavior was removed with the acknowledgment gate |
 
 ### 2.3 Abuse Prevention Tests
 
@@ -187,8 +187,8 @@
 | IS-04 | Update restricted fields on LIVE bounty | Set status to LIVE, PATCH with title | 400, "Cannot edit these fields on a LIVE bounty: title" |
 | IS-05 | Delete DRAFT with rewards | Create bounty with rewards, DELETE /bounties/:id | Bounty soft-deleted, cascade handles rewards |
 | IS-06 | List bounties with new fields | Create 2 bounties, GET /bounties | List includes channels, currency, rewards, totalRewardValue |
-| IS-07 | Full lifecycle: create, acknowledge, publish, pause, close | Multiple API calls | Each transition succeeds, final status=CLOSED |
-| IS-08 | Visibility reset on update | Create, acknowledge, update postVisibility | visibilityAcknowledged reset to false |
+| IS-07 | Full lifecycle: create, publish, pause, close (no acknowledge step after 2026-04-17) | Multiple API calls | Each transition succeeds, final status=CLOSED |
+| IS-08 | ~~Visibility reset on update~~ | — | **REMOVED 2026-04-17** — update no longer touches visibilityAcknowledged |
 | IS-09 | Legacy field population on create | POST with structured data | rewardType, rewardValue, rewardDescription, eligibilityRules all populated |
 | IS-10 | LIVE bounty allows maxSubmissions update | Set bounty LIVE, PATCH maxSubmissions | 200, maxSubmissions updated |
 | IS-11 | LIVE bounty allows custom rules append | Set bounty LIVE, PATCH with additional custom rules | 200, custom rules extended (not replaced) |

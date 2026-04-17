@@ -58,7 +58,7 @@ PageHeader (breadcrumbs: Bounties > Create)
     |   +-- helper text
     |   +-- field: postVisibilityRule (RadioButton group)
     |   +-- conditional: duration fields (InputNumber + Dropdown)
-    |   +-- acknowledgment checkbox
+    |   +-- (acknowledgment checkbox REMOVED 2026-04-17 — see deprecation note in create-bounty-spec.md)
     |
     +-- Panel: 5. Rewards
     |   +-- helper text
@@ -463,21 +463,7 @@ Mention and Comment checkboxes on the same row:
 
 **Duration unit options**: Hours, Days, Weeks.
 
-**Acknowledgment checkbox**: Appears at the bottom of the section. Uses PrimeReact `Checkbox` with a prominent style:
-
-```tsx
-<div className="mt-4 p-3 bg-warning-50 border border-warning-200 rounded-lg">
-  <div className="flex items-start gap-3">
-    <Checkbox checked={visibilityAcknowledged} onChange={...} />
-    <label className="text-sm text-neutral-700">
-      I understand and confirm the post visibility requirements above.
-      <span className="block text-xs text-neutral-500 mt-1">
-        This must be acknowledged before the bounty can be published.
-      </span>
-    </label>
-  </div>
-</div>
-```
+**Acknowledgment checkbox (REMOVED 2026-04-17)**: The "I understand and confirm the post visibility requirements above" toggle was removed from the brand UX — the backend no longer enforces acknowledgment as a DRAFT→LIVE precondition, and carrying a no-op UI is friction. See deprecation note at top of `create-bounty-spec.md`.
 
 ---
 

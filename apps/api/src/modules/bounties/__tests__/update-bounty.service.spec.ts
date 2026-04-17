@@ -437,8 +437,11 @@ describe('BountiesService - Update Bounty', () => {
 
   // ── Visibility Acknowledgment Reset ──────────────
 
-  describe('Visibility acknowledgment reset on postVisibility change', () => {
-    it('IS-08: should reset visibilityAcknowledged when postVisibility updated on DRAFT', async () => {
+  describe('Visibility acknowledgment (legacy field)', () => {
+    // IS-08 removed: the reset-on-postVisibility-change behavior is gone.
+    // Acknowledgment was removed from the brand UX, so update no longer
+    // touches visibilityAcknowledged.
+    it('should NOT reset visibilityAcknowledged when postVisibility updates on DRAFT', async () => {
       prisma.bounty.findUnique.mockResolvedValue(
         baseBountyRecord({
           status: BountyStatus.DRAFT,
@@ -447,7 +450,7 @@ describe('BountiesService - Update Bounty', () => {
       );
       prisma.bounty.update.mockResolvedValue(
         baseBountyRecord({
-          visibilityAcknowledged: false,
+          visibilityAcknowledged: true,
           postVisibilityRule: PostVisibilityRule.MUST_NOT_REMOVE,
           ...updateIncludes,
         }),
@@ -457,9 +460,9 @@ describe('BountiesService - Update Bounty', () => {
         postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
       });
 
-      // The update should include visibilityAcknowledged: false
+      // The update call must NOT include visibilityAcknowledged at all
       const updateCall = prisma.bounty.update.mock.calls[0][0];
-      expect(updateCall.data).toHaveProperty('visibilityAcknowledged', false);
+      expect(updateCall.data).not.toHaveProperty('visibilityAcknowledged');
     });
   });
 });

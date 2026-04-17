@@ -15,7 +15,6 @@ const DURATION_UNIT_OPTIONS = [
 
 interface PostVisibilitySectionProps {
   postVisibility: PostVisibilityInput | null;
-  visibilityAcknowledged: boolean;
   dispatch: React.Dispatch<BountyFormAction>;
   errors: Record<string, string>;
   submitAttempted: boolean;
@@ -23,7 +22,6 @@ interface PostVisibilitySectionProps {
 
 export function PostVisibilitySection({
   postVisibility,
-  visibilityAcknowledged,
   dispatch,
   errors,
   submitAttempted,
@@ -89,22 +87,6 @@ export function PostVisibilitySection({
           </div>
         )}
       </div>
-
-      {/* Acknowledgment toggle */}
-      {postVisibility && (
-        <div className="flex items-center gap-3 p-3 bg-warning-50 border border-warning-200 rounded-lg">
-          <InputSwitch
-            checked={visibilityAcknowledged}
-            onChange={(e) => dispatch({ type: 'SET_VISIBILITY_ACKNOWLEDGED', payload: e.value })}
-          />
-          <div>
-            <span className="text-sm text-text-primary">I understand and confirm the post visibility requirements above</span>
-            <p className="text-xs text-text-muted mt-0.5">
-              This must be acknowledged before the bounty can be published.
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

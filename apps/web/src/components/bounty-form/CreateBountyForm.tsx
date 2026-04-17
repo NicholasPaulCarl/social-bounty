@@ -415,7 +415,6 @@ export function CreateBountyForm({
                 </div>
                 <PostVisibilitySection
                   postVisibility={state.postVisibility}
-                  visibilityAcknowledged={state.visibilityAcknowledged}
                   dispatch={dispatch}
                   errors={state.errors}
                   submitAttempted={state.submitAttempted}
