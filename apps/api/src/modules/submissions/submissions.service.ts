@@ -19,7 +19,11 @@ import {
   FILE_UPLOAD_LIMITS,
   VERIFICATION_DEADLINE_HOURS,
 } from '@social-bounty/shared';
-import type { ReportedMetricsInput } from '@social-bounty/shared';
+import type {
+  ReportedMetricsInput,
+  ProofLinkInput,
+  ChannelSelection,
+} from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
@@ -29,6 +33,12 @@ import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { ApprovalLedgerService } from '../ledger/approval-ledger.service';
 import { COMMISSION_RATES, SubscriptionTier, SubscriptionEntityType } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
+import { validateProofLinkCoverage } from './submission-coverage.validator';
+
+// Empty-array placeholder for the new `urlScrapes` response field.
+// PR 1 introduces the field on all responses; PR 2 (submission-scraper
+// service) populates it with real per-URL rows written in-transaction.
+const EMPTY_URL_SCRAPES: unknown[] = [];
 
 const REVIEW_TRANSITIONS: Record<string, string[]> = {
   SUBMITTED: ['IN_REVIEW', 'APPROVED', 'REJECTED', 'NEEDS_MORE_INFO'],
@@ -69,7 +79,7 @@ export class SubmissionsService {
   async create(
     bountyId: string,
     user: AuthenticatedUser,
-    data: { proofText: string; proofLinks?: string[]; reportedMetrics?: ReportedMetricsInput },
+    data: { proofText: string; proofLinks: ProofLinkInput[]; reportedMetrics?: ReportedMetricsInput },
     ipAddress?: string,
   ) {
     const bounty = await this.prisma.bounty.findUnique({
@@ -106,6 +116,16 @@ export class SubmissionsService {
       }
     }
 
+    // Per-format URL coverage check — hunter must provide exactly one URL
+    // per (channel, format) pair in bounty.channels. Throws 400 with
+    // `details: [{ field, message }]` on any violation.
+    validateProofLinkCoverage(data.proofLinks, bounty.channels as ChannelSelection | null);
+
+    // Derived legacy string[] kept on the Submission row for back-compat
+    // with any consumer still reading `submission.proofLinks`. Going
+    // forward, the source of truth is SubmissionUrlScrape rows (PR 2).
+    const derivedProofLinks = data.proofLinks.map((p) => p.url);
+
     // Atomic: check for existing + create in transaction
     const submission = await this.prisma.$transaction(async (tx) => {
       const existing = await tx.submission.findFirst({
@@ -121,7 +141,7 @@ export class SubmissionsService {
           bountyId,
           userId: user.sub,
           proofText: data.proofText.trim(),
-          proofLinks: data.proofLinks || [],
+          proofLinks: derivedProofLinks,
           status: SubmissionStatus.SUBMITTED,
           payoutStatus: PayoutStatus.NOT_PAID,
           reportedMetrics: data.reportedMetrics
@@ -155,6 +175,7 @@ export class SubmissionsService {
       payoutStatus: submission.payoutStatus,
       reportedMetrics: (submission as any).reportedMetrics as ReportedMetricsInput | null ?? null,
       verificationDeadline: (submission as any).verificationDeadline?.toISOString() ?? null,
+      urlScrapes: EMPTY_URL_SCRAPES,
       createdAt: submission.createdAt.toISOString(),
     };
   }
@@ -227,6 +248,7 @@ export class SubmissionsService {
         payoutStatus: s.payoutStatus,
         reportedMetrics: (s as any).reportedMetrics as ReportedMetricsInput | null ?? null,
         verificationDeadline: (s as any).verificationDeadline?.toISOString() ?? null,
+        urlScrapes: EMPTY_URL_SCRAPES,
         createdAt: s.createdAt.toISOString(),
         updatedAt: s.updatedAt.toISOString(),
       })),
@@ -309,6 +331,7 @@ export class SubmissionsService {
         payoutStatus: s.payoutStatus,
         reportedMetrics: (s as any).reportedMetrics as ReportedMetricsInput | null ?? null,
         verificationDeadline: (s as any).verificationDeadline?.toISOString() ?? null,
+        urlScrapes: EMPTY_URL_SCRAPES,
         createdAt: s.createdAt.toISOString(),
         updatedAt: s.updatedAt.toISOString(),
       })),
@@ -382,6 +405,7 @@ export class SubmissionsService {
       payoutStatus: submission.payoutStatus,
       reportedMetrics: (submission as any).reportedMetrics as ReportedMetricsInput | null ?? null,
       verificationDeadline: (submission as any).verificationDeadline?.toISOString() ?? null,
+      urlScrapes: EMPTY_URL_SCRAPES,
       createdAt: submission.createdAt.toISOString(),
       updatedAt: submission.updatedAt.toISOString(),
     };
@@ -390,12 +414,15 @@ export class SubmissionsService {
   async updateSubmission(
     id: string,
     user: AuthenticatedUser,
-    data: { proofText?: string; proofLinks?: string[]; removeImageIds?: string[] },
+    data: { proofText?: string; proofLinks?: ProofLinkInput[]; removeImageIds?: string[] },
     ipAddress?: string,
   ) {
     const submission = await this.prisma.submission.findUnique({
       where: { id },
-      include: { proofImages: true },
+      include: {
+        proofImages: true,
+        bounty: { select: { channels: true } },
+      },
     });
 
     if (!submission) {
@@ -408,6 +435,15 @@ export class SubmissionsService {
 
     if (submission.status !== SubmissionStatus.NEEDS_MORE_INFO) {
       throw new BadRequestException('Submission is not in NEEDS_MORE_INFO status');
+    }
+
+    // Re-validate per-format URL coverage when proofLinks are patched —
+    // prevents a hunter from dropping a required channel URL on resubmit.
+    if (data.proofLinks !== undefined) {
+      validateProofLinkCoverage(
+        data.proofLinks,
+        submission.bounty.channels as ChannelSelection | null,
+      );
     }
 
     const beforeState = {
@@ -429,7 +465,11 @@ export class SubmissionsService {
       status: SubmissionStatus.SUBMITTED,
     };
     if (data.proofText !== undefined) updateData.proofText = data.proofText.trim();
-    if (data.proofLinks !== undefined) updateData.proofLinks = data.proofLinks;
+    if (data.proofLinks !== undefined) {
+      // Derived legacy string[] — source of truth for URLs is
+      // SubmissionUrlScrape rows (PR 2 manages upserts + re-scrape).
+      updateData.proofLinks = data.proofLinks.map((p) => p.url);
+    }
 
     const updated = await this.prisma.submission.update({
       where: { id },
@@ -485,6 +525,9 @@ export class SubmissionsService {
       reviewerNote: updated.reviewerNote,
       reviewedBy: updated.reviewedBy,
       payoutStatus: updated.payoutStatus,
+      reportedMetrics: (updated as any).reportedMetrics as ReportedMetricsInput | null ?? null,
+      verificationDeadline: (updated as any).verificationDeadline?.toISOString() ?? null,
+      urlScrapes: EMPTY_URL_SCRAPES,
       createdAt: updated.createdAt.toISOString(),
       updatedAt: updated.updatedAt.toISOString(),
     };

@@ -161,7 +161,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       prisma.submission.findFirst.mockResolvedValue({ id: 'existing-sub-1' });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Second attempt' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Second attempt', proofLinks: [] }),
       ).rejects.toThrow(ConflictException);
     });
 
@@ -170,7 +170,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       prisma.submission.findFirst.mockResolvedValue({ id: 'existing-sub-1' });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Second attempt' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Second attempt', proofLinks: [] }),
       ).rejects.toThrow('You already have a submission for this bounty');
     });
 
@@ -179,7 +179,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       prisma.submission.findFirst.mockResolvedValue({ id: 'existing-sub-1' });
 
       try {
-        await service.create('bounty-1', mockParticipant, { proofText: 'Again' });
+        await service.create('bounty-1', mockParticipant, { proofText: 'Again', proofLinks: [] });
       } catch {
         // expected
       }
@@ -199,6 +199,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
 
       const result = await service.create('bounty-1', mockParticipant2, {
         proofText: 'My proof',
+        proofLinks: [],
       });
 
       expect(result.id).toBe('sub-new');
@@ -216,7 +217,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -227,7 +228,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow('Bounty is not accepting submissions');
     });
 
@@ -238,7 +239,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       });
 
       try {
-        await service.create('bounty-1', mockParticipant, { proofText: 'Proof' });
+        await service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] });
       } catch {
         // expected
       }
@@ -257,7 +258,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -268,7 +269,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow('Bounty is not accepting submissions');
     });
 
@@ -279,7 +280,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -295,7 +296,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -307,7 +308,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow('Maximum submissions reached');
     });
 
@@ -319,7 +320,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -337,6 +338,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
 
       const result = await service.create('bounty-1', mockParticipant, {
         proofText: 'Proof',
+        proofLinks: [],
       });
 
       expect(result.status).toBe(SubmissionStatus.SUBMITTED);
@@ -356,6 +358,7 @@ describe('SubmissionsService - Submission Edge Cases', () => {
 
       const result = await service.create('bounty-1', mockParticipant, {
         proofText: 'Proof',
+        proofLinks: [],
       });
 
       expect(result.status).toBe(SubmissionStatus.SUBMITTED);

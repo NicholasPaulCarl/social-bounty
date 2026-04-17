@@ -124,7 +124,7 @@ describe('SubmissionsService - Reported Metrics', () => {
 
       const result = await service.create('bounty-1', mockParticipant, {
         proofText: 'My proof',
-        proofLinks: ['https://example.com'],
+        proofLinks: [],
         reportedMetrics: { views: 1500, likes: 120, comments: 30 },
       });
 
@@ -149,6 +149,7 @@ describe('SubmissionsService - Reported Metrics', () => {
 
       const result = await service.create('bounty-1', mockParticipant, {
         proofText: 'My proof',
+        proofLinks: [],
       });
 
       expect(result).toBeDefined();
@@ -165,6 +166,7 @@ describe('SubmissionsService - Reported Metrics', () => {
 
       const result = await service.create('bounty-1', mockParticipant, {
         proofText: 'My proof',
+        proofLinks: [],
         reportedMetrics: { views: 500 },
       });
 

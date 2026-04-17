@@ -8,13 +8,33 @@ import {
   IsUUID,
   MaxLength,
   ArrayMaxSize,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import {
   SubmissionStatus,
   PayoutStatus,
+  SocialChannel,
+  PostFormat,
   FIELD_LIMITS,
   FILE_UPLOAD_LIMITS,
 } from '@social-bounty/shared';
+
+// Per (channel, format) URL input — replaces the legacy flat string[].
+// The submission-coverage.validator (in the parent dir) enforces the
+// per-format coverage rules against bounty.channels at service level.
+export class ProofLinkInputDto {
+  @IsEnum(SocialChannel)
+  channel!: SocialChannel;
+
+  @IsEnum(PostFormat)
+  format!: PostFormat;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUrl()
+  url!: string;
+}
 
 export class CreateSubmissionDto {
   @IsString()
@@ -22,11 +42,11 @@ export class CreateSubmissionDto {
   @MaxLength(FIELD_LIMITS.PROOF_TEXT_MAX)
   proofText!: string;
 
-  @IsOptional()
   @IsArray()
   @ArrayMaxSize(FILE_UPLOAD_LIMITS.MAX_PROOF_LINKS)
-  @IsUrl({}, { each: true })
-  proofLinks?: string[];
+  @ValidateNested({ each: true })
+  @Type(() => ProofLinkInputDto)
+  proofLinks!: ProofLinkInputDto[];
 }
 
 export class UpdateSubmissionDto {
@@ -38,8 +58,9 @@ export class UpdateSubmissionDto {
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(FILE_UPLOAD_LIMITS.MAX_PROOF_LINKS)
-  @IsUrl({}, { each: true })
-  proofLinks?: string[];
+  @ValidateNested({ each: true })
+  @Type(() => ProofLinkInputDto)
+  proofLinks?: ProofLinkInputDto[];
 
   @IsOptional()
   @IsArray()

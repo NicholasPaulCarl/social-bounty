@@ -141,7 +141,7 @@ describe('SubmissionsService', () => {
       const result = await service.create(
         'bounty-1',
         mockParticipant,
-        { proofText: 'My proof', proofLinks: ['https://example.com'] },
+        { proofText: 'My proof', proofLinks: [] },
       );
 
       expect(result.status).toBe(SubmissionStatus.SUBMITTED);
@@ -155,7 +155,7 @@ describe('SubmissionsService', () => {
       prisma.bounty.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.create('non-existent', mockParticipant, { proofText: 'Proof' }),
+        service.create('non-existent', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -166,7 +166,7 @@ describe('SubmissionsService', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -177,7 +177,7 @@ describe('SubmissionsService', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -188,7 +188,7 @@ describe('SubmissionsService', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -200,7 +200,7 @@ describe('SubmissionsService', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -211,7 +211,7 @@ describe('SubmissionsService', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -220,7 +220,7 @@ describe('SubmissionsService', () => {
       prisma.submission.findFirst.mockResolvedValue({ id: 'existing-sub' });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(ConflictException);
     });
   });
