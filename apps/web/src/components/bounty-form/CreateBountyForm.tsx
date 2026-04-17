@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useMemo, useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
@@ -155,7 +154,6 @@ export function CreateBountyForm({
   onStagedFilesReady,
   readOnlyMode,
 }: CreateBountyFormProps) {
-  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
 
   const { state, dispatch, totalRewardValue, validate, handleBlur, toRequest } = useCreateBountyForm(initialBounty);
@@ -188,10 +186,6 @@ export function CreateBountyForm({
     }
     onSaveDraft(toRequest('draft'));
   }, [validate, state.stagedBrandAssetFiles, toRequest, onSaveDraft, onStagedFilesReady]);
-
-  const handleCancel = useCallback(() => {
-    router.push('/business/bounties');
-  }, [router]);
 
   const isLocked = readOnlyMode === 'live';
   const lockedClass = isLocked ? 'opacity-60 pointer-events-none' : '';
@@ -480,7 +474,6 @@ export function CreateBountyForm({
         totalRewardValue={totalRewardValue}
         completedSections={completedSections}
         totalSections={SECTIONS.length}
-        onCancel={handleCancel}
         onSaveDraft={handleDraft}
         onCreate={handleCreate}
         isSaving={isSavingDraft}

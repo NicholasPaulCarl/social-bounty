@@ -15,7 +15,6 @@ interface FormSummaryFooterProps {
   totalRewardValue: number;
   completedSections: number;
   totalSections: number;
-  onCancel: () => void;
   onSaveDraft: () => void;
   onCreate: () => void;
   isSaving: boolean;
@@ -27,7 +26,6 @@ export function FormSummaryFooter({
   totalRewardValue,
   completedSections,
   totalSections,
-  onCancel,
   onSaveDraft,
   onCreate,
   isSaving,
@@ -65,7 +63,6 @@ export function FormSummaryFooter({
 
           {/* Col 3 — Buttons (right) */}
           <div className="flex items-center gap-3 justify-end">
-            <Button label="Cancel" text severity="secondary" onClick={onCancel} disabled={isSaving || isCreating} />
             <Button label="Save as Draft" outlined onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
             <Button label="Create Bounty" icon="pi pi-check" onClick={onCreate} loading={isCreating} disabled={isSaving} />
           </div>
@@ -85,9 +82,8 @@ export function FormSummaryFooter({
             {completedSections}/{totalSections} complete
           </span>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          <Button label="Cancel" text severity="secondary" className="text-sm" onClick={onCancel} disabled={isSaving || isCreating} />
-          <Button label="Draft" outlined className="text-sm" onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
+        <div className="grid grid-cols-2 gap-2">
+          <Button label="Save as Draft" outlined className="text-sm" onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
           <Button label="Create" icon="pi pi-check" className="text-sm" onClick={onCreate} loading={isCreating} disabled={isSaving} />
         </div>
       </div>
