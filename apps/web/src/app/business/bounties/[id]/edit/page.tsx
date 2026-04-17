@@ -11,6 +11,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { CreateBountyForm } from '@/components/bounty-form';
 import { bountyApi } from '@/lib/api/bounties';
+import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
 import { BountyStatus, PaymentStatus } from '@social-bounty/shared';
 import type { CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useState } from 'react';
@@ -64,15 +65,12 @@ export default function EditBountyPage() {
             payerName,
             payerEmail: user?.email,
           });
-          // Stitch's redirect URL is registered globally and may not carry
-          // our bountyId in the query string — stash it so /funded resolves
-          // even if Stitch appends nothing.
-          if (typeof window !== 'undefined') {
-            sessionStorage.setItem('stitchFundingBountyId', id);
-          }
-          toast.showSuccess('Saved — redirecting to payment…');
-          window.location.href = hostedUrl;
-          // Don't clear isFunding — the page is unloading.
+          redirectToHostedCheckout(hostedUrl, id, {
+            onDevNotice: (msg) => toast.showInfo(msg),
+            onDevSettled: () => setIsFunding(false),
+          });
+          // Production: page unloads. Dev: helper opens a new tab + clears
+          // isFunding via onDevSettled so the brand can keep using the form.
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Unknown error';
           toast.showError(

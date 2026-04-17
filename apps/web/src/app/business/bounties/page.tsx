@@ -8,6 +8,7 @@ import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
 import { useBounties, useDeleteBounty } from '@/hooks/useBounties';
 import { bountyApi } from '@/lib/api/bounties';
+import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
 import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
@@ -86,10 +87,10 @@ export default function BusinessBountiesPage() {
           payerName,
           payerEmail: user?.email,
         });
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('stitchFundingBountyId', id);
-        }
-        window.location.href = hostedUrl;
+        redirectToHostedCheckout(hostedUrl, id, {
+          onDevNotice: (msg) => toast.showInfo(msg),
+        });
+        // paymentLoading cleared by the finally block below.
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Couldn\'t start funding. Try again.';
         toast.showError(message);

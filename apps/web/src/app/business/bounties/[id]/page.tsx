@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { useBounty, useUpdateBountyStatus, useDeleteBounty } from '@/hooks/useBounties';
+import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
 import { BountyStatus, PostVisibilityRule, DurationUnit, PaymentStatus } from '@social-bounty/shared';
@@ -63,13 +64,10 @@ export default function BusinessBountyDetailPage() {
           payerName,
           payerEmail: user?.email,
         });
-        // Stitch's redirect URL is registered globally and may not carry our
-        // bountyId in the query string — stash it so the /funded page can
-        // resolve even if Stitch appends nothing.
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('stitchFundingBountyId', id);
-        }
-        window.location.href = hostedUrl;
+        redirectToHostedCheckout(hostedUrl, id, {
+          onDevNotice: (msg) => toast.showInfo(msg),
+        });
+        // paymentLoading cleared by the finally block below.
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Couldn\'t start funding. Try again.';
         toast.showError(message);

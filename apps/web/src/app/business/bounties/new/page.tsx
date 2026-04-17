@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBrand } from '@/hooks/useBrand';
 import { CreateBountyForm } from '@/components/bounty-form';
 import { bountyApi } from '@/lib/api/bounties';
+import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
 import type { CreateBountyRequest } from '@social-bounty/shared';
 import { useState } from 'react';
 
@@ -66,15 +67,17 @@ export default function CreateBountyPage() {
             payerName,
             payerEmail: user?.email,
           });
-          // Stitch's redirect URL is registered globally and may not carry
-          // our bountyId in the query string — stash it so /funded resolves
-          // even if Stitch appends nothing. Same pattern as the detail page.
-          if (typeof window !== 'undefined') {
-            sessionStorage.setItem('stitchFundingBountyId', res.id);
-          }
-          toast.showSuccess('Bounty created — redirecting to payment…');
-          window.location.href = hostedUrl;
-          // Don't clear isFunding — the page is unloading.
+          // Helper handles the same-page redirect in production and the
+          // new-tab open in dev (preview iframes block external nav).
+          // It also stashes bountyId in sessionStorage either way so the
+          // /funded page can resolve the bounty on return.
+          redirectToHostedCheckout(hostedUrl, res.id, {
+            onDevNotice: (msg) => toast.showInfo(msg),
+            onDevSettled: () => setIsFunding(false),
+          });
+          // In production the page unloads here; in dev the helper opens
+          // a new tab and the brand stays on the form (isFunding cleared
+          // by onDevSettled).
         } catch (err) {
           // Bounty is already created as DRAFT; payment setup failed. Take
           // the brand to the detail page so they can retry via "Go Live".
