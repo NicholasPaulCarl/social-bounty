@@ -2,7 +2,7 @@
 
 import { Tag } from 'primereact/tag';
 
-type StatusType = 'bounty' | 'submission' | 'payout' | 'user' | 'organisation' | 'role' | 'orgMemberRole' | 'dispute' | 'application' | 'invitation';
+type StatusType = 'bounty' | 'submission' | 'payout' | 'user' | 'brand' | 'role' | 'orgMemberRole' | 'dispute' | 'application' | 'invitation';
 
 type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | null | undefined;
 

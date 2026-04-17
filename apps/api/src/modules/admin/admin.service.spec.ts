@@ -47,7 +47,7 @@ describe('AdminService', () => {
         create: jest.fn(),
         update: jest.fn(),
       },
-      organisationMember: {
+      brandMember: {
         findFirst: jest.fn(),
         create: jest.fn(),
       },
@@ -202,7 +202,7 @@ describe('AdminService', () => {
   // ── updateBrandStatus ─────────────────────────────────
 
   describe('updateBrandStatus', () => {
-    it('should suspend an organisation and pause LIVE bounties', async () => {
+    it('should suspend a brand and pause LIVE bounties', async () => {
       prisma.brand.findUnique.mockResolvedValue({
         id: 'org-1',
         status: BrandStatus.ACTIVE,
@@ -234,7 +234,7 @@ describe('AdminService', () => {
       );
     });
 
-    it('should reinstate an organisation without re-publishing bounties', async () => {
+    it('should reinstate a brand without re-publishing bounties', async () => {
       prisma.brand.findUnique.mockResolvedValue({
         id: 'org-1',
         status: BrandStatus.SUSPENDED,

@@ -722,7 +722,7 @@ describe('AdminService - Edge Cases', () => {
       );
     });
 
-    it('should return organisation as null when user has no memberships', async () => {
+    it('should return brand as null when user has no memberships', async () => {
       prisma.user.findUnique.mockResolvedValue({
         id: 'user-1',
         email: 'lonely@test.com',
@@ -745,7 +745,7 @@ describe('AdminService - Edge Cases', () => {
       expect(result.approvedSubmissionCount).toBe(0);
     });
 
-    it('should return correct organisation info when user has membership', async () => {
+    it('should return correct brand info when user has membership', async () => {
       prisma.user.findUnique.mockResolvedValue({
         id: 'user-2',
         email: 'member@test.com',
@@ -878,7 +878,7 @@ describe('AdminService - Edge Cases', () => {
       );
     });
 
-    it('should map user data correctly including organisation', async () => {
+    it('should map user data correctly including brand', async () => {
       const now = new Date('2026-02-07T10:00:00Z');
       prisma.user.findMany.mockResolvedValue([
         {
@@ -915,7 +915,7 @@ describe('AdminService - Edge Cases', () => {
       });
     });
 
-    it('should return null organisation when user has no memberships', async () => {
+    it('should return null brand when user has no memberships', async () => {
       const now = new Date();
       prisma.user.findMany.mockResolvedValue([
         {
@@ -1189,7 +1189,7 @@ describe('AdminService - Edge Cases', () => {
   // ── Org Status - edge cases ───────────────────────────────────
 
   describe('updateBrandStatus - edge cases', () => {
-    it('should throw NotFoundException for non-existent organisation', async () => {
+    it('should throw NotFoundException for non-existent brand', async () => {
       prisma.brand.findUnique.mockResolvedValue(null);
 
       await expect(

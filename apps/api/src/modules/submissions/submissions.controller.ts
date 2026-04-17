@@ -107,7 +107,7 @@ export class SubmissionsController {
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
     return this.submissionsService.getReviewQueue(user, {
-      orgId,
+      brandId: orgId,
       status,
       bountyId,
       page,

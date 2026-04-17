@@ -54,7 +54,7 @@ export class BrandsService {
     }
 
     const org = await this.prisma.$transaction(async (tx) => {
-      const organisation = await tx.brand.create({
+      const brand = await tx.brand.create({
         data: {
           name: data.name.trim(),
           contactEmail: data.contactEmail.toLowerCase().trim(),
@@ -70,7 +70,7 @@ export class BrandsService {
       await tx.brandMember.create({
         data: {
           userId: user.sub,
-          brandId: organisation.id,
+          brandId: brand.id,
           role: BrandMemberRole.OWNER,
         },
       });
@@ -86,7 +86,7 @@ export class BrandsService {
         });
       }
 
-      return organisation;
+      return brand;
     });
 
     this.auditService.log({
@@ -124,9 +124,9 @@ export class BrandsService {
     };
   }
 
-  async findById(orgId: string, user: AuthenticatedUser) {
+  async findById(brandId: string, user: AuthenticatedUser) {
     const org = await this.prisma.brand.findUnique({
-      where: { id: orgId },
+      where: { id: brandId },
       include: {
         _count: {
           select: { members: true, bounties: true },
@@ -140,7 +140,7 @@ export class BrandsService {
 
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      user.brandId !== orgId
+      user.brandId !== brandId
     ) {
       throw new ForbiddenException('Not authorized to view this brand');
     }
@@ -169,7 +169,7 @@ export class BrandsService {
   }
 
   async update(
-    orgId: string,
+    brandId: string,
     user: AuthenticatedUser,
     data: {
       name?: string;
@@ -185,7 +185,7 @@ export class BrandsService {
     logoFile?: Express.Multer.File,
   ) {
     const org = await this.prisma.brand.findUnique({
-      where: { id: orgId },
+      where: { id: brandId },
     });
 
     if (!org) {
@@ -197,7 +197,7 @@ export class BrandsService {
       const membership = await this.prisma.brandMember.findFirst({
         where: {
           userId: user.sub,
-          brandId: orgId,
+          brandId,
           role: BrandMemberRole.OWNER,
         },
       });
@@ -235,7 +235,7 @@ export class BrandsService {
     if (logoFile) updateData.logo = `/uploads/${logoFile.filename}`;
 
     const updated = await this.prisma.brand.update({
-      where: { id: orgId },
+      where: { id: brandId },
       data: updateData,
     });
 
@@ -244,7 +244,7 @@ export class BrandsService {
       actorRole: user.role as UserRole,
       action: AUDIT_ACTIONS.BRAND_UPDATE,
       entityType: ENTITY_TYPES.BRAND,
-      entityId: orgId,
+      entityId: brandId,
       beforeState,
       afterState: { name: updated.name, contactEmail: updated.contactEmail },
       ipAddress,
@@ -252,8 +252,8 @@ export class BrandsService {
 
     // Fire-and-forget: refresh social analytics when social handles may have changed
     setImmediate(() => {
-      this.apify.refreshIfStale(orgId).catch((err) => {
-        this.logger.error(`Background refresh after brand update failed for ${orgId}`, err);
+      this.apify.refreshIfStale(brandId).catch((err) => {
+        this.logger.error(`Background refresh after brand update failed for ${brandId}`, err);
       });
     });
 
@@ -462,12 +462,12 @@ export class BrandsService {
   }
 
   async uploadCoverPhoto(
-    orgId: string,
+    brandId: string,
     user: AuthenticatedUser,
     file: Express.Multer.File,
   ) {
     const org = await this.prisma.brand.findUnique({
-      where: { id: orgId },
+      where: { id: brandId },
     });
 
     if (!org) {
@@ -479,18 +479,18 @@ export class BrandsService {
       const membership = await this.prisma.brandMember.findFirst({
         where: {
           userId: user.sub,
-          brandId: orgId,
+          brandId,
           role: BrandMemberRole.OWNER,
         },
       });
 
       if (!membership) {
-        throw new ForbiddenException('Only org owner or Super Admin can update');
+        throw new ForbiddenException('Only brand owner or Super Admin can update');
       }
     }
 
     const updated = await this.prisma.brand.update({
-      where: { id: orgId },
+      where: { id: brandId },
       data: { coverPhotoUrl: `/uploads/${file.filename}` },
     });
 
@@ -513,21 +513,21 @@ export class BrandsService {
   }
 
   async listMembers(
-    orgId: string,
+    brandId: string,
     user: AuthenticatedUser,
     page = 1,
     limit = 20,
   ) {
     if (
       user.role !== UserRole.SUPER_ADMIN &&
-      user.brandId !== orgId
+      user.brandId !== brandId
     ) {
       throw new ForbiddenException('Not authorized');
     }
 
     const [members, total] = await Promise.all([
       this.prisma.brandMember.findMany({
-        where: { brandId: orgId },
+        where: { brandId },
         include: {
           user: {
             select: {
@@ -544,7 +544,7 @@ export class BrandsService {
         orderBy: { joinedAt: 'desc' },
       }),
       this.prisma.brandMember.count({
-        where: { brandId: orgId },
+        where: { brandId },
       }),
     ]);
 
@@ -566,29 +566,29 @@ export class BrandsService {
   }
 
   async inviteMember(
-    orgId: string,
+    brandId: string,
     email: string,
     user: AuthenticatedUser,
     ipAddress?: string,
   ) {
-    // Check authorization: must be org owner or SA
+    // Check authorization: must be brand owner or SA
     if (user.role !== UserRole.SUPER_ADMIN) {
       const ownerMembership = await this.prisma.brandMember.findFirst({
         where: {
           userId: user.sub,
-          brandId: orgId,
+          brandId,
           role: BrandMemberRole.OWNER,
         },
       });
 
       if (!ownerMembership) {
-        throw new ForbiddenException('Only org owner or Super Admin can invite members');
+        throw new ForbiddenException('Only brand owner or Super Admin can invite members');
       }
     }
 
-    // Find the organisation
+    // Find the brand
     const org = await this.prisma.brand.findUnique({
-      where: { id: orgId },
+      where: { id: brandId },
     });
 
     if (!org) {
@@ -605,7 +605,7 @@ export class BrandsService {
       throw new BadRequestException('User not found');
     }
 
-    // Add user to org (check + create in transaction to prevent race condition)
+    // Add user to brand (check + create in transaction to prevent race condition)
     const member = await this.prisma.$transaction(async (tx) => {
       const existingMembership = await tx.brandMember.findFirst({
         where: { userId: targetUser.id },
@@ -618,7 +618,7 @@ export class BrandsService {
       const newMember = await tx.brandMember.create({
         data: {
           userId: targetUser.id,
-          brandId: orgId,
+          brandId,
           role: BrandMemberRole.MEMBER,
         },
       });
@@ -637,7 +637,7 @@ export class BrandsService {
       actorRole: user.role as UserRole,
       action: AUDIT_ACTIONS.BRAND_MEMBER_ADD,
       entityType: ENTITY_TYPES.BRAND,
-      entityId: orgId,
+      entityId: brandId,
       afterState: { addedUserId: targetUser.id, email: normalizedEmail },
       ipAddress,
     });
@@ -647,7 +647,7 @@ export class BrandsService {
       invitation: {
         id: member.id,
         email: normalizedEmail,
-        brandId: orgId,
+        brandId,
         status: 'PENDING',
         createdAt: member.joinedAt.toISOString(),
       },
@@ -655,7 +655,7 @@ export class BrandsService {
   }
 
   async removeMember(
-    orgId: string,
+    brandId: string,
     targetUserId: string,
     user: AuthenticatedUser,
     ipAddress?: string,
@@ -666,18 +666,18 @@ export class BrandsService {
       const ownerMembership = await this.prisma.brandMember.findFirst({
         where: {
           userId: user.sub,
-          brandId: orgId,
+          brandId,
           role: BrandMemberRole.OWNER,
         },
       });
 
       if (!ownerMembership) {
-        throw new ForbiddenException('Only org owner or Super Admin can remove members');
+        throw new ForbiddenException('Only brand owner or Super Admin can remove members');
       }
     }
 
     const membership = await this.prisma.brandMember.findFirst({
-      where: { userId: targetUserId, brandId: orgId },
+      where: { userId: targetUserId, brandId },
     });
 
     if (!membership) {
@@ -704,7 +704,7 @@ export class BrandsService {
       actorRole: user.role as UserRole,
       action: AUDIT_ACTIONS.BRAND_MEMBER_REMOVE,
       entityType: ENTITY_TYPES.BRAND,
-      entityId: orgId,
+      entityId: brandId,
       afterState: { removedUserId: targetUserId },
       ipAddress,
     });

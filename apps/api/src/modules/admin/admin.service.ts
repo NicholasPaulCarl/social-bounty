@@ -185,7 +185,7 @@ export class AdminService {
     };
   }
 
-  // ── Organisations ──────────────────
+  // ── Brands ──────────────────
 
   async listBrands(params: {
     page?: number;
@@ -286,7 +286,7 @@ export class AdminService {
     }
 
     const org = await this.prisma.$transaction(async (tx) => {
-      const organisation = await tx.brand.create({
+      const brand = await tx.brand.create({
         data: {
           name: data.name.trim(),
           contactEmail: data.contactEmail.toLowerCase().trim(),
@@ -297,7 +297,7 @@ export class AdminService {
       await tx.brandMember.create({
         data: {
           userId: data.ownerUserId,
-          brandId: organisation.id,
+          brandId: brand.id,
           role: BrandMemberRole.OWNER,
         },
       });
@@ -307,7 +307,7 @@ export class AdminService {
         data: { role: UserRole.BUSINESS_ADMIN },
       });
 
-      return organisation;
+      return brand;
     });
 
     this.auditService.log({

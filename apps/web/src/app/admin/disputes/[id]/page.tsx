@@ -548,12 +548,12 @@ export default function AdminDisputeDetailPage() {
               <p className="text-xs text-text-muted mt-0.5">{formatEnumLabel(d.openedByRole)}</p>
             </div>
 
-            {/* Organisation */}
+            {/* Brand */}
             <div className="pt-3 border-t border-glass-border">
-              <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">Organisation</p>
+              <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">Brand</p>
               <p className="text-sm text-text-primary font-medium">{d.brandName}</p>
               <Button
-                label="View Org"
+                label="View Brand"
                 icon="pi pi-building"
                 size="small"
                 text

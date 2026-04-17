@@ -60,8 +60,8 @@ export const brandsApi = {
   inviteMember: (id: string, data: InviteMemberRequest): Promise<InviteMemberResponse> =>
     apiClient.post(`/brands/${id}/members`, data),
 
-  removeMember: (orgId: string, userId: string): Promise<MessageResponse> =>
-    apiClient.delete(`/brands/${orgId}/members/${userId}`),
+  removeMember: (brandId: string, userId: string): Promise<MessageResponse> =>
+    apiClient.delete(`/brands/${brandId}/members/${userId}`),
 
   listMine: (): Promise<MyBrandListItem[]> =>
     apiClient.get('/brands/mine'),

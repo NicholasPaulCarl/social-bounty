@@ -376,7 +376,7 @@ describe('DisputesService', () => {
       );
     });
 
-    it('business admin can only view disputes in their organisation', async () => {
+    it('business admin can only view disputes in their brand', async () => {
       const otherBA: AuthenticatedUser = {
         sub: 'ba-2',
         email: 'ba2@test.com',

@@ -98,7 +98,7 @@ export default function MyBrandsPage() {
                 </div>
 
                 <div className="flex items-center gap-4 text-sm text-text-muted">
-                  <StatusBadge type="organisation" value={brand.status} />
+                  <StatusBadge type="brand" value={brand.status} />
                   <span>{brand.bountiesPosted} bounties</span>
                   <span className="capitalize">{brand.role.toLowerCase()}</span>
                 </div>

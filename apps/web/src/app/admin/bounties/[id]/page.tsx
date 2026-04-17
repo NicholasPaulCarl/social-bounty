@@ -91,7 +91,7 @@ export default function AdminBountyDetailPage() {
             <h3 className="text-lg font-semibold text-text-primary mb-4">Details</h3>
             <dl className="space-y-3">
               <div>
-                <dt className="text-sm text-text-muted">Organisation</dt>
+                <dt className="text-sm text-text-muted">Brand</dt>
                 <dd className="text-sm font-medium text-text-primary">{bounty.brand?.name || '-'}</dd>
               </div>
               <div>

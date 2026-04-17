@@ -21,11 +21,11 @@ import type { BrandMemberResponse } from '@social-bounty/shared';
 export default function BrandMembersPage() {
   const toast = useToast();
   const { user } = useAuth();
-  const orgId = user?.brandId || '';
+  const brandId = user?.brandId || '';
 
-  const { data, isLoading, error, refetch } = useBrandMembers(orgId);
-  const inviteMember = useInviteMember(orgId);
-  const removeMember = useRemoveMember(orgId);
+  const { data, isLoading, error, refetch } = useBrandMembers(brandId);
+  const inviteMember = useInviteMember(brandId);
+  const removeMember = useRemoveMember(brandId);
 
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');

@@ -62,7 +62,7 @@ export class UsersService {
         isVerified: link.isVerified,
         verifiedAt: link.verifiedAt ? link.verifiedAt.toISOString() : null,
       })),
-      organisation: membership
+      brand: membership
         ? {
             id: membership.brand.id,
             name: membership.brand.name,

@@ -36,7 +36,7 @@ describe('UsersService', () => {
         update: jest.fn(),
         count: jest.fn(),
       },
-      organisationMember: {
+      brandMember: {
         findFirst: jest.fn(),
       },
       socialLink: {
@@ -70,20 +70,20 @@ describe('UsersService', () => {
   // ── getProfile ───────────────────────────────────────────
 
   describe('getProfile', () => {
-    it('should return user profile without organisation when no membership', async () => {
+    it('should return user profile without brand when no membership', async () => {
       prisma.user.findUnique.mockResolvedValue(baseUser);
 
       const result = await service.getProfile('user-1');
 
       expect(result.id).toBe('user-1');
       expect(result.email).toBe('user@test.com');
-      expect(result.organisation).toBeNull();
+      expect(result.brand).toBeNull();
       expect(result.bio).toBeNull();
       expect(result.interests).toEqual([]);
       expect(result.socialLinks).toEqual([]);
     });
 
-    it('should include organisation info when user has a membership', async () => {
+    it('should include brand info when user has a membership', async () => {
       const userWithOrg = {
         ...baseUser,
         brandMemberships: [
@@ -97,7 +97,7 @@ describe('UsersService', () => {
 
       const result = await service.getProfile('user-1');
 
-      expect(result.organisation).toEqual({
+      expect(result.brand).toEqual({
         id: 'org-1',
         name: 'Acme Corp',
         role: 'OWNER',

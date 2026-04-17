@@ -14,7 +14,7 @@ import { ApiError } from '@/lib/api/client';
 export default function CreateBrandPage() {
   const router = useRouter();
   const { showSuccess, showError } = useToast();
-  const createOrg = useCreateBrand();
+  const createBrand = useCreateBrand();
 
   const [name, setName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
@@ -30,7 +30,7 @@ export default function CreateBrandPage() {
 
     setError('');
     try {
-      await createOrg.mutateAsync({
+      await createBrand.mutateAsync({
         data: { name: name.trim(), contactEmail: contactEmail.trim() },
         logo,
       });
@@ -100,7 +100,7 @@ export default function CreateBrandPage() {
               type="submit"
               label="Create Brand"
               icon="pi pi-check"
-              loading={createOrg.isPending}
+              loading={createBrand.isPending}
             />
             <Button
               type="button"

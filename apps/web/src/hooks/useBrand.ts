@@ -45,7 +45,7 @@ export function useUpdateBrand(id: string) {
     mutationFn: ({ data, logo }: { data: UpdateBrandRequest; logo?: File | null }) =>
       brandsApi.update(id, data, logo),
     onSuccess: () => {
-      // Invalidate the whole organisations branch so both the detail cache and
+      // Invalidate the whole brands branch so both the detail cache and
       // the public-profile cache (keyed by id *or* handle) stay in sync — a
       // handle change would otherwise leave one of the two entries stale.
       queryClient.invalidateQueries({ queryKey: queryKeys.brands.all });
@@ -53,22 +53,22 @@ export function useUpdateBrand(id: string) {
   });
 }
 
-export function useInviteMember(orgId: string) {
+export function useInviteMember(brandId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: InviteMemberRequest) => brandsApi.inviteMember(orgId, data),
+    mutationFn: (data: InviteMemberRequest) => brandsApi.inviteMember(brandId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.brands.members(orgId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.members(brandId) });
     },
   });
 }
 
-export function useRemoveMember(orgId: string) {
+export function useRemoveMember(brandId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (userId: string) => brandsApi.removeMember(orgId, userId),
+    mutationFn: (userId: string) => brandsApi.removeMember(brandId, userId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.brands.members(orgId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.members(brandId) });
     },
   });
 }

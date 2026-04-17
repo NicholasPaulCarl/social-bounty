@@ -90,7 +90,7 @@ describe('BrandsService', () => {
   // ── create ───────────────────────────────────────────────
 
   describe('create', () => {
-    it('should create an organisation and run within a transaction', async () => {
+    it('should create a brand and run within a transaction', async () => {
       prisma.brand.create.mockResolvedValue(baseOrg);
       prisma.brandMember.create.mockResolvedValue({});
       prisma.user.findUnique.mockResolvedValue({

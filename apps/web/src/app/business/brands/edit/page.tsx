@@ -17,9 +17,9 @@ export default function EditBrandPage() {
   const router = useRouter();
   const toast = useToast();
   const { user } = useAuth();
-  const orgId = user?.brandId || '';
-  const { data: org, isLoading, error, refetch } = useBrand(orgId);
-  const updateOrg = useUpdateBrand(orgId);
+  const brandId = user?.brandId || '';
+  const { data: brand, isLoading, error, refetch } = useBrand(brandId);
+  const updateBrand = useUpdateBrand(brandId);
 
   const [name, setName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
@@ -27,15 +27,15 @@ export default function EditBrandPage() {
   const [formError, setFormError] = useState('');
 
   useEffect(() => {
-    if (org) {
-      setName(org.name);
-      setContactEmail(org.contactEmail);
+    if (brand) {
+      setName(brand.name);
+      setContactEmail(brand.contactEmail);
     }
-  }, [org]);
+  }, [brand]);
 
   if (isLoading) return <LoadingState type="form" />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
-  if (!org) return null;
+  if (!brand) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +46,7 @@ export default function EditBrandPage() {
       return;
     }
 
-    updateOrg.mutate(
+    updateBrand.mutate(
       { data: { name: name.trim(), contactEmail: contactEmail.trim() }, logo },
       {
         onSuccess: () => {
@@ -102,8 +102,8 @@ export default function EditBrandPage() {
             <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
               Logo
             </label>
-            {org.logo && (
-              <img src={org.logo} alt="Current logo" className="w-16 h-16 rounded-lg object-cover mb-2" />
+            {brand.logo && (
+              <img src={brand.logo} alt="Current logo" className="w-16 h-16 rounded-lg object-cover mb-2" />
             )}
             <FileUpload
               mode="basic"
@@ -127,7 +127,7 @@ export default function EditBrandPage() {
               label="Save Changes"
               type="submit"
               icon="pi pi-save"
-              loading={updateOrg.isPending}
+              loading={updateBrand.isPending}
             />
           </div>
         </form>

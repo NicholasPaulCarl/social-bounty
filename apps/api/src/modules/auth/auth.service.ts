@@ -237,7 +237,7 @@ export class AuthService {
     const role = registerAsBrand ? UserRole.BUSINESS_ADMIN : UserRole.PARTICIPANT;
 
     if (registerAsBrand) {
-      // Create user + organisation + membership in a transaction
+      // Create user + brand + membership in a transaction
       const result = await this.prisma.$transaction(async (tx) => {
         const user = await tx.user.create({
           data: {
@@ -251,7 +251,7 @@ export class AuthService {
           },
         });
 
-        const organisation = await tx.brand.create({
+        const brand = await tx.brand.create({
           data: {
             name: brandName!,
             contactEmail: brandContactEmail!,
@@ -262,12 +262,12 @@ export class AuthService {
         await tx.brandMember.create({
           data: {
             userId: user.id,
-            brandId: organisation.id,
+            brandId: brand.id,
             role: BrandMemberRole.OWNER,
           },
         });
 
-        return { user, brandId: organisation.id };
+        return { user, brandId: brand.id };
       });
 
       const tokens = await this.generateTokens(

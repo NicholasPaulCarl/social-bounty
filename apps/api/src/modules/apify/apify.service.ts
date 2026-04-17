@@ -91,7 +91,7 @@ export class ApifyService {
 
   /**
    * Run the three actors in parallel for the given brand's handles and
-   * persist the resulting blob on Organisation.socialAnalytics.
+   * persist the resulting blob on Brand.socialAnalytics.
    *
    * Protected by a per-brand Redis lock so two concurrent triggers (e.g. a
    * login + an overlapping cron pass) don't waste actor credits or race on

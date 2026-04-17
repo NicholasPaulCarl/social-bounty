@@ -33,7 +33,7 @@ export default function AdminBrandsPage() {
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
 
   const statusTemplate = (rowData: AdminBrandListItem) => (
-    <StatusBadge type="organisation" value={rowData.status} />
+    <StatusBadge type="brand" value={rowData.status} />
   );
 
   const dateTemplate = (rowData: AdminBrandListItem) => (

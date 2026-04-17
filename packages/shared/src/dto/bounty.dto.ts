@@ -17,7 +17,7 @@ import {
 // Bounty DTOs
 // ─────────────────────────────────────
 
-// Organisation summary embedded in bounty responses
+// Brand summary embedded in bounty responses
 export interface BountyBrandInfo {
   id: string;
   name: string;
