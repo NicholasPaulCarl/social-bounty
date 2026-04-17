@@ -1,6 +1,7 @@
 'use client';
 
 import { Panel } from 'primereact/panel';
+import { Tag } from 'primereact/tag';
 import type { ReactNode } from 'react';
 
 interface SectionPanelProps {
@@ -14,17 +15,26 @@ interface SectionPanelProps {
 }
 
 export function SectionPanel({ number, title, icon, isComplete, hasError, helperText, children }: SectionPanelProps) {
+  // Status pill replaces the prior check-circle / exclamation icons.
+  // Shown from page-load (not gated on submit-attempted) so brands
+  // see which sections still need input before they try to publish.
+  const done = isComplete && !hasError;
+  const statusTag = done ? (
+    <Tag value="Complete" severity="success" className="text-xs px-2 py-0.5" />
+  ) : (
+    <Tag value="Required" severity="secondary" className="text-xs px-2 py-0.5" />
+  );
+
   const header = (
-    <div className="flex items-center justify-between w-full">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between w-full gap-3">
+      <div className="flex items-center gap-2 min-w-0">
         <i className={`pi ${icon} text-accent-cyan text-sm`} />
         <span className="text-accent-cyan font-heading font-bold">{number}.</span>
-        <span className="text-sm sm:text-base font-heading font-semibold text-text-primary">
+        <span className="text-sm sm:text-base font-heading font-semibold text-text-primary truncate">
           {title}
         </span>
       </div>
-      {hasError && <i className="pi pi-exclamation-circle text-accent-rose" />}
-      {isComplete && !hasError && <i className="pi pi-check-circle text-accent-emerald" />}
+      {statusTag}
     </div>
   );
 
