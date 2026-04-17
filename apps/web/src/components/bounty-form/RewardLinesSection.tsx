@@ -67,6 +67,15 @@ export function RewardLinesSection({
         />
       </div>
 
+      <div className="mb-2">
+        <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1">
+          Rewards <span className="text-accent-rose">*</span>
+        </label>
+        <p className="text-xs text-text-muted">
+          At least one reward with a value greater than zero is required.
+        </p>
+      </div>
+
       {/* Desktop table layout */}
       <div className="hidden md:block border border-glass-border rounded-lg overflow-hidden">
         <div className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 bg-elevated border-b border-glass-border">

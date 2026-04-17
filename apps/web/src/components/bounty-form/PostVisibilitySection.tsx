@@ -61,21 +61,31 @@ export function PostVisibilitySection({
           <span className="text-sm text-text-primary">Minimum posting duration</span>
         </div>
         {minDuration && (
-          <div className="flex items-center gap-2">
-            <InputNumber
-              value={postVisibility?.minDurationValue ?? null}
-              onValueChange={(e) => dispatch({ type: 'SET_DURATION_VALUE', payload: e.value ?? null })}
-              min={1}
-              className={`w-28 ${submitAttempted && errors.durationValue ? 'p-invalid' : ''}`}
-              placeholder="e.g. 7"
-            />
-            <Dropdown
-              value={postVisibility?.minDurationUnit ?? null}
-              options={DURATION_UNIT_OPTIONS}
-              onChange={(e) => dispatch({ type: 'SET_DURATION_UNIT', payload: e.value })}
-              className={`w-32 ${submitAttempted && errors.durationUnit ? 'p-invalid' : ''}`}
-              placeholder="Unit"
-            />
+          <div className="flex items-end gap-2">
+            <div className="flex flex-col gap-1">
+              <label className="text-text-muted text-xs uppercase tracking-wider font-medium">
+                Duration <span className="text-accent-rose">*</span>
+              </label>
+              <InputNumber
+                value={postVisibility?.minDurationValue ?? null}
+                onValueChange={(e) => dispatch({ type: 'SET_DURATION_VALUE', payload: e.value ?? null })}
+                min={1}
+                className={`w-28 ${submitAttempted && errors.durationValue ? 'p-invalid' : ''}`}
+                placeholder="e.g. 7"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-text-muted text-xs uppercase tracking-wider font-medium">
+                Unit <span className="text-accent-rose">*</span>
+              </label>
+              <Dropdown
+                value={postVisibility?.minDurationUnit ?? null}
+                options={DURATION_UNIT_OPTIONS}
+                onChange={(e) => dispatch({ type: 'SET_DURATION_UNIT', payload: e.value })}
+                className={`w-32 ${submitAttempted && errors.durationUnit ? 'p-invalid' : ''}`}
+                placeholder="Unit"
+              />
+            </div>
           </div>
         )}
       </div>

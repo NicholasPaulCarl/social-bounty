@@ -62,18 +62,20 @@ describe('buildCreateBountyRequest', () => {
   // Draft mode
   // --------------------------------------------------------------------------
   describe('draft mode', () => {
-    it('should only include title when form is at initial state', () => {
+    it('should only include title + seeded proofRequirements when form is at initial state', () => {
       const result = buildCreateBountyRequest(INITIAL_FORM_STATE, 'draft');
       // Title is always included (even if empty string after trim)
       expect(result.title).toBe('');
       // currency and aiContentPermitted are always included
       expect(result.currency).toBe(Currency.ZAR);
       expect(result.aiContentPermitted).toBe(false);
+      // URL proof is seeded into INITIAL_FORM_STATE to match the
+      // "Post links are required" inline notice on Section 1.
+      expect(result.proofRequirements).toBe('url');
       // Optional fields should NOT be present
       expect(result).not.toHaveProperty('shortDescription');
       expect(result).not.toHaveProperty('fullInstructions');
       expect(result).not.toHaveProperty('category');
-      expect(result).not.toHaveProperty('proofRequirements');
       expect(result).not.toHaveProperty('maxSubmissions');
       expect(result).not.toHaveProperty('startDate');
       expect(result).not.toHaveProperty('endDate');

@@ -153,7 +153,11 @@ export const INITIAL_FORM_STATE: BountyFormState = {
     noCompetingBrandDays: null,
     customRules: [],
   },
-  proofRequirements: [],
+  // URL is always required per the inline notice on Section 1
+  // ("Post links are required for all submissions") — seed it so the
+  // validation passes and the form is submittable. Brands can add
+  // 'screenshot' via any future UI without needing this default first.
+  proofRequirements: ['url'],
   maxSubmissions: null,
   startDate: null,
   endDate: null,
