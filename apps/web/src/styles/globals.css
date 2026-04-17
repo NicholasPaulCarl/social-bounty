@@ -932,6 +932,43 @@ input.p-inputtext,
   color: #e11d48 !important;
 }
 
+/*
+ * Mobile (<640px) — toast container stretches edge-to-edge with a 12px
+ * margin instead of using the desktop fixed 25rem width. Without this
+ * override, "top-right" anchoring + 25rem width pushes the toast off
+ * the right edge on phones (375px and narrower).
+ *
+ * Top position respects env(safe-area-inset-top) so iOS notched devices
+ * don't render the toast under the status bar.
+ *
+ * Long messages wrap inside the constrained width via overflow-wrap.
+ */
+@media (max-width: 640px) {
+  .p-toast {
+    width: auto !important;
+    max-width: calc(100vw - 1.5rem) !important;
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+    top: max(0.75rem, env(safe-area-inset-top, 0.75rem)) !important;
+  }
+
+  .p-toast .p-toast-message {
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .p-toast .p-toast-message .p-toast-message-content {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .p-toast .p-toast-message .p-toast-message-text,
+  .p-toast .p-toast-message .p-toast-summary,
+  .p-toast .p-toast-message .p-toast-detail {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
 /* ─── Tooltip ─── */
 
 .p-tooltip .p-tooltip-text {
