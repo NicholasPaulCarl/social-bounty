@@ -494,6 +494,31 @@
 }
 
 /* ──────────────────────────────────────────────
+ * Form-control height normalization (design token)
+ *
+ * All single-line form controls render at exactly 2.5rem (40px) so
+ * inputs sit flush next to each other in mixed layouts — the canonical
+ * case is Duration (InputNumber) + Unit (Dropdown) side by side, but
+ * applies everywhere InputText, InputNumber, Dropdown, MultiSelect,
+ * or Calendar are combined.
+ *
+ * Uses `height` (not just `min-height`) because PrimeReact's lara
+ * theme sets its own padding/min-height per component, leading to
+ * 1–2px rendering drift between InputText and Dropdown. Locking
+ * `height` guarantees pixel-perfect alignment.
+ *
+ * Excluded: `.p-inputtextarea` (textarea tag, not <input>) keeps
+ * its `min-height: 5rem` and grows with content.
+ *
+ * See DESIGN-SYSTEM.md §13 for the canonical rule + rationale.
+ * ────────────────────────────────────────────── */
+input.p-inputtext,
+.p-dropdown,
+.p-multiselect {
+  height: 2.5rem !important;
+}
+
+/* ──────────────────────────────────────────────
  * Horizontal Stepper (InputNumber +/- buttons)
  *
  * Design-system tokens applied:

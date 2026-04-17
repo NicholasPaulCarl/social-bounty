@@ -1425,7 +1425,7 @@ Every new component or screen must pass this checklist before merge. Most of the
 **Tap targets — do not shrink**
 
 - Interactive buttons / nav items / icon buttons: **`min-h-[44px] min-w-[44px]`** (WCAG AA, §11.5).
-- Form input heights: leave at PrimeReact default (the `globals.css` override already sets ~40-44px).
+- Form input heights: **fixed at `2.5rem` (40px)** via the global rule on `input.p-inputtext, .p-dropdown, .p-multiselect` — see §13.6. Do **not** override per-component with `h-*` Tailwind classes; let the token own it. `InputTextarea` is the only exception (grows with content, `min-height: 5rem`).
 - You may tighten padding *around* inputs (labels, helper text, gaps), but not internal input padding.
 
 **Modals — responsive width**
@@ -1934,6 +1934,30 @@ PrimeReact's Lara theme uses CSS variables. Override these in your global styles
   box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15), 0 0 20px rgba(6, 182, 212, 0.1) !important;
 }
 ```
+
+### 13.6 Form-Control Height (design token)
+
+All single-line form controls render at exactly **2.5rem (40px)**. This is a design-system contract: when any of `InputText`, `InputNumber`, `Dropdown`, `MultiSelect`, or `Calendar` sit next to each other (Duration + Unit, reward Type + Name + Value, filter bar), their heights must be pixel-identical.
+
+```css
+/* Single-line form controls render at exactly 40px */
+input.p-inputtext,
+.p-dropdown,
+.p-multiselect {
+  height: 2.5rem !important;
+}
+```
+
+**Why `height`, not `min-height`**: PrimeReact's lara theme sets its own padding + min-height per component (`.p-dropdown` vs `.p-inputtext` differ by 2px internally), producing 1–2px drift visible wherever two different control types are rendered in the same row. `height: 2.5rem !important` forces exact alignment.
+
+**Selector notes:**
+- `input.p-inputtext` matches the `<input>` element itself, covering standalone InputText, Password, Calendar's internal input, and InputNumber's inner input (which also carries `.p-inputnumber-input`).
+- `<textarea class="p-inputtext p-inputtextarea">` is **not** matched (tagname is `textarea`), so textareas keep their `min-height: 5rem` and grow with content.
+- `.p-dropdown` and `.p-multiselect` are wrapper divs; children stretch vertically via `inline-flex` default.
+
+**Do not** set component-local heights (e.g. `className="h-10"`) on these controls — let the global rule own the height, and use Tailwind only for **width**, **padding around the control**, or **label+input stacks**. This keeps the design token in one place and prevents pixel drift.
+
+**Related tap-target note (§11.5 / §10):** the 44px tap-target minimum applies to **buttons, nav items, and interactive icons** — not to form inputs. A 40px text input is WCAG-compliant (users interact with text, not tap area) and standard across major design systems (Material, Ant, HIG).
 
 ### 13.6 Additional Component Overrides
 
