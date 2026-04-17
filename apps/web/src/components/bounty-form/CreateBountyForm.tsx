@@ -6,7 +6,8 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { InputSwitch } from 'primereact/inputswitch';
-import { FIELD_LIMITS, ContentFormat, BountyAccessType } from '@social-bounty/shared';
+import { Tag } from 'primereact/tag';
+import { FIELD_LIMITS, ContentFormat, BountyAccessType, SocialChannel } from '@social-bounty/shared';
 import type { BountyDetailResponse, CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useCreateBountyForm } from './useCreateBountyForm';
 import { SectionPanel } from './SectionPanel';
@@ -268,33 +269,66 @@ export function CreateBountyForm({
               <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-2">
                 Accepted Formats <span className="text-accent-rose">*</span>
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {([
-                  { value: ContentFormat.VIDEO_ONLY, label: 'Video Only', icon: 'pi-video', desc: 'Only video content accepted' },
-                  { value: ContentFormat.PHOTO_ONLY, label: 'Photo Only', icon: 'pi-image', desc: 'Only photo content accepted' },
-                  { value: ContentFormat.BOTH, label: 'Both', icon: 'pi-images', desc: 'Video and photo accepted' },
-                ] as const).map(({ value, label, icon, desc }) => {
-                  const selected = state.contentFormat === value;
-                  return (
-                    <div
-                      key={value}
-                      role="button"
-                      tabIndex={0}
-                      className={`border rounded-lg p-4 cursor-pointer transition-colors text-center ${
-                        selected
-                          ? 'border-2 border-accent-cyan bg-accent-cyan/10'
-                          : 'border-glass-border bg-surface hover:border-accent-cyan'
-                      }`}
-                      onClick={() => dispatch({ type: 'SET_CONTENT_FORMAT', payload: value })}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dispatch({ type: 'SET_CONTENT_FORMAT', payload: value }); } }}
-                    >
-                      <i className={`pi ${icon} text-2xl ${selected ? 'text-accent-cyan' : 'text-text-muted'} mb-2`} />
-                      <p className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>{label}</p>
-                      <p className="text-xs text-text-muted mt-0.5">{desc}</p>
-                    </div>
-                  );
-                })}
-              </div>
+              {(() => {
+                const tiktokSelected = SocialChannel.TIKTOK in state.channels;
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {([
+                      { value: ContentFormat.VIDEO_ONLY, label: 'Video Only', icon: 'pi-video', desc: 'Only video content accepted' },
+                      { value: ContentFormat.PHOTO_ONLY, label: 'Photo Only', icon: 'pi-image', desc: 'Only photo content accepted' },
+                      { value: ContentFormat.BOTH, label: 'Both', icon: 'pi-images', desc: 'Video and photo accepted' },
+                    ] as const).map(({ value, label, icon, desc }) => {
+                      const selected = state.contentFormat === value;
+                      // TikTok is a video-only platform: when it's one of the
+                      // selected channels, Photo Only becomes an invalid choice.
+                      const disabled = tiktokSelected && value === ContentFormat.PHOTO_ONLY;
+                      const showTiktokBadge = tiktokSelected && value === ContentFormat.VIDEO_ONLY;
+                      return (
+                        <div
+                          key={value}
+                          role="button"
+                          tabIndex={disabled ? -1 : 0}
+                          aria-disabled={disabled}
+                          className={`relative border rounded-lg p-4 transition-colors text-center ${
+                            disabled
+                              ? 'border-glass-border bg-surface/40 opacity-50 cursor-not-allowed'
+                              : selected
+                                ? 'border-2 border-accent-cyan bg-accent-cyan/10 cursor-pointer'
+                                : 'border-glass-border bg-surface hover:border-accent-cyan cursor-pointer'
+                          }`}
+                          onClick={() => {
+                            if (disabled) return;
+                            dispatch({ type: 'SET_CONTENT_FORMAT', payload: value });
+                          }}
+                          onKeyDown={(e) => {
+                            if (disabled) return;
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              dispatch({ type: 'SET_CONTENT_FORMAT', payload: value });
+                            }
+                          }}
+                        >
+                          {showTiktokBadge && (
+                            <Tag
+                              value="Required for TikTok"
+                              severity="info"
+                              className="absolute top-1.5 right-1.5 text-[10px] py-0 px-1.5"
+                            />
+                          )}
+                          <i className={`pi ${icon} text-2xl ${selected ? 'text-accent-cyan' : 'text-text-muted'} mb-2`} />
+                          <p className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>{label}</p>
+                          <p className="text-xs text-text-muted mt-0.5">{desc}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+              {SocialChannel.TIKTOK in state.channels && (
+                <p className="text-xs text-text-muted mt-2">
+                  TikTok only accepts video — switch to <span className="font-medium">Both</span> if you also want photos from Instagram/Facebook.
+                </p>
+              )}
             </div>
 
             {/* Instruction Steps Builder */}

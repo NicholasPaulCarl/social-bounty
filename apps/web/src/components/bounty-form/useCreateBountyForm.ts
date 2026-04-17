@@ -52,12 +52,21 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
     case 'TOGGLE_CHANNEL': {
       const ch = action.payload.channel as SocialChannel;
       const current = { ...state.channels };
+      let contentFormat = state.contentFormat;
       if (current[ch]) {
         delete current[ch];
       } else {
         current[ch] = action.payload.formats as PostFormat[];
+        // TikTok is a video-only platform — Photo Only is invalid once
+        // TikTok is in play. Auto-set Accepted Formats to VIDEO_ONLY so
+        // the brand doesn't have to do it manually; they can still
+        // switch to BOTH (video + photo) afterwards if they want photos
+        // from non-TikTok channels alongside.
+        if (ch === SocialChannel.TIKTOK) {
+          contentFormat = ContentFormat.VIDEO_ONLY;
+        }
       }
-      return { ...state, channels: current };
+      return { ...state, channels: current, contentFormat };
     }
     case 'TOGGLE_FORMAT': {
       const ch = action.payload.channel as SocialChannel;
