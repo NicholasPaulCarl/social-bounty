@@ -16,6 +16,7 @@ import {
   PostVisibilityRule,
   DurationUnit,
   Currency,
+  BountyAccessType,
 } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
@@ -76,6 +77,7 @@ describe('BountiesService', () => {
     postMinDurationUnit: DurationUnit.DAYS,
     structuredEligibility: { minFollowers: 100 },
     visibilityAcknowledged: false,
+    accessType: BountyAccessType.PUBLIC,
   };
 
   const baseReward = {
@@ -290,6 +292,22 @@ describe('BountiesService', () => {
         status: 'SUBMITTED',
         payoutStatus: 'NOT_PAID',
       });
+    });
+
+    it('should expose accessType on the detail response (CLOSED surfaces the value)', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+        accessType: BountyAccessType.CLOSED,
+        brand: { id: 'org-1', name: 'Test', logo: null },
+        createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        rewards: [baseReward],
+        brandAssets: [],
+        _count: { submissions: 0 },
+      });
+
+      const result = await service.findById('bounty-1', mockSA);
+      expect(result.accessType).toBe(BountyAccessType.CLOSED);
     });
   });
 
@@ -770,6 +788,24 @@ describe('BountiesService', () => {
         total: 45,
         totalPages: 5,
       });
+    });
+
+    it('should expose accessType on each list item', async () => {
+      prisma.bounty.findMany.mockResolvedValue([
+        {
+          ...baseBounty,
+          status: BountyStatus.LIVE,
+          accessType: BountyAccessType.CLOSED,
+          brand: { id: 'org-1', name: 'Test', logo: null },
+          rewards: [baseReward],
+          _count: { submissions: 0 },
+        },
+      ]);
+      prisma.bounty.count.mockResolvedValue(1);
+
+      const result = await service.list(mockSA, {});
+
+      expect(result.data[0].accessType).toBe(BountyAccessType.CLOSED);
     });
   });
 });
