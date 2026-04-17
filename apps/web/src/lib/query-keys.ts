@@ -58,7 +58,7 @@ export const queryKeys = {
   disputes: {
     all: ['disputes'] as const,
     mine: (params: DisputeListParams) => [...queryKeys.disputes.all, 'mine', params] as const,
-    forOrg: (params: DisputeListParams) => [...queryKeys.disputes.all, 'forOrg', params] as const,
+    forBrand: (params: DisputeListParams) => [...queryKeys.disputes.all, 'forBrand', params] as const,
     detail: (id: string) => [...queryKeys.disputes.all, 'detail', id] as const,
     adminList: (params: AdminDisputeListParams) => [...queryKeys.disputes.all, 'adminList', params] as const,
     stats: () => [...queryKeys.disputes.all, 'stats'] as const,

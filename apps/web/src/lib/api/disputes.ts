@@ -23,7 +23,7 @@ export const disputeApi = {
   listMine: (params: DisputeListParams): Promise<PaginatedDisputeListResponse> =>
     apiClient.get('/disputes/me', params as Record<string, unknown>),
 
-  listForOrg: (params: DisputeListParams): Promise<PaginatedDisputeListResponse> =>
+  listForBrand: (params: DisputeListParams): Promise<PaginatedDisputeListResponse> =>
     apiClient.get('/disputes/brand', params as Record<string, unknown>),
 
   getById: (id: string): Promise<DisputeDetailResponse> =>

@@ -61,7 +61,7 @@ export default function ReviewCenterPage() {
   const [search, setSearch] = useState<string>('');
 
   const params: Record<string, unknown> = {
-    orgId: user?.brandId,
+    brandId: user?.brandId,
     page,
     limit,
     sortBy: 'createdAt',
