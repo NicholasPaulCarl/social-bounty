@@ -723,6 +723,22 @@
   font-size: 0.875rem !important;
 }
 
+/*
+ * PrimeReact's Dropdown renders an internal <input class="p-dropdown-label
+ * p-inputtext"> for keyboard a11y. The global .p-inputtext { border: 1px }
+ * rule cascades to it, producing a visible inner border INSIDE the outer
+ * .p-dropdown border — the reported "double border". Nullify all inner
+ * borders / backgrounds / shadows so only the outer .p-dropdown chrome
+ * renders. The visible label's padding (0.5rem 0.75rem above) is kept.
+ */
+.p-dropdown .p-inputtext,
+.p-dropdown input.p-dropdown-label {
+  background: transparent !important;
+  border: 0 none !important;
+  box-shadow: none !important;
+  min-height: 0 !important;
+}
+
 .p-dropdown:hover:not(.p-focus) {
   border-color: #cbd5e1 !important;
 }

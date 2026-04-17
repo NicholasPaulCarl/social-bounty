@@ -1993,6 +1993,20 @@ PrimeReact's Lara theme uses CSS variables. Override these in your global styles
   color: #f1f5f9 !important;
 }
 
+/*
+ * Dropdown renders an internal <input class="p-dropdown-label p-inputtext">
+ * for keyboard a11y. The global .p-inputtext border cascades to it and
+ * creates a visible inner border INSIDE the outer .p-dropdown border.
+ * Always nullify to avoid a double-border visual.
+ */
+.p-dropdown .p-inputtext,
+.p-dropdown input.p-dropdown-label {
+  background: transparent !important;
+  border: 0 none !important;
+  box-shadow: none !important;
+  min-height: 0 !important;
+}
+
 .p-dropdown-panel {
   background: rgba(15, 23, 42, 0.90) !important;
   backdrop-filter: blur(20px) !important;
