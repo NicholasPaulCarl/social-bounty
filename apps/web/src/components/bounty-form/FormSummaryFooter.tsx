@@ -33,7 +33,7 @@ export function FormSummaryFooter({
     <>
       {/* Desktop footer — label left, amount + buttons right */}
       <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl">
-        <div className="max-w-4xl mx-auto px-0 py-3 flex items-center justify-between gap-6">
+        <div className="max-w-4xl mx-auto px-0 py-2 flex items-center justify-between gap-6">
           <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
           <div className="flex items-center gap-6">
             <p className="text-base font-heading font-semibold text-accent-emerald leading-tight whitespace-nowrap">
@@ -56,8 +56,8 @@ export function FormSummaryFooter({
         Consumers must pad above this footer to prevent overlap — see
         CreateBountyForm for the matching pb-[calc()] class.
       */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]">
-        <div className="flex items-center justify-between mb-2">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]">
+        <div className="flex items-center justify-between mb-1.5">
           <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
           <p className="text-sm font-heading font-semibold text-accent-emerald leading-tight whitespace-nowrap">
             {currencySymbol} {totalRewardValue.toFixed(2)}
