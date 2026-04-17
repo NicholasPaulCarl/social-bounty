@@ -19,6 +19,10 @@ export default function CreateBountyPage() {
   const createBounty = useCreateBounty();
   const [formError, setFormError] = useState('');
   const [isDraftSave, setIsDraftSave] = useState(false);
+  // isFunding covers the gap between the create-bounty mutation settling
+  // and the Stitch hosted redirect firing — keeps the Create Bounty
+  // button in its loading state across both steps.
+  const [isFunding, setIsFunding] = useState(false);
   const stagedFilesRef = useRef<File[]>([]);
 
   const uploadStagedFiles = async (bountyId: string) => {
@@ -49,8 +53,38 @@ export default function CreateBountyPage() {
     createBounty.mutate(data, {
       onSuccess: async (res) => {
         await uploadStagedFiles(res.id);
-        toast.showSuccess('Bounty created! Ready to go live.');
-        router.push(`/business/bounties/${res.id}`);
+        // Go straight to the Stitch hosted checkout — no detour through the
+        // detail page. Mirrors the "Go Live" flow on the detail page
+        // (/business/bounties/[id] handleStatusChange DRAFT→LIVE).
+        setIsFunding(true);
+        try {
+          const payerName =
+            `${user?.firstName ?? ''} ${user?.lastName ?? ''}`
+              .trim()
+              .slice(0, 40) || 'Brand Admin';
+          const { hostedUrl } = await bountyApi.fundBounty(res.id, {
+            payerName,
+            payerEmail: user?.email,
+          });
+          // Stitch's redirect URL is registered globally and may not carry
+          // our bountyId in the query string — stash it so /funded resolves
+          // even if Stitch appends nothing. Same pattern as the detail page.
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('stitchFundingBountyId', res.id);
+          }
+          toast.showSuccess('Bounty created — redirecting to payment…');
+          window.location.href = hostedUrl;
+          // Don't clear isFunding — the page is unloading.
+        } catch (err) {
+          // Bounty is already created as DRAFT; payment setup failed. Take
+          // the brand to the detail page so they can retry via "Go Live".
+          const message = err instanceof Error ? err.message : 'Unknown error';
+          toast.showError(
+            `Bounty saved as draft, but we couldn't start payment: ${message}. Try "Go Live" on the bounty detail page.`,
+          );
+          setIsFunding(false);
+          router.push(`/business/bounties/${res.id}`);
+        }
       },
       onError: (err) => {
         setFormError(`Couldn't create bounty: ${extractErrorMessage(err)}`);
@@ -92,7 +126,7 @@ export default function CreateBountyPage() {
       <CreateBountyForm
         onSubmit={handleSubmit as (data: unknown) => void}
         onSaveDraft={handleSaveDraft as (data: unknown) => void}
-        isSubmitting={!isDraftSave && createBounty.isPending}
+        isSubmitting={!isDraftSave && (createBounty.isPending || isFunding)}
         isSavingDraft={isDraftSave && createBounty.isPending}
         formError={formError}
         onStagedFilesReady={handleStagedFilesReady}
