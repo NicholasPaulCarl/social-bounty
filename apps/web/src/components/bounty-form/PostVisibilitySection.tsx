@@ -61,8 +61,8 @@ export function PostVisibilitySection({
           <span className="text-sm text-text-primary">Minimum posting duration</span>
         </div>
         {minDuration && (
-          <div className="flex items-end gap-2">
-            <div className="flex flex-col gap-1">
+          <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:items-end sm:gap-2">
+            <div className="flex flex-col gap-1 min-w-0">
               <label className="text-text-muted text-xs uppercase tracking-wider font-medium">
                 Duration <span className="text-accent-rose">*</span>
               </label>
@@ -70,11 +70,11 @@ export function PostVisibilitySection({
                 value={postVisibility?.minDurationValue ?? null}
                 onValueChange={(e) => dispatch({ type: 'SET_DURATION_VALUE', payload: e.value ?? null })}
                 min={1}
-                className={`w-28 ${submitAttempted && errors.durationValue ? 'p-invalid' : ''}`}
+                className={`w-full sm:w-28 ${submitAttempted && errors.durationValue ? 'p-invalid' : ''}`}
                 placeholder="e.g. 7"
               />
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 min-w-0">
               <label className="text-text-muted text-xs uppercase tracking-wider font-medium">
                 Unit <span className="text-accent-rose">*</span>
               </label>
@@ -82,7 +82,7 @@ export function PostVisibilitySection({
                 value={postVisibility?.minDurationUnit ?? null}
                 options={DURATION_UNIT_OPTIONS}
                 onChange={(e) => dispatch({ type: 'SET_DURATION_UNIT', payload: e.value })}
-                className={`w-32 ${submitAttempted && errors.durationUnit ? 'p-invalid' : ''}`}
+                className={`w-full sm:w-32 ${submitAttempted && errors.durationUnit ? 'p-invalid' : ''}`}
                 placeholder="Unit"
               />
             </div>
