@@ -31,19 +31,19 @@ export function FormSummaryFooter({
 
   return (
     <>
-      {/* Desktop footer — Total Reward + Buttons right-aligned */}
+      {/* Desktop footer — label left, amount + buttons right */}
       <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl">
-        <div className="max-w-4xl mx-auto px-0 py-3 flex items-center justify-end gap-6">
-          <div className="flex flex-col items-end">
-            <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
-            <p className="text-base font-heading font-semibold text-accent-emerald leading-tight">
+        <div className="max-w-4xl mx-auto px-0 py-3 flex items-center justify-between gap-6">
+          <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
+          <div className="flex items-center gap-6">
+            <p className="text-base font-heading font-semibold text-accent-emerald leading-tight whitespace-nowrap">
               <span className="text-text-muted text-sm font-normal mr-1">{currencySymbol}</span>
               {totalRewardValue.toFixed(2)}
             </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button label="Save as Draft" outlined onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
-            <Button label="Create Bounty" icon="pi pi-check" onClick={onCreate} loading={isCreating} disabled={isSaving} />
+            <div className="flex items-center gap-3">
+              <Button label="Save as Draft" outlined onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
+              <Button label="Create Bounty" icon="pi pi-check" onClick={onCreate} loading={isCreating} disabled={isSaving} />
+            </div>
           </div>
         </div>
       </div>
@@ -57,13 +57,11 @@ export function FormSummaryFooter({
         CreateBountyForm for the matching pb-[calc()] class.
       */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]">
-        <div className="flex justify-end mb-2">
-          <div className="flex flex-col items-end">
-            <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
-            <p className="text-sm font-heading font-semibold text-accent-emerald leading-tight">
-              {currencySymbol} {totalRewardValue.toFixed(2)}
-            </p>
-          </div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
+          <p className="text-sm font-heading font-semibold text-accent-emerald leading-tight whitespace-nowrap">
+            {currencySymbol} {totalRewardValue.toFixed(2)}
+          </p>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Button label="Save as Draft" outlined className="text-sm" onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
