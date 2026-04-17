@@ -6,7 +6,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { InputSwitch } from 'primereact/inputswitch';
-import { FIELD_LIMITS, ContentFormat } from '@social-bounty/shared';
+import { FIELD_LIMITS, ContentFormat, BountyAccessType } from '@social-bounty/shared';
 import type { BountyDetailResponse, CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useCreateBountyForm } from './useCreateBountyForm';
 import { SectionPanel } from './SectionPanel';
@@ -446,6 +446,14 @@ export function CreateBountyForm({
             icon="pi-lock"
             isComplete={true}
             hasError={false}
+            optional
+            // hasContent → brand has moved off the default public access
+            // (picked CLOSED or invited specific hunters). Keeping PUBLIC
+            // is the zero-friction default, so it reads as "Optional".
+            hasContent={
+              state.accessType === BountyAccessType.CLOSED ||
+              state.selectedHunters.length > 0
+            }
           >
             <AccessTypeSection
               accessType={state.accessType}
@@ -463,6 +471,12 @@ export function CreateBountyForm({
             icon="pi-images"
             isComplete={isSectionComplete('brandAssets', state)}
             hasError={false}
+            optional
+            // hasContent → user has uploaded or staged at least one asset.
+            hasContent={
+              state.stagedBrandAssetFiles.length > 0 ||
+              (initialBounty?.brandAssets?.length ?? 0) > 0
+            }
           >
             <BrandAssetsSection
               bountyId={initialBounty?.id ?? null}

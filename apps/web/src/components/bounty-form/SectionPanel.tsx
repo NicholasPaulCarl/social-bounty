@@ -10,19 +10,44 @@ interface SectionPanelProps {
   icon: string;
   isComplete: boolean;
   hasError: boolean;
+  /**
+   * When true the section has no required inputs — pill shows "Optional"
+   * instead of "Required" / "Complete". If the user has added content
+   * to an optional section, pass `hasContent` to flip the pill to
+   * "Complete" as positive feedback.
+   */
+  optional?: boolean;
+  hasContent?: boolean;
   helperText?: string;
   children: ReactNode;
 }
 
-export function SectionPanel({ number, title, icon, isComplete, hasError, helperText, children }: SectionPanelProps) {
+export function SectionPanel({
+  number,
+  title,
+  icon,
+  isComplete,
+  hasError,
+  optional,
+  hasContent,
+  helperText,
+  children,
+}: SectionPanelProps) {
   // Status pill replaces the prior check-circle / exclamation icons.
   // Shown from page-load (not gated on submit-attempted) so brands
   // see which sections still need input before they try to publish.
-  const done = isComplete && !hasError;
-  const statusTag = done ? (
-    <Tag value="Complete" severity="success" className="text-xs px-2 py-0.5" />
-  ) : (
-    <Tag value="Required" severity="secondary" className="text-xs px-2 py-0.5" />
+  //   - Required section:  "Required" (muted) → "Complete" (green)
+  //   - Optional section:  "Optional" (info)  → "Complete" (green) if
+  //                        the consumer passes hasContent=true
+  const done = optional ? hasContent : isComplete && !hasError;
+  const label = done ? 'Complete' : optional ? 'Optional' : 'Required';
+  const severity: 'success' | 'info' | 'secondary' = done
+    ? 'success'
+    : optional
+      ? 'info'
+      : 'secondary';
+  const statusTag = (
+    <Tag value={label} severity={severity} className="text-xs px-2 py-0.5" />
   );
 
   const header = (
