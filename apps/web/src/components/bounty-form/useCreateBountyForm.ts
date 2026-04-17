@@ -305,7 +305,7 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
         endDate: b.endDate ? new Date(b.endDate) : null,
         payoutMetrics: b.payoutMetrics || { minViews: null, minLikes: null, minComments: null },
         stagedBrandAssetFiles: [],
-        accessType: (b as unknown as { accessType?: BountyAccessType }).accessType ?? BountyAccessType.PUBLIC,
+        accessType: b.accessType,
         invitations: [],
         selectedHunters: [],
         errors: {},

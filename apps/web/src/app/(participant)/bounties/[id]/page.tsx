@@ -81,9 +81,8 @@ export default function BountyDetailPage() {
   if (!bounty) return <ErrorState error={new Error('Bounty not found')} />;
 
   const isLive = bounty.status === 'LIVE';
-  const accessType = (bounty as unknown as { accessType?: string }).accessType ?? BountyAccessType.PUBLIC;
-  const isPublic = accessType === BountyAccessType.PUBLIC;
-  const isClosed = accessType === BountyAccessType.CLOSED;
+  const isPublic = bounty.accessType === BountyAccessType.PUBLIC;
+  const isClosed = bounty.accessType === BountyAccessType.CLOSED;
 
   const baseCanSubmit =
     isLive &&

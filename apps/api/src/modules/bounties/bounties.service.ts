@@ -415,6 +415,7 @@ export class BountiesService {
         payoutMetrics: b.payoutMetrics as PayoutMetricsInput | null ?? null,
         paymentStatus: b.paymentStatus ?? PaymentStatus.UNPAID,
         payoutMethod: b.payoutMethod ?? null,
+        accessType: b.accessType,
         createdAt: b.createdAt.toISOString(),
       })),
       meta: {
@@ -536,6 +537,7 @@ export class BountiesService {
       paymentStatus: bounty.paymentStatus ?? PaymentStatus.UNPAID,
       payoutMethod: bounty.payoutMethod ?? null,
       brandAssets: this.mapBrandAssets(bounty.brandAssets),
+      accessType: bounty.accessType,
     };
   }
 

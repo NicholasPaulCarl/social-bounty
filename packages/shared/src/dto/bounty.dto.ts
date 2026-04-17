@@ -11,6 +11,7 @@ import {
   DurationUnit,
   Currency,
   ContentFormat,
+  BountyAccessType,
 } from '../enums';
 
 // ─────────────────────────────────────
@@ -133,6 +134,7 @@ export interface BountyListItem {
   payoutMetrics: PayoutMetricsInput | null;
   paymentStatus: PaymentStatus;
   payoutMethod?: PayoutMethod | null;
+  accessType: BountyAccessType;
 }
 
 // GET /bounties (query params)
@@ -187,6 +189,7 @@ export interface BountyDetailResponse {
   paymentStatus: PaymentStatus;
   payoutMethod?: PayoutMethod | null;
   brandAssets: BrandAssetInfo[];
+  accessType: BountyAccessType;
 }
 
 // POST /bounties
