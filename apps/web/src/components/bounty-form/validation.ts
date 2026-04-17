@@ -281,3 +281,29 @@ export function isSectionComplete(sectionKey: string, state: BountyFormState): b
       return false;
   }
 }
+
+/**
+ * Bounty Rules section has no required inputs — proofRequirements is auto-
+ * seeded to ['url'] on form init (matches the inline "post links required"
+ * notice). The section is treated as `optional` in the SectionPanel pill,
+ * and this helper detects whether the brand has actively added any rule
+ * (eligibility / engagement / visibility / max submissions) so the pill
+ * can flip from "Optional" → "Complete" as positive feedback.
+ */
+export function bountyRulesHasContent(state: BountyFormState): boolean {
+  const elig = state.structuredEligibility;
+  const eng = state.engagementRequirements;
+  return (
+    elig.minFollowers !== null && elig.minFollowers !== undefined ||
+    elig.publicProfile === true ||
+    (elig.minAccountAgeDays !== null && elig.minAccountAgeDays !== undefined) ||
+    !!elig.locationRestriction ||
+    (elig.noCompetingBrandDays !== null && elig.noCompetingBrandDays !== undefined) ||
+    (elig.customRules ? elig.customRules.length > 0 : false) ||
+    !!eng.tagAccount ||
+    eng.mention === true ||
+    eng.comment === true ||
+    state.postVisibility !== null ||
+    state.maxSubmissions !== null
+  );
+}

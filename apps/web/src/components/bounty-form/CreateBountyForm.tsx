@@ -22,7 +22,7 @@ import { PayoutMetricsSection } from './PayoutMetricsSection';
 import { BrandAssetsSection } from './BrandAssetsSection';
 import { AccessTypeSection } from './AccessTypeSection';
 import { FormSummaryFooter } from './FormSummaryFooter';
-import { getSectionErrors, isSectionComplete } from './validation';
+import { getSectionErrors, isSectionComplete, bountyRulesHasContent } from './validation';
 import { SECTIONS } from './types';
 
 // ---------------------------------------------------------------------------
@@ -192,11 +192,11 @@ export function CreateBountyForm({
 
       {/*
         pb clears the fixed FormSummaryFooter height + iOS safe-area inset.
-        Mobile footer ≈ 108px (status row + button grid + p-3); desktop ≈ 64px.
+        Mobile footer ≈ 52px (single row, amount + buttons); desktop ≈ 56px.
         calc() adds env(safe-area-inset-bottom) so iOS notched devices clear
         the home-indicator area. See DESIGN-SYSTEM.md §10 (fixed-footer rule).
       */}
-      <form ref={formRef} className="flex flex-col gap-4 sm:gap-6 pb-[calc(8rem+env(safe-area-inset-bottom,0px))] sm:pb-[calc(6rem+env(safe-area-inset-bottom,0px))] max-w-4xl mx-auto" onSubmit={(e) => e.preventDefault()}>
+      <form ref={formRef} className="flex flex-col gap-4 sm:gap-6 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pb-[calc(6rem+env(safe-area-inset-bottom,0px))] max-w-4xl mx-auto" onSubmit={(e) => e.preventDefault()}>
         {/* Section 1: Bounty Information */}
         <div data-section="bountyBasicInfo" className={lockedClass}>
           <SectionPanel
@@ -404,7 +404,9 @@ export function CreateBountyForm({
           </SectionPanel>
         </div>
 
-        {/* Section 3: Bounty Rules */}
+        {/* Section 3: Bounty Rules — all inputs are optional (proofRequirements
+            is auto-seeded to ['url'] to match the inline notice). Pill reads
+            "Optional" until the brand adds at least one rule. */}
         <div data-section="bountyRules">
           <SectionPanel
             number={3}
@@ -412,6 +414,8 @@ export function CreateBountyForm({
             icon="pi-shield"
             isComplete={isSectionComplete('bountyRules', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyRules', state.errors).length > 0}
+            optional
+            hasContent={bountyRulesHasContent(state)}
           >
             <EligibilityRulesSection
               eligibility={state.structuredEligibility}

@@ -49,23 +49,26 @@ export function FormSummaryFooter({
       </div>
 
       {/*
-        Mobile footer.
-        pb uses max(12px, env(safe-area-inset-bottom)) so the Create button
-        sits above the iOS home-indicator area on notched devices while still
-        having a standard 12px bottom margin on everything else.
-        Consumers must pad above this footer to prevent overlap — see
-        CreateBountyForm for the matching pb-[calc()] class.
+        Mobile footer — single row.
+        Amount on the left, Draft + Create buttons on the right. The
+        previous two-row design (status row + button row) was the source
+        of the chunky height; collapsing to one row drops the bg from
+        ~74px to ~52px on non-notch devices while preserving the 44px
+        button tap targets.
+
+        pb uses max(8px, env(safe-area-inset-bottom)) so the Create button
+        stays clear of the iOS home-indicator area on notched devices while
+        rendering at a tight 8px on everything else.
       */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl px-3 pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]">
-        <div className="flex items-center justify-between mb-1 leading-none">
-          <span className="text-[10px] text-text-muted uppercase tracking-wider">Total Reward</span>
-          <p className="text-sm font-heading font-semibold text-accent-emerald leading-none whitespace-nowrap">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl px-3 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom,0.375rem))]">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-heading font-semibold text-accent-emerald leading-none whitespace-nowrap shrink-0">
             {currencySymbol} {totalRewardValue.toFixed(2)}
           </p>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <Button label="Save as Draft" outlined className="text-sm" onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
-          <Button label="Create" icon="pi pi-check" className="text-sm" onClick={onCreate} loading={isCreating} disabled={isSaving} />
+          <div className="flex items-center gap-2 shrink-0">
+            <Button label="Draft" outlined className="text-sm" onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
+            <Button label="Create" icon="pi pi-check" className="text-sm" onClick={onCreate} loading={isCreating} disabled={isSaving} />
+          </div>
         </div>
       </div>
     </>
