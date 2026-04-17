@@ -91,7 +91,7 @@ export class ApifyService {
 
   /**
    * Run the three actors in parallel for the given brand's handles and
-   * persist the resulting blob on Organisation.socialAnalytics.
+   * persist the resulting blob on Brand.socialAnalytics.
    *
    * Protected by a per-brand Redis lock so two concurrent triggers (e.g. a
    * login + an overlapping cron pass) don't waste actor credits or race on
@@ -152,14 +152,6 @@ export class ApifyService {
         this.logger.warn(`Failed to release refresh lock for ${brandId}`, err);
       });
     }
-  }
-
-  /**
-   * Back-compat alias — the scheduler still calls refreshForOrganisation.
-   * @deprecated use refreshForBrand
-   */
-  async refreshForOrganisation(brandId: string): Promise<BrandSocialAnalyticsBlob | null> {
-    return this.refreshForBrand(brandId);
   }
 
   // ─── Private scrapers ─────────────────────────────────────────

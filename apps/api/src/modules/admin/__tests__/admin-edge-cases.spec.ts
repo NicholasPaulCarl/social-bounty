@@ -52,28 +52,32 @@ describe('AdminService - Edge Cases', () => {
         findUnique: jest.fn(),
         findMany: jest.fn(),
         count: jest.fn(),
+        groupBy: jest.fn().mockResolvedValue([]),
         update: jest.fn(),
       },
       brand: {
         findUnique: jest.fn(),
         findMany: jest.fn(),
         count: jest.fn(),
+        groupBy: jest.fn().mockResolvedValue([]),
         create: jest.fn(),
         update: jest.fn(),
       },
-      organisationMember: {
+      brandMember: {
         findFirst: jest.fn(),
         create: jest.fn(),
       },
       bounty: {
         findUnique: jest.fn(),
         count: jest.fn(),
+        groupBy: jest.fn().mockResolvedValue([]),
         update: jest.fn(),
         updateMany: jest.fn(),
       },
       submission: {
         findUnique: jest.fn(),
         count: jest.fn(),
+        groupBy: jest.fn().mockResolvedValue([]),
         update: jest.fn(),
       },
       auditLog: {
@@ -534,6 +538,14 @@ describe('AdminService - Edge Cases', () => {
   // ── Dashboard Aggregated Data ─────────────────────────────────
 
   describe('getDashboard - aggregated data', () => {
+    // The dashboard now issues 6 groupBy queries (1 user-status, 1 user-role,
+    // 1 brand-status, 1 bounty-status, 1 submission-status, 1 submission-payout)
+    // instead of 23 counts. Mock arrays below are kept in the original layout
+    // — [total, active, suspended, participant, BA, SA], [total, active, suspended],
+    // [total, draft, live, paused, closed], [total, submitted, in_review, nmi,
+    // approved, rejected, not_paid, pending, paid] — and translated into
+    // groupBy rows. `total` is derived from the sum of status rows, so the
+    // `total` slot in each array is ignored by the mocks (kept for readability).
     const setupDashboardMocks = (overrides?: {
       userCounts?: number[];
       orgCounts?: number[];
@@ -545,10 +557,46 @@ describe('AdminService - Edge Cases', () => {
       const bountyCounts = overrides?.bountyCounts || [0, 0, 0, 0, 0];
       const submissionCounts = overrides?.submissionCounts || [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-      userCounts.forEach((v) => prisma.user.count.mockResolvedValueOnce(v));
-      orgCounts.forEach((v) => prisma.brand.count.mockResolvedValueOnce(v));
-      bountyCounts.forEach((v) => prisma.bounty.count.mockResolvedValueOnce(v));
-      submissionCounts.forEach((v) => prisma.submission.count.mockResolvedValueOnce(v));
+      // User: groupBy(status) then groupBy(role)
+      prisma.user.groupBy
+        .mockResolvedValueOnce([
+          { status: UserStatus.ACTIVE, _count: { _all: userCounts[1] } },
+          { status: UserStatus.SUSPENDED, _count: { _all: userCounts[2] } },
+        ])
+        .mockResolvedValueOnce([
+          { role: UserRole.PARTICIPANT, _count: { _all: userCounts[3] } },
+          { role: UserRole.BUSINESS_ADMIN, _count: { _all: userCounts[4] } },
+          { role: UserRole.SUPER_ADMIN, _count: { _all: userCounts[5] } },
+        ]);
+
+      // Brand: groupBy(status)
+      prisma.brand.groupBy.mockResolvedValueOnce([
+        { status: BrandStatus.ACTIVE, _count: { _all: orgCounts[1] } },
+        { status: BrandStatus.SUSPENDED, _count: { _all: orgCounts[2] } },
+      ]);
+
+      // Bounty: groupBy(status)
+      prisma.bounty.groupBy.mockResolvedValueOnce([
+        { status: BountyStatus.DRAFT, _count: { _all: bountyCounts[1] } },
+        { status: BountyStatus.LIVE, _count: { _all: bountyCounts[2] } },
+        { status: BountyStatus.PAUSED, _count: { _all: bountyCounts[3] } },
+        { status: BountyStatus.CLOSED, _count: { _all: bountyCounts[4] } },
+      ]);
+
+      // Submission: groupBy(status) then groupBy(payoutStatus)
+      prisma.submission.groupBy
+        .mockResolvedValueOnce([
+          { status: SubmissionStatus.SUBMITTED, _count: { _all: submissionCounts[1] } },
+          { status: SubmissionStatus.IN_REVIEW, _count: { _all: submissionCounts[2] } },
+          { status: SubmissionStatus.NEEDS_MORE_INFO, _count: { _all: submissionCounts[3] } },
+          { status: SubmissionStatus.APPROVED, _count: { _all: submissionCounts[4] } },
+          { status: SubmissionStatus.REJECTED, _count: { _all: submissionCounts[5] } },
+        ])
+        .mockResolvedValueOnce([
+          { payoutStatus: 'NOT_PAID', _count: { _all: submissionCounts[6] } },
+          { payoutStatus: 'PENDING', _count: { _all: submissionCounts[7] } },
+          { payoutStatus: 'PAID', _count: { _all: submissionCounts[8] } },
+        ]);
     };
 
     it('should return all zeros for an empty platform', async () => {
@@ -562,9 +610,9 @@ describe('AdminService - Edge Cases', () => {
       expect(result.users.byRole.PARTICIPANT).toBe(0);
       expect(result.users.byRole.BUSINESS_ADMIN).toBe(0);
       expect(result.users.byRole.SUPER_ADMIN).toBe(0);
-      expect(result.organisations.total).toBe(0);
-      expect(result.organisations.active).toBe(0);
-      expect(result.organisations.suspended).toBe(0);
+      expect(result.brands.total).toBe(0);
+      expect(result.brands.active).toBe(0);
+      expect(result.brands.suspended).toBe(0);
       expect(result.bounties.total).toBe(0);
       expect(result.bounties.byStatus.DRAFT).toBe(0);
       expect(result.bounties.byStatus.LIVE).toBe(0);
@@ -636,7 +684,7 @@ describe('AdminService - Edge Cases', () => {
       expect(result.submissions.byPayoutStatus.PAID).toBe(50);
     });
 
-    it('should make exactly 23 count queries', async () => {
+    it('should aggregate via 6 groupBy queries (perf refactor, was 23 counts)', async () => {
       setupDashboardMocks({
         userCounts: [1, 1, 0, 1, 0, 0],
         orgCounts: [0, 0, 0],
@@ -646,10 +694,17 @@ describe('AdminService - Edge Cases', () => {
 
       await service.getDashboard();
 
-      expect(prisma.user.count).toHaveBeenCalledTimes(6);
-      expect(prisma.brand.count).toHaveBeenCalledTimes(3);
-      expect(prisma.bounty.count).toHaveBeenCalledTimes(5);
-      expect(prisma.submission.count).toHaveBeenCalledTimes(9);
+      // 2 groupBy on user (status + role), 1 on brand, 1 on bounty,
+      // 2 on submission (status + payoutStatus).
+      expect(prisma.user.groupBy).toHaveBeenCalledTimes(2);
+      expect(prisma.brand.groupBy).toHaveBeenCalledTimes(1);
+      expect(prisma.bounty.groupBy).toHaveBeenCalledTimes(1);
+      expect(prisma.submission.groupBy).toHaveBeenCalledTimes(2);
+      // No per-status count() calls anymore.
+      expect(prisma.user.count).not.toHaveBeenCalled();
+      expect(prisma.brand.count).not.toHaveBeenCalled();
+      expect(prisma.bounty.count).not.toHaveBeenCalled();
+      expect(prisma.submission.count).not.toHaveBeenCalled();
     });
   });
 
@@ -667,7 +722,7 @@ describe('AdminService - Edge Cases', () => {
       );
     });
 
-    it('should return organisation as null when user has no memberships', async () => {
+    it('should return brand as null when user has no memberships', async () => {
       prisma.user.findUnique.mockResolvedValue({
         id: 'user-1',
         email: 'lonely@test.com',
@@ -690,7 +745,7 @@ describe('AdminService - Edge Cases', () => {
       expect(result.approvedSubmissionCount).toBe(0);
     });
 
-    it('should return correct organisation info when user has membership', async () => {
+    it('should return correct brand info when user has membership', async () => {
       prisma.user.findUnique.mockResolvedValue({
         id: 'user-2',
         email: 'member@test.com',
@@ -823,7 +878,7 @@ describe('AdminService - Edge Cases', () => {
       );
     });
 
-    it('should map user data correctly including organisation', async () => {
+    it('should map user data correctly including brand', async () => {
       const now = new Date('2026-02-07T10:00:00Z');
       prisma.user.findMany.mockResolvedValue([
         {
@@ -860,7 +915,7 @@ describe('AdminService - Edge Cases', () => {
       });
     });
 
-    it('should return null organisation when user has no memberships', async () => {
+    it('should return null brand when user has no memberships', async () => {
       const now = new Date();
       prisma.user.findMany.mockResolvedValue([
         {
@@ -946,7 +1001,7 @@ describe('AdminService - Edge Cases', () => {
             ownerUserId: 'user-1',
           },
         ),
-      ).rejects.toThrow('User already belongs to an organisation');
+      ).rejects.toThrow('User already belongs to a brand');
     });
 
     it('should trim org name and lowercase contact email', async () => {
@@ -1134,7 +1189,7 @@ describe('AdminService - Edge Cases', () => {
   // ── Org Status - edge cases ───────────────────────────────────
 
   describe('updateBrandStatus - edge cases', () => {
-    it('should throw NotFoundException for non-existent organisation', async () => {
+    it('should throw NotFoundException for non-existent brand', async () => {
       prisma.brand.findUnique.mockResolvedValue(null);
 
       await expect(
@@ -1153,7 +1208,7 @@ describe('AdminService - Edge Cases', () => {
           BrandStatus.SUSPENDED,
           'Test',
         ),
-      ).rejects.toThrow('Organisation not found');
+      ).rejects.toThrow('Brand not found');
     });
 
     it('should not pause bounties when reinstating (setting to ACTIVE)', async () => {

@@ -144,7 +144,7 @@ apps/web/
 │   │       │   └── ReviewActions.tsx
 │   │       └── admin/
 │   │           ├── UserStatusActions.tsx
-│   │           ├── OrgStatusActions.tsx
+│   │           ├── BrandStatusActions.tsx
 │   │           ├── OverrideDialog.tsx
 │   │           └── AuditLogEntry.tsx
 │   │
@@ -152,9 +152,9 @@ apps/web/
 │   │   ├── useAuth.ts
 │   │   ├── useBounties.ts
 │   │   ├── useSubmissions.ts
-│   │   ├── useOrganisation.ts
+│   │   ├── useBrand.ts
 │   │   ├── useAdminUsers.ts
-│   │   ├── useAdminOrgs.ts
+│   │   ├── useAdminBrands.ts
 │   │   ├── useAuditLogs.ts
 │   │   ├── useDashboard.ts
 │   │   └── usePagination.ts

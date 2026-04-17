@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { useBounty, useUpdateBountyStatus, useDeleteBounty } from '@/hooks/useBounties';
 import { useToast } from '@/hooks/useToast';
+import { useAuth } from '@/hooks/useAuth';
 import { BountyStatus, PostVisibilityRule, DurationUnit, PaymentStatus } from '@social-bounty/shared';
 import { bountyApi } from '@/lib/api/bounties';
 import { PaymentDialog } from '@/components/payment/PaymentDialog';
@@ -38,27 +39,40 @@ export default function BusinessBountyDetailPage() {
   const { data: bounty, isLoading, error, refetch } = useBounty(id);
   const updateStatus = useUpdateBountyStatus(id);
   const deleteBounty = useDeleteBounty();
+  const { user } = useAuth();
   const [showDelete, setShowDelete] = useState(false);
   const [statusAction, setStatusAction] = useState<string | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [showRefundConfirm, setShowRefundConfirm] = useState(false);
+  const [refundLoading, setRefundLoading] = useState(false);
 
   if (isLoading) return <LoadingState type="detail" />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
   if (!bounty) return null;
 
   const handleStatusChange = async (newStatus: string) => {
-    // For DRAFT→LIVE, require payment first
+    // For DRAFT→LIVE, require payment first — route to Stitch hosted checkout.
     if (bounty.status === 'DRAFT' && newStatus === 'LIVE' && bounty.paymentStatus !== PaymentStatus.PAID) {
       setStatusAction(null);
       setPaymentLoading(true);
       try {
-        const { clientSecret: secret } = await bountyApi.createPaymentIntent(id);
-        setClientSecret(secret);
-        setShowPayment(true);
-      } catch {
-        toast.showError('Couldn\'t create payment. Try again.');
+        const payerName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim().slice(0, 40) || 'Brand Admin';
+        const { hostedUrl } = await bountyApi.fundBounty(id, {
+          payerName,
+          payerEmail: user?.email,
+        });
+        // Stitch's redirect URL is registered globally and may not carry our
+        // bountyId in the query string — stash it so the /funded page can
+        // resolve even if Stitch appends nothing.
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('stitchFundingBountyId', id);
+        }
+        window.location.href = hostedUrl;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Couldn\'t start funding. Try again.';
+        toast.showError(message);
       } finally {
         setPaymentLoading(false);
       }
@@ -98,16 +112,40 @@ export default function BusinessBountyDetailPage() {
     });
   };
 
-  const breadcrumbs = [
-    { label: 'Bounties', url: '/business/bounties' },
-    { label: bounty.title },
-  ];
+  const handleRefundRequest = async () => {
+    setRefundLoading(true);
+    try {
+      await bountyApi.requestRefundBeforeApproval(
+        id,
+        'Brand-initiated refund request before any submission has been approved.',
+      );
+      toast.showSuccess('Refund requested. A Super Admin will review and approve.');
+      setShowRefundConfirm(false);
+      refetch();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Couldn\'t request refund. Try again.';
+      toast.showError(message);
+    } finally {
+      setRefundLoading(false);
+    }
+  };
+
+  const handlePreview = () => {
+    // Open the hunter-facing bounty view in a new tab
+    window.open(`/bounties/${id}?preview=1`, '_blank', 'noopener,noreferrer');
+  };
 
   const statusButtons = () => {
-    const actions: { label: string; status: string; severity: 'success' | 'warning' | 'danger' | 'secondary' }[] = [];
+    const actions: {
+      label: string;
+      status: string;
+      severity?: 'success' | 'warning' | 'danger' | 'secondary';
+      primary?: boolean;
+    }[] = [];
     switch (bounty.status) {
       case 'DRAFT':
-        actions.push({ label: 'Go Live', status: 'LIVE', severity: 'success' });
+        // Primary CTA on the launch page
+        actions.push({ label: 'Go Live', status: 'LIVE', primary: true });
         break;
       case 'LIVE':
         actions.push({ label: 'Pause', status: 'PAUSED', severity: 'warning' });
@@ -129,15 +167,21 @@ export default function BusinessBountyDetailPage() {
     <div className="animate-fade-up">
       <PageHeader
         title={bounty.title}
-        breadcrumbs={breadcrumbs}
         actions={
           <div className="flex gap-2">
+            <Button
+              icon="pi pi-eye"
+              label="Preview"
+              outlined
+              severity="secondary"
+              onClick={handlePreview}
+            />
             {statusButtons().map((action) => (
               <Button
                 key={action.status}
                 label={action.label}
                 severity={action.severity}
-                outlined
+                outlined={!action.primary}
                 loading={action.status === 'LIVE' && paymentLoading}
                 onClick={() => setStatusAction(action.status)}
               />
@@ -155,6 +199,15 @@ export default function BusinessBountyDetailPage() {
               outlined
               onClick={() => router.push(`/business/bounties/${id}/submissions`)}
             />
+            {bounty.paymentStatus === PaymentStatus.PAID && bounty.status !== 'CLOSED' && (
+              <Button
+                icon="pi pi-undo"
+                label="Request refund"
+                outlined
+                severity="warning"
+                onClick={() => setShowRefundConfirm(true)}
+              />
+            )}
             {bounty.status === 'DRAFT' && (
               <Button
                 icon="pi pi-trash"
@@ -466,6 +519,17 @@ export default function BusinessBountyDetailPage() {
         confirmSeverity="danger"
         onConfirm={handleDelete}
         loading={deleteBounty.isPending}
+      />
+
+      <ConfirmAction
+        visible={showRefundConfirm}
+        onHide={() => setShowRefundConfirm(false)}
+        title="Request refund"
+        message="This asks a Super Admin to refund the face value plus fees back to the original payment method. The bounty will be refunded only if no submission has been approved yet."
+        confirmLabel="Request refund"
+        confirmSeverity="warning"
+        onConfirm={handleRefundRequest}
+        loading={refundLoading}
       />
 
       {clientSecret && (

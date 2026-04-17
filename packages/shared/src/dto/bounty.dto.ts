@@ -10,13 +10,15 @@ import {
   PostVisibilityRule,
   DurationUnit,
   Currency,
+  ContentFormat,
+  BountyAccessType,
 } from '../enums';
 
 // ─────────────────────────────────────
 // Bounty DTOs
 // ─────────────────────────────────────
 
-// Organisation summary embedded in bounty responses
+// Brand summary embedded in bounty responses
 export interface BountyBrandInfo {
   id: string;
   name: string;
@@ -132,6 +134,7 @@ export interface BountyListItem {
   payoutMetrics: PayoutMetricsInput | null;
   paymentStatus: PaymentStatus;
   payoutMethod?: PayoutMethod | null;
+  accessType: BountyAccessType;
 }
 
 // GET /bounties (query params)
@@ -152,7 +155,9 @@ export interface BountyDetailResponse {
   id: string;
   title: string;
   shortDescription: string;
+  contentFormat: ContentFormat;
   fullInstructions: string;
+  instructionSteps: string[];
   category: string;
   rewardType: RewardType;
   rewardValue: string | null;
@@ -184,13 +189,16 @@ export interface BountyDetailResponse {
   paymentStatus: PaymentStatus;
   payoutMethod?: PayoutMethod | null;
   brandAssets: BrandAssetInfo[];
+  accessType: BountyAccessType;
 }
 
 // POST /bounties
 export interface CreateBountyRequest {
   title: string;
   shortDescription?: string;
+  contentFormat?: ContentFormat;
   fullInstructions?: string;
+  instructionSteps?: string[];
   category?: string;
   proofRequirements?: string;
   maxSubmissions?: number | null;
@@ -219,7 +227,9 @@ export interface CreateBountyResponse {
   id: string;
   title: string;
   shortDescription: string;
+  contentFormat: ContentFormat;
   fullInstructions: string;
+  instructionSteps: string[];
   category: string;
   rewardType: RewardType;
   rewardValue: string | null;
@@ -253,7 +263,9 @@ export interface CreateBountyResponse {
 export interface UpdateBountyRequest {
   title?: string;
   shortDescription?: string;
+  contentFormat?: ContentFormat;
   fullInstructions?: string;
+  instructionSteps?: string[];
   category?: string;
   maxSubmissions?: number | null;
   startDate?: string | null;

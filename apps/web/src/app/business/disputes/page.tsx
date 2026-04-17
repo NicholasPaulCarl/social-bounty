@@ -7,7 +7,7 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
 import { Tag } from 'primereact/tag';
-import { useOrgDisputes } from '@/hooks/useDisputes';
+import { useBrandDisputes } from '@/hooks/useDisputes';
 import { usePagination } from '@/hooks/usePagination';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -34,7 +34,7 @@ export default function BusinessDisputesPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
 
-  const { data, isLoading, error, refetch } = useOrgDisputes({
+  const { data, isLoading, error, refetch } = useBrandDisputes({
     page,
     limit,
     status: (statusFilter as DisputeStatus) || undefined,

@@ -24,10 +24,10 @@ export function useMyDisputes(params: DisputeListParams) {
   });
 }
 
-export function useOrgDisputes(params: DisputeListParams) {
+export function useBrandDisputes(params: DisputeListParams) {
   return useQuery({
-    queryKey: queryKeys.disputes.forOrg(params),
-    queryFn: () => disputeApi.listForOrg(params),
+    queryKey: queryKeys.disputes.forBrand(params),
+    queryFn: () => disputeApi.listForBrand(params),
     staleTime: 30_000,
   });
 }
@@ -47,7 +47,7 @@ export function useCreateDispute() {
     mutationFn: (data: CreateDisputeRequest) => disputeApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.disputes.mine({}) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.disputes.forOrg({}) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.disputes.forBrand({}) });
     },
   });
 }
@@ -59,7 +59,7 @@ export function useSubmitDispute(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.disputes.detail(id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.disputes.mine({}) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.disputes.forOrg({}) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.disputes.forBrand({}) });
     },
   });
 }
@@ -71,7 +71,7 @@ export function useWithdrawDispute(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.disputes.detail(id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.disputes.mine({}) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.disputes.forOrg({}) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.disputes.forBrand({}) });
     },
   });
 }
@@ -93,7 +93,7 @@ export function useEscalateDispute(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.disputes.detail(id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.disputes.mine({}) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.disputes.forOrg({}) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.disputes.forBrand({}) });
       queryClient.invalidateQueries({ queryKey: queryKeys.disputes.adminList({}) });
     },
   });

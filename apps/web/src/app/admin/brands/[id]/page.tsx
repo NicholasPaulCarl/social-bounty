@@ -16,9 +16,9 @@ import { StatusBadge } from '@/components/common/StatusBadge';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate, formatDateTime, formatCurrency } from '@/lib/utils/format';
 
-function OrgBountiesTab({ orgId }: { orgId: string }) {
+function BrandBountiesTab({ brandId }: { brandId: string }) {
   const router = useRouter();
-  const { data, isLoading } = useAdminBounties({ brandId: orgId, limit: 20 });
+  const { data, isLoading } = useAdminBounties({ brandId, limit: 20 });
 
   if (isLoading) return <LoadingState type="table" />;
 
@@ -39,9 +39,9 @@ function OrgBountiesTab({ orgId }: { orgId: string }) {
   );
 }
 
-function OrgSubmissionsTab({ orgId }: { orgId: string }) {
+function BrandSubmissionsTab({ brandId }: { brandId: string }) {
   const router = useRouter();
-  const { data, isLoading } = useAdminSubmissions({ brandId: orgId, limit: 20 });
+  const { data, isLoading } = useAdminSubmissions({ brandId, limit: 20 });
 
   if (isLoading) return <LoadingState type="table" />;
 
@@ -68,7 +68,7 @@ export default function AdminBrandDetailPage() {
   const toast = useToast();
   const [activeTab, setActiveTab] = useState(0);
 
-  const { data: org, isLoading, error, refetch } = useAdminBrandDetail(id);
+  const { data: brand, isLoading, error, refetch } = useAdminBrandDetail(id);
   const updateStatus = useUpdateBrandStatus(id);
 
   const [showSuspend, setShowSuspend] = useState(false);
@@ -76,7 +76,7 @@ export default function AdminBrandDetailPage() {
 
   if (isLoading) return <LoadingState type="detail" />;
   if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
-  if (!org) return null;
+  if (!brand) return null;
 
   const handleStatusChange = (status: BrandStatus, reason?: string) => {
     updateStatus.mutate(
@@ -95,17 +95,17 @@ export default function AdminBrandDetailPage() {
 
   const breadcrumbs = [
     { label: 'Brands', url: '/admin/brands' },
-    { label: org.name || 'Brand' },
+    { label: brand.name || 'Brand' },
   ];
 
   return (
     <>
       <PageHeader
-        title={org.name || 'Brand'}
+        title={brand.name || 'Brand'}
         breadcrumbs={breadcrumbs}
         actions={
           <div className="flex gap-2">
-            {org.status === 'ACTIVE' ? (
+            {brand.status === 'ACTIVE' ? (
               <Button label="Suspend" icon="pi pi-ban" severity="danger" outlined onClick={() => setShowSuspend(true)} />
             ) : (
               <Button label="Activate" icon="pi pi-check" severity="success" outlined onClick={() => setShowActivate(true)} />
@@ -123,19 +123,19 @@ export default function AdminBrandDetailPage() {
                 <dl className="grid grid-cols-2 gap-4">
                   <div>
                     <dt className="text-sm text-text-muted">Name</dt>
-                    <dd className="text-sm font-medium text-text-primary">{org.name}</dd>
+                    <dd className="text-sm font-medium text-text-primary">{brand.name}</dd>
                   </div>
                   <div>
                     <dt className="text-sm text-text-muted">Contact Email</dt>
-                    <dd className="text-sm font-medium text-text-primary">{org.contactEmail || '-'}</dd>
+                    <dd className="text-sm font-medium text-text-primary">{brand.contactEmail || '-'}</dd>
                   </div>
                   <div>
                     <dt className="text-sm text-text-muted">Status</dt>
-                    <dd><StatusBadge type="organisation" value={org.status} /></dd>
+                    <dd><StatusBadge type="brand" value={brand.status} /></dd>
                   </div>
                   <div>
                     <dt className="text-sm text-text-muted">Created</dt>
-                    <dd className="text-sm font-medium text-text-primary">{formatDateTime(org.createdAt)}</dd>
+                    <dd className="text-sm font-medium text-text-primary">{formatDateTime(brand.createdAt)}</dd>
                   </div>
                 </dl>
               </div>
@@ -147,11 +147,11 @@ export default function AdminBrandDetailPage() {
                 <dl className="space-y-3">
                   <div>
                     <dt className="text-sm text-text-muted">Members</dt>
-                    <dd className="text-sm font-medium text-text-primary">{org.memberCount ?? 0}</dd>
+                    <dd className="text-sm font-medium text-text-primary">{brand.memberCount ?? 0}</dd>
                   </div>
                   <div>
                     <dt className="text-sm text-text-muted">Bounties</dt>
-                    <dd className="text-sm font-medium text-text-primary">{org.bountyCount ?? 0}</dd>
+                    <dd className="text-sm font-medium text-text-primary">{brand.bountyCount ?? 0}</dd>
                   </div>
                 </dl>
               </div>
@@ -161,13 +161,13 @@ export default function AdminBrandDetailPage() {
 
         <TabPanel header="Bounties">
           <div className="mt-4">
-            <OrgBountiesTab orgId={id} />
+            <BrandBountiesTab brandId={id} />
           </div>
         </TabPanel>
 
         <TabPanel header="Submissions">
           <div className="mt-4">
-            <OrgSubmissionsTab orgId={id} />
+            <BrandSubmissionsTab brandId={id} />
           </div>
         </TabPanel>
       </TabView>
@@ -176,7 +176,7 @@ export default function AdminBrandDetailPage() {
         visible={showSuspend}
         onHide={() => setShowSuspend(false)}
         title="Suspend Brand"
-        message={`Are you sure you want to suspend "${org.name}"? All members will lose access and active bounties will be paused.`}
+        message={`Are you sure you want to suspend "${brand.name}"? All members will lose access and active bounties will be paused.`}
         confirmLabel="Suspend"
         confirmSeverity="danger"
         requireReason
@@ -188,7 +188,7 @@ export default function AdminBrandDetailPage() {
         visible={showActivate}
         onHide={() => setShowActivate(false)}
         title="Activate Brand"
-        message={`Are you sure you want to reactivate "${org.name}"?`}
+        message={`Are you sure you want to reactivate "${brand.name}"?`}
         confirmLabel="Activate"
         confirmSeverity="success"
         requireReason

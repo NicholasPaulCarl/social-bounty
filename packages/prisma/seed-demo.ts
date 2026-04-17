@@ -23,7 +23,7 @@ const PARTICIPANTS = [
 ];
 
 const BUSINESS_ADMINS = [
-  { email: 'brand@socialbounty.cash', firstName: 'Demo', lastName: 'Brand', orgName: 'Demo Company', orgEmail: 'brand@socialbounty.cash', orgId: 'demo-org-id' },
+  { email: 'brand@socialbounty.cash', firstName: 'Demo', lastName: 'Brand', orgName: 'Demo Company', orgEmail: 'brand@socialbounty.cash', brandId: 'demo-org-id' },
   { email: 'marketing@freshroast.co', firstName: 'Lebo', lastName: 'Moloi', orgName: 'Fresh Roast Coffee', orgEmail: 'hello@freshroast.co' },
   { email: 'social@urbanfit.za', firstName: 'Craig', lastName: 'Hendricks', orgName: 'UrbanFit Gym', orgEmail: 'info@urbanfit.za' },
   { email: 'campaigns@vividmedia.co', firstName: 'Zanele', lastName: 'Khumalo', orgName: 'Vivid Media Agency', orgEmail: 'info@vividmedia.co' },
@@ -266,7 +266,7 @@ async function main() {
   }
   console.log(`  Created ${participantUsers.length} participants`);
 
-  // ── 2. Create Business Admins (4) + Organisations ──
+  // ── 2. Create Business Admins (4) + Brands ──
 
   const orgs = [];
   for (const ba of BUSINESS_ADMINS) {
@@ -282,11 +282,11 @@ async function main() {
       status: 'ACTIVE' as const,
     };
 
-    const org = ba.orgId
+    const org = ba.brandId
       ? await prisma.brand.upsert({
-          where: { id: ba.orgId },
+          where: { id: ba.brandId },
           update: orgData,
-          create: { id: ba.orgId, ...orgData },
+          create: { id: ba.brandId, ...orgData },
         })
       : await prisma.brand.create({ data: orgData }).catch(async () => {
           // Org may exist if re-seeding — find by name
@@ -302,7 +302,7 @@ async function main() {
       create: { userId: user.id, brandId: org.id, role: 'OWNER' },
     });
   }
-  console.log(`  Created ${BUSINESS_ADMINS.length} business admins with ${orgs.length} organisations`);
+  console.log(`  Created ${BUSINESS_ADMINS.length} business admins with ${orgs.length} brands`);
 
   // ── 3. Create Super Admin (1) ──
 
@@ -432,7 +432,7 @@ async function main() {
   console.log(`    Participants: ${PARTICIPANTS.length}`);
   console.log(`    Bus. Admins:  ${BUSINESS_ADMINS.length}`);
   console.log(`    Super Admins: ${SUPER_ADMINS.length}`);
-  console.log(`  Organisations: ${orgs.length}`);
+  console.log(`  Brands:        ${orgs.length}`);
   console.log(`  Bounties:      ${bounties.length} (${liveBounties.length} live, 1 draft, 1 paused, 1 closed)`);
   console.log(`  Submissions:   ${submissionCount}`);
   console.log('  Auth:          OTP (passwordless)');

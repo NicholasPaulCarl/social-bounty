@@ -36,28 +36,32 @@ describe('AdminService', () => {
         findUnique: jest.fn(),
         findMany: jest.fn(),
         count: jest.fn(),
+        groupBy: jest.fn().mockResolvedValue([]),
         update: jest.fn(),
       },
       brand: {
         findUnique: jest.fn(),
         findMany: jest.fn(),
         count: jest.fn(),
+        groupBy: jest.fn().mockResolvedValue([]),
         create: jest.fn(),
         update: jest.fn(),
       },
-      organisationMember: {
+      brandMember: {
         findFirst: jest.fn(),
         create: jest.fn(),
       },
       bounty: {
         findUnique: jest.fn(),
         count: jest.fn(),
+        groupBy: jest.fn().mockResolvedValue([]),
         update: jest.fn(),
         updateMany: jest.fn(),
       },
       submission: {
         findUnique: jest.fn(),
         count: jest.fn(),
+        groupBy: jest.fn().mockResolvedValue([]),
         update: jest.fn(),
       },
       auditLog: {
@@ -198,7 +202,7 @@ describe('AdminService', () => {
   // ── updateBrandStatus ─────────────────────────────────
 
   describe('updateBrandStatus', () => {
-    it('should suspend an organisation and pause LIVE bounties', async () => {
+    it('should suspend a brand and pause LIVE bounties', async () => {
       prisma.brand.findUnique.mockResolvedValue({
         id: 'org-1',
         status: BrandStatus.ACTIVE,
@@ -224,13 +228,13 @@ describe('AdminService', () => {
       });
       expect(auditService.log).toHaveBeenCalledWith(
         expect.objectContaining({
-          action: 'organisation.status_change',
+          action: 'brand.status_change',
           reason: 'Policy violation',
         }),
       );
     });
 
-    it('should reinstate an organisation without re-publishing bounties', async () => {
+    it('should reinstate a brand without re-publishing bounties', async () => {
       prisma.brand.findUnique.mockResolvedValue({
         id: 'org-1',
         status: BrandStatus.SUSPENDED,
@@ -396,40 +400,46 @@ describe('AdminService', () => {
 
   describe('getDashboard', () => {
     it('should return platform-wide counts', async () => {
-      // Mock all 23 count calls
-      prisma.user.count
-        .mockResolvedValueOnce(350)    // total
-        .mockResolvedValueOnce(340)    // active
-        .mockResolvedValueOnce(10)     // suspended
-        .mockResolvedValueOnce(320)    // participants
-        .mockResolvedValueOnce(25)     // BAs
-        .mockResolvedValueOnce(5);     // SAs
-      prisma.brand.count
-        .mockResolvedValueOnce(25)     // total
-        .mockResolvedValueOnce(23)     // active
-        .mockResolvedValueOnce(2);     // suspended
-      prisma.bounty.count
-        .mockResolvedValueOnce(150)    // total
-        .mockResolvedValueOnce(20)     // draft
-        .mockResolvedValueOnce(80)     // live
-        .mockResolvedValueOnce(15)     // paused
-        .mockResolvedValueOnce(35);    // closed
-      prisma.submission.count
-        .mockResolvedValueOnce(2500)   // total
-        .mockResolvedValueOnce(400)    // submitted
-        .mockResolvedValueOnce(150)    // in_review
-        .mockResolvedValueOnce(50)     // nmi
-        .mockResolvedValueOnce(1500)   // approved
-        .mockResolvedValueOnce(400)    // rejected
-        .mockResolvedValueOnce(500)    // not_paid
-        .mockResolvedValueOnce(200)    // pending
-        .mockResolvedValueOnce(800);   // paid
+      // Dashboard now issues 6 groupBy queries instead of 23 counts.
+      prisma.user.groupBy
+        .mockResolvedValueOnce([
+          { status: UserStatus.ACTIVE, _count: { _all: 340 } },
+          { status: UserStatus.SUSPENDED, _count: { _all: 10 } },
+        ])
+        .mockResolvedValueOnce([
+          { role: UserRole.PARTICIPANT, _count: { _all: 320 } },
+          { role: UserRole.BUSINESS_ADMIN, _count: { _all: 25 } },
+          { role: UserRole.SUPER_ADMIN, _count: { _all: 5 } },
+        ]);
+      prisma.brand.groupBy.mockResolvedValueOnce([
+        { status: BrandStatus.ACTIVE, _count: { _all: 23 } },
+        { status: BrandStatus.SUSPENDED, _count: { _all: 2 } },
+      ]);
+      prisma.bounty.groupBy.mockResolvedValueOnce([
+        { status: BountyStatus.DRAFT, _count: { _all: 20 } },
+        { status: BountyStatus.LIVE, _count: { _all: 80 } },
+        { status: BountyStatus.PAUSED, _count: { _all: 15 } },
+        { status: BountyStatus.CLOSED, _count: { _all: 35 } },
+      ]);
+      prisma.submission.groupBy
+        .mockResolvedValueOnce([
+          { status: SubmissionStatus.SUBMITTED, _count: { _all: 400 } },
+          { status: SubmissionStatus.IN_REVIEW, _count: { _all: 150 } },
+          { status: SubmissionStatus.NEEDS_MORE_INFO, _count: { _all: 50 } },
+          { status: SubmissionStatus.APPROVED, _count: { _all: 1500 } },
+          { status: SubmissionStatus.REJECTED, _count: { _all: 400 } },
+        ])
+        .mockResolvedValueOnce([
+          { payoutStatus: 'NOT_PAID', _count: { _all: 500 } },
+          { payoutStatus: 'PENDING', _count: { _all: 200 } },
+          { payoutStatus: 'PAID', _count: { _all: 800 } },
+        ]);
 
       const result = await service.getDashboard();
 
       expect(result.users.total).toBe(350);
       expect(result.users.active).toBe(340);
-      expect(result.organisations.total).toBe(25);
+      expect(result.brands.total).toBe(25);
       expect(result.bounties.total).toBe(150);
       expect(result.bounties.byStatus.LIVE).toBe(80);
       expect(result.submissions.total).toBe(2500);

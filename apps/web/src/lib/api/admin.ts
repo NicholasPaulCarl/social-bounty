@@ -24,6 +24,7 @@ import type {
   AdminRecentErrorsParams,
   AdminSettingsResponse,
   AdminUpdateSettingsRequest,
+  PaymentsHealthResponse,
   PaginatedResponse,
   BountyListItem,
   BountyListParams,
@@ -92,6 +93,10 @@ export const adminApi = {
   // System
   getSystemHealth: (): Promise<AdminSystemHealthResponse> =>
     apiClient.get('/admin/system-health'),
+
+  // Payments Health (Stitch)
+  getPaymentsHealth: (): Promise<PaymentsHealthResponse> =>
+    apiClient.get('/admin/payments-health'),
 
   getRecentErrors: (params: AdminRecentErrorsParams): Promise<PaginatedResponse<AdminRecentErrorItem>> =>
     apiClient.get('/admin/recent-errors', params as Record<string, unknown>),

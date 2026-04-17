@@ -1,6 +1,7 @@
 import { apiClient } from './client';
 import type {
   WalletDashboardResponse,
+  LedgerWalletSnapshot,
   WalletTransactionListParams,
   PaginatedWalletTransactions,
   RequestWithdrawalRequest,
@@ -30,6 +31,9 @@ export interface PaginatedAdminWithdrawals {
 export const walletApi = {
   getDashboard: (): Promise<WalletDashboardResponse> =>
     apiClient.get('/wallet'),
+
+  getLedgerSnapshot: (): Promise<LedgerWalletSnapshot> =>
+    apiClient.get('/wallet/ledger-snapshot'),
 
   getTransactions: (params: WalletTransactionListParams): Promise<PaginatedWalletTransactions> =>
     apiClient.get('/wallet/transactions', params as Record<string, unknown>),

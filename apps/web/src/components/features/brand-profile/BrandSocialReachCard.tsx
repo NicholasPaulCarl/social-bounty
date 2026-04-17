@@ -9,7 +9,7 @@ import type {
 import { formatCount, formatRelativeTime } from '@/lib/utils/format';
 
 interface BrandSocialReachCardProps {
-  orgId: string;
+  brandId: string;
   socialLinks: BrandSocialLinks | null;
   analytics: BrandSocialAnalyticsBlob | null;
 }

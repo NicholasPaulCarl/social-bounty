@@ -31,8 +31,7 @@ export default function ApplyToBountyPage() {
   if (error) return <ErrorState error={error} />;
   if (!bounty) return <ErrorState error={new Error('Bounty not found')} />;
 
-  const accessType = (bounty as unknown as { accessType?: string }).accessType ?? BountyAccessType.PUBLIC;
-  if (accessType !== BountyAccessType.CLOSED) {
+  if (bounty.accessType !== BountyAccessType.CLOSED) {
     router.replace(`/bounties/${id}`);
     return null;
   }

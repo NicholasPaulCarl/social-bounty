@@ -1,20 +1,21 @@
 'use client';
 
-import { useRef, useMemo, useCallback } from 'react';
+import { useRef, useMemo, useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import { FIELD_LIMITS } from '@social-bounty/shared';
+import { InputSwitch } from 'primereact/inputswitch';
+import { FIELD_LIMITS, ContentFormat } from '@social-bounty/shared';
 import type { BountyDetailResponse, CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useCreateBountyForm } from './useCreateBountyForm';
 import { SectionPanel } from './SectionPanel';
 import { ChannelSelectionSection } from './ChannelSelectionSection';
-import { ContentRulesSection } from './ContentRulesSection';
 import { PostVisibilitySection } from './PostVisibilitySection';
 import { RewardLinesSection } from './RewardLinesSection';
 import { EligibilityRulesSection } from './EligibilityRulesSection';
-import { ProofRequirementsSection } from './ProofRequirementsSection';
+import { CustomRulesSection } from './CustomRulesSection';
 import { MaxSubmissionsSection } from './MaxSubmissionsSection';
 import { ScheduleSection } from './ScheduleSection';
 import { PayoutMetricsSection } from './PayoutMetricsSection';
@@ -23,6 +24,115 @@ import { AccessTypeSection } from './AccessTypeSection';
 import { FormSummaryFooter } from './FormSummaryFooter';
 import { getSectionErrors, isSectionComplete } from './validation';
 import { SECTIONS } from './types';
+
+// ---------------------------------------------------------------------------
+// Instruction Steps Builder
+// ---------------------------------------------------------------------------
+
+function InstructionStepsBuilder({
+  steps,
+  dispatch,
+  errors,
+  submitAttempted,
+  isLocked,
+}: {
+  steps: string[];
+  dispatch: React.Dispatch<import('./types').BountyFormAction>;
+  errors: Record<string, string>;
+  submitAttempted: boolean;
+  isLocked: boolean;
+}) {
+  const [isEditing, setIsEditing] = useState(true);
+  const hasContent = steps.some((s) => s.trim());
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <label className="block text-text-muted text-xs uppercase tracking-wider font-medium">
+          Instructions <span className="text-accent-rose">*</span>
+        </label>
+        {hasContent && !isLocked && (
+          <Button
+            label={isEditing ? 'Done' : 'Edit'}
+            icon={isEditing ? 'pi pi-check' : 'pi pi-pencil'}
+            text
+            size="small"
+            onClick={() => setIsEditing(!isEditing)}
+          />
+        )}
+      </div>
+      <p className="text-xs text-text-muted mb-3">Add step-by-step instructions for your hunters.</p>
+
+      {submitAttempted && errors.fullInstructions && (
+        <small className="text-xs text-accent-rose mb-2 flex items-center gap-1">
+          <i className="pi pi-exclamation-circle text-xs" />
+          {errors.fullInstructions}
+        </small>
+      )}
+
+      {isEditing ? (
+        <>
+          <div className="space-y-2">
+            {steps.map((step, index) => (
+              <div key={index} className="flex items-start gap-2">
+                <div className="w-7 h-9 flex items-center justify-center shrink-0">
+                  <span className="w-6 h-6 rounded-full bg-accent-cyan/10 text-accent-cyan text-xs font-bold flex items-center justify-center">
+                    {index + 1}
+                  </span>
+                </div>
+                <InputTextarea
+                  value={step}
+                  onChange={(e) => dispatch({ type: 'UPDATE_INSTRUCTION_STEP', payload: { index, value: e.target.value } })}
+                  className="flex-1"
+                  rows={2}
+                  autoResize
+                  placeholder={`Describe step ${index + 1}...`}
+                  disabled={isLocked}
+                  maxLength={500}
+                />
+                {steps.length > 1 && (
+                  <Button
+                    icon="pi pi-times"
+                    text
+                    severity="danger"
+                    size="small"
+                    className="mt-1"
+                    onClick={() => dispatch({ type: 'REMOVE_INSTRUCTION_STEP', payload: index })}
+                    disabled={isLocked}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center gap-3 mt-3">
+            <Button
+              label={`Add Step ${steps.length + 1}`}
+              icon="pi pi-plus"
+              outlined
+              size="small"
+              disabled={isLocked || steps.length >= 20}
+              onClick={() => dispatch({ type: 'ADD_INSTRUCTION_STEP' })}
+            />
+            {steps.length >= 20 && (
+              <small className="text-xs text-text-muted">Maximum 20 steps</small>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="space-y-2 rounded-lg border border-glass-border p-4 bg-bg-abyss">
+          {steps.filter((s) => s.trim()).map((step, index) => (
+            <div key={index} className="flex items-start gap-2">
+              <span className="w-6 h-6 rounded-full bg-accent-cyan/10 text-accent-cyan text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                {index + 1}
+              </span>
+              <p className="text-sm text-text-primary">{step}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface CreateBountyFormProps {
   initialBounty?: BountyDetailResponse;
@@ -91,15 +201,22 @@ export function CreateBountyForm({
       {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
 
       <form ref={formRef} className="flex flex-col gap-6 pb-24 md:pb-24 max-w-4xl mx-auto" onSubmit={(e) => e.preventDefault()}>
-        {/* Section 1: Bounty Basic Information */}
+        {/* Section 1: Bounty Information */}
         <div data-section="bountyBasicInfo" className={lockedClass}>
           <SectionPanel
             number={1}
-            title={`Bounty Basic Information${isLocked ? ' (Locked)' : ''}`}
+            title={`Bounty Information${isLocked ? ' (Locked)' : ''}`}
             icon="pi-file-edit"
             isComplete={isSectionComplete('bountyBasicInfo', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyBasicInfo', state.errors).length > 0}
           >
+            <ChannelSelectionSection
+              channels={state.channels}
+              dispatch={dispatch}
+              errors={state.errors}
+              submitAttempted={state.submitAttempted}
+            />
+
             <div>
               <label htmlFor="title" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
                 Title <span className="text-accent-rose">*</span>
@@ -151,64 +268,106 @@ export function CreateBountyForm({
               )}
             </div>
 
+            {/* Content Format Selector */}
             <div>
-              <label htmlFor="fullInstructions" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                Instructions <span className="text-accent-rose">*</span>
+              <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-2">
+                Accepted Formats <span className="text-accent-rose">*</span>
               </label>
-              <InputTextarea
-                id="fullInstructions"
-                value={state.fullInstructions}
-                onChange={(e) => dispatch({ type: 'SET_FULL_INSTRUCTIONS', payload: e.target.value })}
-                rows={5}
-                className={`w-full ${state.submitAttempted && state.errors.fullInstructions ? 'p-invalid' : ''}`}
-                placeholder="Detailed step-by-step instructions for Hunters"
-                disabled={isLocked}
-              />
-              {state.submitAttempted && state.errors.fullInstructions && (
-                <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
-                  <i className="pi pi-exclamation-circle text-xs" />
-                  {state.errors.fullInstructions}
-                </small>
-              )}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {([
+                  { value: ContentFormat.VIDEO_ONLY, label: 'Video Only', icon: 'pi-video', desc: 'Only video content accepted' },
+                  { value: ContentFormat.PHOTO_ONLY, label: 'Photo Only', icon: 'pi-image', desc: 'Only photo content accepted' },
+                  { value: ContentFormat.BOTH, label: 'Both', icon: 'pi-images', desc: 'Video and photo accepted' },
+                ] as const).map(({ value, label, icon, desc }) => {
+                  const selected = state.contentFormat === value;
+                  return (
+                    <div
+                      key={value}
+                      role="button"
+                      tabIndex={0}
+                      className={`border rounded-lg p-4 cursor-pointer transition-colors text-center ${
+                        selected
+                          ? 'border-2 border-accent-cyan bg-accent-cyan/10'
+                          : 'border-glass-border bg-surface hover:border-accent-cyan'
+                      }`}
+                      onClick={() => dispatch({ type: 'SET_CONTENT_FORMAT', payload: value })}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dispatch({ type: 'SET_CONTENT_FORMAT', payload: value }); } }}
+                    >
+                      <i className={`pi ${icon} text-2xl ${selected ? 'text-accent-cyan' : 'text-text-muted'} mb-2`} />
+                      <p className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>{label}</p>
+                      <p className="text-xs text-text-muted mt-0.5">{desc}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
-            <ChannelSelectionSection
-              channels={state.channels}
+            {/* Instruction Steps Builder */}
+            <InstructionStepsBuilder
+              steps={state.instructionSteps}
+              dispatch={dispatch}
+              errors={state.errors}
+              submitAttempted={state.submitAttempted}
+              isLocked={isLocked}
+            />
+
+            {/* AI-Generated Content toggle */}
+            <div className="flex items-center justify-between p-3 bg-elevated rounded-lg">
+              <div>
+                <span className="text-sm font-medium text-text-primary">AI-Generated Content</span>
+                <p className="text-xs text-text-muted mt-0.5">Allow Hunters to use AI-generated content</p>
+              </div>
+              <InputSwitch
+                checked={state.aiContentPermitted}
+                onChange={(e) => dispatch({ type: 'SET_AI_CONTENT_PERMITTED', payload: e.value })}
+              />
+            </div>
+
+            {/* Schedule (Start / End Date) */}
+            <ScheduleSection
+              startDate={state.startDate}
+              endDate={state.endDate}
+              dispatch={dispatch}
+              errors={state.errors}
+              submitAttempted={state.submitAttempted}
+              onBlur={handleBlur}
+              disableStartDate={isLocked}
+            />
+
+            {/* Payout Metrics */}
+            <PayoutMetricsSection
+              payoutMetrics={state.payoutMetrics}
               dispatch={dispatch}
               errors={state.errors}
               submitAttempted={state.submitAttempted}
             />
+
+            {/* Post link requirement notice */}
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-accent-cyan/30 bg-accent-cyan/5">
+              <i className="pi pi-info-circle text-accent-cyan mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-text-primary">Post links are required for all submissions</p>
+                <p className="text-xs text-text-muted mt-0.5">
+                  Hunters must provide a public URL to their published post as proof of completion.
+                </p>
+              </div>
+            </div>
           </SectionPanel>
         </div>
 
-        {/* Section 2: Bounty Content */}
+        {/* Section 2: Bounty Reward */}
         <div data-section="bountyContent" className={lockedClass}>
           <SectionPanel
             number={2}
-            title={`Bounty Content${isLocked ? ' (Locked)' : ''}`}
-            icon="pi-sliders-h"
+            title={`Bounty Reward${isLocked ? ' (Locked)' : ''}`}
+            icon="pi-dollar"
             isComplete={isSectionComplete('bountyContent', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyContent', state.errors).length > 0}
           >
-            <ContentRulesSection
-              aiContentPermitted={state.aiContentPermitted}
-              engagementRequirements={state.engagementRequirements}
-              dispatch={dispatch}
-              errors={state.errors}
-              onBlur={handleBlur}
-            />
-            <PostVisibilitySection
-              postVisibility={state.postVisibility}
-              visibilityAcknowledged={state.visibilityAcknowledged}
-              dispatch={dispatch}
-              errors={state.errors}
-              submitAttempted={state.submitAttempted}
-            />
             <RewardLinesSection
               rewards={state.rewards}
               currency={state.currency}
               totalRewardValue={totalRewardValue}
-              payoutMethod={state.payoutMethod}
               dispatch={dispatch}
               errors={state.errors}
               submitAttempted={state.submitAttempted}
@@ -231,35 +390,52 @@ export function CreateBountyForm({
               errors={state.errors}
               submitAttempted={state.submitAttempted}
             />
-            <ProofRequirementsSection
-              proofRequirements={state.proofRequirements}
-              dispatch={dispatch}
-              errors={state.errors}
-              submitAttempted={state.submitAttempted}
-            />
+
+            {/* Engagement & Visibility toggles */}
+            <div>
+              <h4 className="text-sm font-semibold text-text-primary mb-3">Engagement &amp; Visibility</h4>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 min-w-[14rem]">
+                    <InputSwitch
+                      checked={state.engagementRequirements.mention || false}
+                      onChange={(e) => dispatch({ type: 'SET_MENTION', payload: e.value })}
+                    />
+                    <span className="text-sm text-text-primary">Hunter must mention brand</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 min-w-[14rem]">
+                    <InputSwitch
+                      checked={state.engagementRequirements.comment || false}
+                      onChange={(e) => dispatch({ type: 'SET_COMMENT', payload: e.value })}
+                    />
+                    <span className="text-sm text-text-primary">Hunter must leave a comment</span>
+                  </div>
+                </div>
+                <PostVisibilitySection
+                  postVisibility={state.postVisibility}
+                  visibilityAcknowledged={state.visibilityAcknowledged}
+                  dispatch={dispatch}
+                  errors={state.errors}
+                  submitAttempted={state.submitAttempted}
+                />
+              </div>
+            </div>
+
             <MaxSubmissionsSection
               maxSubmissions={state.maxSubmissions}
               dispatch={dispatch}
               errors={state.errors}
               submitAttempted={state.submitAttempted}
             />
-            <ScheduleSection
-              startDate={state.startDate}
-              endDate={state.endDate}
+
+            <CustomRulesSection
+              customRules={state.structuredEligibility.customRules || []}
               dispatch={dispatch}
               errors={state.errors}
               submitAttempted={state.submitAttempted}
-              onBlur={handleBlur}
-              disableStartDate={isLocked}
             />
-            <div className={isLocked ? 'opacity-60 pointer-events-none' : ''}>
-              <PayoutMetricsSection
-                payoutMetrics={state.payoutMetrics}
-                dispatch={dispatch}
-                errors={state.errors}
-                submitAttempted={state.submitAttempted}
-              />
-            </div>
           </SectionPanel>
         </div>
 
@@ -274,7 +450,7 @@ export function CreateBountyForm({
           >
             <AccessTypeSection
               accessType={state.accessType}
-              invitations={state.invitations}
+              selectedHunters={state.selectedHunters}
               dispatch={dispatch}
             />
           </SectionPanel>

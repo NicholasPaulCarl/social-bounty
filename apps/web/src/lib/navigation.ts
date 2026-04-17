@@ -15,6 +15,7 @@ const participantNav: NavItem[] = [
   { label: 'My Submissions', icon: 'pi pi-list', href: '/my-submissions' },
   { label: 'My Disputes', icon: 'pi pi-flag', href: '/my-disputes' },
   { label: 'Wallet', icon: 'pi pi-wallet', href: '/wallet' },
+  { label: 'Subscription', icon: 'pi pi-star', href: '/settings/subscription' },
   { label: 'Profile', icon: 'pi pi-user', href: '/profile' },
 ];
 
@@ -26,6 +27,8 @@ const businessNav: NavItem[] = [
   { label: 'Hunters', icon: 'pi pi-users', href: '/hunters' },
   { label: 'Disputes', icon: 'pi pi-flag', href: '/business/disputes' },
   { label: 'Brands', icon: 'pi pi-building', href: '/business/brands' },
+  { label: 'KYB Verification', icon: 'pi pi-id-card', href: '/business/brands/kyb' },
+  { label: 'Subscription', icon: 'pi pi-star', href: '/business/brands/subscription' },
   { label: 'Profile', icon: 'pi pi-user', href: '/business/profile' },
 ];
 
@@ -41,6 +44,22 @@ const adminNav: NavItem[] = [
   { label: 'Withdrawals', icon: 'pi pi-money-bill', href: '/admin/withdrawals' },
   { label: 'Disputes', icon: 'pi pi-flag', href: '/admin/disputes' },
   { label: 'Audit Logs', icon: 'pi pi-history', href: '/admin/audit-logs' },
+  {
+    label: 'Finance',
+    icon: 'pi pi-dollar',
+    href: '/admin/finance',
+    children: [
+      { label: 'Overview', icon: 'pi pi-circle-fill', href: '/admin/finance' },
+      { label: 'Inbound', icon: 'pi pi-circle-fill', href: '/admin/finance/inbound' },
+      { label: 'Reserves', icon: 'pi pi-circle-fill', href: '/admin/finance/reserves' },
+      { label: 'Earnings & Payouts', icon: 'pi pi-circle-fill', href: '/admin/finance/earnings-payouts' },
+      { label: 'Refunds', icon: 'pi pi-circle-fill', href: '/admin/finance/refunds' },
+      { label: 'Exceptions', icon: 'pi pi-circle-fill', href: '/admin/finance/exceptions' },
+      { label: 'Audit Trail', icon: 'pi pi-circle-fill', href: '/admin/finance/audit-trail' },
+      { label: 'Overrides', icon: 'pi pi-circle-fill', href: '/admin/finance/overrides' },
+    ],
+  },
+  { label: 'Payments Health', icon: 'pi pi-bolt', href: '/admin/payments-health' },
   { label: 'System Health', icon: 'pi pi-server', href: '/admin/troubleshooting' },
   { label: 'Settings', icon: 'pi pi-cog', href: '/admin/settings' },
   {

@@ -83,7 +83,7 @@ export class DisputesService {
     },
     ipAddress?: string,
   ) {
-    // 1. Load the submission + bounty + organisation
+    // 1. Load the submission + bounty + brand
     const submission = await this.prisma.submission.findUnique({
       where: { id: dto.submissionId },
       include: {
@@ -359,7 +359,7 @@ export class DisputesService {
       },
       openedByRole: dispute.openedByRole,
       brandId: dispute.brandId,
-      organisationName: dispute.submission.bounty.brand.name,
+      brandName: dispute.submission.bounty.brand.name,
       assignedTo: dispute.assignedTo
         ? {
             id: dispute.assignedTo.id,
@@ -478,7 +478,7 @@ export class DisputesService {
         submissionId: d.submissionId,
         bountyTitle: d.submission.bounty.title,
         openedBy: d.openedBy,
-        organisationName: d.submission.bounty.brand.name,
+        brandName: d.submission.bounty.brand.name,
         assignedTo: d.assignedTo,
         createdAt: d.createdAt.toISOString(),
         updatedAt: d.updatedAt.toISOString(),
@@ -492,7 +492,7 @@ export class DisputesService {
     };
   }
 
-  // ── List For Organisation ─────────────────────────────
+  // ── List For Brand ─────────────────────────────
 
   async listForBrand(
     user: AuthenticatedUser,
@@ -560,7 +560,7 @@ export class DisputesService {
         submissionId: d.submissionId,
         bountyTitle: d.submission.bounty.title,
         openedBy: d.openedBy,
-        organisationName: d.submission.bounty.brand.name,
+        brandName: d.submission.bounty.brand.name,
         assignedTo: d.assignedTo,
         createdAt: d.createdAt.toISOString(),
         updatedAt: d.updatedAt.toISOString(),
@@ -646,7 +646,7 @@ export class DisputesService {
         submissionId: d.submissionId,
         bountyTitle: d.submission.bounty.title,
         openedBy: d.openedBy,
-        organisationName: d.submission.bounty.brand.name,
+        brandName: d.submission.bounty.brand.name,
         assignedTo: d.assignedTo,
         createdAt: d.createdAt.toISOString(),
         updatedAt: d.updatedAt.toISOString(),

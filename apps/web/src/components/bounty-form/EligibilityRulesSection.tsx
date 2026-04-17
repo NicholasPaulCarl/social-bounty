@@ -16,7 +16,6 @@ interface EligibilityRulesSectionProps {
 }
 
 export function EligibilityRulesSection({ eligibility, dispatch, errors, submitAttempted }: EligibilityRulesSectionProps) {
-  const customRules = eligibility.customRules || [];
   const minFollowersEnabled = eligibility.minFollowers !== null && eligibility.minFollowers !== undefined;
   const minAccountAgeEnabled = eligibility.minAccountAgeDays !== null && eligibility.minAccountAgeDays !== undefined;
   const locationEnabled = eligibility.locationRestriction !== null && eligibility.locationRestriction !== undefined;
@@ -117,41 +116,6 @@ export function EligibilityRulesSection({ eligibility, dispatch, errors, submitA
         </div>
       </div>
 
-      {/* Custom Rules */}
-      <div className="mt-4 pt-4 border-t border-glass-border">
-        <h4 className="text-sm font-semibold text-text-primary mb-3">Custom Rules</h4>
-        <div className="space-y-3">
-          {customRules.map((rule, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <InputText
-                value={rule}
-                onChange={(e) => dispatch({ type: 'UPDATE_CUSTOM_RULE', payload: { index, value: e.target.value } })}
-                className={`flex-1 ${submitAttempted && errors[`customRule_${index}`] ? 'p-invalid' : ''}`}
-                placeholder="Enter eligibility rule"
-                maxLength={BOUNTY_REWARD_LIMITS.CUSTOM_RULE_MAX_LENGTH}
-              />
-              <Button
-                icon="pi pi-times"
-                text
-                severity="danger"
-                size="small"
-                onClick={() => dispatch({ type: 'REMOVE_CUSTOM_RULE', payload: index })}
-              />
-            </div>
-          ))}
-          <Button
-            label="Add Rule"
-            icon="pi pi-plus"
-            outlined
-            size="small"
-            disabled={customRules.length >= BOUNTY_REWARD_LIMITS.MAX_CUSTOM_ELIGIBILITY_RULES}
-            onClick={() => dispatch({ type: 'ADD_CUSTOM_RULE' })}
-          />
-          {customRules.length >= BOUNTY_REWARD_LIMITS.MAX_CUSTOM_ELIGIBILITY_RULES && (
-            <small className="text-xs text-text-muted">Maximum {BOUNTY_REWARD_LIMITS.MAX_CUSTOM_ELIGIBILITY_RULES} custom rules</small>
-          )}
-        </div>
-      </div>
     </>
   );
 }

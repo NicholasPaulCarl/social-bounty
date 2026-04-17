@@ -13,6 +13,8 @@ import type {
   BrandListItem,
   BrandListParams,
   MyBrandListItem,
+  SubmitKybRequest,
+  KybActionResponse,
 } from '@social-bounty/shared';
 
 export const brandsApi = {
@@ -58,8 +60,8 @@ export const brandsApi = {
   inviteMember: (id: string, data: InviteMemberRequest): Promise<InviteMemberResponse> =>
     apiClient.post(`/brands/${id}/members`, data),
 
-  removeMember: (orgId: string, userId: string): Promise<MessageResponse> =>
-    apiClient.delete(`/brands/${orgId}/members/${userId}`),
+  removeMember: (brandId: string, userId: string): Promise<MessageResponse> =>
+    apiClient.delete(`/brands/${brandId}/members/${userId}`),
 
   listMine: (): Promise<MyBrandListItem[]> =>
     apiClient.get('/brands/mine'),
@@ -78,4 +80,14 @@ export const brandsApi = {
     formData.append('file', file);
     return apiClient.post(`/brands/${id}/cover-photo`, formData);
   },
+
+  // KYB — business submits; super admin approves/rejects.
+  submitKyb: (brandId: string, body: SubmitKybRequest): Promise<KybActionResponse> =>
+    apiClient.post(`/brands/${brandId}/kyb`, body),
+
+  approveKyb: (brandId: string): Promise<KybActionResponse> =>
+    apiClient.post(`/brands/${brandId}/kyb/approve`),
+
+  rejectKyb: (brandId: string, reason: string): Promise<KybActionResponse> =>
+    apiClient.post(`/brands/${brandId}/kyb/reject`, { reason }),
 };

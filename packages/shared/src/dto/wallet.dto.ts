@@ -42,6 +42,17 @@ export interface WalletDashboardResponse {
   recentTransactions: WalletTransactionListItem[];
 }
 
+// ─────────────────────────────────────
+// Ledger-Projected Wallet Snapshot
+// ─────────────────────────────────────
+// Derived from LedgerEntry (ADR 0002). Cents are serialized as strings to
+// preserve bigint precision across the wire.
+export interface LedgerWalletSnapshot {
+  availableCents: string;
+  pendingCents: string;
+  paidCents: string;
+}
+
 export interface PaginatedWalletTransactions {
   data: WalletTransactionListItem[];
   meta: PaginationMeta;
@@ -127,4 +138,21 @@ export interface AdminCompleteWithdrawalRequest {
 
 export interface AdminFailWithdrawalRequest {
   reason: string;
+}
+
+// ─────────────────────────────────────
+// Hunter Payouts (Stitch Express)
+// ─────────────────────────────────────
+// Serialised StitchPayout row returned by GET /payouts/me. Cents are strings to
+// preserve bigint precision across the wire.
+export interface HunterPayoutRow {
+  id: string;
+  amountCents: string;
+  currency: string;
+  status: 'CREATED' | 'INITIATED' | 'SETTLED' | 'FAILED' | 'RETRY_PENDING' | 'CANCELLED';
+  attempts: number;
+  lastError: string | null;
+  createdAt: string;
+  lastAttemptAt: string | null;
+  stitchPayoutId: string | null;
 }

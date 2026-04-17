@@ -40,7 +40,7 @@ export class BusinessService {
       throw new BadRequestException('Brand not found');
     }
 
-    const orgId = user.brandId;
+    const brandId = user.brandId;
 
     // Run bounty status counts and submission status/payout counts in parallel.
     // Each group uses a single groupBy query instead of N individual count queries,
@@ -50,20 +50,20 @@ export class BusinessService {
         // One query returns counts for every bounty status
         this.prisma.bounty.groupBy({
           by: ['status'],
-          where: { brandId: orgId },
+          where: { brandId },
           _count: { _all: true },
         }),
         // One query returns submission counts for every submission status,
-        // scoped to this org's bounties via a relation filter
+        // scoped to this brand's bounties via a relation filter
         this.prisma.submission.groupBy({
           by: ['status'],
-          where: { bounty: { brandId: orgId } },
+          where: { bounty: { brandId } },
           _count: { _all: true },
         }),
         // One query returns submission counts for every payout status
         this.prisma.submission.groupBy({
           by: ['payoutStatus'],
-          where: { bounty: { brandId: orgId } },
+          where: { bounty: { brandId } },
           _count: { _all: true },
         }),
       ]);
@@ -89,7 +89,7 @@ export class BusinessService {
       (submissionByStatus[SubmissionStatus.IN_REVIEW] ?? 0);
 
     const result = {
-      organisation: org,
+      brand: org,
       bounties: {
         total: totalBounties,
         byStatus: {

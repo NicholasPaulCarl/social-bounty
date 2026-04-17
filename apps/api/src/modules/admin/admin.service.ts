@@ -11,6 +11,7 @@ import {
   BrandMemberRole,
   BountyStatus,
   SubmissionStatus,
+  PayoutStatus,
   AUDIT_ACTIONS,
   ENTITY_TYPES,
   PAGINATION_DEFAULTS,
@@ -184,7 +185,7 @@ export class AdminService {
     };
   }
 
-  // ── Organisations ──────────────────
+  // ── Brands ──────────────────
 
   async listBrands(params: {
     page?: number;
@@ -285,7 +286,7 @@ export class AdminService {
     }
 
     const org = await this.prisma.$transaction(async (tx) => {
-      const organisation = await tx.brand.create({
+      const brand = await tx.brand.create({
         data: {
           name: data.name.trim(),
           contactEmail: data.contactEmail.toLowerCase().trim(),
@@ -296,7 +297,7 @@ export class AdminService {
       await tx.brandMember.create({
         data: {
           userId: data.ownerUserId,
-          brandId: organisation.id,
+          brandId: brand.id,
           role: BrandMemberRole.OWNER,
         },
       });
@@ -306,7 +307,7 @@ export class AdminService {
         data: { role: UserRole.BUSINESS_ADMIN },
       });
 
-      return organisation;
+      return brand;
     });
 
     this.auditService.log({
@@ -619,94 +620,123 @@ export class AdminService {
   // ── Dashboard ──────────────────────
 
   async getDashboard() {
+    // Perf: collapse 23 same-table count round-trips into 6 GROUP BY queries.
+    // Missing enum values are seeded to 0 so the UI never sees undefined.
     const [
-      totalUsers,
-      activeUsers,
-      suspendedUsers,
-      participantCount,
-      businessAdminCount,
-      superAdminCount,
-      totalOrgs,
-      activeOrgs,
-      suspendedOrgs,
-      totalBounties,
-      draftBounties,
-      liveBounties,
-      pausedBounties,
-      closedBounties,
-      totalSubmissions,
-      submittedCount,
-      inReviewCount,
-      needsMoreInfoCount,
-      approvedCount,
-      rejectedCount,
-      notPaidCount,
-      pendingPayoutCount,
-      paidCount,
+      userStatusGroups,
+      userRoleGroups,
+      brandStatusGroups,
+      bountyStatusGroups,
+      submissionStatusGroups,
+      submissionPayoutGroups,
     ] = await Promise.all([
-      this.prisma.user.count(),
-      this.prisma.user.count({ where: { status: UserStatus.ACTIVE } }),
-      this.prisma.user.count({ where: { status: UserStatus.SUSPENDED } }),
-      this.prisma.user.count({ where: { role: UserRole.PARTICIPANT } }),
-      this.prisma.user.count({ where: { role: UserRole.BUSINESS_ADMIN } }),
-      this.prisma.user.count({ where: { role: UserRole.SUPER_ADMIN } }),
-      this.prisma.brand.count(),
-      this.prisma.brand.count({ where: { status: BrandStatus.ACTIVE } }),
-      this.prisma.brand.count({ where: { status: BrandStatus.SUSPENDED } }),
-      this.prisma.bounty.count(),
-      this.prisma.bounty.count({ where: { status: BountyStatus.DRAFT } }),
-      this.prisma.bounty.count({ where: { status: BountyStatus.LIVE } }),
-      this.prisma.bounty.count({ where: { status: BountyStatus.PAUSED } }),
-      this.prisma.bounty.count({ where: { status: BountyStatus.CLOSED } }),
-      this.prisma.submission.count(),
-      this.prisma.submission.count({ where: { status: SubmissionStatus.SUBMITTED } }),
-      this.prisma.submission.count({ where: { status: SubmissionStatus.IN_REVIEW } }),
-      this.prisma.submission.count({ where: { status: SubmissionStatus.NEEDS_MORE_INFO } }),
-      this.prisma.submission.count({ where: { status: SubmissionStatus.APPROVED } }),
-      this.prisma.submission.count({ where: { status: SubmissionStatus.REJECTED } }),
-      this.prisma.submission.count({ where: { payoutStatus: 'NOT_PAID' } }),
-      this.prisma.submission.count({ where: { payoutStatus: 'PENDING' } }),
-      this.prisma.submission.count({ where: { payoutStatus: 'PAID' } }),
+      this.prisma.user.groupBy({ by: ['status'], _count: { _all: true } }),
+      this.prisma.user.groupBy({ by: ['role'], _count: { _all: true } }),
+      this.prisma.brand.groupBy({ by: ['status'], _count: { _all: true } }),
+      this.prisma.bounty.groupBy({ by: ['status'], _count: { _all: true } }),
+      this.prisma.submission.groupBy({ by: ['status'], _count: { _all: true } }),
+      this.prisma.submission.groupBy({ by: ['payoutStatus'], _count: { _all: true } }),
     ]);
+
+    // Helper: build a fully-keyed map from enum → 0, then overlay actual counts.
+    const tally = <K extends string>(
+      keys: readonly K[],
+      groups: ReadonlyArray<{ _count: { _all: number } } & Record<string, unknown>>,
+      field: string,
+    ): Record<K, number> => {
+      const out = {} as Record<K, number>;
+      for (const k of keys) out[k] = 0;
+      for (const g of groups) {
+        const key = g[field] as K;
+        if (key in out) out[key] = g._count._all;
+      }
+      return out;
+    };
+
+    const sumAll = (
+      groups: ReadonlyArray<{ _count: { _all: number } }>,
+    ): number => groups.reduce((acc, g) => acc + g._count._all, 0);
+
+    const userStatusCounts = tally(
+      [UserStatus.ACTIVE, UserStatus.SUSPENDED] as const,
+      userStatusGroups,
+      'status',
+    );
+    const userRoleCounts = tally(
+      [UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN] as const,
+      userRoleGroups,
+      'role',
+    );
+    const brandStatusCounts = tally(
+      [BrandStatus.ACTIVE, BrandStatus.SUSPENDED] as const,
+      brandStatusGroups,
+      'status',
+    );
+    const bountyStatusCounts = tally(
+      [
+        BountyStatus.DRAFT,
+        BountyStatus.LIVE,
+        BountyStatus.PAUSED,
+        BountyStatus.CLOSED,
+      ] as const,
+      bountyStatusGroups,
+      'status',
+    );
+    const submissionStatusCounts = tally(
+      [
+        SubmissionStatus.SUBMITTED,
+        SubmissionStatus.IN_REVIEW,
+        SubmissionStatus.NEEDS_MORE_INFO,
+        SubmissionStatus.APPROVED,
+        SubmissionStatus.REJECTED,
+      ] as const,
+      submissionStatusGroups,
+      'status',
+    );
+    const submissionPayoutCounts = tally(
+      [PayoutStatus.NOT_PAID, PayoutStatus.PENDING, PayoutStatus.PAID] as const,
+      submissionPayoutGroups,
+      'payoutStatus',
+    );
 
     return {
       users: {
-        total: totalUsers,
-        active: activeUsers,
-        suspended: suspendedUsers,
+        total: sumAll(userStatusGroups),
+        active: userStatusCounts[UserStatus.ACTIVE],
+        suspended: userStatusCounts[UserStatus.SUSPENDED],
         byRole: {
-          PARTICIPANT: participantCount,
-          BUSINESS_ADMIN: businessAdminCount,
-          SUPER_ADMIN: superAdminCount,
+          PARTICIPANT: userRoleCounts[UserRole.PARTICIPANT],
+          BUSINESS_ADMIN: userRoleCounts[UserRole.BUSINESS_ADMIN],
+          SUPER_ADMIN: userRoleCounts[UserRole.SUPER_ADMIN],
         },
       },
-      organisations: {
-        total: totalOrgs,
-        active: activeOrgs,
-        suspended: suspendedOrgs,
+      brands: {
+        total: sumAll(brandStatusGroups),
+        active: brandStatusCounts[BrandStatus.ACTIVE],
+        suspended: brandStatusCounts[BrandStatus.SUSPENDED],
       },
       bounties: {
-        total: totalBounties,
+        total: sumAll(bountyStatusGroups),
         byStatus: {
-          DRAFT: draftBounties,
-          LIVE: liveBounties,
-          PAUSED: pausedBounties,
-          CLOSED: closedBounties,
+          DRAFT: bountyStatusCounts[BountyStatus.DRAFT],
+          LIVE: bountyStatusCounts[BountyStatus.LIVE],
+          PAUSED: bountyStatusCounts[BountyStatus.PAUSED],
+          CLOSED: bountyStatusCounts[BountyStatus.CLOSED],
         },
       },
       submissions: {
-        total: totalSubmissions,
+        total: sumAll(submissionStatusGroups),
         byStatus: {
-          SUBMITTED: submittedCount,
-          IN_REVIEW: inReviewCount,
-          NEEDS_MORE_INFO: needsMoreInfoCount,
-          APPROVED: approvedCount,
-          REJECTED: rejectedCount,
+          SUBMITTED: submissionStatusCounts[SubmissionStatus.SUBMITTED],
+          IN_REVIEW: submissionStatusCounts[SubmissionStatus.IN_REVIEW],
+          NEEDS_MORE_INFO: submissionStatusCounts[SubmissionStatus.NEEDS_MORE_INFO],
+          APPROVED: submissionStatusCounts[SubmissionStatus.APPROVED],
+          REJECTED: submissionStatusCounts[SubmissionStatus.REJECTED],
         },
         byPayoutStatus: {
-          NOT_PAID: notPaidCount,
-          PENDING: pendingPayoutCount,
-          PAID: paidCount,
+          NOT_PAID: submissionPayoutCounts[PayoutStatus.NOT_PAID],
+          PENDING: submissionPayoutCounts[PayoutStatus.PENDING],
+          PAID: submissionPayoutCounts[PayoutStatus.PAID],
         },
       },
     };

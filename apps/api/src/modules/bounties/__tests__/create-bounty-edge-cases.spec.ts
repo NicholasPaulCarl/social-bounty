@@ -221,7 +221,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
         BadRequestException,
       );
       await expect(service.create(noOrgUser, data)).rejects.toThrow(
-        'You must belong to an organisation to create bounties',
+        'You must belong to a brand to create bounties',
       );
     });
 
@@ -241,7 +241,7 @@ describe('BountiesService - Create Bounty Edge Cases', () => {
         BadRequestException,
       );
       await expect(service.create(mockParticipant, data)).rejects.toThrow(
-        'You must belong to an organisation to create bounties',
+        'You must belong to a brand to create bounties',
       );
     });
 

@@ -5,9 +5,10 @@ import { PayoutSchedulerService } from './payout-scheduler.service';
 import { WalletModule } from '../wallet/wallet.module';
 import { BountyAccessModule } from '../bounty-access/bounty-access.module';
 import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
+import { LedgerModule } from '../ledger/ledger.module';
 
 @Module({
-  imports: [WalletModule, BountyAccessModule, SubscriptionsModule],
+  imports: [WalletModule, BountyAccessModule, SubscriptionsModule, LedgerModule],
   controllers: [SubmissionsController],
   providers: [SubmissionsService, PayoutSchedulerService],
   exports: [SubmissionsService],

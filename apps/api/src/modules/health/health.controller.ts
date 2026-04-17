@@ -73,11 +73,12 @@ export class HealthController {
 
       const active = response.status >= 200 && response.status < 400;
       return { url, active, statusCode: response.status };
-    } catch (err: any) {
+    } catch (err) {
+      const aborted = err instanceof Error && err.name === 'AbortError';
       return {
         url,
         active: false,
-        reason: err.name === 'AbortError' ? 'Request timed out' : 'Could not reach URL',
+        reason: aborted ? 'Request timed out' : 'Could not reach URL',
       };
     }
   }

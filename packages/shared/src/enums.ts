@@ -19,6 +19,13 @@ export enum BrandStatus {
   INACTIVE = 'INACTIVE',
 }
 
+export enum KybStatus {
+  NOT_STARTED = 'NOT_STARTED',
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
 export enum BrandMemberRole {
   OWNER = 'OWNER',
   MEMBER = 'MEMBER',
@@ -63,6 +70,12 @@ export enum PostFormat {
   REEL = 'REEL',
   FEED_POST = 'FEED_POST',
   VIDEO_POST = 'VIDEO_POST',
+}
+
+export enum ContentFormat {
+  VIDEO_ONLY = 'VIDEO_ONLY',
+  PHOTO_ONLY = 'PHOTO_ONLY',
+  BOTH = 'BOTH',
 }
 
 export enum PostVisibilityRule {

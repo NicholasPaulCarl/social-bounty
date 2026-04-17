@@ -10,6 +10,7 @@ import { useBounties, useDeleteBounty } from '@/hooks/useBounties';
 import { bountyApi } from '@/lib/api/bounties';
 import { usePagination } from '@/hooks/usePagination';
 import { useToast } from '@/hooks/useToast';
+import { useAuth } from '@/hooks/useAuth';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -48,6 +49,7 @@ export default function BusinessBountiesPage() {
   const router = useRouter();
   const toast = useToast();
   const { page, limit, first, onPageChange } = usePagination();
+  const { user } = useAuth();
   const [filters, setFilters] = useState<BountyListParams>({ page, limit });
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -74,17 +76,23 @@ export default function BusinessBountiesPage() {
   };
 
   const handleStatusChange = async (id: string, newStatus: string, bountyItem?: BountyListItem) => {
-    // For DRAFT -> LIVE, require payment first if not already paid
+    // For DRAFT -> LIVE, require payment first — route to Stitch hosted checkout.
     if (bountyItem && bountyItem.status === 'DRAFT' && newStatus === 'LIVE' && bountyItem.paymentStatus !== PaymentStatus.PAID) {
       setStatusAction(null);
-      setPaymentBounty(bountyItem);
       setPaymentLoading(true);
       try {
-        const { clientSecret: secret } = await bountyApi.createPaymentIntent(id);
-        setClientSecret(secret);
-        setShowPayment(true);
-      } catch {
-        toast.showError('Couldn\'t create payment. Try again.');
+        const payerName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim().slice(0, 40) || 'Brand Admin';
+        const { hostedUrl } = await bountyApi.fundBounty(id, {
+          payerName,
+          payerEmail: user?.email,
+        });
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('stitchFundingBountyId', id);
+        }
+        window.location.href = hostedUrl;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Couldn\'t start funding. Try again.';
+        toast.showError(message);
       } finally {
         setPaymentLoading(false);
       }

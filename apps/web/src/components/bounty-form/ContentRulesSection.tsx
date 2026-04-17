@@ -34,7 +34,7 @@ export function ContentRulesSection({
         />
       </div>
 
-      <div className="mt-4 pt-4 border-t border-glass-border">
+      <div>
         <h4 className="text-sm font-semibold text-text-primary mb-3">Engagement Requirements</h4>
         <div className="space-y-4">
           <div>
@@ -60,17 +60,19 @@ export function ContentRulesSection({
           <div className="flex flex-wrap gap-6">
             <div className="flex items-center gap-2">
               <Checkbox
+                inputId="engagement-mention"
                 checked={engagementRequirements.mention || false}
                 onChange={(e) => dispatch({ type: 'SET_MENTION', payload: e.checked ?? false })}
               />
-              <label className="text-sm text-text-primary">Hunter must mention brand</label>
+              <label htmlFor="engagement-mention" className="text-sm text-text-primary cursor-pointer">Hunter must mention brand</label>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
+                inputId="engagement-comment"
                 checked={engagementRequirements.comment || false}
                 onChange={(e) => dispatch({ type: 'SET_COMMENT', payload: e.checked ?? false })}
               />
-              <label className="text-sm text-text-primary">Hunter must leave a comment</label>
+              <label htmlFor="engagement-comment" className="text-sm text-text-primary cursor-pointer">Hunter must leave a comment</label>
             </div>
           </div>
         </div>

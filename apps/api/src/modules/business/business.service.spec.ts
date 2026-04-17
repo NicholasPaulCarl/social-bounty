@@ -83,7 +83,7 @@ describe('BusinessService', () => {
     );
   });
 
-  it('throws BadRequestException when the organisation is not found', async () => {
+  it('throws BadRequestException when the brand is not found', async () => {
     prisma.brand.findUnique.mockResolvedValue(null);
     await expect(service.getDashboard(mockUser)).rejects.toThrow(
       BadRequestException,
@@ -101,7 +101,7 @@ describe('BusinessService', () => {
 
     const result = await service.getDashboard(mockUser);
 
-    expect(result.organisation).toEqual(mockOrg);
+    expect(result.brand).toEqual(mockOrg);
 
     // Bounty totals
     expect(result.bounties.total).toBe(10); // 2+3+1+4
@@ -196,7 +196,7 @@ describe('BusinessService', () => {
     expect(prisma.submission.groupBy).toHaveBeenCalledTimes(2);
   });
 
-  it('scopes submission groupBy queries to the organisation via relation filter', async () => {
+  it('scopes submission groupBy queries to the brand via relation filter', async () => {
     prisma.brand.findUnique.mockResolvedValue(mockOrg);
     prisma.bounty.groupBy.mockResolvedValue([]);
     prisma.submission.groupBy.mockResolvedValue([]);

@@ -76,8 +76,9 @@ export function validateFull(state: BountyFormState): Record<string, string> {
     errors.shortDescription = `Short description must be at most ${FIELD_LIMITS.SHORT_DESCRIPTION_MAX} characters`;
   }
 
-  if (!state.fullInstructions.trim()) {
-    errors.fullInstructions = 'Full instructions are required';
+  const hasSteps = state.instructionSteps.some((s) => s.trim());
+  if (!hasSteps && !state.fullInstructions.trim()) {
+    errors.fullInstructions = 'At least one instruction step is required';
   }
 
   // --- Section 1 cont: Channels ---
@@ -155,7 +156,7 @@ export function validateFull(state: BountyFormState): Record<string, string> {
     });
   }
 
-  // --- Section 3: Proof Requirements ---
+  // --- Section 7: Proof Requirements ---
   if (state.proofRequirements.length === 0) {
     errors.proofRequirements = 'At least one proof requirement is required';
   }
@@ -258,8 +259,10 @@ export function getSectionErrors(sectionKey: string, errors: Record<string, stri
 
 export function isSectionComplete(sectionKey: string, state: BountyFormState): boolean {
   switch (sectionKey) {
-    case 'bountyBasicInfo':
-      return !!state.title.trim() && !!state.shortDescription.trim() && !!state.fullInstructions.trim() && hasChannelSelection(state);
+    case 'bountyBasicInfo': {
+      const hasInstructions = state.instructionSteps.some((s) => s.trim()) || !!state.fullInstructions.trim();
+      return !!state.title.trim() && !!state.shortDescription.trim() && hasInstructions && hasChannelSelection(state);
+    }
     case 'bountyContent':
       return state.rewards.length > 0 && state.rewards.every((r) => r.name.trim() && r.monetaryValue > 0);
     case 'bountyRules':

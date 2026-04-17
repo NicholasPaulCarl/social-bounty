@@ -75,7 +75,7 @@ AUTHENTICATION
 - Secure sessions (JWT or server-side)
 - Basic user profile
 
-ORGANISATIONS
+BRANDS
 - Each Business Admin belongs to one brand (MVP constraint)
 - Brand has name, logo (optional), contact email, status
 

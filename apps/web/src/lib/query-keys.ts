@@ -58,7 +58,7 @@ export const queryKeys = {
   disputes: {
     all: ['disputes'] as const,
     mine: (params: DisputeListParams) => [...queryKeys.disputes.all, 'mine', params] as const,
-    forOrg: (params: DisputeListParams) => [...queryKeys.disputes.all, 'forOrg', params] as const,
+    forBrand: (params: DisputeListParams) => [...queryKeys.disputes.all, 'forBrand', params] as const,
     detail: (id: string) => [...queryKeys.disputes.all, 'detail', id] as const,
     adminList: (params: AdminDisputeListParams) => [...queryKeys.disputes.all, 'adminList', params] as const,
     stats: () => [...queryKeys.disputes.all, 'stats'] as const,
@@ -80,6 +80,7 @@ export const queryKeys = {
   wallet: {
     all: ['wallet'] as const,
     dashboard: () => [...queryKeys.wallet.all, 'dashboard'] as const,
+    ledgerSnapshot: () => [...queryKeys.wallet.all, 'ledger-snapshot'] as const,
     transactions: (params: WalletTransactionListParams) => [...queryKeys.wallet.all, 'transactions', params] as const,
     withdrawals: (params: WithdrawalListParams) => [...queryKeys.wallet.all, 'withdrawals', params] as const,
     adminLists: () => [...queryKeys.wallet.all, 'admin', 'list'] as const,

@@ -303,6 +303,118 @@ enum EvidenceType {
 }
 
 // ─────────────────────────────────────
+// Ledger & Payment Enums (Stitch Express)
+// Source: md-files/payment-gateway.md + md-files/financial-architecture.md
+// ─────────────────────────────────────
+
+enum LedgerAccount {
+  brand_cash_received
+  brand_reserve
+  brand_refundable
+  hunter_pending
+  hunter_clearing
+  hunter_available
+  hunter_paid
+  hunter_net_payable
+  commission_revenue
+  admin_fee_revenue
+  global_fee_revenue
+  processing_expense
+  payout_fee_recovery
+  bank_charges
+  gateway_clearing
+  payout_in_transit
+  subscription_revenue
+}
+
+enum LedgerEntryType {
+  CREDIT
+  DEBIT
+}
+
+enum LedgerEntryStatus {
+  PENDING
+  COMPLETED
+  REVERSED
+}
+
+enum WebhookProvider {
+  STITCH
+  STRIPE
+  TRADESAFE
+}
+
+enum WebhookStatus {
+  RECEIVED
+  PROCESSING
+  PROCESSED
+  FAILED
+  DUPLICATE
+}
+
+enum StitchPaymentLinkStatus {
+  CREATED
+  INITIATED
+  CAPTURED
+  SETTLED
+  FAILED
+  EXPIRED
+  REFUNDED
+}
+
+enum StitchPayoutStatus {
+  CREATED
+  INITIATED
+  SETTLED
+  FAILED
+  RETRY_PENDING
+  CANCELLED
+}
+
+// Stitch recurring-subscription mandate statuses. Matches Stitch's
+// /api/v1/subscriptions state machine (PENDING is our local initial state
+// between create-request and first authorised webhook).
+// Source: md-files/payment-gateway.md §12.
+enum StitchSubscriptionMandateStatus {
+  PENDING
+  AUTHORISED
+  UNAUTHORISED
+  FAILED
+  EXPIRED
+  CANCELLED
+}
+
+enum JobRunStatus {
+  STARTED
+  SUCCEEDED
+  FAILED
+  PARTIAL
+  HALTED
+}
+
+enum RefundState {
+  REQUESTED
+  APPROVED
+  PROCESSING
+  COMPLETED
+  FAILED
+  REVERSED
+}
+
+enum RefundScenario {
+  BEFORE_APPROVAL
+  AFTER_APPROVAL
+  AFTER_PAYOUT
+}
+
+enum KybStatus {
+  NOT_STARTED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ─────────────────────────────────────
 // Models
 // ─────────────────────────────────────
 
@@ -348,6 +460,12 @@ model User {
   conversationMemberships ConversationParticipant[] @relation("ConversationParticipants")
   messagesSent            Message[]                 @relation("MessagesSent")
   subscription            Subscription?             @relation("UserSubscription")
+  stitchBeneficiary       StitchBeneficiary?
+  stitchPayouts           StitchPayout[]
+  ledgerEntries           LedgerEntry[]
+  refundsRequested        Refund[]                  @relation("RefundRequester")
+  refundsApproved         Refund[]                  @relation("RefundApprover")
+  refundsDualApproved     Refund[]                  @relation("RefundDualApprover")
 
   @@index([email])
   @@index([role])
@@ -380,18 +498,22 @@ model Brand {
   contactEmail     String
   bio              String?     @db.VarChar(500)
   websiteUrl       String?
-  socialLinks      Json?       // { instagram?, tiktok?, facebook?, x?, website? }
-  socialAnalytics  Json?       // BrandSocialAnalyticsBlob — populated by ApifyService
-  targetInterests  Json?       // string[] from HUNTER_INTERESTS
+  socialLinks      Json? // { instagram?, tiktok?, facebook?, x?, website? }
+  socialAnalytics  Json? // BrandSocialAnalyticsBlob — populated by ApifyService
+  targetInterests  Json? // string[] from HUNTER_INTERESTS
   messagingEnabled Boolean     @default(true)
   status           BrandStatus @default(ACTIVE)
+  kybStatus        KybStatus   @default(NOT_STARTED)
+  kybSubmittedAt   DateTime?
+  kybApprovedAt    DateTime?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
   // Relations
-  members      BrandMember[]
-  bounties     Bounty[]
-  subscription Subscription? @relation("BrandSubscription")
+  members       BrandMember[]
+  bounties      Bounty[]
+  subscription  Subscription? @relation("BrandSubscription")
+  ledgerEntries LedgerEntry[]
 
   @@index([status])
   @@index([handle])
@@ -423,7 +545,9 @@ model Bounty {
   createdById       String
   title             String
   shortDescription  String       @default("")
+  contentFormat     String       @default("BOTH")
   fullInstructions  String       @default("") @db.Text
+  instructionSteps  Json?
   category          String       @default("")
   rewardType        RewardType   @default(CASH)
   rewardValue       Decimal?     @db.Decimal(12, 2)
@@ -457,14 +581,23 @@ model Bounty {
   adminFeePercent        Decimal?            @db.Decimal(5, 2)
   adminFeeAmount         Decimal?            @db.Decimal(18, 2)
 
+  // Stitch / ledger snapshots (Non-Negotiable #9: plan snapshot at funding time)
+  planSnapshotBrand    SubscriptionTier?
+  brandAdminFeeRateBps Int?
+  globalFeeRateBps     Int?
+  faceValueCents       BigInt?
+
   // Relations
-  brand        Brand               @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  createdBy    User                @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
-  submissions  Submission[]
-  rewards      BountyReward[]
-  brandAssets  BrandAsset[]
-  applications BountyApplication[] @relation("BountyApplications")
-  invitations  BountyInvitation[]  @relation("BountyInvitations")
+  brand              Brand               @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  createdBy          User                @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  submissions        Submission[]
+  rewards            BountyReward[]
+  brandAssets        BrandAsset[]
+  applications       BountyApplication[] @relation("BountyApplications")
+  invitations        BountyInvitation[]  @relation("BountyInvitations")
+  stitchPaymentLinks StitchPaymentLink[]
+  ledgerEntries      LedgerEntry[]
+  refunds            Refund[]
 
   @@index([brandId])
   @@index([status])
@@ -510,13 +643,22 @@ model Submission {
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
 
+  // Stitch / ledger snapshots (Non-Negotiable #9: plan snapshot at approval time)
+  planSnapshotHunter         SubscriptionTier?
+  commissionRateBps          Int?
+  clearanceReleaseAt         DateTime?
+  hunterNetCents             BigInt?
+  transactionGroupIdApproval String?
+
   // Relations
-  bounty      Bounty       @relation(fields: [bountyId], references: [id], onDelete: Cascade)
-  user        User         @relation("UserSubmissions", fields: [userId], references: [id], onDelete: Restrict)
-  reviewedBy  User?        @relation("ReviewerSubmissions", fields: [reviewedById], references: [id], onDelete: SetNull)
-  proofImages FileUpload[]
-  payout      Payout?
-  disputes    Dispute[]
+  bounty        Bounty        @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+  user          User          @relation("UserSubmissions", fields: [userId], references: [id], onDelete: Restrict)
+  reviewedBy    User?         @relation("ReviewerSubmissions", fields: [reviewedById], references: [id], onDelete: SetNull)
+  proofImages   FileUpload[]
+  payout        Payout?
+  disputes      Dispute[]
+  ledgerEntries LedgerEntry[]
+  refunds       Refund[]
 
   @@unique([bountyId, userId])
   @@index([bountyId])
@@ -1016,9 +1158,10 @@ model Subscription {
   createdAt          DateTime               @default(now())
   updatedAt          DateTime               @updatedAt
 
-  user     User?                 @relation("UserSubscription", fields: [userId], references: [id])
-  brand    Brand?                @relation("BrandSubscription", fields: [brandId], references: [id])
-  payments SubscriptionPayment[]
+  user               User?                 @relation("UserSubscription", fields: [userId], references: [id])
+  brand              Brand?                @relation("BrandSubscription", fields: [brandId], references: [id])
+  payments           SubscriptionPayment[]
+  stitchSubscription StitchSubscription?
 
   @@unique([userId, entityType])
   @@unique([brandId, entityType])
@@ -1028,6 +1171,37 @@ model Subscription {
   @@map("subscriptions")
 }
 
+// Stitch recurring-subscription mandate (card-consent + recurrence).
+// One-to-one with our Subscription row. Stores the Stitch-side identifiers
+// (subscriptionId + paymentAuthorizationRequestId) so we can correlate
+// webhook payments back to our Subscription. The first successful charge
+// flips the mandate to AUTHORISED and the Subscription to ACTIVE.
+//
+// Non-Negotiable #2: processSubscriptionCharge() uses UNIQUE(referenceId,
+// actionType) on LedgerTransactionGroup with referenceId=stitchPaymentId so
+// webhook replays are idempotent.
+model StitchSubscription {
+  id                            String                           @id @default(uuid())
+  subscriptionId                String                           @unique
+  stitchSubscriptionId          String                           @unique
+  stitchPaymentAuthorizationId  String?                          @unique
+  hostedConsentUrl              String
+  merchantReference             String
+  amountCents                   BigInt
+  currency                      Currency                         @default(ZAR)
+  tierSnapshot                  SubscriptionTier
+  mandateStatus                 StitchSubscriptionMandateStatus  @default(PENDING)
+  lastErrorMessage              String?
+  metadata                      Json?
+  createdAt                     DateTime                         @default(now())
+  updatedAt                     DateTime                         @updatedAt
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([mandateStatus])
+  @@map("stitch_subscriptions")
+}
+
 model SubscriptionPayment {
   id                 String                    @id @default(uuid())
   subscriptionId     String
@@ -1035,12 +1209,15 @@ model SubscriptionPayment {
   currency           Currency                  @default(ZAR)
   status             SubscriptionPaymentStatus @default(PENDING)
   provider           String?
-  providerPaymentId  String?
+  providerPaymentId  String?                   @unique
   billingPeriodStart DateTime
   billingPeriodEnd   DateTime
   attemptNumber      Int                       @default(1)
   failureReason      String?
   paidAt             DateTime?
+  // Plan snapshot (Non-Negotiable #9): tier captured at charge creation time
+  // so in-flight transactions are never re-priced on plan change.
+  tierSnapshot       SubscriptionTier?
   createdAt          DateTime                  @default(now())
 
   subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
@@ -1048,4 +1225,237 @@ model SubscriptionPayment {
   @@index([subscriptionId])
   @@index([status])
   @@map("subscription_payments")
+}
+
+// ─────────────────────────────────────
+// Stitch Express / Double-entry Ledger
+// Source: md-files/payment-gateway.md + md-files/financial-architecture.md
+// ─────────────────────────────────────
+
+// Transaction group header. Idempotency constraint UNIQUE(referenceId, actionType)
+// lives here so multi-leg groups work cleanly (Non-Negotiable #2).
+model LedgerTransactionGroup {
+  id          String   @id @default(uuid())
+  referenceId String
+  actionType  String
+  description String
+  auditLogId  String?
+  createdAt   DateTime @default(now())
+
+  entries LedgerEntry[]
+
+  @@unique([referenceId, actionType])
+  @@index([createdAt])
+  @@map("ledger_transaction_groups")
+}
+
+// Append-only double-entry ledger (Non-Negotiable #5).
+// Amount is always positive; sign is carried by `type`.
+model LedgerEntry {
+  id                 String            @id @default(uuid())
+  transactionGroupId String
+  userId             String?
+  brandId            String?
+  bountyId           String?
+  submissionId       String?
+  account            LedgerAccount
+  type               LedgerEntryType
+  amount             BigInt
+  currency           Currency          @default(ZAR)
+  status             LedgerEntryStatus @default(COMPLETED)
+  referenceId        String
+  referenceType      String
+  actionType         String
+  externalReference  String?
+  parentEntryId      String?
+  clearanceReleaseAt DateTime?
+  metadata           Json?
+  postedBy           String
+  auditLogId         String?
+  createdAt          DateTime          @default(now())
+
+  transactionGroup LedgerTransactionGroup @relation(fields: [transactionGroupId], references: [id], onDelete: Restrict)
+  user             User?                  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  brand            Brand?                 @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  bounty           Bounty?                @relation(fields: [bountyId], references: [id], onDelete: Restrict)
+  submission       Submission?            @relation(fields: [submissionId], references: [id], onDelete: Restrict)
+  parent           LedgerEntry?           @relation("LedgerEntryReversal", fields: [parentEntryId], references: [id], onDelete: Restrict)
+  children         LedgerEntry[]          @relation("LedgerEntryReversal")
+
+  @@index([transactionGroupId])
+  @@index([userId, account, status])
+  @@index([account, createdAt])
+  @@index([externalReference])
+  @@index([bountyId])
+  @@index([submissionId])
+  @@index([clearanceReleaseAt, account, status])
+  @@map("ledger_entries")
+}
+
+// Svix-delivered webhook envelope with dedup constraint (Non-Negotiable #7).
+model WebhookEvent {
+  id              String          @id @default(uuid())
+  provider        WebhookProvider
+  externalEventId String
+  eventType       String
+  status          WebhookStatus   @default(RECEIVED)
+  payload         Json
+  signatureHeader String?
+  svixTimestamp   DateTime?
+  receivedAt      DateTime        @default(now())
+  processedAt     DateTime?
+  errorMessage    String?         @db.Text
+  attempts        Int             @default(0)
+  result          Json?
+
+  @@unique([provider, externalEventId])
+  @@index([provider, eventType, receivedAt])
+  @@index([status])
+  @@map("webhook_events")
+}
+
+model StitchPaymentLink {
+  id                  String                  @id @default(uuid())
+  bountyId            String
+  stitchPaymentLinkId String                  @unique
+  stitchPaymentId     String?                 @unique
+  hostedUrl           String
+  merchantReference   String
+  amountCents         BigInt
+  currency            Currency                @default(ZAR)
+  status              StitchPaymentLinkStatus @default(CREATED)
+  expiresAt           DateTime?
+  metadata            Json?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+
+  bounty Bounty @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+
+  @@index([bountyId])
+  @@index([status])
+  @@map("stitch_payment_links")
+}
+
+model StitchBeneficiary {
+  id                  String    @id @default(uuid())
+  userId              String    @unique
+  stitchBeneficiaryId String    @unique
+  accountHolderName   String
+  bankCode            String
+  accountNumberEnc    String // app-layer AES-256 encrypted
+  accountType         String
+  verifiedAt          DateTime?
+  isActive            Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  user    User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  payouts StitchPayout[]
+
+  @@map("stitch_beneficiaries")
+}
+
+model StitchPayout {
+  id                String             @id @default(uuid())
+  userId            String
+  beneficiaryId     String
+  stitchPayoutId    String?            @unique
+  merchantReference String
+  amountCents       BigInt
+  currency          Currency           @default(ZAR)
+  speed             String             @default("DEFAULT") // INSTANT | DEFAULT
+  status            StitchPayoutStatus @default(CREATED)
+  attempts          Int                @default(0)
+  lastAttemptAt     DateTime?
+  lastError         String?            @db.Text
+  nextRetryAt       DateTime?
+  idempotencyKey    String             @unique
+  metadata          Json?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  user        User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  beneficiary StitchBeneficiary @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([status, nextRetryAt])
+  @@map("stitch_payouts")
+}
+
+// Audit row per scheduled-job execution (observability for Phase 2+ jobs).
+model JobRun {
+  id          String       @id @default(uuid())
+  jobName     String
+  status      JobRunStatus
+  startedAt   DateTime     @default(now())
+  finishedAt  DateTime?
+  itemsSeen   Int          @default(0)
+  itemsOk     Int          @default(0)
+  itemsFailed Int          @default(0)
+  details     Json?
+  error       String?      @db.Text
+
+  @@index([jobName, startedAt])
+  @@map("job_runs")
+}
+
+model Refund {
+  id                   String         @id @default(uuid())
+  bountyId             String
+  submissionId         String?
+  scenario             RefundScenario
+  state                RefundState    @default(REQUESTED)
+  amountCents          BigInt
+  reason               String         @db.Text
+  requestedByUserId    String
+  approvedByUserId     String?
+  approvalNote         String?
+  dualApprovalByUserId String?
+  kbEntryId            String?
+  stitchRefundId       String?        @unique
+  transactionGroupId   String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  bounty         Bounty      @relation(fields: [bountyId], references: [id], onDelete: Restrict)
+  submission     Submission? @relation(fields: [submissionId], references: [id], onDelete: SetNull)
+  requestedBy    User        @relation("RefundRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
+  approvedBy     User?       @relation("RefundApprover", fields: [approvedByUserId], references: [id], onDelete: SetNull)
+  dualApprovedBy User?       @relation("RefundDualApprover", fields: [dualApprovalByUserId], references: [id], onDelete: SetNull)
+
+  @@index([bountyId])
+  @@index([state])
+  @@index([scenario])
+  @@map("refunds")
+}
+
+// KB automation (Phase 4). Reconciliation findings and webhook failures
+// write/update rows here; signature-match dedup via (category, signature).
+model RecurringIssue {
+  id          String    @id @default(uuid())
+  category    String
+  signature   String
+  title       String
+  severity    String    @default("warning") // info | warning | critical
+  firstSeenAt DateTime  @default(now())
+  lastSeenAt  DateTime  @default(now())
+  occurrences Int       @default(1)
+  openedBy    String?
+  resolved    Boolean   @default(false)
+  resolvedAt  DateTime?
+  rootCause   String?   @db.Text
+  mitigation  String?   @db.Text
+  kbEntryRef  String?
+  metadata    Json?
+
+  // Phase 4 exit criterion: when a resolved KB entry recurs within 90d of
+  // resolution, the entry is auto-flagged as an "Ineffective Fix" by
+  // KbService.flagIneffectiveFix(). Surfaced on admin/finance/insights.
+  ineffectiveFix       Boolean   @default(false)
+  ineffectiveFlaggedAt DateTime?
+  ineffectiveFlaggedBy String?   // actorId of the auto-flagger (system actor)
+
+  @@unique([category, signature])
+  @@index([resolved, lastSeenAt])
+  @@map("recurring_issues")
 }

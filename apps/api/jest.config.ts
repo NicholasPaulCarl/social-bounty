@@ -14,6 +14,8 @@ const config: Config = {
   moduleNameMapper: {
     '^@social-bounty/shared$': '<rootDir>/../../packages/shared/src/index',
     '^@social-bounty/shared/(.*)$': '<rootDir>/../../packages/shared/src/$1',
+    // uuid v13 ships ESM-only; map to its CJS-compatible internal path for Jest
+    '^uuid$': '<rootDir>/test/uuid-shim.js',
   },
 };
 

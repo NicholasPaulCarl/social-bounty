@@ -26,6 +26,7 @@ import { MailService } from '../mail/mail.service';
 import { WalletService } from '../wallet/wallet.service';
 import { BountyAccessService } from '../bounty-access/bounty-access.service';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+import { ApprovalLedgerService } from '../ledger/approval-ledger.service';
 import { COMMISSION_RATES, SubscriptionTier, SubscriptionEntityType } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
@@ -52,6 +53,7 @@ export class SubmissionsService {
     private walletService: WalletService,
     private bountyAccessService: BountyAccessService,
     private subscriptionsService: SubscriptionsService,
+    private approvalLedger: ApprovalLedgerService,
   ) {}
 
   private formatProofImages(images: any[]) {
@@ -571,6 +573,23 @@ export class SubmissionsService {
       ipAddress,
     });
 
+    // Post the approval earnings split to the ledger (Phase 2).
+    // Safe best-effort: if the bounty has no faceValueCents (legacy bounty funded
+    // via Stripe), skip cleanly — reconciliation will surface any orphan.
+    if (newStatus === SubmissionStatus.APPROVED) {
+      try {
+        await this.approvalLedger.postApproval({
+          submissionId: id,
+          approverId: user.sub,
+          approverRole: user.role as UserRole,
+        });
+      } catch (err) {
+        this.logger.error(
+          `approval ledger post failed for submission ${id}: ${err instanceof Error ? err.message : err}`,
+        );
+      }
+    }
+
     // Send templated email notification for status change
     const notifiableStatuses = [
       SubmissionStatus.APPROVED,
@@ -758,7 +777,7 @@ export class SubmissionsService {
   }
 
   async getReviewQueue(user: AuthenticatedUser, filters: {
-    orgId?: string;
+    brandId?: string;
     status?: SubmissionStatus;
     bountyId?: string;
     page?: number;
@@ -770,8 +789,8 @@ export class SubmissionsService {
     const limit = Math.min(Number(filters.limit) || PAGINATION_DEFAULTS.LIMIT, PAGINATION_DEFAULTS.MAX_LIMIT);
     const skip = (page - 1) * limit;
 
-    // Determine org scope
-    let brandId = filters.orgId;
+    // Determine brand scope
+    let brandId = filters.brandId;
     if (user.role === UserRole.BUSINESS_ADMIN) {
       const membership = await this.prisma.brandMember.findFirst({
         where: { userId: user.sub },

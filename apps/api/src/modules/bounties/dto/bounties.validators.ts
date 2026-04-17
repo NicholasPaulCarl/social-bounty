@@ -33,6 +33,7 @@ import {
   PostVisibilityRule,
   DurationUnit,
   PayoutMethod,
+  ContentFormat,
   FIELD_LIMITS,
   BOUNTY_REWARD_LIMITS,
 } from '@social-bounty/shared';
@@ -184,9 +185,20 @@ export class CreateBountyDto {
   shortDescription?: string;
 
   @IsOptional()
+  @IsEnum(ContentFormat)
+  contentFormat?: ContentFormat;
+
+  @IsOptional()
   @IsString()
   @MaxLength(FIELD_LIMITS.FULL_INSTRUCTIONS_MAX)
   fullInstructions?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  @MaxLength(500, { each: true })
+  instructionSteps?: string[];
 
   @IsOptional()
   @IsString()
@@ -296,9 +308,20 @@ export class UpdateBountyDto {
   shortDescription?: string;
 
   @IsOptional()
+  @IsEnum(ContentFormat)
+  contentFormat?: ContentFormat;
+
+  @IsOptional()
   @IsString()
   @MaxLength(FIELD_LIMITS.FULL_INSTRUCTIONS_MAX)
   fullInstructions?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  @MaxLength(500, { each: true })
+  instructionSteps?: string[];
 
   @IsOptional()
   @IsString()

@@ -266,7 +266,7 @@ Redis data is transient. Longer retention adds cost without meaningful benefit g
 
 ## 5. File Upload Backup Strategy
 
-**Current state:** Files are stored on local disk (`/uploads` on the API server). This is a known critical issue (see AUDIT-REPORT.md §2.4). Migration to object storage is required before production.
+**Current state:** Files are stored on local disk (`/uploads` on the API server). This is a known critical issue (see md-files/archive/AUDIT-REPORT-2026-03-27.md §2.4). Migration to object storage is required before production.
 
 ### 5.1 Pre-Migration (Local Disk) — Interim Backup
 
@@ -553,3 +553,107 @@ aws s3 sync \
 ---
 
 *Document Owner: DevOps / Infrastructure Lead. Review this document after every disaster recovery drill or any change to backup tooling.*
+
+---
+
+## Ledger-specific backup guidance (2026-04-15)
+
+The ledger is the platform's source of financial truth. Losing or corrupting ledger history is categorically different from losing session data or file uploads — it breaks the double-entry invariant, voids reconciliation, and creates unrecoverable accounting drift. This section adds hard constraints that sit on top of the general PostgreSQL strategy in §3 and the PITR targets in §2.
+
+Cross-references:
+- `md-files/payment-gateway.md` — canonical Stitch Express spec.
+- `md-files/financial-architecture.md` — ledger mechanics, accounts, idempotency.
+- `docs/STITCH-IMPLEMENTATION-STATUS.md` — what is live, what is gated.
+- `docs/adr/0005-ledger-idempotency-via-header-table.md` — idempotency guarantees that backups must preserve.
+- `docs/adr/0006-compensating-entries-bypass-kill-switch.md` — why corrections are always new INSERTs, never UPDATEs.
+
+### Append-only invariant (non-negotiable)
+
+`ledger_entries` and `ledger_transaction_groups` are **append-only** in production. They MUST NEVER be:
+
+- `TRUNCATE`d
+- `DROP`ped and recreated
+- bulk-`DELETE`d
+- reset via `prisma migrate reset`
+- edited in-place to "correct" a wrong amount
+
+Mistakes are corrected by inserting new compensating entries (new rows with opposite DEBIT/CREDIT polarity) — never by mutating or removing history. This is enforced at the application layer by `LedgerService`, but backup and restore procedures must not undo that guarantee. Any restore workflow that would re-introduce prior (corrected) rows is a regression.
+
+### PITR / WAL archiving is non-negotiable for financial tables
+
+The RPO targets in §2 are minima. For the financial tables specifically:
+
+- WAL archiving (see §3.2) MUST be running at all times. A gap in the WAL archive over the financial tables is a **SEV-1** incident.
+- Base backups (§3.2) MUST succeed weekly. A failed base backup halts the 72-hour payout clearance cron until the next successful backup, because we cannot safely roll forward without a restorable anchor.
+- PITR to any timestamp within the WAL retention window (7 days) must be demonstrable for these tables specifically — not just "the database as a whole".
+
+### Nightly logical backups scoped to financial tables
+
+Independent of the database-wide daily `pg_dump` in §3.1, take a **second, narrower** nightly backup scoped to the financial surface. This protects against schema-level incidents (e.g. a bad migration) without needing to restore the entire database.
+
+Scoped tables:
+
+- `ledger_entries`
+- `ledger_transaction_groups`
+- `stitch_payment_links`
+- `stitch_payouts`
+- `stitch_beneficiaries`
+- `refunds`
+- `audit_logs`
+- `webhook_events`
+- `job_runs`
+- `recurring_issues`
+
+Example scoped dump:
+
+```bash
+pg_dump \
+  -h "${DB_HOST}" -U "${DB_USER}" -Fc -Z 6 \
+  -t ledger_entries -t ledger_transaction_groups \
+  -t stitch_payment_links -t stitch_payouts -t stitch_beneficiaries \
+  -t refunds -t audit_logs -t webhook_events \
+  -t job_runs -t recurring_issues \
+  -f /var/backups/postgres/social_bounty_financial_$(date +%Y-%m-%d).pgdump \
+  "${DB_NAME}"
+```
+
+Retention: 90 days on S3 Standard-IA, encrypted as per §3.1. Size-baseline alerting applies — today's financial dump must be ≥ yesterday's size (ledger is append-only, so shrinkage is a signal of corruption or a bad script).
+
+### Quarterly restore drill for the ledger
+
+In addition to the monthly restore test in §8.1, run a **quarterly ledger-specific restore drill**:
+
+1. Restore the nightly scoped backup (above) into a staging Postgres instance.
+2. Run the full `ReconciliationService.run()` end-to-end against the restored data.
+3. Compare the restored balances and Stitch external references against the Stitch **sandbox** ledger for the same window (using `STITCH_CLIENT_ID` / `STITCH_CLIENT_SECRET` sandbox creds).
+4. Record the drift (expected: zero). Any non-zero drift halts the drill and opens a KB entry under the "reconciliation mismatch" trigger (`claude.md` §9).
+
+This drill doubles as a reconciliation-engine health check.
+
+### `prisma migrate reset` is BANNED in production
+
+`npm run prisma:reset` / `prisma migrate reset` drops and recreates the database. In production, running this command against the financial tables would be a catastrophic, irreversible loss of ledger history.
+
+- In dev and CI: allowed, because the ledger is synthetic.
+- In staging: allowed only during scheduled destructive-test windows, with a prior scoped backup.
+- In production: **banned**. No engineer has the production DB role necessary to run this command. DevOps enforces this via IAM on the production database user.
+
+A future CI check (tentatively R20 in the backlog) will scan for `prisma migrate reset` invocations in deploy scripts and CI jobs to prevent accidental introduction. Not built here — flagged as future work.
+
+### Draft migrations are not auto-applied
+
+`packages/prisma/drafts/` holds draft migration scripts used during ADR exploration and Phase planning. These are explicitly **NOT** picked up by `prisma migrate deploy` — the directory is outside the canonical `migrations/` folder Prisma reads.
+
+Any draft that graduates to a real migration is moved into `packages/prisma/migrations/<timestamp>_<name>/` and goes through the normal migration review + PR + CI cycle. Drafts themselves never run against production.
+
+### Summary: what changes relative to the general §3 strategy
+
+| Aspect | General strategy | Ledger-specific override |
+|---|---|---|
+| Backup target tables | Full database | Full DB + scoped financial-tables dump |
+| WAL archiving | Required | Required, with SEV-1 incident on gaps |
+| Destructive commands in production | Operational discretion | `prisma migrate reset` banned; ledger table truncate/delete banned |
+| Restore drill cadence | Monthly full restore, quarterly PITR | Additional quarterly ledger restore + reconciliation replay |
+| Corrections | UPDATE acceptable per data semantics | INSERT-only compensating entries |
+
+*This section updated 2026-04-15. Review alongside any change to `md-files/financial-architecture.md` or the scoped table list above.*

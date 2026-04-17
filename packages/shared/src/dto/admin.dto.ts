@@ -271,3 +271,276 @@ export interface AdminUpdateSettingsRequest {
   signupsEnabled?: boolean;
   submissionsEnabled?: boolean;
 }
+
+// ─────────────────────────────────────
+// Finance Admin (Stitch / double-entry ledger)
+// Source: md-files/admin-dashboard.md
+// ─────────────────────────────────────
+
+// GET /admin/finance/overview
+export interface FinanceOverviewResponse {
+  killSwitchActive: boolean;
+  openExceptions: number;
+  balancesByAccount: Record<string, string>; // account name -> integer cents as string
+  recentGroups: Array<{
+    id: string;
+    referenceId: string;
+    actionType: string;
+    description: string;
+    createdAt: string;
+    totalCents: string;
+  }>;
+}
+
+// GET /admin/finance/inbound
+export interface InboundFundingRow {
+  id: string;
+  bountyId: string;
+  stitchPaymentLinkId: string;
+  stitchPaymentId: string | null;
+  hostedUrl: string;
+  merchantReference: string;
+  amountCents: string;
+  currency: string;
+  status: string;
+  expiresAt: string | null;
+  createdAt: string;
+  bounty?: { id: string; title: string; brandId: string };
+}
+
+// GET /admin/finance/reserves
+export interface ReserveRow {
+  bountyId: string;
+  title: string;
+  brandId: string;
+  paymentStatus: string;
+  faceValueCents: string;
+  reserveBalanceCents: string;
+  drift: boolean;
+}
+
+// GET /admin/finance/earnings-payouts — totals per hunter-side account
+export type EarningsPayoutsResponse = Record<string, string>;
+
+// GET /admin/finance/refunds
+export interface AdminRefundRow {
+  id: string;
+  bountyId: string;
+  submissionId: string | null;
+  scenario: string;
+  state: string;
+  amountCents: string;
+  reason: string;
+  requestedByUserId: string;
+  approvedByUserId: string | null;
+  dualApprovalByUserId: string | null;
+  kbEntryId: string | null;
+  stitchRefundId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// GET /admin/finance/exceptions
+export interface ExceptionRow {
+  id: string;
+  category: string;
+  signature: string;
+  title: string;
+  severity: string;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  occurrences: number;
+  resolved: boolean;
+  resolvedAt: string | null;
+  rootCause: string | null;
+  mitigation: string | null;
+  kbEntryRef: string | null;
+  metadata: Record<string, unknown> | null;
+}
+
+// GET /admin/finance/audit-trail
+export interface FinanceAuditRow {
+  id: string;
+  actorId: string;
+  actorRole: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  beforeState: Record<string, unknown> | null;
+  afterState: Record<string, unknown> | null;
+  reason: string | null;
+  createdAt: string;
+}
+
+// GET /admin/finance/groups/:transactionGroupId
+// Full drill-down view of a single ledger transaction group: the group header,
+// every ledger entry in the group, and the linked AuditLog row (if any).
+// BigInt amounts serialized as strings, Dates as ISO strings — match the
+// existing finance admin DTOs (e.g. FinanceOverviewResponse.balancesByAccount).
+export interface TransactionGroupDetailEntry {
+  id: string;
+  account: string;
+  type: 'DEBIT' | 'CREDIT';
+  amountCents: string;
+  currency: string;
+  status: string;
+  userId: string | null;
+  brandId: string | null;
+  bountyId: string | null;
+  submissionId: string | null;
+  referenceId: string;
+  referenceType: string;
+  actionType: string;
+  externalReference: string | null;
+  parentEntryId: string | null;
+  clearanceReleaseAt: string | null;
+  metadata: Record<string, unknown> | null;
+  postedBy: string;
+  createdAt: string;
+}
+
+export interface TransactionGroupDetailGroup {
+  id: string;
+  referenceId: string;
+  actionType: string;
+  description: string;
+  createdAt: string;
+  auditLogId: string | null;
+}
+
+export interface TransactionGroupDetailAuditLog {
+  id: string;
+  actorId: string;
+  actorRole: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  beforeState: Record<string, unknown> | null;
+  afterState: Record<string, unknown> | null;
+  reason: string | null;
+  createdAt: string;
+}
+
+export interface TransactionGroupDetail {
+  group: TransactionGroupDetailGroup;
+  entries: TransactionGroupDetailEntry[];
+  auditLog: TransactionGroupDetailAuditLog | null;
+}
+
+// POST /admin/finance/kill-switch
+export interface KillSwitchToggleRequest {
+  active: boolean;
+  reason: string;
+}
+
+// POST /admin/finance/overrides
+export interface OverrideLeg {
+  account: string;
+  type: 'DEBIT' | 'CREDIT';
+  amountCents: string;
+  userId?: string;
+  brandId?: string;
+  bountyId?: string;
+}
+
+export interface OverrideRequest {
+  reason: string;
+  description: string;
+  legs: OverrideLeg[];
+}
+
+// POST /admin/finance/reconciliation/run
+export interface ReconciliationFinding {
+  category: string;
+  signature: string;
+  severity: 'info' | 'warning' | 'critical';
+  title: string;
+  detail: Record<string, unknown>;
+}
+
+export interface ReconciliationReport {
+  runId: string;
+  findings: ReconciliationFinding[];
+  killSwitchActivated: boolean;
+}
+
+// GET /admin/kb/insights/:system
+// One RecurringIssue row filtered to those whose metadata.system matches the
+// path param. Used by the per-system KB drill-down page on the Insights tab.
+export interface KbSystemIssueRow {
+  id: string;
+  category: string;
+  signature: string;
+  title: string;
+  severity: string; // info | warning | critical
+  occurrences: number;
+  ineffectiveFix: boolean;
+  resolved: boolean;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  kbEntryRef: string | null;
+  metadata: Record<string, unknown> | null;
+}
+
+// GET /admin/kb/confidence
+export interface ConfidenceScore {
+  system: string;
+  score: number;
+  criticalOpen: number;
+  highOpen: number;
+  recurrences90d: number;
+  failedRecon7d: number;
+  // Count of RecurringIssue rows where ineffectiveFix=true for this system.
+  // UI renders a red "Ineffective fix(es)" Tag when > 0.
+  ineffectiveFixCount: number;
+}
+
+// GET /admin/finance/payouts
+// Admin-wide StitchPayout listing (SUPER_ADMIN). Mirrors HunterPayoutRow but
+// includes hunter identity (joined from User) so operators can triage by
+// person, not just payout id.
+export interface AdminPayoutRow {
+  id: string;
+  userId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  amountCents: string;
+  currency: string;
+  status: 'CREATED' | 'INITIATED' | 'SETTLED' | 'FAILED' | 'RETRY_PENDING' | 'CANCELLED';
+  attempts: number;
+  lastError: string | null;
+  nextRetryAt: string | null;
+  createdAt: string;
+  stitchPayoutId: string | null;
+}
+
+export interface AdminPayoutListResponse {
+  data: AdminPayoutRow[];
+  meta: { page: number; limit: number; total: number; totalPages: number };
+}
+
+// GET /admin/payments-health
+export interface PaymentsHealthResponse {
+  paymentsProvider: string;
+  stitchTokenProbe: {
+    ok: boolean;
+    latencyMs: number;
+    error?: string;
+  };
+  lastWebhook: {
+    receivedAt: string;
+    eventType: string;
+    status: string;
+    externalEventId: string;
+  } | null;
+  killSwitch: {
+    active: boolean;
+    reason?: string;
+  };
+  credsHashes: {
+    clientId: string;
+    clientSecret: string;
+    webhookSecret: string;
+  };
+}

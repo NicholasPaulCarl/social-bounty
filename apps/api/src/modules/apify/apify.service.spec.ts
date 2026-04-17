@@ -3,7 +3,7 @@ import type { BrandSocialAnalyticsBlob } from '@social-bounty/shared';
 import { ApifyService } from './apify.service';
 
 type MockPrisma = {
-  organisation: {
+  brand: {
     findUnique: jest.Mock;
     update: jest.Mock;
   };
@@ -29,7 +29,7 @@ function makeConfig(token: string | null): ConfigService {
 
 function makePrisma(): MockPrisma {
   return {
-    organisation: {
+    brand: {
       findUnique: jest.fn(),
       update: jest.fn().mockResolvedValue({}),
     },
@@ -58,8 +58,8 @@ describe('ApifyService', () => {
       await service.refreshIfStale('brand-1');
       await service.refreshForBrand('brand-1');
 
-      expect(prisma.organisation.findUnique).not.toHaveBeenCalled();
-      expect(prisma.organisation.update).not.toHaveBeenCalled();
+      expect(prisma.brand.findUnique).not.toHaveBeenCalled();
+      expect(prisma.brand.update).not.toHaveBeenCalled();
     });
   });
 
@@ -73,7 +73,7 @@ describe('ApifyService', () => {
         facebook: { followersCount: null, followingCount: null, postsCount: null, totalLikes: null, avgLikes: null, engagementRate: null, error: 'not connected' },
         tiktok: { followersCount: null, followingCount: null, postsCount: null, totalLikes: null, avgLikes: null, engagementRate: null, error: 'not connected' },
       };
-      prisma.organisation.findUnique.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue({
         id: 'brand-1',
         socialLinks: { instagram: 'nasa' },
         socialAnalytics: freshBlob,
@@ -87,7 +87,7 @@ describe('ApifyService', () => {
       await service.refreshIfStale('brand-1');
 
       // Should only read once for staleness check, never write
-      expect(prisma.organisation.update).not.toHaveBeenCalled();
+      expect(prisma.brand.update).not.toHaveBeenCalled();
       expect(redis.setNxEx).not.toHaveBeenCalled();
     });
 
@@ -100,7 +100,7 @@ describe('ApifyService', () => {
         facebook: { followersCount: null, followingCount: null, postsCount: null, totalLikes: null, avgLikes: null, engagementRate: null, error: null },
         tiktok: { followersCount: null, followingCount: null, postsCount: null, totalLikes: null, avgLikes: null, engagementRate: null, error: null },
       };
-      prisma.organisation.findUnique.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue({
         id: 'brand-1',
         socialLinks: {}, // no handles → no real actor calls needed
         socialAnalytics: staleBlob,
@@ -114,7 +114,7 @@ describe('ApifyService', () => {
       await service.refreshIfStale('brand-1');
 
       expect(redis.setNxEx).toHaveBeenCalled();
-      expect(prisma.organisation.update).toHaveBeenCalledTimes(1);
+      expect(prisma.brand.update).toHaveBeenCalledTimes(1);
     });
 
     it('refreshes when fetchedAt is in the future (corrupt / spoofed)', async () => {
@@ -126,7 +126,7 @@ describe('ApifyService', () => {
         facebook: { followersCount: null, followingCount: null, postsCount: null, totalLikes: null, avgLikes: null, engagementRate: null, error: null },
         tiktok: { followersCount: null, followingCount: null, postsCount: null, totalLikes: null, avgLikes: null, engagementRate: null, error: null },
       };
-      prisma.organisation.findUnique.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue({
         id: 'brand-1',
         socialLinks: {},
         socialAnalytics: futureBlob,
@@ -141,12 +141,12 @@ describe('ApifyService', () => {
 
       // Future timestamps should not be trusted; we should proceed to refresh
       expect(redis.setNxEx).toHaveBeenCalled();
-      expect(prisma.organisation.update).toHaveBeenCalledTimes(1);
+      expect(prisma.brand.update).toHaveBeenCalledTimes(1);
     });
 
     it('swallows errors so a failed scrape does not crash the caller', async () => {
       const prisma = makePrisma();
-      prisma.organisation.findUnique.mockRejectedValue(new Error('boom'));
+      prisma.brand.findUnique.mockRejectedValue(new Error('boom'));
       const redis = makeRedis();
       const service = new ApifyService(
         makeConfig('apify_api_test'),
@@ -171,13 +171,13 @@ describe('ApifyService', () => {
       const result = await service.refreshForBrand('brand-1');
 
       expect(result).toBeNull();
-      expect(prisma.organisation.findUnique).not.toHaveBeenCalled();
-      expect(prisma.organisation.update).not.toHaveBeenCalled();
+      expect(prisma.brand.findUnique).not.toHaveBeenCalled();
+      expect(prisma.brand.update).not.toHaveBeenCalled();
     });
 
     it('releases the lock on success', async () => {
       const prisma = makePrisma();
-      prisma.organisation.findUnique.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue({
         id: 'brand-1',
         socialLinks: {},
       });
@@ -195,11 +195,11 @@ describe('ApifyService', () => {
 
     it('still releases the lock when the DB update throws', async () => {
       const prisma = makePrisma();
-      prisma.organisation.findUnique.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue({
         id: 'brand-1',
         socialLinks: {},
       });
-      prisma.organisation.update.mockRejectedValue(new Error('db down'));
+      prisma.brand.update.mockRejectedValue(new Error('db down'));
       const redis = makeRedis();
       const service = new ApifyService(
         makeConfig('apify_api_test'),
@@ -215,7 +215,7 @@ describe('ApifyService', () => {
   describe('handle normalization (empty / unconnected)', () => {
     it('produces "not connected" counters when a brand has no handles', async () => {
       const prisma = makePrisma();
-      prisma.organisation.findUnique.mockResolvedValue({
+      prisma.brand.findUnique.mockResolvedValue({
         id: 'brand-1',
         socialLinks: {},
       });

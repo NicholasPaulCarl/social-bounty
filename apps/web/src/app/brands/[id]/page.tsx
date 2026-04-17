@@ -131,7 +131,7 @@ export default function BrandProfilePage() {
 
       {/* Social Reach */}
       <BrandSocialReachCard
-        orgId={brand.id}
+        brandId={brand.id}
         socialLinks={brand.socialLinks}
         analytics={brand.socialAnalytics}
       />

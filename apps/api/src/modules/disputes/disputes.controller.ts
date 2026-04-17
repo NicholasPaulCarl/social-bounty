@@ -70,7 +70,7 @@ export class DisputesController {
     });
   }
 
-  @Get('disputes/organisation')
+  @Get('disputes/brand')
   @Roles(UserRole.BUSINESS_ADMIN)
   async listForBrand(
     @CurrentUser() user: AuthenticatedUser,

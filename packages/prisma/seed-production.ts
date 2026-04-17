@@ -3,7 +3,7 @@
  *
  * Creates exactly 3 accounts for launch:
  * - Hunter (PARTICIPANT)
- * - Brand (BUSINESS_ADMIN) with Organisation
+ * - Brand (BUSINESS_ADMIN) with Brand
  * - Super Admin (SUPER_ADMIN)
  *
  * Auth is passwordless (OTP via email) — no passwords needed.
@@ -69,7 +69,7 @@ async function main() {
       },
     });
 
-    // Create organisation + membership for Business Admin
+    // Create brand + membership for Business Admin
     if (account.role === 'BUSINESS_ADMIN' && account.orgName) {
       const org = await prisma.brand.create({
         data: {

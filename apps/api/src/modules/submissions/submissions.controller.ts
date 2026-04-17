@@ -98,7 +98,7 @@ export class SubmissionsController {
   @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
   async getReviewQueue(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('orgId') orgId?: string,
+    @Query('brandId') brandId?: string,
     @Query('status') status?: SubmissionStatus,
     @Query('bountyId') bountyId?: string,
     @Query('page') page?: number,
@@ -107,7 +107,7 @@ export class SubmissionsController {
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
     return this.submissionsService.getReviewQueue(user, {
-      orgId,
+      brandId,
       status,
       bountyId,
       page,

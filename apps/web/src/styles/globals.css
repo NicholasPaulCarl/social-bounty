@@ -493,6 +493,92 @@
   font-size: 0.875rem !important;
 }
 
+/* ──────────────────────────────────────────────
+ * Horizontal Stepper (InputNumber +/- buttons)
+ *
+ * Design-system tokens applied:
+ *   — gap between input & buttons: 0.5rem (spacing-2)
+ *   — button size: 2.5rem × 2.5rem (matches input height)
+ *   — border-radius: 8px (design system default)
+ *   — bg: #f1f5f9 (bg-elevated)
+ *   — border: #e2e8f0 (glass-border)
+ *   — hover bg: #e2e8f0 (bg-hover)
+ *   — text: #475569 (text-secondary)
+ * ────────────────────────────────────────────── */
+.stepper-horizontal .p-inputnumber-buttons-horizontal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem !important; /* space both sides of the input */
+}
+
+/* Override PrimeReact's zero-radius on adjacent edges */
+.stepper-horizontal .p-inputnumber-buttons-horizontal .p-inputnumber-input {
+  border-radius: 8px !important;
+  text-align: center;
+}
+
+.stepper-horizontal .p-inputnumber-buttons-horizontal .p-inputnumber-button-up,
+.stepper-horizontal .p-inputnumber-buttons-horizontal .p-inputnumber-button-down {
+  border-radius: 8px !important;
+  width: 2.5rem !important;
+  min-width: 2.5rem !important;
+  height: 2.5rem !important;
+  padding: 0 !important;
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+  box-shadow: none !important;
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stepper-horizontal .p-inputnumber-buttons-horizontal .p-inputnumber-button:hover:not(:disabled) {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.stepper-horizontal .p-inputnumber-buttons-horizontal .p-inputnumber-button:active:not(:disabled) {
+  background: #cbd5e1 !important;
+}
+
+.stepper-horizontal .p-inputnumber-buttons-horizontal .p-inputnumber-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Focus ring on input */
+.stepper-horizontal .p-inputnumber-buttons-horizontal .p-inputnumber-input:focus {
+  border-color: #db2777 !important;
+  box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.12) !important;
+}
+
+/* Legacy alias - forward to new styling */
+.max-submissions-stepper .p-inputnumber-buttons-horizontal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem !important;
+}
+.max-submissions-stepper .p-inputnumber-buttons-horizontal .p-inputnumber-input {
+  border-radius: 8px !important;
+  text-align: center;
+}
+.max-submissions-stepper .p-inputnumber-buttons-horizontal .p-inputnumber-button-up,
+.max-submissions-stepper .p-inputnumber-buttons-horizontal .p-inputnumber-button-down {
+  border-radius: 8px !important;
+  width: 2.5rem !important;
+  min-width: 2.5rem !important;
+  height: 2.5rem !important;
+  padding: 0 !important;
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+  box-shadow: none !important;
+}
+.max-submissions-stepper .p-inputnumber-buttons-horizontal .p-inputnumber-button:hover:not(:disabled) {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+
 /* ─── Card ─── */
 
 .p-card {
@@ -1105,6 +1191,17 @@
 .p-panel .p-panel-content {
   background: transparent !important;
   color: #475569 !important;
+}
+
+/* Bounty form sections — borderless */
+.bounty-section-panel.p-panel {
+  border: none !important;
+  background: #ffffff !important;
+  border-radius: 16px !important;
+}
+.bounty-section-panel.p-panel .p-panel-header {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
 }
 
 /* ─── Chip ─── */

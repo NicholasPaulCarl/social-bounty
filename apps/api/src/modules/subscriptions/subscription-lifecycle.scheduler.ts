@@ -1,12 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import {
+  AUDIT_ACTIONS,
+  ENTITY_TYPES,
   SubscriptionStatus,
   SUBSCRIPTION_CONSTANTS,
+  UserRole,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { SubscriptionsService } from './subscriptions.service';
 import { NotificationsService } from '../inbox/notifications.service';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class SubscriptionLifecycleScheduler {
@@ -16,6 +20,7 @@ export class SubscriptionLifecycleScheduler {
     private prisma: PrismaService,
     private subscriptionsService: SubscriptionsService,
     private notificationsService: NotificationsService,
+    private auditService: AuditService,
   ) {}
 
   // ─── Auto-renew active subscriptions past period end ───
@@ -92,26 +97,63 @@ export class SubscriptionLifecycleScheduler {
     }
   }
 
-  // ─── Grace period: expire PAST_DUE subs after 3 days ──
+  // ─── Grace period: auto-downgrade PAST_DUE subs once grace has expired ──
+  //
+  // Per payment-gateway.md §12: once `gracePeriodEndsAt < now()`, the
+  // subscription drops to active FREE (tier=FREE, status=FREE). No ledger
+  // posting — there is no money movement. Audit log via AuditService.
+  //
+  // Non-Negotiable #9: in-flight transactions keep their captured
+  // planSnapshotBrand / planSnapshotHunter — downgrade only affects
+  // FUTURE bounties / approvals.
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async processGracePeriod() {
     const now = new Date();
 
-    // Find PAST_DUE subscriptions where grace period has ended
+    // Find PAST_DUE subscriptions whose grace window has elapsed.
     const pastDueSubs = await this.prisma.subscription.findMany({
       where: {
         status: SubscriptionStatus.PAST_DUE,
-        failedPaymentCount: { gte: SUBSCRIPTION_CONSTANTS.MAX_PAYMENT_RETRIES },
+        gracePeriodEndsAt: { lt: now, not: null },
       },
       take: 100,
     });
 
+    const systemActorId = process.env.STITCH_SYSTEM_ACTOR_ID ?? '';
+
     for (const sub of pastDueSubs) {
       try {
-        await this.subscriptionsService.expireSubscription(sub.id);
+        const result = await this.subscriptionsService.autoDowngradeToFree(sub.id);
 
-        const userId = sub.userId;
+        // AuditLog entry (Hard Rule #3). actorId FK requires a real user —
+        // fall back silently if system actor isn't configured; we still log
+        // an error so ops can fix the env.
+        if (systemActorId) {
+          await this.auditService.log({
+            actorId: systemActorId,
+            actorRole: UserRole.SUPER_ADMIN,
+            action: AUDIT_ACTIONS.SUBSCRIPTION_AUTO_DOWNGRADE,
+            entityType: ENTITY_TYPES.SUBSCRIPTION,
+            entityId: sub.id,
+            beforeState: {
+              tier: result.before.tier,
+              status: result.before.status,
+              gracePeriodEndsAt: sub.gracePeriodEndsAt?.toISOString() ?? null,
+            },
+            afterState: {
+              tier: result.after.tier,
+              status: result.after.status,
+            },
+            reason: 'Grace period expired after failed subscription payment',
+          });
+        } else {
+          this.logger.warn(
+            `STITCH_SYSTEM_ACTOR_ID not set — skipping AuditLog row for auto-downgrade of ${sub.id}`,
+          );
+        }
+
+        const userId = result.userId;
         if (userId) {
           await this.notificationsService.createNotification(
             userId,
@@ -121,12 +163,14 @@ export class SubscriptionLifecycleScheduler {
           );
         }
       } catch (err) {
-        this.logger.error(`Failed to expire past-due subscription ${sub.id}:`, err);
+        this.logger.error(`Failed to auto-downgrade past-due subscription ${sub.id}:`, err);
       }
     }
 
     if (pastDueSubs.length > 0) {
-      this.logger.log(`Expired ${pastDueSubs.length} past-due subscriptions`);
+      this.logger.log(
+        `Auto-downgraded ${pastDueSubs.length} past-due subscriptions to FREE`,
+      );
     }
   }
 
