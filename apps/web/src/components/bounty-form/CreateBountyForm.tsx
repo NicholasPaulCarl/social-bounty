@@ -200,7 +200,7 @@ export function CreateBountyForm({
     <>
       {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
 
-      <form ref={formRef} className="flex flex-col gap-6 pb-24 md:pb-24 max-w-4xl mx-auto" onSubmit={(e) => e.preventDefault()}>
+      <form ref={formRef} className="flex flex-col gap-4 sm:gap-6 pb-20 sm:pb-24 max-w-4xl mx-auto" onSubmit={(e) => e.preventDefault()}>
         {/* Section 1: Bounty Information */}
         <div data-section="bountyBasicInfo" className={lockedClass}>
           <SectionPanel

@@ -20,12 +20,16 @@ export function EmptyState({
   ctaIcon,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4">
+    <div className="flex flex-col items-center justify-center py-10 sm:py-16 px-4">
       <div className="relative">
         <div className="absolute inset-0 bg-accent-cyan/10 blur-2xl rounded-full" />
-        <i className={`pi ${icon} text-text-muted relative`} style={{ fontSize: '3rem' }} />
+        <i
+          className={`pi ${icon} text-text-muted relative text-[2rem] sm:text-[3rem]`}
+        />
       </div>
-      <h3 className="text-lg font-heading font-semibold text-text-primary mt-6">{title}</h3>
+      <h3 className="text-base sm:text-lg font-heading font-semibold text-text-primary mt-4 sm:mt-6">
+        {title}
+      </h3>
       {message && (
         <p className="text-sm text-text-secondary mt-2 text-center max-w-md">{message}</p>
       )}
@@ -34,7 +38,7 @@ export function EmptyState({
           label={ctaLabel}
           icon={ctaIcon ? `pi ${ctaIcon}` : undefined}
           outlined
-          className="mt-6"
+          className="mt-4 sm:mt-6"
           onClick={ctaAction}
         />
       )}

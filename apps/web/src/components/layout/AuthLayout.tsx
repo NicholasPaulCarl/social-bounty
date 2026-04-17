@@ -8,7 +8,7 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 py-12 overflow-hidden" style={{ background: 'linear-gradient(135deg, #fdf2f8 0%, #eff6ff 40%, #fce7f3 70%, #dbeafe 100%)' }}>
+    <div className="relative min-h-screen flex items-center justify-center px-4 py-8 sm:py-12 overflow-hidden" style={{ background: 'linear-gradient(135deg, #fdf2f8 0%, #eff6ff 40%, #fce7f3 70%, #dbeafe 100%)' }}>
       {/* ── Subtle gradient blobs ── */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div
@@ -33,8 +33,8 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
       <div className="relative z-10 w-full max-w-md">
         {/* ── Branding ── */}
-        <div className="text-center mb-8">
-          <Link href="/" className="text-4xl font-heading font-bold tracking-tight text-pink-600 hover:text-pink-500 transition-colors duration-200">
+        <div className="text-center mb-6 sm:mb-8">
+          <Link href="/" className="text-3xl sm:text-4xl font-heading font-bold tracking-tight text-pink-600 hover:text-pink-500 transition-colors duration-200">
             Social Bounty
           </Link>
           <p className="text-sm text-slate-600 mt-2">

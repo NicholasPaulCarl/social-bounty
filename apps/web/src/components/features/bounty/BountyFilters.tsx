@@ -68,7 +68,7 @@ export function BountyFilters({ filters, onChange, showStatusFilter = false }: B
     !!filters.search || !!filters.status || !!filters.rewardType || (filters.sortBy && filters.sortBy !== 'createdAt');
 
   return (
-    <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 mb-6">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
       <span className="p-input-icon-left w-full sm:w-auto">
         <i className="pi pi-search" />
         <InputText
