@@ -7,7 +7,7 @@ import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { OverrideModal } from '@/components/common/OverrideModal';
 import { BountyCard } from '@/components/features/bounty/BountyCard';
 import { BountyFilters } from '@/components/features/bounty/BountyFilters';
-import type { BountyListItem, BountyListParams } from '@social-bounty/shared';
+import { BountyAccessType, type BountyListItem, type BountyListParams } from '@social-bounty/shared';
 
 const MOCK_BOUNTIES: BountyListItem[] = [
   {
@@ -31,6 +31,7 @@ const MOCK_BOUNTIES: BountyListItem[] = [
     rewards: [],
     payoutMetrics: null,
     paymentStatus: 'UNPAID' as BountyListItem['paymentStatus'],
+    accessType: BountyAccessType.PUBLIC,
   },
   {
     id: 'demo-2',
@@ -53,6 +54,7 @@ const MOCK_BOUNTIES: BountyListItem[] = [
     rewards: [],
     payoutMetrics: null,
     paymentStatus: 'UNPAID' as BountyListItem['paymentStatus'],
+    accessType: BountyAccessType.PUBLIC,
   },
 ];
 
