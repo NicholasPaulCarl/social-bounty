@@ -166,14 +166,16 @@ import { Check, Wallet, Users, AlertTriangle } from 'lucide-react';
 
 ### Social brand marks
 
-PrimeIcons ships brand glyphs. Lucide's policy is "no brand logos beyond a small set". Mappings:
+PrimeIcons ships brand glyphs. Lucide's policy is "no brand logos beyond a small set". Lucide 1.8.0
+does NOT include Facebook, Instagram, or Twitter (removed per trademark policy). Use neutral
+semantic stand-ins until the brand-icon commission lands.
 
 | PrimeIcon | Lucide | Notes |
 |---|---|---|
-| `pi-facebook` | `Facebook` | Lucide has it |
-| `pi-instagram` | `Instagram` | Lucide has it |
-| `pi-twitter` | `Twitter` | Lucide has it (deprecated semantic since X rebrand, but still in the package) |
-| `pi-tiktok` | **No Lucide equivalent** | Use a tiny inline SVG of TikTok's wordmark or `Music2` as a placeholder. If/when we commission the brand-icon set (DS deferred list), replace inline. |
+| `pi-facebook` | `ThumbsUp` | Neutral stand-in. Replace with commissioned glyph when available. |
+| `pi-instagram` | `Camera` | Neutral stand-in. Replace with commissioned glyph when available. |
+| `pi-twitter` / `pi-x` | `Globe` | X/Twitter — use `Globe` for generic link-out, or omit the icon. |
+| `pi-tiktok` | `Music2` | Placeholder only. Same deferred commission applies. |
 
 ## Patterns
 
