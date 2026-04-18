@@ -101,6 +101,27 @@ class EnvironmentVariables {
   @IsBooleanString()
   TRADESAFE_MOCK?: string;
 
+  // R35 (2026-04-18): ADR 0009 §4 promises three OAuth URLs for the hunter
+  // beneficiary-link callback flow. Gated by `PAYOUTS_ENABLED=true` (same
+  // idiom as `BENEFICIARY_ENC_KEY` — dev ergonomics while the outbound
+  // rail is gated). When payouts go live, all three must be populated or
+  // the app refuses to boot; this is how `TradeSafeCallbackController`
+  // avoids silently redirecting to `undefined`.
+  //
+  // Sandbox / prod URLs differ per environment — documented in
+  // `docs/deployment/tradesafe-live-readiness.md` §3.
+  @ValidateIf((o) => o.PAYOUTS_ENABLED === 'true')
+  @IsUrl({ require_tld: false, require_protocol: true })
+  TRADESAFE_OAUTH_REDIRECT_URL?: string;
+
+  @ValidateIf((o) => o.PAYOUTS_ENABLED === 'true')
+  @IsUrl({ require_tld: false, require_protocol: true })
+  TRADESAFE_SUCCESS_URL?: string;
+
+  @ValidateIf((o) => o.PAYOUTS_ENABLED === 'true')
+  @IsUrl({ require_tld: false, require_protocol: true })
+  TRADESAFE_FAILURE_URL?: string;
+
   // Dev-only override for Free-tier clearance window, in hours.
   // When set, ApprovalLedgerService uses this instead of CLEARANCE_HOURS.FREE (72).
   // Fractional values are allowed so we can simulate near-instant clearance in

@@ -60,16 +60,21 @@ describe('validateEnv', () => {
   });
 
   describe('feature flags (H2 — orphan sweep)', () => {
-    it('accepts PAYOUTS_ENABLED=true|false (with BENEFICIARY_ENC_KEY when true — R29)', () => {
+    it('accepts PAYOUTS_ENABLED=true|false (with BENEFICIARY_ENC_KEY + TRADESAFE URLs when true — R29 + R35)', () => {
       expect(() => validateEnv({ ...base, PAYOUTS_ENABLED: 'false' })).not.toThrow();
       // R29 (batch 14A): flipping PAYOUTS_ENABLED=true also requires a
-      // strong BENEFICIARY_ENC_KEY. See the dedicated R29 test block
-      // below for the full matrix.
+      // strong BENEFICIARY_ENC_KEY.
+      // R35 (2026-04-18): …and the three TRADESAFE_*_URL env vars. See
+      // the dedicated test blocks below for the full matrix.
       expect(() =>
         validateEnv({
           ...base,
           PAYOUTS_ENABLED: 'true',
           BENEFICIARY_ENC_KEY: 'a'.repeat(32),
+          TRADESAFE_OAUTH_REDIRECT_URL:
+            'https://api.example.com/api/v1/auth/tradesafe/callback',
+          TRADESAFE_SUCCESS_URL: 'https://app.example.com/hunters/me?tradesafe=linked',
+          TRADESAFE_FAILURE_URL: 'https://app.example.com/hunters/me?tradesafe=failed',
         }),
       ).not.toThrow();
     });
@@ -136,12 +141,16 @@ describe('validateEnv', () => {
         ).toThrow(/BENEFICIARY_ENC_KEY/);
       });
 
-      it('passes when PAYOUTS_ENABLED=true and BENEFICIARY_ENC_KEY is exactly 32 chars', () => {
+      it('passes when PAYOUTS_ENABLED=true and BENEFICIARY_ENC_KEY is exactly 32 chars (with TRADESAFE URLs — R35)', () => {
         expect(() =>
           validateEnv({
             ...base,
             PAYOUTS_ENABLED: 'true',
             BENEFICIARY_ENC_KEY: strongKey,
+            TRADESAFE_OAUTH_REDIRECT_URL:
+              'https://api.example.com/api/v1/auth/tradesafe/callback',
+            TRADESAFE_SUCCESS_URL: 'https://app.example.com/hunters/me?tradesafe=linked',
+            TRADESAFE_FAILURE_URL: 'https://app.example.com/hunters/me?tradesafe=failed',
           }),
         ).not.toThrow();
       });
@@ -208,6 +217,108 @@ describe('validateEnv', () => {
       expect(() => validateEnv({ ...base, PAYOUT_PROVIDER: 'peach' })).toThrow(
         /PAYOUT_PROVIDER/,
       );
+    });
+
+    // R35 (2026-04-18) — TradeSafe OAuth URLs are required when
+    // PAYOUTS_ENABLED=true (ADR 0009 §4). `@ValidateIf` gates mirror the
+    // `BENEFICIARY_ENC_KEY` pattern: dev (PAYOUTS_ENABLED=false | unset)
+    // can leave them blank; live refuses to boot without them.
+    describe('TRADESAFE OAuth URLs — R35 conditional validation', () => {
+      const strongKey = 'a'.repeat(32);
+      const tradesafeUrls = {
+        TRADESAFE_OAUTH_REDIRECT_URL: 'https://api.example.com/api/v1/auth/tradesafe/callback',
+        TRADESAFE_SUCCESS_URL: 'https://app.example.com/hunters/me?tradesafe=linked',
+        TRADESAFE_FAILURE_URL: 'https://app.example.com/hunters/me?tradesafe=failed',
+      };
+
+      it('passes when all three URLs present and PAYOUTS_ENABLED=true', () => {
+        expect(() =>
+          validateEnv({
+            ...base,
+            PAYOUTS_ENABLED: 'true',
+            BENEFICIARY_ENC_KEY: strongKey,
+            ...tradesafeUrls,
+          }),
+        ).not.toThrow();
+      });
+
+      it('throws when TRADESAFE_OAUTH_REDIRECT_URL is missing and PAYOUTS_ENABLED=true', () => {
+        const { TRADESAFE_OAUTH_REDIRECT_URL: _, ...rest } = tradesafeUrls;
+        expect(() =>
+          validateEnv({
+            ...base,
+            PAYOUTS_ENABLED: 'true',
+            BENEFICIARY_ENC_KEY: strongKey,
+            ...rest,
+          }),
+        ).toThrow(/TRADESAFE_OAUTH_REDIRECT_URL/);
+      });
+
+      it('throws when TRADESAFE_SUCCESS_URL is missing and PAYOUTS_ENABLED=true', () => {
+        const { TRADESAFE_SUCCESS_URL: _, ...rest } = tradesafeUrls;
+        expect(() =>
+          validateEnv({
+            ...base,
+            PAYOUTS_ENABLED: 'true',
+            BENEFICIARY_ENC_KEY: strongKey,
+            ...rest,
+          }),
+        ).toThrow(/TRADESAFE_SUCCESS_URL/);
+      });
+
+      it('throws when TRADESAFE_FAILURE_URL is missing and PAYOUTS_ENABLED=true', () => {
+        const { TRADESAFE_FAILURE_URL: _, ...rest } = tradesafeUrls;
+        expect(() =>
+          validateEnv({
+            ...base,
+            PAYOUTS_ENABLED: 'true',
+            BENEFICIARY_ENC_KEY: strongKey,
+            ...rest,
+          }),
+        ).toThrow(/TRADESAFE_FAILURE_URL/);
+      });
+
+      it('passes when all three are missing and PAYOUTS_ENABLED=false (dev gate works)', () => {
+        expect(() =>
+          validateEnv({ ...base, PAYOUTS_ENABLED: 'false' }),
+        ).not.toThrow();
+      });
+
+      it('passes when all three are missing and PAYOUTS_ENABLED is unset (pre-TradeSafe default)', () => {
+        expect(() => validateEnv({ ...base })).not.toThrow();
+      });
+
+      it('throws when any of the three URLs is not a valid URL', () => {
+        expect(() =>
+          validateEnv({
+            ...base,
+            PAYOUTS_ENABLED: 'true',
+            BENEFICIARY_ENC_KEY: strongKey,
+            ...tradesafeUrls,
+            TRADESAFE_OAUTH_REDIRECT_URL: 'not-a-url',
+          }),
+        ).toThrow(/TRADESAFE_OAUTH_REDIRECT_URL/);
+
+        expect(() =>
+          validateEnv({
+            ...base,
+            PAYOUTS_ENABLED: 'true',
+            BENEFICIARY_ENC_KEY: strongKey,
+            ...tradesafeUrls,
+            TRADESAFE_SUCCESS_URL: 'javascript:alert(1)',
+          }),
+        ).toThrow(/TRADESAFE_SUCCESS_URL/);
+
+        expect(() =>
+          validateEnv({
+            ...base,
+            PAYOUTS_ENABLED: 'true',
+            BENEFICIARY_ENC_KEY: strongKey,
+            ...tradesafeUrls,
+            TRADESAFE_FAILURE_URL: 'missing-scheme.example.com',
+          }),
+        ).toThrow(/TRADESAFE_FAILURE_URL/);
+      });
     });
   });
 
