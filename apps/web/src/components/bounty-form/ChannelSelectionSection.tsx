@@ -1,6 +1,6 @@
 'use client';
 
-import { Instagram, Facebook, Video, Check, AlertCircle } from 'lucide-react';
+import { Camera, ThumbsUp, Video, Check, AlertCircle } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { SocialChannel, PostFormat, CHANNEL_POST_FORMATS } from '@social-bounty/shared';
 import type { ChannelSelection } from '@social-bounty/shared';
@@ -8,9 +8,12 @@ import type { BountyFormAction } from './types';
 
 type LucideIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
 
+// Lucide deliberately ships no brand glyphs beyond a small whitelist — Instagram/
+// Facebook/TikTok aren't in it (ICONS.md §"Social brand marks"). We use neutral
+// Lucide icons as semantic stand-ins until the brand-icon commission lands.
 const CHANNEL_META: { channel: SocialChannel; label: string; Icon: LucideIcon }[] = [
-  { channel: SocialChannel.INSTAGRAM, label: 'Instagram', Icon: Instagram },
-  { channel: SocialChannel.FACEBOOK, label: 'Facebook', Icon: Facebook },
+  { channel: SocialChannel.INSTAGRAM, label: 'Instagram', Icon: Camera },
+  { channel: SocialChannel.FACEBOOK, label: 'Facebook', Icon: ThumbsUp },
   { channel: SocialChannel.TIKTOK, label: 'TikTok', Icon: Video },
 ];
 

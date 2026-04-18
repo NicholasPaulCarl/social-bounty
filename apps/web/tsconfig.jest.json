@@ -2,7 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "ignoreDeprecations": "6.0"
+    // TS 6.0 is the intended deploy target (package.json pins `^6.0.2`), but
+    // the installed resolution is currently 5.9.3 which only accepts "5.0".
+    // Keep this in sync with whatever TS major is actually installed.
+    "ignoreDeprecations": "5.0"
   },
   "include": ["src/**/*"]
 }

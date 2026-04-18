@@ -1,5 +1,7 @@
 'use client';
 
+import { Zap } from 'lucide-react';
+
 const TERMINOLOGY = [
   { use: 'Hunter', never: 'User, participant, influencer, creator' },
   { use: 'Bounty', never: 'Task, job, gig, campaign' },
@@ -47,8 +49,8 @@ export default function BrandSection() {
       {/* Positioning */}
       <div className="glass-card p-8">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center">
-            <i className="pi pi-bolt text-xl text-pink-400" />
+          <div className="w-10 h-10 rounded-xl bg-pink-100 flex items-center justify-center">
+            <Zap size={20} strokeWidth={2} className="text-pink-600" />
           </div>
           <div>
             <h3 className="text-lg font-heading font-bold text-text-primary">Social Bounty</h3>

@@ -92,21 +92,21 @@ export default function AdminWalletDetailPage({ params }: Props) {
 
       {/* Balance cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="glass-card p-5 border border-success-600/30">
-          <p className="text-xs text-text-muted mb-1">Available</p>
-          <p className="text-2xl font-bold text-success-600">{formatCurrency(balance.available, currency)}</p>
+        <div className="glass-card p-5 rounded-xl border border-success-600/30">
+          <p className="eyebrow">Available</p>
+          <p className="font-mono tabular-nums text-2xl font-bold text-success-600">{formatCurrency(balance.available, currency)}</p>
         </div>
-        <div className="glass-card p-5">
-          <p className="text-xs text-text-muted mb-1">Pending</p>
-          <p className="text-2xl font-bold text-warning-600">{formatCurrency(balance.pending, currency)}</p>
+        <div className="glass-card p-5 rounded-xl">
+          <p className="eyebrow">Pending</p>
+          <p className="font-mono tabular-nums text-2xl font-bold text-warning-600">{formatCurrency(balance.pending, currency)}</p>
         </div>
-        <div className="glass-card p-5">
-          <p className="text-xs text-text-muted mb-1">Total Earned</p>
-          <p className="text-2xl font-bold text-blue-600">{formatCurrency(balance.totalEarned, currency)}</p>
+        <div className="glass-card p-5 rounded-xl">
+          <p className="eyebrow">Total earned</p>
+          <p className="font-mono tabular-nums text-2xl font-bold text-pink-600">{formatCurrency(balance.totalEarned, currency)}</p>
         </div>
-        <div className="glass-card p-5">
-          <p className="text-xs text-text-muted mb-1">Total Withdrawn</p>
-          <p className="text-2xl font-bold text-blue-600">{formatCurrency(balance.totalWithdrawn, currency)}</p>
+        <div className="glass-card p-5 rounded-xl">
+          <p className="eyebrow">Total withdrawn</p>
+          <p className="font-mono tabular-nums text-2xl font-bold text-slate-700">{formatCurrency(balance.totalWithdrawn, currency)}</p>
         </div>
       </div>
 

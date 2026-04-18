@@ -21,6 +21,10 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { TabMenu } from 'primereact/tabmenu';
 import { BreadCrumb } from 'primereact/breadcrumb';
 import type { Nullable } from 'primereact/ts-helpers';
+import { BarChart3, Inbox, Settings, Check, Search, Star, ExternalLink, Home } from 'lucide-react';
+import type { ComponentType, SVGProps } from 'react';
+
+type LucideIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
 
 const MOCK_TABLE_DATA = [
   { id: 1, name: 'Alice Johnson', role: 'Participant', status: 'Active' },
@@ -35,10 +39,15 @@ const DROPDOWN_OPTIONS = [
   { label: 'Facebook', value: 'facebook' },
 ];
 
-const TAB_ITEMS = [
-  { label: 'Overview', icon: 'pi pi-chart-bar' },
-  { label: 'Submissions', icon: 'pi pi-inbox' },
-  { label: 'Settings', icon: 'pi pi-cog' },
+// Render a small Lucide icon as a ReactNode string replacement for TabMenu's
+// MenuItem icon prop (which accepts a className OR a ReactNode in recent
+// PrimeReact versions). We pass ReactNode via a render function wrapped into
+// the `template` slot for consistency. Here we use the `icon` prop which
+// accepts ReactNode in PrimeReact 10.
+const TAB_ITEMS: { label: string; Icon: LucideIcon }[] = [
+  { label: 'Overview', Icon: BarChart3 },
+  { label: 'Submissions', Icon: Inbox },
+  { label: 'Settings', Icon: Settings },
 ];
 
 const BREADCRUMB_ITEMS = [
@@ -84,8 +93,8 @@ export default function PrimeReactSection() {
               <Button label="Text" text />
               <Button label="Outlined" outlined />
               <Button label="Raised" raised />
-              <Button icon="pi pi-check" rounded />
-              <Button icon="pi pi-search" severity="secondary" rounded outlined />
+              <Button icon={<Check size={16} strokeWidth={2} />} rounded />
+              <Button icon={<Search size={16} strokeWidth={2} />} severity="secondary" rounded outlined />
             </div>
           </div>
           <div>
@@ -94,7 +103,7 @@ export default function PrimeReactSection() {
               <Button label="Small" size="small" />
               <Button label="Normal" />
               <Button label="Large" size="large" />
-              <Button icon="pi pi-star" size="small" rounded />
+              <Button icon={<Star size={14} strokeWidth={2} />} size="small" rounded />
             </div>
           </div>
         </div>
@@ -163,7 +172,7 @@ export default function PrimeReactSection() {
       <div className="glass-card p-6">
         <h4 className="text-base font-heading font-semibold text-text-primary mb-4">Overlays</h4>
         <div className="space-y-4">
-          <Button label="Open Dialog" icon="pi pi-external-link" onClick={() => setDialogVisible(true)} />
+          <Button label="Open dialog" icon={<ExternalLink size={16} strokeWidth={2} />} onClick={() => setDialogVisible(true)} />
           <Dialog
             visible={dialogVisible}
             onHide={() => setDialogVisible(false)}
@@ -219,11 +228,18 @@ export default function PrimeReactSection() {
         <div className="space-y-4">
           <div>
             <p className="text-xs text-text-muted mb-2">TabMenu</p>
-            <TabMenu model={TAB_ITEMS} activeIndex={activeTab} onTabChange={(e) => setActiveTab(e.index)} />
+            <TabMenu
+              model={TAB_ITEMS.map((t) => ({
+                label: t.label,
+                icon: <t.Icon size={14} strokeWidth={2} />,
+              }))}
+              activeIndex={activeTab}
+              onTabChange={(e) => setActiveTab(e.index)}
+            />
           </div>
           <div>
             <p className="text-xs text-text-muted mb-2">BreadCrumb</p>
-            <BreadCrumb model={BREADCRUMB_ITEMS} home={{ icon: 'pi pi-home', url: '/' }} />
+            <BreadCrumb model={BREADCRUMB_ITEMS} home={{ icon: <Home size={14} strokeWidth={2} />, url: '/' }} />
           </div>
         </div>
       </div>
