@@ -73,7 +73,7 @@ export default function ApplicationsPage() {
         label={row.userName.charAt(0).toUpperCase()}
         shape="circle"
         size="normal"
-        className="bg-accent-violet/20 text-accent-violet font-semibold"
+        className="bg-blue-600/20 text-blue-600 font-semibold"
       />
       <span className="text-sm font-medium text-text-primary">{row.userName}</span>
     </div>

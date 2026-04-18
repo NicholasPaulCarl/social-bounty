@@ -92,17 +92,6 @@ const config: Config = {
           overlay: 'rgba(0, 0, 0, 0.30)',
         },
 
-        // --- Legacy accent-* aliases (TEMPORARY — 88 files, 537 usages
-        //     at 2026-04-18; follow-up codemod renames to pink-600 /
-        //     blue-600 / danger-600 / success-600 etc.). Do NOT add new
-        //     usages. Colors match the canonical palette 1:1. ---
-        'accent-cyan':   '#db2777',  // = pink-600
-        'accent-violet': '#2563eb',  // = blue-600
-        'accent-amber':  '#d97706',  // = reward-600
-        'accent-emerald': '#059669', // = success-600 (approx)
-        'accent-rose':   '#e11d48',  // = danger-600
-        'accent-blue':   '#2563eb',  // = blue-600
-
         // --- PrimeReact-facing semantic scales (wired via CSS vars;
         //     keep these so Tailwind classes like `bg-primary-600` map. ---
         primary: {
@@ -253,18 +242,15 @@ const config: Config = {
         'level-3': '0 8px 24px rgba(0, 0, 0, 0.12)',
         'level-4': '0 16px 48px rgba(0, 0, 0, 0.16)',
 
-        // Subtle colored shadows (light mode equivalents)
-        'glow-cyan': '0 4px 14px rgba(219, 39, 119, 0.10)',
-        'glow-cyan-intense': '0 4px 14px rgba(219, 39, 119, 0.15), 0 1px 3px rgba(219, 39, 119, 0.08)',
-        'glow-violet': '0 4px 14px rgba(37, 99, 235, 0.10)',
-        'glow-violet-intense': '0 4px 14px rgba(37, 99, 235, 0.15), 0 1px 3px rgba(37, 99, 235, 0.08)',
-        'glow-amber': '0 4px 14px rgba(217, 119, 6, 0.10)',
-        'glow-emerald': '0 4px 14px rgba(5, 150, 105, 0.10)',
-        'glow-rose': '0 4px 14px rgba(225, 29, 72, 0.10)',
+        // Brand glow (pink-600) — the canonical colored shadow per the
+        // design system. Blue glow exists only for the hero CTA +
+        // primary button, so use `shadow-brand-intense` for that too.
+        'glow-brand': '0 4px 14px rgba(219, 39, 119, 0.10)',
+        'glow-brand-intense': '0 4px 14px rgba(219, 39, 119, 0.15), 0 1px 3px rgba(219, 39, 119, 0.08)',
         'glow-blue': '0 4px 14px rgba(37, 99, 235, 0.10)',
 
         // Focus ring
-        'ring-glow-cyan': '0 0 0 3px rgba(219, 39, 119, 0.15)',
+        'ring-glow-brand': '0 0 0 3px rgba(219, 39, 119, 0.15)',
       },
 
       // ═══════════════════════════════════════════

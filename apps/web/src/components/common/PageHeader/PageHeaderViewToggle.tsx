@@ -15,7 +15,7 @@ export function PageHeaderViewToggle({ mode, onChange }: PageHeaderViewTogglePro
         className={cn(
           'flex items-center justify-center w-10 h-10 transition-all duration-200 cursor-pointer',
           mode === 'grid'
-            ? 'bg-accent-cyan/15 text-accent-cyan shadow-glow-cyan'
+            ? 'bg-pink-600/15 text-pink-600 shadow-glow-brand'
             : 'text-text-muted hover:text-text-primary hover:bg-slate-100'
         )}
       >
@@ -29,7 +29,7 @@ export function PageHeaderViewToggle({ mode, onChange }: PageHeaderViewTogglePro
         className={cn(
           'flex items-center justify-center w-10 h-10 transition-all duration-200 cursor-pointer',
           mode === 'list'
-            ? 'bg-accent-cyan/15 text-accent-cyan shadow-glow-cyan'
+            ? 'bg-pink-600/15 text-pink-600 shadow-glow-brand'
             : 'text-text-muted hover:text-text-primary hover:bg-slate-100'
         )}
       >

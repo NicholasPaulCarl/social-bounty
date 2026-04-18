@@ -94,21 +94,21 @@ export function AccessTypeSection({ accessType, selectedHunters, dispatch }: Acc
             onClick={() => dispatch({ type: 'SET_ACCESS_TYPE', payload: BountyAccessType.PUBLIC })}
             className={`flex-1 flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all ${
               accessType === BountyAccessType.PUBLIC
-                ? 'border-accent-emerald/60 bg-accent-emerald/8 text-text-primary'
+                ? 'border-success-600/60 bg-success-600/8 text-text-primary'
                 : 'border-glass-border bg-white/2 text-text-secondary hover:border-glass-border/80 hover:bg-white/4'
             }`}
           >
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-              accessType === BountyAccessType.PUBLIC ? 'bg-accent-emerald/20' : 'bg-white/5'
+              accessType === BountyAccessType.PUBLIC ? 'bg-success-600/20' : 'bg-white/5'
             }`}>
-              <i className={`pi pi-globe text-sm ${accessType === BountyAccessType.PUBLIC ? 'text-accent-emerald' : 'text-text-muted'}`} />
+              <i className={`pi pi-globe text-sm ${accessType === BountyAccessType.PUBLIC ? 'text-success-600' : 'text-text-muted'}`} />
             </div>
             <div className="text-left">
               <p className="text-sm font-semibold">Open</p>
               <p className="text-xs text-text-muted mt-0.5">Anyone can participate</p>
             </div>
             {accessType === BountyAccessType.PUBLIC && (
-              <i className="pi pi-check ml-auto text-accent-emerald text-sm" />
+              <i className="pi pi-check ml-auto text-success-600 text-sm" />
             )}
           </button>
 
@@ -117,21 +117,21 @@ export function AccessTypeSection({ accessType, selectedHunters, dispatch }: Acc
             onClick={() => dispatch({ type: 'SET_ACCESS_TYPE', payload: BountyAccessType.CLOSED })}
             className={`flex-1 flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all ${
               accessType === BountyAccessType.CLOSED
-                ? 'border-accent-amber/60 bg-accent-amber/8 text-text-primary'
+                ? 'border-warning-600/60 bg-warning-600/8 text-text-primary'
                 : 'border-glass-border bg-white/2 text-text-secondary hover:border-glass-border/80 hover:bg-white/4'
             }`}
           >
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-              accessType === BountyAccessType.CLOSED ? 'bg-accent-amber/20' : 'bg-white/5'
+              accessType === BountyAccessType.CLOSED ? 'bg-warning-600/20' : 'bg-white/5'
             }`}>
-              <i className={`pi pi-lock text-sm ${accessType === BountyAccessType.CLOSED ? 'text-accent-amber' : 'text-text-muted'}`} />
+              <i className={`pi pi-lock text-sm ${accessType === BountyAccessType.CLOSED ? 'text-warning-600' : 'text-text-muted'}`} />
             </div>
             <div className="text-left">
               <p className="text-sm font-semibold">Apply Only</p>
               <p className="text-xs text-text-muted mt-0.5">Hunters must apply or be invited</p>
             </div>
             {accessType === BountyAccessType.CLOSED && (
-              <i className="pi pi-check ml-auto text-accent-amber text-sm" />
+              <i className="pi pi-check ml-auto text-warning-600 text-sm" />
             )}
           </button>
         </div>
@@ -178,8 +178,8 @@ export function AccessTypeSection({ accessType, selectedHunters, dispatch }: Acc
                           className="w-8 h-8 rounded-full object-cover shrink-0"
                         />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-accent-cyan/10 flex items-center justify-center shrink-0">
-                          <i className="pi pi-user text-accent-cyan text-xs" />
+                        <div className="w-8 h-8 rounded-full bg-pink-600/10 flex items-center justify-center shrink-0">
+                          <i className="pi pi-user text-pink-600 text-xs" />
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
@@ -226,8 +226,8 @@ export function AccessTypeSection({ accessType, selectedHunters, dispatch }: Acc
                           className="w-6 h-6 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="w-6 h-6 rounded-full bg-accent-cyan/10 flex items-center justify-center">
-                          <i className="pi pi-user text-accent-cyan text-[10px]" />
+                        <div className="w-6 h-6 rounded-full bg-pink-600/10 flex items-center justify-center">
+                          <i className="pi pi-user text-pink-600 text-[10px]" />
                         </div>
                       )}
                       <span className="text-sm text-text-primary font-medium">

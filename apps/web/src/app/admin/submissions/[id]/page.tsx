@@ -201,10 +201,10 @@ export default function AdminSubmissionDetailPage() {
             check is a sufficient role-and-data guard for this surface.
           */}
           {(submission.consecutiveVisibilityFailures ?? 0) > 0 && (
-            <div className="glass-card p-6 border border-accent-rose/30">
+            <div className="glass-card p-6 border border-danger-600/30">
               <div className="flex items-start justify-between mb-4 gap-3">
                 <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-                  <i className="pi pi-eye-slash text-accent-rose" aria-hidden="true" />
+                  <i className="pi pi-eye-slash text-danger-600" aria-hidden="true" />
                   Visibility check status
                 </h3>
                 <Tag
@@ -234,7 +234,7 @@ export default function AdminSubmissionDetailPage() {
                   </dd>
                 </div>
                 {(submission.consecutiveVisibilityFailures ?? 0) >= 2 && (
-                  <div className="bg-accent-rose/10 border border-accent-rose/30 text-accent-rose text-xs px-3 py-2 rounded-lg">
+                  <div className="bg-danger-600/10 border border-danger-600/30 text-danger-600 text-xs px-3 py-2 rounded-lg">
                     <i className="pi pi-exclamation-triangle mr-1.5" />
                     Threshold reached — auto-refund will be issued by the
                     next visibility scheduler tick (ADR 0010).

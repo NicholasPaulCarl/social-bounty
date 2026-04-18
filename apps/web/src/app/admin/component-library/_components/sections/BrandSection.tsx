@@ -61,11 +61,11 @@ export default function BrandSection() {
         <div className="flex gap-4">
           <div className="glass-card p-3 text-center flex-1">
             <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Tagline</p>
-            <p className="font-heading font-bold text-accent-cyan">Hunt. Create. Earn.</p>
+            <p className="font-heading font-bold text-pink-600">Hunt. Create. Earn.</p>
           </div>
           <div className="glass-card p-3 text-center flex-1">
             <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Archetype</p>
-            <p className="font-heading font-bold text-accent-amber">The Jester</p>
+            <p className="font-heading font-bold text-warning-600">The Jester</p>
           </div>
         </div>
       </div>
@@ -85,8 +85,8 @@ export default function BrandSection() {
             <tbody>
               {TERMINOLOGY.map((t) => (
                 <tr key={t.use} className="border-t border-glass-border/30">
-                  <td className="px-4 py-2.5 font-semibold text-accent-emerald">{t.use}</td>
-                  <td className="px-4 py-2.5 text-accent-rose/70 line-through decoration-accent-rose/30">{t.never}</td>
+                  <td className="px-4 py-2.5 font-semibold text-success-600">{t.use}</td>
+                  <td className="px-4 py-2.5 text-danger-600/70 line-through decoration-danger-600/30">{t.never}</td>
                 </tr>
               ))}
             </tbody>
@@ -164,7 +164,7 @@ export default function BrandSection() {
               {TONE_EXAMPLES.map((t) => (
                 <tr key={t.context} className="border-t border-glass-border/30">
                   <td className="px-4 py-2.5 font-medium text-text-primary">{t.context}</td>
-                  <td className="px-4 py-2.5 text-accent-amber">{t.energy}</td>
+                  <td className="px-4 py-2.5 text-warning-600">{t.energy}</td>
                   <td className="px-4 py-2.5 text-text-secondary italic">&ldquo;{t.example}&rdquo;</td>
                 </tr>
               ))}
@@ -176,20 +176,20 @@ export default function BrandSection() {
       {/* Words We Love / Avoid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="glass-card p-6">
-          <h4 className="text-sm font-heading font-semibold text-accent-emerald uppercase tracking-wider mb-3">Words We Love</h4>
+          <h4 className="text-sm font-heading font-semibold text-success-600 uppercase tracking-wider mb-3">Words We Love</h4>
           <div className="flex flex-wrap gap-2">
             {LOVED_WORDS.map((w) => (
-              <span key={w} className="px-3 py-1 text-xs font-medium bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30 rounded-full">
+              <span key={w} className="px-3 py-1 text-xs font-medium bg-success-600/10 text-success-600 border border-success-600/30 rounded-full">
                 {w}
               </span>
             ))}
           </div>
         </div>
         <div className="glass-card p-6">
-          <h4 className="text-sm font-heading font-semibold text-accent-rose uppercase tracking-wider mb-3">Words We Avoid</h4>
+          <h4 className="text-sm font-heading font-semibold text-danger-600 uppercase tracking-wider mb-3">Words We Avoid</h4>
           <div className="flex flex-wrap gap-2">
             {AVOID_WORDS.map((w) => (
-              <span key={w} className="px-3 py-1 text-xs font-medium bg-accent-rose/10 text-accent-rose border border-accent-rose/30 rounded-full line-through">
+              <span key={w} className="px-3 py-1 text-xs font-medium bg-danger-600/10 text-danger-600 border border-danger-600/30 rounded-full line-through">
                 {w}
               </span>
             ))}
@@ -215,7 +215,7 @@ export default function BrandSection() {
             'No words from the avoid list',
           ].map((item, i) => (
             <label key={i} className="flex items-start gap-3 text-sm text-text-secondary cursor-pointer group">
-              <input type="checkbox" className="mt-0.5 accent-accent-cyan" />
+              <input type="checkbox" className="mt-0.5 accent-pink-600" />
               <span className="group-hover:text-text-primary transition-colors">{item}</span>
             </label>
           ))}

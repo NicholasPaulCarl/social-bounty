@@ -41,7 +41,7 @@ export default function KbSystemInsightsPage() {
       <div className="mb-4">
         <Link
           href="/admin/finance/insights"
-          className="text-sm text-accent-cyan hover:text-accent-cyan/80 inline-flex items-center gap-1"
+          className="text-sm text-pink-600 hover:text-pink-600/80 inline-flex items-center gap-1"
         >
           <i className="pi pi-arrow-left text-xs" />
           Back to Insights

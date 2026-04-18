@@ -30,9 +30,9 @@ const PLATFORM_OPTIONS = [
 
 const PLATFORM_COLORS: Record<string, string> = {
   [SocialPlatform.X]: 'bg-elevated text-text-primary border-glass-border',
-  [SocialPlatform.INSTAGRAM]: 'bg-accent-rose/10 text-accent-rose border-accent-rose/30',
-  [SocialPlatform.FACEBOOK]: 'bg-accent-blue/10 text-accent-blue border-accent-blue/30',
-  [SocialPlatform.TIKTOK]: 'bg-accent-cyan/10 text-accent-cyan border-accent-cyan/30',
+  [SocialPlatform.INSTAGRAM]: 'bg-danger-600/10 text-danger-600 border-danger-600/30',
+  [SocialPlatform.FACEBOOK]: 'bg-blue-600/10 text-blue-600 border-blue-600/30',
+  [SocialPlatform.TIKTOK]: 'bg-pink-600/10 text-pink-600 border-pink-600/30',
 };
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -44,15 +44,15 @@ const PLATFORM_LABELS: Record<string, string> = {
 
 const STATUS_CONFIG: Record<string, { className: string; label: string }> = {
   [BountyInvitationStatus.PENDING]: {
-    className: 'bg-accent-amber/10 text-accent-amber border-accent-amber/30',
+    className: 'bg-warning-600/10 text-warning-600 border-warning-600/30',
     label: 'Pending',
   },
   [BountyInvitationStatus.ACCEPTED]: {
-    className: 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/30',
+    className: 'bg-success-600/10 text-success-600 border-success-600/30',
     label: 'Accepted',
   },
   [BountyInvitationStatus.DECLINED]: {
-    className: 'bg-accent-rose/10 text-accent-rose border-accent-rose/30',
+    className: 'bg-danger-600/10 text-danger-600 border-danger-600/30',
     label: 'Declined',
   },
   [BountyInvitationStatus.EXPIRED]: {

@@ -56,7 +56,7 @@ export default function CreateBrandPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label htmlFor="name" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-              Brand Name <span className="text-accent-rose">*</span>
+              Brand Name <span className="text-danger-600">*</span>
             </label>
             <InputText
               id="name"
@@ -69,7 +69,7 @@ export default function CreateBrandPage() {
           </div>
           <div>
             <label htmlFor="contactEmail" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-              Contact Email <span className="text-accent-rose">*</span>
+              Contact Email <span className="text-danger-600">*</span>
             </label>
             <InputText
               id="contactEmail"

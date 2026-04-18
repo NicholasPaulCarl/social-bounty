@@ -28,17 +28,17 @@ const PAYOUT_METHOD_CONFIG: Record<string, { label: string; icon: string; colorC
   [PayoutMethod.PAYPAL]: {
     label: 'PayPal',
     icon: 'pi-paypal',
-    colorClass: 'bg-accent-blue/15 text-accent-blue border-accent-blue/30',
+    colorClass: 'bg-blue-600/15 text-blue-600 border-blue-600/30',
   },
   [PayoutMethod.BANK_TRANSFER]: {
     label: 'Bank Transfer',
     icon: 'pi-building',
-    colorClass: 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan/30',
+    colorClass: 'bg-pink-600/15 text-pink-600 border-pink-600/30',
   },
   [PayoutMethod.E_WALLET]: {
     label: 'E-Wallet',
     icon: 'pi-wallet',
-    colorClass: 'bg-accent-violet/15 text-accent-violet border-accent-violet/30',
+    colorClass: 'bg-blue-600/15 text-blue-600 border-blue-600/30',
   },
 };
 
@@ -56,9 +56,9 @@ const FORMAT_LABELS: Record<string, string> = {
 };
 
 const CHANNEL_COLORS: Record<string, string> = {
-  INSTAGRAM: 'bg-accent-rose/15 text-accent-rose border-accent-rose/30',
-  FACEBOOK: 'bg-accent-blue/15 text-accent-blue border-accent-blue/30',
-  TIKTOK: 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan/30',
+  INSTAGRAM: 'bg-danger-600/15 text-danger-600 border-danger-600/30',
+  FACEBOOK: 'bg-blue-600/15 text-blue-600 border-blue-600/30',
+  TIKTOK: 'bg-pink-600/15 text-pink-600 border-pink-600/30',
 };
 
 export default function BountyDetailPage() {
@@ -210,10 +210,10 @@ export default function BountyDetailPage() {
 
       {/* Pending invitation banner */}
       {isParticipant && myInvitation?.status === BountyInvitationStatus.PENDING && (
-        <div className="glass-card border border-accent-amber/40 bg-accent-amber/5 p-4 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="glass-card border border-warning-600/40 bg-warning-600/5 p-4 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-accent-amber/20 flex items-center justify-center flex-shrink-0">
-              <i className="pi pi-envelope text-accent-amber text-sm" />
+            <div className="w-8 h-8 rounded-full bg-warning-600/20 flex items-center justify-center flex-shrink-0">
+              <i className="pi pi-envelope text-warning-600 text-sm" />
             </div>
             <div>
               <p className="text-sm font-semibold text-text-primary">You&apos;re Invited!</p>
@@ -247,9 +247,9 @@ export default function BountyDetailPage() {
       {isParticipant && isClosed && !myInvitation && isLive && (
         <>
           {!appLoading && myApplication?.status === BountyApplicationStatus.PENDING && (
-            <div className="glass-card border border-accent-amber/40 bg-accent-amber/5 p-4 mb-4 flex items-center justify-between gap-4">
+            <div className="glass-card border border-warning-600/40 bg-warning-600/5 p-4 mb-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <i className="pi pi-clock text-accent-amber" />
+                <i className="pi pi-clock text-warning-600" />
                 <div>
                   <p className="text-sm font-semibold text-text-primary">Application Pending</p>
                   <p className="text-xs text-text-secondary mt-0.5">
@@ -270,8 +270,8 @@ export default function BountyDetailPage() {
           )}
 
           {!appLoading && myApplication?.status === BountyApplicationStatus.REJECTED && (
-            <div className="glass-card border border-accent-rose/40 bg-accent-rose/5 p-4 mb-4 flex items-center gap-3">
-              <i className="pi pi-times-circle text-accent-rose" />
+            <div className="glass-card border border-danger-600/40 bg-danger-600/5 p-4 mb-4 flex items-center gap-3">
+              <i className="pi pi-times-circle text-danger-600" />
               <div>
                 <p className="text-sm font-semibold text-text-primary">Application Not Approved</p>
                 {myApplication.reviewNote && (
@@ -295,8 +295,8 @@ export default function BountyDetailPage() {
               <span
                 className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
                   isPublic
-                    ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/30'
-                    : 'bg-accent-amber/10 text-accent-amber border-accent-amber/30'
+                    ? 'bg-success-600/10 text-success-600 border-success-600/30'
+                    : 'bg-warning-600/10 text-warning-600 border-warning-600/30'
                 }`}
               >
                 <i className={`pi ${isPublic ? 'pi-globe' : 'pi-lock'} text-[10px]`} />
@@ -319,7 +319,7 @@ export default function BountyDetailPage() {
                 <ul className="space-y-2">
                   {bounty.proofRequirements.split(',').map((req) => (
                     <li key={req} className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-accent-cyan flex-shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-pink-600 flex-shrink-0" />
                       {req === 'url' ? 'Submit a URL link' : req === 'screenshot' ? 'Submit a screenshot' : req}
                     </li>
                   ))}
@@ -345,7 +345,7 @@ export default function BountyDetailPage() {
               <div className="space-y-4">
                 {channelKeys.map((ch) => (
                   <div key={ch} className="flex items-center gap-3">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${CHANNEL_COLORS[ch] || 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan/30'}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${CHANNEL_COLORS[ch] || 'bg-pink-600/15 text-pink-600 border-pink-600/30'}`}>
                       {CHANNEL_LABELS[ch] || ch}
                     </span>
                     <div className="flex gap-2">
@@ -415,7 +415,7 @@ export default function BountyDetailPage() {
                   {bounty.totalRewardValue && (
                     <div className="pt-3 border-t border-glass-border flex justify-between items-center">
                       <span className="text-sm font-semibold text-text-secondary">Total</span>
-                      <span className="text-xl font-heading font-bold text-accent-emerald">
+                      <span className="text-xl font-heading font-bold text-success-600">
                         {formatCurrency(bounty.totalRewardValue, bounty.currency)}
                       </span>
                     </div>
@@ -426,7 +426,7 @@ export default function BountyDetailPage() {
                   {bounty.rewardValue && (
                     <div>
                       <p className="text-sm text-text-muted mb-1">Value</p>
-                      <p className="text-2xl font-heading font-bold text-accent-emerald">{formatCurrency(bounty.rewardValue, bounty.currency)}</p>
+                      <p className="text-2xl font-heading font-bold text-success-600">{formatCurrency(bounty.rewardValue, bounty.currency)}</p>
                     </div>
                   )}
                   <div>
@@ -474,7 +474,7 @@ export default function BountyDetailPage() {
                 <div>
                   <p className="text-sm text-text-muted mb-0.5">End Date</p>
                   <p className="font-medium text-text-primary">{formatDate(bounty.endDate)}</p>
-                  <p className="text-xs text-accent-amber mt-0.5">{timeRemaining(bounty.endDate)}</p>
+                  <p className="text-xs text-warning-600 mt-0.5">{timeRemaining(bounty.endDate)}</p>
                 </div>
               )}
               {bounty.maxSubmissions && (
@@ -501,19 +501,19 @@ export default function BountyDetailPage() {
               <div className="space-y-3 text-sm text-text-secondary">
                 {bounty.engagementRequirements.tagAccount && (
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-violet flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 flex-shrink-0" />
                     <p>Tag <span className="font-medium text-text-primary">{bounty.engagementRequirements.tagAccount}</span></p>
                   </div>
                 )}
                 {bounty.engagementRequirements.mention && (
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-violet flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 flex-shrink-0" />
                     <p>Mention the brand in your post</p>
                   </div>
                 )}
                 {bounty.engagementRequirements.comment && (
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-violet flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 flex-shrink-0" />
                     <p>Leave a comment on the post</p>
                   </div>
                 )}

@@ -101,7 +101,7 @@ export function PayoutActionBar({ currentPayoutStatus, onAction, loading = false
               }}
             />
             {proofFiles.length > 0 && (
-              <p className="text-xs text-accent-cyan mt-1">
+              <p className="text-xs text-pink-600 mt-1">
                 {proofFiles.length} file{proofFiles.length > 1 ? 's' : ''} ready to attach
               </p>
             )}

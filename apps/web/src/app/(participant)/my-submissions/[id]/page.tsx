@@ -81,7 +81,7 @@ export default function SubmissionDetailPage() {
                         href={link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-accent-cyan hover:text-accent-cyan/80 text-sm"
+                        className="text-pink-600 hover:text-pink-600/80 text-sm"
                       >
                         {link}
                       </a>

@@ -27,7 +27,7 @@ export function LibrarySidebar({ activeSection }: LibrarySidebarProps) {
               href={`#${section.id}`}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive
-                  ? 'text-accent-cyan bg-accent-cyan/10'
+                  ? 'text-pink-600 bg-pink-600/10'
                   : 'text-text-muted hover:text-text-primary hover:bg-slate-100'
               }`}
             >

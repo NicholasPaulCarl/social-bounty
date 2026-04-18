@@ -50,7 +50,7 @@ function InstructionStepsBuilder({
     <div>
       <div className="flex items-center justify-between mb-2">
         <label className="block text-text-muted text-xs uppercase tracking-wider font-medium">
-          Instructions <span className="text-accent-rose">*</span>
+          Instructions <span className="text-danger-600">*</span>
         </label>
         {hasContent && !isLocked && (
           <Button
@@ -65,7 +65,7 @@ function InstructionStepsBuilder({
       <p className="text-xs text-text-muted mb-3">Add step-by-step instructions for your hunters.</p>
 
       {submitAttempted && errors.fullInstructions && (
-        <small className="text-xs text-accent-rose mb-2 flex items-center gap-1">
+        <small className="text-xs text-danger-600 mb-2 flex items-center gap-1">
           <i className="pi pi-exclamation-circle text-xs" />
           {errors.fullInstructions}
         </small>
@@ -77,7 +77,7 @@ function InstructionStepsBuilder({
             {steps.map((step, index) => (
               <div key={index} className="flex items-start gap-2">
                 <div className="w-7 h-9 flex items-center justify-center shrink-0">
-                  <span className="w-6 h-6 rounded-full bg-accent-cyan/10 text-accent-cyan text-xs font-bold flex items-center justify-center">
+                  <span className="w-6 h-6 rounded-full bg-pink-600/10 text-pink-600 text-xs font-bold flex items-center justify-center">
                     {index + 1}
                   </span>
                 </div>
@@ -123,7 +123,7 @@ function InstructionStepsBuilder({
         <div className="space-y-2 rounded-lg border border-glass-border p-4 bg-bg-abyss">
           {steps.filter((s) => s.trim()).map((step, index) => (
             <div key={index} className="flex items-start gap-2">
-              <span className="w-6 h-6 rounded-full bg-accent-cyan/10 text-accent-cyan text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-pink-600/10 text-pink-600 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
                 {index + 1}
               </span>
               <p className="text-sm text-text-primary">{step}</p>
@@ -216,7 +216,7 @@ export function CreateBountyForm({
 
             <div>
               <label htmlFor="title" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                Title <span className="text-accent-rose">*</span>
+                Title <span className="text-danger-600">*</span>
               </label>
               <InputText
                 id="title"
@@ -232,7 +232,7 @@ export function CreateBountyForm({
                 {state.title.length}/{FIELD_LIMITS.BOUNTY_TITLE_MAX}
               </small>
               {state.errors.title && (
-                <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
                   <i className="pi pi-exclamation-circle text-xs" />
                   {state.errors.title}
                 </small>
@@ -241,7 +241,7 @@ export function CreateBountyForm({
 
             <div>
               <label htmlFor="shortDescription" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                Campaign or Brand Description <span className="text-accent-rose">*</span>
+                Campaign or Brand Description <span className="text-danger-600">*</span>
               </label>
               <InputTextarea
                 id="shortDescription"
@@ -258,7 +258,7 @@ export function CreateBountyForm({
                 {state.shortDescription.length}/{FIELD_LIMITS.SHORT_DESCRIPTION_MAX}
               </small>
               {state.submitAttempted && state.errors.shortDescription && (
-                <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
                   <i className="pi pi-exclamation-circle text-xs" />
                   {state.errors.shortDescription}
                 </small>
@@ -268,7 +268,7 @@ export function CreateBountyForm({
             {/* Content Format Selector */}
             <div>
               <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-2">
-                Accepted Formats <span className="text-accent-rose">*</span>
+                Accepted Formats <span className="text-danger-600">*</span>
               </label>
               {(() => {
                 const tiktokSelected = SocialChannel.TIKTOK in state.channels;
@@ -294,8 +294,8 @@ export function CreateBountyForm({
                             disabled
                               ? 'border-glass-border bg-surface/40 opacity-50 cursor-not-allowed'
                               : selected
-                                ? 'border-2 border-accent-cyan bg-accent-cyan/10 cursor-pointer'
-                                : 'border-glass-border bg-surface hover:border-accent-cyan cursor-pointer'
+                                ? 'border-2 border-pink-600 bg-pink-600/10 cursor-pointer'
+                                : 'border-glass-border bg-surface hover:border-pink-600 cursor-pointer'
                           }`}
                           onClick={() => {
                             if (disabled) return;
@@ -316,8 +316,8 @@ export function CreateBountyForm({
                               className="absolute top-1.5 right-1.5 text-[10px] py-0 px-1.5"
                             />
                           )}
-                          <i className={`pi ${icon} text-2xl ${selected ? 'text-accent-cyan' : 'text-text-muted'} mb-2`} />
-                          <p className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>{label}</p>
+                          <i className={`pi ${icon} text-2xl ${selected ? 'text-pink-600' : 'text-text-muted'} mb-2`} />
+                          <p className={`text-sm font-medium ${selected ? 'text-pink-600' : 'text-text-primary'}`}>{label}</p>
                           <p className="text-xs text-text-muted mt-0.5">{desc}</p>
                         </div>
                       );
@@ -373,8 +373,8 @@ export function CreateBountyForm({
             />
 
             {/* Post link requirement notice */}
-            <div className="flex items-start gap-3 p-4 rounded-lg border border-accent-cyan/30 bg-accent-cyan/5">
-              <i className="pi pi-info-circle text-accent-cyan mt-0.5" />
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-pink-600/30 bg-pink-600/5">
+              <i className="pi pi-info-circle text-pink-600 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-text-primary">Post links are required for all submissions</p>
                 <p className="text-xs text-text-muted mt-0.5">

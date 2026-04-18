@@ -22,7 +22,7 @@ export function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center py-10 sm:py-16 px-4">
       <div className="relative">
-        <div className="absolute inset-0 bg-accent-cyan/10 blur-2xl rounded-full" />
+        <div className="absolute inset-0 bg-pink-600/10 blur-2xl rounded-full" />
         <i
           className={`pi ${icon} text-text-muted relative text-[2rem] sm:text-[3rem]`}
         />

@@ -40,9 +40,9 @@ import type {
 import { DISPUTE_CATEGORY_COLORS } from '@/lib/constants/disputes';
 
 const categoryColors: Record<string, string> = {
-  NON_PAYMENT: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30',
-  POST_QUALITY: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30',
-  POST_NON_COMPLIANCE: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30',
+  NON_PAYMENT: 'bg-danger-600/10 text-danger-600 border border-danger-600/30',
+  POST_QUALITY: 'bg-warning-600/10 text-warning-600 border border-warning-600/30',
+  POST_NON_COMPLIANCE: 'bg-blue-600/10 text-blue-600 border border-blue-600/30',
 };
 
 const transitionableStatuses = [
@@ -79,20 +79,20 @@ function MessageBubble({ message, isAdmin }: { message: DisputeMessageResponse; 
     <div className={`space-y-1 ${isInternal ? 'opacity-90' : ''}`}>
       {isInternal && (
         <div className="flex items-center gap-1.5 ml-11">
-          <i className="pi pi-lock text-accent-amber text-xs" />
-          <span className="text-xs text-accent-amber font-medium">Internal — not visible to parties</span>
+          <i className="pi pi-lock text-warning-600 text-xs" />
+          <span className="text-xs text-warning-600 font-medium">Internal — not visible to parties</span>
         </div>
       )}
       <div className={`flex gap-3 ${isSelf ? 'flex-row-reverse' : 'flex-row'}`}>
         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border ${
           isInternal
-            ? 'bg-accent-amber/10 border-accent-amber/30'
+            ? 'bg-warning-600/10 border-warning-600/30'
             : isSelf
-            ? 'bg-accent-cyan/10 border-accent-cyan/30'
-            : 'bg-accent-violet/10 border-accent-violet/30'
+            ? 'bg-pink-600/10 border-pink-600/30'
+            : 'bg-blue-600/10 border-blue-600/30'
         }`}>
           <i className={`pi pi-user text-xs ${
-            isInternal ? 'text-accent-amber' : isSelf ? 'text-accent-cyan' : 'text-accent-violet'
+            isInternal ? 'text-warning-600' : isSelf ? 'text-pink-600' : 'text-blue-600'
           }`} />
         </div>
         <div className={`flex-1 max-w-[90%] sm:max-w-[80%] ${isSelf ? 'items-end flex flex-col' : ''}`}>
@@ -102,8 +102,8 @@ function MessageBubble({ message, isAdmin }: { message: DisputeMessageResponse; 
           </div>
           <div className={`p-3 rounded-xl border ${
             isInternal
-              ? 'bg-accent-amber/5 border-accent-amber/20'
-              : 'glass-card border-l-2 border-accent-violet/30'
+              ? 'bg-warning-600/5 border-warning-600/20'
+              : 'glass-card border-l-2 border-blue-600/30'
           }`}>
             <p className="text-sm text-text-secondary whitespace-pre-wrap">{message.content}</p>
           </div>
@@ -118,8 +118,8 @@ function EvidenceCard({ evidence }: { evidence: DisputeEvidenceResponse }) {
   const isImage = evidence.mimeType?.startsWith('image/');
   return (
     <div className="glass-card p-4 flex items-start gap-3">
-      <div className="w-10 h-10 rounded-lg bg-accent-cyan/10 border border-accent-cyan/20 flex items-center justify-center flex-shrink-0">
-        <i className={`pi ${isLink ? 'pi-link' : isImage ? 'pi-image' : 'pi-file'} text-accent-cyan`} />
+      <div className="w-10 h-10 rounded-lg bg-pink-600/10 border border-pink-600/20 flex items-center justify-center flex-shrink-0">
+        <i className={`pi ${isLink ? 'pi-link' : isImage ? 'pi-image' : 'pi-file'} text-pink-600`} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-text-primary truncate">
@@ -132,7 +132,7 @@ function EvidenceCard({ evidence }: { evidence: DisputeEvidenceResponse }) {
       </div>
       {(evidence.fileUrl || evidence.url) && (
         <a href={evidence.fileUrl || evidence.url || '#'} target="_blank" rel="noopener noreferrer"
-          className="text-accent-cyan hover:text-accent-cyan/70 transition-colors flex-shrink-0">
+          className="text-pink-600 hover:text-pink-600/70 transition-colors flex-shrink-0">
           <i className="pi pi-external-link text-sm" />
         </a>
       )}
@@ -147,7 +147,7 @@ function StatusTimeline({ history }: { history: DisputeStatusHistoryResponse[] }
         <div key={entry.id} className="flex gap-3">
           <div className="flex flex-col items-center">
             <div className={`w-3 h-3 rounded-full flex-shrink-0 mt-1 ${
-              i === 0 ? 'bg-accent-cyan' : 'bg-glass-border'
+              i === 0 ? 'bg-pink-600' : 'bg-glass-border'
             }`} />
             {i < history.length - 1 && <div className="w-px flex-1 bg-glass-border mt-1" />}
           </div>
@@ -357,7 +357,7 @@ export default function AdminDisputeDetailPage() {
                     checked={isInternalNote}
                     onChange={(e) => setIsInternalNote(e.checked ?? false)}
                   />
-                  <label htmlFor="internal-note" className="text-sm text-accent-amber cursor-pointer">
+                  <label htmlFor="internal-note" className="text-sm text-warning-600 cursor-pointer">
                     Internal Note (admin only)
                   </label>
                 </div>
@@ -367,7 +367,7 @@ export default function AdminDisputeDetailPage() {
                 onChange={(e) => setMessageText(e.target.value)}
                 rows={3}
                 placeholder={isInternalNote ? 'Internal note (not visible to parties)...' : 'Type a message...'}
-                className={`w-full ${isInternalNote ? 'border-accent-amber/40' : ''}`}
+                className={`w-full ${isInternalNote ? 'border-warning-600/40' : ''}`}
                 aria-label="Type your response"
               />
               <div className="flex justify-end">
@@ -433,8 +433,8 @@ export default function AdminDisputeDetailPage() {
           <div className="glass-card p-5">
             <h3 className="text-base font-heading font-semibold text-text-primary mb-3">Assign Admin</h3>
             {d.assignedTo ? (
-              <div className="flex items-center gap-2 p-2 rounded-lg bg-accent-violet/5 border border-accent-violet/20 mb-3">
-                <i className="pi pi-user text-accent-violet text-sm" />
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-blue-600/5 border border-blue-600/20 mb-3">
+                <i className="pi pi-user text-blue-600 text-sm" />
                 <span className="text-sm text-text-secondary">
                   {d.assignedTo.firstName} {d.assignedTo.lastName}
                 </span>

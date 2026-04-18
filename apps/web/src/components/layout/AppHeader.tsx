@@ -29,7 +29,7 @@ export function AppHeader({ onMenuToggle }: AppHeaderProps) {
       >
         <i className="pi pi-bell text-lg" />
         {count > 0 && (
-          <span className="absolute top-1.5 right-1.5 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-accent-rose text-white text-[10px] font-bold leading-none px-1">
+          <span className="absolute top-1.5 right-1.5 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-danger-600 text-white text-[10px] font-bold leading-none px-1">
             {count > 99 ? '99+' : count}
           </span>
         )}

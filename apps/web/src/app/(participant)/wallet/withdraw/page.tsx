@@ -87,16 +87,16 @@ export default function WithdrawPage() {
       <div className="max-w-xl animate-fade-up">
         <div className="glass-card p-6">
           {/* Available balance hint */}
-          <div className="flex items-center justify-between p-4 rounded-lg bg-accent-emerald/5 border border-accent-emerald/20 mb-6">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-success-600/5 border border-success-600/20 mb-6">
             <span className="text-sm text-text-muted">Available to withdraw</span>
-            <span className="text-lg font-bold text-accent-emerald">{formatCurrency(available, currency)}</span>
+            <span className="text-lg font-bold text-success-600">{formatCurrency(available, currency)}</span>
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
             {/* Amount */}
             <div className="space-y-1.5">
               <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                Amount <span className="text-accent-rose">*</span>
+                Amount <span className="text-danger-600">*</span>
               </label>
               <InputNumber
                 value={amount}
@@ -118,7 +118,7 @@ export default function WithdrawPage() {
             {/* Method */}
             <div className="space-y-1.5">
               <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                Withdrawal Method <span className="text-accent-rose">*</span>
+                Withdrawal Method <span className="text-danger-600">*</span>
               </label>
               <Dropdown
                 value={method}
@@ -134,7 +134,7 @@ export default function WithdrawPage() {
             {method === PayoutMethod.PAYPAL && (
               <div className="space-y-1.5">
                 <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                  PayPal Email <span className="text-accent-rose">*</span>
+                  PayPal Email <span className="text-danger-600">*</span>
                 </label>
                 <InputText
                   value={destination.email ?? ''}
@@ -153,7 +153,7 @@ export default function WithdrawPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                      Bank Name <span className="text-accent-rose">*</span>
+                      Bank Name <span className="text-danger-600">*</span>
                     </label>
                     <InputText
                       value={destination.bankName ?? ''}
@@ -165,7 +165,7 @@ export default function WithdrawPage() {
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                      Branch Code <span className="text-accent-rose">*</span>
+                      Branch Code <span className="text-danger-600">*</span>
                     </label>
                     <InputText
                       value={destination.branchCode ?? ''}
@@ -177,7 +177,7 @@ export default function WithdrawPage() {
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                      Account Number <span className="text-accent-rose">*</span>
+                      Account Number <span className="text-danger-600">*</span>
                     </label>
                     <InputText
                       value={destination.accountNumber ?? ''}
@@ -189,7 +189,7 @@ export default function WithdrawPage() {
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                      Account Holder Name <span className="text-accent-rose">*</span>
+                      Account Holder Name <span className="text-danger-600">*</span>
                     </label>
                     <InputText
                       value={destination.holderName ?? ''}
@@ -206,7 +206,7 @@ export default function WithdrawPage() {
             {method === PayoutMethod.E_WALLET && (
               <div className="space-y-1.5">
                 <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                  Wallet ID / Phone Number <span className="text-accent-rose">*</span>
+                  Wallet ID / Phone Number <span className="text-danger-600">*</span>
                 </label>
                 <InputText
                   value={destination.walletId ?? ''}
@@ -219,7 +219,7 @@ export default function WithdrawPage() {
             )}
 
             {formError && (
-              <div className="p-3 rounded-lg bg-accent-rose/10 border border-accent-rose/30 text-accent-rose text-sm">
+              <div className="p-3 rounded-lg bg-danger-600/10 border border-danger-600/30 text-danger-600 text-sm">
                 <i className="pi pi-exclamation-triangle mr-2" />
                 {formError}
               </div>

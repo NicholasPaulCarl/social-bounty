@@ -153,11 +153,11 @@ export default function BusinessProfilePage() {
               <div className="flex items-center gap-2">
                 <InputText id="email" value={profile.email || ''} disabled className="w-full" />
                 {profile.emailVerified ? (
-                  <span className="text-accent-emerald text-xs flex items-center gap-1 whitespace-nowrap">
+                  <span className="text-success-600 text-xs flex items-center gap-1 whitespace-nowrap">
                     <i className="pi pi-check-circle text-xs" /> Verified
                   </span>
                 ) : (
-                  <span className="text-accent-amber text-xs flex items-center gap-1 whitespace-nowrap">
+                  <span className="text-warning-600 text-xs flex items-center gap-1 whitespace-nowrap">
                     <i className="pi pi-exclamation-circle text-xs" /> Unverified
                   </span>
                 )}
@@ -194,7 +194,7 @@ export default function BusinessProfilePage() {
               Authentication Method
             </p>
             <p className="text-text-primary text-sm font-medium flex items-center gap-2">
-              <i className="pi pi-lock text-accent-emerald text-xs" />
+              <i className="pi pi-lock text-success-600 text-xs" />
               Email OTP (one-time passcode)
             </p>
           </div>

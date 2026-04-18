@@ -134,8 +134,8 @@ function UrlScrapeCard({
   const checks: VerificationCheck[] = scrape.verificationChecks ?? [];
 
   const badgeClass = isVerified
-    ? 'bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30'
-    : 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30';
+    ? 'bg-success-600/10 text-success-600 border border-success-600/30'
+    : 'bg-danger-600/10 text-danger-600 border border-danger-600/30';
 
   const badgeIcon = isVerified ? 'pi pi-check-circle' : 'pi pi-times-circle';
 
@@ -153,7 +153,7 @@ function UrlScrapeCard({
             href={scrape.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-accent-cyan hover:underline text-xs break-all"
+            className="text-pink-600 hover:underline text-xs break-all"
             title={scrape.url}
           >
             {truncateUrl(scrape.url)}
@@ -170,7 +170,7 @@ function UrlScrapeCard({
       </div>
 
       {isFailed && scrape.errorMessage && (
-        <div className="bg-accent-rose/10 border border-accent-rose/30 text-accent-rose text-xs px-3 py-2 rounded-lg">
+        <div className="bg-danger-600/10 border border-danger-600/30 text-danger-600 text-xs px-3 py-2 rounded-lg">
           <i className="pi pi-exclamation-circle mr-1.5" />
           {scrape.errorMessage}
         </div>
@@ -192,7 +192,7 @@ function UrlScrapeCard({
               className="flex items-start gap-2 text-xs"
             >
               <i
-                className={`mt-0.5 ${check.pass ? 'pi pi-check-circle text-accent-emerald' : 'pi pi-times-circle text-accent-rose'}`}
+                className={`mt-0.5 ${check.pass ? 'pi pi-check-circle text-success-600' : 'pi pi-times-circle text-danger-600'}`}
                 aria-hidden="true"
               />
               <div className="flex-1 min-w-0">
@@ -221,7 +221,7 @@ function PreviewRuleRow({ check }: { check: VerificationCheck }) {
   return (
     <li className="flex items-start gap-2 text-xs">
       <i
-        className="mt-0.5 pi pi-shield text-accent-cyan"
+        className="mt-0.5 pi pi-shield text-pink-600"
         aria-hidden="true"
       />
       <div className="flex-1 min-w-0">
@@ -231,7 +231,7 @@ function PreviewRuleRow({ check }: { check: VerificationCheck }) {
         <div className="text-text-muted">
           Required: <span className="text-text-secondary">{formatRuleValue(check.required)}</span>
           <span className="mx-1.5">·</span>
-          <span className="text-accent-cyan/80">will be auto-verified</span>
+          <span className="text-pink-600/80">will be auto-verified</span>
         </div>
       </div>
     </li>
@@ -385,7 +385,7 @@ export function VerificationReportPanel(props: VerificationReportPanelProps) {
 
       {inFlight ? (
         <div className="flex flex-col items-center justify-center py-10 text-center">
-          <i className="pi pi-spinner pi-spin text-3xl text-accent-cyan mb-3" aria-hidden="true" />
+          <i className="pi pi-spinner pi-spin text-3xl text-pink-600 mb-3" aria-hidden="true" />
           <p className="text-text-primary font-medium">Verifying social posts...</p>
           <p className="text-text-muted text-sm mt-1">
             Check back in ~30s — Apify is scraping each URL.

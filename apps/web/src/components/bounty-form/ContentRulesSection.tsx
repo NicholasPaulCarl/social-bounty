@@ -50,7 +50,7 @@ export function ContentRulesSection({
               placeholder="@brandhandle"
             />
             {errors.tagAccount && (
-              <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+              <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
                 <i className="pi pi-exclamation-circle text-xs" />
                 {errors.tagAccount}
               </small>

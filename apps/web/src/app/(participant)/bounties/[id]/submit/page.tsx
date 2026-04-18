@@ -282,7 +282,7 @@ export default function SubmitProofPage() {
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-sm font-medium text-text-primary mb-1">
-                      Post Links <span className="text-accent-rose">*</span>
+                      Post Links <span className="text-danger-600">*</span>
                     </h3>
                     <p className="text-xs text-text-muted">
                       Paste one URL per required format. Each link is verified automatically.
@@ -301,9 +301,9 @@ export default function SubmitProofPage() {
                           htmlFor={`link-${key}`}
                           className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
                         >
-                          {labelText} <span className="text-accent-rose">*</span>
+                          {labelText} <span className="text-danger-600">*</span>
                           {isVerified && (
-                            <span className="ml-2 inline-flex items-center gap-1 text-accent-emerald normal-case tracking-normal text-xs font-normal">
+                            <span className="ml-2 inline-flex items-center gap-1 text-success-600 normal-case tracking-normal text-xs font-normal">
                               <i className="pi pi-check-circle text-xs" />
                               Already verified
                             </span>
@@ -311,7 +311,7 @@ export default function SubmitProofPage() {
                         </label>
 
                         {isFailed && scrape?.errorMessage && (
-                          <p className="text-xs text-accent-rose mb-1.5 flex items-start gap-1">
+                          <p className="text-xs text-danger-600 mb-1.5 flex items-start gap-1">
                             <i className="pi pi-exclamation-circle text-xs mt-0.5" />
                             <span>Last attempt failed: {scrape.errorMessage}</span>
                           </p>
@@ -334,7 +334,7 @@ export default function SubmitProofPage() {
                         )}
 
                         {linkErrors[key] && (
-                          <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+                          <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
                             <i className="pi pi-exclamation-circle text-xs" />
                             {linkErrors[key]}
                           </small>
@@ -347,7 +347,7 @@ export default function SubmitProofPage() {
 
               <div>
                 <label htmlFor="proofText" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                  Notes <span className="text-accent-rose">*</span>
+                  Notes <span className="text-danger-600">*</span>
                 </label>
                 <InputTextarea
                   id="proofText"

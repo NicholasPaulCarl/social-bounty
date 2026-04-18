@@ -29,11 +29,11 @@ const SORT_OPTIONS = [
 ];
 
 const TYPE_CONFIG: Record<WalletTxType, { label: string; className: string }> = {
-  [WalletTxType.CREDIT]: { label: 'Credit', className: 'bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30' },
-  [WalletTxType.DEBIT]: { label: 'Debit', className: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30' },
-  [WalletTxType.HOLD]: { label: 'Hold', className: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30' },
-  [WalletTxType.RELEASE]: { label: 'Release', className: 'bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/30' },
-  [WalletTxType.CORRECTION]: { label: 'Correction', className: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30' },
+  [WalletTxType.CREDIT]: { label: 'Credit', className: 'bg-success-600/10 text-success-600 border border-success-600/30' },
+  [WalletTxType.DEBIT]: { label: 'Debit', className: 'bg-danger-600/10 text-danger-600 border border-danger-600/30' },
+  [WalletTxType.HOLD]: { label: 'Hold', className: 'bg-warning-600/10 text-warning-600 border border-warning-600/30' },
+  [WalletTxType.RELEASE]: { label: 'Release', className: 'bg-pink-600/10 text-pink-600 border border-pink-600/30' },
+  [WalletTxType.CORRECTION]: { label: 'Correction', className: 'bg-blue-600/10 text-blue-600 border border-blue-600/30' },
 };
 
 export default function TransactionsPage() {
@@ -59,7 +59,7 @@ export default function TransactionsPage() {
   const amountTemplate = (row: WalletTransactionListItem) => {
     const isCredit = row.type === WalletTxType.CREDIT || row.type === WalletTxType.RELEASE;
     return (
-      <span className={`font-semibold text-sm ${isCredit ? 'text-accent-emerald' : 'text-accent-rose'}`}>
+      <span className={`font-semibold text-sm ${isCredit ? 'text-success-600' : 'text-danger-600'}`}>
         {isCredit ? '+' : '-'}{formatCurrency(row.amount, currency)}
       </span>
     );

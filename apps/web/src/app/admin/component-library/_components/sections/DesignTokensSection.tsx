@@ -23,12 +23,12 @@ const COLOR_GROUPS = [
   {
     label: 'Accents',
     colors: [
-      { name: 'Primary (Pink)', hex: '#db2777', className: 'bg-accent-cyan' },
-      { name: 'Secondary (Blue)', hex: '#2563eb', className: 'bg-accent-violet' },
-      { name: 'Amber', hex: '#d97706', className: 'bg-accent-amber' },
-      { name: 'Emerald', hex: '#059669', className: 'bg-accent-emerald' },
-      { name: 'Rose', hex: '#e11d48', className: 'bg-accent-rose' },
-      { name: 'Blue', hex: '#2563eb', className: 'bg-accent-blue' },
+      { name: 'Primary (Pink)', hex: '#db2777', className: 'bg-pink-600' },
+      { name: 'Secondary (Blue)', hex: '#2563eb', className: 'bg-blue-600' },
+      { name: 'Amber', hex: '#d97706', className: 'bg-warning-600' },
+      { name: 'Emerald', hex: '#059669', className: 'bg-success-600' },
+      { name: 'Rose', hex: '#e11d48', className: 'bg-danger-600' },
+      { name: 'Blue', hex: '#2563eb', className: 'bg-blue-600' },
     ],
   },
   {
@@ -121,7 +121,7 @@ export default function DesignTokensSection() {
       <div>
         <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Shadows</h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {['shadow-level-1', 'shadow-level-2', 'shadow-level-3', 'shadow-level-4', 'shadow-glow-cyan'].map(
+          {['shadow-level-1', 'shadow-level-2', 'shadow-level-3', 'shadow-level-4', 'shadow-glow-brand'].map(
             (cls) => (
               <div key={cls} className={`${cls} bg-surface rounded-lg p-6 border border-glass-border`}>
                 <p className="text-xs text-text-muted font-mono">.{cls}</p>

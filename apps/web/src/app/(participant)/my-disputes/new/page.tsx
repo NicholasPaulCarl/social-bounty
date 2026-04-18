@@ -37,9 +37,9 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border transition-all duration-200 ${
               step < current
-                ? 'bg-accent-cyan border-accent-cyan text-background'
+                ? 'bg-pink-600 border-pink-600 text-background'
                 : step === current
-                  ? 'bg-accent-cyan/20 border-accent-cyan text-accent-cyan'
+                  ? 'bg-pink-600/20 border-pink-600 text-pink-600'
                   : 'bg-elevated border-glass-border text-text-muted'
             }`}
           >
@@ -48,7 +48,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
           {step < total && (
             <div
               className={`h-px w-8 transition-all duration-200 ${
-                step < current ? 'bg-accent-cyan' : 'bg-glass-border'
+                step < current ? 'bg-pink-600' : 'bg-glass-border'
               }`}
             />
           )}
@@ -212,9 +212,9 @@ export default function NewDisputePage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">Category</label>
-                <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-accent-violet/10 border border-accent-violet/20">
-                  <i className="pi pi-lock text-accent-violet text-sm" />
-                  <span className="text-sm font-medium text-accent-violet">Non-Payment</span>
+                <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-blue-600/10 border border-blue-600/20">
+                  <i className="pi pi-lock text-blue-600 text-sm" />
+                  <span className="text-sm font-medium text-blue-600">Non-Payment</span>
                   <span className="ml-auto text-xs text-text-muted">Auto-selected for participants</span>
                 </div>
               </div>
@@ -270,7 +270,7 @@ export default function NewDisputePage() {
                   maxLength={DISPUTE_LIMITS.DESCRIPTION_MAX}
                 />
                 <div className="flex justify-between mt-1">
-                  <p className={`text-xs ${descriptionValid ? 'text-accent-emerald' : 'text-text-muted'}`}>
+                  <p className={`text-xs ${descriptionValid ? 'text-success-600' : 'text-text-muted'}`}>
                     {descriptionValid ? (
                       <><i className="pi pi-check mr-1" />Minimum length met</>
                     ) : (
@@ -346,9 +346,9 @@ export default function NewDisputePage() {
                 <p className="text-sm text-text-secondary whitespace-pre-wrap">{desiredOutcome}</p>
               </div>
 
-              <div className="p-3 rounded-lg bg-accent-amber/10 border border-accent-amber/20 flex gap-2">
-                <i className="pi pi-info-circle text-accent-amber mt-0.5 shrink-0" />
-                <p className="text-xs text-accent-amber leading-relaxed">
+              <div className="p-3 rounded-lg bg-warning-600/10 border border-warning-600/20 flex gap-2">
+                <i className="pi pi-info-circle text-warning-600 mt-0.5 shrink-0" />
+                <p className="text-xs text-warning-600 leading-relaxed">
                   Once submitted, your dispute will be reviewed by our team. You will be notified of any updates.
                   Please ensure all information is accurate before submitting.
                 </p>
@@ -370,7 +370,7 @@ export default function NewDisputePage() {
               label="Next"
               icon="pi pi-arrow-right"
               iconPos="right"
-              className="bg-accent-cyan border-accent-cyan text-background hover:bg-accent-cyan/90"
+              className="bg-pink-600 border-pink-600 text-background hover:bg-pink-600/90"
               disabled={!canAdvance()}
               onClick={() => setStep(step + 1)}
             />
@@ -379,7 +379,7 @@ export default function NewDisputePage() {
               label="Submit Dispute"
               icon="pi pi-flag"
               iconPos="right"
-              className="bg-accent-cyan border-accent-cyan text-background hover:bg-accent-cyan/90"
+              className="bg-pink-600 border-pink-600 text-background hover:bg-pink-600/90"
               disabled={createDispute.isPending}
               loading={createDispute.isPending}
               onClick={handleSubmit}

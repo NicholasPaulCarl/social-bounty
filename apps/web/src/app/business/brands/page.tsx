@@ -63,7 +63,7 @@ export default function MyBrandsPage() {
               <div
                 key={brand.id}
                 className={`glass-card p-5 flex flex-col gap-4 animate-fade-up transition-all duration-normal ${
-                  isActive ? 'ring-2 ring-accent-cyan shadow-glow-cyan' : ''
+                  isActive ? 'ring-2 ring-pink-600 shadow-glow-brand' : ''
                 }`}
                 style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'both' }}
               >
@@ -78,7 +78,7 @@ export default function MyBrandsPage() {
                       />
                     </div>
                   ) : (
-                    <div className="w-12 h-12 rounded-lg shrink-0 bg-accent-cyan/10 border border-accent-cyan/30 flex items-center justify-center text-accent-cyan font-heading font-bold text-sm">
+                    <div className="w-12 h-12 rounded-lg shrink-0 bg-pink-600/10 border border-pink-600/30 flex items-center justify-center text-pink-600 font-heading font-bold text-sm">
                       {brand.name.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -86,7 +86,7 @@ export default function MyBrandsPage() {
                     <div className="flex items-center gap-2">
                       <p className="font-heading font-semibold text-text-primary truncate">{brand.name}</p>
                       {isActive && (
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-accent-cyan/20 text-accent-cyan font-medium">
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-pink-600/20 text-pink-600 font-medium">
                           Active
                         </span>
                       )}

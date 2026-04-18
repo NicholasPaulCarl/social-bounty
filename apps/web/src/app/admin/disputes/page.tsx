@@ -23,17 +23,17 @@ const statusOptions = DISPUTE_STATUS_OPTIONS.filter((o) => o.value !== 'DRAFT');
 const categoryOptions = DISPUTE_CATEGORY_OPTIONS;
 
 const categoryColors: Record<string, string> = {
-  NON_PAYMENT: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30',
-  POST_QUALITY: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30',
-  POST_NON_COMPLIANCE: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30',
+  NON_PAYMENT: 'bg-danger-600/10 text-danger-600 border border-danger-600/30',
+  POST_QUALITY: 'bg-warning-600/10 text-warning-600 border border-warning-600/30',
+  POST_NON_COMPLIANCE: 'bg-blue-600/10 text-blue-600 border border-blue-600/30',
 };
 
 const kpiConfig = [
-  { key: 'open', label: 'Total Open', icon: 'pi-flag', bg: 'bg-accent-blue/10', text: 'text-accent-blue' },
-  { key: 'underReview', label: 'Under Review', icon: 'pi-eye', bg: 'bg-accent-amber/10', text: 'text-accent-amber' },
-  { key: 'awaitingResponse', label: 'Awaiting Response', icon: 'pi-clock', bg: 'bg-accent-violet/10', text: 'text-accent-violet' },
-  { key: 'escalated', label: 'Escalated', icon: 'pi-exclamation-triangle', bg: 'bg-accent-rose/10', text: 'text-accent-rose' },
-  { key: 'avgResolutionDays', label: 'Avg Resolution Days', icon: 'pi-chart-bar', bg: 'bg-accent-cyan/10', text: 'text-accent-cyan' },
+  { key: 'open', label: 'Total Open', icon: 'pi-flag', bg: 'bg-blue-600/10', text: 'text-blue-600' },
+  { key: 'underReview', label: 'Under Review', icon: 'pi-eye', bg: 'bg-warning-600/10', text: 'text-warning-600' },
+  { key: 'awaitingResponse', label: 'Awaiting Response', icon: 'pi-clock', bg: 'bg-blue-600/10', text: 'text-blue-600' },
+  { key: 'escalated', label: 'Escalated', icon: 'pi-exclamation-triangle', bg: 'bg-danger-600/10', text: 'text-danger-600' },
+  { key: 'avgResolutionDays', label: 'Avg Resolution Days', icon: 'pi-chart-bar', bg: 'bg-pink-600/10', text: 'text-pink-600' },
 ];
 
 function daysSince(dateStr: string): number {
@@ -116,7 +116,7 @@ export default function AdminDisputesPage() {
   const ageTemplate = (rowData: DisputeListItem) => {
     const days = daysSince(rowData.createdAt);
     return (
-      <span className={`text-sm font-medium ${days > 14 ? 'text-accent-rose' : days > 7 ? 'text-accent-amber' : 'text-text-muted'}`}>
+      <span className={`text-sm font-medium ${days > 14 ? 'text-danger-600' : days > 7 ? 'text-warning-600' : 'text-text-muted'}`}>
         {days}d
       </span>
     );

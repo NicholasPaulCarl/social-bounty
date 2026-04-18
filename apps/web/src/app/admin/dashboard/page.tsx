@@ -17,12 +17,12 @@ function formatAction(action: string): string {
 }
 
 const statIconColors = [
-  { bg: 'bg-accent-violet/10', text: 'text-accent-violet' },
-  { bg: 'bg-accent-cyan/10', text: 'text-accent-cyan' },
-  { bg: 'bg-accent-amber/10', text: 'text-accent-amber' },
-  { bg: 'bg-accent-emerald/10', text: 'text-accent-emerald' },
-  { bg: 'bg-accent-rose/10', text: 'text-accent-rose' },
-  { bg: 'bg-accent-violet/10', text: 'text-accent-violet' },
+  { bg: 'bg-blue-600/10', text: 'text-blue-600' },
+  { bg: 'bg-pink-600/10', text: 'text-pink-600' },
+  { bg: 'bg-warning-600/10', text: 'text-warning-600' },
+  { bg: 'bg-success-600/10', text: 'text-success-600' },
+  { bg: 'bg-danger-600/10', text: 'text-danger-600' },
+  { bg: 'bg-blue-600/10', text: 'text-blue-600' },
 ];
 
 export default function AdminDashboardPage() {
@@ -92,8 +92,8 @@ export default function AdminDashboardPage() {
               <div className="space-y-4">
                 {auditLogs.map((log) => (
                   <div key={log.id} className="flex items-start gap-3 pb-4 border-b border-glass-border last:border-0">
-                    <div className="w-8 h-8 rounded-full bg-accent-violet/10 flex items-center justify-center flex-shrink-0 border-l-2 border-accent-violet">
-                      <i className="pi pi-history text-accent-violet text-sm" />
+                    <div className="w-8 h-8 rounded-full bg-blue-600/10 flex items-center justify-center flex-shrink-0 border-l-2 border-blue-600">
+                      <i className="pi pi-history text-blue-600 text-sm" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-text-secondary">
@@ -121,13 +121,13 @@ export default function AdminDashboardPage() {
                 {healthChecks.map((check) => (
                   <div key={check.service} className="flex items-center gap-3 p-3 rounded-lg border border-glass-border">
                     <span className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                      check.status === 'healthy' ? 'bg-accent-emerald' :
-                      check.status === 'degraded' ? 'bg-accent-amber' : 'bg-accent-rose'
+                      check.status === 'healthy' ? 'bg-success-600' :
+                      check.status === 'degraded' ? 'bg-warning-600' : 'bg-danger-600'
                     }`} />
                     <div>
                       <p className={`text-sm font-medium ${
-                        check.status === 'healthy' ? 'text-accent-emerald' :
-                        check.status === 'degraded' ? 'text-accent-amber' : 'text-accent-rose'
+                        check.status === 'healthy' ? 'text-success-600' :
+                        check.status === 'degraded' ? 'text-warning-600' : 'text-danger-600'
                       }`}>{check.service}</p>
                       <p className="text-xs text-text-muted">{check.responseTime}ms</p>
                     </div>
@@ -141,8 +141,8 @@ export default function AdminDashboardPage() {
               <div className="mt-4 pt-4 border-t border-glass-border">
                 <p className="text-xs text-text-muted">
                   Status: <span className={`font-medium ${
-                    healthData.status === 'ok' ? 'text-accent-emerald' :
-                    healthData.status === 'degraded' ? 'text-accent-amber' : 'text-accent-rose'
+                    healthData.status === 'ok' ? 'text-success-600' :
+                    healthData.status === 'degraded' ? 'text-warning-600' : 'text-danger-600'
                   }`}>{healthData.status.toUpperCase()}</span>
                   {' | '}v{healthData.version}
                 </p>

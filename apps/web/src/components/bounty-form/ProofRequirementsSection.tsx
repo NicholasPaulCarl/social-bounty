@@ -14,7 +14,7 @@ export function ProofRequirementsSection({ proofRequirements, dispatch, errors, 
   return (
     <div>
       <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-        Proof Requirements <span className="text-accent-rose">*</span>
+        Proof Requirements <span className="text-danger-600">*</span>
       </label>
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
@@ -39,7 +39,7 @@ export function ProofRequirementsSection({ proofRequirements, dispatch, errors, 
         </div>
       </div>
       {submitAttempted && errors.proofRequirements && (
-        <small className="text-xs text-accent-rose mt-2 flex items-center gap-1">
+        <small className="text-xs text-danger-600 mt-2 flex items-center gap-1">
           <i className="pi pi-exclamation-circle text-xs" />
           {errors.proofRequirements}
         </small>

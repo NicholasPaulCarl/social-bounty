@@ -74,8 +74,8 @@ export default function ApplyToBountyPage() {
       <div className="max-w-2xl mx-auto">
         {/* Bounty summary */}
         <div className="glass-card p-5 mb-6 flex items-start gap-4">
-          <div className="w-10 h-10 rounded-lg bg-accent-amber/20 flex items-center justify-center flex-shrink-0">
-            <i className="pi pi-lock text-accent-amber" />
+          <div className="w-10 h-10 rounded-lg bg-warning-600/20 flex items-center justify-center flex-shrink-0">
+            <i className="pi pi-lock text-warning-600" />
           </div>
           <div>
             <p className="text-sm font-semibold text-text-primary">{bounty.title}</p>
@@ -107,7 +107,7 @@ export default function ApplyToBountyPage() {
                 className="w-full resize-none"
                 maxLength={MAX_MESSAGE_LENGTH}
               />
-              <p className={`text-xs text-right ${remaining < 50 ? 'text-accent-amber' : 'text-text-muted'}`}>
+              <p className={`text-xs text-right ${remaining < 50 ? 'text-warning-600' : 'text-text-muted'}`}>
                 {remaining} characters remaining
               </p>
             </div>

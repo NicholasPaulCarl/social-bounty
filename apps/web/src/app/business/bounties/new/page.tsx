@@ -119,8 +119,8 @@ export default function CreateBountyPage() {
       <h1 className="text-2xl font-bold text-text-primary mb-6">Create New Bounty</h1>
 
       {org && (
-        <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-accent-cyan/20 bg-accent-cyan/5 text-sm">
-          <i className="pi pi-building text-accent-cyan" />
+        <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-pink-600/20 bg-pink-600/5 text-sm">
+          <i className="pi pi-building text-pink-600" />
           <span className="text-text-muted">Creating bounty for:</span>
           <span className="font-medium text-text-primary">{org.name}</span>
         </div>

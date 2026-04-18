@@ -113,7 +113,7 @@ export default function ReviewCenterDetailPage() {
                           href={link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-accent-cyan hover:underline"
+                          className="text-pink-600 hover:underline"
                         >
                           {link}
                         </a>
@@ -215,7 +215,7 @@ export default function ReviewCenterDetailPage() {
               <div>
                 <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Title</dt>
                 <dd
-                  className="text-sm font-medium text-accent-cyan hover:underline cursor-pointer"
+                  className="text-sm font-medium text-pink-600 hover:underline cursor-pointer"
                   onClick={() => router.push(`/business/bounties/${submission.bountyId}`)}
                 >
                   {submission.bounty?.title ?? 'Loading...'}

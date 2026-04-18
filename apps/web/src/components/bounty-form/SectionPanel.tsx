@@ -53,8 +53,8 @@ export function SectionPanel({
   const header = (
     <div className="flex items-center justify-between w-full gap-3">
       <div className="flex items-center gap-2 min-w-0">
-        <i className={`pi ${icon} text-accent-cyan text-sm`} />
-        <span className="text-accent-cyan font-heading font-bold">{number}.</span>
+        <i className={`pi ${icon} text-pink-600 text-sm`} />
+        <span className="text-pink-600 font-heading font-bold">{number}.</span>
         <span className="text-sm sm:text-base font-heading font-semibold text-text-primary truncate">
           {title}
         </span>

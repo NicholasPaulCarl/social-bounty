@@ -20,7 +20,7 @@ export function PageHeaderPills({ config }: PageHeaderPillsProps) {
             className={cn(
               'whitespace-nowrap px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 border cursor-pointer',
               isActive
-                ? 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan/40 shadow-glow-cyan'
+                ? 'bg-pink-600/15 text-pink-600 border-pink-600/40 shadow-glow-brand'
                 : 'bg-glass-bg border-glass-border text-text-secondary hover:bg-slate-100 hover:text-text-primary hover:border-slate-300'
             )}
           >

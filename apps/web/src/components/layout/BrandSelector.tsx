@@ -51,7 +51,7 @@ export function BrandSelector() {
     <div className="px-3 mb-2">
       <Menu model={menuItems} popup ref={menuRef} />
       <button
-        className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-accent-cyan/5 border border-accent-cyan/20 hover:bg-accent-cyan/10 transition-colors text-left"
+        className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-pink-600/5 border border-pink-600/20 hover:bg-pink-600/10 transition-colors text-left"
         onClick={(e) => menuRef.current?.toggle(e)}
       >
         {activeBrand?.logo ? (
@@ -64,7 +64,7 @@ export function BrandSelector() {
             />
           </div>
         ) : (
-          <div className="w-7 h-7 rounded bg-accent-cyan/20 text-accent-cyan flex items-center justify-center text-xs font-bold shrink-0">
+          <div className="w-7 h-7 rounded bg-pink-600/20 text-pink-600 flex items-center justify-center text-xs font-bold shrink-0">
             {activeBrand?.name.charAt(0).toUpperCase() || '?'}
           </div>
         )}

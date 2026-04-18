@@ -137,7 +137,7 @@ export default function SignupPage() {
       </h2>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 text-sm text-accent-rose">
+        <div className="mb-4 rounded-lg border border-danger-600/30 bg-danger-600/10 px-4 py-3 text-sm text-danger-600">
           <i className="pi pi-exclamation-circle mr-2" />
           {error}
         </div>
@@ -161,7 +161,7 @@ export default function SignupPage() {
                 className={`w-full ${fieldErrors.firstName ? 'p-invalid' : ''}`}
               />
               {fieldErrors.firstName && (
-                <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.firstName}</small>
+                <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.firstName}</small>
               )}
             </div>
             <div>
@@ -179,7 +179,7 @@ export default function SignupPage() {
                 className={`w-full ${fieldErrors.lastName ? 'p-invalid' : ''}`}
               />
               {fieldErrors.lastName && (
-                <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.lastName}</small>
+                <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.lastName}</small>
               )}
             </div>
           </div>
@@ -201,7 +201,7 @@ export default function SignupPage() {
               placeholder="you@example.com"
             />
             {fieldErrors.email && (
-              <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.email}</small>
+              <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.email}</small>
             )}
           </div>
 
@@ -218,7 +218,7 @@ export default function SignupPage() {
           </div>
 
           {form.registerAsBrand && (
-            <div className="space-y-4 p-4 rounded-lg border border-accent-cyan/20 bg-accent-cyan/5">
+            <div className="space-y-4 p-4 rounded-lg border border-pink-600/20 bg-pink-600/5">
               <div>
                 <label
                   htmlFor="brandName"
@@ -235,7 +235,7 @@ export default function SignupPage() {
                   placeholder="Your brand name"
                 />
                 {fieldErrors.brandName && (
-                  <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.brandName}</small>
+                  <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.brandName}</small>
                 )}
               </div>
               <div>
@@ -255,7 +255,7 @@ export default function SignupPage() {
                   placeholder="brand@example.com"
                 />
                 {fieldErrors.brandContactEmail && (
-                  <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.brandContactEmail}</small>
+                  <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.brandContactEmail}</small>
                 )}
               </div>
             </div>
@@ -265,8 +265,8 @@ export default function SignupPage() {
             type="submit"
             disabled={loading}
             className="group relative w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white
-                       bg-gradient-to-r from-accent-cyan to-accent-blue
-                       shadow-glow-cyan hover:shadow-glow-cyan-intense
+                       bg-gradient-to-r from-pink-600 to-blue-600
+                       shadow-glow-brand hover:shadow-glow-brand-intense
                        transition-all duration-normal
                        disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -308,8 +308,8 @@ export default function SignupPage() {
             type="submit"
             disabled={loading || otp.length < 6}
             className="group relative w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white
-                       bg-gradient-to-r from-accent-cyan to-accent-blue
-                       shadow-glow-cyan hover:shadow-glow-cyan-intense
+                       bg-gradient-to-r from-pink-600 to-blue-600
+                       shadow-glow-brand hover:shadow-glow-brand-intense
                        transition-all duration-normal
                        disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -325,7 +325,7 @@ export default function SignupPage() {
             <button
               type="button"
               onClick={handleChangeEmail}
-              className="text-accent-cyan hover:text-accent-cyan/80 transition-colors duration-fast"
+              className="text-pink-600 hover:text-pink-600/80 transition-colors duration-fast"
             >
               Use different email
             </button>
@@ -335,7 +335,7 @@ export default function SignupPage() {
               <button
                 type="button"
                 onClick={handleResend}
-                className="text-accent-cyan hover:text-accent-cyan/80 transition-colors duration-fast"
+                className="text-pink-600 hover:text-pink-600/80 transition-colors duration-fast"
               >
                 Resend code
               </button>
@@ -346,7 +346,7 @@ export default function SignupPage() {
 
       <p className="text-sm text-text-muted text-center mt-6">
         Already have an account?{' '}
-        <Link href="/login" className="text-accent-cyan hover:text-accent-cyan/80 font-medium transition-colors duration-fast">
+        <Link href="/login" className="text-pink-600 hover:text-pink-600/80 font-medium transition-colors duration-fast">
           Sign In
         </Link>
       </p>

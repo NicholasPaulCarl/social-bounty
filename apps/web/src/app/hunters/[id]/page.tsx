@@ -111,7 +111,7 @@ function SocialLinkRow({ link }: { link: SocialLinkResponse }) {
       href={link.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="glass-card p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-glow-cyan transition-all duration-normal group"
+      className="glass-card p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-glow-brand transition-all duration-normal group"
     >
       {/* Icon */}
       <div
@@ -128,7 +128,7 @@ function SocialLinkRow({ link }: { link: SocialLinkResponse }) {
             <span className="text-text-muted text-sm">{link.handle}</span>
           )}
           {link.isVerified && (
-            <span className="inline-flex items-center gap-1 text-xs text-accent-emerald">
+            <span className="inline-flex items-center gap-1 text-xs text-success-600">
               <i className="pi pi-verified text-xs" />
               Verified
             </span>
@@ -145,7 +145,7 @@ function SocialLinkRow({ link }: { link: SocialLinkResponse }) {
       </div>
 
       {/* External link icon */}
-      <i className="pi pi-external-link text-text-muted text-xs group-hover:text-accent-cyan transition-colors shrink-0" />
+      <i className="pi pi-external-link text-text-muted text-xs group-hover:text-pink-600 transition-colors shrink-0" />
     </a>
   );
 }
@@ -179,7 +179,7 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
               {/* Avatar */}
               {profile.profilePictureUrl ? (
-                <div className="relative w-24 h-24 rounded-full overflow-hidden shrink-0 ring-2 ring-accent-cyan/30">
+                <div className="relative w-24 h-24 rounded-full overflow-hidden shrink-0 ring-2 ring-pink-600/30">
                   <Image
                     src={getUploadUrl(profile.profilePictureUrl)!}
                     alt={`${profile.firstName} ${profile.lastName}`}
@@ -188,7 +188,7 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
                   />
                 </div>
               ) : (
-                <div className="w-24 h-24 rounded-full shrink-0 bg-accent-cyan/10 border-2 border-accent-cyan/30 flex items-center justify-center text-accent-cyan font-heading font-bold text-2xl">
+                <div className="w-24 h-24 rounded-full shrink-0 bg-pink-600/10 border-2 border-pink-600/30 flex items-center justify-center text-pink-600 font-heading font-bold text-2xl">
                   {getInitials(profile.firstName, profile.lastName)}
                 </div>
               )}
@@ -200,7 +200,7 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
                     {profile.firstName} {profile.lastName}
                   </h1>
                   {profile.emailVerified && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-success-600/10 text-success-600 border border-success-600/30">
                       <i className="pi pi-verified text-xs" />
                       Verified
                     </span>
@@ -243,7 +243,7 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
                 {profile.interests.map((interest) => (
                   <span
                     key={interest}
-                    className="px-3 py-1.5 rounded-full text-sm bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/30"
+                    className="px-3 py-1.5 rounded-full text-sm bg-pink-600/10 text-pink-600 border border-pink-600/30"
                   >
                     {interest}
                   </span>
@@ -266,19 +266,19 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
                 label="Total Submissions"
                 value={profile.stats.totalSubmissions}
                 icon="pi-file"
-                iconClass="text-accent-cyan"
+                iconClass="text-pink-600"
               />
               <StatCard
                 label="Approved Submissions"
                 value={profile.stats.approvedSubmissions}
                 icon="pi-check-circle"
-                iconClass="text-accent-emerald"
+                iconClass="text-success-600"
               />
               <StatCard
                 label="Completed Bounties"
                 value={profile.stats.completedBounties}
                 icon="pi-star"
-                iconClass="text-accent-amber"
+                iconClass="text-warning-600"
               />
             </div>
           </div>

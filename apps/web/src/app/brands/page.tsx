@@ -25,7 +25,7 @@ function BrandCard({ brand, index }: BrandCardProps) {
 
   return (
     <div
-      className="glass-card p-5 flex flex-col gap-4 hover:-translate-y-1 hover:shadow-glow-cyan transition-all duration-normal cursor-pointer animate-fade-up"
+      className="glass-card p-5 flex flex-col gap-4 hover:-translate-y-1 hover:shadow-glow-brand transition-all duration-normal cursor-pointer animate-fade-up"
       style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'both' }}
     >
       <div className="flex items-center gap-3">
@@ -39,7 +39,7 @@ function BrandCard({ brand, index }: BrandCardProps) {
             />
           </div>
         ) : (
-          <div className="w-12 h-12 rounded-lg shrink-0 bg-accent-cyan/10 border border-accent-cyan/30 flex items-center justify-center text-accent-cyan font-heading font-bold text-sm">
+          <div className="w-12 h-12 rounded-lg shrink-0 bg-pink-600/10 border border-pink-600/30 flex items-center justify-center text-pink-600 font-heading font-bold text-sm">
             {brand.name.charAt(0).toUpperCase()}
           </div>
         )}
@@ -62,7 +62,7 @@ function BrandCard({ brand, index }: BrandCardProps) {
           {topInterests.map((interest) => (
             <span
               key={interest}
-              className="px-2 py-0.5 rounded-full text-xs bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/30"
+              className="px-2 py-0.5 rounded-full text-xs bg-pink-600/10 text-pink-600 border border-pink-600/30"
             >
               {interest}
             </span>
@@ -85,7 +85,7 @@ function BrandCard({ brand, index }: BrandCardProps) {
       <div className="mt-auto pt-1">
         <Link
           href={`/brands/${brand.handle || brand.id}`}
-          className="inline-flex items-center gap-1.5 text-sm text-accent-cyan hover:text-accent-cyan/80 transition-colors font-medium"
+          className="inline-flex items-center gap-1.5 text-sm text-pink-600 hover:text-pink-600/80 transition-colors font-medium"
         >
           View Profile
           <i className="pi pi-arrow-right text-xs" />
@@ -153,8 +153,8 @@ export default function BrandsDirectoryPage() {
               onClick={() => handleInterestToggle(interest)}
               className={`px-3 py-1.5 rounded-full text-sm border transition-all duration-fast ${
                 active
-                  ? 'bg-accent-cyan text-bg-void border-accent-cyan font-medium shadow-glow-cyan'
-                  : 'bg-glass-bg text-text-secondary border-glass-border hover:border-accent-cyan/50 hover:text-accent-cyan'
+                  ? 'bg-pink-600 text-bg-void border-pink-600 font-medium shadow-glow-brand'
+                  : 'bg-glass-bg text-text-secondary border-glass-border hover:border-pink-600/50 hover:text-pink-600'
               }`}
             >
               {interest}
@@ -164,7 +164,7 @@ export default function BrandsDirectoryPage() {
         {selectedInterest && (
           <button
             onClick={() => setSelectedInterest(null)}
-            className="px-3 py-1.5 rounded-full text-sm border border-glass-border text-text-muted hover:text-accent-rose hover:border-accent-rose/50 transition-colors"
+            className="px-3 py-1.5 rounded-full text-sm border border-glass-border text-text-muted hover:text-danger-600 hover:border-danger-600/50 transition-colors"
           >
             <i className="pi pi-times mr-1 text-xs" />
             Clear

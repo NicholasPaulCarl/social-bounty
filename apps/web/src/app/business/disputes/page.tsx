@@ -23,9 +23,9 @@ const statusOptions = DISPUTE_STATUS_OPTIONS.filter((o) => o.value !== 'DRAFT');
 const categoryOptions = DISPUTE_CATEGORY_OPTIONS;
 
 const categoryColors: Record<string, string> = {
-  NON_PAYMENT: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30',
-  POST_QUALITY: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30',
-  POST_NON_COMPLIANCE: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30',
+  NON_PAYMENT: 'bg-danger-600/10 text-danger-600 border border-danger-600/30',
+  POST_QUALITY: 'bg-warning-600/10 text-warning-600 border border-warning-600/30',
+  POST_NON_COMPLIANCE: 'bg-blue-600/10 text-blue-600 border border-blue-600/30',
 };
 
 export default function BusinessDisputesPage() {
@@ -52,9 +52,9 @@ export default function BusinessDisputesPage() {
   const resolvedCount = disputes.filter((d) => d.status === DisputeStatus.RESOLVED).length;
 
   const kpis = [
-    { label: 'Open', value: openCount, icon: 'pi-flag', bg: 'bg-accent-blue/10', text: 'text-accent-blue' },
-    { label: 'Escalated', value: escalatedCount, icon: 'pi-exclamation-triangle', bg: 'bg-accent-rose/10', text: 'text-accent-rose' },
-    { label: 'Resolved', value: resolvedCount, icon: 'pi-check-circle', bg: 'bg-accent-emerald/10', text: 'text-accent-emerald' },
+    { label: 'Open', value: openCount, icon: 'pi-flag', bg: 'bg-blue-600/10', text: 'text-blue-600' },
+    { label: 'Escalated', value: escalatedCount, icon: 'pi-exclamation-triangle', bg: 'bg-danger-600/10', text: 'text-danger-600' },
+    { label: 'Resolved', value: resolvedCount, icon: 'pi-check-circle', bg: 'bg-success-600/10', text: 'text-success-600' },
   ];
 
   const disputeNumberTemplate = (rowData: DisputeListItem) => (

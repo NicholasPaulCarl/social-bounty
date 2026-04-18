@@ -44,7 +44,7 @@ export default function MyDisputesPage() {
           <Button
             label="File a Dispute"
             icon="pi pi-plus"
-            className="bg-accent-cyan border-accent-cyan text-background hover:bg-accent-cyan/90"
+            className="bg-pink-600 border-pink-600 text-background hover:bg-pink-600/90"
             onClick={() => router.push('/my-disputes/new')}
           />
         }
@@ -83,7 +83,7 @@ export default function MyDisputesPage() {
                 field="disputeNumber"
                 header="Dispute #"
                 body={(row: DisputeListItem) => (
-                  <span className="font-mono text-accent-cyan text-sm">{row.disputeNumber}</span>
+                  <span className="font-mono text-pink-600 text-sm">{row.disputeNumber}</span>
                 )}
               />
               <Column
@@ -97,7 +97,7 @@ export default function MyDisputesPage() {
                 field="category"
                 header="Category"
                 body={(row: DisputeListItem) => (
-                  <span className="px-2 py-0.5 rounded text-xs font-medium bg-accent-violet/10 text-accent-violet border border-accent-violet/20">
+                  <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-600/10 text-blue-600 border border-blue-600/20">
                     {formatEnumLabel(row.category)}
                   </span>
                 )}

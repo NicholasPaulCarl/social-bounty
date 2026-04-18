@@ -161,7 +161,7 @@ export default function CreateBrandPage() {
               onChange={(e) => updateField('name', e.target.value)}
               className={`w-full ${errors.name ? 'p-invalid' : ''}`}
             />
-            {errors.name && <small className="text-accent-rose text-xs mt-1 block">{errors.name}</small>}
+            {errors.name && <small className="text-danger-600 text-xs mt-1 block">{errors.name}</small>}
           </div>
 
           <div>
@@ -175,7 +175,7 @@ export default function CreateBrandPage() {
               onChange={(e) => updateField('contactEmail', e.target.value)}
               className={`w-full ${errors.contactEmail ? 'p-invalid' : ''}`}
             />
-            {errors.contactEmail && <small className="text-accent-rose text-xs mt-1 block">{errors.contactEmail}</small>}
+            {errors.contactEmail && <small className="text-danger-600 text-xs mt-1 block">{errors.contactEmail}</small>}
           </div>
 
           <div>
@@ -194,9 +194,9 @@ export default function CreateBrandPage() {
               />
               {handleStatus === 'checking' && <i className="pi pi-spinner pi-spin text-text-muted" />}
               {handleStatus === 'available' && <i className="pi pi-check-circle text-green-400" />}
-              {handleStatus === 'taken' && <i className="pi pi-times-circle text-accent-rose" />}
+              {handleStatus === 'taken' && <i className="pi pi-times-circle text-danger-600" />}
             </div>
-            {errors.handle && <small className="text-accent-rose text-xs mt-1 block">{errors.handle}</small>}
+            {errors.handle && <small className="text-danger-600 text-xs mt-1 block">{errors.handle}</small>}
           </div>
 
           <div>
@@ -225,7 +225,7 @@ export default function CreateBrandPage() {
               onChange={handleLogoChange}
               className="text-sm text-text-secondary"
             />
-            {logo && <small className="text-accent-emerald text-xs mt-1 block">Cropped logo ready</small>}
+            {logo && <small className="text-success-600 text-xs mt-1 block">Cropped logo ready</small>}
             <small className="text-text-muted text-xs mt-1 block">Recommended: 200 x 200px, square. Max 2MB.</small>
 
             <ImageCropDialog
@@ -253,7 +253,7 @@ export default function CreateBrandPage() {
               }}
               className="text-sm text-text-secondary"
             />
-            {coverPhoto && <small className="text-accent-emerald text-xs mt-1 block">Cropped cover ready</small>}
+            {coverPhoto && <small className="text-success-600 text-xs mt-1 block">Cropped cover ready</small>}
             <small className="text-text-muted text-xs mt-1 block">Recommended: 1200 x 400px (3:1 ratio). Max 5MB.</small>
 
             <ImageCropDialog
@@ -338,8 +338,8 @@ export default function CreateBrandPage() {
                   onClick={() => toggleInterest(interest)}
                   className={`px-3 py-1.5 rounded-full text-sm border transition-all duration-fast ${
                     selected
-                      ? 'bg-accent-cyan text-bg-void border-accent-cyan font-medium shadow-glow-cyan'
-                      : 'bg-glass-bg text-text-secondary border-glass-border hover:border-accent-cyan/50 hover:text-accent-cyan'
+                      ? 'bg-pink-600 text-bg-void border-pink-600 font-medium shadow-glow-brand'
+                      : 'bg-glass-bg text-text-secondary border-glass-border hover:border-pink-600/50 hover:text-pink-600'
                   }`}
                 >
                   {interest}

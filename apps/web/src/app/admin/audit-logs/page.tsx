@@ -38,7 +38,7 @@ export default function AdminAuditLogsPage() {
   );
 
   const rowExpansionTemplate = (data: AuditLogListItem) => (
-    <div className="p-4 space-y-3 border-l-2 border-accent-violet">
+    <div className="p-4 space-y-3 border-l-2 border-blue-600">
       {data.reason && (
         <div>
           <span className="text-xs font-medium text-text-muted uppercase tracking-wider">Reason</span>

@@ -90,7 +90,7 @@ export default function MySubmissionsPage() {
         <div className="glass-card p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
-              <i className="pi pi-send text-accent-cyan" />
+              <i className="pi pi-send text-pink-600" />
             </div>
             <div>
               <p className="text-2xl font-heading font-bold text-text-primary">{earnings?.totalSubmissions ?? 0}</p>
@@ -102,7 +102,7 @@ export default function MySubmissionsPage() {
         <div className="glass-card p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
-              <i className="pi pi-check-circle text-accent-emerald" />
+              <i className="pi pi-check-circle text-success-600" />
             </div>
             <div>
               <p className="text-2xl font-heading font-bold text-text-primary">{earnings?.approvedCount ?? 0}</p>
@@ -114,10 +114,10 @@ export default function MySubmissionsPage() {
         <div className="glass-card p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
-              <i className="pi pi-wallet text-accent-emerald" />
+              <i className="pi pi-wallet text-success-600" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-accent-emerald font-mono">{formatCurrency(earnings?.totalEarned ?? 0)}</p>
+              <p className="text-2xl font-heading font-bold text-success-600 font-mono">{formatCurrency(earnings?.totalEarned ?? 0)}</p>
               <p className="text-sm text-text-muted">Total Earned</p>
             </div>
           </div>
@@ -126,10 +126,10 @@ export default function MySubmissionsPage() {
         <div className="glass-card p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
-              <i className="pi pi-clock text-accent-cyan" />
+              <i className="pi pi-clock text-pink-600" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-accent-emerald font-mono">{formatCurrency(earnings?.pendingPayout ?? 0)}</p>
+              <p className="text-2xl font-heading font-bold text-success-600 font-mono">{formatCurrency(earnings?.pendingPayout ?? 0)}</p>
               <p className="text-sm text-text-muted">Pending Payout</p>
             </div>
           </div>

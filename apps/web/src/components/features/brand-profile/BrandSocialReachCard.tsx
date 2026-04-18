@@ -101,7 +101,7 @@ function BrandSocialReachCardImpl({ socialLinks, analytics }: BrandSocialReachCa
                   </span>
                   {counters?.error && counters.error !== 'not connected' && (
                     <i
-                      className="pi pi-exclamation-circle text-accent-rose text-xs"
+                      className="pi pi-exclamation-circle text-danger-600 text-xs"
                       title={counters.error}
                     />
                   )}
@@ -113,25 +113,25 @@ function BrandSocialReachCardImpl({ socialLinks, analytics }: BrandSocialReachCa
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-xl font-heading font-bold text-accent-cyan">
+                  <p className="text-xl font-heading font-bold text-pink-600">
                     {real ? display(counters?.followersCount) : '--'}
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">Followers</p>
                 </div>
                 <div>
-                  <p className="text-xl font-heading font-bold text-accent-cyan">
+                  <p className="text-xl font-heading font-bold text-pink-600">
                     {real ? display(counters?.postsCount) : '--'}
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">Posts</p>
                 </div>
                 <div>
-                  <p className="text-xl font-heading font-bold text-accent-cyan">
+                  <p className="text-xl font-heading font-bold text-pink-600">
                     {real ? display(counters?.avgLikes) : '--'}
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">Avg Likes</p>
                 </div>
                 <div>
-                  <p className="text-xl font-heading font-bold text-accent-cyan">
+                  <p className="text-xl font-heading font-bold text-pink-600">
                     {real && counters?.engagementRate != null
                       ? `${counters.engagementRate.toFixed(1)}%`
                       : '--'}

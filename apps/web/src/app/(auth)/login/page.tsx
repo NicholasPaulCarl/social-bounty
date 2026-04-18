@@ -89,7 +89,7 @@ export default function LoginPage() {
       </h2>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 text-sm text-accent-rose">
+        <div className="mb-4 rounded-lg border border-danger-600/30 bg-danger-600/10 px-4 py-3 text-sm text-danger-600">
           <i className="pi pi-exclamation-circle mr-2" />
           {error}
         </div>
@@ -119,8 +119,8 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             className="group relative w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white
-                       bg-gradient-to-r from-accent-cyan to-accent-blue
-                       shadow-glow-cyan hover:shadow-glow-cyan-intense
+                       bg-gradient-to-r from-pink-600 to-blue-600
+                       shadow-glow-brand hover:shadow-glow-brand-intense
                        transition-all duration-normal
                        disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -162,8 +162,8 @@ export default function LoginPage() {
             type="submit"
             disabled={loading || otp.length < 6}
             className="group relative w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white
-                       bg-gradient-to-r from-accent-cyan to-accent-blue
-                       shadow-glow-cyan hover:shadow-glow-cyan-intense
+                       bg-gradient-to-r from-pink-600 to-blue-600
+                       shadow-glow-brand hover:shadow-glow-brand-intense
                        transition-all duration-normal
                        disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -179,7 +179,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleChangeEmail}
-              className="text-accent-cyan hover:text-accent-cyan/80 transition-colors duration-fast"
+              className="text-pink-600 hover:text-pink-600/80 transition-colors duration-fast"
             >
               Use different email
             </button>
@@ -189,7 +189,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={handleResend}
-                className="text-accent-cyan hover:text-accent-cyan/80 transition-colors duration-fast"
+                className="text-pink-600 hover:text-pink-600/80 transition-colors duration-fast"
               >
                 Resend code
               </button>
@@ -203,7 +203,7 @@ export default function LoginPage() {
           {"Don't have an account? "}
           <Link
             href="/signup"
-            className="text-accent-cyan hover:text-accent-cyan/80 font-medium transition-colors duration-fast"
+            className="text-pink-600 hover:text-pink-600/80 font-medium transition-colors duration-fast"
           >
             Sign Up
           </Link>

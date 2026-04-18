@@ -22,59 +22,15 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────
-   1. Legacy token aliases (TEMPORARY)
+   1. PrimeReact theme-variable overrides
    ─────────────────────────────────────────────
-   The TSX codebase (88 files, 537 usages at 2026-04-18) still
-   references `--accent-cyan`, `--accent-rose`, `--neo-*` tokens
-   from the previous "NeoGlass" naming. These aliases map to the
-   new canonical design-system tokens so existing code compiles.
-   Follow-up codemod will rename call sites to the canonical
-   `pink-*` / `blue-*` / `slate-*` / status names; after that, this
-   block gets deleted. Do NOT add new usages. */
+   PrimeReact's own CSS reads these names; we map them onto the
+   canonical palette so a single change to colors_and_type.css
+   flows through to the whole component library. */
 @layer base {
   :root {
-    /* Legacy accent-* → canonical mapping */
-    --accent-cyan:    var(--pink-600);
-    --accent-violet:  var(--blue-600);
-    --accent-amber:   var(--reward-600);
-    --accent-emerald: #059669;
-    --accent-rose:    var(--danger-600);
-    --accent-blue:    var(--blue-600);
-
-    /* RGB twins for `rgba(var(--neo-*) / alpha)` usages */
-    --neo-bg-void:       255 255 255;
-    --neo-bg-abyss:      248 250 252;
-    --neo-bg-surface:    255 255 255;
-    --neo-bg-elevated:   241 245 249;
-    --neo-bg-hover:      226 232 240;
-    --neo-accent-cyan:   219 39 119;
-    --neo-accent-violet: 37 99 235;
-    --neo-accent-amber:  217 119 6;
-    --neo-accent-emerald: 5 150 105;
-    --neo-accent-rose:   225 29 72;
-    --neo-accent-blue:   37 99 235;
-    --neo-text-primary:    15 23 42;
-    --neo-text-secondary:  71 85 105;
-    --neo-text-muted:     148 163 184;
-    --neo-text-disabled:  203 213 225;
-
-    /* Legacy motion-token aliases */
-    --neo-duration-fast:      var(--duration-fast);
-    --neo-duration-normal:    var(--duration-normal);
-    --neo-duration-slow:      var(--duration-slow);
-    --neo-duration-dramatic:  var(--duration-dramatic);
-    --neo-ease-standard:      var(--ease-standard);
-    --neo-ease-decelerate:    var(--ease-decelerate);
-    --neo-ease-accelerate:    var(--ease-accelerate);
-    --neo-ease-spring:        var(--ease-spring);
-
-    /* Shadow base alias (used by some legacy utilities) */
     --shadow-color: rgba(0, 0, 0, 0.08);
 
-    /* ─────────────────────────────────────────
-       PrimeReact theme-variable overrides.
-       PrimeReact's own CSS reads these names;
-       we map them onto the canonical palette. */
     --surface-ground:  var(--bg-abyss);
     --surface-section: var(--bg-surface);
     --surface-card:    var(--bg-surface);

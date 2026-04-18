@@ -150,9 +150,9 @@ export default function BrandSubscriptionPage() {
 
   const statusTemplate = (row: SubscriptionPaymentDto) => {
     const colors: Record<string, string> = {
-      SUCCEEDED: 'text-accent-emerald bg-accent-emerald/10',
-      FAILED: 'text-accent-rose bg-accent-rose/10',
-      PENDING: 'text-accent-amber bg-accent-amber/10',
+      SUCCEEDED: 'text-success-600 bg-success-600/10',
+      FAILED: 'text-danger-600 bg-danger-600/10',
+      PENDING: 'text-warning-600 bg-warning-600/10',
       REFUNDED: 'text-text-muted bg-elevated',
     };
     return (
@@ -216,9 +216,9 @@ export default function BrandSubscriptionPage() {
               <ProBadge size="md" />
             </div>
             <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-              isActive ? 'bg-accent-emerald/10 text-accent-emerald' :
-              isCancelled ? 'bg-accent-amber/10 text-accent-amber' :
-              isPastDue ? 'bg-accent-rose/10 text-accent-rose' : ''
+              isActive ? 'bg-success-600/10 text-success-600' :
+              isCancelled ? 'bg-warning-600/10 text-warning-600' :
+              isPastDue ? 'bg-danger-600/10 text-danger-600' : ''
             }`}>
               {isActive ? 'Active' : isCancelled ? 'Cancelling' : isPastDue ? 'Past Due' : sub.status}
             </span>
@@ -239,7 +239,7 @@ export default function BrandSubscriptionPage() {
           <div className="space-y-2 mb-6">
             {BRAND_FEATURES.pro.map((f) => (
               <div key={f.label} className="flex items-center gap-2">
-                <i className={`pi ${f.icon} text-accent-cyan text-sm`} />
+                <i className={`pi ${f.icon} text-pink-600 text-sm`} />
                 <span className="text-sm text-text-primary">{f.label}</span>
               </div>
             ))}
@@ -292,18 +292,18 @@ export default function BrandSubscriptionPage() {
             <Button label="Current Plan" disabled className="w-full" outlined severity="secondary" />
           </div>
 
-          <div className="glass-card p-6 border border-accent-cyan/30 shadow-glow-cyan">
+          <div className="glass-card p-6 border border-pink-600/30 shadow-glow-brand">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="text-lg font-heading font-bold text-text-primary">Pro Brand</h3>
-              <i className="pi pi-star-fill text-accent-cyan text-sm" />
+              <i className="pi pi-star-fill text-pink-600 text-sm" />
             </div>
-            <p className="text-sm text-accent-cyan mb-4">
+            <p className="text-sm text-pink-600 mb-4">
               R{proPrice}/month
             </p>
             <div className="space-y-3 mb-6">
               {BRAND_FEATURES.pro.map((f) => (
                 <div key={f.label} className="flex items-center gap-2">
-                  <i className={`pi ${f.icon} text-accent-cyan text-sm`} />
+                  <i className={`pi ${f.icon} text-pink-600 text-sm`} />
                   <span className="text-sm text-text-primary">{f.label}</span>
                 </div>
               ))}

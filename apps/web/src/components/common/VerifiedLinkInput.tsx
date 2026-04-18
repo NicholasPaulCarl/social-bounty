@@ -86,13 +86,13 @@ export function VerifiedLinkInput({
       {/* Status icon inside the input */}
       <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
         {status === 'verifying' && (
-          <i className="pi pi-spinner pi-spin text-accent-cyan text-sm" />
+          <i className="pi pi-spinner pi-spin text-pink-600 text-sm" />
         )}
         {status === 'valid' && (
-          <i className="pi pi-check-circle text-accent-emerald text-sm" />
+          <i className="pi pi-check-circle text-success-600 text-sm" />
         )}
         {status === 'invalid' && (
-          <i className="pi pi-times-circle text-accent-rose text-sm" />
+          <i className="pi pi-times-circle text-danger-600 text-sm" />
         )}
       </div>
     </div>

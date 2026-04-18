@@ -135,7 +135,7 @@ export default function DisputeDetailPage() {
         {/* Header Meta */}
         <div className="flex flex-wrap items-center gap-3">
           <StatusBadge type="dispute" value={dispute.status} />
-          <span className="px-2 py-0.5 rounded text-xs font-medium bg-accent-violet/10 text-accent-violet border border-accent-violet/20">
+          <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-600/10 text-blue-600 border border-blue-600/20">
             {formatEnumLabel(dispute.category)}
           </span>
           <span className="text-text-muted text-sm">
@@ -213,18 +213,18 @@ export default function DisputeDetailPage() {
                         <div
                           className={`max-w-[75%] rounded-xl px-4 py-3 ${
                             isInternal
-                              ? 'bg-accent-amber/10 border border-accent-amber/20'
+                              ? 'bg-warning-600/10 border border-warning-600/20'
                               : isMine
-                                ? 'bg-accent-cyan/10 border border-accent-cyan/20'
+                                ? 'bg-pink-600/10 border border-pink-600/20'
                                 : 'bg-elevated border border-glass-border'
                           }`}
                         >
                           <div className="flex items-center gap-2 mb-1.5">
-                            <span className={`text-xs font-medium ${isMine ? 'text-accent-cyan' : 'text-text-secondary'}`}>
+                            <span className={`text-xs font-medium ${isMine ? 'text-pink-600' : 'text-text-secondary'}`}>
                               {msg.authorName}
                             </span>
                             {isInternal && (
-                              <span className="text-xs text-accent-amber bg-accent-amber/10 px-1.5 py-0.5 rounded">
+                              <span className="text-xs text-warning-600 bg-warning-600/10 px-1.5 py-0.5 rounded">
                                 Internal
                               </span>
                             )}
@@ -257,7 +257,7 @@ export default function DisputeDetailPage() {
                       label="Send"
                       icon="pi pi-send"
                       size="small"
-                      className="bg-accent-cyan border-accent-cyan text-background hover:bg-accent-cyan/90"
+                      className="bg-pink-600 border-pink-600 text-background hover:bg-pink-600/90"
                       disabled={!messageContent.trim() || sendMessage.isPending}
                       loading={sendMessage.isPending}
                       onClick={handleSendMessage}
@@ -277,9 +277,9 @@ export default function DisputeDetailPage() {
                       <i
                         className={`mt-0.5 ${
                           ev.evidenceType === 'SCREENSHOT' || ev.evidenceType === 'DOCUMENT'
-                            ? 'pi pi-file text-accent-blue'
+                            ? 'pi pi-file text-blue-600'
                             : ev.evidenceType === 'LINK'
-                              ? 'pi pi-link text-accent-cyan'
+                              ? 'pi pi-link text-pink-600'
                               : 'pi pi-paperclip text-text-muted'
                         }`}
                       />
@@ -300,7 +300,7 @@ export default function DisputeDetailPage() {
                             href={ev.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-accent-cyan hover:underline truncate block mt-1"
+                            className="text-sm text-pink-600 hover:underline truncate block mt-1"
                           >
                             {ev.url}
                           </a>
@@ -329,19 +329,19 @@ export default function DisputeDetailPage() {
                 {dispute.responseDeadline && (
                   <div>
                     <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Response Deadline</p>
-                    <p className="text-sm text-accent-amber">{formatDate(dispute.responseDeadline)}</p>
+                    <p className="text-sm text-warning-600">{formatDate(dispute.responseDeadline)}</p>
                   </div>
                 )}
                 {dispute.escalatedAt && (
                   <div>
                     <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Escalated</p>
-                    <p className="text-sm text-accent-rose">{formatDate(dispute.escalatedAt)}</p>
+                    <p className="text-sm text-danger-600">{formatDate(dispute.escalatedAt)}</p>
                   </div>
                 )}
                 {dispute.resolvedAt && (
                   <div>
                     <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Resolved</p>
-                    <p className="text-sm text-accent-emerald">{formatDate(dispute.resolvedAt)}</p>
+                    <p className="text-sm text-success-600">{formatDate(dispute.resolvedAt)}</p>
                   </div>
                 )}
                 {dispute.resolutionType && (
@@ -367,7 +367,7 @@ export default function DisputeDetailPage() {
                   {dispute.statusHistory.map((entry: DisputeStatusHistoryResponse, idx: number) => (
                     <div key={entry.id} className="flex gap-3">
                       <div className="flex flex-col items-center">
-                        <div className="w-2 h-2 rounded-full bg-accent-cyan mt-1.5 shrink-0" />
+                        <div className="w-2 h-2 rounded-full bg-pink-600 mt-1.5 shrink-0" />
                         {idx < dispute.statusHistory.length - 1 && (
                           <div className="w-px flex-1 bg-glass-border mt-1" />
                         )}

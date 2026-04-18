@@ -254,7 +254,7 @@ export default function ProfileEditPage() {
                 className="w-20 h-20 rounded-full object-cover border-2 border-glass-border"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-accent-cyan/20 text-accent-cyan flex items-center justify-center text-2xl font-heading font-semibold border-2 border-glass-border">
+              <div className="w-20 h-20 rounded-full bg-pink-600/20 text-pink-600 flex items-center justify-center text-2xl font-heading font-semibold border-2 border-glass-border">
                 {initials}
               </div>
             )}
@@ -347,10 +347,10 @@ export default function ProfileEditPage() {
                   key={interest}
                   type="button"
                   onClick={() => toggleInterest(interest)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent-cyan/50 ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-pink-600/50 ${
                     active
-                      ? 'bg-accent-cyan/20 text-accent-cyan border-accent-cyan/50'
-                      : 'bg-transparent text-text-secondary border-glass-border hover:border-accent-cyan/40 hover:text-text-primary'
+                      ? 'bg-pink-600/20 text-pink-600 border-pink-600/50'
+                      : 'bg-transparent text-text-secondary border-glass-border hover:border-pink-600/40 hover:text-text-primary'
                   }`}
                 >
                   {interest}

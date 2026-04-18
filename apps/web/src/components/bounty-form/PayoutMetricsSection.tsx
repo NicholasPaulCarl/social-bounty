@@ -42,7 +42,7 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
         </div>
         <small className="text-xs text-text-muted mt-1.5 block">Leave empty if no view threshold is required</small>
         {submitAttempted && errors.minViews && (
-          <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+          <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
             <i className="pi pi-exclamation-circle text-xs" />
             {errors.minViews}
           </small>
@@ -71,7 +71,7 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
         </div>
         <small className="text-xs text-text-muted mt-1.5 block">Leave empty if no like threshold is required</small>
         {submitAttempted && errors.minLikes && (
-          <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+          <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
             <i className="pi pi-exclamation-circle text-xs" />
             {errors.minLikes}
           </small>
@@ -100,7 +100,7 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
         </div>
         <small className="text-xs text-text-muted mt-1.5 block">Leave empty if no comment threshold is required</small>
         {submitAttempted && errors.minComments && (
-          <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+          <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
             <i className="pi pi-exclamation-circle text-xs" />
             {errors.minComments}
           </small>

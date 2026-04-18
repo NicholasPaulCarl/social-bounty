@@ -83,23 +83,23 @@ export default function ProfilePage() {
 
       {/* Profile completion banner */}
       {completion < 100 && (
-        <div className="glass-card p-4 mb-6 animate-fade-up border border-accent-amber/30">
+        <div className="glass-card p-4 mb-6 animate-fade-up border border-warning-600/30">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <i className="pi pi-chart-bar text-accent-amber text-sm" />
+              <i className="pi pi-chart-bar text-warning-600 text-sm" />
               <span className="text-text-primary text-sm font-medium">
                 Profile {completion}% complete
               </span>
             </div>
             <Link href="/profile/edit">
-              <span className="text-accent-cyan text-xs hover:text-accent-cyan/80 font-medium cursor-pointer">
+              <span className="text-pink-600 text-xs hover:text-pink-600/80 font-medium cursor-pointer">
                 Complete now
               </span>
             </Link>
           </div>
           <div className="w-full bg-glass-border rounded-full h-1.5">
             <div
-              className="bg-accent-amber h-1.5 rounded-full transition-all duration-500"
+              className="bg-warning-600 h-1.5 rounded-full transition-all duration-500"
               style={{ width: `${completion}%` }}
             />
           </div>
@@ -127,7 +127,7 @@ export default function ProfilePage() {
                 className="w-12 h-12 rounded-full object-cover border-2 border-glass-border"
               />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-accent-cyan/20 text-accent-cyan flex items-center justify-center text-lg font-heading font-semibold">
+              <div className="w-12 h-12 rounded-full bg-pink-600/20 text-pink-600 flex items-center justify-center text-lg font-heading font-semibold">
                 {initials}
               </div>
             )}
@@ -149,11 +149,11 @@ export default function ProfilePage() {
               <div className="flex items-center gap-2">
                 <p className="text-text-primary font-medium">{profile.email}</p>
                 {profile.emailVerified ? (
-                  <span className="text-accent-emerald text-xs flex items-center gap-1">
+                  <span className="text-success-600 text-xs flex items-center gap-1">
                     <i className="pi pi-check-circle text-xs" /> Verified
                   </span>
                 ) : (
-                  <span className="text-accent-amber text-xs flex items-center gap-1">
+                  <span className="text-warning-600 text-xs flex items-center gap-1">
                     <i className="pi pi-exclamation-circle text-xs" /> Unverified
                   </span>
                 )}
@@ -180,7 +180,7 @@ export default function ProfilePage() {
               {profile.interests.map((interest) => (
                 <span
                   key={interest}
-                  className="px-3 py-1.5 rounded-full text-xs font-medium bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/30"
+                  className="px-3 py-1.5 rounded-full text-xs font-medium bg-pink-600/10 text-pink-600 border border-pink-600/30"
                 >
                   {interest}
                 </span>
@@ -216,7 +216,7 @@ export default function ProfilePage() {
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-accent-cyan text-xs hover:underline"
+                        className="text-pink-600 text-xs hover:underline"
                       >
                         {link.url}
                       </a>

@@ -30,27 +30,27 @@ function timeAgo(dateString: string): string {
 
 function notificationIcon(type: NotificationType): { icon: string; color: string } {
   const map: Record<NotificationType, { icon: string; color: string }> = {
-    [NotificationType.SUBMISSION_APPROVED]: { icon: 'pi-check-circle', color: 'text-accent-emerald' },
-    [NotificationType.SUBMISSION_REJECTED]: { icon: 'pi-times-circle', color: 'text-accent-rose' },
-    [NotificationType.SUBMISSION_NEEDS_MORE_INFO]: { icon: 'pi-info-circle', color: 'text-accent-amber' },
-    [NotificationType.SUBMISSION_RECEIVED]: { icon: 'pi-inbox', color: 'text-accent-cyan' },
-    [NotificationType.APPLICATION_RECEIVED]: { icon: 'pi-user-plus', color: 'text-accent-cyan' },
-    [NotificationType.APPLICATION_APPROVED]: { icon: 'pi-verified', color: 'text-accent-emerald' },
-    [NotificationType.APPLICATION_REJECTED]: { icon: 'pi-ban', color: 'text-accent-rose' },
-    [NotificationType.INVITATION_RECEIVED]: { icon: 'pi-envelope', color: 'text-accent-violet' },
-    [NotificationType.INVITATION_ACCEPTED]: { icon: 'pi-check', color: 'text-accent-emerald' },
-    [NotificationType.INVITATION_DECLINED]: { icon: 'pi-times', color: 'text-accent-rose' },
-    [NotificationType.BOUNTY_PUBLISHED]: { icon: 'pi-megaphone', color: 'text-accent-cyan' },
+    [NotificationType.SUBMISSION_APPROVED]: { icon: 'pi-check-circle', color: 'text-success-600' },
+    [NotificationType.SUBMISSION_REJECTED]: { icon: 'pi-times-circle', color: 'text-danger-600' },
+    [NotificationType.SUBMISSION_NEEDS_MORE_INFO]: { icon: 'pi-info-circle', color: 'text-warning-600' },
+    [NotificationType.SUBMISSION_RECEIVED]: { icon: 'pi-inbox', color: 'text-pink-600' },
+    [NotificationType.APPLICATION_RECEIVED]: { icon: 'pi-user-plus', color: 'text-pink-600' },
+    [NotificationType.APPLICATION_APPROVED]: { icon: 'pi-verified', color: 'text-success-600' },
+    [NotificationType.APPLICATION_REJECTED]: { icon: 'pi-ban', color: 'text-danger-600' },
+    [NotificationType.INVITATION_RECEIVED]: { icon: 'pi-envelope', color: 'text-blue-600' },
+    [NotificationType.INVITATION_ACCEPTED]: { icon: 'pi-check', color: 'text-success-600' },
+    [NotificationType.INVITATION_DECLINED]: { icon: 'pi-times', color: 'text-danger-600' },
+    [NotificationType.BOUNTY_PUBLISHED]: { icon: 'pi-megaphone', color: 'text-pink-600' },
     [NotificationType.BOUNTY_CLOSED]: { icon: 'pi-lock', color: 'text-text-muted' },
-    [NotificationType.NEW_MESSAGE]: { icon: 'pi-comment', color: 'text-accent-violet' },
-    [NotificationType.PAYOUT_STATUS_CHANGED]: { icon: 'pi-wallet', color: 'text-accent-emerald' },
-    [NotificationType.SYSTEM_ANNOUNCEMENT]: { icon: 'pi-bell', color: 'text-accent-amber' },
-    [NotificationType.SUBSCRIPTION_ACTIVATED]: { icon: 'pi-star', color: 'text-accent-emerald' },
-    [NotificationType.SUBSCRIPTION_CANCELLED]: { icon: 'pi-times', color: 'text-accent-amber' },
-    [NotificationType.SUBSCRIPTION_EXPIRING]: { icon: 'pi-clock', color: 'text-accent-amber' },
-    [NotificationType.SUBSCRIPTION_EXPIRED]: { icon: 'pi-ban', color: 'text-accent-rose' },
-    [NotificationType.SUBSCRIPTION_PAYMENT_FAILED]: { icon: 'pi-exclamation-triangle', color: 'text-accent-rose' },
-    [NotificationType.SUBSCRIPTION_RENEWED]: { icon: 'pi-check-circle', color: 'text-accent-emerald' },
+    [NotificationType.NEW_MESSAGE]: { icon: 'pi-comment', color: 'text-blue-600' },
+    [NotificationType.PAYOUT_STATUS_CHANGED]: { icon: 'pi-wallet', color: 'text-success-600' },
+    [NotificationType.SYSTEM_ANNOUNCEMENT]: { icon: 'pi-bell', color: 'text-warning-600' },
+    [NotificationType.SUBSCRIPTION_ACTIVATED]: { icon: 'pi-star', color: 'text-success-600' },
+    [NotificationType.SUBSCRIPTION_CANCELLED]: { icon: 'pi-times', color: 'text-warning-600' },
+    [NotificationType.SUBSCRIPTION_EXPIRING]: { icon: 'pi-clock', color: 'text-warning-600' },
+    [NotificationType.SUBSCRIPTION_EXPIRED]: { icon: 'pi-ban', color: 'text-danger-600' },
+    [NotificationType.SUBSCRIPTION_PAYMENT_FAILED]: { icon: 'pi-exclamation-triangle', color: 'text-danger-600' },
+    [NotificationType.SUBSCRIPTION_RENEWED]: { icon: 'pi-check-circle', color: 'text-success-600' },
   };
   return map[type] ?? { icon: 'pi-bell', color: 'text-text-muted' };
 }
@@ -96,7 +96,7 @@ function NotificationsTab() {
             icon="pi pi-check-square"
             size="small"
             text
-            className="text-accent-cyan hover:text-accent-cyan/80 text-sm"
+            className="text-pink-600 hover:text-pink-600/80 text-sm"
             loading={markAll.isPending}
             onClick={() => markAll.mutate()}
           />
@@ -105,8 +105,8 @@ function NotificationsTab() {
 
       {notifications.length === 0 ? (
         <div className="glass-card p-12 text-center animate-fade-up">
-          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-accent-cyan/10 mx-auto mb-4">
-            <i className="pi pi-bell text-accent-cyan text-2xl" />
+          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-pink-600/10 mx-auto mb-4">
+            <i className="pi pi-bell text-pink-600 text-2xl" />
           </div>
           <h3 className="text-lg font-semibold text-text-primary mb-2">All caught up</h3>
           <p className="text-text-muted text-sm">No notifications yet.</p>
@@ -127,7 +127,7 @@ function NotificationsTab() {
                     <i className={`pi ${icon} ${color} text-base`} />
                   </div>
                   {!n.isRead && (
-                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-accent-rose border-2 border-bg-surface" />
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-danger-600 border-2 border-bg-surface" />
                   )}
                 </div>
 
@@ -164,8 +164,8 @@ function MessagesTab() {
 
       {conversations.length === 0 ? (
         <div className="glass-card p-12 text-center animate-fade-up">
-          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-accent-violet/10 mx-auto mb-4">
-            <i className="pi pi-comments text-accent-violet text-2xl" />
+          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-600/10 mx-auto mb-4">
+            <i className="pi pi-comments text-blue-600 text-2xl" />
           </div>
           <h3 className="text-lg font-semibold text-text-primary mb-2">No conversations</h3>
           <p className="text-text-muted text-sm">Your message threads will appear here.</p>
@@ -183,11 +183,11 @@ function MessagesTab() {
               >
                 {/* Avatar */}
                 <div className="relative shrink-0">
-                  <div className="w-10 h-10 rounded-full bg-accent-violet/20 text-accent-violet flex items-center justify-center text-sm font-semibold">
+                  <div className="w-10 h-10 rounded-full bg-blue-600/20 text-blue-600 flex items-center justify-center text-sm font-semibold">
                     {initials}
                   </div>
                   {conv.unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-accent-rose text-white text-[10px] font-bold leading-none px-1">
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-danger-600 text-white text-[10px] font-bold leading-none px-1">
                       {conv.unreadCount > 9 ? '9+' : conv.unreadCount}
                     </span>
                   )}
@@ -252,7 +252,7 @@ export default function InboxPage() {
         <button
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
             ${activeTab === 'notifications'
-              ? 'bg-accent-cyan/15 text-accent-cyan shadow-sm'
+              ? 'bg-pink-600/15 text-pink-600 shadow-sm'
               : 'text-text-muted hover:text-text-primary hover:bg-slate-100'
             }`}
           onClick={() => setActiveTab('notifications')}
@@ -263,7 +263,7 @@ export default function InboxPage() {
         <button
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
             ${activeTab === 'messages'
-              ? 'bg-accent-violet/15 text-accent-violet shadow-sm'
+              ? 'bg-blue-600/15 text-blue-600 shadow-sm'
               : 'text-text-muted hover:text-text-primary hover:bg-slate-100'
             }`}
           onClick={() => setActiveTab('messages')}

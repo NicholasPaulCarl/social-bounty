@@ -9,8 +9,8 @@ import type { RewardLineInput } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
 
 const REWARD_TYPE_OPTIONS = [
-  { label: 'Cash', value: RewardType.CASH, icon: 'pi pi-money-bill', iconColor: 'text-accent-emerald' },
-  { label: 'Product', value: RewardType.PRODUCT, icon: 'pi pi-box', iconColor: 'text-accent-cyan' },
+  { label: 'Cash', value: RewardType.CASH, icon: 'pi pi-money-bill', iconColor: 'text-success-600' },
+  { label: 'Product', value: RewardType.PRODUCT, icon: 'pi pi-box', iconColor: 'text-pink-600' },
   { label: 'Service', value: RewardType.SERVICE, icon: 'pi pi-wrench', iconColor: 'text-warning-600' },
   { label: 'Other', value: RewardType.OTHER, icon: 'pi pi-gift', iconColor: 'text-text-secondary' },
 ];
@@ -69,7 +69,7 @@ export function RewardLinesSection({
 
       <div className="mb-2">
         <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1">
-          Rewards <span className="text-accent-rose">*</span>
+          Rewards <span className="text-danger-600">*</span>
         </label>
         <p className="text-xs text-text-muted">
           At least one reward with a value greater than zero is required.
@@ -109,7 +109,7 @@ export function RewardLinesSection({
                   placeholder="e.g. 3-month gym membership"
                 />
                 {submitAttempted && errors[`reward_${index}_name`] && (
-                  <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+                  <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
                     <i className="pi pi-exclamation-circle text-xs" />
                     {errors[`reward_${index}_name`]}
                   </small>
@@ -130,7 +130,7 @@ export function RewardLinesSection({
                 placeholder="0.00"
               />
               {submitAttempted && errors[`reward_${index}_value`] && (
-                <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
                   <i className="pi pi-exclamation-circle text-xs" />
                   {errors[`reward_${index}_value`]}
                 </small>
@@ -201,7 +201,7 @@ export function RewardLinesSection({
       </div>
 
       {submitAttempted && errors.rewards && (
-        <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+        <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
           <i className="pi pi-exclamation-circle text-xs" />
           {errors.rewards}
         </small>

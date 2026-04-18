@@ -40,7 +40,7 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
   return (
     <div>
       <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-2">
-        Social Platforms <span className="text-accent-rose">*</span>
+        Social Platforms <span className="text-danger-600">*</span>
       </label>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {CHANNEL_META.map(({ channel, label, icon }) => {
@@ -51,8 +51,8 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
               key={channel}
               className={`border rounded-lg p-4 transition-colors ${
                 selected
-                  ? 'border-2 border-accent-cyan bg-accent-cyan/10'
-                  : 'border-glass-border bg-surface hover:border-accent-cyan'
+                  ? 'border-2 border-pink-600 bg-pink-600/10'
+                  : 'border-glass-border bg-surface hover:border-pink-600'
               }`}
             >
               <button
@@ -62,13 +62,13 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
               >
                 <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
                   selected
-                    ? 'border-accent-cyan bg-accent-cyan'
+                    ? 'border-pink-600 bg-pink-600'
                     : 'border-glass-border bg-white'
                 }`}>
                   {selected && <i className="pi pi-check text-white text-[10px] font-bold" />}
                 </div>
-                <i className={`pi ${icon} text-lg ${selected ? 'text-accent-cyan' : 'text-text-muted'}`} />
-                <span className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>
+                <i className={`pi ${icon} text-lg ${selected ? 'text-pink-600' : 'text-text-muted'}`} />
+                <span className={`text-sm font-medium ${selected ? 'text-pink-600' : 'text-text-primary'}`}>
                   {label}
                 </span>
               </button>
@@ -83,8 +83,8 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
                         onClick={() => toggleFormat(channel, fmt)}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs transition-colors ${
                           fmtSelected
-                            ? 'border-accent-cyan bg-accent-cyan text-white'
-                            : 'border-glass-border bg-white text-text-primary hover:border-accent-cyan'
+                            ? 'border-pink-600 bg-pink-600 text-white'
+                            : 'border-glass-border bg-white text-text-primary hover:border-pink-600'
                         }`}
                       >
                         {fmtSelected && <i className="pi pi-check text-[10px]" />}
@@ -99,7 +99,7 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
         })}
       </div>
       {submitAttempted && errors.channels && (
-        <small className="text-xs text-accent-rose mt-2 flex items-center gap-1">
+        <small className="text-xs text-danger-600 mt-2 flex items-center gap-1">
           <i className="pi pi-exclamation-circle text-xs" />
           {errors.channels}
         </small>

@@ -30,11 +30,11 @@ export function PropsTable({ props }: PropsTableProps) {
         <tbody>
           {props.map((p) => (
             <tr key={p.name} className="border-b border-glass-border/30">
-              <td className="px-4 py-2.5 font-mono text-accent-cyan text-xs">{p.name}</td>
-              <td className="px-4 py-2.5 font-mono text-accent-violet text-xs">{p.type}</td>
+              <td className="px-4 py-2.5 font-mono text-pink-600 text-xs">{p.name}</td>
+              <td className="px-4 py-2.5 font-mono text-blue-600 text-xs">{p.type}</td>
               <td className="px-4 py-2.5 font-mono text-text-muted text-xs">{p.default}</td>
               <td className="px-4 py-2.5">
-                <span className={`inline-block w-2 h-2 rounded-full ${p.required ? 'bg-accent-emerald' : 'bg-elevated'}`} />
+                <span className={`inline-block w-2 h-2 rounded-full ${p.required ? 'bg-success-600' : 'bg-elevated'}`} />
               </td>
               <td className="px-4 py-2.5 text-text-secondary text-xs">{p.description}</td>
             </tr>

@@ -59,7 +59,7 @@ export default function ComponentLibraryPage() {
         <main className="flex-1 min-w-0 animate-fade-up">
           <section id="brand" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-star text-accent-amber" />
+              <i className="pi pi-star text-warning-600" />
               Brand Guidelines
             </h2>
             <BrandSection />
@@ -67,7 +67,7 @@ export default function ComponentLibraryPage() {
 
           <section id="design-tokens" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-palette text-accent-cyan" />
+              <i className="pi pi-palette text-pink-600" />
               Design Tokens
             </h2>
             <DesignTokensSection />
@@ -75,7 +75,7 @@ export default function ComponentLibraryPage() {
 
           <section id="atoms" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-circle text-accent-cyan" />
+              <i className="pi pi-circle text-pink-600" />
               Atoms
             </h2>
             <AtomsSection />
@@ -83,7 +83,7 @@ export default function ComponentLibraryPage() {
 
           <section id="molecules" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-th-large text-accent-cyan" />
+              <i className="pi pi-th-large text-pink-600" />
               Molecules
             </h2>
             <MoleculesSection />
@@ -91,7 +91,7 @@ export default function ComponentLibraryPage() {
 
           <section id="organisms" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-sitemap text-accent-cyan" />
+              <i className="pi pi-sitemap text-pink-600" />
               Organisms
             </h2>
             <OrganismsSection />
@@ -99,7 +99,7 @@ export default function ComponentLibraryPage() {
 
           <section id="form-sections" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-list text-accent-cyan" />
+              <i className="pi pi-list text-pink-600" />
               Form Sections
             </h2>
             <FormSectionsSection />
@@ -107,7 +107,7 @@ export default function ComponentLibraryPage() {
 
           <section id="primereact" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-prime text-accent-cyan" />
+              <i className="pi pi-prime text-pink-600" />
               PrimeReact Components
             </h2>
             <PrimeReactSection />

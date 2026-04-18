@@ -102,7 +102,7 @@ function HistoryDialog({
                     href={row.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-accent-cyan hover:underline text-xs break-all"
+                    className="text-pink-600 hover:underline text-xs break-all"
                   >
                     {row.url}
                   </a>
@@ -119,7 +119,7 @@ function HistoryDialog({
               </div>
 
               {row.errorMessage && (
-                <div className="bg-accent-rose/10 border border-accent-rose/30 text-accent-rose text-xs px-3 py-2 rounded-lg">
+                <div className="bg-danger-600/10 border border-danger-600/30 text-danger-600 text-xs px-3 py-2 rounded-lg">
                   <i className="pi pi-exclamation-circle mr-1.5" />
                   {row.errorMessage}
                 </div>
@@ -143,8 +143,8 @@ function HistoryDialog({
                         <i
                           className={
                             c.pass
-                              ? 'pi pi-check-circle text-accent-emerald'
-                              : 'pi pi-times-circle text-accent-rose'
+                              ? 'pi pi-check-circle text-success-600'
+                              : 'pi pi-times-circle text-danger-600'
                           }
                         />
                         <span className="text-text-secondary">{c.rule ?? 'rule'}</span>
@@ -210,7 +210,7 @@ export default function VisibilityFailuresPage() {
 
       {criticalKbBanner && (
         <div
-          className="mb-4 bg-accent-rose/10 border border-accent-rose/30 text-accent-rose px-4 py-3 rounded-xl flex items-start gap-3"
+          className="mb-4 bg-danger-600/10 border border-danger-600/30 text-danger-600 px-4 py-3 rounded-xl flex items-start gap-3"
           role="alert"
         >
           <i className="pi pi-exclamation-triangle mt-0.5 shrink-0" />
@@ -219,7 +219,7 @@ export default function VisibilityFailuresPage() {
               {criticalKbBanner.length} critical post-visibility recurrence
               {criticalKbBanner.length > 1 ? 's' : ''} open
             </div>
-            <div className="text-xs mt-1 text-accent-rose/90">
+            <div className="text-xs mt-1 text-danger-600/90">
               {criticalKbBanner
                 .slice(0, 3)
                 .map((e) => e.title)

@@ -8,7 +8,7 @@ export function VerifiedBadge({ className }: VerifiedBadgeProps) {
       className={`inline-flex items-center justify-center ${className ?? ''}`}
       title="Pro Hunter — Verified"
     >
-      <i className="pi pi-verified text-accent-cyan text-xs" />
+      <i className="pi pi-verified text-pink-600 text-xs" />
     </span>
   );
 }

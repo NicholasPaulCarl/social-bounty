@@ -97,7 +97,7 @@ export default function BusinessSubmissionReviewPage() {
                           href={link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-accent-cyan hover:underline"
+                          className="text-pink-600 hover:underline"
                         >
                           {link}
                         </a>
@@ -181,7 +181,7 @@ export default function BusinessSubmissionReviewPage() {
               <div>
                 <dt className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Bounty</dt>
                 <dd
-                  className="text-sm font-medium text-accent-cyan hover:underline cursor-pointer"
+                  className="text-sm font-medium text-pink-600 hover:underline cursor-pointer"
                   onClick={() => router.push(`/business/bounties/${bountyId}`)}
                 >
                   {bounty?.title || 'Loading...'}

@@ -48,7 +48,7 @@ export function ScheduleSection({ startDate, endDate, dispatch, errors, submitAt
         />
         <small className="text-xs text-text-muted mt-1 block">When the bounty closes for submissions</small>
         {errors.endDate && (
-          <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
+          <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
             <i className="pi pi-exclamation-circle text-xs" />
             {errors.endDate}
           </small>

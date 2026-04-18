@@ -60,7 +60,7 @@ function MessageBubble({ msg, isMine }: { msg: InboxMessageResponse; isMine: boo
     <div className={`flex items-end gap-3 ${isMine ? 'flex-row-reverse' : ''}`}>
       {/* Avatar */}
       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mb-0.5
-        ${isMine ? 'bg-accent-cyan/20 text-accent-cyan' : 'bg-accent-violet/20 text-accent-violet'}`}>
+        ${isMine ? 'bg-pink-600/20 text-pink-600' : 'bg-blue-600/20 text-blue-600'}`}>
         {senderInitials(msg.senderName)}
       </div>
 
@@ -75,7 +75,7 @@ function MessageBubble({ msg, isMine }: { msg: InboxMessageResponse; isMine: boo
         {/* Bubble */}
         <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed
           ${isMine
-            ? 'bg-accent-cyan/15 text-text-primary border border-accent-cyan/20 rounded-br-sm'
+            ? 'bg-pink-600/15 text-text-primary border border-pink-600/20 rounded-br-sm'
             : 'bg-elevated text-text-primary border border-glass-border rounded-bl-sm'
           }`}>
           {msg.body}
@@ -87,7 +87,7 @@ function MessageBubble({ msg, isMine }: { msg: InboxMessageResponse; isMine: boo
             href={msg.attachmentUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-xs text-accent-cyan hover:text-accent-cyan/80 transition-colors px-1"
+            className="flex items-center gap-2 text-xs text-pink-600 hover:text-pink-600/80 transition-colors px-1"
           >
             <i className="pi pi-paperclip" />
             {msg.attachmentName ?? 'Attachment'}
@@ -180,7 +180,7 @@ export default function ConversationPage() {
                 <i className="pi pi-users text-[10px]" />
                 {participantNames}
               </span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-pink-600/10 text-pink-600 border border-pink-600/20">
                 {contextLabel}
               </span>
               {data.referenceId && (
@@ -223,14 +223,14 @@ export default function ConversationPage() {
             onKeyDown={handleKeyDown}
             placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
             rows={2}
-            className="flex-1 bg-elevated border border-glass-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted resize-none focus:outline-none focus:border-accent-cyan/50 transition-colors leading-relaxed"
+            className="flex-1 bg-elevated border border-glass-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted resize-none focus:outline-none focus:border-pink-600/50 transition-colors leading-relaxed"
           />
           <Button
             icon="pi pi-send"
             rounded
             disabled={!body.trim() || sendMessage.isPending}
             loading={sendMessage.isPending}
-            className="bg-accent-cyan border-accent-cyan text-background hover:bg-accent-cyan/90 shrink-0 mb-0.5"
+            className="bg-pink-600 border-pink-600 text-background hover:bg-pink-600/90 shrink-0 mb-0.5"
             onClick={handleSend}
             aria-label="Send message"
           />

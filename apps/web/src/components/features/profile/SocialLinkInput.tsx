@@ -31,7 +31,7 @@ const PLATFORM_ICONS: Record<SocialChannel, string> = {
 
 const PLATFORM_COLORS: Record<SocialChannel, string> = {
   [SocialChannel.INSTAGRAM]: 'text-pink-400',
-  [SocialChannel.TIKTOK]: 'text-accent-cyan',
+  [SocialChannel.TIKTOK]: 'text-pink-600',
   [SocialChannel.FACEBOOK]: 'text-blue-400',
 };
 

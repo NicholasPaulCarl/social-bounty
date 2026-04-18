@@ -33,9 +33,9 @@ export function ErrorState({ error, onRetry }: ErrorStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-10 sm:py-16 px-4">
       <div className="relative">
-        <div className="absolute inset-0 bg-accent-rose/20 blur-2xl rounded-full" />
+        <div className="absolute inset-0 bg-danger-600/20 blur-2xl rounded-full" />
         <i
-          className={`pi ${icon} text-accent-rose relative text-[2rem] sm:text-[3rem]`}
+          className={`pi ${icon} text-danger-600 relative text-[2rem] sm:text-[3rem]`}
         />
       </div>
       <h3 className="text-base sm:text-lg font-heading font-semibold text-text-primary mt-4 sm:mt-6">

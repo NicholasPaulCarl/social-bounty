@@ -271,7 +271,7 @@ export default function FinanceInsightsPage() {
                 role="link"
                 tabIndex={0}
                 aria-label={`View KB drill-down for ${s.system}`}
-                className="cursor-pointer hover:shadow-lg transition-shadow focus:outline-none focus:ring-2 focus:ring-accent-cyan/60"
+                className="cursor-pointer hover:shadow-lg transition-shadow focus:outline-none focus:ring-2 focus:ring-pink-600/60"
                 onClick={() => router.push(href)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {

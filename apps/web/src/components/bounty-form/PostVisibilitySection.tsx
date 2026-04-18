@@ -62,7 +62,7 @@ export function PostVisibilitySection({
           <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:items-end sm:gap-2">
             <div className="flex flex-col gap-1 min-w-0">
               <label className="text-text-muted text-xs uppercase tracking-wider font-medium">
-                Duration <span className="text-accent-rose">*</span>
+                Duration <span className="text-danger-600">*</span>
               </label>
               <InputNumber
                 value={postVisibility?.minDurationValue ?? null}
@@ -74,7 +74,7 @@ export function PostVisibilitySection({
             </div>
             <div className="flex flex-col gap-1 min-w-0">
               <label className="text-text-muted text-xs uppercase tracking-wider font-medium">
-                Unit <span className="text-accent-rose">*</span>
+                Unit <span className="text-danger-600">*</span>
               </label>
               <Dropdown
                 value={postVisibility?.minDurationUnit ?? null}

@@ -36,7 +36,7 @@ export function FormSummaryFooter({
         <div className="max-w-4xl mx-auto px-0 py-2 flex items-center justify-between gap-6">
           <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
           <div className="flex items-center gap-6">
-            <p className="text-base font-heading font-semibold text-accent-emerald leading-tight whitespace-nowrap">
+            <p className="text-base font-heading font-semibold text-success-600 leading-tight whitespace-nowrap">
               <span className="text-text-muted text-sm font-normal mr-1">{currencySymbol}</span>
               {totalRewardValue.toFixed(2)}
             </p>
@@ -62,7 +62,7 @@ export function FormSummaryFooter({
       */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl px-3 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom,0.375rem))]">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-heading font-semibold text-accent-emerald leading-none whitespace-nowrap shrink-0">
+          <p className="text-sm font-heading font-semibold text-success-600 leading-none whitespace-nowrap shrink-0">
             {currencySymbol} {totalRewardValue.toFixed(2)}
           </p>
           <div className="flex items-center gap-2 shrink-0">

@@ -70,9 +70,9 @@ export default function FormSectionsSection() {
     <div className="space-y-12">
       <div className="glass-card p-4 mb-4">
         <p className="text-sm text-text-secondary">
-          <i className="pi pi-info-circle text-accent-cyan mr-2" />
-          All 10 form sections live inside <code className="text-accent-violet text-xs font-mono">CreateBountyForm</code> and
-          share state via <code className="text-accent-violet text-xs font-mono">useReducer</code>. They cannot be rendered
+          <i className="pi pi-info-circle text-pink-600 mr-2" />
+          All 10 form sections live inside <code className="text-blue-600 text-xs font-mono">CreateBountyForm</code> and
+          share state via <code className="text-blue-600 text-xs font-mono">useReducer</code>. They cannot be rendered
           standalone without the form context, so only code snippets are shown below.
         </p>
       </div>
