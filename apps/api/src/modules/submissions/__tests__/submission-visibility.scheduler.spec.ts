@@ -9,6 +9,7 @@ import {
 } from '@social-bounty/shared';
 import { AuditService } from '../../audit/audit.service';
 import { KbService } from '../../kb/kb.service';
+import { LedgerService } from '../../ledger/ledger.service';
 import { MailService } from '../../mail/mail.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../redis/redis.service';
@@ -59,6 +60,24 @@ describe('SubmissionVisibilityScheduler', () => {
       { totalUrls: number; failedUrls: number; verifiedUrls: number; failureMessages: string[] }
     >;
     brand?: { name: string; memberEmail: string | null };
+    /** When set, isKillSwitchActive resolves true. */
+    killSwitchActive?: boolean;
+    /**
+     * Per-submission failed scrape rows returned by
+     * prisma.submissionUrlScrape.findFirst. Keyed by submissionId.
+     * Used by the first-failure hunter notification path.
+     */
+    failedUrlScrapes?: Map<
+      string,
+      { url: string; channel: string; format: string; errorMessage: string | null } | null
+    >;
+    /**
+     * Per-bounty SubmissionUrlScrapeHistory totals returned by the
+     * cap pre-check. Keyed by bountyId. Each entry produces N
+     * groupBy rows split across submissions belonging to that bounty.
+     * When unset, the cap pre-check returns an empty array.
+     */
+    historyCountsByBounty?: Map<string, number>;
   }) {
     const lockAcquired = opts.lockAcquired ?? true;
     const submissionsStore = new Map(
@@ -71,6 +90,8 @@ describe('SubmissionVisibilityScheduler', () => {
       ]),
     );
     const rescrapeResults = opts.rescrapeResults ?? new Map();
+    const failedUrlScrapes = opts.failedUrlScrapes ?? new Map();
+    const historyCountsByBounty = opts.historyCountsByBounty ?? new Map<string, number>();
 
     const prisma = {
       submission: {
@@ -109,6 +130,41 @@ describe('SubmissionVisibilityScheduler', () => {
           };
         }),
       },
+      submissionUrlScrape: {
+        findFirst: jest.fn(async ({ where }: any) => {
+          return failedUrlScrapes.get(where?.submissionId) ?? null;
+        }),
+      },
+      submissionUrlScrapeHistory: {
+        groupBy: jest.fn(async ({ where }: any) => {
+          const bountyIds: string[] = where?.submission?.bountyId?.in ?? [];
+          // Distribute the per-bounty total across one synthetic row per
+          // submission belonging to that bounty (so the JS-side aggregate
+          // sums correctly). If a bounty has no submissions in the
+          // eligible set we just emit one synthetic submissionId row.
+          const rows: Array<{ submissionId: string; _count: { _all: number } }> = [];
+          for (const bId of bountyIds) {
+            const total = historyCountsByBounty.get(bId);
+            if (!total) continue;
+            const subs = Array.from(submissionsStore.values()).filter(
+              (s) => s.bounty.id === bId,
+            );
+            if (subs.length === 0) {
+              rows.push({ submissionId: `synth-${bId}`, _count: { _all: total } });
+              continue;
+            }
+            const each = Math.floor(total / subs.length);
+            const remainder = total - each * subs.length;
+            subs.forEach((s, i) =>
+              rows.push({
+                submissionId: s.id,
+                _count: { _all: each + (i === 0 ? remainder : 0) },
+              }),
+            );
+          }
+          return rows;
+        }),
+      },
     } as unknown as PrismaService;
 
     const redis = {
@@ -123,11 +179,16 @@ describe('SubmissionVisibilityScheduler', () => {
     const mailService = {
       sendPostRemovedBrandEmail: jest.fn().mockResolvedValue(undefined),
       sendPostRemovedHunterEmail: jest.fn().mockResolvedValue(undefined),
+      sendPostVisibilityWarningHunterEmail: jest.fn().mockResolvedValue(undefined),
     } as unknown as MailService;
 
     const kbService = {
       recordRecurrence: jest.fn().mockResolvedValue({ isNew: true, issue: { id: 'issue-1' } }),
     } as unknown as KbService;
+
+    const ledgerService = {
+      isKillSwitchActive: jest.fn().mockResolvedValue(opts.killSwitchActive ?? false),
+    } as unknown as LedgerService;
 
     const refundsService = {
       requestAfterApproval: jest.fn().mockResolvedValue({ id: 'refund-1' }),
@@ -158,6 +219,7 @@ describe('SubmissionVisibilityScheduler', () => {
       auditService,
       mailService,
       kbService,
+      ledgerService,
       refundsService,
       scraper,
       config,
@@ -170,6 +232,7 @@ describe('SubmissionVisibilityScheduler', () => {
       auditService,
       mailService,
       kbService,
+      ledgerService,
       refundsService,
       scraper,
       submissionsStore,
@@ -441,5 +504,297 @@ describe('SubmissionVisibilityScheduler', () => {
     await scheduler.runRecheckPass();
 
     expect(scraper.rescrapeForVisibility).toHaveBeenCalledTimes(1);
+  });
+
+  // ── Phase 3A — kill-switch gate (ADR 0010 §3) ──────────────────────
+
+  describe('kill switch gate', () => {
+    it('skips refund + audit + emails and records KB recurrence when active', async () => {
+      const {
+        scheduler,
+        scraper,
+        refundsService,
+        mailService,
+        auditService,
+        kbService,
+        ledgerService,
+        submissionsStore,
+      } = buildHarness({
+        killSwitchActive: true,
+        submissions: [
+          buildSubmission({ id: 'sub-ks', consecutiveVisibilityFailures: 1 }),
+        ],
+        rescrapeResults: new Map([
+          [
+            'sub-ks',
+            {
+              totalUrls: 1,
+              failedUrls: 1,
+              verifiedUrls: 0,
+              failureMessages: ['INSTAGRAM REEL: 404'],
+            },
+          ],
+        ]),
+      });
+
+      await scheduler.runRecheckPass();
+
+      expect(scraper.rescrapeForVisibility).toHaveBeenCalledTimes(1);
+      expect(ledgerService.isKillSwitchActive).toHaveBeenCalled();
+      expect(refundsService.requestAfterApproval).not.toHaveBeenCalled();
+      expect(auditService.log).not.toHaveBeenCalled();
+      expect(mailService.sendPostRemovedBrandEmail).not.toHaveBeenCalled();
+      expect(mailService.sendPostRemovedHunterEmail).not.toHaveBeenCalled();
+      expect(kbService.recordRecurrence).toHaveBeenCalledWith(
+        expect.objectContaining({
+          errorCode: 'POST_VISIBILITY_REFUND_KILL_SWITCHED',
+          severity: 'warning',
+        }),
+      );
+      // Counter must not advance past previous value when refund deferred —
+      // the next post-clearance tick should retry without inflating count.
+      const after = submissionsStore.get('sub-ks')!;
+      expect(after.consecutiveVisibilityFailures).toBe(1);
+    });
+
+    it('does not consult kill switch when below threshold (no refund pending)', async () => {
+      const { scheduler, ledgerService } = buildHarness({
+        killSwitchActive: true,
+        submissions: [
+          buildSubmission({ id: 'sub-first', consecutiveVisibilityFailures: 0 }),
+        ],
+        rescrapeResults: new Map([
+          [
+            'sub-first',
+            { totalUrls: 1, failedUrls: 1, verifiedUrls: 0, failureMessages: ['x'] },
+          ],
+        ]),
+        failedUrlScrapes: new Map([
+          [
+            'sub-first',
+            { url: 'https://instagram.com/p/abc', channel: 'INSTAGRAM', format: 'FEED_POST', errorMessage: 'x' },
+          ],
+        ]),
+      });
+
+      await scheduler.runRecheckPass();
+
+      expect(ledgerService.isKillSwitchActive).not.toHaveBeenCalled();
+    });
+
+    it('updates lastVisibilityCheckAt under kill switch so cadence still advances', async () => {
+      const { scheduler, submissionsStore } = buildHarness({
+        killSwitchActive: true,
+        submissions: [
+          buildSubmission({ id: 'sub-ks2', consecutiveVisibilityFailures: 1 }),
+        ],
+        rescrapeResults: new Map([
+          [
+            'sub-ks2',
+            { totalUrls: 1, failedUrls: 1, verifiedUrls: 0, failureMessages: ['z'] },
+          ],
+        ]),
+      });
+
+      const before = submissionsStore.get('sub-ks2')!.lastVisibilityCheckAt;
+      await scheduler.runRecheckPass();
+      const after = submissionsStore.get('sub-ks2')!;
+      expect(after.lastVisibilityCheckAt).not.toBe(before);
+      expect(after.lastVisibilityCheckAt).toBeInstanceOf(Date);
+    });
+  });
+
+  // ── Phase 3A — first-failure hunter notification (ADR 0010 §2) ─────
+
+  describe('first-failure hunter notification', () => {
+    it('sends warning email to hunter on the 0→1 transition', async () => {
+      const { scheduler, mailService } = buildHarness({
+        submissions: [
+          buildSubmission({ id: 'sub-warn', consecutiveVisibilityFailures: 0 }),
+        ],
+        rescrapeResults: new Map([
+          [
+            'sub-warn',
+            {
+              totalUrls: 1,
+              failedUrls: 1,
+              verifiedUrls: 0,
+              failureMessages: ['INSTAGRAM REEL: 404 not found'],
+            },
+          ],
+        ]),
+        failedUrlScrapes: new Map([
+          [
+            'sub-warn',
+            {
+              url: 'https://instagram.com/reel/abc',
+              channel: 'INSTAGRAM',
+              format: 'REEL',
+              errorMessage: '404 not found',
+            },
+          ],
+        ]),
+      });
+
+      await scheduler.runRecheckPass();
+
+      expect(mailService.sendPostVisibilityWarningHunterEmail).toHaveBeenCalledTimes(1);
+      const call = (mailService.sendPostVisibilityWarningHunterEmail as jest.Mock).mock.calls[0];
+      expect(call[0]).toBe('hunter@test.com');
+      expect(call[1]).toMatchObject({
+        hunterName: 'Hunter',
+        bountyTitle: 'Test Bounty',
+        channel: 'INSTAGRAM',
+        url: 'https://instagram.com/reel/abc',
+        errorMessage: '404 not found',
+      });
+      // Brand path must remain quiet on first failure.
+      expect(mailService.sendPostRemovedBrandEmail).not.toHaveBeenCalled();
+      expect(mailService.sendPostRemovedHunterEmail).not.toHaveBeenCalled();
+    });
+
+    it('does NOT send warning on the 1→2 transition (refund path emails handle that)', async () => {
+      const { scheduler, mailService } = buildHarness({
+        submissions: [
+          buildSubmission({ id: 'sub-2nd', consecutiveVisibilityFailures: 1 }),
+        ],
+        rescrapeResults: new Map([
+          [
+            'sub-2nd',
+            {
+              totalUrls: 1,
+              failedUrls: 1,
+              verifiedUrls: 0,
+              failureMessages: ['TIKTOK VIDEO_POST: gone'],
+            },
+          ],
+        ]),
+      });
+
+      await scheduler.runRecheckPass();
+
+      expect(mailService.sendPostVisibilityWarningHunterEmail).not.toHaveBeenCalled();
+      // The standard auto-refund emails fire instead.
+      expect(mailService.sendPostRemovedBrandEmail).toHaveBeenCalledTimes(1);
+      expect(mailService.sendPostRemovedHunterEmail).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // ── Phase 3A — per-bounty cost cap (ADR 0010 §4) ───────────────────
+
+  describe('per-bounty cost cap', () => {
+    it('processes a bounty under the cap normally', async () => {
+      const { scheduler, scraper, kbService } = buildHarness({
+        submissions: [
+          buildSubmission({
+            id: 'sub-under',
+            bounty: {
+              id: 'bounty-under',
+              title: 'Under-Cap Bounty',
+              brandId: 'brand-1',
+              postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+            },
+          }),
+        ],
+        historyCountsByBounty: new Map([['bounty-under', 5]]),
+        rescrapeResults: new Map([
+          ['sub-under', { totalUrls: 1, failedUrls: 0, verifiedUrls: 1, failureMessages: [] }],
+        ]),
+      });
+
+      await scheduler.runRecheckPass();
+
+      expect(scraper.rescrapeForVisibility).toHaveBeenCalledWith('sub-under');
+      expect(kbService.recordRecurrence).not.toHaveBeenCalledWith(
+        expect.objectContaining({ errorCode: 'VISIBILITY_RESCRAPE_CAP_REACHED' }),
+      );
+    });
+
+    it('skips every submission belonging to a capped bounty + KB recurrence + log', async () => {
+      const { scheduler, scraper, kbService } = buildHarness({
+        submissions: [
+          buildSubmission({
+            id: 'sub-capped-1',
+            bounty: {
+              id: 'bounty-capped',
+              title: 'Capped Bounty',
+              brandId: 'brand-1',
+              postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+            },
+          }),
+          buildSubmission({
+            id: 'sub-capped-2',
+            userId: 'hunter-2',
+            user: { email: 'hunter2@test.com', firstName: 'Hunter2', lastName: 'Two' },
+            bounty: {
+              id: 'bounty-capped',
+              title: 'Capped Bounty',
+              brandId: 'brand-1',
+              postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+            },
+          }),
+        ],
+        historyCountsByBounty: new Map([['bounty-capped', 30]]),
+      });
+
+      await scheduler.runRecheckPass();
+
+      expect(scraper.rescrapeForVisibility).not.toHaveBeenCalled();
+      const capCalls = (kbService.recordRecurrence as jest.Mock).mock.calls.filter(
+        (c) => c[0]?.errorCode === 'VISIBILITY_RESCRAPE_CAP_REACHED',
+      );
+      expect(capCalls).toHaveLength(1);
+      expect(capCalls[0][0]).toMatchObject({
+        category: 'post_visibility',
+        severity: 'warning',
+        metadata: expect.objectContaining({ bountyId: 'bounty-capped', count: 30 }),
+      });
+    });
+
+    it('mixed: capped bounty skipped, others processed', async () => {
+      const { scheduler, scraper, kbService } = buildHarness({
+        submissions: [
+          buildSubmission({
+            id: 'sub-capped',
+            bounty: {
+              id: 'bounty-capped',
+              title: 'Capped Bounty',
+              brandId: 'brand-1',
+              postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+            },
+          }),
+          buildSubmission({
+            id: 'sub-ok',
+            userId: 'hunter-2',
+            user: { email: 'hunter2@test.com', firstName: 'Hunter2', lastName: 'Two' },
+            bounty: {
+              id: 'bounty-ok',
+              title: 'Healthy Bounty',
+              brandId: 'brand-2',
+              postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+            },
+          }),
+        ],
+        historyCountsByBounty: new Map([
+          ['bounty-capped', 35],
+          ['bounty-ok', 10],
+        ]),
+        rescrapeResults: new Map([
+          ['sub-ok', { totalUrls: 1, failedUrls: 0, verifiedUrls: 1, failureMessages: [] }],
+        ]),
+      });
+
+      await scheduler.runRecheckPass();
+
+      // Only the healthy bounty's submission is processed.
+      expect(scraper.rescrapeForVisibility).toHaveBeenCalledTimes(1);
+      expect(scraper.rescrapeForVisibility).toHaveBeenCalledWith('sub-ok');
+      // Capped bounty surfaces exactly one KB recurrence per tick.
+      const capCalls = (kbService.recordRecurrence as jest.Mock).mock.calls.filter(
+        (c) => c[0]?.errorCode === 'VISIBILITY_RESCRAPE_CAP_REACHED',
+      );
+      expect(capCalls).toHaveLength(1);
+      expect(capCalls[0][0].metadata).toMatchObject({ bountyId: 'bounty-capped', count: 35 });
+    });
   });
 });
