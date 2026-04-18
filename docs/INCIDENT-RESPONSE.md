@@ -1,9 +1,11 @@
 # Incident Response Playbook — Social Bounty
 
-**Version:** 1.0
+**Version:** 1.1
 **Owner:** Engineering Lead
-**Last Updated:** 2026-03-27
+**Last Updated:** 2026-04-18
 **Review Cycle:** Quarterly
+
+> **IMPORTANT — pre-launch:** this playbook contains contact placeholders written as `<TO BE FILLED — ...>`. Every one MUST be filled with real contact details before prod cutover. The go-live checklist (`docs/deployment/go-live-checklist.md` §7) gates this.
 
 ---
 
@@ -18,6 +20,7 @@
    - [5.2 Service Outage](#52-service-outage)
    - [5.3 Account Compromise](#53-account-compromise)
    - [5.4 Dependency Vulnerability](#54-dependency-vulnerability)
+   - [5.5 Financial Kill Switch (Payment Incidents)](#55-financial-kill-switch-payment-incidents)
 6. [Communication Templates](#6-communication-templates)
 7. [Post-Incident Review Template](#7-post-incident-review-template)
 
@@ -59,7 +62,7 @@ All contacts are placeholders. Replace with real names and channels before going
 | Security Lead | [Security Lead Name] | Slack #security / Mobile | [Security Lead Email] | Any suspected breach, account compromise, or CVE exploitation |
 | Product Lead | [Product Lead Name] | Slack DM | [Product Lead Email] | SEV-1/SEV-2; any user-facing impact lasting >1 hour |
 | Legal Counsel | [Legal Counsel Name/Firm] | [Phone] | [Email] | Any confirmed data breach (GDPR/POPIA notification obligations) |
-| Payment Processor Support | [Stripe/Payment Provider] | [Support Phone] | [Merchant Dashboard] | Any payment processing failure |
+| Payment Processor Support (Stitch Express) | <TO BE FILLED — Stitch account manager name> | <TO BE FILLED — Stitch support email + out-of-hours phone> | <TO BE FILLED — Stitch merchant dashboard URL (https://express.stitch.money)> | Any payment processing failure, settlement webhook failure, or Stitch API outage |
 | Infrastructure / Hosting Support | [Hosting Provider] | [Support Ticket URL] | [Emergency Phone] | Infrastructure-level outages |
 
 **Incident Commander:** The first senior engineer to acknowledge a SEV-1 or SEV-2 becomes the Incident Commander (IC) until explicitly handed off. The IC coordinates response, owns communication, and makes containment decisions.
@@ -244,6 +247,31 @@ The following vulnerabilities have been assessed and deferred pending major vers
 | `nodemailer` | GHSA-mm7p-fcc7-pg87 | High | Requires nodemailer v8 migration | Pre-production |
 | `next` | Multiple | High | Requires Next.js v16 migration | Pre-production |
 | `@nestjs/cli` chain | Multiple | Moderate/High | Dev-only; requires NestJS CLI v11 | Sprint N+2 |
+
+---
+
+### 5.5 Financial Kill Switch (Payment Incidents)
+
+The Financial Kill Switch is the platform's ledger-write circuit breaker. Flip it when ledger integrity is in doubt — reconciliation drift, webhook replay storm, duplicate postings, suspected double-spend, or any Critical financial-impact incident per `claude.md` §10.
+
+**Procedure:**
+
+1. **Assess.** Confirm the incident: reconciliation drift? webhook replay storm? duplicate postings? Use the Finance Reconciliation Dashboard at `/admin/finance` and KB recurrences under `category: ledger-imbalance`.
+2. **Flip.** Log into `/admin/finance` as Super Admin. Toggle the kill switch. Hard Rule #6 applies — typed confirmation word required. The toggle writes an AuditLog row (`action = KILL_SWITCH_TOGGLE`).
+3. **Verify.** Within 30s, new ledger-writing flows should throw `KillSwitchActiveError`. Confirm in the log stream. Reconciliation checks continue to run (they're read-only).
+4. **Investigate.** Use the dashboard + KB + `scripts/kb-context.ts` to find the root cause. Do NOT merge any fix until the root cause is understood.
+5. **Correct (if needed).** Super Admin posts compensating entries via `/admin/finance/overrides`. These land via the one authorised bypass path per ADR 0006 — the ONLY flows that may write while the switch is active.
+6. **Resume.** Flip the switch off once integrity is restored. AuditLog row written.
+
+**Related:**
+- ADR 0006 — the authorised bypass scope (scoped to `compensating_entry` `actionType` only).
+- ADR 0010 — the visibility scheduler's auto-refund path fail-closes on the kill-switch read (treats transient DB errors as "active"); it does NOT bypass.
+- `docs/deployment/go-live-checklist.md` §4 — financial readiness gates.
+
+**Do NOT:**
+- Do NOT attempt to SQL-edit ledger rows. Append-only (Non-Negotiable #5). Corrections = compensating entries only.
+- Do NOT restart the API thinking the switch is just a cache. It's persisted in `SystemSetting.financial.kill_switch.active`; a restart changes nothing.
+- Do NOT leave the switch active longer than the investigation requires — the ADR 0010 auto-refund queue and other scheduled jobs queue up.
 
 ---
 
