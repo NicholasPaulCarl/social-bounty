@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { RedisModule } from '../redis/redis.module';
 import { LedgerModule } from '../ledger/ledger.module';
 import { TradeSafeCallbackController } from './tradesafe-callback.controller';
@@ -27,9 +27,16 @@ import { TradeSafeWebhookHandler } from './tradesafe-webhook.handler';
  *
  * The module itself stays unaware of the scheduler/retry state machine —
  * that lives in `payouts.service.ts`.
+ *
+ * LedgerModule is imported via `forwardRef` because TradeSafeModule is
+ * imported by WebhooksModule, and LedgerModule's own import chain
+ * (LedgerModule → FinanceModule → WebhooksModule) would otherwise close
+ * the cycle and leave LedgerModule undefined at scan time. Mirrors the
+ * pattern LedgerModule uses for its SubscriptionsModule dependency
+ * (`ledger.module.ts:11`). R34, 2026-04-18.
  */
 @Module({
-  imports: [RedisModule, LedgerModule],
+  imports: [RedisModule, forwardRef(() => LedgerModule)],
   controllers: [TradeSafeCallbackController],
   providers: [TradeSafeClient, TradeSafeWebhookHandler],
   exports: [TradeSafeClient, TradeSafeWebhookHandler],
