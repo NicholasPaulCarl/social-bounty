@@ -63,15 +63,15 @@ All values must be configured in the prod secret manager and unique per environm
 | `TRADESAFE_CLIENT_SECRET` | Yes | Yes, line 92-94 | `TradeSafeClient` constructor line 50 | Secret. Never logged; never surfaced to the frontend. |
 | `TRADESAFE_WEBHOOK_SECRET` | Yes | Yes, line 96-98 | `TradeSafeWebhookController.receive`, `apps/api/src/modules/webhooks/tradesafe-webhook.controller.ts:75` | Used by `SvixVerifier.verify` — controller currently assumes Svix-compatible shape. If TradeSafe signs differently, controller changes before going live (see §4.3 + §11). |
 | `TRADESAFE_MOCK` | No (recommend `false` in prod) | Yes, line 100-102 (`@IsBooleanString`) | `TradeSafeClient` constructor lines 51-59 | Must be `'false'` (or unset with both creds present) in prod. If left `'true'` by accident, every call short-circuits to in-memory fixtures — no network calls — and `PAYOUTS_ENABLED=true` would appear healthy while moving no real money. **Operational landmine.** |
-| `TRADESAFE_OAUTH_REDIRECT_URL` | Yes (per ADR 0009 §4) | **NO — gap** | Referenced in ADR 0009 only; no code path reads it yet | **Gap** — env.validation.ts does not validate this. Either add validation when `PAYOUT_PROVIDER=tradesafe`, or confirm it's not needed (sandbox may not require OAuth callback). Blocks ADR 0010. |
-| `TRADESAFE_SUCCESS_URL` | Yes (per ADR 0009 §4) | **NO — gap** | ADR 0009 only; intended for frontend beneficiary-link success redirect | **Gap** — add to env.validation.ts + `.env.example`. |
-| `TRADESAFE_FAILURE_URL` | Yes (per ADR 0009 §4) | **NO — gap** | ADR 0009 only; intended for frontend beneficiary-link failure redirect | **Gap** — add to env.validation.ts + `.env.example`. |
+| `TRADESAFE_OAUTH_REDIRECT_URL` | Yes (per ADR 0009 §4) | Yes, `env.validation.ts` lines 104-106 (`@ValidateIf + @IsUrl`, gated on `PAYOUTS_ENABLED=true`) | `TradeSafeCallbackController` (not read directly — the URL is configured provider-side and TradeSafe redirects the browser back here; R33 / ADR 0009 §5) | Closed 2026-04-18 via R33/R35 commit `7d3629d`. Boot refuses when `PAYOUTS_ENABLED=true` without this URL. |
+| `TRADESAFE_SUCCESS_URL` | Yes (per ADR 0009 §4) | Yes, `env.validation.ts` lines 108-110 | `TradeSafeCallbackController.callback` — 302 target on successful beneficiary-link handoff | Closed 2026-04-18 via R35 commit `7d3629d`. |
+| `TRADESAFE_FAILURE_URL` | Yes (per ADR 0009 §4) | Yes, `env.validation.ts` lines 112-114 | `TradeSafeCallbackController.callback` — 302 target on invalid state / missing code / provider `error` param | Closed 2026-04-18 via R35 commit `7d3629d`. |
 | `BENEFICIARY_ENC_KEY` | Yes — **≥32 chars** when `PAYOUTS_ENABLED=true` | Yes, line 170-176 (`@ValidateIf + @MinLength(32)`) PLUS defence-in-depth throw in `BeneficiaryService` constructor line 41-45 | `BeneficiaryService` constructor | Security-critical. See §5 below for the full treatment. **Flipping `PAYOUTS_ENABLED=true` without this key crashes the app at NestJS module init — this is intentional.** |
 | `STITCH_SYSTEM_ACTOR_ID` | Yes (inherited) | Yes, line 153-155 | `PayoutsService.systemActorId()`, `ReconciliationService.systemActorId()`, `RefundsService` (via `user.sub` for audit logging) | UUID of a real `users` table row. Audit-log FK enforces. Already required pre-TradeSafe — nothing changes. |
 
 ### 3.1 Gap summary (§3 items flagged "NO — gap")
 
-Three variables referenced by ADR 0009 §4 (`TRADESAFE_OAUTH_REDIRECT_URL`, `TRADESAFE_SUCCESS_URL`, `TRADESAFE_FAILURE_URL`) are **NOT** in `env.validation.ts` and **NOT** in `.env.example`. These must be added before cutover. Minimum acceptable shape: `@ValidateIf((o) => o.PAYOUT_PROVIDER === PayoutProvider.TRADESAFE)` gate so dev remains ergonomic. ADR 0010 owns the final decision on whether all three are mandatory — sandbox may only need some of them. Tracked as **ADR 0009 §4 implementation gap — follow up in ADR 0010**.
+Closed 2026-04-18 (R35, commit `7d3629d`). The three variables referenced by ADR 0009 §4 (`TRADESAFE_OAUTH_REDIRECT_URL`, `TRADESAFE_SUCCESS_URL`, `TRADESAFE_FAILURE_URL`) are now validated at boot via `@ValidateIf((o) => o.PAYOUTS_ENABLED === 'true')` + `@IsUrl` — mirroring the `BENEFICIARY_ENC_KEY` R29 pattern (dev ergonomics while the outbound rail is gated; live refuses to boot without them). Added to `.env.example` in a dedicated commented-out block. The gate choice (`PAYOUTS_ENABLED` not `PAYOUT_PROVIDER`) keeps it aligned with the existing R29 gate — ADR 0010 can narrow the gate if sandbox reveals that only some of the three are mandatory.
 
 ---
 
@@ -211,7 +211,7 @@ A one-shot dev-side migration tool does not exist today; writing it is out of sc
 ### 6.2 The sequence
 
 1. **Create the test hunter.** Sign in as a real human, complete standard KYC. Use a REAL South African bank account (not a shared team test account — rotating it later is worse than using a personal account that can be closed).
-2. **Save beneficiary via the hunter-side payouts settings page.** Walk the OAuth-callback flow end-to-end (`/api/v1/auth/tradesafe/callback` — this route is still **pending implementation** per ADR 0009 §5; confirm it exists in the deployed build).
+2. **Save beneficiary via the hunter-side payouts settings page.** Walk the OAuth-callback flow end-to-end (`/api/v1/auth/tradesafe/callback` — implemented 2026-04-18 per R33, commit `440346a`. Signature verification + state-param scheme still need to be pinned against TradeSafe's actual docs before live; `VERIFY_WITH_TRADESAFE` callouts live in `tradesafe-callback.controller.ts`).
 3. **Verify encryption at rest.** From a read-only prod DB shell:
    ```sql
    SELECT id, "accountNumberEnc"
@@ -322,7 +322,7 @@ Minimum alert surface at go-live. Integrate with Sentry (existing `SENTRY_DSN`) 
 |---|---|---|---|
 | Payout success rate (settled / total) | Warning <95%, Critical <90% rolling 24h | `stitch_payouts.status` counts (table is provider-generic per ADR 0009 §3 Option B; name may change) | Gaming this metric requires webhook arrival — if webhooks are stalled the numerator stays artificially low. Pair with 9.3. |
 | Payout latency (created → settled) | Warning p95 >24h, Critical >48h | `stitch_payouts.createdAt` vs `SETTLED` status timestamp | TradeSafe SLA here is **VERIFY WITH TRADESAFE** — depends on escrow dwell time and disbursement cadence. |
-| Beneficiary-link OAuth completion rate | Warning <85% | `auth_audit_log` entries (callback success vs initiate) | Only exists once `/api/v1/auth/tradesafe/callback` is implemented per ADR 0009 §5. Currently a gap. |
+| Beneficiary-link OAuth completion rate | Warning <85% | `audit_logs` rows with `action='TRADESAFE_BENEFICIARY_LINK_CALLBACK'` vs initiate-side counter (not yet wired — ADR 0010) | Route implemented 2026-04-18 (R33, commit `440346a`). Initiate counter + comparison query land with ADR 0010 once the initiate endpoint + state issuance are specified. |
 | Webhook success rate | Warning <99%, Critical <97% | `webhook_events` where `provider='TRADESAFE'` — `processed=true` / total | Replay guard adds `duplicate=true` rows that should not count as failures. |
 | Reconciliation `tradesafe-vs-ledger` gap | Any row surfaced → critical alert | **MISSING — reconciliation gap** — see §11 | Currently `ReconciliationService.checkStitchVsLedger` (`reconciliation.service.ts:590-660`) scans only `stitch_payment_links` + `stitch_payouts`. A TradeSafe-named equivalent (or, if Option B lands, a provider-aware rewrite) MUST be in place before go-live. This is a blocker. |
 | TradeSafe API 5xx rate | Warning >1%, Critical >5% | `TradeSafeClient.fetchWithRetry` already retries 5xx — surface via Sentry breadcrumb | Pair with payout failure-rate alert. |
@@ -394,11 +394,23 @@ Either way, `checkStitchVsLedger` needs a TradeSafe arm OR a provider-agnostic r
 
 ### 11.7 `/api/v1/auth/tradesafe/callback` route — not implemented
 
-**Gap.** ADR 0009 §5 promises this route. Grep confirms no file named `tradesafe.controller.ts` or `tradesafe-auth.controller.ts` exists. `/settings/payouts` on the frontend likewise has no TradeSafe-specific flow. Before live, the OAuth / beneficiary-link flow end-to-end must exist.
+**Closed 2026-04-18 (R33, commit `440346a` + `04d3c31`).** `TradeSafeCallbackController` at `apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts` hosts the route and is registered in `TradeSafeModule`. Behaviour summary (full JSDoc in the file):
+
+- `@Public()` — no `JwtAuthGuard`; the hunter's browser lands here from TradeSafe without our bearer token.
+- Validates `code` + `state` query params. State runs through `isValidStateParam` (length 8..512, `[A-Za-z0-9._:\-=+/]+` only) to reject URL / script / control-char tampering shapes.
+- Persists the callback payload to `webhook_events` with `provider='TRADESAFE'`, `externalEventId=<state>`, distinct `eventType='tradesafe.beneficiary_link_callback'`. Replay via `UNIQUE(provider, externalEventId)` short-circuits to success with no duplicate AuditLog.
+- Writes an `AuditLog` row with `action='TRADESAFE_BENEFICIARY_LINK_CALLBACK'`. Actor is `STITCH_SYSTEM_ACTOR_ID` — ADR 0010 will upgrade this to the real hunter user id once the state → userId lookup lands.
+- 302 to `TRADESAFE_SUCCESS_URL` on happy path / replay; to `TRADESAFE_FAILURE_URL` on invalid state / missing code / provider `error` param / DB error.
+- NOT kill-switch-gated (hunter mid-flow; blocking the redirect strands them). NOT routed through `WebhookRouterService` (this is an OAuth return leg, not an async webhook).
+- Defence-in-depth: if `TRADESAFE_SUCCESS_URL` / `TRADESAFE_FAILURE_URL` are unset at request time (should be impossible after R35), throws `InternalServerErrorException` rather than 302-ing to "undefined".
+
+**VERIFY_WITH_TRADESAFE remains open** for: (1) whether TradeSafe signs the callback (no HMAC verifier wired yet; sibling verifier module lands with ADR 0010); (2) exact state-param scheme — today we accept any opaque token and reject obvious tampering, but ADR 0010 will replace with provider-specified scheme; (3) whether TradeSafe embeds the hunter user id in state or whether we must issue + look it up ourselves.
+
+Pre-flip smoke test (§6.2 step 2) can now exercise the route end-to-end against the sandbox.
 
 ### 11.8 Env-var validation for `TRADESAFE_OAUTH_REDIRECT_URL` / `TRADESAFE_SUCCESS_URL` / `TRADESAFE_FAILURE_URL`
 
-**Gap.** See §3.1. Three ADR-0009-referenced vars are not in `env.validation.ts` and not in `.env.example`. Add them with `@ValidateIf((o) => o.PAYOUT_PROVIDER === PayoutProvider.TRADESAFE)` when ADR 0010 confirms they are required.
+**Closed 2026-04-18 (R35, commit `7d3629d`).** See §3.1 for summary. All three are now `@ValidateIf((o) => o.PAYOUTS_ENABLED === 'true') + @IsUrl` in `env.validation.ts`. `.env.example` carries the commented-out placeholders. Boot refuses when `PAYOUTS_ENABLED=true` without them.
 
 ---
 
@@ -409,9 +421,9 @@ Either way, `checkStitchVsLedger` needs a TradeSafe arm OR a provider-agnostic r
 | R24 | TradeSafe live creds + commercial onboarding — external blocker | **High** | **Open** — no change since batch 10 audit | Commercial | §2 rows 2.1–2.4 signed + ADR 0010 accepted |
 | R31 **(new)** | Webhook signing scheme unverified | Medium | **Open** | Backend | §11.1 resolved against TradeSafe docs |
 | R32 **(new)** | `checkStitchVsLedger` does not cover TradeSafe payouts (reconciliation gap) | **High** | **Open** — blocker | Backend + Architect | §11.5 resolved in ADR 0010 implementation PR; fault-injection test added |
-| R33 **(new)** | `/api/v1/auth/tradesafe/callback` not implemented | Medium | **Open** | Backend | Route implemented + smoke-tested (§6 step 2) |
+| R33 **(new)** | `/api/v1/auth/tradesafe/callback` not implemented | Medium | **Closed 2026-04-18** — commits `440346a` + `04d3c31` (`TradeSafeCallbackController` + module registration). End-to-end smoke on sandbox pending per §6 step 2; `VERIFY_WITH_TRADESAFE` callouts remain for signature scheme + state-param scheme (ADR 0010). | Backend | Route implemented; smoke-test against sandbox + ADR 0010 pin the signature / state-param scheme |
 | R34 **(new)** | `WebhookRouterService` has no `tradesafe.*` dispatch arms | **High** | **Open** — blocker | Backend | §11.6 closed in ADR 0010 implementation PR |
-| R35 **(new)** | TradeSafe env vars (`TRADESAFE_OAUTH_REDIRECT_URL` / `_SUCCESS_URL` / `_FAILURE_URL`) not boot-validated | Low | **Open** | Backend | §3.1 / §11.8 validation added |
+| R35 **(new)** | TradeSafe env vars (`TRADESAFE_OAUTH_REDIRECT_URL` / `_SUCCESS_URL` / `_FAILURE_URL`) not boot-validated | Low | **Closed 2026-04-18** — commit `7d3629d` (validation + `.env.example`) | Backend | — |
 | R36 **(new)** | Recallability of RELEASED TradeSafe payouts unknown | Medium | **Open** | Commercial | §10.2 clarified in writing with TradeSafe |
 | R37 **(new)** | Multi-recipient API shape may not match adapter | Medium | **Open** | Backend | §11.2 / §11.4 resolved against sandbox |
 
