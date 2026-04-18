@@ -34,12 +34,14 @@ export const LEDGER_ACTION_TYPES = {
   PAYOUT_INITIATED: 'payout_initiated',
   STITCH_PAYOUT_SETTLED: 'stitch_payout_settled',
   STITCH_PAYOUT_FAILED: 'stitch_payout_failed',
-  // TradeSafe outbound rail (ADR 0009 §6). Introduced on the reconciliation
-  // side by R32 (anti-join against `stitch_payouts WHERE provider=TRADESAFE`)
-  // and wired into live webhook handlers by R34. Ledger legs for
-  // settled/failed will mirror the Stitch equivalents exactly — only the
-  // action-type discriminator differs so reconciliation and audit trails can
-  // tell which provider moved the money.
+  // TradeSafe outbound rail (ADR 0009 §6, R32 + R34 — wired 2026-04-18).
+  // R32 (reconciliation): anti-join against `stitch_payouts WHERE
+  // provider=TRADESAFE` now catches missing ledger groups for settled
+  // TradeSafe payouts. R34 (webhooks): handlers post these action types
+  // on `tradesafe.payout.settled` / `.failed` events. Ledger legs mirror
+  // the Stitch equivalents exactly — only the action-type discriminator
+  // differs so reconciliation + audit trails can tell which provider
+  // moved the money.
   TRADESAFE_PAYOUT_SETTLED: 'tradesafe_payout_settled',
   TRADESAFE_PAYOUT_FAILED: 'tradesafe_payout_failed',
   REFUND_PROCESSED: 'refund_processed',
