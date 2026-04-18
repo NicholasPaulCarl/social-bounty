@@ -1,0 +1,281 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Social Bounty — Colors & Type
+   Light-mode brand system (the public site and app shell both use this).
+   ═══════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ── Primary — Pink (THE brand color) ───────────────────────── */
+  --pink-50:  #fdf2f8;
+  --pink-100: #fce7f3;
+  --pink-200: #fbcfe8;
+  --pink-300: #f9a8d4;
+  --pink-400: #f472b6;
+  --pink-500: #ec4899;
+  --pink-600: #db2777;   /* default brand pink — buttons, logo, links */
+  --pink-700: #be185d;   /* hover / pressed */
+  --pink-800: #9d174d;
+  --pink-900: #831843;
+
+  /* ── Secondary — Blue (counter-accent, gradient stop) ──────── */
+  --blue-50:  #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+
+  /* ── Neutrals — Slate (used everywhere) ─────────────────────── */
+  --slate-50:  #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+
+  /* ── Status (traffic-light set) ─────────────────────────────── */
+  --success-500: #22c55e;
+  --success-600: #16a34a;
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+  --danger-500:  #ef4444;
+  --danger-600:  #e11d48;   /* used where rose-600 is referenced */
+  --info-500:    #3b82f6;
+  --info-600:    #2563eb;
+
+  /* ── Reward accent — Gold ───────────────────────────────────── */
+  --reward-500: #f59e0b;
+  --reward-600: #d97706;
+
+  /* ── Semantic background layers ─────────────────────────────── */
+  --bg-void:     #ffffff;              /* absolute white */
+  --bg-abyss:    #f8fafc;              /* page background */
+  --bg-surface:  #ffffff;              /* card surface */
+  --bg-elevated: #f1f5f9;              /* elevated tint */
+  --bg-hover:    #e2e8f0;              /* hover tint */
+
+  /* ── Semantic text ──────────────────────────────────────────── */
+  --text-primary:   #0f172a;
+  --text-secondary: #475569;
+  --text-muted:     #94a3b8;
+  --text-disabled:  #cbd5e1;
+  --text-on-brand:  #ffffff;           /* text on pink-600 button */
+
+  /* ── Glass (light frosted surfaces) ─────────────────────────── */
+  --glass-bg:      rgba(255, 255, 255, 0.80);
+  --glass-border:  rgba(0, 0, 0, 0.08);
+  --glass-hover:   rgba(0, 0, 0, 0.04);
+  --glass-active:  rgba(0, 0, 0, 0.06);
+  --glass-overlay: rgba(0, 0, 0, 0.30);
+
+  /* ── Radii ──────────────────────────────────────────────────── */
+  --radius-sm: 4px;
+  --radius-md: 8px;       /* default — buttons, inputs */
+  --radius-lg: 12px;      /* dropdown panels */
+  --radius-xl: 16px;      /* cards */
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;     /* feature cards */
+  --radius-full: 9999px;  /* pill buttons, badges */
+
+  /* ── Elevation ──────────────────────────────────────────────── */
+  --shadow-level-1: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-level-2: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-level-3: 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-level-4: 0 16px 48px rgba(0,0,0,0.16);
+
+  /* Colored glows (subtle in light mode — NOT neon) */
+  --shadow-brand:         0 4px 14px rgba(219, 39, 119, 0.10);
+  --shadow-brand-intense: 0 4px 14px rgba(219, 39, 119, 0.20), 0 1px 3px rgba(219,39,119,0.08);
+  --shadow-blue:          0 4px 14px rgba(37, 99, 235, 0.10);
+  --shadow-danger:        0 4px 14px rgba(225, 29, 72, 0.10);
+
+  /* ── Motion ─────────────────────────────────────────────────── */
+  --duration-fast:      150ms;
+  --duration-normal:    250ms;
+  --duration-slow:      400ms;
+  --duration-dramatic:  600ms;
+  --ease-standard:    cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-decelerate:  cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate:  cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring:      cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Focus ring (used on :focus-visible everywhere) ─────────── */
+  --focus-ring:       0 0 0 2px #ffffff, 0 0 0 4px #db2777;
+  --focus-ring-form:  0 0 0 3px rgba(219, 39, 119, 0.12);
+
+  /* ════════════════════════════════════════════════════════════
+     TYPOGRAPHY FAMILIES
+     ════════════════════════════════════════════════════════════ */
+  --font-heading: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  /* Type scale (rem values; line-heights baked in) */
+  --fs-xs:   0.75rem;    --lh-xs:   1rem;       /* 12/16 — labels, metadata */
+  --fs-sm:   0.875rem;   --lh-sm:   1.25rem;    /* 14/20 — body small, table cells */
+  --fs-base: 1rem;       --lh-base: 1.5rem;     /* 16/24 — body default */
+  --fs-lg:   1.125rem;   --lh-lg:   1.75rem;    /* 18/28 — large body */
+  --fs-xl:   1.25rem;    --lh-xl:   1.75rem;    /* 20/28 — card titles */
+  --fs-2xl:  1.5rem;     --lh-2xl:  2rem;       /* 24/32 — sub-headings */
+  --fs-3xl:  1.875rem;   --lh-3xl:  2.25rem;    /* 30/36 — page headings */
+  --fs-4xl:  2.25rem;    --lh-4xl:  2.5rem;     /* 36/40 — section headings */
+  --fs-5xl:  3rem;       --lh-5xl:  3rem;       /* 48    — display */
+  --fs-6xl:  3.75rem;    --lh-6xl:  3.75rem;    /* 60    — hero */
+  --fs-7xl:  4.5rem;     --lh-7xl:  1.05;       /* 72    — marketing hero */
+
+  /* Tracking */
+  --tracking-tighter: -0.03em;
+  --tracking-tight:   -0.02em;
+  --tracking-normal:   0em;
+  --tracking-wide:     0.05em;
+  --tracking-wider:    0.08em;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SEMANTIC TYPE STYLES (h1, body, label, etc.)
+   Apply the token — don't restate the numbers.
+   ════════════════════════════════════════════════════════════ */
+
+html { font-family: var(--font-body); color: var(--text-primary); }
+
+body {
+  background: var(--bg-abyss);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+}
+
+h1, .h1 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--fs-4xl); line-height: var(--lh-4xl);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+}
+@media (min-width: 640px) { h1, .h1 { font-size: var(--fs-5xl); line-height: 1.05; } }
+@media (min-width: 1024px){ h1, .h1 { font-size: var(--fs-7xl); line-height: 1.05; } }
+
+h2, .h2 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--fs-3xl); line-height: var(--lh-3xl);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+}
+@media (min-width: 640px) { h2, .h2 { font-size: var(--fs-4xl); line-height: var(--lh-4xl); } }
+@media (min-width: 1024px){ h2, .h2 { font-size: var(--fs-5xl); line-height: 1.1; } }
+
+h3, .h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--fs-2xl); line-height: var(--lh-2xl);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+}
+
+h4, .h4 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: var(--fs-xl); line-height: var(--lh-xl);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+}
+
+h5, .h5 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: var(--fs-lg); line-height: var(--lh-lg);
+  color: var(--text-primary);
+}
+
+/* Body paragraph */
+p, .body {
+  font-family: var(--font-body);
+  font-size: var(--fs-base); line-height: var(--lh-base);
+  color: var(--text-secondary);
+}
+.body-lg  { font-size: var(--fs-lg);  line-height: var(--lh-lg); }
+.body-sm  { font-size: var(--fs-sm);  line-height: var(--lh-sm); }
+
+/* Eyebrow / overline */
+.eyebrow {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--fs-sm); line-height: var(--lh-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--pink-600);
+}
+
+/* Muted label (form labels, table headers) */
+.label-sm, label {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--fs-xs); line-height: var(--lh-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+}
+
+/* Numbers / metrics / code */
+code, .code, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.9em;   /* visually match surrounding body */
+}
+
+.metric {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--fs-5xl); line-height: 1;
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Signature gradient text — pink → blue, horizontal.
+   Use on ONE phrase per section, at heading sizes only. */
+.gradient-text {
+  background-image: linear-gradient(90deg, var(--pink-600), var(--blue-600));
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  /* Fallback on browsers without background-clip:text */
+  -webkit-text-fill-color: transparent;
+}
+
+/* Inline link */
+a.link, .link {
+  color: var(--pink-600);
+  text-decoration: underline;
+  text-decoration-color: var(--pink-300);
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--duration-normal) var(--ease-standard);
+}
+a.link:hover, .link:hover { text-decoration-color: var(--pink-600); }
+
+/* Selection */
+::selection { background: rgba(219, 39, 119, 0.2); color: var(--text-primary); }
+
+/* Focus ring — never remove */
+:focus-visible {
+  outline: 2px solid var(--pink-600);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Type — Social Bounty</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  body { padding: 48px 56px; max-width: 1100px; }
+  .spec-row { display: grid; grid-template-columns: 220px 1fr; gap: 32px; padding: 20px 0; border-bottom: 1px solid var(--slate-100); align-items: baseline; }
+  .spec-row:last-child { border-bottom: none; }
+  .spec-meta { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); line-height: 1.7; }
+  .spec-meta b { color: var(--text-secondary); font-weight: 500; }
+  .section-header { display: flex; align-items: baseline; justify-content: space-between; margin: 40px 0 8px; padding-bottom: 12px; border-bottom: 1px solid var(--slate-200); }
+  .section-header h4 { margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 600; }
+  .section-header em { font-style: normal; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+  .tiny { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<header style="margin-bottom: 8px;">
+  <div class="eyebrow" style="margin-bottom: 8px;">Typography</div>
+  <h2 style="margin: 0 0 12px;">A display sans, a workhorse, a mono</h2>
+  <p class="body-lg" style="max-width: 68ch; margin: 0;">
+    Space Grotesk for headings — geometric, slightly quirky, a little <em>fun</em>.
+    Inter for body — dense, neutral, reads at any size.
+    JetBrains Mono for metrics and codes. Together they say "creator-serious,
+    not enterprise-stuffy."
+  </p>
+</header>
+
+<!-- ========= Display & Heading scale ========= -->
+<div class="section-header">
+  <h4>Display &amp; Headings</h4>
+  <em>Space Grotesk — 700 weight, tight tracking</em>
+</div>
+
+<div class="spec-row">
+  <div class="spec-meta"><b>Hero / H1</b><br>72px · 105% · –2% tracking</div>
+  <h1 style="margin:0;">Earn from every post you recommend.</h1>
+</div>
+<div class="spec-row">
+  <div class="spec-meta"><b>Display / H2</b><br>48px · 110% · –2% tracking</div>
+  <h2 style="margin:0;">Turn your following into <span class="gradient-text">a following</span>.</h2>
+</div>
+<div class="spec-row">
+  <div class="spec-meta"><b>Heading / H3</b><br>24px · 32px · –2% tracking</div>
+  <h3 style="margin:0;">How bounties get paid out</h3>
+</div>
+<div class="spec-row">
+  <div class="spec-meta"><b>Sub-heading / H4</b><br>20px · 28px · 600 weight</div>
+  <h4 style="margin:0;">Link your TikTok account</h4>
+</div>
+
+<!-- ========= Body ========= -->
+<div class="section-header">
+  <h4>Body</h4>
+  <em>Inter — 400/500/600, –1% tracking at sizes ≥ 18px</em>
+</div>
+
+<div class="spec-row">
+  <div class="spec-meta"><b>Body large</b><br>18px · 28px · 400</div>
+  <p class="body-lg" style="margin:0; color: var(--text-primary);">
+    Social Bounty pays creators directly for the engagement they already drive —
+    no middlemen, no vague "partnership deals," no three-month invoice cycles.
+  </p>
+</div>
+<div class="spec-row">
+  <div class="spec-meta"><b>Body default</b><br>16px · 24px · 400</div>
+  <p style="margin:0; color: var(--text-primary);">
+    When a brand posts a bounty, we track link clicks and conversions through
+    your unique referral code. Payouts land in your connected wallet within
+    48 hours of each verified conversion.
+  </p>
+</div>
+<div class="spec-row">
+  <div class="spec-meta"><b>Body small</b><br>14px · 20px · 400</div>
+  <p class="body-sm" style="margin:0;">
+    Used for secondary copy, table cells, card descriptions, and tooltips.
+    Not for paragraphs longer than three lines.
+  </p>
+</div>
+
+<!-- ========= Utility ========= -->
+<div class="section-header">
+  <h4>Utility</h4>
+  <em>Labels, metrics, code</em>
+</div>
+
+<div class="spec-row">
+  <div class="spec-meta"><b>Eyebrow</b><br>14px · 600 · UPPER · +8% tracking<br>Always pink-600</div>
+  <div class="eyebrow">Live bounty · ends in 3d</div>
+</div>
+<div class="spec-row">
+  <div class="spec-meta"><b>Label</b><br>12px · 500 · UPPER · +5% tracking<br>Form labels, table headers</div>
+  <label>Connected account</label>
+</div>
+<div class="spec-row">
+  <div class="spec-meta"><b>Metric</b><br>JetBrains Mono · 48px · 700<br>tabular-nums</div>
+  <div class="metric">$2,847<span style="font-size: 24px; color: var(--text-muted); font-weight: 500;">.50</span></div>
+</div>
+<div class="spec-row">
+  <div class="spec-meta"><b>Inline code</b><br>JetBrains Mono · 0.9em of context</div>
+  <p style="margin:0; color: var(--text-primary);">Paste your <code style="background: var(--slate-100); padding: 2px 6px; border-radius: 4px;">BOUNTY_ID</code> into the creator dashboard.</p>
+</div>
+
+<!-- ========= The gradient rule ========= -->
+<div class="section-header">
+  <h4>The pink → blue gradient</h4>
+  <em>Use on ONE phrase per view, headings only</em>
+</div>
+<div class="spec-row">
+  <div class="spec-meta"><b>.gradient-text</b><br>linear-gradient(90deg,<br>&nbsp;&nbsp;pink-600, blue-600)<br><br>Never on body copy.<br>Never on buttons.</div>
+  <div>
+    <h2 style="margin: 0 0 12px;">Get paid for what you <span class="gradient-text">already do</span>.</h2>
+    <div class="tiny">✓ one phrase, heading-weight, clear fallback color</div>
+  </div>
+</div>
+
+</body>
+</html>
