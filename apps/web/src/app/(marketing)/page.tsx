@@ -161,7 +161,7 @@ function HeroSection() {
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/signup"
-                  className="btn btn-cta btn-lg"
+                  className="btn btn-primary btn-lg rounded-full"
                 >
                   Start hunting
                   <ArrowRight size={18} strokeWidth={2} />

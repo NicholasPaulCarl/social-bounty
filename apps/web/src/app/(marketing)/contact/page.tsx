@@ -2,6 +2,29 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import {
+  ArrowRight,
+  ChevronDown,
+  Check,
+  Mail,
+  AlertTriangle,
+  Loader2,
+} from 'lucide-react';
+
+/* Lucide dropped Twitter/Instagram brand glyphs per their trademark policy.
+   Following ICONS.md — tiny inline SVGs at Lucide visual weight. */
+const TwitterIcon = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+const InstagramIcon = ({ size = 16, strokeWidth = 2 }: { size?: number; strokeWidth?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+);
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -47,23 +70,23 @@ const CONTACT_CARDS: {
   icon: string;
 }[] = [
   {
-    title: "I'm a Hunter",
-    body: 'Submission questions, account issues, payment help — we\'ve got you.',
-    cta: 'Get Help',
+    title: 'I\u2019m a Hunter',
+    body: 'Submission questions, account issues, payment help \u2014 we\u2019ve got you.',
+    cta: 'Get help',
     category: 'support',
     icon: 'H',
   },
   {
-    title: "I'm a Brand",
-    body: "Sales questions, partnerships, or help getting started? Let's chat.",
-    cta: 'Talk to Us',
+    title: 'I\u2019m a Brand',
+    body: 'Sales questions, partnerships, or help getting started? Let\u2019s chat.',
+    cta: 'Talk to us',
     category: 'sales',
     icon: 'B',
   },
   {
     title: 'Something else',
     body: 'Press, partnerships, feedback, or just saying hi.',
-    cta: 'Reach Out',
+    cta: 'Reach out',
     category: 'general',
     icon: '?',
   },
@@ -75,17 +98,17 @@ const FAQ_ITEMS = [
   {
     question: 'How fast do you respond?',
     answer:
-      'Usually within 24 hours on weekdays. We monitor our inbox closely and aim to respond to every message — no ticket queue, no bots.',
+      'Usually within 24 hours on weekdays. We monitor our inbox closely and aim to respond to every message \u2014 no ticket queue, no bots.',
   },
   {
     question: 'I have a billing issue.',
     answer:
-      "Select 'Support' in the form above and describe the issue. Include your email address on file and any relevant transaction details. We'll resolve it as fast as possible.",
+      'Select \u201CSupport\u201D in the form above and describe the issue. Include your email address on file and any relevant transaction details. We\u2019ll resolve it as fast as possible.',
   },
   {
     question: 'Can I partner with Social Bounty?',
     answer:
-      "Absolutely. Whether you're a brand, Hunter community, or agency — we're open to creative partnerships. Select 'Sales' in the form and tell us what you have in mind.",
+      'Absolutely. Whether you\u2019re a brand, Hunter community, or agency \u2014 we\u2019re open to creative partnerships. Select \u201CSales\u201D in the form and tell us what you have in mind.',
   },
 ];
 
@@ -102,22 +125,13 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
         aria-expanded={open}
       >
         <span className="text-sm font-semibold text-slate-800">{question}</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        <ChevronDown
+          size={18}
+          strokeWidth={2}
           className="text-slate-400 flex-shrink-0 transition-transform duration-300"
           style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
           aria-hidden="true"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        />
       </button>
       <div
         style={{
@@ -176,8 +190,7 @@ export default function ContactPage() {
     }, 1500);
   }
 
-  const inputClass =
-    'w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-400 outline-none transition text-slate-900 font-body text-sm bg-white placeholder:text-slate-400';
+  const inputClass = 'input w-full text-sm';
   const labelClass = 'block text-sm font-medium text-slate-700 mb-1.5';
 
   return (
@@ -186,11 +199,12 @@ export default function ContactPage() {
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={hero.ref} style={hero.style} className="max-w-2xl">
+            <p className="eyebrow mb-3">Contact</p>
             <h1 className="text-4xl font-heading font-bold text-slate-900 mb-4">
               Let&apos;s talk.
             </h1>
             <p className="text-lg text-slate-600 font-body leading-relaxed">
-              Whether you&apos;re a Hunter, a brand, or just curious — we&apos;re here and we
+              Whether you&apos;re a Hunter, a brand, or just curious &mdash; we&rsquo;re here and we
               respond fast.
             </p>
           </div>
@@ -205,7 +219,7 @@ export default function ContactPage() {
               {CONTACT_CARDS.map((card) => (
                 <div
                   key={card.category}
-                  className="bg-white border border-slate-200 rounded-xl p-6 hover:border-pink-300 transition flex flex-col gap-4 group"
+                  className="card card-interactive hover:border-pink-300 flex flex-col gap-4 group"
                 >
                   <div className="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600" aria-hidden="true">
                     {card.icon}
@@ -222,21 +236,7 @@ export default function ContactPage() {
                       className="inline-flex items-center gap-1.5 text-sm font-semibold text-pink-600 hover:text-pink-700 transition-colors group-hover:underline underline-offset-2"
                     >
                       {card.cta}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                      </svg>
+                      <ArrowRight size={14} strokeWidth={2.5} aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -251,6 +251,7 @@ export default function ContactPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={formRef}>
             <div ref={form.ref} style={form.style} className="max-w-xl mx-auto">
+              <p className="eyebrow text-center mb-3">Send a message</p>
               <h2 className="text-2xl font-heading font-bold text-slate-900 mb-2 text-center">
                 Send us a message
               </h2>
@@ -269,12 +270,12 @@ export default function ContactPage() {
                 }}
               >
                 {formState === 'success' && (
-                  <div className="text-center py-12 px-6 bg-white border border-slate-200 rounded-2xl">
+                  <div className="text-center py-12 px-6 card card-feature">
                     <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mx-auto mb-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-pink-600" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+                      <Check size={28} strokeWidth={2.5} className="text-pink-600" aria-hidden="true" />
                     </div>
                     <h3 className="text-xl font-heading font-semibold text-slate-900 mb-3">
-                      Sent! We&apos;ll be in touch within 24 hours.
+                      Sent. We&apos;ll be in touch within 24 hours.
                     </h3>
                     <p className="text-sm text-slate-600 font-body mb-6">
                       In the meantime, maybe hunt a bounty?
@@ -284,21 +285,7 @@ export default function ContactPage() {
                       className="inline-flex items-center gap-2 text-sm font-semibold text-pink-600 hover:text-pink-700 transition-colors"
                     >
                       Browse bounties
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                      </svg>
+                      <ArrowRight size={14} strokeWidth={2.5} aria-hidden="true" />
                     </Link>
                   </div>
                 )}
@@ -372,17 +359,17 @@ export default function ContactPage() {
                       required
                       minLength={10}
                       rows={5}
-                      placeholder="Tell us what's on your mind..."
+                      placeholder="Tell us what\u2019s on your mind..."
                       value={formData.message}
                       onChange={handleChange}
-                      className={`${inputClass} resize-none`}
+                      className={`textarea w-full text-sm resize-none`}
                     />
                   </div>
 
                   {/* Error banner */}
                   {formState === 'error' && (
                     <div className="flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-lg">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 mt-0.5 shrink-0" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                      <AlertTriangle size={18} strokeWidth={2} className="text-red-500 mt-0.5 shrink-0" aria-hidden="true" />
                       <p className="text-sm text-red-700 font-body">
                         Something went wrong. Please try again, or email us directly at{' '}
                         <a
@@ -401,37 +388,15 @@ export default function ContactPage() {
                     <button
                       type="submit"
                       disabled={formState === 'submitting'}
-                      className="w-full bg-pink-600 text-white rounded-full px-8 py-3 text-sm font-semibold hover:bg-pink-700 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+                      className="btn btn-primary btn-lg w-full rounded-full disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {formState === 'submitting' ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <svg
-                            className="animate-spin"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                            />
-                          </svg>
-                          Sending...
-                        </span>
+                        <>
+                          <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+                          Sending&hellip;
+                        </>
                       ) : (
-                        'Send It'
+                        'Send it'
                       )}
                     </button>
                   </div>
@@ -449,6 +414,7 @@ export default function ContactPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
               {/* Left: Contact details */}
               <div>
+                <p className="eyebrow mb-3">Direct lines</p>
                 <h2 className="text-xl font-heading font-bold text-slate-900 mb-6">
                   Reach us directly
                 </h2>
@@ -457,22 +423,7 @@ export default function ContactPage() {
                   {/* Email */}
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5 w-9 h-9 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-pink-600"
-                        aria-hidden="true"
-                      >
-                        <rect x="2" y="4" width="20" height="16" rx="2" />
-                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                      </svg>
+                      <Mail size={18} strokeWidth={2} className="text-pink-600" aria-hidden="true" />
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">
@@ -489,24 +440,8 @@ export default function ContactPage() {
 
                   {/* Social links */}
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 w-9 h-9 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-pink-600"
-                        aria-hidden="true"
-                      >
-                        <path d="M18 20.7c-2.1 0-3.8-1.7-3.8-3.8V7.1c0-2.1 1.7-3.8 3.8-3.8s3.8 1.7 3.8 3.8v9.8c0 2.1-1.7 3.8-3.8 3.8z" />
-                        <path d="M6 20.7c-2.1 0-3.8-1.7-3.8-3.8V7.1c0-2.1 1.7-3.8 3.8-3.8s3.8 1.7 3.8 3.8v9.8c0 2.1-1.7 3.8-3.8 3.8z" />
-                        <path d="M12 20.7a8.7 8.7 0 0 1-8.7-8.7" />
-                      </svg>
+                    <div className="mt-0.5 w-9 h-9 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0 text-pink-600">
+                      <InstagramIcon size={18} />
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
@@ -520,16 +455,7 @@ export default function ContactPage() {
                           className="text-sm font-medium text-slate-600 hover:text-pink-600 transition-colors flex items-center gap-1.5"
                           aria-label="Social Bounty on Twitter"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="15"
-                            height="15"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            aria-hidden="true"
-                          >
-                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                          </svg>
+                          <TwitterIcon size={15} />
                           @socialbounty
                         </a>
                         <a
@@ -539,22 +465,7 @@ export default function ContactPage() {
                           className="text-sm font-medium text-slate-600 hover:text-pink-600 transition-colors flex items-center gap-1.5"
                           aria-label="Social Bounty on Instagram"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="15"
-                            height="15"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                          >
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                          </svg>
+                          <InstagramIcon size={15} />
                           Instagram
                         </a>
                       </div>
@@ -573,6 +484,7 @@ export default function ContactPage() {
 
               {/* Right: FAQ */}
               <div>
+                <p className="eyebrow mb-3">Common questions</p>
                 <h2 className="text-xl font-heading font-bold text-slate-900 mb-6">
                   Common questions
                 </h2>

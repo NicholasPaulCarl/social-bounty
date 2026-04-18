@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { Zap, Check, Square, Triangle, Star } from 'lucide-react';
 
 /* ─────────────────────────────────────────────
    useInView — fade-up on scroll
@@ -63,18 +64,18 @@ function FadeUp({
 const COMPARISON_ROWS = [
   {
     label: 'Cost per piece of UGC',
-    old: 'R1 500 – R5 000+ per asset',
-    neo: "You set the reward. Pay what it's worth.",
+    old: 'R1 500 \u2013 R5 000+ per asset',
+    neo: 'You set the reward. Pay what it\u2019s worth.',
   },
   {
     label: 'Time to first submission',
-    old: '2–4 weeks of briefing and back-and-forth',
+    old: '2\u20134 weeks of briefing and back-and-forth',
     neo: 'First submissions within 24 hours of posting.',
   },
   {
     label: 'Content control',
     old: 'Agency interprets your brief their way',
-    neo: 'Exact brief, exact requirements — your words.',
+    neo: 'Exact brief, exact requirements \u2014 your words.',
   },
   {
     label: 'Minimum commitment',
@@ -91,42 +92,43 @@ const COMPARISON_ROWS = [
 const HOW_STEPS = [
   {
     n: 1,
-    icon: '1',
     title: 'Create a bounty',
-    body: 'Write your brief: platform, bounty details, requirements, and reward. Takes five minutes. Our guided form keeps it clear and Hunter-friendly.',
+    body: 'Write your brief: platform, bounty details, requirements, and reward. Takes five minutes.',
   },
   {
     n: 2,
-    icon: '2',
     title: 'Hunters get to work',
-    body: "Your bounty goes live on the board instantly. Hunters browse, claim, and start creating. You'll see submissions roll in within hours.",
+    body: 'Your bounty goes live on the board instantly. Hunters browse, claim, and start creating. Submissions roll in within hours.',
   },
   {
     n: 3,
-    icon: '3',
-    title: 'Review & reward',
+    title: 'Review and pay',
     body: 'Approve the content you love. Reject anything that misses the brief. You pay only for what passes your standards.',
   },
 ];
 
-const BENEFIT_CARDS = [
+const BENEFIT_CARDS: {
+  Icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  title: string;
+  body: string;
+}[] = [
   {
-    icon: '\u26A1',
-    title: 'First submissions in <24 hours',
+    Icon: Zap,
+    title: 'First submissions in under 24 hours',
     body: 'Our active Hunter community moves fast. Post in the morning, have content to review by end of day.',
   },
   {
-    icon: '\u2713',
+    Icon: Check,
     title: 'Pay only for approved results',
     body: 'Rewards are only released when you approve. Bad submissions? Reject them. Your budget, your call.',
   },
   {
-    icon: '\u25A0',
+    Icon: Square,
     title: 'Full creative control',
     body: 'Your brief, your requirements, your approval criteria. Every piece of UGC meets your standards before you pay.',
   },
   {
-    icon: '\u25B2',
+    Icon: Triangle,
     title: 'Scale without headcount',
     body: 'Need 5 pieces this week, 50 next month? Just post more bounties. No hiring, no agency negotiations.',
   },
@@ -138,13 +140,13 @@ const BENEFIT_CARDS = [
 function DashboardMockup() {
   return (
     <div className="relative flex justify-center items-center">
-      {/* Glow blob */}
+      {/* Glow blob (low opacity per DS gradient budget) */}
       <div className="absolute inset-0 flex justify-center items-center">
-        <div className="w-80 h-64 bg-blue-100 rounded-full blur-3xl opacity-50" />
+        <div className="w-80 h-64 bg-pink-100 rounded-full blur-3xl opacity-50" />
       </div>
 
       {/* Dashboard frame */}
-      <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+      <div className="relative w-full max-w-sm bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
         {/* Title bar */}
         <div className="flex items-center gap-2 px-4 py-3 bg-slate-50 border-b border-slate-200">
           <div className="flex gap-1.5">
@@ -161,13 +163,13 @@ function DashboardMockup() {
         <div className="p-4 space-y-3">
           {/* Page heading */}
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-heading font-bold text-slate-900">New Bounty</span>
-            <span className="text-[10px] bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full font-semibold">Draft</span>
+            <span className="text-xs font-heading font-bold text-slate-900">New bounty</span>
+            <span className="badge badge-brand">Draft</span>
           </div>
 
           {/* Form fields */}
           {[
-            { label: 'Bounty title', value: 'TikTok product review — Nando\'s Sauce' },
+            { label: 'Bounty title', value: 'TikTok product review \u2014 Nando\u2019s Sauce' },
             { label: 'Platform', value: 'TikTok' },
             { label: 'Task description', value: 'Film a 30-second honest review...' },
           ].map((f) => (
@@ -184,15 +186,15 @@ function DashboardMockup() {
             <p className="text-[9px] font-semibold text-slate-500 mb-1 uppercase tracking-wider">Hunter reward</p>
             <div className="flex gap-2 items-center">
               <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                <p className="text-xs font-mono font-bold text-pink-600">R 150.00</p>
+                <p className="text-xs font-mono tabular-nums font-bold text-pink-600">R 150.00</p>
               </div>
               <span className="text-[9px] text-slate-400">per approval</span>
             </div>
           </div>
 
           {/* Publish button */}
-          <button className="w-full bg-pink-600 text-white text-xs font-semibold py-2.5 rounded-lg mt-1">
-            Publish Bounty
+          <button className="btn btn-primary btn-sm w-full mt-1">
+            Publish bounty
           </button>
 
           {/* Stats row */}
@@ -203,7 +205,7 @@ function DashboardMockup() {
               { label: 'Approved', val: '31' },
             ].map((s) => (
               <div key={s.label} className="flex-1 bg-slate-50 rounded-lg px-2 py-2 text-center">
-                <p className="text-sm font-mono font-bold text-slate-900">{s.val}</p>
+                <p className="text-sm font-mono tabular-nums font-bold text-slate-900">{s.val}</p>
                 <p className="text-[9px] text-slate-500">{s.label}</p>
               </div>
             ))}
@@ -231,22 +233,18 @@ export default function JoinBusinessPage() {
             {/* Left — copy */}
             <div>
               <FadeUp>
-                <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-2 rounded-full mb-6">
-                  <span className="w-4 h-4 rounded-full bg-blue-600 inline-block" />
-                  <span>For Brands & Businesses</span>
-                </div>
+                <p className="eyebrow mb-6">For brands and businesses</p>
               </FadeUp>
 
               <FadeUp delay={80}>
                 <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight tracking-tight mb-6">
-                  UGC without{' '}
-                  <span className="text-pink-600">the agency.</span>
+                  UGC without <span className="gradient-text">the agency.</span>
                 </h1>
               </FadeUp>
 
               <FadeUp delay={160}>
                 <p className="text-lg sm:text-xl text-slate-600 leading-relaxed mb-8 max-w-lg">
-                  Post a bounty, set the reward, and get real user-generated content from thousands of Hunters — without retainers, middlemen, or inflated agency fees.{' '}
+                  Post a bounty, set the reward, and get real user-generated content from thousands of Hunters.{' '}
                   <strong className="text-slate-800 font-semibold">You approve it, you pay for it.</strong>
                 </p>
               </FadeUp>
@@ -255,9 +253,9 @@ export default function JoinBusinessPage() {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                   <Link
                     href="/signup"
-                    className="inline-block bg-pink-600 text-white font-semibold px-8 py-4 rounded-full hover:bg-pink-700 hover:scale-[1.03] hover:shadow-lg transition-all duration-200 text-base"
+                    className="btn btn-primary btn-lg rounded-full"
                   >
-                    Create Your Brand Account
+                    Create your brand account
                   </Link>
                   <p className="text-sm text-slate-500">Free to start. No contracts.</p>
                 </div>
@@ -278,23 +276,22 @@ export default function JoinBusinessPage() {
       <section className="py-16 sm:py-24 bg-slate-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-16">
-            <p className="text-sm font-semibold text-pink-600 uppercase tracking-wider mb-3">Why switch</p>
+            <p className="eyebrow mb-3">Why switch</p>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
-              Same results. Fraction of the cost.{' '}
-              <span className="text-slate-400 font-normal">Zero middlemen.</span>
+              Same results. Fraction of the cost.
             </h2>
           </FadeUp>
 
           <FadeUp delay={80}>
-            <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+            <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
               {/* Table header */}
               <div className="grid grid-cols-2 divide-x divide-slate-200">
                 <div className="px-6 py-4 bg-slate-100">
-                  <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">The Old Way (Agencies)</p>
+                  <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">The old way (agencies)</p>
                 </div>
                 <div className="px-6 py-4 bg-pink-600">
                   <p className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <span>✦</span> The Social Bounty Way
+                    <Star size={14} strokeWidth={2} /> The Social Bounty way
                   </p>
                 </div>
               </div>
@@ -311,8 +308,8 @@ export default function JoinBusinessPage() {
                       <div className="px-6 py-5 bg-pink-50/40">
                         <p className="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-1 opacity-0">{row.label}</p>
                         <p className="text-sm text-slate-800 font-medium leading-relaxed flex items-start gap-2">
-                          <span className="text-pink-600 font-bold shrink-0 mt-0.5">✓</span>
-                          {row.neo}
+                          <Check size={16} strokeWidth={2} className="text-pink-600 flex-none mt-0.5" />
+                          <span>{row.neo}</span>
                         </p>
                       </div>
                     </div>
@@ -330,7 +327,7 @@ export default function JoinBusinessPage() {
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-16">
-            <p className="text-sm font-semibold text-pink-600 uppercase tracking-wider mb-3">The process</p>
+            <p className="eyebrow mb-3">The process</p>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
               Three steps to your first UGC.
             </h2>
@@ -346,11 +343,9 @@ export default function JoinBusinessPage() {
                   )}
 
                   {/* Number circle */}
-                  <div className="w-16 h-16 rounded-2xl bg-pink-600 text-white font-heading font-bold text-xl flex items-center justify-center shadow-md mb-4 shrink-0 relative z-10">
+                  <div className="w-16 h-16 rounded-xl bg-pink-600 text-white font-heading font-bold text-xl flex items-center justify-center shadow-md mb-4 shrink-0 relative z-10 font-mono tabular-nums">
                     {step.n}
                   </div>
-
-                  <span className="text-2xl font-bold text-pink-400 mb-4">{step.icon}</span>
 
                   <h3 className="font-heading text-xl font-bold text-slate-900 mb-2">{step.title}</h3>
                   <p className="text-slate-600 text-sm leading-relaxed">{step.body}</p>
@@ -367,22 +362,22 @@ export default function JoinBusinessPage() {
       <section className="py-16 sm:py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-16">
-            <p className="text-sm font-semibold text-pink-600 uppercase tracking-wider mb-3">Key benefits</p>
+            <p className="eyebrow mb-3">Why brands choose us</p>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
               Why brands choose the board.
             </h2>
           </FadeUp>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {BENEFIT_CARDS.map((card, i) => (
-              <FadeUp key={card.title} delay={i * 80}>
-                <div className="h-full bg-white border border-slate-200 rounded-2xl p-8 hover:border-pink-200 hover:shadow-md transition-all duration-200 group flex gap-5">
-                  <div className="w-14 h-14 bg-pink-50 rounded-2xl flex items-center justify-center text-xl font-bold text-pink-600 shrink-0 group-hover:bg-pink-100 transition-colors">
-                    {card.icon}
+            {BENEFIT_CARDS.map(({ Icon, title, body }, i) => (
+              <FadeUp key={title} delay={i * 80}>
+                <div className="h-full card card-interactive hover:border-pink-200 flex gap-5">
+                  <div className="w-14 h-14 bg-pink-50 rounded-xl flex items-center justify-center text-pink-600 shrink-0">
+                    <Icon size={24} strokeWidth={2} />
                   </div>
                   <div>
-                    <h3 className="font-heading text-lg font-bold text-slate-900 mb-2">{card.title}</h3>
-                    <p className="text-slate-600 text-sm leading-relaxed">{card.body}</p>
+                    <h3 className="font-heading text-lg font-bold text-slate-900 mb-2">{title}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">{body}</p>
                   </div>
                 </div>
               </FadeUp>
@@ -398,13 +393,13 @@ export default function JoinBusinessPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp>
             <div className="text-center mb-8">
-              <p className="text-sm font-semibold text-pink-400 uppercase tracking-wider">In their words</p>
+              <p className="eyebrow text-pink-400">In their words</p>
             </div>
 
             <div className="bg-slate-800 border border-slate-700 rounded-3xl p-8 sm:p-12 relative">
               {/* Quote mark */}
               <div className="absolute -top-5 left-10 text-7xl text-pink-600 font-serif leading-none select-none">
-                "
+                &ldquo;
               </div>
 
               <blockquote className="text-xl sm:text-2xl text-white font-body leading-relaxed mb-8 pt-4">
@@ -414,7 +409,7 @@ export default function JoinBusinessPage() {
               </blockquote>
 
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-pink-600 flex items-center justify-center text-white font-heading font-bold text-lg">
+                <div className="avatar bg-pink-600 text-white">
                   T
                 </div>
                 <div>
@@ -425,7 +420,7 @@ export default function JoinBusinessPage() {
                 {/* Stars */}
                 <div className="ml-auto flex gap-1">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <span key={i} className="text-pink-400 text-lg">★</span>
+                    <Star key={i} size={16} strokeWidth={2} className="text-pink-400" fill="currentColor" />
                   ))}
                 </div>
               </div>
@@ -440,10 +435,9 @@ export default function JoinBusinessPage() {
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-12">
-            <p className="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-3">Plans</p>
+            <p className="eyebrow mb-3">Plans</p>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
-              Start free.{' '}
-              <span className="text-blue-600">Scale with Pro.</span>
+              Start free. <span className="text-pink-600">Scale with Pro.</span>
             </h2>
             <p className="text-lg text-slate-600 mt-4 max-w-xl mx-auto">
               Every brand starts on Free. Upgrade when you need closed bounties and lower fees.
@@ -453,9 +447,9 @@ export default function JoinBusinessPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
             {/* Free */}
             <FadeUp delay={0}>
-              <div className="h-full bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
+              <div className="h-full card card-feature">
                 <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Free Brand</h3>
-                <p className="text-3xl font-heading font-bold text-slate-900 mt-4 mb-6">R0<span className="text-base font-normal text-slate-400">/month</span></p>
+                <p className="font-mono tabular-nums text-3xl font-bold text-slate-900 mt-4 mb-6">R0<span className="text-base font-normal text-slate-400">/month</span></p>
                 <ul className="space-y-3 mb-6">
                   {[
                     '15% admin fee per bounty',
@@ -467,33 +461,33 @@ export default function JoinBusinessPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/signup" className="block text-center border border-slate-300 text-slate-700 font-semibold px-6 py-3 rounded-full hover:border-slate-400 transition-all duration-200">
-                  Get Started Free
+                <Link href="/signup" className="btn btn-secondary rounded-full text-center justify-center">
+                  Get started free
                 </Link>
               </div>
             </FadeUp>
 
             {/* Pro */}
             <FadeUp delay={100}>
-              <div className="h-full bg-white border-2 border-blue-300 rounded-2xl p-6 sm:p-8 relative shadow-lg shadow-blue-100/50">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">
-                  Best Value
+              <div className="h-full card card-feature relative border-2 border-pink-300 shadow-lg shadow-pink-100/50">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 badge badge-brand px-4 py-1 uppercase">
+                  Best value
                 </div>
                 <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Pro Brand</h3>
-                <p className="text-3xl font-heading font-bold text-slate-900 mt-4 mb-6">R950<span className="text-base font-normal text-slate-400">/month</span></p>
+                <p className="font-mono tabular-nums text-3xl font-bold text-slate-900 mt-4 mb-6">R950<span className="text-base font-normal text-slate-400">/month</span></p>
                 <ul className="space-y-3 mb-6">
                   {[
                     '5% admin fee (save 10%)',
                     'Create closed (invite-only) bounties',
-                    'Application + invitation management',
+                    'Application and invitation management',
                     'Priority support',
                   ].map((f) => (
                     <li key={f} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
-                      <span className="text-blue-600 mt-0.5 font-bold">{'\u2713'}</span>{f}
+                      <span className="text-pink-600 mt-0.5 font-bold">{'\u2713'}</span>{f}
                     </li>
                   ))}
                 </ul>
-                <Link href="/signup" className="block text-center bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-700 hover:scale-[1.02] hover:shadow-lg transition-all duration-200">
+                <Link href="/signup" className="btn btn-primary rounded-full text-center justify-center">
                   Upgrade to Pro
                 </Link>
               </div>
@@ -502,7 +496,7 @@ export default function JoinBusinessPage() {
 
           <FadeUp delay={200}>
             <p className="text-center mt-8">
-              <Link href="/pricing" className="text-sm text-blue-600 font-semibold hover:underline">
+              <Link href="/pricing" className="text-sm text-pink-600 font-semibold hover:underline">
                 View full feature comparison {'\u2192'}
               </Link>
             </p>
@@ -516,12 +510,11 @@ export default function JoinBusinessPage() {
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <FadeUp>
-            <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-6">
-              <span className="text-2xl font-bold text-blue-600">\u2605</span>
+            <div className="w-16 h-16 rounded-xl bg-pink-100 flex items-center justify-center mx-auto mb-6">
+              <Star size={28} strokeWidth={2} className="text-pink-600" fill="currentColor" />
             </div>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
-              Hunters are waiting for{' '}
-              <span className="text-pink-600">your first bounty.</span>
+              Hunters are waiting for <span className="text-pink-600">your first bounty.</span>
             </h2>
             <p className="text-lg text-slate-600 mb-8">
               Join brands already getting UGC at a fraction of the traditional cost.
@@ -531,11 +524,11 @@ export default function JoinBusinessPage() {
           <FadeUp delay={100}>
             <Link
               href="/signup"
-              className="inline-block bg-pink-600 text-white font-semibold px-8 py-4 rounded-full hover:bg-pink-700 hover:scale-[1.03] hover:shadow-xl transition-all duration-200 text-base mb-4"
+              className="btn btn-primary btn-lg rounded-full"
             >
-              Create Your Brand Account
+              Create your brand account
             </Link>
-            <p className="text-sm text-slate-500">Free to start. No contracts. No minimum spend.</p>
+            <p className="text-sm text-slate-500 mt-4">Free to start. No contracts. No minimum spend.</p>
           </FadeUp>
         </div>
       </section>

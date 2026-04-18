@@ -2,7 +2,23 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Menu, X, Twitter, Instagram, Hash } from 'lucide-react';
+import { Menu, X, Hash } from 'lucide-react';
+
+/* Lucide dropped Twitter/Instagram brand glyphs per their trademark policy.
+   Following ICONS.md — use tiny inline SVGs at Lucide visual weight (24×24,
+   2px strokes or currentColor fill). */
+const TwitterIcon = ({ size = 20, strokeWidth = 2 }: { size?: number; strokeWidth?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+const InstagramIcon = ({ size = 20, strokeWidth = 2 }: { size?: number; strokeWidth?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+);
 
 const NAV_LINKS = [
   { label: 'How it works', href: '/#how-it-works' },
@@ -31,8 +47,8 @@ const FOOTER_COMPANY = [
 ];
 
 const SOCIAL_ICONS: { label: string; Icon: React.ComponentType<{ size?: number; strokeWidth?: number }> }[] = [
-  { label: 'Twitter', Icon: Twitter },
-  { label: 'Instagram', Icon: Instagram },
+  { label: 'Twitter', Icon: TwitterIcon },
+  { label: 'Instagram', Icon: InstagramIcon },
   { label: 'Hashtag', Icon: Hash },
 ];
 
@@ -69,7 +85,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               </Link>
               <Link
                 href="/signup"
-                className="btn btn-cta btn-sm"
+                className="btn btn-primary btn-sm rounded-full"
               >
                 Sign up
               </Link>
@@ -107,7 +123,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                 </Link>
                 <Link
                   href="/signup"
-                  className="btn btn-cta w-full"
+                  className="btn btn-primary w-full rounded-full"
                   onClick={() => setMobileOpen(false)}
                 >
                   Sign up
