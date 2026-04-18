@@ -23,10 +23,10 @@ import type { BountyInvitationResponse } from '@social-bounty/shared';
 import { AtSign, Send, Mail, Ban } from 'lucide-react';
 
 const PLATFORM_OPTIONS = [
-  { label: 'X (Twitter)', value: SocialPlatform.X, icon: 'pi-twitter' },
-  { label: 'Instagram', value: SocialPlatform.INSTAGRAM, icon: 'pi-instagram' },
-  { label: 'Facebook', value: SocialPlatform.FACEBOOK, icon: 'pi-facebook' },
-  { label: 'TikTok', value: SocialPlatform.TIKTOK, icon: 'pi-mobile' },
+  { label: 'X (Twitter)', value: SocialPlatform.X },
+  { label: 'Instagram', value: SocialPlatform.INSTAGRAM },
+  { label: 'Facebook', value: SocialPlatform.FACEBOOK },
+  { label: 'TikTok', value: SocialPlatform.TIKTOK },
 ];
 
 const PLATFORM_COLORS: Record<string, string> = {

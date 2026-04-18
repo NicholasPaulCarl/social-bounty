@@ -11,6 +11,13 @@ import { SocialChannel } from '@social-bounty/shared';
 import { getUploadUrl } from '@/lib/api/client';
 import type { PublicHunterProfile, SocialLinkResponse } from '@social-bounty/shared';
 import { formatDate } from '@/lib/utils/format';
+// Lucide 1.8 omits Instagram/Facebook brand glyphs (trademark policy).
+// Camera → Instagram, ThumbsUp → Facebook per ICONS.md §Social brand marks.
+import {
+  Camera, Music2, ThumbsUp,
+  BadgeCheck, ExternalLink, Calendar, Send, CheckCircle2, Star,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -34,28 +41,28 @@ function getInitials(firstName: string, lastName: string): string {
 
 const PLATFORM_CONFIG: Record<
   SocialChannel,
-  { label: string; icon: string; iconClass: string; borderClass: string; bgClass: string }
+  { label: string; Icon: LucideIcon; iconClass: string; borderClass: string; bgClass: string }
 > = {
   [SocialChannel.INSTAGRAM]: {
     label: 'Instagram',
-    icon: 'pi pi-instagram',
+    Icon: Camera,
     iconClass: 'text-pink-400',
     borderClass: 'border-pink-400/30',
     bgClass: 'bg-pink-400/10',
   },
   [SocialChannel.TIKTOK]: {
     label: 'TikTok',
-    icon: 'pi pi-tiktok',
-    iconClass: 'text-cyan-400',
-    borderClass: 'border-cyan-400/30',
-    bgClass: 'bg-cyan-400/10',
+    Icon: Music2,
+    iconClass: 'text-pink-600',
+    borderClass: 'border-pink-600/30',
+    bgClass: 'bg-pink-600/10',
   },
   [SocialChannel.FACEBOOK]: {
     label: 'Facebook',
-    icon: 'pi pi-facebook',
-    iconClass: 'text-blue-400',
-    borderClass: 'border-blue-400/30',
-    bgClass: 'bg-blue-400/10',
+    Icon: ThumbsUp,
+    iconClass: 'text-slate-500',
+    borderClass: 'border-slate-300',
+    bgClass: 'bg-slate-100',
   },
 };
 
@@ -117,7 +124,7 @@ function SocialLinkRow({ link }: { link: SocialLinkResponse }) {
       <div
         className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${config.bgClass} border ${config.borderClass}`}
       >
-        <i className={`${config.icon} ${config.iconClass} text-lg`} />
+        <config.Icon size={20} strokeWidth={2} className={config.iconClass} />
       </div>
 
       {/* Info */}
@@ -129,7 +136,7 @@ function SocialLinkRow({ link }: { link: SocialLinkResponse }) {
           )}
           {link.isVerified && (
             <span className="inline-flex items-center gap-1 text-xs text-success-600">
-              <i className="pi pi-verified text-xs" />
+              <BadgeCheck size={12} strokeWidth={2} />
               Verified
             </span>
           )}
@@ -145,19 +152,19 @@ function SocialLinkRow({ link }: { link: SocialLinkResponse }) {
       </div>
 
       {/* External link icon */}
-      <i className="pi pi-external-link text-text-muted text-xs group-hover:text-pink-600 transition-colors shrink-0" />
+      <ExternalLink size={14} strokeWidth={2} className="text-text-muted group-hover:text-pink-600 transition-colors shrink-0" />
     </a>
   );
 }
 
-function StatCard({ label, value, icon, iconClass }: { label: string; value: number; icon: string; iconClass: string }) {
+function StatCard({ label, value, Icon, iconClass }: { label: string; value: number; Icon: LucideIcon; iconClass: string }) {
   return (
     <div className="glass-card p-5 flex items-center gap-4">
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border border-glass-border bg-glass-bg`}>
-        <i className={`pi ${icon} ${iconClass} text-lg`} />
+      <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border border-glass-border bg-glass-bg">
+        <Icon size={20} strokeWidth={2} className={iconClass} />
       </div>
       <div>
-        <p className="text-2xl font-heading font-bold text-text-primary">{value}</p>
+        <p className="text-2xl font-heading font-bold text-text-primary font-mono tabular-nums">{value}</p>
         <p className="text-xs text-text-muted mt-0.5">{label}</p>
       </div>
     </div>
@@ -201,7 +208,7 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
                   </h1>
                   {profile.emailVerified && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-success-600/10 text-success-600 border border-success-600/30">
-                      <i className="pi pi-verified text-xs" />
+                      <BadgeCheck size={12} strokeWidth={2} />
                       Verified
                     </span>
                   )}
@@ -212,7 +219,7 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
                 )}
 
                 <div className="flex items-center gap-1.5 mt-3 text-xs text-text-muted">
-                  <i className="pi pi-calendar text-xs" />
+                  <Calendar size={12} strokeWidth={2} />
                   <span>Member since {formatDate(profile.createdAt)}</span>
                 </div>
               </div>
@@ -265,19 +272,19 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
               <StatCard
                 label="Total Submissions"
                 value={profile.stats.totalSubmissions}
-                icon="pi-file"
+                Icon={Send}
                 iconClass="text-pink-600"
               />
               <StatCard
                 label="Approved Submissions"
                 value={profile.stats.approvedSubmissions}
-                icon="pi-check-circle"
+                Icon={CheckCircle2}
                 iconClass="text-success-600"
               />
               <StatCard
                 label="Completed Bounties"
                 value={profile.stats.completedBounties}
-                icon="pi-star"
+                Icon={Star}
                 iconClass="text-warning-600"
               />
             </div>
@@ -291,7 +298,7 @@ function HunterProfileContent({ profile }: { profile: PublicHunterProfile }) {
             </p>
             <Button
               label="Invite to Bounty"
-              icon="pi pi-send"
+              icon={<Send size={16} strokeWidth={2} />}
               className="w-full"
             />
           </div>

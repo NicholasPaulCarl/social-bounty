@@ -5,6 +5,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import type { BountyListParams, BountyStatus, RewardType } from '@social-bounty/shared';
+import { Search, FilterX } from 'lucide-react';
 
 interface BountyFiltersProps {
   filters: BountyListParams;
@@ -70,7 +71,7 @@ export function BountyFilters({ filters, onChange, showStatusFilter = false }: B
   return (
     <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
       <span className="p-input-icon-left w-full sm:w-auto">
-        <i className="pi pi-search" />
+        <Search size={16} strokeWidth={2} />
         <InputText
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
@@ -113,7 +114,7 @@ export function BountyFilters({ filters, onChange, showStatusFilter = false }: B
 
       {hasActiveFilters && (
         <Button
-          icon="pi pi-filter-slash"
+          icon={<FilterX size={16} strokeWidth={2} />}
           outlined
           severity="secondary"
           onClick={clearFilters}

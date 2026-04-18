@@ -1,12 +1,10 @@
 'use client';
 
 import { Camera, ThumbsUp, Video, Check, AlertCircle } from 'lucide-react';
-import type { ComponentType, SVGProps } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import { SocialChannel, PostFormat, CHANNEL_POST_FORMATS } from '@social-bounty/shared';
 import type { ChannelSelection } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
-
-type LucideIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
 
 // Lucide deliberately ships no brand glyphs beyond a small whitelist — Instagram/
 // Facebook/TikTok aren't in it (ICONS.md §"Social brand marks"). We use neutral

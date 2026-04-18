@@ -12,6 +12,10 @@ import { useHunters } from '@/hooks/useHunters';
 import { HUNTER_INTERESTS, SocialChannel } from '@social-bounty/shared';
 import { getUploadUrl } from '@/lib/api/client';
 import type { HunterListItem } from '@social-bounty/shared';
+// Lucide 1.8 omits Instagram/Facebook brand glyphs (trademark policy).
+// Camera → Instagram, ThumbsUp → Facebook per ICONS.md §Social brand marks.
+import { Camera, Music2, ThumbsUp, Link2, ArrowRight, Search, X } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -26,10 +30,10 @@ function getInitials(firstName: string, lastName: string): string {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 }
 
-const PLATFORM_ICONS: Record<SocialChannel, { icon: string; color: string }> = {
-  [SocialChannel.INSTAGRAM]: { icon: 'pi pi-instagram', color: 'text-pink-400' },
-  [SocialChannel.TIKTOK]: { icon: 'pi pi-tiktok', color: 'text-cyan-400' },
-  [SocialChannel.FACEBOOK]: { icon: 'pi pi-facebook', color: 'text-blue-400' },
+const PLATFORM_ICONS: Record<SocialChannel, { Icon: LucideIcon; color: string }> = {
+  [SocialChannel.INSTAGRAM]: { Icon: Camera, color: 'text-pink-400' },
+  [SocialChannel.TIKTOK]: { Icon: Music2, color: 'text-pink-600' },
+  [SocialChannel.FACEBOOK]: { Icon: ThumbsUp, color: 'text-slate-500' },
 };
 
 // ─── Hunter Card ─────────────────────────────────────────────────────────
@@ -98,10 +102,11 @@ function HunterCard({ hunter, index }: HunterCardProps) {
         <div className="flex flex-wrap gap-3">
           {topSocials.map((link) => {
             const config = PLATFORM_ICONS[link.platform];
+            const PlatformIcon = config?.Icon ?? Link2;
             const followers = formatFollowers(link.followerCount);
             return (
               <div key={link.platform} className="flex items-center gap-1.5 text-xs text-text-muted">
-                <i className={`${config?.icon ?? 'pi pi-link'} ${config?.color ?? 'text-text-muted'} text-sm`} />
+                <PlatformIcon size={14} strokeWidth={2} className={config?.color ?? 'text-text-muted'} />
                 {followers && <span>{followers}</span>}
               </div>
             );
@@ -116,7 +121,7 @@ function HunterCard({ hunter, index }: HunterCardProps) {
           className="inline-flex items-center gap-1.5 text-sm text-pink-600 hover:text-pink-600/80 transition-colors font-medium"
         >
           View Profile
-          <i className="pi pi-arrow-right text-xs" />
+          <ArrowRight size={14} strokeWidth={2} />
         </Link>
       </div>
     </div>
@@ -162,7 +167,7 @@ export default function HuntersDirectoryPage() {
       {/* Search */}
       <div className="mb-5">
         <span className="p-input-icon-left w-full sm:w-80">
-          <i className="pi pi-search" />
+          <Search size={16} strokeWidth={2} />
           <InputText
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -195,7 +200,7 @@ export default function HuntersDirectoryPage() {
             onClick={() => setSelectedInterest(null)}
             className="px-3 py-1.5 rounded-full text-sm border border-glass-border text-text-muted hover:text-danger-600 hover:border-danger-600/50 transition-colors"
           >
-            <i className="pi pi-times mr-1 text-xs" />
+            <X size={12} strokeWidth={2} className="mr-1" />
             Clear
           </button>
         )}

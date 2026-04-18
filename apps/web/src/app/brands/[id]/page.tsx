@@ -10,13 +10,17 @@ import { getUploadUrl } from '@/lib/api/client';
 import { formatCurrency, formatDate } from '@/lib/utils/format';
 import { BrandSocialReachCard } from '@/components/features/brand-profile/BrandSocialReachCard';
 import type { BrandSocialLinks } from '@social-bounty/shared';
+// Lucide 1.8 omits brand glyphs for Instagram/Facebook/Twitter (trademark policy).
+// Camera → Instagram, ThumbsUp → Facebook, Globe → X/Twitter per ICONS.md.
+import { Camera, Music2, ThumbsUp, Globe, Calendar, ExternalLink, Search } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
-const SOCIAL_LINK_CONFIG: { key: keyof BrandSocialLinks; icon: string; urlPrefix: string }[] = [
-  { key: 'instagram', icon: 'pi pi-instagram', urlPrefix: 'https://instagram.com/' },
-  { key: 'tiktok', icon: 'pi pi-tiktok', urlPrefix: 'https://tiktok.com/@' },
-  { key: 'facebook', icon: 'pi pi-facebook', urlPrefix: 'https://facebook.com/' },
-  { key: 'x', icon: 'pi pi-twitter', urlPrefix: 'https://x.com/' },
-  { key: 'website', icon: 'pi pi-globe', urlPrefix: '' },
+const SOCIAL_LINK_CONFIG: { key: keyof BrandSocialLinks; Icon: LucideIcon; urlPrefix: string }[] = [
+  { key: 'instagram', Icon: Camera, urlPrefix: 'https://instagram.com/' },
+  { key: 'tiktok', Icon: Music2, urlPrefix: 'https://tiktok.com/@' },
+  { key: 'facebook', Icon: ThumbsUp, urlPrefix: 'https://facebook.com/' },
+  { key: 'x', Icon: Globe, urlPrefix: 'https://x.com/' },
+  { key: 'website', Icon: Globe, urlPrefix: '' },
 ];
 
 export default function BrandProfilePage() {
@@ -71,7 +75,7 @@ export default function BrandProfilePage() {
                 <span className="mr-2">@{brand.handle}</span>
               )}
               <span>
-                <i className="pi pi-calendar text-[10px] mr-1" />
+                <Calendar size={10} strokeWidth={2} className="inline mr-1" />
                 Joined {formatDate(brand.createdAt)}
               </span>
             </p>
@@ -97,7 +101,7 @@ export default function BrandProfilePage() {
                   className="text-text-muted hover:text-text-primary transition-colors"
                   title={social.key}
                 >
-                  <i className={`${social.icon} text-lg`} />
+                  <social.Icon size={20} strokeWidth={2} />
                 </a>
               );
             })}
@@ -163,7 +167,7 @@ export default function BrandProfilePage() {
             rel="noopener noreferrer"
             className="text-pink-600 hover:text-pink-600/80 transition-colors inline-flex items-center gap-1.5"
           >
-            <i className="pi pi-external-link text-xs" />
+            <ExternalLink size={14} strokeWidth={2} />
             {brand.websiteUrl}
           </a>
         </div>
@@ -176,7 +180,7 @@ export default function BrandProfilePage() {
           href={`/bounties?brand=${brand.id}`}
           className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-pink-600 to-blue-600 shadow-glow-brand hover:shadow-glow-brand-intense transition-all duration-normal"
         >
-          <i className="pi pi-search" />
+          <Search size={16} strokeWidth={2} />
           Browse Bounties
         </Link>
       </div>

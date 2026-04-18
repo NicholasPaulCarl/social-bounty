@@ -22,9 +22,7 @@ import { TabMenu } from 'primereact/tabmenu';
 import { BreadCrumb } from 'primereact/breadcrumb';
 import type { Nullable } from 'primereact/ts-helpers';
 import { BarChart3, Inbox, Settings, Check, Search, Star, ExternalLink, Home } from 'lucide-react';
-import type { ComponentType, SVGProps } from 'react';
-
-type LucideIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
+import type { LucideIcon } from 'lucide-react';
 
 const MOCK_TABLE_DATA = [
   { id: 1, name: 'Alice Johnson', role: 'Participant', status: 'Active' },

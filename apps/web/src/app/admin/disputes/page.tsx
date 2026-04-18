@@ -18,10 +18,8 @@ import { formatDate, formatEnumLabel } from '@/lib/utils/format';
 import { DISPUTE_STATUS_OPTIONS, DISPUTE_CATEGORY_OPTIONS } from '@/lib/constants/disputes';
 import { DisputeStatus, DisputeCategory } from '@social-bounty/shared';
 import { Flag, Eye, Clock, AlertTriangle, BarChart3 } from 'lucide-react';
-import type { ComponentType, SVGProps } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import type { DisputeListItem } from '@social-bounty/shared';
-
-type LucideIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
 
 const statusOptions = DISPUTE_STATUS_OPTIONS.filter((o) => o.value !== 'DRAFT');
 const categoryOptions = DISPUTE_CATEGORY_OPTIONS;

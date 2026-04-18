@@ -12,6 +12,7 @@ import { useBrandsPublicList } from '@/hooks/useBrand';
 import { HUNTER_INTERESTS } from '@social-bounty/shared';
 import { getUploadUrl } from '@/lib/api/client';
 import type { BrandListItem } from '@social-bounty/shared';
+import { Megaphone, ArrowRight, Search, X } from 'lucide-react';
 
 // ─── Brand Card ─────────────────────────────────────────────────────────
 
@@ -77,7 +78,7 @@ function BrandCard({ brand, index }: BrandCardProps) {
 
       <div className="flex items-center gap-3 text-xs text-text-muted">
         <span>
-          <i className="pi pi-megaphone mr-1" />
+          <Megaphone size={14} strokeWidth={2} className="mr-1 inline" />
           {brand.bountiesPosted} {brand.bountiesPosted === 1 ? 'bounty' : 'bounties'}
         </span>
       </div>
@@ -88,7 +89,7 @@ function BrandCard({ brand, index }: BrandCardProps) {
           className="inline-flex items-center gap-1.5 text-sm text-pink-600 hover:text-pink-600/80 transition-colors font-medium"
         >
           View Profile
-          <i className="pi pi-arrow-right text-xs" />
+          <ArrowRight size={14} strokeWidth={2} />
         </Link>
       </div>
     </div>
@@ -133,7 +134,7 @@ export default function BrandsDirectoryPage() {
       {/* Search */}
       <div className="mb-5">
         <span className="p-input-icon-left w-full sm:w-80">
-          <i className="pi pi-search" />
+          <Search size={16} strokeWidth={2} />
           <InputText
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -166,7 +167,7 @@ export default function BrandsDirectoryPage() {
             onClick={() => setSelectedInterest(null)}
             className="px-3 py-1.5 rounded-full text-sm border border-glass-border text-text-muted hover:text-danger-600 hover:border-danger-600/50 transition-colors"
           >
-            <i className="pi pi-times mr-1 text-xs" />
+            <X size={12} strokeWidth={2} className="mr-1" />
             Clear
           </button>
         )}

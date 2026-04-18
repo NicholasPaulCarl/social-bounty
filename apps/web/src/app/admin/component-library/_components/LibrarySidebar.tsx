@@ -1,9 +1,7 @@
 'use client';
 
 import { Star, Palette, Circle, LayoutGrid, Network, List, Crown } from 'lucide-react';
-import type { ComponentType, SVGProps } from 'react';
-
-type LucideIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
+import type { LucideIcon } from 'lucide-react';
 
 interface LibrarySidebarProps {
   activeSection: string;

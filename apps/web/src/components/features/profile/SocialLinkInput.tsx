@@ -4,6 +4,10 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { VerifiedLinkInput } from '@/components/common/VerifiedLinkInput';
 import { SocialChannel } from '@social-bounty/shared';
+// Lucide 1.8 ships no brand glyphs for Instagram/Facebook (trademark policy).
+// Camera → Instagram, ThumbsUp → Facebook per ICONS.md §Social brand marks.
+import { Camera, Music2, ThumbsUp, Trash2 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface SocialLinkData {
   platform: SocialChannel;
@@ -23,16 +27,18 @@ interface SocialLinkInputProps {
   onRemove: () => void;
 }
 
-const PLATFORM_ICONS: Record<SocialChannel, string> = {
-  [SocialChannel.INSTAGRAM]: 'pi pi-instagram',
-  [SocialChannel.TIKTOK]: 'pi pi-tiktok',
-  [SocialChannel.FACEBOOK]: 'pi pi-facebook',
+// Lucide 1.8 omits Facebook/Instagram brand exports; Music2 is the DS-approved
+// TikTok placeholder (ICONS.md §Social brand marks).
+const PLATFORM_ICONS: Record<SocialChannel, LucideIcon> = {
+  [SocialChannel.INSTAGRAM]: Camera,
+  [SocialChannel.TIKTOK]: Music2,
+  [SocialChannel.FACEBOOK]: ThumbsUp,
 };
 
 const PLATFORM_COLORS: Record<SocialChannel, string> = {
   [SocialChannel.INSTAGRAM]: 'text-pink-400',
   [SocialChannel.TIKTOK]: 'text-pink-600',
-  [SocialChannel.FACEBOOK]: 'text-blue-400',
+  [SocialChannel.FACEBOOK]: 'text-slate-500',
 };
 
 const PLATFORM_LABELS: Record<SocialChannel, string> = {
@@ -54,7 +60,7 @@ export function SocialLinkInput({
     onChange({ platform, url, handle, followerCount, postCount, [field]: value });
   };
 
-  const iconClass = PLATFORM_ICONS[platform] ?? 'pi pi-link';
+  const PlatformIcon = PLATFORM_ICONS[platform] ?? null;
   const colorClass = PLATFORM_COLORS[platform] ?? 'text-text-muted';
   const label = PLATFORM_LABELS[platform] ?? platform;
 
@@ -63,11 +69,11 @@ export function SocialLinkInput({
       {/* Header: platform label + remove button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <i className={`${iconClass} ${colorClass} text-lg`} />
+          {PlatformIcon && <PlatformIcon size={20} strokeWidth={2} className={colorClass} />}
           <span className="text-text-primary font-heading font-semibold text-sm">{label}</span>
         </div>
         <Button
-          icon="pi pi-trash"
+          icon={<Trash2 size={16} strokeWidth={2} />}
           severity="danger"
           text
           size="small"

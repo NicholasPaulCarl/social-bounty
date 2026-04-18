@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu } from 'primereact/menu';
 import type { MenuItem } from 'primereact/menuitem';
+import { ChevronDown, ChevronRight, ChevronUp, X, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadCount } from '@/hooks/useInbox';
 import { BrandSelector } from './BrandSelector';
@@ -39,7 +40,7 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
   const userMenuItems: MenuItem[] = [
     {
       label: 'Settings',
-      icon: 'pi pi-cog',
+      icon: () => <Settings size={16} strokeWidth={2} className="mr-2 shrink-0" />,
       command: () => {
         if (user?.role === 'SUPER_ADMIN') {
           router.push('/admin/settings');
@@ -53,7 +54,7 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
     { separator: true },
     {
       label: 'Logout',
-      icon: 'pi pi-sign-out',
+      icon: () => <LogOut size={16} strokeWidth={2} className="mr-2 shrink-0" />,
       command: () => logout(),
     },
   ];
@@ -89,7 +90,7 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
             onClick={onToggle}
             aria-label="Close sidebar"
           >
-            <i className="pi pi-times" />
+            <X size={20} strokeWidth={2} />
           </button>
         </div>
 
@@ -117,7 +118,7 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
                     }`}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <i className={`${item.icon} text-base`} />
+                  <item.Icon size={20} strokeWidth={2} className="shrink-0" />
                   <span className="font-heading">{item.label}</span>
                   {badgeCount > 0 && (
                     <span className="ml-auto bg-danger-600/20 text-danger-600 text-xs rounded-full px-2 py-0.5 font-medium">
@@ -125,7 +126,9 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
                     </span>
                   )}
                   {hasChildren && (
-                    <i className={`pi ${showChildren ? 'pi-chevron-down' : 'pi-chevron-right'} text-xs ml-auto text-text-muted`} />
+                    showChildren
+                      ? <ChevronDown size={14} strokeWidth={2} className="ml-auto text-text-muted" />
+                      : <ChevronRight size={14} strokeWidth={2} className="ml-auto text-text-muted" />
                   )}
                 </Link>
 
@@ -138,7 +141,8 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
                         href={child.href}
                         className="flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium text-text-muted hover:text-pink-600 hover:bg-slate-100 transition-colors"
                       >
-                        <i className={`${child.icon} text-[6px]`} />
+                        {/* Sub-nav items use a small filled bullet dot */}
+                        <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0" />
                         <span>{child.label}</span>
                       </a>
                     ))}
@@ -165,7 +169,7 @@ export function AppSidebar({ navItems, collapsed = false, onToggle }: AppSidebar
                 <p className="text-sm font-medium text-text-primary truncate">{fullName}</p>
                 <p className="text-xs text-text-muted truncate">{roleLabel}</p>
               </div>
-              <i className="pi pi-chevron-up text-xs text-text-muted" />
+              <ChevronUp size={14} strokeWidth={2} className="text-text-muted shrink-0" />
             </button>
           </div>
         )}

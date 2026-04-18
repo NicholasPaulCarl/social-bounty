@@ -2,17 +2,13 @@
 
 import { Panel } from 'primereact/panel';
 import { Tag } from 'primereact/tag';
-import type { ComponentType, ReactNode, SVGProps } from 'react';
-
-// Lucide icons all accept these props. Typed loose enough to avoid
-// dragging in lucide-react types here, yet strict enough to catch
-// non-Lucide glyphs (no pi-* string shortcuts).
-type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
+import type { ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
 
 interface SectionPanelProps {
   number: number;
   title: string;
-  Icon: IconComponent;
+  Icon: LucideIcon;
   isComplete: boolean;
   hasError: boolean;
   /**

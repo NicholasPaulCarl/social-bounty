@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { InputText } from 'primereact/inputtext';
 import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
+import { Check } from 'lucide-react';
 import { Message } from 'primereact/message';
 import { useCreateBrand } from '@/hooks/useBrand';
 import { useToast } from '@/hooks/useToast';
@@ -99,7 +100,7 @@ export default function CreateBrandPage() {
             <Button
               type="submit"
               label="Create Brand"
-              icon="pi pi-check"
+              icon={<Check size={16} strokeWidth={2} />}
               loading={createBrand.isPending}
             />
             <Button

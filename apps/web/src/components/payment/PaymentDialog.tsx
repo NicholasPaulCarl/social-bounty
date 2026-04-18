@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
+import { Loader2, CreditCard } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
@@ -77,7 +78,9 @@ function PaymentForm({ amount, currency, onSuccess, onCancel }: PaymentFormProps
         />
         <Button
           label={processing ? 'Processing...' : 'Pay Now'}
-          icon={processing ? 'pi pi-spin pi-spinner' : 'pi pi-credit-card'}
+          icon={processing
+            ? <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+            : <CreditCard size={16} strokeWidth={2} />}
           onClick={handleSubmit}
           disabled={!stripe || processing}
         />

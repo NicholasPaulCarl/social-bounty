@@ -6,6 +6,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
+import { Send, X, Loader2, Search, AlertCircle } from 'lucide-react';
 import { useCreateConversation, useSearchUsers } from '@/hooks/useInbox';
 import { useAuth } from '@/hooks/useAuth';
 import { ConversationContext, INBOX_CONSTANTS } from '@social-bounty/shared';
@@ -110,7 +111,7 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
       />
       <Button
         label="Send Message"
-        icon="pi pi-send"
+        icon={<Send size={16} strokeWidth={2} />}
         onClick={handleSubmit}
         disabled={!canSubmit}
         loading={createConversation.isPending}
@@ -149,13 +150,15 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
                   className="text-text-muted hover:text-text-primary p-1 cursor-pointer"
                   aria-label="Clear recipient"
                 >
-                  <i className="pi pi-times text-xs" />
+                  <X size={14} strokeWidth={2} />
                 </button>
               </div>
             ) : (
               <>
                 <span className="p-input-icon-left w-full">
-                  <i className={isSearching ? 'pi pi-spinner pi-spin' : 'pi pi-search'} />
+                  {isSearching
+                    ? <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+                    : <Search size={16} strokeWidth={2} />}
                   <InputText
                     value={recipientSearch}
                     onChange={(e) => {
@@ -255,7 +258,7 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
 
         {createConversation.isError && (
           <div className="flex items-center gap-2 text-danger-600 text-sm">
-            <i className="pi pi-exclamation-circle" />
+            <AlertCircle size={16} strokeWidth={2} />
             <span>{(createConversation.error as Error)?.message || 'Failed to create conversation'}</span>
           </div>
         )}

@@ -5,12 +5,10 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Banknote, Box, Wrench, Gift, Trash2, Plus, AlertCircle } from 'lucide-react';
-import type { ComponentType, SVGProps } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import { Currency, RewardType, BOUNTY_REWARD_LIMITS } from '@social-bounty/shared';
 import type { RewardLineInput } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
-
-type LucideIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
 
 const REWARD_TYPE_OPTIONS: { label: string; value: RewardType; Icon: LucideIcon; iconColor: string }[] = [
   { label: 'Cash', value: RewardType.CASH, Icon: Banknote, iconColor: 'text-success-600' },

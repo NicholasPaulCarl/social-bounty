@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
+import { Star } from 'lucide-react';
 
 interface UpsellBannerProps {
   message: string;
@@ -17,7 +18,7 @@ export function UpsellBanner({ message, ctaLabel = 'Upgrade to Pro', ctaUrl = '/
       <p className="text-sm text-text-secondary">{message}</p>
       <Button
         label={ctaLabel}
-        icon="pi pi-star"
+        icon={<Star size={16} strokeWidth={2} />}
         size="small"
         outlined
         className="shrink-0 text-pink-600 border-pink-600/40 hover:bg-pink-600/10"

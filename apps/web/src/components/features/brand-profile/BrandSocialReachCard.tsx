@@ -7,6 +7,10 @@ import type {
   BrandSocialLinks,
 } from '@social-bounty/shared';
 import { formatCount, formatRelativeTime } from '@/lib/utils/format';
+// Lucide 1.8 ships no brand glyphs for Instagram/Facebook (trademark policy).
+// DS-approved neutral substitutes: Camera (Instagram), ThumbsUp (Facebook).
+import { Camera, Music2, ThumbsUp, AlertCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface BrandSocialReachCardProps {
   brandId: string;
@@ -18,23 +22,23 @@ type Platform = 'instagram' | 'tiktok' | 'facebook';
 
 const PLATFORMS: Platform[] = ['instagram', 'tiktok', 'facebook'];
 
-const PLATFORM_META: Record<Platform, { label: string; icon: string; color: string; urlPrefix: string }> = {
+const PLATFORM_META: Record<Platform, { label: string; Icon: LucideIcon; color: string; urlPrefix: string }> = {
   instagram: {
     label: 'Instagram',
-    icon: 'pi pi-instagram',
+    Icon: Camera,
     color: 'text-pink-400',
     urlPrefix: 'https://instagram.com/',
   },
   tiktok: {
     label: 'TikTok',
-    icon: 'pi pi-tiktok',
-    color: 'text-cyan-400',
+    Icon: Music2,
+    color: 'text-pink-600',
     urlPrefix: 'https://tiktok.com/@',
   },
   facebook: {
     label: 'Facebook',
-    icon: 'pi pi-facebook',
-    color: 'text-blue-400',
+    Icon: ThumbsUp,
+    color: 'text-slate-500',
     urlPrefix: 'https://facebook.com/',
   },
 };
@@ -91,18 +95,20 @@ function BrandSocialReachCardImpl({ socialLinks, analytics }: BrandSocialReachCa
                       className={`${meta.color} hover:opacity-70 transition-opacity`}
                       title={`View ${meta.label} profile`}
                     >
-                      <i className={`${meta.icon} text-lg`} />
+                      <meta.Icon size={20} strokeWidth={2} />
                     </a>
                   ) : (
-                    <i className={`${meta.icon} text-text-muted text-lg`} />
+                    <meta.Icon size={20} strokeWidth={2} className="text-text-muted" />
                   )}
                   <span className="text-text-primary font-heading font-semibold text-sm">
                     {meta.label}
                   </span>
                   {counters?.error && counters.error !== 'not connected' && (
-                    <i
-                      className="pi pi-exclamation-circle text-danger-600 text-xs"
-                      title={counters.error}
+                    <AlertCircle
+                      size={14}
+                      strokeWidth={2}
+                      className="text-danger-600"
+                      aria-label={counters.error}
                     />
                   )}
                 </div>

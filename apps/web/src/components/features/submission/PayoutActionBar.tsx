@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Button } from 'primereact/button';
+import { FileInput, Clock, CheckCircle2 } from 'lucide-react';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Card } from 'primereact/card';
 import { FileUpload } from 'primereact/fileupload';
@@ -89,7 +90,7 @@ export function PayoutActionBar({ currentPayoutStatus, onAction, loading = false
               cancelLabel="Clear"
               emptyTemplate={
                 <div className="flex flex-col items-center justify-center py-4 text-text-muted">
-                  <i className="pi pi-file-import text-2xl mb-2" />
+                  <FileInput size={32} strokeWidth={1.5} className="mb-2" />
                   <span className="text-sm">Drag &amp; drop files here, or click Attach Files</span>
                 </div>
               }
@@ -111,7 +112,7 @@ export function PayoutActionBar({ currentPayoutStatus, onAction, loading = false
             {currentPayoutStatus === PayoutStatus.NOT_PAID && (
               <Button
                 label="Mark as Pending"
-                icon="pi pi-clock"
+                icon={<Clock size={16} strokeWidth={2} />}
                 severity="warning"
                 onClick={() => onAction(PayoutStatus.PENDING, note || undefined)}
                 disabled={loading}
@@ -120,7 +121,7 @@ export function PayoutActionBar({ currentPayoutStatus, onAction, loading = false
             )}
             <Button
               label="Mark as Paid"
-              icon="pi pi-check-circle"
+              icon={<CheckCircle2 size={16} strokeWidth={2} />}
               severity="success"
               onClick={() => setShowConfirmPaid(true)}
               disabled={loading}

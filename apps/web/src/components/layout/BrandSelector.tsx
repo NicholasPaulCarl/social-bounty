@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Menu } from 'primereact/menu';
 import type { MenuItem } from 'primereact/menuitem';
+import { Building2, Settings, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMyBrands } from '@/hooks/useBrand';
 import { useToast } from '@/hooks/useToast';
@@ -28,7 +29,7 @@ export function BrandSelector() {
         .filter((b) => b.id !== user?.brandId)
         .map((b) => ({
           label: b.name,
-          icon: 'pi pi-building',
+          icon: () => <Building2 size={16} strokeWidth={2} className="mr-2 shrink-0" />,
           command: async () => {
             try {
               await switchBrand(b.id);
@@ -42,7 +43,7 @@ export function BrandSelector() {
     { separator: true },
     {
       label: 'Manage Brands',
-      icon: 'pi pi-cog',
+      icon: () => <Settings size={16} strokeWidth={2} className="mr-2 shrink-0" />,
       command: () => router.push('/business/brands'),
     },
   ];
@@ -71,7 +72,7 @@ export function BrandSelector() {
         <span className="text-sm font-medium text-text-primary truncate flex-1">
           {activeBrand?.name || 'Select Brand'}
         </span>
-        <i className="pi pi-chevron-down text-xs text-text-muted" />
+        <ChevronDown size={14} strokeWidth={2} className="text-text-muted shrink-0" />
       </button>
     </div>
   );
