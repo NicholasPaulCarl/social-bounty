@@ -1,6 +1,7 @@
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
+import { FilterX, Search } from 'lucide-react';
 import { useToolbarSearch } from './useToolbarSearch';
 import { PageHeaderViewToggle } from './PageHeaderViewToggle';
 import type { ToolbarConfig } from './types';
@@ -46,13 +47,13 @@ export function PageHeaderToolbar({ config }: PageHeaderToolbarProps) {
 
       {hasActiveFilters && onClearFilters && (
         <Button
-          icon="pi pi-filter-slash"
+          icon={<FilterX size={18} strokeWidth={2} />}
           outlined
           severity="secondary"
           onClick={onClearFilters}
           tooltip="Clear filters"
           aria-label="Clear all filters"
-          className="text-text-muted w-full sm:w-auto"
+          className="text-slate-600 w-full sm:w-auto"
         />
       )}
 
@@ -71,14 +72,19 @@ function ToolbarSearch({ config }: { config: NonNullable<ToolbarConfig['search']
   });
 
   return (
-    <span className="p-input-icon-left w-full sm:w-auto">
-      <i className="pi pi-search" />
+    <span className="relative w-full sm:w-auto inline-flex items-center">
+      <Search
+        size={16}
+        strokeWidth={2}
+        className="absolute left-3 text-slate-400 pointer-events-none"
+        aria-hidden="true"
+      />
       <InputText
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
-        placeholder={config.placeholder || 'Search...'}
+        placeholder={config.placeholder || 'Search'}
         aria-label={config.placeholder || 'Search'}
-        className="w-full sm:w-64"
+        className="w-full sm:w-64 pl-9"
       />
     </span>
   );

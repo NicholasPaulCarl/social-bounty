@@ -102,7 +102,7 @@ export function OverrideModal({
             className="w-full"
             placeholder="Provide a reason for this override..."
           />
-          <p className="text-xs text-text-muted mt-1">
+          <p className="text-xs text-text-muted mt-1 font-mono tabular-nums">
             {reason.trim().length}/10 minimum characters
           </p>
         </div>

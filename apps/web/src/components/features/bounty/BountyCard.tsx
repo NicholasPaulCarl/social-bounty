@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
+import { ArrowRight, Globe, Lock } from 'lucide-react';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatCurrency, timeRemaining } from '@/lib/utils/format';
 import type { BountyListItem } from '@social-bounty/shared';
@@ -15,7 +16,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
 
   return (
     <div
-      className="glass-card p-3 sm:p-5 cursor-pointer hover:-translate-y-1 hover:shadow-glow-brand/30 transition-all duration-250 group"
+      className="glass-card !rounded-xl p-3 sm:p-5 cursor-pointer hover:-translate-y-1 hover:shadow-glow-brand/30 transition-all duration-250 group"
       onClick={() => router.push(`/bounties/${bounty.id}`)}
       role="article"
     >
@@ -25,18 +26,18 @@ export function BountyCard({ bounty }: BountyCardProps) {
           <StatusBadge type="bounty" value={bounty.status} size="small" />
           {bounty.accessType === 'CLOSED' ? (
             <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-warning-600/10 text-warning-600 border-warning-600/30">
-              <i className="pi pi-lock" style={{ fontSize: '9px' }} />
+              <Lock size={10} strokeWidth={2} aria-hidden="true" />
               Apply
             </span>
           ) : (
             <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-success-600/10 text-success-600 border-success-600/30">
-              <i className="pi pi-globe" style={{ fontSize: '9px' }} />
+              <Globe size={10} strokeWidth={2} aria-hidden="true" />
               Open
             </span>
           )}
         </div>
         {bounty.rewardValue && (
-          <span className="text-lg font-heading font-bold text-success-600">
+          <span className="text-lg font-mono font-bold tabular-nums text-success-600">
             {formatCurrency(bounty.rewardValue, bounty.currency)}
           </span>
         )}
@@ -53,7 +54,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
       {/* Meta */}
       <div className="flex items-center gap-2 mt-3">
         {bounty.category && (
-          <span className="text-xs text-text-muted bg-elevated px-2 py-0.5 rounded-full">
+          <span className="text-xs font-semibold uppercase tracking-wider text-pink-600">
             {bounty.category}
           </span>
         )}
@@ -71,7 +72,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
         </span>
         <Button
           label="View"
-          icon="pi pi-arrow-right"
+          icon={<ArrowRight size={16} strokeWidth={2} />}
           iconPos="right"
           text
           size="small"

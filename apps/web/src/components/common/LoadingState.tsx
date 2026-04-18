@@ -1,7 +1,7 @@
 'use client';
 
 import { Skeleton } from 'primereact/skeleton';
-import { ProgressSpinner } from 'primereact/progressspinner';
+import { Loader2 } from 'lucide-react';
 
 interface LoadingStateProps {
   type: 'table' | 'card' | 'cards-grid' | 'form' | 'detail' | 'page' | 'inline';
@@ -13,8 +13,13 @@ interface LoadingStateProps {
 export function LoadingState({ type, rows = 10, columns = 4, cards = 6 }: LoadingStateProps) {
   if (type === 'inline') {
     return (
-      <div className="flex justify-center items-center p-4">
-        <ProgressSpinner style={{ width: '40px', height: '40px' }} />
+      <div className="flex justify-center items-center p-4" aria-busy="true">
+        <Loader2
+          size={24}
+          strokeWidth={2}
+          className="animate-spin text-pink-600"
+          aria-label="Loading"
+        />
       </div>
     );
   }

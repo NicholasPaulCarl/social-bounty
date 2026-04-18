@@ -1,3 +1,4 @@
+import { LayoutGrid, List } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
 interface PageHeaderViewToggleProps {
@@ -19,7 +20,7 @@ export function PageHeaderViewToggle({ mode, onChange }: PageHeaderViewTogglePro
             : 'text-text-muted hover:text-text-primary hover:bg-slate-100'
         )}
       >
-        <i className="pi pi-th-large text-sm" />
+        <LayoutGrid size={16} strokeWidth={2} />
       </button>
       <div className="w-px h-5 bg-slate-200" />
       <button
@@ -33,7 +34,7 @@ export function PageHeaderViewToggle({ mode, onChange }: PageHeaderViewTogglePro
             : 'text-text-muted hover:text-text-primary hover:bg-slate-100'
         )}
       >
-        <i className="pi pi-list text-sm" />
+        <List size={16} strokeWidth={2} />
       </button>
     </div>
   );

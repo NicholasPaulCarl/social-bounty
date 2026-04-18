@@ -5,6 +5,10 @@ interface PageHeaderBreadcrumbsProps {
   items: MenuItem[];
 }
 
+// NOTE: Breadcrumbs are removed globally from the design system. PageHeader
+// no longer renders this component — the `breadcrumbs` prop on PageHeaderProps
+// is preserved only for back-compat. Kept here for any out-of-tree consumer
+// during the DS migration; safe to delete in a follow-up.
 const home: MenuItem = { icon: 'pi pi-home', url: '/' };
 
 export function PageHeaderBreadcrumbs({ items }: PageHeaderBreadcrumbsProps) {

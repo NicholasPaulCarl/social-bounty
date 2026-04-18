@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Card } from 'primereact/card';
+import { Check, AlertTriangle, X } from 'lucide-react';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { SubmissionStatus } from '@social-bounty/shared';
 import type { SubmissionUrlScrapeInfo } from '@social-bounty/shared';
@@ -87,7 +88,7 @@ export function ReviewActionBar({
     <>
       <Card className="mt-4">
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-text-primary">Review Actions</h3>
+          <h3 className="text-lg font-semibold text-text-primary">Review actions</h3>
 
           <div>
             <label htmlFor="review-note" className="block text-sm font-medium text-text-secondary mb-2">
@@ -105,13 +106,13 @@ export function ReviewActionBar({
               placeholder="Add a note for the participant..."
               maxLength={1000}
             />
-            <p className="text-xs text-text-muted mt-1">{note.length}/1000 characters</p>
+            <p className="text-xs text-text-muted mt-1 font-mono tabular-nums">{note.length}/1000 characters</p>
           </div>
 
           <div className="flex gap-3 flex-wrap">
             <Button
               label="Approve"
-              icon="pi pi-check"
+              icon={<Check size={18} strokeWidth={2} />}
               severity="success"
               onClick={() => setConfirmAction(SubmissionStatus.APPROVED)}
               disabled={loading || !allVerified}
@@ -119,8 +120,8 @@ export function ReviewActionBar({
               tooltipOptions={{ position: 'top', showOnDisabled: true }}
             />
             <Button
-              label="Needs More Info"
-              icon="pi pi-exclamation-triangle"
+              label="Needs more info"
+              icon={<AlertTriangle size={18} strokeWidth={2} />}
               severity="warning"
               onClick={() => onAction(SubmissionStatus.NEEDS_MORE_INFO, note || undefined)}
               disabled={loading}
@@ -128,7 +129,7 @@ export function ReviewActionBar({
             />
             <Button
               label="Reject"
-              icon="pi pi-times"
+              icon={<X size={18} strokeWidth={2} />}
               severity="danger"
               onClick={() => setConfirmAction(SubmissionStatus.REJECTED)}
               disabled={loading}
@@ -140,9 +141,9 @@ export function ReviewActionBar({
       <ConfirmAction
         visible={confirmAction === SubmissionStatus.APPROVED}
         onHide={() => setConfirmAction(null)}
-        title="Approve Submission"
-        message="Are you sure you want to approve this submission?"
-        confirmLabel="Yes, Approve"
+        title="Approve submission"
+        message="Approve this submission and release payout?"
+        confirmLabel="Approve"
         confirmSeverity="success"
         onConfirm={() => {
           onAction(SubmissionStatus.APPROVED, note || undefined);
@@ -154,9 +155,9 @@ export function ReviewActionBar({
       <ConfirmAction
         visible={confirmAction === SubmissionStatus.REJECTED}
         onHide={() => setConfirmAction(null)}
-        title="Reject Submission"
-        message="Are you sure you want to reject this submission? This action is final."
-        confirmLabel="Yes, Reject"
+        title="Reject submission"
+        message="Reject this submission? This is final."
+        confirmLabel="Reject"
         confirmSeverity="danger"
         onConfirm={() => {
           onAction(SubmissionStatus.REJECTED, note || undefined);

@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from 'primereact/button';
+import { Search, Lock, AlertCircle, RefreshCw } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 
 interface ErrorStateProps {
@@ -18,24 +19,22 @@ export function ErrorState({ error, onRetry }: ErrorStateProps) {
 
   const title =
     statusCode === 404
-      ? 'Not Found'
+      ? 'Not found'
       : statusCode === 403
-        ? 'Access Denied'
+        ? 'Access denied'
         : 'Something went wrong';
 
-  const icon =
-    statusCode === 404
-      ? 'pi-search'
-      : statusCode === 403
-        ? 'pi-lock'
-        : 'pi-exclamation-circle';
+  const Icon = statusCode === 404 ? Search : statusCode === 403 ? Lock : AlertCircle;
 
   return (
     <div className="flex flex-col items-center justify-center py-10 sm:py-16 px-4">
       <div className="relative">
         <div className="absolute inset-0 bg-danger-600/20 blur-2xl rounded-full" />
-        <i
-          className={`pi ${icon} text-danger-600 relative text-[2rem] sm:text-[3rem]`}
+        <Icon
+          size={48}
+          strokeWidth={2}
+          className="text-danger-600 relative"
+          aria-hidden="true"
         />
       </div>
       <h3 className="text-base sm:text-lg font-heading font-semibold text-text-primary mt-4 sm:mt-6">
@@ -44,8 +43,8 @@ export function ErrorState({ error, onRetry }: ErrorStateProps) {
       <p className="text-sm text-text-secondary mt-2 text-center max-w-md">{message}</p>
       {onRetry && (
         <Button
-          label="Try Again"
-          icon="pi pi-refresh"
+          label="Try again"
+          icon={<RefreshCw size={16} strokeWidth={2} />}
           outlined
           className="mt-4 sm:mt-6"
           onClick={onRetry}
