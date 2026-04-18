@@ -31,6 +31,26 @@ export interface BountyPublishedEmailData {
   bountyUrl?: string;
 }
 
+/** Data required for post-removed (visibility auto-refund) brand emails */
+export interface PostRemovedBrandEmailData {
+  brandName: string;
+  hunterName: string;
+  bountyTitle: string;
+  visibilityRule: string;
+  failureReason: string;
+  consecutiveFailures: number;
+  actionUrl?: string;
+}
+
+/** Data required for post-removed (visibility auto-refund) hunter emails */
+export interface PostRemovedHunterEmailData {
+  userName: string;
+  bountyTitle: string;
+  visibilityRule: string;
+  failureReason: string;
+  actionUrl?: string;
+}
+
 /** Data required for dispute-opened emails */
 export interface DisputeOpenedEmailData {
   disputeNumber: string;
@@ -80,6 +100,8 @@ export class MailService implements OnModuleInit {
   private submissionStatusTemplate!: Handlebars.TemplateDelegate;
   private payoutNotificationTemplate!: Handlebars.TemplateDelegate;
   private bountyPublishedTemplate!: Handlebars.TemplateDelegate;
+  private postRemovedBrandTemplate!: Handlebars.TemplateDelegate;
+  private postRemovedHunterTemplate!: Handlebars.TemplateDelegate;
 
   constructor(private config: ConfigService) {
     const port = this.config.get<number>('SMTP_PORT', 1025);
@@ -110,6 +132,8 @@ export class MailService implements OnModuleInit {
     this.submissionStatusTemplate = this.compileTemplate(templatesDir, 'submission-status.hbs');
     this.payoutNotificationTemplate = this.compileTemplate(templatesDir, 'payout-notification.hbs');
     this.bountyPublishedTemplate = this.compileTemplate(templatesDir, 'bounty-published.hbs');
+    this.postRemovedBrandTemplate = this.compileTemplate(templatesDir, 'post-removed-brand.hbs');
+    this.postRemovedHunterTemplate = this.compileTemplate(templatesDir, 'post-removed-hunter.hbs');
 
     // Register the "eq" helper for conditional status styling
     Handlebars.registerHelper('eq', (a: string, b: string) => a === b);
@@ -283,6 +307,52 @@ export class MailService implements OnModuleInit {
 
     this.logger.log({
       message: 'Bounty published email sent',
+      to,
+      bountyTitle: data.bountyTitle,
+    });
+  }
+
+  // ── Post-Removed (visibility auto-refund) Email Methods ──
+
+  async sendPostRemovedBrandEmail(
+    to: string,
+    data: PostRemovedBrandEmailData,
+  ): Promise<void> {
+    const subject = `Auto-refund issued for "${data.bountyTitle}" — post no longer accessible - Social Bounty`;
+    const contentHtml = this.postRemovedBrandTemplate(data);
+    const html = this.renderWithLayout(contentHtml, subject);
+
+    await this.sendWithRetry({
+      from: this.config.get('SMTP_FROM', 'noreply@socialbounty.com'),
+      to,
+      subject,
+      html,
+    });
+
+    this.logger.log({
+      message: 'Post-removed (brand) email sent',
+      to,
+      bountyTitle: data.bountyTitle,
+    });
+  }
+
+  async sendPostRemovedHunterEmail(
+    to: string,
+    data: PostRemovedHunterEmailData,
+  ): Promise<void> {
+    const subject = `Your submission for "${data.bountyTitle}" was auto-refunded - Social Bounty`;
+    const contentHtml = this.postRemovedHunterTemplate(data);
+    const html = this.renderWithLayout(contentHtml, subject);
+
+    await this.sendWithRetry({
+      from: this.config.get('SMTP_FROM', 'noreply@socialbounty.com'),
+      to,
+      subject,
+      html,
+    });
+
+    this.logger.log({
+      message: 'Post-removed (hunter) email sent',
       to,
       bountyTitle: data.bountyTitle,
     });

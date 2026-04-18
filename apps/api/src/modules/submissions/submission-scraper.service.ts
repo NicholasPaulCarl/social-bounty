@@ -300,6 +300,97 @@ export class SubmissionScraperService {
       });
     }
   }
+
+  /**
+   * Phase 2A — PostVisibility re-check entry point.
+   *
+   * Called by the SubmissionVisibilityScheduler on a 6-hour cadence for
+   * APPROVED submissions whose bounty has a PostVisibility rule. Performs
+   * a full re-scrape of every URL on the submission (regardless of cached
+   * VERIFIED status — visibility can decay) and writes one
+   * `SubmissionUrlScrapeHistory` row per URL per pass for an append-only
+   * audit trail.
+   *
+   * Returns a summary the caller uses to decide whether to bump the
+   * `consecutiveVisibilityFailures` counter, trigger a refund, or notify
+   * the brand + hunter. The scheduler is the policy owner — this method
+   * is purely the data-collection step.
+   *
+   * Re-scrape strategy: pre-flips every row to PENDING so the existing
+   * `scrapeAndVerify()` loop picks them up, then snapshots the prior
+   * scrape state into history before the overwrite. This keeps the
+   * Apify cost-batching + lock semantics unchanged.
+   */
+  async rescrapeForVisibility(
+    submissionId: string,
+  ): Promise<{ totalUrls: number; failedUrls: number; verifiedUrls: number; failureMessages: string[] }> {
+    // 1. Snapshot current state into the append-only history table BEFORE
+    //    the in-place reset wipes it. We treat the existing row as the
+    //    "previous result" — even VERIFIED, because the brand may want
+    //    to see the historical trail of green checks before the failure.
+    const before = await this.prisma.submissionUrlScrape.findMany({
+      where: { submissionId },
+    });
+    if (before.length === 0) {
+      this.logger.debug(
+        `Visibility re-check skipped for ${submissionId} — no urlScrapes`,
+      );
+      return { totalUrls: 0, failedUrls: 0, verifiedUrls: 0, failureMessages: [] };
+    }
+
+    if (before.length > 0) {
+      await this.prisma.submissionUrlScrapeHistory.createMany({
+        data: before.map((row) => ({
+          urlScrapeId: row.id,
+          submissionId,
+          url: row.url,
+          channel: row.channel,
+          format: row.format,
+          scrapeStatus: row.scrapeStatus,
+          scrapeResult: (row.scrapeResult ?? Prisma.DbNull) as Prisma.InputJsonValue,
+          verificationChecks:
+            (row.verificationChecks ?? Prisma.DbNull) as Prisma.InputJsonValue,
+          errorMessage: row.errorMessage,
+        })),
+      });
+    }
+
+    // 2. Reset every row to PENDING so scrapeAndVerify() will re-fetch
+    //    them. Visibility re-checks bypass the VERIFIED cache (the whole
+    //    point is to confirm the post is still live).
+    await this.prisma.submissionUrlScrape.updateMany({
+      where: { submissionId },
+      data: {
+        scrapeStatus: 'PENDING',
+        errorMessage: null,
+        scrapeResult: Prisma.DbNull,
+        verificationChecks: Prisma.DbNull,
+      },
+    });
+
+    // 3. Run the existing scrape + verify pipeline. Returns when all
+    //    rows are settled (VERIFIED or FAILED) or the lock prevents the
+    //    run. Lock contention is treated as a transient skip — the next
+    //    scheduler tick will pick the row up via lastVisibilityCheckAt.
+    await this.scrapeAndVerify(submissionId);
+
+    // 4. Read back the final state to summarise for the scheduler.
+    const after = await this.prisma.submissionUrlScrape.findMany({
+      where: { submissionId },
+    });
+    const failed = after.filter((r) => r.scrapeStatus === 'FAILED');
+    const verified = after.filter((r) => r.scrapeStatus === 'VERIFIED');
+    const failureMessages = failed.map(
+      (r) => `${r.channel} ${r.format}: ${r.errorMessage ?? 'failed'}`,
+    );
+
+    return {
+      totalUrls: after.length,
+      failedUrls: failed.length,
+      verifiedUrls: verified.length,
+      failureMessages,
+    };
+  }
 }
 
 // Re-export the pure check fn for callers that want to compute without the

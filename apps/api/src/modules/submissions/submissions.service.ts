@@ -452,6 +452,13 @@ export class SubmissionsService {
       throw new ForbiddenException('Not authorized');
     }
 
+    // Phase 2A: visibility-recheck fields. `approvedAt` is universally
+    // useful (drives "approved N days ago" UI) and goes to all roles.
+    // The other two are operator-debug-only — gated to SUPER_ADMIN so
+    // hunters and brand admins don't see scheduler internals.
+    const isAdmin = user.role === UserRole.SUPER_ADMIN;
+    const subAny = submission as any;
+
     return {
       id: submission.id,
       bountyId: submission.bountyId,
@@ -474,6 +481,15 @@ export class SubmissionsService {
       reportedMetrics: (submission as any).reportedMetrics as ReportedMetricsInput | null ?? null,
       verificationDeadline: (submission as any).verificationDeadline?.toISOString() ?? null,
       urlScrapes: formatUrlScrapes((submission as any).urlScrapes),
+      approvedAt: subAny.approvedAt ? new Date(subAny.approvedAt).toISOString() : null,
+      lastVisibilityCheckAt: isAdmin
+        ? subAny.lastVisibilityCheckAt
+          ? new Date(subAny.lastVisibilityCheckAt).toISOString()
+          : null
+        : null,
+      consecutiveVisibilityFailures: isAdmin
+        ? subAny.consecutiveVisibilityFailures ?? 0
+        : null,
       createdAt: submission.createdAt.toISOString(),
       updatedAt: submission.updatedAt.toISOString(),
     };
@@ -744,6 +760,10 @@ export class SubmissionsService {
       const deadline = new Date();
       deadline.setHours(deadline.getHours() + VERIFICATION_DEADLINE_HOURS);
       updatePayload.verificationDeadline = deadline;
+      // Phase 2A: stamp approvedAt for the visibility scheduler. Drives
+      // the post-age cadence buckets (24h/72h/7d) without re-parsing
+      // reviewHistory JSON every cron tick.
+      updatePayload.approvedAt = new Date();
     }
 
     const updated = await this.prisma.submission.update({
