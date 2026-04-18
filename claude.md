@@ -102,7 +102,7 @@ I) Deployment plan + runbook
 
 ## Current Implementation Status (2026-04-18)
 
-HEAD: `cdc0351 fix(web): add accessType to MOCK_BOUNTIES fixture for admin component library` (15 commits past `071f98f` on the `phase3-visibility-hardening` branch — pending merge to main). Test state: **1598 tests across 92 suites, 100% green** — api 1294 / 82 suites + web 304 / 10 suites (Hard Rule #4 held). API count grew 1251 → 1294 (+8 Phase 3A scheduler hardening, +19 Phase 3B admin surface, +16 Phase 3D analytics). Web count grew 291 → 304 (+13 Phase 3C form-preview / preview-checks shape refactor + new `AutoVerifyPreviewAccordion` suite). Working tree clean.
+HEAD: `7b1edde docs(deployment): TradeSafe live production readiness package` on main (Phase 3 shipped 2026-04-18; live-readiness docs pass landed same day). Test state: **1598 tests across 92 suites, 100% green** — api 1294 / 82 suites + web 304 / 10 suites (Hard Rule #4 held). Working tree clean. Recent operational additions not reflected in the test count: `go-live-checklist.md`, `stitch-express-live-readiness.md`, `tradesafe-live-readiness.md` (all under `docs/deployment/`), plus ADR 0010, plus `next build` unblocked (`0c67252`) and dead lint scripts removed (`8378f5a`).
 
 **Live and tested:**
 - **Stitch Express inbound rail** — brand funding (account debit → platform custody), idempotent via `UNIQUE(referenceId, actionType)`, Svix webhook ingestion with replay-safe handling.
@@ -176,7 +176,7 @@ HEAD: `cdc0351 fix(web): add accessType to MOCK_BOUNTIES fixture for admin compo
 - **Standalone TradeSafe escrow layer** alongside platform custody (ADR 0003, still in force for that scope).
 - **Peach Payments** — superseded by ADR 0008; markers in source read `TRADESAFE MIGRATION (ADR 0008)` (8 sites).
 
-**Open risks:** R24 (TradeSafe creds — external blocker). R25/R26/R27/R28/R29/R30 closed.
+**Open risks:** R24 (TradeSafe creds — external blocker). R25/R26/R27/R28/R29/R30 closed. Post-readiness-pass risks (all engineering — surfaced 2026-04-18 by the TradeSafe + Stitch live-readiness agents): **R31** (dispute-reserve liquidity — Stitch side; commercial gap, needs ballpark figure from Team Lead), **R32** (`ReconciliationService.checkStitchVsLedger` hard-codes `stitch_payouts`+`stitch_payout_settled` — won't catch TradeSafe drift; **BLOCKER** for payouts-live, chip spawned), **R33** (`/api/v1/auth/tradesafe/callback` promised by ADR 0009 §5 but no controller file exists — BLOCKER, chip spawned), **R34** (`WebhookRouterService.dispatch` has no `tradesafe.*` arms — webhooks accepted + stored but nothing processed; **BLOCKER**, chip spawned), **R35** (`TRADESAFE_OAUTH_REDIRECT_URL` / `TRADESAFE_SUCCESS_URL` / `TRADESAFE_FAILURE_URL` referenced by ADR 0009 §4 but not in `env.validation.ts` or `.env.example` — app silently boots with undefined values, BLOCKER, chip spawned), **R36** (no auto-retry after kill-switch-blocked inbound webhook — Stitch returns 200, no retry; recovery via reconciliation + compensating entry), **R37** (multi-recipient TradeSafe payout API shape unverified — adapter's expected payload may not match live; **VERIFY WITH TRADESAFE**). Plus 4 Stitch-docs gaps of their own: **B1** (closed 2026-04-18: `STITCH_API_BASE` URL fixed in checklist, commit `5ba7b60`), **B2+B3** (chip spawned: `INCIDENT-RESPONSE.md` has no kill-switch procedure + still references Stripe as payment-provider contact).
 
 **References for future agents:**
 - `docs/STITCH-IMPLEMENTATION-STATUS.md` — implementation log.
