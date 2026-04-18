@@ -6,7 +6,7 @@ const config: Config = {
   roots: ['<rootDir>/src'],
   testRegex: '.*\\.test\\.ts$',
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.jest.json' }],
   },
   testEnvironment: 'node',
   moduleNameMapper: {
