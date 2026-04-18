@@ -5,6 +5,7 @@ import {
   BountyStatus,
   SubmissionStatus,
   PayoutStatus,
+  SocialChannel,
 } from '../enums';
 
 // ─────────────────────────────────────
@@ -569,6 +570,55 @@ export interface VisibilityHistoryRow {
   verificationChecks: Array<Record<string, unknown>> | null;
   errorMessage: string | null;
   checkedAt: string;
+}
+
+// ─────────────────────────────────────
+// Phase 3D — Visibility analytics
+// ─────────────────────────────────────
+// GET /admin/finance/visibility-analytics?windowHours=24
+//
+// Per-channel post-visibility scrape outcome aggregation. Sourced from
+// SubmissionUrlScrapeHistory (append-only, one row per re-scrape pass) joined
+// to SubmissionUrlScrape for channel/format. Powers the Finance Insights
+// "Visibility Failure Rate" panel and surfaces structurally-bad windows so
+// operators can spot Apify-side outages BEFORE the auto-refund machinery
+// flips false positives into mass refunds (ADR 0010, Risk 1).
+//
+// Severity thresholds (computed in the service):
+//   warning  — failureRate >= 0.30 AND total >= 10
+//   critical — failureRate >= 0.50 AND total >= 20
+// Sample-size floors keep tiny windows from emitting noisy alerts.
+
+export interface VisibilityFailureBucket {
+  channel: SocialChannel;
+  total: number;
+  verified: number;
+  failed: number;
+  // PENDING / IN_PROGRESS rows are counted in `total` but not in
+  // verified/failed — they're transient and don't affect failureRate.
+  failureRate: number; // 0..1, rounded to 4 decimal places
+}
+
+export interface VisibilityAnalyticsAlert {
+  channel: SocialChannel;
+  severity: 'warning' | 'critical';
+  message: string;
+}
+
+export interface VisibilityAnalyticsResponse {
+  windowHours: number;
+  windowStart: string; // ISO
+  windowEnd: string; // ISO
+  buckets: VisibilityFailureBucket[];
+  totals: {
+    total: number;
+    verified: number;
+    failed: number;
+    failureRate: number;
+  };
+  // Structurally-bad channels in the window. Empty array when everything is
+  // healthy. Surface these as PrimeReact <Message> components in the UI.
+  alerts: VisibilityAnalyticsAlert[];
 }
 
 // GET /admin/payments-health

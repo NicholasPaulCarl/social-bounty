@@ -290,6 +290,10 @@ export type {
   AdminVisibilityFailureListParams,
   AdminVisibilityFailureListResponse,
   VisibilityHistoryRow,
+  // Phase 3D: visibility analytics
+  VisibilityFailureBucket,
+  VisibilityAnalyticsAlert,
+  VisibilityAnalyticsResponse,
 } from './dto/admin.dto';
 
 // Business DTOs
