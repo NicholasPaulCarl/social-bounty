@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LedgerAccount, LedgerEntryType } from '@prisma/client';
-import { UserRole } from '@social-bounty/shared';
+import { SocialChannel, UserRole } from '@social-bounty/shared';
 import { FinanceAdminService } from './finance-admin.service';
 import { LedgerService } from '../ledger/ledger.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -377,5 +377,208 @@ describe('FinanceAdminService.listVisibilityHistory', () => {
     const service = makeService(prisma);
     const res = await service.listVisibilityHistory('sub_1');
     expect(res).toEqual([]);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// Phase 3D — getVisibilityAnalytics
+//
+// Tests cover the alert-threshold matrix specified in the agent brief plus
+// the wire-shape contract (windowStart/windowEnd ISO format, channel sort
+// order, totals roll-up, transient-row exclusion from failureRate).
+// `prisma.$queryRaw` is mocked so the service runs offline; we shape the
+// returned rows to match what the SQL would emit (one row per
+// (channel, scrapeStatus) tuple, count as text).
+// ─────────────────────────────────────────────────────────────────
+describe('FinanceAdminService.getVisibilityAnalytics', () => {
+  type RawRow = { channel: SocialChannel; scrapeStatus: string; count: string };
+  let prisma: { $queryRaw: jest.Mock };
+  let service: FinanceAdminService;
+
+  function makeService(): FinanceAdminService {
+    const config = {
+      get: jest.fn((_key: string, fallback?: unknown) => fallback),
+    } as unknown as ConfigService;
+    return new FinanceAdminService(
+      prisma as unknown as PrismaService,
+      {} as LedgerService,
+      config,
+    );
+  }
+
+  beforeEach(() => {
+    prisma = { $queryRaw: jest.fn() };
+    service = makeService();
+  });
+
+  it('empty window returns zero totals + zero buckets + no alerts', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([] as RawRow[]);
+
+    const res = await service.getVisibilityAnalytics(24);
+
+    expect(res.windowHours).toBe(24);
+    expect(res.buckets).toEqual([]);
+    expect(res.totals).toEqual({ total: 0, verified: 0, failed: 0, failureRate: 0 });
+    expect(res.alerts).toEqual([]);
+    // ISO strings on the wire so cross-language clients parse cleanly.
+    expect(typeof res.windowStart).toBe('string');
+    expect(typeof res.windowEnd).toBe('string');
+    expect(new Date(res.windowStart).getTime()).toBeLessThan(
+      new Date(res.windowEnd).getTime(),
+    );
+  });
+
+  it('all-VERIFIED single channel → failureRate 0, no alerts', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([
+      { channel: SocialChannel.INSTAGRAM, scrapeStatus: 'VERIFIED', count: '50' },
+    ] as RawRow[]);
+
+    const res = await service.getVisibilityAnalytics(24);
+
+    expect(res.buckets).toHaveLength(1);
+    expect(res.buckets[0]).toEqual({
+      channel: SocialChannel.INSTAGRAM,
+      total: 50,
+      verified: 50,
+      failed: 0,
+      failureRate: 0,
+    });
+    expect(res.totals.failureRate).toBe(0);
+    expect(res.alerts).toEqual([]);
+  });
+
+  it('mixed VERIFIED + FAILED computes the correct failureRate', async () => {
+    // 30 verified + 20 failed = 0.4 failure rate exactly.
+    prisma.$queryRaw.mockResolvedValueOnce([
+      { channel: SocialChannel.INSTAGRAM, scrapeStatus: 'VERIFIED', count: '30' },
+      { channel: SocialChannel.INSTAGRAM, scrapeStatus: 'FAILED', count: '20' },
+    ] as RawRow[]);
+
+    const res = await service.getVisibilityAnalytics(24);
+    const bucket = res.buckets[0];
+    expect(bucket.total).toBe(50);
+    expect(bucket.verified).toBe(30);
+    expect(bucket.failed).toBe(20);
+    expect(bucket.failureRate).toBeCloseTo(0.4);
+  });
+
+  it('PENDING/IN_PROGRESS rows count toward total but NOT toward failureRate', async () => {
+    // Transient rows are excluded from the rate denominator on purpose —
+    // otherwise the rate would dip every time the scheduler wakes up.
+    prisma.$queryRaw.mockResolvedValueOnce([
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'VERIFIED', count: '10' },
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'FAILED', count: '10' },
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'PENDING', count: '5' },
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'IN_PROGRESS', count: '3' },
+    ] as RawRow[]);
+
+    const res = await service.getVisibilityAnalytics(24);
+    const bucket = res.buckets[0];
+    expect(bucket.total).toBe(28);
+    expect(bucket.verified).toBe(10);
+    expect(bucket.failed).toBe(10);
+    // 10/(10+10) = 0.5, NOT 10/28.
+    expect(bucket.failureRate).toBe(0.5);
+  });
+
+  it('warning threshold: 35% failure across 15 settled rows → warning alert', async () => {
+    // 5 failed / (5+10) verified = 33.3% — clears the warning bar (>=30%, >=10).
+    prisma.$queryRaw.mockResolvedValueOnce([
+      { channel: SocialChannel.INSTAGRAM, scrapeStatus: 'VERIFIED', count: '10' },
+      { channel: SocialChannel.INSTAGRAM, scrapeStatus: 'FAILED', count: '5' },
+    ] as RawRow[]);
+
+    const res = await service.getVisibilityAnalytics(24);
+    expect(res.alerts).toHaveLength(1);
+    expect(res.alerts[0].channel).toBe(SocialChannel.INSTAGRAM);
+    expect(res.alerts[0].severity).toBe('warning');
+    expect(res.alerts[0].message).toContain('Instagram'.toUpperCase()); // channel name in message
+  });
+
+  it('critical threshold: 60% failure across 25 settled rows → critical alert', async () => {
+    // 15 failed / 25 settled = 60% — clears critical (>=50%, >=20).
+    prisma.$queryRaw.mockResolvedValueOnce([
+      { channel: SocialChannel.FACEBOOK, scrapeStatus: 'VERIFIED', count: '10' },
+      { channel: SocialChannel.FACEBOOK, scrapeStatus: 'FAILED', count: '15' },
+    ] as RawRow[]);
+
+    const res = await service.getVisibilityAnalytics(24);
+    expect(res.alerts).toHaveLength(1);
+    expect(res.alerts[0].channel).toBe(SocialChannel.FACEBOOK);
+    expect(res.alerts[0].severity).toBe('critical');
+    expect(res.alerts[0].message).toContain('Investigate');
+  });
+
+  it('high failure rate but tiny sample (50% across 5 rows) → NO alert', async () => {
+    // Sample-size floor protection — 2/4 settled is too noisy to alert on.
+    prisma.$queryRaw.mockResolvedValueOnce([
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'VERIFIED', count: '2' },
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'FAILED', count: '2' },
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'PENDING', count: '1' },
+    ] as RawRow[]);
+
+    const res = await service.getVisibilityAnalytics(24);
+    expect(res.buckets[0].failureRate).toBe(0.5);
+    // Settled denominator is 4 < 10 (warning floor) — no alert fires.
+    expect(res.alerts).toEqual([]);
+  });
+
+  it('multi-channel: only the affected channels emit alerts', async () => {
+    // Instagram is healthy, TikTok is critical, Facebook is warning.
+    prisma.$queryRaw.mockResolvedValueOnce([
+      { channel: SocialChannel.INSTAGRAM, scrapeStatus: 'VERIFIED', count: '50' },
+      { channel: SocialChannel.INSTAGRAM, scrapeStatus: 'FAILED', count: '2' }, // ~3.8%
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'VERIFIED', count: '10' },
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'FAILED', count: '15' }, // 60% / 25
+      { channel: SocialChannel.FACEBOOK, scrapeStatus: 'VERIFIED', count: '7' },
+      { channel: SocialChannel.FACEBOOK, scrapeStatus: 'FAILED', count: '5' }, // ~41.7% / 12
+    ] as RawRow[]);
+
+    const res = await service.getVisibilityAnalytics(24);
+
+    // Buckets sorted alphabetically by channel: FACEBOOK, INSTAGRAM, TIKTOK.
+    expect(res.buckets.map((b) => b.channel)).toEqual([
+      SocialChannel.FACEBOOK,
+      SocialChannel.INSTAGRAM,
+      SocialChannel.TIKTOK,
+    ]);
+
+    // Alerts fire only for FACEBOOK (warning) and TIKTOK (critical), not INSTAGRAM.
+    const channelsAlerted = res.alerts.map((a) => a.channel).sort();
+    expect(channelsAlerted).toEqual([SocialChannel.FACEBOOK, SocialChannel.TIKTOK]);
+    const tiktokAlert = res.alerts.find((a) => a.channel === SocialChannel.TIKTOK);
+    const fbAlert = res.alerts.find((a) => a.channel === SocialChannel.FACEBOOK);
+    expect(tiktokAlert?.severity).toBe('critical');
+    expect(fbAlert?.severity).toBe('warning');
+  });
+
+  it('totals roll up across all channels and use the same denominator math', async () => {
+    // 30 verified + 10 failed = totals failureRate 0.25
+    prisma.$queryRaw.mockResolvedValueOnce([
+      { channel: SocialChannel.INSTAGRAM, scrapeStatus: 'VERIFIED', count: '20' },
+      { channel: SocialChannel.INSTAGRAM, scrapeStatus: 'FAILED', count: '5' },
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'VERIFIED', count: '10' },
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'FAILED', count: '5' },
+      { channel: SocialChannel.TIKTOK, scrapeStatus: 'PENDING', count: '3' },
+    ] as RawRow[]);
+
+    const res = await service.getVisibilityAnalytics(24);
+    expect(res.totals.total).toBe(43); // 25 + 18 (incl. pending)
+    expect(res.totals.verified).toBe(30);
+    expect(res.totals.failed).toBe(10);
+    expect(res.totals.failureRate).toBe(0.25); // 10 / (30+10)
+  });
+
+  it('clamps an out-of-range windowHours and reflects the clamped value on the wire', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([] as RawRow[]);
+    // 999999 is clamped to the 30-day max (720h).
+    const res = await service.getVisibilityAnalytics(999999);
+    expect(res.windowHours).toBe(24 * 30);
+  });
+
+  it('falls back to default 24h when given an unsafe number (NaN)', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([] as RawRow[]);
+    const res = await service.getVisibilityAnalytics(Number.NaN);
+    expect(res.windowHours).toBe(24);
   });
 });

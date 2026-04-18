@@ -105,6 +105,8 @@ describe('FinanceAdminController RBAC contract', () => {
       // Phase 3B: admin visibility-failure surface.
       listVisibilityFailures: jest.fn(),
       listVisibilityHistory: jest.fn(),
+      // Phase 3D: visibility-failure analytics service method.
+      getVisibilityAnalytics: jest.fn(),
     };
     controller = new FinanceAdminController(svc as any);
     reflector = new Reflector();
@@ -135,6 +137,9 @@ describe('FinanceAdminController RBAC contract', () => {
     // Phase 3B: admin visibility-failure surface — list + history drill-down.
     ['visibilityFailures', [UserRole.SUPER_ADMIN]],
     ['visibilityFailureHistory', [UserRole.SUPER_ADMIN]],
+    // Phase 3D: visibility-failure analytics endpoint inherits the
+    // controller-level @Roles(SUPER_ADMIN).
+    ['visibilityAnalytics', [UserRole.SUPER_ADMIN]],
   ];
 
   it.each(routes)(

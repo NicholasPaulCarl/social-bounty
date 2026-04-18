@@ -165,6 +165,22 @@ export class FinanceAdminController {
     return this.svc.listVisibilityHistory(submissionId);
   }
 
+  /**
+   * Phase 3D — visibility-failure analytics.
+   * GET /admin/finance/visibility-analytics?windowHours=24
+   *
+   * `windowHours` is parsed loosely on purpose — bad inputs collapse to the
+   * service-level default rather than 400-ing operators on a typo. The
+   * service clamps the window (1..720h) before scanning history.
+   */
+  @Get('visibility-analytics')
+  async visibilityAnalytics(@Query('windowHours') windowHours?: string) {
+    const parsed = windowHours ? parseInt(windowHours, 10) : undefined;
+    return this.svc.getVisibilityAnalytics(
+      parsed !== undefined && Number.isFinite(parsed) ? parsed : undefined,
+    );
+  }
+
   @Post('kill-switch')
   @Audited('KILL_SWITCH_TOGGLE', 'System')
   async toggleKillSwitch(

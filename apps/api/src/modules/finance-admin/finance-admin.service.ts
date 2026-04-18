@@ -12,13 +12,34 @@ import {
 } from '@prisma/client';
 import {
   AdminVisibilityFailureListResponse,
+  SocialChannel,
   TransactionGroupDetail,
   UserRole,
+  VisibilityAnalyticsAlert,
+  VisibilityAnalyticsResponse,
+  VisibilityFailureBucket,
   VisibilityFailureRow,
   VisibilityHistoryRow,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService, PostLedgerLeg } from '../ledger/ledger.service';
+
+// Phase 3D — visibility analytics alert thresholds.
+// `warning` and `critical` failure-rate floors are paired with sample-size
+// floors so a 1/2 (50%) early-window blip doesn't surface a critical alert
+// before there's enough signal to tell noise from outage. See
+// VisibilityAnalyticsResponse for the wire-shape contract.
+export const VISIBILITY_ANALYTICS_THRESHOLDS = {
+  warning: { failureRate: 0.3, minSample: 10 },
+  critical: { failureRate: 0.5, minSample: 20 },
+} as const;
+
+// Default and bounds for the windowHours query param. 24h matches the
+// scheduler's outermost cadence bucket; the upper bound caps Postgres scan
+// width since SubmissionUrlScrapeHistory grows append-only.
+const VISIBILITY_ANALYTICS_DEFAULT_HOURS = 24;
+const VISIBILITY_ANALYTICS_MAX_HOURS = 24 * 30; // 30 days
+const VISIBILITY_ANALYTICS_MIN_HOURS = 1;
 
 export interface OverrideEntryInput {
   reason: string;
@@ -595,5 +616,161 @@ export class FinanceAdminService {
         reason: input.reason,
       },
     });
+  }
+
+  /**
+   * Phase 3D — visibility-failure analytics for the Finance Insights page.
+   *
+   * Aggregates SubmissionUrlScrapeHistory rows in a sliding window (default
+   * 24h) by their parent SubmissionUrlScrape's `channel`. Returns one bucket
+   * per channel that has at least one row in the window plus an
+   * `alerts` array surfacing structurally-bad windows. ADR 0010 Risk 1: spot
+   * Apify-side outages BEFORE the auto-refund machinery flips false positives
+   * into mass refunds.
+   *
+   * Implementation notes:
+   * - Single raw SQL `GROUP BY` query — Prisma `groupBy` cannot traverse the
+   *   `urlScrape.channel` relation, so we drop to `$queryRaw` rather than
+   *   N+1 per channel. Hot path: histories grow ~50 rows per submission per
+   *   30 days; the index on `checkedAt` carries the where clause.
+   * - PENDING / IN_PROGRESS rows are counted toward `total` but not toward
+   *   verified/failed — they're transient and would otherwise pollute
+   *   failureRate as soon as the next scheduler tick fires.
+   * - Buckets are sorted alphabetically by channel for stable UI rendering.
+   * - failureRate is rounded to 4 decimal places to keep the wire shape
+   *   deterministic across language clients.
+   */
+  async getVisibilityAnalytics(
+    windowHours = VISIBILITY_ANALYTICS_DEFAULT_HOURS,
+  ): Promise<VisibilityAnalyticsResponse> {
+    // Clamp the window to keep the SQL scan bounded. NaN / non-finite inputs
+    // collapse to the default — controllers that don't sanitize first won't
+    // break the endpoint.
+    const safeHours = Number.isFinite(windowHours)
+      ? Math.max(
+          VISIBILITY_ANALYTICS_MIN_HOURS,
+          Math.min(VISIBILITY_ANALYTICS_MAX_HOURS, Math.floor(windowHours)),
+        )
+      : VISIBILITY_ANALYTICS_DEFAULT_HOURS;
+
+    const windowEnd = new Date();
+    const windowStart = new Date(windowEnd.getTime() - safeHours * 60 * 60 * 1000);
+
+    // One SQL round trip — group by (channel, scrapeStatus) over the window.
+    // Cast COUNT to text so Postgres' bigint serializer doesn't clash with
+    // Node's number boundary; we Number() it client-side once below.
+    const rows = await this.prisma.$queryRaw<
+      Array<{ channel: SocialChannel; scrapeStatus: string; count: string }>
+    >`
+      SELECT us.channel AS channel,
+             h."scrapeStatus" AS "scrapeStatus",
+             COUNT(*)::text AS count
+        FROM submission_url_scrape_histories h
+        JOIN submission_url_scrapes us ON us.id = h."urlScrapeId"
+       WHERE h."checkedAt" >= ${windowStart}
+         AND h."checkedAt" <= ${windowEnd}
+       GROUP BY us.channel, h."scrapeStatus"
+    `;
+
+    // Pivot rows by channel — each channel collects its own (status -> count).
+    const byChannel = new Map<SocialChannel, { total: number; verified: number; failed: number }>();
+    for (const row of rows) {
+      const count = Number(row.count);
+      const bucket =
+        byChannel.get(row.channel) ?? { total: 0, verified: 0, failed: 0 };
+      bucket.total += count;
+      if (row.scrapeStatus === 'VERIFIED') bucket.verified += count;
+      if (row.scrapeStatus === 'FAILED') bucket.failed += count;
+      byChannel.set(row.channel, bucket);
+    }
+
+    const buckets: VisibilityFailureBucket[] = Array.from(byChannel.entries())
+      .map(([channel, b]) => ({
+        channel,
+        total: b.total,
+        verified: b.verified,
+        failed: b.failed,
+        failureRate: this.computeFailureRate(b.failed, b.verified),
+      }))
+      // Stable alphabetical order for UI table rendering.
+      .sort((a, b) => a.channel.localeCompare(b.channel));
+
+    // Roll-up totals across all channels — the UI shows them at the top of
+    // the panel as a quick-scan headline. Same denominator math as buckets:
+    // verified+failed (transient rows excluded).
+    const totalsAcc = buckets.reduce(
+      (acc, b) => {
+        acc.total += b.total;
+        acc.verified += b.verified;
+        acc.failed += b.failed;
+        return acc;
+      },
+      { total: 0, verified: 0, failed: 0 },
+    );
+    const totals = {
+      ...totalsAcc,
+      failureRate: this.computeFailureRate(totalsAcc.failed, totalsAcc.verified),
+    };
+
+    const alerts = this.computeVisibilityAlerts(buckets, safeHours);
+
+    return {
+      windowHours: safeHours,
+      windowStart: windowStart.toISOString(),
+      windowEnd: windowEnd.toISOString(),
+      buckets,
+      totals,
+      alerts,
+    };
+  }
+
+  /**
+   * failureRate denominator is verified+failed only — transient rows
+   * (PENDING/IN_PROGRESS) would otherwise drag the rate down between
+   * scheduler ticks. Rounded to 4 decimal places for stable serialization.
+   */
+  private computeFailureRate(failed: number, verified: number): number {
+    const denominator = failed + verified;
+    if (denominator === 0) return 0;
+    return Math.round((failed / denominator) * 10000) / 10000;
+  }
+
+  /**
+   * Translate per-channel failure rates into operator alerts. Sample-size
+   * floors prevent noisy alerts from tiny windows (e.g. 1/2 = 50% in the
+   * first scrape pass after a deploy). A channel can only emit one alert —
+   * `critical` wins over `warning` when both thresholds are crossed.
+   */
+  private computeVisibilityAlerts(
+    buckets: VisibilityFailureBucket[],
+    windowHours: number,
+  ): VisibilityAnalyticsAlert[] {
+    const alerts: VisibilityAnalyticsAlert[] = [];
+    const { warning, critical } = VISIBILITY_ANALYTICS_THRESHOLDS;
+    const windowLabel = `${windowHours}h`;
+    for (const bucket of buckets) {
+      const denominator = bucket.failed + bucket.verified;
+      const ratePct = (bucket.failureRate * 100).toFixed(1);
+      if (
+        bucket.failureRate >= critical.failureRate &&
+        denominator >= critical.minSample
+      ) {
+        alerts.push({
+          channel: bucket.channel,
+          severity: 'critical',
+          message: `${bucket.channel} visibility failure rate ${ratePct}% over the last ${windowLabel} (${bucket.failed}/${denominator} settled rows). Investigate the Apify scraper before auto-refunds compound.`,
+        });
+      } else if (
+        bucket.failureRate >= warning.failureRate &&
+        denominator >= warning.minSample
+      ) {
+        alerts.push({
+          channel: bucket.channel,
+          severity: 'warning',
+          message: `${bucket.channel} visibility failure rate ${ratePct}% over the last ${windowLabel} (${bucket.failed}/${denominator} settled rows). Worth a closer look.`,
+        });
+      }
+    }
+    return alerts;
   }
 }
