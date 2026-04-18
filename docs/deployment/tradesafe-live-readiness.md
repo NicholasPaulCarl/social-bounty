@@ -117,19 +117,23 @@ Verifier: `SvixVerifier.verify`, `apps/api/src/modules/webhooks/svix.verifier.ts
 
 ### 4.4 Minimum event subscription
 
-The router does not yet dispatch any `tradesafe.*` events. `WebhookRouterService.dispatch` at `apps/api/src/modules/webhooks/webhook-router.service.ts:24-90` handles only `LINK` / `WITHDRAWAL` / `REFUND` / `CONSENT` / `SUBSCRIPTION` (all Stitch-side). **This is a gap that ADR 0010 + a backend PR must close before live.**
+**R34 closed 2026-04-18** — `WebhookRouterService.dispatch` now routes three `tradesafe.*` event types to handler methods in `TradeSafeWebhookHandler` (`apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`). Full 5-test matrix lands per CLAUDE.md §5 across all three (happy path, retry idempotent, partial rollback, webhook replay, concurrent writer). Legs mirror the Stitch equivalents exactly — only the `actionType` discriminator differs so reconciliation and audit can tell which provider moved the money.
 
-Likely minimum subscription (from ADR 0009 §6 table — **VERIFY WITH TRADESAFE** once docs are available):
+| Event family | Status | Handler | Ledger effect |
+|---|---|---|---|
+| `tradesafe.beneficiary.linked` | **Wired (R34)** | `TradeSafeWebhookHandler.onBeneficiaryLinked` | None — pre-financial. Updates `StitchBeneficiary.verifiedAt` + AuditLog + optional `stitchBeneficiaryId` upgrade from `local:<userId>` fallback. |
+| `tradesafe.payout.settled` | **Wired (R34)** | `TradeSafeWebhookHandler.onPayoutSettled` | `payout_in_transit` → `hunter_paid`, `actionType=tradesafe_payout_settled`. Flips `StitchPayout.status=SETTLED` after ledger commit. |
+| `tradesafe.payout.failed` | **Wired (R34)** | `TradeSafeWebhookHandler.onPayoutFailed` | `payout_in_transit` → `hunter_available` (forward event, NOT ADR 0006 bypass), `actionType=tradesafe_payout_failed`. Bumps attempts/2^N backoff, RETRY_PENDING at attempts ≥ 3. |
+| `tradesafe.payout.created` | Unwired (speculative) | — | Logging only; kept in scope for ADR 0010 to decide whether to store at all. |
+| `tradesafe.payout.escrow_held` | Unwired (speculative) | — | May open a `tradesafe_escrow` account per ADR 0009 §7 — finance-policy decision, deferred to ADR 0010. |
+| `tradesafe.beneficiary.verified` | Unwired — superseded by `linked` | — | The three `linked` / `verified` / `created` verb variants on the TradeSafe side are **VERIFY WITH TRADESAFE**; current naming assumes `linked` is the terminal event on the happy path. |
 
-| Event family (speculative) | Purpose | Ledger effect |
-|---|---|---|
-| `tradesafe.payout.created` | Confirms we sent it | None — logging only |
-| `tradesafe.payout.escrow_held` | Funds in TradeSafe float | Mirrors `payout_in_transit` — possibly opens a `tradesafe_escrow` account (ADR 0009 §7) |
-| `tradesafe.payout.released` | TradeSafe disbursed to hunter bank | Drives `PayoutsService.onPayoutSettled` equivalent — `payout_in_transit` → `hunter_paid` |
-| `tradesafe.payout.failed` | Disbursement failed | Drives `onPayoutFailed` equivalent — compensating entry, retry |
-| `tradesafe.beneficiary.verified` | KYC status change on a hunter beneficiary | Updates `StitchBeneficiary.verifiedAt` (or its TradeSafe peer — see ADR 0009 §3) |
+**VERIFY WITH TRADESAFE** (flagged as `TODO(R34)` markers in source):
+- Exact event-name shape — code keys on `tradesafe.<resource>.<verb>` strings. Sandbox docs may use a different convention.
+- Payload field names — handler reads `data.id` (with fallbacks to `data.payoutId` / `data.tradesafePayoutId`) and `data.failureReason` / `data.reason` / `data.error`. Adjust when sandbox payloads land.
+- Whether `linked` or `verified` is the terminal event for a beneficiary's KYC flow. Only one should drive `verifiedAt`; the other (if it exists) is informational.
 
-Every event that can mutate the ledger MUST map to an idempotency-safe handler path with its own `actionType` constant. The `WebhookEvent.UNIQUE(provider, externalEventId)` constraint protects against Svix-side replay; the ledger's `UNIQUE(referenceId, actionType)` protects against handler-side double-posting.
+Every event that mutates the ledger maps to an idempotency-safe handler path with its own `actionType` constant. The `WebhookEvent.UNIQUE(provider, externalEventId)` constraint protects against Svix-side replay; the ledger's `UNIQUE(referenceId, actionType)` protects against handler-side double-posting.
 
 ### 4.5 Replay-attack guards (already in code)
 
@@ -226,9 +230,9 @@ A one-shot dev-side migration tool does not exist today; writing it is out of sc
 7. **Flip `PAYOUTS_ENABLED=true`** + rolling-deploy API containers. Watch the `BeneficiaryService` constructor log line — if the env wire is wrong the app will throw at boot (intentional).
 8. **Wait for `PayoutsScheduler.execute`** (every 10 minutes, `payouts.scheduler.ts:19`). Confirm a row appears in `stitch_payouts` with `status=CREATED` → `INITIATED`.
 9. **Verify TradeSafe received the payout.** Cross-check on the TradeSafe dashboard: the payout should appear in the outbound queue.
-10. **Webhook arrives.** `POST /api/v1/webhooks/tradesafe` hits the controller; Svix verification passes; `WebhookEvent` row lands with `provider='TRADESAFE'`; router dispatches to the (ADR 0010) payout-settled handler. **Note:** until ADR 0010 wires dispatch arms into `WebhookRouterService` (`webhook-router.service.ts:24-90`), the controller will accept the webhook but no ledger movement happens — this is a BLOCKER if hit at smoke-test time.
+10. **Webhook arrives.** `POST /api/v1/webhooks/tradesafe` hits the controller; Svix verification passes; `WebhookEvent` row lands with `provider='TRADESAFE'`; router dispatches to `TradeSafeWebhookHandler.onPayoutSettled` (R34 wired 2026-04-18). Handler posts `payout_in_transit → hunter_paid` with `actionType=tradesafe_payout_settled` and flips `StitchPayout.status=SETTLED`. If the smoke test hits an unknown event name (`TODO(R34)` items), the router logs "no handler wired for tradesafe event …" — confirm which event TradeSafe actually emits and patch the arm before continuing.
 11. **Hunter's bank account receives the R~1** (minus TradeSafe fees — see 8.7 above). Real-money confirmation: ask the hunter to screenshot the SMS / bank-statement entry.
-12. **Ledger verification.** Confirm `stitch_payout_settled`-equivalent (exact `actionType` pending ADR 0010) ledger group exists, balances, and references the `tradesafe_payout_id`. Also verify the `payout_in_transit → hunter_paid` double-entry.
+12. **Ledger verification.** Confirm the `tradesafe_payout_settled` ledger group exists, balances, and references the TradeSafe payout id. Verify the `payout_in_transit → hunter_paid` double-entry.
 13. **Reconciliation dashboard.** The next 15-min recon tick should show zero critical findings. If it trips a `stitch-ledger-gap` (because the legacy check scans only Stitch-named tables — see §9 + §11), expect this until the TradeSafe reconciliation check lands.
 14. **Refund path for the test money.** Post a compensating entry via `/admin/finance/overrides` (not a production refund — just returning the 1 ZAR to the brand so the books tie out) with reason "TradeSafe live smoke test — refund to brand".
 15. **Flip `PAYOUTS_ENABLED=false` again** if additional smoke-run iterations are needed, or keep it on if all 14 steps above are clean.
@@ -236,7 +240,7 @@ A one-shot dev-side migration tool does not exist today; writing it is out of sc
 ### 6.3 Go / No-go gates during the smoke
 
 - **Step 3 fails** (plaintext account number in DB) → immediately `PAYOUTS_ENABLED=false`, kill switch on, post-mortem before retrying.
-- **Step 10 blocks** (no router dispatch arm) → abort; ADR 0010 engineering work incomplete.
+- **Step 10 blocks** (router logs "no handler wired for tradesafe event …") → TradeSafe emits an event name we haven't anticipated. Patch the arm in `WebhookRouterService.dispatchTradeSafe` and redeploy before continuing.
 - **Step 11 times out** (≥2h without hunter confirmation) → TradeSafe-side issue; contact TradeSafe support per §2.6.
 - **Reconciliation critical at step 13** → kill switch ON (automatic per `reconciliation.service.ts:97-145`); manual compensating entry to square books.
 
@@ -390,7 +394,9 @@ Either way, `checkStitchVsLedger` needs a TradeSafe arm OR a provider-agnostic r
 
 ### 11.6 Webhook router TradeSafe dispatch arms
 
-**Gap.** `WebhookRouterService.dispatch` has no `tradesafe.*` arms. Controller accepts + stores the webhook; router logs "no handler wired" (`webhook-router.service.ts:89`). **Until this is implemented, webhooks are a no-op.** Implementing it requires ADR 0010 to pin the event shapes.
+**Closed 2026-04-18 (R34).** `WebhookRouterService.dispatch` now branches on `WebhookProvider.TRADESAFE` at the top and routes to `TradeSafeWebhookHandler`'s three handler methods (`apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`). Full 5-test matrix lands per CLAUDE.md §5 across `tradesafe.beneficiary.linked` / `tradesafe.payout.settled` / `tradesafe.payout.failed`. See §4.4 for the event-name table.
+
+Residual work (blocked on TradeSafe sandbox docs, not engineering): verify event-name strings and payload-field names against live responses. `TODO(R34)` markers in source flag every assumption.
 
 ### 11.7 `/api/v1/auth/tradesafe/callback` route — not implemented
 
@@ -421,8 +427,8 @@ Pre-flip smoke test (§6.2 step 2) can now exercise the route end-to-end against
 | R24 | TradeSafe live creds + commercial onboarding — external blocker | **High** | **Open** — no change since batch 10 audit | Commercial | §2 rows 2.1–2.4 signed + ADR 0010 accepted |
 | R31 **(new)** | Webhook signing scheme unverified | Medium | **Open** | Backend | §11.1 resolved against TradeSafe docs |
 | R32 **(new)** | `checkStitchVsLedger` does not cover TradeSafe payouts (reconciliation gap) | **High** | **Open** — blocker | Backend + Architect | §11.5 resolved in ADR 0010 implementation PR; fault-injection test added |
-| R33 **(new)** | `/api/v1/auth/tradesafe/callback` not implemented | Medium | **Closed 2026-04-18** — commits `440346a` + `04d3c31` (`TradeSafeCallbackController` + module registration). End-to-end smoke on sandbox pending per §6 step 2; `VERIFY_WITH_TRADESAFE` callouts remain for signature scheme + state-param scheme (ADR 0010). | Backend | Route implemented; smoke-test against sandbox + ADR 0010 pin the signature / state-param scheme |
-| R34 **(new)** | `WebhookRouterService` has no `tradesafe.*` dispatch arms | **High** | **Open** — blocker | Backend | §11.6 closed in ADR 0010 implementation PR |
+| R33 **(new)** | `/api/v1/auth/tradesafe/callback` not implemented | Medium | **Closed 2026-04-18** — commits `440346a` + `04d3c31` (`TradeSafeCallbackController` + module registration). End-to-end smoke on sandbox pending per §6 step 2; `VERIFY_WITH_TRADESAFE` callouts remain for signature scheme + state-param scheme (future TradeSafe-OAuth ADR). | Backend | Route implemented; smoke-test against sandbox + future ADR pins the signature / state-param scheme |
+| R34 **(new)** | `WebhookRouterService` has no `tradesafe.*` dispatch arms | **High** | **Closed 2026-04-18** — router arms + `TradeSafeWebhookHandler` with full 5-test matrix. Residual: verify event-name strings against sandbox (`TODO(R34)` markers in source). | Backend | §11.6 closed |
 | R35 **(new)** | TradeSafe env vars (`TRADESAFE_OAUTH_REDIRECT_URL` / `_SUCCESS_URL` / `_FAILURE_URL`) not boot-validated | Low | **Closed 2026-04-18** — commit `7d3629d` (validation + `.env.example`) | Backend | — |
 | R36 **(new)** | Recallability of RELEASED TradeSafe payouts unknown | Medium | **Open** | Commercial | §10.2 clarified in writing with TradeSafe |
 | R37 **(new)** | Multi-recipient API shape may not match adapter | Medium | **Open** | Backend | §11.2 / §11.4 resolved against sandbox |
