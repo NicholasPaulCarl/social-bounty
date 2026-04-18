@@ -112,8 +112,8 @@ Bounty `paymentStatus=PAID` must have a matching `stitch_payment_settled` group 
 ### Wallet balance vs ledger (`checkWalletProjectionDrift`)
 Per ADR 0002 `Wallet.balance` is a cached projection over `LedgerEntry` filtered by `userId`, `account='hunter_available'`, and `status='COMPLETED'`. Drift (`cached_balance_cents <> projected_balance_cents`) means the cache is wrong — ledger wins. Warning.
 
-### Stitch vs ledger (`checkStitchVsLedger`)
-A `StitchPaymentLink` in terminal status `SETTLED` requires a matching `stitch_payment_settled` ledger group keyed on `stitchPaymentId`; a `StitchPayout` in terminal status `SETTLED` requires a matching `stitch_payout_settled` group keyed on `stitchPayoutId`. Two index-driven anti-joins. Critical — Stitch confirmed money moved but the ledger has no record. See `payment-gateway.md` §15.
+### Payouts vs ledger (`checkPayoutsVsLedger`)
+A `StitchPaymentLink` in terminal status `SETTLED` requires a matching `stitch_payment_settled` ledger group keyed on `stitchPaymentId`; a `StitchPayout` in terminal status `SETTLED` requires a matching ledger group keyed on `stitchPayoutId`, with the `actionType` selected by `StitchPayout.provider` — `stitch_payout_settled` for `STITCH` rows and `tradesafe_payout_settled` for `TRADESAFE` rows (R32 — ADR 0009 §3). Three index-driven anti-joins. Critical severity on any surfaced row — the provider confirmed money moved but the ledger has no record. Renamed from `checkStitchVsLedger` in 2026-04-18 when the TradeSafe arm was added. See `payment-gateway.md` §15.
 
 ### Reserve vs bounty (`checkReserveVsBounty`)
 Sum of `brand_reserve` credits minus debits, grouped by bounty, must equal `bounty.faceValueCents` for every PAID bounty. Single `GROUP BY` with `LEFT JOIN` (batch 11B perf rewrite). Warning.

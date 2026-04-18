@@ -49,7 +49,7 @@ Scope:
 - Stitch outbound webhooks (success + failure) with Svix verification and idempotency.
 - Payout retry policy: 3 attempts, exponential backoff, then admin review.
 - Refund path: **after approval, before payout** (Super Admin approval required).
-- Reconciliation engine (`financial-architecture.md` §6): balance, duplicate, missing legs, status consistency, wallet vs ledger, Stitch vs ledger, reserve vs bounty.
+- Reconciliation engine (`financial-architecture.md` §6): balance, duplicate, missing legs, status consistency, wallet vs ledger, payouts vs ledger (Stitch + TradeSafe — R32), reserve vs bounty.
 - Automation jobs (`payment-gateway.md` §13) all idempotent, each writing `JobRun` audit rows.
 
 Exit criterion:

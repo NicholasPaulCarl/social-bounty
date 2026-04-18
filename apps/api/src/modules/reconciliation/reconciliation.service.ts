@@ -61,9 +61,10 @@ export class ReconciliationService {
    *     group; Submission.status=APPROVED <=> submission_approved group.
    *  6. Wallet projection drift: cached Wallet.balance (Rand) vs ledger projection
    *     (sum hunter_available credits − debits) per user.
-   *  7. Stitch vs ledger: StitchPaymentLink.status=SETTLED requires a matching
-   *     stitch_payment_settled group; StitchPayout.status=SETTLED requires a
-   *     matching stitch_payout_settled group.
+   *  7. Payouts vs ledger: StitchPaymentLink.status=SETTLED requires a
+   *     matching stitch_payment_settled group; StitchPayout.status=SETTLED
+   *     requires a matching {stitch,tradesafe}_payout_settled group, selected
+   *     by StitchPayout.provider (R32 — per-rail coverage, ADR 0009 §3).
    *
    * All checks are read-only — they never move money — and are therefore
    * Kill-Switch-safe regardless of switch state.
@@ -83,7 +84,7 @@ export class ReconciliationService {
       findings.push(...(await this.checkMissingLegs()));
       findings.push(...(await this.checkStatusConsistency()));
       findings.push(...(await this.checkWalletProjectionDrift()));
-      findings.push(...(await this.checkStitchVsLedger()));
+      findings.push(...(await this.checkPayoutsVsLedger()));
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       await this.prisma.jobRun.update({
@@ -566,15 +567,24 @@ export class ReconciliationService {
   }
 
   /**
-   * Check (7) — Stitch vs ledger.
+   * Check (7) — Payouts vs ledger (R32).
    *
-   * For every Stitch artefact in a terminal "money moved" state, a
-   * corresponding ledger group MUST exist:
+   * For every terminal "money moved" row on an outbound / inbound provider,
+   * a corresponding ledger group MUST exist:
    *
    *   StitchPaymentLink.status = SETTLED  ⇒ stitch_payment_settled group
    *     keyed on `stitchPaymentId`.
-   *   StitchPayout.status = SETTLED       ⇒ stitch_payout_settled group
-   *     keyed on `stitchPayoutId`.
+   *   StitchPayout(provider=STITCH, status=SETTLED)     ⇒ stitch_payout_settled
+   *     group keyed on `stitchPayoutId`.
+   *   StitchPayout(provider=TRADESAFE, status=SETTLED)  ⇒ tradesafe_payout_settled
+   *     group keyed on `stitchPayoutId`.
+   *
+   * Both payout arms query the same `stitch_payouts` physical table (the
+   * Option-B rename in ADR 0009 §3 is deferred) but filter on the `provider`
+   * discriminator added by R32. The `TRADESAFE_PAYOUT_SETTLED` action-type is
+   * reserved in `@social-bounty/shared` but no writer emits it yet — R34
+   * wires the handler. Until then the TradeSafe anti-join is empty because
+   * no row has `provider=TRADESAFE` (`PAYOUTS_ENABLED=false`).
    *
    * NOTE: the spec text uses the phrase "status='PAID'" but the Prisma enums
    * (`StitchPaymentLinkStatus`, `StitchPayoutStatus`) do not include PAID;
@@ -582,15 +592,19 @@ export class ReconciliationService {
    * match the actual schema and runtime values written by
    * BrandFundingHandler / PayoutsService.
    *
-   * Severity: critical (Stitch confirmed money moved but the ledger has no
-   * record — the canonical "money is missing from books" case).
+   * Severity: critical — provider confirmed money moved but the ledger has
+   * no record (the canonical "money is missing from books" case).
    *
-   * Big-O: O(L + P) — two anti-joins with no per-row work.
+   * Big-O: O(L + P₁ + P₂) — three index-driven anti-joins with no per-row
+   * work. The new `stitch_payouts_provider_status_idx` (R32 migration)
+   * keeps each payout arm sub-linear on row count.
    */
-  private async checkStitchVsLedger(): Promise<ReconciliationFinding[]> {
+  private async checkPayoutsVsLedger(): Promise<ReconciliationFinding[]> {
     const findings: ReconciliationFinding[] = [];
 
     // (a) SETTLED StitchPaymentLink without stitch_payment_settled group.
+    // Inbound rail is Stitch-only for MVP (Brand→platform funding); there is
+    // no TradeSafe inbound arm. Kept unchanged.
     const orphanLinks = await this.prisma.$queryRaw<
       { id: string; stitchPaymentId: string | null; bountyId: string }[]
     >`
@@ -621,12 +635,13 @@ export class ReconciliationService {
           stitchPaymentId: r.stitchPaymentId,
           bountyId: r.bountyId,
           kind: 'payment',
+          provider: 'stitch',
         },
       });
     }
 
-    // (b) SETTLED StitchPayout without stitch_payout_settled group.
-    const orphanPayouts = await this.prisma.$queryRaw<
+    // (b) SETTLED Stitch-rail StitchPayout without stitch_payout_settled group.
+    const orphanStitchPayouts = await this.prisma.$queryRaw<
       { id: string; stitchPayoutId: string | null; userId: string }[]
     >`
       SELECT sp.id                AS id,
@@ -634,6 +649,7 @@ export class ReconciliationService {
              sp."userId"         AS "userId"
         FROM stitch_payouts sp
        WHERE sp.status = 'SETTLED'::"StitchPayoutStatus"
+         AND sp.provider = 'STITCH'::"PayoutRail"
          AND sp."stitchPayoutId" IS NOT NULL
          AND NOT EXISTS (
            SELECT 1
@@ -642,7 +658,7 @@ export class ReconciliationService {
               AND g."referenceId" = sp."stitchPayoutId"
          )
     `;
-    for (const r of orphanPayouts) {
+    for (const r of orphanStitchPayouts) {
       const externalId = r.stitchPayoutId ?? r.id;
       findings.push({
         category: 'stitch-ledger-gap',
@@ -656,6 +672,48 @@ export class ReconciliationService {
           stitchPayoutId: r.stitchPayoutId,
           userId: r.userId,
           kind: 'payout',
+          provider: 'stitch',
+        },
+      });
+    }
+
+    // (c) SETTLED TradeSafe-rail StitchPayout without tradesafe_payout_settled
+    // group (R32). Uses the same physical table but a different action-type
+    // on the anti-join, so Stitch and TradeSafe drift are surfaced as separate
+    // findings (different `provider` metadata) and pinned to distinct KB
+    // signatures via `tradesafe-ledger-gap` category.
+    const orphanTradesafePayouts = await this.prisma.$queryRaw<
+      { id: string; stitchPayoutId: string | null; userId: string }[]
+    >`
+      SELECT sp.id                AS id,
+             sp."stitchPayoutId" AS "stitchPayoutId",
+             sp."userId"         AS "userId"
+        FROM stitch_payouts sp
+       WHERE sp.status = 'SETTLED'::"StitchPayoutStatus"
+         AND sp.provider = 'TRADESAFE'::"PayoutRail"
+         AND sp."stitchPayoutId" IS NOT NULL
+         AND NOT EXISTS (
+           SELECT 1
+             FROM ledger_transaction_groups g
+            WHERE g."actionType"  = 'tradesafe_payout_settled'
+              AND g."referenceId" = sp."stitchPayoutId"
+         )
+    `;
+    for (const r of orphanTradesafePayouts) {
+      const externalId = r.stitchPayoutId ?? r.id;
+      findings.push({
+        category: 'tradesafe-ledger-gap',
+        signature: `tradesafe-ledger-gap:${externalId}`,
+        system: 'ledger',
+        errorCode: `tradesafe-ledger-gap:${externalId}`,
+        severity: 'critical',
+        title: `TradeSafe payout ${r.id} SETTLED but no tradesafe_payout_settled ledger group`,
+        detail: {
+          stitchPayoutDbId: r.id,
+          stitchPayoutId: r.stitchPayoutId,
+          userId: r.userId,
+          kind: 'payout',
+          provider: 'tradesafe',
         },
       });
     }

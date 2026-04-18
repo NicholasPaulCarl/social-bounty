@@ -1,6 +1,6 @@
 # Admin Dashboard — Financial Control Centre & KB Surface
 
-Super Admin surface for reconciling Stitch vs ledger, managing reserves, payouts, refunds, overrides, and exceptions — plus monitoring KB-level system health. UI uses PrimeReact + Tailwind (Hard Rule #5). All routes RBAC-gated to Super Admin only.
+Super Admin surface for reconciling payment providers (Stitch inbound, Stitch + TradeSafe outbound) against the ledger, managing reserves, payouts, refunds, overrides, and exceptions — plus monitoring KB-level system health. UI uses PrimeReact + Tailwind (Hard Rule #5). All routes RBAC-gated to Super Admin only.
 
 Payment behaviour (flows, states, fees, webhooks) is defined canonically in `md-files/payment-gateway.md`. This file describes the UI and operational actions on top of that model.
 
@@ -8,7 +8,7 @@ Payment behaviour (flows, states, fees, webhooks) is defined canonically in `md-
 
 ## 1. Finance Reconciliation Dashboard
 
-Purpose: provide a full financial control centre to reconcile Stitch vs ledger, track reserves, payouts, refunds, manage overrides and exceptions, and audit all financial activity.
+Purpose: provide a full financial control centre to reconcile payment providers (Stitch + TradeSafe) against the ledger, track reserves, payouts, refunds, manage overrides and exceptions, and audit all financial activity.
 
 ### Core modules
 

@@ -59,7 +59,9 @@ type KbMock = {
  *   missing-legs    → `leg_count`        (only in checkMissingLegs)
  *   status          → `paymentStatus` or `SubmissionStatus`
  *   wallet drift    → `hunter_available` and `wallets`
- *   stitch gap      → `stitch_payment_links` or `stitch_payouts`
+ *   payments gap    → `stitch_payment_links` (Stitch inbound, unchanged)
+ *   payouts gap     → `stitch_payouts` filtered by `PayoutRail` literal
+ *                     (`STITCH` vs `TRADESAFE` branch — R32)
  *   balance         → `ledger_entries`   (catch-all for the ledger-entries scan)
  *   duplicate       → `ledger_transaction_groups`
  */
@@ -75,6 +77,7 @@ function makeQueryRawRouter(handlers: {
   walletDrift?: () => unknown[];
   stitchPaymentGap?: () => unknown[];
   stitchPayoutGap?: () => unknown[];
+  tradesafePayoutGap?: () => unknown[];
 }): jest.Mock {
   return jest.fn((strings: TemplateStringsArray | string[] | string, ..._vals: unknown[]) => {
     const sql = Array.isArray(strings) ? strings.join(' ') : String(strings);
@@ -108,11 +111,17 @@ function makeQueryRawRouter(handlers: {
         handlers.statusSubmissionOrphan ? handlers.statusSubmissionOrphan() : [],
       );
     }
-    // Stitch gap checks: outermost FROM is the Stitch artefact table.
+    // Payment-link (Stitch inbound) gap check.
     if (sql.includes('FROM stitch_payment_links spl')) {
       return Promise.resolve(handlers.stitchPaymentGap ? handlers.stitchPaymentGap() : []);
     }
-    if (sql.includes('FROM stitch_payouts sp')) {
+    // Payout gap checks: both arms are `FROM stitch_payouts sp` but filter on
+    // different PayoutRail values. Distinguish by the literal in the WHERE
+    // clause so tests can target each rail independently (R32).
+    if (sql.includes('FROM stitch_payouts sp') && sql.includes(`'TRADESAFE'`)) {
+      return Promise.resolve(handlers.tradesafePayoutGap ? handlers.tradesafePayoutGap() : []);
+    }
+    if (sql.includes('FROM stitch_payouts sp') && sql.includes(`'STITCH'`)) {
       return Promise.resolve(handlers.stitchPayoutGap ? handlers.stitchPayoutGap() : []);
     }
     if (sql.includes('brand_reserve')) {
@@ -500,7 +509,7 @@ describe('ReconciliationService fault injection', () => {
     });
   });
 
-  describe('scenario 9: stitch vs ledger gap (check 7)', () => {
+  describe('scenario 9: payouts vs ledger gap (check 7 — R32)', () => {
     it('emits a critical finding when a SETTLED StitchPaymentLink has no ledger group', async () => {
       const queryRaw = makeQueryRawRouter({
         stitchPaymentGap: () => [
@@ -525,6 +534,7 @@ describe('ReconciliationService fault injection', () => {
           stitchPaymentId: 'pay_external_1',
           bountyId: 'b_1',
           kind: 'payment',
+          provider: 'stitch',
         }),
       );
       expect(ledger.setKillSwitch).toHaveBeenCalledTimes(1);
@@ -532,7 +542,7 @@ describe('ReconciliationService fault injection', () => {
       expect(kb.recordRecurrence).toHaveBeenCalledTimes(1);
     });
 
-    it('emits a critical finding when a SETTLED StitchPayout has no ledger group', async () => {
+    it('emits a critical finding when a SETTLED Stitch-rail StitchPayout has no stitch_payout_settled group', async () => {
       const queryRaw = makeQueryRawRouter({
         stitchPayoutGap: () => [
           {
@@ -549,8 +559,111 @@ describe('ReconciliationService fault injection', () => {
       const [f] = report.findings;
       expect(f.category).toBe('stitch-ledger-gap');
       expect(f.severity).toBe('critical');
-      expect(f.detail).toEqual(expect.objectContaining({ kind: 'payout' }));
+      expect(f.detail).toEqual(
+        expect.objectContaining({ kind: 'payout', provider: 'stitch' }),
+      );
       expect(ledger.setKillSwitch).toHaveBeenCalledTimes(1);
+    });
+
+    it('emits NO finding when a SETTLED TradeSafe-rail StitchPayout has a matching tradesafe_payout_settled group', async () => {
+      // A TradeSafe payout row exists and is SETTLED, but the reconciliation
+      // query's NOT EXISTS clause filters it out because the corresponding
+      // ledger group does exist. The DB-level anti-join returns an empty
+      // result set; we model that by leaving `tradesafePayoutGap` unset.
+      const queryRaw = makeQueryRawRouter({});
+      const { service, ledger, kb } = buildService({ queryRaw });
+      const report = await service.run();
+
+      expect(report.findings).toHaveLength(0);
+      expect(ledger.setKillSwitch).not.toHaveBeenCalled();
+      expect(kb.recordRecurrence).not.toHaveBeenCalled();
+    });
+
+    it('emits a critical finding when a SETTLED TradeSafe-rail StitchPayout has no tradesafe_payout_settled group', async () => {
+      const queryRaw = makeQueryRawRouter({
+        tradesafePayoutGap: () => [
+          {
+            id: 'sp_ts_1',
+            stitchPayoutId: 'payout_ts_external_42',
+            userId: 'u_ts_1',
+          },
+        ],
+      });
+      const { service, ledger, kb } = buildService({ queryRaw });
+      const report = await service.run();
+
+      expect(report.findings).toHaveLength(1);
+      const [f] = report.findings;
+      expect(f.category).toBe('tradesafe-ledger-gap');
+      expect(f.severity).toBe('critical');
+      expect(f.errorCode).toBe('tradesafe-ledger-gap:payout_ts_external_42');
+      expect(f.title).toContain('TradeSafe payout');
+      expect(f.title).toContain('tradesafe_payout_settled');
+      expect(f.detail).toEqual(
+        expect.objectContaining({
+          stitchPayoutDbId: 'sp_ts_1',
+          stitchPayoutId: 'payout_ts_external_42',
+          userId: 'u_ts_1',
+          kind: 'payout',
+          provider: 'tradesafe',
+        }),
+      );
+      expect(ledger.setKillSwitch).toHaveBeenCalledTimes(1);
+      expect(report.killSwitchActivated).toBe(true);
+      expect(kb.recordRecurrence).toHaveBeenCalledTimes(1);
+      // KB metadata carries the provider tag so dashboards can attribute
+      // per-rail drift without re-parsing the errorCode.
+      expect(kb.recordRecurrence.mock.calls[0][0].metadata).toEqual(
+        expect.objectContaining({ system: 'ledger' }),
+      );
+    });
+
+    it('mixed drift: one Stitch + one TradeSafe settled payout, each missing its own ledger group → two critical findings', async () => {
+      const queryRaw = makeQueryRawRouter({
+        stitchPayoutGap: () => [
+          {
+            id: 'sp_stitch_1',
+            stitchPayoutId: 'payout_stitch_7',
+            userId: 'u_a',
+          },
+        ],
+        tradesafePayoutGap: () => [
+          {
+            id: 'sp_ts_1',
+            stitchPayoutId: 'payout_ts_9',
+            userId: 'u_b',
+          },
+        ],
+      });
+      const { service, ledger, kb } = buildService({ queryRaw });
+      const report = await service.run();
+
+      expect(report.findings).toHaveLength(2);
+      const byProvider = new Map(
+        report.findings.map((f) => [f.detail.provider, f]),
+      );
+      expect(byProvider.get('stitch')?.category).toBe('stitch-ledger-gap');
+      expect(byProvider.get('stitch')?.detail).toEqual(
+        expect.objectContaining({ stitchPayoutId: 'payout_stitch_7' }),
+      );
+      expect(byProvider.get('tradesafe')?.category).toBe(
+        'tradesafe-ledger-gap',
+      );
+      expect(byProvider.get('tradesafe')?.detail).toEqual(
+        expect.objectContaining({ stitchPayoutId: 'payout_ts_9' }),
+      );
+      // Kill switch trips exactly once (both criticals in one run).
+      expect(ledger.setKillSwitch).toHaveBeenCalledTimes(1);
+      expect(report.killSwitchActivated).toBe(true);
+      // Each finding routed to KB with its own signature — categories differ
+      // so the rows do not collapse.
+      expect(kb.recordRecurrence).toHaveBeenCalledTimes(2);
+      const categories = kb.recordRecurrence.mock.calls.map(
+        (c) => c[0].category,
+      );
+      expect(categories.sort()).toEqual(
+        ['stitch-ledger-gap', 'tradesafe-ledger-gap'].sort(),
+      );
     });
 
     it('clean state: zero findings', async () => {

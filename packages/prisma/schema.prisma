@@ -381,6 +381,14 @@ enum StitchPayoutStatus {
   CANCELLED
 }
 
+// Outbound-payout rail discriminator. Added for R32 so reconciliation can
+// attribute "settled but no ledger group" findings to the correct provider.
+// See ADR 0009 §3 Option B — this is the minimal slice of the rename.
+enum PayoutRail {
+  STITCH
+  TRADESAFE
+}
+
 // Stitch recurring-subscription mandate statuses. Matches Stitch's
 // /api/v1/subscriptions state machine (PENDING is our local initial state
 // between create-request and first authorised webhook).
@@ -1444,6 +1452,11 @@ model StitchPayout {
   currency          Currency           @default(ZAR)
   speed             String             @default("DEFAULT") // INSTANT | DEFAULT
   status            StitchPayoutStatus @default(CREATED)
+  // Outbound rail that actually moved (or is moving) the money. Defaults to
+  // STITCH to preserve existing rows' semantics; TradeSafe webhook handlers
+  // (R34) set this to TRADESAFE on new rows. Reconciliation's
+  // `checkPayoutsVsLedger` uses this to attribute drift per rail.
+  provider          PayoutRail         @default(STITCH)
   attempts          Int                @default(0)
   lastAttemptAt     DateTime?
   lastError         String?            @db.Text
@@ -1458,6 +1471,7 @@ model StitchPayout {
 
   @@index([userId])
   @@index([status, nextRetryAt])
+  @@index([provider, status])
   @@map("stitch_payouts")
 }
 
