@@ -15,6 +15,7 @@ import { RedisService } from '../redis/redis.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { KbService } from '../kb/kb.service';
+import { LedgerService } from '../ledger/ledger.service';
 import { RefundsService } from '../refunds/refunds.service';
 import { SubmissionScraperService } from './submission-scraper.service';
 import type { AuthenticatedUser } from '../auth/jwt.strategy';
@@ -96,6 +97,7 @@ export class SubmissionVisibilityScheduler {
     private auditService: AuditService,
     private mailService: MailService,
     private kbService: KbService,
+    private ledgerService: LedgerService,
     private refundsService: RefundsService,
     private scraper: SubmissionScraperService,
     private config: ConfigService,
@@ -232,7 +234,33 @@ export class SubmissionVisibilityScheduler {
     // bucketing can advance.
     const now = new Date();
     const anyFailed = summary.failedUrls > 0;
-    const newConsecutive = anyFailed ? submission.consecutiveVisibilityFailures + 1 : 0;
+    const previousConsecutive = submission.consecutiveVisibilityFailures;
+
+    // Kill-switch gate (ADR 0010 §3): when the financial kill switch is
+    // active we must NOT issue an auto-refund. We also do NOT bump the
+    // failure counter past the previous value at the threshold — leaving
+    // it at FAILURE_THRESHOLD-1 means the next post-clearance tick will
+    // immediately re-attempt the refund without inflating the counter.
+    // Emails are suppressed because the brand+hunter "post removed"
+    // copy describes a refund that did not happen.
+    const wouldHitThreshold =
+      anyFailed && previousConsecutive + 1 >= FAILURE_THRESHOLD;
+    const killSwitchActive = wouldHitThreshold
+      ? await this.ledgerService.isKillSwitchActive().catch((err) => {
+          this.logger.warn(
+            `Kill-switch read failed for ${submission.id}; treating as active for safety: ${
+              err instanceof Error ? err.message : err
+            }`,
+          );
+          return true;
+        })
+      : false;
+
+    const newConsecutive = anyFailed
+      ? killSwitchActive
+        ? previousConsecutive
+        : previousConsecutive + 1
+      : 0;
 
     await this.prisma.submission.update({
       where: { id: submission.id },
@@ -241,6 +269,31 @@ export class SubmissionVisibilityScheduler {
         consecutiveVisibilityFailures: newConsecutive,
       },
     });
+
+    if (killSwitchActive) {
+      this.logger.warn(
+        `Auto-refund deferred for submission ${submission.id} — kill switch active`,
+      );
+      await this.kbService
+        .recordRecurrence({
+          category: 'post_visibility',
+          system: 'submission-scraper',
+          title: 'Auto-refund deferred while kill switch is active',
+          severity: 'warning',
+          errorCode: 'POST_VISIBILITY_REFUND_KILL_SWITCHED',
+          metadata: {
+            system: 'submission-scraper',
+            submissionId: submission.id,
+            bountyId: submission.bounty.id,
+          },
+        })
+        .catch((err) => {
+          this.logger.warn(
+            `KB kill-switch record failed for ${submission.id}: ${err instanceof Error ? err.message : err}`,
+          );
+        });
+      return;
+    }
 
     if (!anyFailed) {
       this.logger.debug(
