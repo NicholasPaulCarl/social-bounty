@@ -332,6 +332,46 @@ export class SubmissionVisibilityScheduler {
             `KB record failed for ${submission.id}: ${err instanceof Error ? err.message : err}`,
           );
         });
+
+      // First-failure hunter notification (ADR 0010 §2). Only fires on
+      // the 0→1 transition — `previousConsecutive === 0` is implicit
+      // since `newConsecutive === 1` below the kill-switch + reset
+      // branches. Brand is intentionally NOT notified here. We pull the
+      // first failed row to populate channel/url/errorMessage for the
+      // template; if no row is available (race/cleanup) we skip the
+      // email rather than send a partial one.
+      if (submission.user.email) {
+        try {
+          const failedRow = await this.prisma.submissionUrlScrape.findFirst({
+            where: { submissionId: submission.id, scrapeStatus: 'FAILED' },
+            orderBy: { updatedAt: 'desc' },
+          });
+          if (failedRow) {
+            this.mailService
+              .sendPostVisibilityWarningHunterEmail(submission.user.email, {
+                hunterName: submission.user.firstName || 'Participant',
+                bountyTitle: submission.bounty.title,
+                channel: String(failedRow.channel),
+                url: failedRow.url,
+                errorMessage: failedRow.errorMessage ?? failureReason,
+              })
+              .catch((err) => {
+                this.logger.warn(
+                  `Hunter visibility warning email failed for ${submission.id}: ${err instanceof Error ? err.message : err}`,
+                );
+              });
+          } else {
+            this.logger.debug(
+              `No failed urlScrape row for ${submission.id} — skipping hunter warning email`,
+            );
+          }
+        } catch (err) {
+          this.logger.warn(
+            `Hunter visibility warning lookup failed for ${submission.id}: ${err instanceof Error ? err.message : err}`,
+          );
+        }
+      }
+
       this.logger.warn(
         `Visibility re-check first failure for ${submission.id} — counter at 1, awaiting threshold`,
       );

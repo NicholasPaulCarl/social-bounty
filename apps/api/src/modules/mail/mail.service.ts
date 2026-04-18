@@ -51,6 +51,22 @@ export interface PostRemovedHunterEmailData {
   actionUrl?: string;
 }
 
+/**
+ * Data required for the first-failure visibility warning sent to the
+ * hunter. Distinct from PostRemovedHunterEmailData because the messaging
+ * is "we noticed an issue, please check" rather than "we issued a
+ * refund". Sent on the 0→1 transition of consecutiveVisibilityFailures
+ * by the SubmissionVisibilityScheduler (Phase 3A, ADR 0010 §2).
+ */
+export interface PostVisibilityWarningHunterEmailData {
+  hunterName: string;
+  bountyTitle: string;
+  channel: string;
+  url: string;
+  errorMessage: string;
+  actionUrl?: string;
+}
+
 /** Data required for dispute-opened emails */
 export interface DisputeOpenedEmailData {
   disputeNumber: string;
@@ -102,6 +118,7 @@ export class MailService implements OnModuleInit {
   private bountyPublishedTemplate!: Handlebars.TemplateDelegate;
   private postRemovedBrandTemplate!: Handlebars.TemplateDelegate;
   private postRemovedHunterTemplate!: Handlebars.TemplateDelegate;
+  private postVisibilityWarningHunterTemplate!: Handlebars.TemplateDelegate;
 
   constructor(private config: ConfigService) {
     const port = this.config.get<number>('SMTP_PORT', 1025);
@@ -134,6 +151,10 @@ export class MailService implements OnModuleInit {
     this.bountyPublishedTemplate = this.compileTemplate(templatesDir, 'bounty-published.hbs');
     this.postRemovedBrandTemplate = this.compileTemplate(templatesDir, 'post-removed-brand.hbs');
     this.postRemovedHunterTemplate = this.compileTemplate(templatesDir, 'post-removed-hunter.hbs');
+    this.postVisibilityWarningHunterTemplate = this.compileTemplate(
+      templatesDir,
+      'post-visibility-warning-hunter.hbs',
+    );
 
     // Register the "eq" helper for conditional status styling
     Handlebars.registerHelper('eq', (a: string, b: string) => a === b);
@@ -355,6 +376,37 @@ export class MailService implements OnModuleInit {
       message: 'Post-removed (hunter) email sent',
       to,
       bountyTitle: data.bountyTitle,
+    });
+  }
+
+  /**
+   * First-failure hunter notification (ADR 0010 §2). Fired by the
+   * SubmissionVisibilityScheduler on the 0→1 transition of
+   * `consecutiveVisibilityFailures` to give the hunter ~6h to confirm
+   * their post is still live before the second tick triggers an
+   * auto-refund. Brand is intentionally NOT notified here — the noise
+   * case (one bad scrape) shouldn't reach their inbox.
+   */
+  async sendPostVisibilityWarningHunterEmail(
+    to: string,
+    data: PostVisibilityWarningHunterEmailData,
+  ): Promise<void> {
+    const subject = `We couldn't reach your post for "${data.bountyTitle}" - Social Bounty`;
+    const contentHtml = this.postVisibilityWarningHunterTemplate(data);
+    const html = this.renderWithLayout(contentHtml, subject);
+
+    await this.sendWithRetry({
+      from: this.config.get('SMTP_FROM', 'noreply@socialbounty.com'),
+      to,
+      subject,
+      html,
+    });
+
+    this.logger.log({
+      message: 'Post-visibility warning (hunter) email sent',
+      to,
+      bountyTitle: data.bountyTitle,
+      channel: data.channel,
     });
   }
 
