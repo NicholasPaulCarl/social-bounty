@@ -102,6 +102,9 @@ describe('FinanceAdminController RBAC contract', () => {
       postOverride: jest.fn(),
       // Backend-8: group drill-down endpoint service method.
       groupDetail: jest.fn(),
+      // Phase 3B: admin visibility-failure surface.
+      listVisibilityFailures: jest.fn(),
+      listVisibilityHistory: jest.fn(),
     };
     controller = new FinanceAdminController(svc as any);
     reflector = new Reflector();
@@ -129,6 +132,9 @@ describe('FinanceAdminController RBAC contract', () => {
     // GET /admin/finance/groups/:transactionGroupId. If backend-8 lands a
     // different name, update this row.
     ['groupDetail', [UserRole.SUPER_ADMIN]],
+    // Phase 3B: admin visibility-failure surface — list + history drill-down.
+    ['visibilityFailures', [UserRole.SUPER_ADMIN]],
+    ['visibilityFailureHistory', [UserRole.SUPER_ADMIN]],
   ];
 
   it.each(routes)(

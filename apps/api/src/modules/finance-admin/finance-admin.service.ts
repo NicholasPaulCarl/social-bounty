@@ -10,7 +10,13 @@ import {
   LedgerAccount,
   LedgerEntryType,
 } from '@prisma/client';
-import { TransactionGroupDetail, UserRole } from '@social-bounty/shared';
+import {
+  AdminVisibilityFailureListResponse,
+  TransactionGroupDetail,
+  UserRole,
+  VisibilityFailureRow,
+  VisibilityHistoryRow,
+} from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService, PostLedgerLeg } from '../ledger/ledger.service';
 
@@ -409,6 +415,158 @@ export class FinanceAdminService {
           }
         : null,
     };
+  }
+
+  /**
+   * Phase 3B: list submissions whose `consecutiveVisibilityFailures > 0`.
+   *
+   * Surfaces the post-approval auto-refund flow (ADR 0010) for SUPER_ADMIN
+   * triage: every row exposes the bounty / brand / hunter triple, the
+   * latest scrape error, and a count of historical re-check attempts so
+   * operators can drill into a per-URL timeline.
+   *
+   * Single Prisma query with includes — no N+1. The history aggregate uses
+   * Prisma's `_count` on the relation; `latestErrorMessage` is plucked from
+   * the most recent FAILED row across `urlScrapes.histories` (we sort the
+   * one-per-urlScrape histories client-side after eager loading because the
+   * "first failed across N urlScrape children" semantics aren't expressible
+   * as a single relation predicate).
+   */
+  async listVisibilityFailures(
+    page = 1,
+    limit = 25,
+  ): Promise<AdminVisibilityFailureListResponse> {
+    const take = Math.min(Math.max(limit, 1), 200);
+    const skip = Math.max((page - 1) * take, 0);
+
+    // Single findMany + count round-trip. We pull each urlScrape with its
+    // latest history row (take: 1, ordered desc by checkedAt) AND a _count
+    // of all histories so the row can show "history (N)". The latest
+    // FAILED message across all urlScrapes is then computed in the mapper.
+    const [rows, total] = await Promise.all([
+      this.prisma.submission.findMany({
+        where: { consecutiveVisibilityFailures: { gt: 0 } },
+        orderBy: [
+          { consecutiveVisibilityFailures: 'desc' },
+          { lastVisibilityCheckAt: 'desc' },
+        ],
+        skip,
+        take,
+        include: {
+          bounty: {
+            select: {
+              id: true,
+              title: true,
+              brand: { select: { id: true, name: true } },
+            },
+          },
+          user: { select: { id: true, firstName: true, lastName: true } },
+          urlScrapes: {
+            select: {
+              id: true,
+              scrapeStatus: true,
+              errorMessage: true,
+              updatedAt: true,
+            },
+          },
+          // _count.histories aggregates across the urlScrape children,
+          // giving the per-submission history row count for the UI badge.
+          _count: { select: { urlScrapeHistories: true } },
+        },
+      }),
+      this.prisma.submission.count({
+        where: { consecutiveVisibilityFailures: { gt: 0 } },
+      }),
+    ]);
+
+    const data: VisibilityFailureRow[] = rows.map((s) => {
+      // Pick the most recent FAILED row's errorMessage. Fall back to the
+      // most recent non-null error across all urlScrapes if none are
+      // currently FAILED (rare — only happens if the row has been reset
+      // mid-flight). Returns null if no error has ever been recorded.
+      const failed = s.urlScrapes
+        .filter((u) => u.scrapeStatus === 'FAILED' && u.errorMessage)
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+      const latestErrorMessage =
+        failed[0]?.errorMessage ??
+        s.urlScrapes
+          .filter((u) => u.errorMessage)
+          .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())[0]
+          ?.errorMessage ??
+        null;
+
+      const hunterName =
+        `${s.user?.firstName ?? ''} ${s.user?.lastName ?? ''}`.trim() ||
+        s.userId;
+
+      return {
+        submissionId: s.id,
+        bountyId: s.bounty.id,
+        bountyTitle: s.bounty.title,
+        brandId: s.bounty.brand.id,
+        brandName: s.bounty.brand.name,
+        hunterId: s.userId,
+        hunterName,
+        approvedAt: s.approvedAt ? s.approvedAt.toISOString() : null,
+        lastVisibilityCheckAt: s.lastVisibilityCheckAt
+          ? s.lastVisibilityCheckAt.toISOString()
+          : null,
+        consecutiveVisibilityFailures: s.consecutiveVisibilityFailures,
+        latestErrorMessage,
+        historyRowCount: s._count.urlScrapeHistories,
+      };
+    });
+
+    return {
+      data,
+      meta: {
+        page,
+        limit: take,
+        total,
+        totalPages: Math.max(Math.ceil(total / take), 1),
+      },
+    };
+  }
+
+  /**
+   * Phase 3B: per-submission visibility re-check history.
+   *
+   * Returns every SubmissionUrlScrapeHistory row for one submission,
+   * newest-first. Throws NotFoundException when the submission id is
+   * unknown so the UI can render a clean 404 rather than an empty list
+   * silently. JSON columns are passed through as-is (already plain objects
+   * from Prisma's JSON deserialisation), Dates serialised to ISO strings.
+   */
+  async listVisibilityHistory(
+    submissionId: string,
+  ): Promise<VisibilityHistoryRow[]> {
+    const submission = await this.prisma.submission.findUnique({
+      where: { id: submissionId },
+      select: { id: true },
+    });
+    if (!submission) {
+      throw new NotFoundException(`Submission ${submissionId} not found`);
+    }
+
+    const rows = await this.prisma.submissionUrlScrapeHistory.findMany({
+      where: { submissionId },
+      orderBy: { checkedAt: 'desc' },
+    });
+
+    return rows.map((r) => ({
+      id: r.id,
+      urlScrapeId: r.urlScrapeId,
+      url: r.url,
+      channel: r.channel,
+      format: r.format,
+      scrapeStatus: r.scrapeStatus,
+      scrapeResult: (r.scrapeResult as Record<string, unknown> | null) ?? null,
+      verificationChecks:
+        (r.verificationChecks as Array<Record<string, unknown>> | null) ??
+        null,
+      errorMessage: r.errorMessage ?? null,
+      checkedAt: r.checkedAt.toISOString(),
+    }));
   }
 
   /**
