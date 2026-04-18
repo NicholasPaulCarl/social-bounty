@@ -6,9 +6,17 @@
  * we don't have a scraped post yet — we're showing brands/hunters what the
  * Apify pipeline *will* check on every submission.
  *
+ * Input shape:
+ *   The `BountyPreviewInput` interface is the smallest "rules-relevant slice"
+ *   of a bounty that this function needs. Both `BountyDetailResponse` (the
+ *   saved-bounty wire shape) and `BountyFormState` (the in-flight form-state
+ *   shape) structurally satisfy it — that's how the same function powers both
+ *   the saved-bounty preview pages and the live preview shown inside the
+ *   bounty form during creation/edit (Phase 3C).
+ *
  * Return contract:
  *   - Per-URL groups keyed by `${channel}_${format}` (one entry per (channel, format)
- *     pair that appears in `bounty.channels`).
+ *     pair that appears in `input.channels`).
  *   - A synthetic `__eligibility__` key when any hunter-eligibility rule is set
  *     (`minFollowers` / `publicProfile` / `minAccountAgeDays`). The panel renders
  *     this section above the per-URL groups.
@@ -22,11 +30,31 @@ import {
   ContentFormat,
   PostFormat,
   SocialChannel,
-  type BountyDetailResponse,
+  type ChannelSelection,
+  type EngagementRequirementsInput,
+  type PayoutMetricsInput,
+  type StructuredEligibilityInput,
   type VerificationCheck,
 } from '@social-bounty/shared';
 
 export const ELIGIBILITY_KEY = '__eligibility__';
+
+/**
+ * The minimum slice of a bounty needed to derive preview checks. Designed so
+ * both `BountyDetailResponse` (saved bounty) and `BountyFormState` (in-flight
+ * form) structurally satisfy it without wrapping or copying.
+ *
+ * Optional fields use `?` (rather than required + nullable) so the form state
+ * — which never has `null` for these — assigns cleanly without explicit
+ * coercion. The function treats `null` and `undefined` the same way.
+ */
+export interface BountyPreviewInput {
+  channels: ChannelSelection | null;
+  contentFormat: ContentFormat;
+  engagementRequirements?: EngagementRequirementsInput | null;
+  payoutMetrics?: PayoutMetricsInput | null;
+  structuredEligibility?: StructuredEligibilityInput | null;
+}
 
 /**
  * Format-detection hints we trust. Mirrors `FORMAT_URL_HINTS` in
@@ -49,21 +77,21 @@ export function pairKey(channel: SocialChannel, format: PostFormat): string {
  * Whether the bounty has *any* auto-verification rule the scraper would check.
  * Used by the panel to decide whether to render the "no rules" empty state.
  */
-export function hasAnyPreviewChecks(bounty: BountyDetailResponse): boolean {
-  const groups = derivePreviewChecks(bounty);
+export function hasAnyPreviewChecks(input: BountyPreviewInput): boolean {
+  const groups = derivePreviewChecks(input);
   return Object.values(groups).some((checks) => checks.length > 0);
 }
 
 export function derivePreviewChecks(
-  bounty: BountyDetailResponse,
+  input: BountyPreviewInput,
 ): Record<string, VerificationCheck[]> {
   const groups: Record<string, VerificationCheck[]> = {};
 
-  const eng = bounty.engagementRequirements;
-  const metrics = bounty.payoutMetrics;
-  const elig = bounty.structuredEligibility;
-  const contentFormat = bounty.contentFormat;
-  const channels = bounty.channels ?? {};
+  const eng = input.engagementRequirements;
+  const metrics = input.payoutMetrics;
+  const elig = input.structuredEligibility;
+  const contentFormat = input.contentFormat;
+  const channels = input.channels ?? {};
 
   // ── Eligibility checks (synthetic key, applies once across submission) ──
 
