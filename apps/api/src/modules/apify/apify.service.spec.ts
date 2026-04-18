@@ -235,4 +235,307 @@ describe('ApifyService', () => {
       expect(blob!.instagram.followersCount).toBeNull();
     });
   });
+
+  // ─── Post-level scrapers (PR 2: per-URL submission verification) ───
+  //
+  // Token absent → returns Map with `{ error: 'Apify not configured' }`
+  // entries per URL. Token present → batches all URLs into ONE actor call
+  // and merges results back to the input URL. Per-URL failures (e.g. one
+  // URL's data missing from the dataset) surface as `{ error }` rather than
+  // throwing.
+
+  function buildClientCapture() {
+    const calls: Array<{ actor: string; input: unknown }> = [];
+    let listItems: unknown[] = [];
+    const apifyClient = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      actor: jest.fn((name: string) => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        call: jest.fn(async (input: any) => {
+          calls.push({ actor: name, input });
+          return { defaultDatasetId: 'ds-1' };
+        }),
+      })),
+      dataset: jest.fn(() => ({
+        listItems: jest.fn(async () => ({ items: listItems })),
+      })),
+    };
+    return {
+      apifyClient,
+      calls,
+      setItems(items: unknown[]) {
+        listItems = items;
+      },
+    };
+  }
+
+  function withClient(svc: ApifyService, client: unknown) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (svc as any).client = client;
+  }
+
+  describe('scrapeInstagramPosts', () => {
+    it('returns error map when token is missing', async () => {
+      const prisma = makePrisma();
+      const redis = makeRedis();
+      const service = new ApifyService(
+        makeConfig(null),
+        prisma as never,
+        redis as never,
+      );
+
+      const result = await service.scrapeInstagramPosts([
+        'https://instagram.com/reels/AAA',
+      ]);
+      expect(result.size).toBe(1);
+      const value = result.get('https://instagram.com/reels/AAA') as {
+        error: string;
+      };
+      expect(value.error).toContain('Apify');
+    });
+
+    it('batches multiple URLs into a single actor call', async () => {
+      const prisma = makePrisma();
+      const redis = makeRedis();
+      const service = new ApifyService(
+        makeConfig('apify_api_test'),
+        prisma as never,
+        redis as never,
+      );
+      const cap = buildClientCapture();
+      cap.setItems([
+        {
+          url: 'https://instagram.com/reels/AAA',
+          likesCount: 10,
+          commentsCount: 1,
+          videoViewCount: 100,
+          caption: '@brand cool',
+          taggedUsers: [{ username: 'brand' }],
+          ownerUsername: 'me',
+          timestamp: '2026-04-17T00:00:00Z',
+          type: 'Video',
+        },
+        {
+          url: 'https://instagram.com/reels/BBB',
+          likesCount: 22,
+          commentsCount: 2,
+          videoViewCount: 222,
+          caption: '@brand nicer',
+          taggedUsers: [{ username: 'brand' }],
+          ownerUsername: 'me',
+          timestamp: '2026-04-17T01:00:00Z',
+          type: 'Video',
+        },
+      ]);
+      withClient(service, cap.apifyClient);
+
+      const out = await service.scrapeInstagramPosts([
+        'https://instagram.com/reels/AAA',
+        'https://instagram.com/reels/BBB',
+      ]);
+
+      expect(cap.calls).toHaveLength(1);
+      expect(cap.calls[0].actor).toBe('apify/instagram-scraper');
+      expect((cap.calls[0].input as { directUrls: string[] }).directUrls).toEqual([
+        'https://instagram.com/reels/AAA',
+        'https://instagram.com/reels/BBB',
+      ]);
+      expect(out.size).toBe(2);
+      // First URL got mapped to ScrapedPostData
+      const a = out.get('https://instagram.com/reels/AAA') as { likes: number };
+      expect(a.likes).toBe(10);
+    });
+
+    it('returns per-URL error when actor throws', async () => {
+      const prisma = makePrisma();
+      const redis = makeRedis();
+      const service = new ApifyService(
+        makeConfig('apify_api_test'),
+        prisma as never,
+        redis as never,
+      );
+      withClient(service, {
+        actor: jest.fn(() => ({
+          call: jest.fn().mockRejectedValue(new Error('actor timeout')),
+        })),
+        dataset: jest.fn(),
+      });
+
+      const out = await service.scrapeInstagramPosts([
+        'https://instagram.com/reels/AAA',
+      ]);
+      const v = out.get('https://instagram.com/reels/AAA') as { error: string };
+      expect(v.error).toBe('actor timeout');
+    });
+  });
+
+  describe('scrapeTiktokPosts', () => {
+    it('returns error map when token is missing', async () => {
+      const prisma = makePrisma();
+      const redis = makeRedis();
+      const service = new ApifyService(
+        makeConfig(null),
+        prisma as never,
+        redis as never,
+      );
+      const out = await service.scrapeTiktokPosts([
+        'https://tiktok.com/@u/video/1',
+      ]);
+      expect(out.size).toBe(1);
+      const v = out.get('https://tiktok.com/@u/video/1') as { error: string };
+      expect(v.error).toContain('Apify');
+    });
+
+    it('batches URLs and uses postURLs input shape', async () => {
+      const prisma = makePrisma();
+      const redis = makeRedis();
+      const service = new ApifyService(
+        makeConfig('apify_api_test'),
+        prisma as never,
+        redis as never,
+      );
+      const cap = buildClientCapture();
+      cap.setItems([
+        {
+          webVideoUrl: 'https://tiktok.com/@u/video/1',
+          diggCount: 50,
+          commentCount: 5,
+          playCount: 5000,
+          text: 'shout out @brand',
+          mentions: ['@brand'],
+          authorMeta: { name: 'me', uniqueId: 'me' },
+          createTimeISO: '2026-04-17T00:00:00Z',
+        },
+        {
+          webVideoUrl: 'https://tiktok.com/@u/video/2',
+          diggCount: 80,
+          commentCount: 8,
+          playCount: 6000,
+          text: 'shout out @brand again',
+          mentions: ['@brand'],
+          authorMeta: { name: 'me', uniqueId: 'me' },
+          createTimeISO: '2026-04-17T01:00:00Z',
+        },
+      ]);
+      withClient(service, cap.apifyClient);
+
+      const out = await service.scrapeTiktokPosts([
+        'https://tiktok.com/@u/video/1',
+        'https://tiktok.com/@u/video/2',
+      ]);
+
+      expect(cap.calls).toHaveLength(1);
+      expect(cap.calls[0].actor).toBe('clockworks/tiktok-scraper');
+      expect((cap.calls[0].input as { postURLs: string[] }).postURLs).toEqual([
+        'https://tiktok.com/@u/video/1',
+        'https://tiktok.com/@u/video/2',
+      ]);
+      expect(out.size).toBe(2);
+      const a = out.get('https://tiktok.com/@u/video/1') as { likes: number };
+      expect(a.likes).toBe(50);
+    });
+
+    it('returns per-URL error when the actor throws', async () => {
+      const prisma = makePrisma();
+      const redis = makeRedis();
+      const service = new ApifyService(
+        makeConfig('apify_api_test'),
+        prisma as never,
+        redis as never,
+      );
+      withClient(service, {
+        actor: jest.fn(() => ({
+          call: jest.fn().mockRejectedValue(new Error('rate limited')),
+        })),
+        dataset: jest.fn(),
+      });
+
+      const out = await service.scrapeTiktokPosts([
+        'https://tiktok.com/@u/video/1',
+      ]);
+      const v = out.get('https://tiktok.com/@u/video/1') as { error: string };
+      expect(v.error).toBe('rate limited');
+    });
+  });
+
+  describe('scrapeFacebookPosts', () => {
+    it('returns error map when token is missing', async () => {
+      const prisma = makePrisma();
+      const redis = makeRedis();
+      const service = new ApifyService(
+        makeConfig(null),
+        prisma as never,
+        redis as never,
+      );
+      const out = await service.scrapeFacebookPosts([
+        'https://facebook.com/x/posts/1',
+      ]);
+      expect(out.size).toBe(1);
+      const v = out.get('https://facebook.com/x/posts/1') as { error: string };
+      expect(v.error).toContain('Apify');
+    });
+
+    it('batches URLs into one call and falls back to "Facebook scrape unavailable" on missing items', async () => {
+      const prisma = makePrisma();
+      const redis = makeRedis();
+      const service = new ApifyService(
+        makeConfig('apify_api_test'),
+        prisma as never,
+        redis as never,
+      );
+      const cap = buildClientCapture();
+      // Only one of the URLs has data — second URL must surface as
+      // "Facebook scrape unavailable"
+      cap.setItems([
+        {
+          url: 'https://facebook.com/x/posts/1',
+          likesCount: 9,
+          commentsCount: 1,
+          text: 'shout out @brand',
+        },
+      ]);
+      withClient(service, cap.apifyClient);
+
+      const out = await service.scrapeFacebookPosts([
+        'https://facebook.com/x/posts/1',
+        'https://facebook.com/x/posts/2',
+      ]);
+
+      expect(cap.calls).toHaveLength(1);
+      expect(cap.calls[0].actor).toBe('apify/facebook-posts-scraper');
+      expect(
+        (cap.calls[0].input as { startUrls: Array<{ url: string }> }).startUrls,
+      ).toEqual([
+        { url: 'https://facebook.com/x/posts/1' },
+        { url: 'https://facebook.com/x/posts/2' },
+      ]);
+      expect(out.size).toBe(2);
+      const ok = out.get('https://facebook.com/x/posts/1') as { likes: number };
+      expect(ok.likes).toBe(9);
+      const missing = out.get('https://facebook.com/x/posts/2') as { error: string };
+      expect(missing.error).toBe('Facebook scrape unavailable');
+    });
+
+    it('returns "Facebook scrape unavailable" for every URL when actor throws', async () => {
+      const prisma = makePrisma();
+      const redis = makeRedis();
+      const service = new ApifyService(
+        makeConfig('apify_api_test'),
+        prisma as never,
+        redis as never,
+      );
+      withClient(service, {
+        actor: jest.fn(() => ({
+          call: jest.fn().mockRejectedValue(new Error('boom')),
+        })),
+        dataset: jest.fn(),
+      });
+
+      const out = await service.scrapeFacebookPosts([
+        'https://facebook.com/x/posts/1',
+      ]);
+      const v = out.get('https://facebook.com/x/posts/1') as { error: string };
+      expect(v.error).toBe('Facebook scrape unavailable');
+    });
+  });
 });

@@ -1,21 +1,73 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Card } from 'primereact/card';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { SubmissionStatus } from '@social-bounty/shared';
+import type { SubmissionUrlScrapeInfo } from '@social-bounty/shared';
 
 interface ReviewActionBarProps {
   currentStatus: SubmissionStatus;
   onAction: (action: SubmissionStatus, note?: string) => void;
   loading?: boolean;
+  urlScrapes?: SubmissionUrlScrapeInfo[];
 }
 
-export function ReviewActionBar({ currentStatus, onAction, loading = false }: ReviewActionBarProps) {
+const CHANNEL_LABELS: Record<string, string> = {
+  INSTAGRAM: 'Instagram',
+  FACEBOOK: 'Facebook',
+  TIKTOK: 'TikTok',
+};
+
+const FORMAT_LABELS: Record<string, string> = {
+  STORY: 'Story',
+  REEL: 'Reel',
+  FEED_POST: 'Feed Post',
+  VIDEO_POST: 'Video',
+};
+
+function buildNeedsMoreInfoPrefill(scrapes: SubmissionUrlScrapeInfo[]): string {
+  const failed = scrapes.filter((s) => s.scrapeStatus === 'FAILED');
+  if (failed.length === 0) return '';
+  const lines = failed.map((s) => {
+    const channel = CHANNEL_LABELS[s.channel] ?? s.channel;
+    const format = FORMAT_LABELS[s.format] ?? s.format;
+    const reason = s.errorMessage ?? 'verification failed';
+    return `- ${channel} ${format}: ${reason}`;
+  });
+  return `Please resubmit the following URLs:\n${lines.join('\n')}`;
+}
+
+export function ReviewActionBar({
+  currentStatus,
+  onAction,
+  loading = false,
+  urlScrapes = [],
+}: ReviewActionBarProps) {
   const [note, setNote] = useState('');
   const [confirmAction, setConfirmAction] = useState<SubmissionStatus | null>(null);
+  // Track whether the user has manually edited the note. We only auto-prefill
+  // while the field is untouched so we never clobber a typed-in note.
+  const noteEditedRef = useRef(false);
+
+  // Empty array → vacuous truth → Approve enabled. (Bounty has no rules.)
+  const allVerified = useMemo(
+    () => urlScrapes.every((u) => u.scrapeStatus === 'VERIFIED'),
+    [urlScrapes],
+  );
+
+  const prefillNote = useMemo(() => buildNeedsMoreInfoPrefill(urlScrapes), [urlScrapes]);
+
+  // Auto-prefill the "Needs More Info" note when failures appear, until the
+  // reviewer types something custom. Re-syncs if the failure set changes.
+  useEffect(() => {
+    if (noteEditedRef.current) return;
+    if (prefillNote && note !== prefillNote) {
+      setNote(prefillNote);
+    }
+  }, [prefillNote, note]);
 
   const reviewableStatuses = [
     SubmissionStatus.SUBMITTED,
@@ -26,6 +78,10 @@ export function ReviewActionBar({ currentStatus, onAction, loading = false }: Re
   if (!reviewableStatuses.includes(currentStatus)) {
     return null;
   }
+
+  const approveDisabledReason = !allVerified
+    ? "All URLs must verify before approval. Use 'Needs More Info' to send back to hunter."
+    : undefined;
 
   return (
     <>
@@ -40,7 +96,10 @@ export function ReviewActionBar({ currentStatus, onAction, loading = false }: Re
             <InputTextarea
               id="review-note"
               value={note}
-              onChange={(e) => setNote(e.target.value)}
+              onChange={(e) => {
+                noteEditedRef.current = true;
+                setNote(e.target.value);
+              }}
               rows={3}
               className="w-full"
               placeholder="Add a note for the participant..."
@@ -49,13 +108,15 @@ export function ReviewActionBar({ currentStatus, onAction, loading = false }: Re
             <p className="text-xs text-text-muted mt-1">{note.length}/1000 characters</p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <Button
               label="Approve"
               icon="pi pi-check"
               severity="success"
               onClick={() => setConfirmAction(SubmissionStatus.APPROVED)}
-              disabled={loading}
+              disabled={loading || !allVerified}
+              tooltip={approveDisabledReason}
+              tooltipOptions={{ position: 'top', showOnDisabled: true }}
             />
             <Button
               label="Needs More Info"

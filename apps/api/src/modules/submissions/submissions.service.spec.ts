@@ -16,10 +16,13 @@ import {
   BountyStatus,
   SubmissionStatus,
   PayoutStatus,
+  SocialChannel,
+  PostFormat,
 } from '@social-bounty/shared';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { ApprovalLedgerService } from '../ledger/approval-ledger.service';
+import { SubmissionScraperService } from './submission-scraper.service';
 
 describe('SubmissionsService', () => {
   let service: SubmissionsService;
@@ -93,6 +96,13 @@ describe('SubmissionsService', () => {
         create: jest.fn(),
         update: jest.fn(),
       },
+      submissionUrlScrape: {
+        createMany: jest.fn().mockResolvedValue({ count: 0 }),
+        findMany: jest.fn().mockResolvedValue([]),
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+        update: jest.fn().mockResolvedValue({}),
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
       fileUpload: {
         deleteMany: jest.fn(),
       },
@@ -100,7 +110,9 @@ describe('SubmissionsService', () => {
         create: jest.fn().mockResolvedValue({}),
         update: jest.fn().mockResolvedValue({}),
       },
-      $transaction: jest.fn((fn: any) => fn(prisma)),
+      $transaction: jest.fn((arg: any) =>
+        typeof arg === 'function' ? arg(prisma) : Promise.all(arg),
+      ),
     };
 
     auditService = { log: jest.fn() };
@@ -121,6 +133,7 @@ describe('SubmissionsService', () => {
         { provide: BountyAccessService, useValue: { canSubmitToBounty: jest.fn().mockResolvedValue(true) } },
         { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
         { provide: ApprovalLedgerService, useValue: { postApproval: jest.fn().mockResolvedValue(undefined) } },
+        { provide: SubmissionScraperService, useValue: { scrapeAndVerify: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 
@@ -141,7 +154,7 @@ describe('SubmissionsService', () => {
       const result = await service.create(
         'bounty-1',
         mockParticipant,
-        { proofText: 'My proof', proofLinks: ['https://example.com'] },
+        { proofText: 'My proof', proofLinks: [] },
       );
 
       expect(result.status).toBe(SubmissionStatus.SUBMITTED);
@@ -155,7 +168,7 @@ describe('SubmissionsService', () => {
       prisma.bounty.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.create('non-existent', mockParticipant, { proofText: 'Proof' }),
+        service.create('non-existent', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -166,7 +179,7 @@ describe('SubmissionsService', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -177,7 +190,7 @@ describe('SubmissionsService', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -188,7 +201,7 @@ describe('SubmissionsService', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -200,7 +213,7 @@ describe('SubmissionsService', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -211,7 +224,7 @@ describe('SubmissionsService', () => {
       });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -220,7 +233,7 @@ describe('SubmissionsService', () => {
       prisma.submission.findFirst.mockResolvedValue({ id: 'existing-sub' });
 
       await expect(
-        service.create('bounty-1', mockParticipant, { proofText: 'Proof' }),
+        service.create('bounty-1', mockParticipant, { proofText: 'Proof', proofLinks: [] }),
       ).rejects.toThrow(ConflictException);
     });
   });
@@ -695,6 +708,194 @@ describe('SubmissionsService', () => {
 
       const result = await service.findById('sub-1', mockSA);
       expect(result.id).toBe('sub-1');
+    });
+  });
+
+  // ── PR 2: Scrape trigger + approval gate ───────────────
+
+  describe('PR 2: scrape trigger + approval gate', () => {
+    let scraper: { scrapeAndVerify: jest.Mock };
+
+    beforeEach(() => {
+      // Re-build module with a captured scraper mock so we can inspect calls.
+      scraper = { scrapeAndVerify: jest.fn().mockResolvedValue(undefined) };
+    });
+
+    it('create chains scrapeAndVerify via setImmediate', async () => {
+      const moduleRef = await Test.createTestingModule({
+        providers: [
+          SubmissionsService,
+          { provide: PrismaService, useValue: prisma },
+          { provide: AuditService, useValue: auditService },
+          { provide: MailService, useValue: mailService },
+          { provide: WalletService, useValue: { creditWallet: jest.fn().mockResolvedValue({}) } },
+          { provide: BountyAccessService, useValue: { canSubmitToBounty: jest.fn().mockResolvedValue(true) } },
+          { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
+          { provide: ApprovalLedgerService, useValue: { postApproval: jest.fn().mockResolvedValue(undefined) } },
+          { provide: SubmissionScraperService, useValue: scraper },
+        ],
+      }).compile();
+      const svc = moduleRef.get<SubmissionsService>(SubmissionsService);
+
+      prisma.bounty.findUnique.mockResolvedValue(liveBounty);
+      prisma.submission.findFirst.mockResolvedValue(null);
+      prisma.submission.create.mockResolvedValue({ ...baseSubmission, proofImages: [] });
+      prisma.submission.findUnique.mockResolvedValue({
+        ...baseSubmission,
+        proofImages: [],
+        urlScrapes: [
+          {
+            id: 'scrape-1',
+            url: 'https://instagram.com/reels/AAA',
+            channel: 'INSTAGRAM',
+            format: 'REEL',
+            scrapeStatus: 'PENDING',
+            scrapeResult: null,
+            verificationChecks: null,
+            errorMessage: null,
+            scrapedAt: null,
+          },
+        ],
+      });
+
+      const proofLinks = [
+        { channel: SocialChannel.INSTAGRAM, format: PostFormat.REEL, url: 'https://instagram.com/reels/AAA' },
+      ];
+      // NOTE: bounty has no `channels` in liveBounty fixture so coverage
+      // validator would reject. Patch the fixture for this test.
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...liveBounty,
+        channels: { INSTAGRAM: ['REEL'] },
+      });
+
+      await svc.create('bounty-1', mockParticipant, {
+        proofText: 'My proof',
+        proofLinks,
+      });
+
+      // setImmediate is async — wait one tick for the callback to fire.
+      await new Promise((resolve) => setImmediate(resolve));
+      expect(scraper.scrapeAndVerify).toHaveBeenCalledWith('sub-1');
+    });
+
+    it('review rejects APPROVED when any URL scrape is not VERIFIED', async () => {
+      const moduleRef = await Test.createTestingModule({
+        providers: [
+          SubmissionsService,
+          { provide: PrismaService, useValue: prisma },
+          { provide: AuditService, useValue: auditService },
+          { provide: MailService, useValue: mailService },
+          { provide: WalletService, useValue: { creditWallet: jest.fn().mockResolvedValue({}) } },
+          { provide: BountyAccessService, useValue: { canSubmitToBounty: jest.fn().mockResolvedValue(true) } },
+          { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE') } },
+          { provide: ApprovalLedgerService, useValue: { postApproval: jest.fn().mockResolvedValue(undefined) } },
+          { provide: SubmissionScraperService, useValue: scraper },
+        ],
+      }).compile();
+      const svc = moduleRef.get<SubmissionsService>(SubmissionsService);
+
+      prisma.submission.findUnique.mockResolvedValue({
+        ...baseSubmission,
+        bounty: { brandId: 'org-1', title: 'Test Bounty' },
+        user: { email: 'p@test.com', firstName: 'Test' },
+        urlScrapes: [
+          {
+            id: 'scrape-1',
+            url: 'https://instagram.com/reels/AAA',
+            channel: 'INSTAGRAM',
+            format: 'REEL',
+            scrapeStatus: 'FAILED',
+            errorMessage: 'minViews not met',
+          },
+        ],
+      });
+
+      await expect(
+        svc.review('sub-1', mockBA, SubmissionStatus.APPROVED),
+      ).rejects.toThrow(BadRequestException);
+
+      // Update was not called (gate stops the transition)
+      expect(prisma.submission.update).not.toHaveBeenCalled();
+    });
+
+    it('create succeeds even when scrape callback throws (logged, not surfaced)', async () => {
+      scraper.scrapeAndVerify = jest.fn().mockRejectedValue(new Error('apify down'));
+      const moduleRef = await Test.createTestingModule({
+        providers: [
+          SubmissionsService,
+          { provide: PrismaService, useValue: prisma },
+          { provide: AuditService, useValue: auditService },
+          { provide: MailService, useValue: mailService },
+          { provide: WalletService, useValue: { creditWallet: jest.fn().mockResolvedValue({}) } },
+          { provide: BountyAccessService, useValue: { canSubmitToBounty: jest.fn().mockResolvedValue(true) } },
+          { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE') } },
+          { provide: ApprovalLedgerService, useValue: { postApproval: jest.fn().mockResolvedValue(undefined) } },
+          { provide: SubmissionScraperService, useValue: scraper },
+        ],
+      }).compile();
+      const svc = moduleRef.get<SubmissionsService>(SubmissionsService);
+
+      prisma.bounty.findUnique.mockResolvedValue(liveBounty);
+      prisma.submission.findFirst.mockResolvedValue(null);
+      prisma.submission.create.mockResolvedValue({ ...baseSubmission, proofImages: [] });
+
+      // No proofLinks → no scrape needed → still triggers, but call rejects.
+      const result = await svc.create('bounty-1', mockParticipant, {
+        proofText: 'My proof',
+        proofLinks: [],
+      });
+
+      expect(result.id).toBe('sub-1');
+      // Drain the setImmediate to verify it doesn't throw uncaught.
+      await new Promise((resolve) => setImmediate(resolve));
+      expect(scraper.scrapeAndVerify).toHaveBeenCalled();
+    });
+
+    it('updateSubmission re-triggers scrape only when proofLinks change', async () => {
+      const moduleRef = await Test.createTestingModule({
+        providers: [
+          SubmissionsService,
+          { provide: PrismaService, useValue: prisma },
+          { provide: AuditService, useValue: auditService },
+          { provide: MailService, useValue: mailService },
+          { provide: WalletService, useValue: { creditWallet: jest.fn().mockResolvedValue({}) } },
+          { provide: BountyAccessService, useValue: { canSubmitToBounty: jest.fn().mockResolvedValue(true) } },
+          { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE') } },
+          { provide: ApprovalLedgerService, useValue: { postApproval: jest.fn().mockResolvedValue(undefined) } },
+          { provide: SubmissionScraperService, useValue: scraper },
+        ],
+      }).compile();
+      const svc = moduleRef.get<SubmissionsService>(SubmissionsService);
+
+      // 1) updateSubmission with proofText only → no scrape trigger
+      prisma.submission.findUnique.mockResolvedValue({
+        ...baseSubmission,
+        status: SubmissionStatus.NEEDS_MORE_INFO,
+        bounty: { channels: { INSTAGRAM: ['REEL'] } },
+      });
+      prisma.submission.update.mockResolvedValue({
+        ...baseSubmission,
+        status: SubmissionStatus.SUBMITTED,
+        bounty: { id: 'bounty-1', title: 'T', rewardType: 'CASH', rewardValue: 25, brandId: 'org-1' },
+        user: { id: 'p-1', firstName: 'P', lastName: 'U', email: 'p@t.com' },
+        reviewedBy: null,
+        proofImages: [],
+        urlScrapes: [],
+      });
+
+      await svc.updateSubmission('sub-1', mockParticipant, { proofText: 'updated' });
+      await new Promise((resolve) => setImmediate(resolve));
+      expect(scraper.scrapeAndVerify).not.toHaveBeenCalled();
+
+      // 2) updateSubmission with new proofLinks → scrape trigger
+      prisma.submissionUrlScrape.findMany.mockResolvedValue([]); // no existing rows
+      await svc.updateSubmission('sub-1', mockParticipant, {
+        proofLinks: [
+          { channel: SocialChannel.INSTAGRAM, format: PostFormat.REEL, url: 'https://instagram.com/reels/X' },
+        ],
+      });
+      await new Promise((resolve) => setImmediate(resolve));
+      expect(scraper.scrapeAndVerify).toHaveBeenCalledWith('sub-1');
     });
   });
 });

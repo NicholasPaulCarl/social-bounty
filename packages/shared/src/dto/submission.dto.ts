@@ -1,4 +1,4 @@
-import { SubmissionStatus, PayoutStatus, RewardType, Currency } from '../enums';
+import { SubmissionStatus, PayoutStatus, RewardType, Currency, SocialChannel, PostFormat } from '../enums';
 import type { PaginationMeta } from '../common';
 
 // ─────────────────────────────────────
@@ -83,10 +83,75 @@ export interface SubmissionReviewerInfo {
   lastName: string;
 }
 
+// ─────────────────────────────────────
+// Per-URL Scrape + Verification (Phase 1 submission verification)
+// ─────────────────────────────────────
+
+export type UrlScrapeStatus = 'PENDING' | 'IN_PROGRESS' | 'VERIFIED' | 'FAILED';
+
+// One URL per (channel, format) pair from bounty.channels.
+// Submitted by the hunter, validated by submission-coverage.validator.ts.
+export interface ProofLinkInput {
+  channel: SocialChannel;
+  format: PostFormat;
+  url: string;
+}
+
+// Shape of data extracted from the Apify post scraper. Platform-specific
+// mappers produce this shape from actor output; null fields indicate the
+// scraper did not return or could not extract that metric.
+export interface ScrapedPostData {
+  likes: number | null;
+  comments: number | null;
+  views: number | null;
+  caption: string | null;
+  taggedUsernames: string[];
+  ownerUsername: string | null;
+  postedAt: string | null;
+  isVideo: boolean | null;
+  // Format detected from scraped metadata (e.g. Instagram item.type=Video → REEL).
+  // null when scraper can't determine — formatMatch check skips silently.
+  detectedFormat: PostFormat | null;
+}
+
+// One pass/fail entry in the verification report. `required` is the bounty
+// rule value; `actual` is what the scrape/cached data showed.
+export interface VerificationCheck {
+  rule:
+    | 'tagAccount'
+    | 'mention'
+    | 'minViews'
+    | 'minLikes'
+    | 'minComments'
+    | 'contentFormat'
+    | 'formatMatch'
+    | 'minFollowers'
+    | 'publicProfile'
+    | 'minAccountAgeDays';
+  required: unknown;
+  actual: unknown;
+  pass: boolean;
+}
+
+export interface SubmissionUrlScrapeInfo {
+  id: string;
+  url: string;
+  channel: SocialChannel;
+  format: PostFormat;
+  scrapeStatus: UrlScrapeStatus;
+  scrapeResult: ScrapedPostData | null;
+  verificationChecks: VerificationCheck[] | null;
+  errorMessage: string | null;
+  scrapedAt: string | null;
+}
+
 // POST /bounties/:bountyId/submissions
 export interface CreateSubmissionRequest {
   proofText: string;
-  proofLinks?: string[];
+  // Replaces the legacy `proofLinks?: string[]`. Required going forward —
+  // the coverage validator in submissions.service rejects the request if
+  // any (channel, format) pair from bounty.channels is missing a URL.
+  proofLinks: ProofLinkInput[];
   reportedMetrics?: ReportedMetricsInput;
 }
 
@@ -95,12 +160,15 @@ export interface CreateSubmissionResponse {
   bountyId: string;
   userId: string;
   proofText: string;
+  // Legacy flat string[] maintained for back-compat — the source of
+  // truth is `urlScrapes` below. Derived from urlScrapes[].url.
   proofLinks: string[] | null;
   proofImages: FileUploadInfo[];
   status: SubmissionStatus;
   payoutStatus: PayoutStatus;
   reportedMetrics: ReportedMetricsInput | null;
   verificationDeadline: string | null;
+  urlScrapes: SubmissionUrlScrapeInfo[];
   createdAt: string;
 }
 
@@ -117,6 +185,7 @@ export interface MySubmissionListItem {
   payoutStatus: PayoutStatus;
   reportedMetrics: ReportedMetricsInput | null;
   verificationDeadline: string | null;
+  urlScrapes: SubmissionUrlScrapeInfo[];
   createdAt: string;
   updatedAt: string;
 }
@@ -146,6 +215,7 @@ export interface SubmissionReviewListItem {
   payoutStatus: PayoutStatus;
   reportedMetrics: ReportedMetricsInput | null;
   verificationDeadline: string | null;
+  urlScrapes: SubmissionUrlScrapeInfo[];
   createdAt: string;
   updatedAt: string;
 }
@@ -176,14 +246,18 @@ export interface SubmissionDetailResponse {
   payoutStatus: PayoutStatus;
   reportedMetrics: ReportedMetricsInput | null;
   verificationDeadline: string | null;
+  urlScrapes: SubmissionUrlScrapeInfo[];
   createdAt: string;
   updatedAt: string;
 }
 
 // PATCH /submissions/:id (resubmit)
+// `proofLinks` carries the FULL replacement set (including any VERIFIED
+// URLs to keep). The scraper service only re-scrapes rows whose status
+// is PENDING or FAILED — VERIFIED rows are cached.
 export interface UpdateSubmissionRequest {
   proofText?: string;
-  proofLinks?: string[];
+  proofLinks?: ProofLinkInput[];
   removeImageIds?: string[];
 }
 

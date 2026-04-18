@@ -227,6 +227,12 @@ export type {
   ReviewQueueStats,
   ReviewQueueResponse,
   EarningsSummaryResponse,
+  // Per-URL scrape + verification (Phase 1 submission verification)
+  UrlScrapeStatus,
+  ProofLinkInput,
+  ScrapedPostData,
+  VerificationCheck,
+  SubmissionUrlScrapeInfo,
 } from './dto/submission.dto';
 
 // Admin DTOs

@@ -77,6 +77,16 @@ enum SocialChannel {
   TIKTOK
 }
 
+// Mirrors the shared `PostFormat` enum (packages/shared/src/enums.ts).
+// Channel-format combinations are constrained at the application layer
+// (CHANNEL_POST_FORMATS in packages/shared/src/constants.ts).
+enum PostFormat {
+  STORY
+  REEL
+  FEED_POST
+  VIDEO_POST
+}
+
 enum PostVisibilityRule {
   MUST_NOT_REMOVE
   MINIMUM_DURATION
@@ -651,14 +661,15 @@ model Submission {
   transactionGroupIdApproval String?
 
   // Relations
-  bounty        Bounty        @relation(fields: [bountyId], references: [id], onDelete: Cascade)
-  user          User          @relation("UserSubmissions", fields: [userId], references: [id], onDelete: Restrict)
-  reviewedBy    User?         @relation("ReviewerSubmissions", fields: [reviewedById], references: [id], onDelete: SetNull)
+  bounty        Bounty                @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+  user          User                  @relation("UserSubmissions", fields: [userId], references: [id], onDelete: Restrict)
+  reviewedBy    User?                 @relation("ReviewerSubmissions", fields: [reviewedById], references: [id], onDelete: SetNull)
   proofImages   FileUpload[]
   payout        Payout?
   disputes      Dispute[]
   ledgerEntries LedgerEntry[]
   refunds       Refund[]
+  urlScrapes    SubmissionUrlScrape[]
 
   @@unique([bountyId, userId])
   @@index([bountyId])
@@ -669,6 +680,37 @@ model Submission {
   @@index([status, payoutStatus, verificationDeadline])
   @@index([createdAt])
   @@map("submissions")
+}
+
+// Per-URL Apify scrape result + verification checks. One row per (submission, URL).
+// APPROVED transition is blocked until all rows are VERIFIED.
+// See migration 20260417120000_add_submission_url_scrapes for the DDL.
+enum UrlScrapeStatus {
+  PENDING
+  IN_PROGRESS
+  VERIFIED
+  FAILED
+}
+
+model SubmissionUrlScrape {
+  id                 String          @id @default(uuid())
+  submissionId       String
+  url                String
+  channel            SocialChannel
+  format             PostFormat
+  scrapeStatus       UrlScrapeStatus @default(PENDING)
+  scrapeResult       Json?
+  verificationChecks Json?
+  errorMessage       String?
+  scrapedAt          DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([submissionId, url])
+  @@index([scrapeStatus])
+  @@map("submission_url_scrapes")
 }
 
 model Payout {

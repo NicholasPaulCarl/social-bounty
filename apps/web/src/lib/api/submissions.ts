@@ -22,8 +22,10 @@ export const submissionApi = {
     if (images && images.length > 0) {
       const formData = new FormData();
       formData.append('proofText', data.proofText);
-      if (data.proofLinks) {
-        data.proofLinks.forEach((link) => formData.append('proofLinks', link));
+      // proofLinks is now ProofLinkInput[] (channel/format/url) — must be
+      // serialised as a single JSON blob since FormData fields are flat strings.
+      if (data.proofLinks && data.proofLinks.length > 0) {
+        formData.append('proofLinks', JSON.stringify(data.proofLinks));
       }
       images.forEach((file) => formData.append('proofImages', file));
       return apiClient.post(`/bounties/${bountyId}/submissions`, formData);
@@ -44,8 +46,9 @@ export const submissionApi = {
     if (images && images.length > 0) {
       const formData = new FormData();
       if (data.proofText) formData.append('proofText', data.proofText);
-      if (data.proofLinks) {
-        data.proofLinks.forEach((link) => formData.append('proofLinks', link));
+      // proofLinks is now ProofLinkInput[] (channel/format/url) — see create note.
+      if (data.proofLinks && data.proofLinks.length > 0) {
+        formData.append('proofLinks', JSON.stringify(data.proofLinks));
       }
       if (data.removeImageIds) {
         data.removeImageIds.forEach((id) => formData.append('removeImageIds', id));

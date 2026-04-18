@@ -97,4 +97,56 @@ test.describe('Participant flow', () => {
 
     await expect(page.getByRole('heading', { name: /change password/i })).toBeVisible();
   });
+
+  test('submit page renders per-format URL inputs and required asterisks', async ({ page }) => {
+    // Navigate via the marketplace → first available bounty → submit. If no
+    // bounties or the bounty has no channels configured, the test soft-skips.
+    await page.goto('/bounties');
+
+    // Wait for either bounty cards or an empty-state to settle.
+    await page.waitForFunction(() => {
+      const loading = document.querySelector('[aria-label="Loading"]');
+      return !loading;
+    }, { timeout: 15_000 });
+
+    const bountyLink = page.locator('a[href*="/bounties/"]').first();
+    const hasBounty = await bountyLink.count() > 0;
+    if (!hasBounty) {
+      test.skip();
+      return;
+    }
+
+    await bountyLink.click();
+    await expect(page).toHaveURL(/\/bounties\/.+/);
+
+    // Look for a Submit Proof CTA — it's only present for participants on
+    // open bounties they're eligible for. Skip if not visible.
+    const submitCta = page.getByRole('button', { name: /submit proof/i }).or(
+      page.getByRole('link', { name: /submit proof/i }),
+    );
+    const hasCta = await submitCta.first().isVisible().catch(() => false);
+    if (!hasCta) {
+      test.skip();
+      return;
+    }
+
+    await submitCta.first().click();
+    await expect(page).toHaveURL(/\/submit/);
+
+    // Submit page header should be visible.
+    await expect(page.getByRole('heading', { name: /submit proof|resubmit proof/i })).toBeVisible();
+
+    // The "Notes" field is always required (asterisk pattern).
+    await expect(page.getByText(/notes/i).first()).toBeVisible();
+
+    // Either at least one per-format URL label appears (channels configured) OR
+    // the no-channels warning shows. Both render correctly — the test asserts
+    // one of them so it's robust to seed-data variation.
+    const hasFormatLabel = await page.getByText(/url \*/i).first().isVisible().catch(() => false);
+    const hasNoChannelsWarning = await page
+      .getByText(/no channels configured/i)
+      .isVisible()
+      .catch(() => false);
+    expect(hasFormatLabel || hasNoChannelsWarning).toBeTruthy();
+  });
 });
