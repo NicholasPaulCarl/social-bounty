@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { Menu, Bell } from 'lucide-react';
 import { useUnreadCount } from '@/hooks/useInbox';
 
 interface AppHeaderProps {
@@ -19,7 +20,7 @@ export function AppHeader({ onMenuToggle }: AppHeaderProps) {
         onClick={onMenuToggle}
         aria-label="Toggle menu"
       >
-        <i className="pi pi-bars text-lg" />
+        <Menu size={20} strokeWidth={2} />
       </button>
       <div className="flex-1" />
       <button
@@ -27,9 +28,9 @@ export function AppHeader({ onMenuToggle }: AppHeaderProps) {
         onClick={() => router.push('/inbox')}
         aria-label="Inbox notifications"
       >
-        <i className="pi pi-bell text-lg" />
+        <Bell size={20} strokeWidth={2} />
         {count > 0 && (
-          <span className="absolute top-1.5 right-1.5 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-accent-rose text-white text-[10px] font-bold leading-none px-1">
+          <span className="absolute top-1.5 right-1.5 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-danger-600 text-white text-[10px] font-bold leading-none px-1">
             {count > 99 ? '99+' : count}
           </span>
         )}

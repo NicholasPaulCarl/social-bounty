@@ -14,6 +14,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDateTime } from '@/lib/utils/format';
+import { Eye } from 'lucide-react';
 
 interface SubmissionListFilters {
   page?: number;
@@ -72,17 +73,17 @@ export default function AdminSubmissionsPage() {
   );
 
   const dateTemplate = (rowData: any) => (
-    <span>{formatDateTime(rowData.createdAt)}</span>
+    <span className="font-mono tabular-nums">{formatDateTime(rowData.createdAt)}</span>
   );
 
   const actionsTemplate = (rowData: any) => (
     <Button
-      icon="pi pi-eye"
+      icon={<Eye size={18} strokeWidth={2} />}
       rounded
       text
-      severity="info"
+      severity="secondary"
       onClick={() => router.push(`/admin/submissions/${rowData.id}`)}
-      tooltip="View Details"
+      tooltip="View details"
     />
   );
 

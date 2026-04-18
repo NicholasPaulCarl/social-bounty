@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
 import { useBrand } from '@/hooks/useBrand';
 import { CreateBountyForm } from '@/components/bounty-form';
+import { Building2 } from 'lucide-react';
 import { bountyApi } from '@/lib/api/bounties';
 import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
 import type { CreateBountyRequest } from '@social-bounty/shared';
@@ -116,11 +117,11 @@ export default function CreateBountyPage() {
 
   return (
     <div className="animate-fade-up">
-      <h1 className="text-2xl font-bold text-text-primary mb-6">Create New Bounty</h1>
+      <h1 className="text-2xl font-bold text-text-primary mb-6">Create new bounty</h1>
 
       {org && (
-        <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-accent-cyan/20 bg-accent-cyan/5 text-sm">
-          <i className="pi pi-building text-accent-cyan" />
+        <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-pink-600/20 bg-pink-600/5 text-sm">
+          <Building2 size={16} strokeWidth={2} className="text-pink-600" />
           <span className="text-text-muted">Creating bounty for:</span>
           <span className="font-medium text-text-primary">{org.name}</span>
         </div>

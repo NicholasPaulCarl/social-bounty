@@ -1,83 +1,89 @@
 import { UserRole } from '@social-bounty/shared';
+import {
+  Inbox, Search, Building2, List, Flag, Wallet, Star, User,
+  BarChart3, Megaphone, Users, IdCard, DollarSign, Circle,
+  Zap, Server, Settings, Palette, Banknote, History,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
   label: string;
-  icon: string;
+  Icon: LucideIcon;
   href: string;
   badge?: number;
   children?: NavItem[];
 }
 
 const participantNav: NavItem[] = [
-  { label: 'Inbox', icon: 'pi pi-inbox', href: '/inbox' },
-  { label: 'Browse Bounties', icon: 'pi pi-search', href: '/bounties' },
-  { label: 'Browse Brands', icon: 'pi pi-building', href: '/brands' },
-  { label: 'My Submissions', icon: 'pi pi-list', href: '/my-submissions' },
-  { label: 'My Disputes', icon: 'pi pi-flag', href: '/my-disputes' },
-  { label: 'Wallet', icon: 'pi pi-wallet', href: '/wallet' },
-  { label: 'Subscription', icon: 'pi pi-star', href: '/settings/subscription' },
-  { label: 'Profile', icon: 'pi pi-user', href: '/profile' },
+  { label: 'Inbox', Icon: Inbox, href: '/inbox' },
+  { label: 'Browse Bounties', Icon: Search, href: '/bounties' },
+  { label: 'Browse Brands', Icon: Building2, href: '/brands' },
+  { label: 'My Submissions', Icon: List, href: '/my-submissions' },
+  { label: 'My Disputes', Icon: Flag, href: '/my-disputes' },
+  { label: 'Wallet', Icon: Wallet, href: '/wallet' },
+  { label: 'Subscription', Icon: Star, href: '/settings/subscription' },
+  { label: 'Profile', Icon: User, href: '/profile' },
 ];
 
 const businessNav: NavItem[] = [
-  { label: 'Inbox', icon: 'pi pi-inbox', href: '/inbox' },
-  { label: 'Dashboard', icon: 'pi pi-chart-bar', href: '/business/dashboard' },
-  { label: 'Bounties', icon: 'pi pi-megaphone', href: '/business/bounties' },
-  { label: 'Review Center', icon: 'pi pi-inbox', href: '/business/review-center' },
-  { label: 'Hunters', icon: 'pi pi-users', href: '/hunters' },
-  { label: 'Disputes', icon: 'pi pi-flag', href: '/business/disputes' },
-  { label: 'Brands', icon: 'pi pi-building', href: '/business/brands' },
-  { label: 'KYB Verification', icon: 'pi pi-id-card', href: '/business/brands/kyb' },
-  { label: 'Subscription', icon: 'pi pi-star', href: '/business/brands/subscription' },
-  { label: 'Profile', icon: 'pi pi-user', href: '/business/profile' },
+  { label: 'Inbox', Icon: Inbox, href: '/inbox' },
+  { label: 'Dashboard', Icon: BarChart3, href: '/business/dashboard' },
+  { label: 'Bounties', Icon: Megaphone, href: '/business/bounties' },
+  { label: 'Review Center', Icon: Inbox, href: '/business/review-center' },
+  { label: 'Hunters', Icon: Users, href: '/hunters' },
+  { label: 'Disputes', Icon: Flag, href: '/business/disputes' },
+  { label: 'Brands', Icon: Building2, href: '/business/brands' },
+  { label: 'KYB Verification', Icon: IdCard, href: '/business/brands/kyb' },
+  { label: 'Subscription', Icon: Star, href: '/business/brands/subscription' },
+  { label: 'Profile', Icon: User, href: '/business/profile' },
 ];
 
 const adminNav: NavItem[] = [
-  { label: 'Inbox', icon: 'pi pi-inbox', href: '/inbox' },
-  { label: 'Dashboard', icon: 'pi pi-chart-bar', href: '/admin/dashboard' },
-  { label: 'Users', icon: 'pi pi-users', href: '/admin/users' },
-  { label: 'Brands', icon: 'pi pi-building', href: '/admin/brands' },
-  { label: 'Bounties', icon: 'pi pi-megaphone', href: '/admin/bounties' },
-  { label: 'Submissions', icon: 'pi pi-inbox', href: '/admin/submissions' },
-  { label: 'Hunters', icon: 'pi pi-users', href: '/hunters' },
-  { label: 'Wallets', icon: 'pi pi-wallet', href: '/admin/wallets' },
-  { label: 'Withdrawals', icon: 'pi pi-money-bill', href: '/admin/withdrawals' },
-  { label: 'Disputes', icon: 'pi pi-flag', href: '/admin/disputes' },
-  { label: 'Audit Logs', icon: 'pi pi-history', href: '/admin/audit-logs' },
+  { label: 'Inbox', Icon: Inbox, href: '/inbox' },
+  { label: 'Dashboard', Icon: BarChart3, href: '/admin/dashboard' },
+  { label: 'Users', Icon: Users, href: '/admin/users' },
+  { label: 'Brands', Icon: Building2, href: '/admin/brands' },
+  { label: 'Bounties', Icon: Megaphone, href: '/admin/bounties' },
+  { label: 'Submissions', Icon: Inbox, href: '/admin/submissions' },
+  { label: 'Hunters', Icon: Users, href: '/hunters' },
+  { label: 'Wallets', Icon: Wallet, href: '/admin/wallets' },
+  { label: 'Withdrawals', Icon: Banknote, href: '/admin/withdrawals' },
+  { label: 'Disputes', Icon: Flag, href: '/admin/disputes' },
+  { label: 'Audit Logs', Icon: History, href: '/admin/audit-logs' },
   {
     label: 'Finance',
-    icon: 'pi pi-dollar',
+    Icon: DollarSign,
     href: '/admin/finance',
     children: [
-      { label: 'Overview', icon: 'pi pi-circle-fill', href: '/admin/finance' },
-      { label: 'Inbound', icon: 'pi pi-circle-fill', href: '/admin/finance/inbound' },
-      { label: 'Reserves', icon: 'pi pi-circle-fill', href: '/admin/finance/reserves' },
-      { label: 'Earnings & Payouts', icon: 'pi pi-circle-fill', href: '/admin/finance/earnings-payouts' },
-      { label: 'Refunds', icon: 'pi pi-circle-fill', href: '/admin/finance/refunds' },
-      { label: 'Visibility Failures', icon: 'pi pi-circle-fill', href: '/admin/finance/visibility-failures' },
-      { label: 'Exceptions', icon: 'pi pi-circle-fill', href: '/admin/finance/exceptions' },
-      { label: 'Audit Trail', icon: 'pi pi-circle-fill', href: '/admin/finance/audit-trail' },
-      { label: 'Overrides', icon: 'pi pi-circle-fill', href: '/admin/finance/overrides' },
+      { label: 'Overview', Icon: Circle, href: '/admin/finance' },
+      { label: 'Inbound', Icon: Circle, href: '/admin/finance/inbound' },
+      { label: 'Reserves', Icon: Circle, href: '/admin/finance/reserves' },
+      { label: 'Earnings & Payouts', Icon: Circle, href: '/admin/finance/earnings-payouts' },
+      { label: 'Refunds', Icon: Circle, href: '/admin/finance/refunds' },
+      { label: 'Visibility Failures', Icon: Circle, href: '/admin/finance/visibility-failures' },
+      { label: 'Exceptions', Icon: Circle, href: '/admin/finance/exceptions' },
+      { label: 'Audit Trail', Icon: Circle, href: '/admin/finance/audit-trail' },
+      { label: 'Overrides', Icon: Circle, href: '/admin/finance/overrides' },
     ],
   },
-  { label: 'Payments Health', icon: 'pi pi-bolt', href: '/admin/payments-health' },
-  { label: 'System Health', icon: 'pi pi-server', href: '/admin/troubleshooting' },
-  { label: 'Settings', icon: 'pi pi-cog', href: '/admin/settings' },
+  { label: 'Payments Health', Icon: Zap, href: '/admin/payments-health' },
+  { label: 'System Health', Icon: Server, href: '/admin/troubleshooting' },
+  { label: 'Settings', Icon: Settings, href: '/admin/settings' },
   {
     label: 'Component Library',
-    icon: 'pi pi-palette',
+    Icon: Palette,
     href: '/admin/component-library',
     children: [
-      { label: 'Brand', icon: 'pi pi-circle-fill', href: '/admin/component-library#brand' },
-      { label: 'Design Tokens', icon: 'pi pi-circle-fill', href: '/admin/component-library#design-tokens' },
-      { label: 'Atoms', icon: 'pi pi-circle-fill', href: '/admin/component-library#atoms' },
-      { label: 'Molecules', icon: 'pi pi-circle-fill', href: '/admin/component-library#molecules' },
-      { label: 'Organisms', icon: 'pi pi-circle-fill', href: '/admin/component-library#organisms' },
-      { label: 'Form Sections', icon: 'pi pi-circle-fill', href: '/admin/component-library#form-sections' },
-      { label: 'PrimeReact', icon: 'pi pi-circle-fill', href: '/admin/component-library#primereact' },
+      { label: 'Brand', Icon: Circle, href: '/admin/component-library#brand' },
+      { label: 'Design Tokens', Icon: Circle, href: '/admin/component-library#design-tokens' },
+      { label: 'Atoms', Icon: Circle, href: '/admin/component-library#atoms' },
+      { label: 'Molecules', Icon: Circle, href: '/admin/component-library#molecules' },
+      { label: 'Organisms', Icon: Circle, href: '/admin/component-library#organisms' },
+      { label: 'Form Sections', Icon: Circle, href: '/admin/component-library#form-sections' },
+      { label: 'PrimeReact', Icon: Circle, href: '/admin/component-library#primereact' },
     ],
   },
-  { label: 'Profile', icon: 'pi pi-user', href: '/admin/profile' },
+  { label: 'Profile', Icon: User, href: '/admin/profile' },
 ];
 
 export function getNavItems(role: UserRole): NavItem[] {

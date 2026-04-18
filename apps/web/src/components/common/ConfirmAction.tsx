@@ -82,7 +82,7 @@ export function ConfirmAction({
             placeholder="Please provide a reason..."
             autoFocus
           />
-          <p className="text-xs text-text-muted">
+          <p className="text-xs text-text-muted font-mono tabular-nums">
             {reason.trim().length}/{reasonMinLength} minimum characters
           </p>
         </div>

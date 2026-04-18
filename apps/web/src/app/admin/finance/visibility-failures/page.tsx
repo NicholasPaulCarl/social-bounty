@@ -17,6 +17,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { PageHeader } from '@/components/common/PageHeader';
 import { formatDateTime } from '@/lib/utils/format';
+import { AlertCircle, CheckCircle2, XCircle, RefreshCw, AlertTriangle, History, ChevronLeft, ChevronRight } from 'lucide-react';
 import type {
   VisibilityFailureRow,
   VisibilityHistoryRow,
@@ -102,7 +103,7 @@ function HistoryDialog({
                     href={row.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-accent-cyan hover:underline text-xs break-all"
+                    className="text-pink-600 hover:underline text-xs break-all"
                   >
                     {row.url}
                   </a>
@@ -112,16 +113,16 @@ function HistoryDialog({
                     value={row.scrapeStatus}
                     severity={STATUS_SEVERITY[row.scrapeStatus] ?? null}
                   />
-                  <div className="text-xs text-text-muted mt-1">
+                  <div className="text-xs text-text-muted mt-1 font-mono tabular-nums">
                     {formatDateTime(row.checkedAt)}
                   </div>
                 </div>
               </div>
 
               {row.errorMessage && (
-                <div className="bg-accent-rose/10 border border-accent-rose/30 text-accent-rose text-xs px-3 py-2 rounded-lg">
-                  <i className="pi pi-exclamation-circle mr-1.5" />
-                  {row.errorMessage}
+                <div className="bg-danger-600/10 border border-danger-600/30 text-danger-600 text-xs px-3 py-2 rounded-lg flex items-start gap-1.5">
+                  <AlertCircle size={12} strokeWidth={2} className="mt-0.5 flex-shrink-0" />
+                  <span>{row.errorMessage}</span>
                 </div>
               )}
 
@@ -140,13 +141,11 @@ function HistoryDialog({
                     const c = check as { rule?: string; pass?: boolean };
                     return (
                       <li key={idx} className="flex items-center gap-2">
-                        <i
-                          className={
-                            c.pass
-                              ? 'pi pi-check-circle text-accent-emerald'
-                              : 'pi pi-times-circle text-accent-rose'
-                          }
-                        />
+                        {c.pass ? (
+                          <CheckCircle2 size={14} strokeWidth={2} className="text-success-600" />
+                        ) : (
+                          <XCircle size={14} strokeWidth={2} className="text-danger-600" />
+                        )}
                         <span className="text-text-secondary">{c.rule ?? 'rule'}</span>
                       </li>
                     );
@@ -196,12 +195,12 @@ export default function VisibilityFailuresPage() {
   return (
     <>
       <PageHeader
-        title="Visibility Failures"
+        title="Visibility failures"
         subtitle="Approved submissions whose post is no longer accessible to Apify. Two consecutive failures auto-trigger a refund (ADR 0010)."
         actions={
           <Button
             label="Refresh"
-            icon="pi pi-refresh"
+            icon={<RefreshCw size={16} strokeWidth={2} />}
             outlined
             onClick={() => refetch()}
           />
@@ -210,16 +209,16 @@ export default function VisibilityFailuresPage() {
 
       {criticalKbBanner && (
         <div
-          className="mb-4 bg-accent-rose/10 border border-accent-rose/30 text-accent-rose px-4 py-3 rounded-xl flex items-start gap-3"
+          className="mb-4 bg-danger-600/10 border border-danger-600/30 text-danger-600 px-4 py-3 rounded-xl flex items-start gap-3"
           role="alert"
         >
-          <i className="pi pi-exclamation-triangle mt-0.5 shrink-0" />
+          <AlertTriangle size={18} strokeWidth={2} className="mt-0.5 shrink-0" />
           <div className="text-sm">
             <div className="font-semibold">
               {criticalKbBanner.length} critical post-visibility recurrence
               {criticalKbBanner.length > 1 ? 's' : ''} open
             </div>
-            <div className="text-xs mt-1 text-accent-rose/90">
+            <div className="text-xs mt-1 text-danger-600/90">
               {criticalKbBanner
                 .slice(0, 3)
                 .map((e) => e.title)
@@ -281,15 +280,15 @@ export default function VisibilityFailuresPage() {
             field="approvedAt"
             header="Approved"
             body={(r: VisibilityFailureRow) =>
-              r.approvedAt ? formatDateTime(r.approvedAt) : '—'
+              r.approvedAt ? <span className="font-mono tabular-nums">{formatDateTime(r.approvedAt)}</span> : '—'
             }
           />
           <Column
             field="lastVisibilityCheckAt"
-            header="Last Checked"
+            header="Last checked"
             body={(r: VisibilityFailureRow) =>
               r.lastVisibilityCheckAt
-                ? formatDateTime(r.lastVisibilityCheckAt)
+                ? <span className="font-mono tabular-nums">{formatDateTime(r.lastVisibilityCheckAt)}</span>
                 : '—'
             }
           />
@@ -305,7 +304,7 @@ export default function VisibilityFailuresPage() {
           />
           <Column
             field="latestErrorMessage"
-            header="Latest Error"
+            header="Latest error"
             body={(r: VisibilityFailureRow) => (
               <span
                 className="text-xs text-text-secondary line-clamp-2"
@@ -320,7 +319,7 @@ export default function VisibilityFailuresPage() {
             body={(r: VisibilityFailureRow) => (
               <Button
                 label={`View (${r.historyRowCount})`}
-                icon="pi pi-history"
+                icon={<History size={14} strokeWidth={2} />}
                 size="small"
                 text
                 onClick={() => setHistoryForId(r.submissionId)}
@@ -342,13 +341,13 @@ export default function VisibilityFailuresPage() {
 
         {meta && meta.totalPages > 1 && (
           <div className="flex items-center justify-between mt-4 px-2">
-            <span className="text-xs text-text-muted">
+            <span className="text-xs text-text-muted font-mono tabular-nums">
               Page {meta.page} of {meta.totalPages} · {meta.total} submissions
             </span>
             <div className="flex gap-2">
               <Button
                 label="Prev"
-                icon="pi pi-angle-left"
+                icon={<ChevronLeft size={14} strokeWidth={2} />}
                 size="small"
                 outlined
                 disabled={meta.page <= 1}
@@ -356,7 +355,7 @@ export default function VisibilityFailuresPage() {
               />
               <Button
                 label="Next"
-                icon="pi pi-angle-right"
+                icon={<ChevronRight size={14} strokeWidth={2} />}
                 iconPos="right"
                 size="small"
                 outlined

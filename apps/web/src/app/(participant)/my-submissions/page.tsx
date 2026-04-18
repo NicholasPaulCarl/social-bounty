@@ -6,6 +6,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Paginator } from 'primereact/paginator';
 import { SelectButton } from 'primereact/selectbutton';
+import { CheckCircle2, Clock, Send, Wallet } from 'lucide-react';
 import { useMySubmissions, useMyEarnings } from '@/hooks/useSubmissions';
 import { usePagination } from '@/hooks/usePagination';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -60,7 +61,7 @@ export default function MySubmissionsPage() {
   return (
     <>
       <PageHeader
-        title="My Submissions"
+        title="My submissions"
         subtitle="Track your bounty submissions"
         toolbar={{
           filters: [
@@ -89,48 +90,48 @@ export default function MySubmissionsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 animate-fade-up">
         <div className="glass-card p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
-              <i className="pi pi-send text-accent-cyan" />
+            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center shrink-0">
+              <Send size={20} strokeWidth={2} className="text-pink-600" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-text-primary">{earnings?.totalSubmissions ?? 0}</p>
-              <p className="text-sm text-text-muted">Total Submissions</p>
+              <p className="metric !text-2xl text-text-primary">{earnings?.totalSubmissions ?? 0}</p>
+              <p className="eyebrow !text-text-muted">Submissions</p>
             </div>
           </div>
         </div>
 
         <div className="glass-card p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
-              <i className="pi pi-check-circle text-accent-emerald" />
+            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center shrink-0">
+              <CheckCircle2 size={20} strokeWidth={2} className="text-success-600" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-text-primary">{earnings?.approvedCount ?? 0}</p>
-              <p className="text-sm text-text-muted">Approved</p>
+              <p className="metric !text-2xl text-text-primary">{earnings?.approvedCount ?? 0}</p>
+              <p className="eyebrow !text-text-muted">Approved</p>
             </div>
           </div>
         </div>
 
         <div className="glass-card p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
-              <i className="pi pi-wallet text-accent-emerald" />
+            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center shrink-0">
+              <Wallet size={20} strokeWidth={2} className="text-success-600" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-accent-emerald font-mono">{formatCurrency(earnings?.totalEarned ?? 0)}</p>
-              <p className="text-sm text-text-muted">Total Earned</p>
+              <p className="metric !text-2xl text-success-600">{formatCurrency(earnings?.totalEarned ?? 0)}</p>
+              <p className="eyebrow !text-text-muted">Total earned</p>
             </div>
           </div>
         </div>
 
         <div className="glass-card p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
-              <i className="pi pi-clock text-accent-cyan" />
+            <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center shrink-0">
+              <Clock size={20} strokeWidth={2} className="text-pink-600" />
             </div>
             <div>
-              <p className="text-2xl font-heading font-bold text-accent-emerald font-mono">{formatCurrency(earnings?.pendingPayout ?? 0)}</p>
-              <p className="text-sm text-text-muted">Pending Payout</p>
+              <p className="metric !text-2xl text-success-600">{formatCurrency(earnings?.pendingPayout ?? 0)}</p>
+              <p className="eyebrow !text-text-muted">Pending</p>
             </div>
           </div>
         </div>
@@ -143,8 +144,8 @@ export default function MySubmissionsPage() {
         <EmptyState
           icon="pi-list"
           title="No submissions yet"
-          message="Hunt a bounty, drop your proof, and claim the reward."
-          ctaLabel="Browse Bounties"
+          message="Hunt a bounty, drop your proof, claim the reward."
+          ctaLabel="Browse bounties"
           ctaAction={() => router.push('/bounties')}
           ctaIcon="pi-search"
         />

@@ -7,6 +7,7 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
 import { Tag } from 'primereact/tag';
+import { Flag, AlertTriangle, CheckCircle2, Eye, Plus } from 'lucide-react';
 import { useBrandDisputes } from '@/hooks/useDisputes';
 import { usePagination } from '@/hooks/usePagination';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -23,9 +24,9 @@ const statusOptions = DISPUTE_STATUS_OPTIONS.filter((o) => o.value !== 'DRAFT');
 const categoryOptions = DISPUTE_CATEGORY_OPTIONS;
 
 const categoryColors: Record<string, string> = {
-  NON_PAYMENT: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30',
-  POST_QUALITY: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30',
-  POST_NON_COMPLIANCE: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30',
+  NON_PAYMENT: 'bg-danger-600/10 text-danger-600 border border-danger-600/30',
+  POST_QUALITY: 'bg-warning-600/10 text-warning-600 border border-warning-600/30',
+  POST_NON_COMPLIANCE: 'bg-pink-100 text-pink-600 border border-pink-200',
 };
 
 export default function BusinessDisputesPage() {
@@ -52,9 +53,9 @@ export default function BusinessDisputesPage() {
   const resolvedCount = disputes.filter((d) => d.status === DisputeStatus.RESOLVED).length;
 
   const kpis = [
-    { label: 'Open', value: openCount, icon: 'pi-flag', bg: 'bg-accent-blue/10', text: 'text-accent-blue' },
-    { label: 'Escalated', value: escalatedCount, icon: 'pi-exclamation-triangle', bg: 'bg-accent-rose/10', text: 'text-accent-rose' },
-    { label: 'Resolved', value: resolvedCount, icon: 'pi-check-circle', bg: 'bg-accent-emerald/10', text: 'text-accent-emerald' },
+    { label: 'Open', value: openCount, Icon: Flag, bg: 'bg-pink-100', text: 'text-pink-600' },
+    { label: 'Escalated', value: escalatedCount, Icon: AlertTriangle, bg: 'bg-danger-600/10', text: 'text-danger-600' },
+    { label: 'Resolved', value: resolvedCount, Icon: CheckCircle2, bg: 'bg-success-600/10', text: 'text-success-600' },
   ];
 
   const disputeNumberTemplate = (rowData: DisputeListItem) => (
@@ -84,12 +85,12 @@ export default function BusinessDisputesPage() {
 
   const actionsTemplate = (rowData: DisputeListItem) => (
     <Button
-      icon="pi pi-eye"
+      icon={<Eye size={18} strokeWidth={2} />}
       rounded
       text
-      severity="info"
+      severity="secondary"
       onClick={() => router.push(`/business/disputes/${rowData.id}`)}
-      tooltip="View Dispute"
+      tooltip="View dispute"
     />
   );
 
@@ -100,8 +101,8 @@ export default function BusinessDisputesPage() {
         subtitle="Review and manage disputes for your brand"
         actions={
           <Button
-            label="File Dispute"
-            icon="pi pi-plus"
+            label="File dispute"
+            icon={<Plus size={18} strokeWidth={2} />}
             onClick={() => router.push('/business/disputes/new')}
           />
         }
@@ -122,14 +123,14 @@ export default function BusinessDisputesPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {kpis.map((kpi) => (
-          <div key={kpi.label} className="glass-card p-6">
+          <div key={kpi.label} className="glass-card p-6 rounded-xl">
             <div className="flex items-center gap-3">
-              <div className={`flex items-center justify-center w-12 h-12 rounded-lg ${kpi.bg}`}>
-                <i className={`pi ${kpi.icon} ${kpi.text} text-xl`} />
+              <div className={`flex items-center justify-center w-12 h-12 rounded-lg ${kpi.bg} ${kpi.text}`}>
+                <kpi.Icon size={24} strokeWidth={2} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-text-primary">{kpi.value}</p>
-                <p className="text-sm text-text-muted">{kpi.label}</p>
+                <p className="font-mono tabular-nums text-2xl font-bold text-text-primary">{kpi.value}</p>
+                <p className="eyebrow">{kpi.label}</p>
               </div>
             </div>
           </div>

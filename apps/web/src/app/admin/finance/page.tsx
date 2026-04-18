@@ -22,6 +22,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { formatCents, formatDateTime } from '@/lib/utils/format';
 import { csvFilename, saveBlob } from '@/lib/utils/download';
+import { RefreshCw, Search, Download } from 'lucide-react';
 
 export default function FinanceOverviewPage() {
   const toast = useToast();
@@ -86,21 +87,21 @@ export default function FinanceOverviewPage() {
   return (
     <>
       <PageHeader
-        title="Finance Overview"
+        title="Finance overview"
         subtitle="Live ledger balances, exceptions, and Kill Switch control"
         actions={
           <div className="flex gap-2">
-            <Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />
+            <Button label="Refresh" icon={<RefreshCw size={16} strokeWidth={2} />} outlined onClick={() => refetch()} />
             <Button
               label="Run reconciliation"
-              icon="pi pi-search"
+              icon={<Search size={16} strokeWidth={2} />}
               outlined
               loading={recon.isPending}
               onClick={onRunRecon}
             />
             <Button
               label="Download ledger CSV"
-              icon="pi pi-download"
+              icon={<Download size={16} strokeWidth={2} />}
               outlined
               loading={downloadingLedger}
               onClick={handleDownloadLedger}
@@ -138,13 +139,13 @@ export default function FinanceOverviewPage() {
           />
         </Card>
 
-        <Card title="Open Exceptions">
-          <div className="text-3xl font-semibold">{data.openExceptions}</div>
+        <Card title="Open exceptions">
+          <div className="font-mono tabular-nums text-3xl font-semibold">{data.openExceptions}</div>
           <p className="text-sm text-text-muted mt-1">RecurringIssue rows not yet resolved.</p>
         </Card>
 
         <Card title="Recent groups">
-          <div className="text-3xl font-semibold">{data.recentGroups.length}</div>
+          <div className="font-mono tabular-nums text-3xl font-semibold">{data.recentGroups.length}</div>
           <p className="text-sm text-text-muted mt-1">Latest 20 ledger transaction groups.</p>
         </Card>
       </div>
@@ -158,7 +159,7 @@ export default function FinanceOverviewPage() {
           <Column
             field="cents"
             header="Balance"
-            body={(r: { cents: string }) => <span className="font-mono">{formatCents(r.cents)}</span>}
+            body={(r: { cents: string }) => <span className="font-mono tabular-nums">{formatCents(r.cents)}</span>}
           />
         </DataTable>
       </Card>
@@ -171,14 +172,14 @@ export default function FinanceOverviewPage() {
           onRowClick={(e) => router.push(`/admin/finance/groups/${(e.data as { id: string }).id}`)}
         >
           <Column field="actionType" header="Action" />
-          <Column field="referenceId" header="Reference" body={(r) => <span className="font-mono text-xs">{r.referenceId}</span>} />
+          <Column field="referenceId" header="Reference" body={(r) => <span className="font-mono tabular-nums text-xs">{r.referenceId}</span>} />
           <Column field="description" header="Description" />
           <Column
             field="totalCents"
             header="Total"
-            body={(r: { totalCents: string }) => <span className="font-mono">{formatCents(r.totalCents)}</span>}
+            body={(r: { totalCents: string }) => <span className="font-mono tabular-nums">{formatCents(r.totalCents)}</span>}
           />
-          <Column field="createdAt" header="When" body={(r) => formatDateTime(r.createdAt)} />
+          <Column field="createdAt" header="When" body={(r) => <span className="font-mono tabular-nums">{formatDateTime(r.createdAt)}</span>} />
         </DataTable>
       </Card>
 

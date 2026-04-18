@@ -3,6 +3,7 @@
 import { InputSwitch } from 'primereact/inputswitch';
 import { InputText } from 'primereact/inputtext';
 import { Checkbox } from 'primereact/checkbox';
+import { AlertCircle } from 'lucide-react';
 import type { EngagementRequirementsInput } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
 
@@ -50,8 +51,8 @@ export function ContentRulesSection({
               placeholder="@brandhandle"
             />
             {errors.tagAccount && (
-              <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
-                <i className="pi pi-exclamation-circle text-xs" />
+              <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                <AlertCircle size={12} strokeWidth={2} />
                 {errors.tagAccount}
               </small>
             )}

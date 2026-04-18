@@ -8,6 +8,7 @@ import { Message } from 'primereact/message';
 import { useAdminCreateOrg } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
+import { Plus } from 'lucide-react';
 
 export default function AdminCreateBrandPage() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function AdminCreateBrandPage() {
 
   return (
     <>
-      <PageHeader title="Create Brand" breadcrumbs={breadcrumbs} />
+      <PageHeader title="Create brand" breadcrumbs={breadcrumbs} />
 
       <div className="glass-card p-6 max-w-2xl animate-fade-up">
         {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
@@ -108,9 +109,9 @@ export default function AdminCreateBrandPage() {
               onClick={() => router.push('/admin/brands')}
             />
             <Button
-              label="Create Brand"
+              label="Create brand"
               type="submit"
-              icon="pi pi-plus"
+              icon={<Plus size={16} strokeWidth={2} />}
               loading={createOrg.isPending}
             />
           </div>

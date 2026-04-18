@@ -1,13 +1,18 @@
 'use client';
 
+import { Camera, ThumbsUp, Video, Check, AlertCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { SocialChannel, PostFormat, CHANNEL_POST_FORMATS } from '@social-bounty/shared';
 import type { ChannelSelection } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
 
-const CHANNEL_META: { channel: SocialChannel; label: string; icon: string }[] = [
-  { channel: SocialChannel.INSTAGRAM, label: 'Instagram', icon: 'pi-instagram' },
-  { channel: SocialChannel.FACEBOOK, label: 'Facebook', icon: 'pi-facebook' },
-  { channel: SocialChannel.TIKTOK, label: 'TikTok', icon: 'pi-video' },
+// Lucide deliberately ships no brand glyphs beyond a small whitelist — Instagram/
+// Facebook/TikTok aren't in it (ICONS.md §"Social brand marks"). We use neutral
+// Lucide icons as semantic stand-ins until the brand-icon commission lands.
+const CHANNEL_META: { channel: SocialChannel; label: string; Icon: LucideIcon }[] = [
+  { channel: SocialChannel.INSTAGRAM, label: 'Instagram', Icon: Camera },
+  { channel: SocialChannel.FACEBOOK, label: 'Facebook', Icon: ThumbsUp },
+  { channel: SocialChannel.TIKTOK, label: 'TikTok', Icon: Video },
 ];
 
 const FORMAT_LABELS: Record<PostFormat, string> = {
@@ -40,10 +45,10 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
   return (
     <div>
       <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-2">
-        Social Platforms <span className="text-accent-rose">*</span>
+        Social Platforms <span className="text-danger-600">*</span>
       </label>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {CHANNEL_META.map(({ channel, label, icon }) => {
+        {CHANNEL_META.map(({ channel, label, Icon }) => {
           const selected = isChannelSelected(channel);
           const formats = CHANNEL_POST_FORMATS[channel];
           return (
@@ -51,8 +56,8 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
               key={channel}
               className={`border rounded-lg p-4 transition-colors ${
                 selected
-                  ? 'border-2 border-accent-cyan bg-accent-cyan/10'
-                  : 'border-glass-border bg-surface hover:border-accent-cyan'
+                  ? 'border-2 border-pink-600 bg-pink-600/10'
+                  : 'border-glass-border bg-surface hover:border-pink-600'
               }`}
             >
               <button
@@ -62,13 +67,13 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
               >
                 <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
                   selected
-                    ? 'border-accent-cyan bg-accent-cyan'
+                    ? 'border-pink-600 bg-pink-600'
                     : 'border-glass-border bg-white'
                 }`}>
-                  {selected && <i className="pi pi-check text-white text-[10px] font-bold" />}
+                  {selected && <Check size={12} strokeWidth={3} className="text-white" />}
                 </div>
-                <i className={`pi ${icon} text-lg ${selected ? 'text-accent-cyan' : 'text-text-muted'}`} />
-                <span className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>
+                <Icon size={20} strokeWidth={2} className={selected ? 'text-pink-600' : 'text-text-muted'} />
+                <span className={`text-sm font-medium ${selected ? 'text-pink-600' : 'text-text-primary'}`}>
                   {label}
                 </span>
               </button>
@@ -83,11 +88,11 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
                         onClick={() => toggleFormat(channel, fmt)}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs transition-colors ${
                           fmtSelected
-                            ? 'border-accent-cyan bg-accent-cyan text-white'
-                            : 'border-glass-border bg-white text-text-primary hover:border-accent-cyan'
+                            ? 'border-pink-600 bg-pink-600 text-white'
+                            : 'border-glass-border bg-white text-text-primary hover:border-pink-600'
                         }`}
                       >
-                        {fmtSelected && <i className="pi pi-check text-[10px]" />}
+                        {fmtSelected && <Check size={12} strokeWidth={3} />}
                         {FORMAT_LABELS[fmt]}
                       </button>
                     );
@@ -99,8 +104,8 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
         })}
       </div>
       {submitAttempted && errors.channels && (
-        <small className="text-xs text-accent-rose mt-2 flex items-center gap-1">
-          <i className="pi pi-exclamation-circle text-xs" />
+        <small className="text-xs text-danger-600 mt-2 flex items-center gap-1">
+          <AlertCircle size={12} strokeWidth={2} />
           {errors.channels}
         </small>
       )}

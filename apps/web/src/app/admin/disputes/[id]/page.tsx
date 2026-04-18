@@ -38,11 +38,27 @@ import type {
   DisputeStatusHistoryResponse,
 } from '@social-bounty/shared';
 import { DISPUTE_CATEGORY_COLORS } from '@/lib/constants/disputes';
+import {
+  Lock,
+  User,
+  Link2,
+  Image as ImageIcon,
+  File as FileIcon,
+  ExternalLink,
+  ArrowRight,
+  Send,
+  RefreshCw,
+  UserPlus,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Building2,
+} from 'lucide-react';
 
 const categoryColors: Record<string, string> = {
-  NON_PAYMENT: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30',
-  POST_QUALITY: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30',
-  POST_NON_COMPLIANCE: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30',
+  NON_PAYMENT: 'bg-danger-600/10 text-danger-600 border border-danger-600/30',
+  POST_QUALITY: 'bg-warning-600/10 text-warning-600 border border-warning-600/30',
+  POST_NON_COMPLIANCE: 'bg-pink-100 text-pink-600 border border-pink-200',
 };
 
 const transitionableStatuses = [
@@ -79,31 +95,31 @@ function MessageBubble({ message, isAdmin }: { message: DisputeMessageResponse; 
     <div className={`space-y-1 ${isInternal ? 'opacity-90' : ''}`}>
       {isInternal && (
         <div className="flex items-center gap-1.5 ml-11">
-          <i className="pi pi-lock text-accent-amber text-xs" />
-          <span className="text-xs text-accent-amber font-medium">Internal — not visible to parties</span>
+          <Lock size={12} strokeWidth={2} className="text-warning-600" />
+          <span className="text-xs text-warning-600 font-medium">Internal — not visible to parties</span>
         </div>
       )}
       <div className={`flex gap-3 ${isSelf ? 'flex-row-reverse' : 'flex-row'}`}>
         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border ${
           isInternal
-            ? 'bg-accent-amber/10 border-accent-amber/30'
+            ? 'bg-warning-600/10 border-warning-600/30'
             : isSelf
-            ? 'bg-accent-cyan/10 border-accent-cyan/30'
-            : 'bg-accent-violet/10 border-accent-violet/30'
+            ? 'bg-pink-600/10 border-pink-600/30'
+            : 'bg-slate-100 border-slate-200'
         }`}>
-          <i className={`pi pi-user text-xs ${
-            isInternal ? 'text-accent-amber' : isSelf ? 'text-accent-cyan' : 'text-accent-violet'
-          }`} />
+          <User size={14} strokeWidth={2} className={
+            isInternal ? 'text-warning-600' : isSelf ? 'text-pink-600' : 'text-slate-600'
+          } />
         </div>
         <div className={`flex-1 max-w-[90%] sm:max-w-[80%] ${isSelf ? 'items-end flex flex-col' : ''}`}>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-medium text-text-primary">{message.authorName}</span>
-            <span className="text-xs text-text-muted">{formatDateTime(message.createdAt)}</span>
+            <span className="text-xs text-text-muted font-mono tabular-nums">{formatDateTime(message.createdAt)}</span>
           </div>
           <div className={`p-3 rounded-xl border ${
             isInternal
-              ? 'bg-accent-amber/5 border-accent-amber/20'
-              : 'glass-card border-l-2 border-accent-violet/30'
+              ? 'bg-warning-600/5 border-warning-600/20'
+              : 'glass-card border-l-2 border-slate-300'
           }`}>
             <p className="text-sm text-text-secondary whitespace-pre-wrap">{message.content}</p>
           </div>
@@ -118,8 +134,8 @@ function EvidenceCard({ evidence }: { evidence: DisputeEvidenceResponse }) {
   const isImage = evidence.mimeType?.startsWith('image/');
   return (
     <div className="glass-card p-4 flex items-start gap-3">
-      <div className="w-10 h-10 rounded-lg bg-accent-cyan/10 border border-accent-cyan/20 flex items-center justify-center flex-shrink-0">
-        <i className={`pi ${isLink ? 'pi-link' : isImage ? 'pi-image' : 'pi-file'} text-accent-cyan`} />
+      <div className="w-10 h-10 rounded-lg bg-pink-100 border border-pink-200 flex items-center justify-center flex-shrink-0">
+        {isLink ? <Link2 size={18} strokeWidth={2} className="text-pink-600" /> : isImage ? <ImageIcon size={18} strokeWidth={2} className="text-pink-600" /> : <FileIcon size={18} strokeWidth={2} className="text-pink-600" />}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-text-primary truncate">
@@ -132,8 +148,8 @@ function EvidenceCard({ evidence }: { evidence: DisputeEvidenceResponse }) {
       </div>
       {(evidence.fileUrl || evidence.url) && (
         <a href={evidence.fileUrl || evidence.url || '#'} target="_blank" rel="noopener noreferrer"
-          className="text-accent-cyan hover:text-accent-cyan/70 transition-colors flex-shrink-0">
-          <i className="pi pi-external-link text-sm" />
+          className="text-pink-600 hover:text-pink-700 transition-colors flex-shrink-0">
+          <ExternalLink size={14} strokeWidth={2} />
         </a>
       )}
     </div>
@@ -147,7 +163,7 @@ function StatusTimeline({ history }: { history: DisputeStatusHistoryResponse[] }
         <div key={entry.id} className="flex gap-3">
           <div className="flex flex-col items-center">
             <div className={`w-3 h-3 rounded-full flex-shrink-0 mt-1 ${
-              i === 0 ? 'bg-accent-cyan' : 'bg-glass-border'
+              i === 0 ? 'bg-pink-600' : 'bg-glass-border'
             }`} />
             {i < history.length - 1 && <div className="w-px flex-1 bg-glass-border mt-1" />}
           </div>
@@ -156,7 +172,7 @@ function StatusTimeline({ history }: { history: DisputeStatusHistoryResponse[] }
               {entry.fromStatus && (
                 <>
                   <StatusBadge type="dispute" value={entry.fromStatus} size="small" />
-                  <i className="pi pi-arrow-right text-text-muted text-xs" />
+                  <ArrowRight size={12} strokeWidth={2} className="text-text-muted" />
                 </>
               )}
               <StatusBadge type="dispute" value={entry.toStatus} size="small" />
@@ -357,7 +373,7 @@ export default function AdminDisputeDetailPage() {
                     checked={isInternalNote}
                     onChange={(e) => setIsInternalNote(e.checked ?? false)}
                   />
-                  <label htmlFor="internal-note" className="text-sm text-accent-amber cursor-pointer">
+                  <label htmlFor="internal-note" className="text-sm text-warning-600 cursor-pointer">
                     Internal Note (admin only)
                   </label>
                 </div>
@@ -367,14 +383,14 @@ export default function AdminDisputeDetailPage() {
                 onChange={(e) => setMessageText(e.target.value)}
                 rows={3}
                 placeholder={isInternalNote ? 'Internal note (not visible to parties)...' : 'Type a message...'}
-                className={`w-full ${isInternalNote ? 'border-accent-amber/40' : ''}`}
+                className={`w-full ${isInternalNote ? 'border-warning-600/40' : ''}`}
                 aria-label="Type your response"
               />
               <div className="flex justify-end">
                 <Button
-                  label={isInternalNote ? 'Add Note' : 'Send Message'}
-                  icon={isInternalNote ? 'pi pi-lock' : 'pi pi-send'}
-                  severity={isInternalNote ? 'warning' : 'info'}
+                  label={isInternalNote ? 'Add note' : 'Send message'}
+                  icon={isInternalNote ? <Lock size={16} strokeWidth={2} /> : <Send size={16} strokeWidth={2} />}
+                  severity={isInternalNote ? 'warning' : 'secondary'}
                   onClick={handleSendMessage}
                   disabled={!messageText.trim()}
                   loading={sendMessage.isPending}
@@ -419,8 +435,8 @@ export default function AdminDisputeDetailPage() {
                 className="w-full text-sm"
               />
               <Button
-                label="Change Status"
-                icon="pi pi-refresh"
+                label="Change status"
+                icon={<RefreshCw size={16} strokeWidth={2} />}
                 className="w-full"
                 onClick={handleChangeStatus}
                 disabled={!newStatus}
@@ -433,8 +449,8 @@ export default function AdminDisputeDetailPage() {
           <div className="glass-card p-5">
             <h3 className="text-base font-heading font-semibold text-text-primary mb-3">Assign Admin</h3>
             {d.assignedTo ? (
-              <div className="flex items-center gap-2 p-2 rounded-lg bg-accent-violet/5 border border-accent-violet/20 mb-3">
-                <i className="pi pi-user text-accent-violet text-sm" />
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200 mb-3">
+                <User size={14} strokeWidth={2} className="text-slate-600" />
                 <span className="text-sm text-text-secondary">
                   {d.assignedTo.firstName} {d.assignedTo.lastName}
                 </span>
@@ -451,7 +467,7 @@ export default function AdminDisputeDetailPage() {
               />
               <Button
                 label="Assign"
-                icon="pi pi-user-plus"
+                icon={<UserPlus size={14} strokeWidth={2} />}
                 outlined
                 className="w-full"
                 onClick={handleAssign}
@@ -481,8 +497,8 @@ export default function AdminDisputeDetailPage() {
                   className="w-full text-sm"
                 />
                 <Button
-                  label="Resolve Dispute"
-                  icon="pi pi-check-circle"
+                  label="Resolve dispute"
+                  icon={<CheckCircle2 size={16} strokeWidth={2} />}
                   severity="success"
                   className="w-full"
                   onClick={() => setShowResolveConfirm(true)}
@@ -498,15 +514,15 @@ export default function AdminDisputeDetailPage() {
             <div className="space-y-2">
               <Button
                 label="Escalate"
-                icon="pi pi-exclamation-triangle"
+                icon={<AlertTriangle size={16} strokeWidth={2} />}
                 severity="warning"
                 outlined
                 className="w-full"
                 onClick={() => setShowEscalate(true)}
               />
               <Button
-                label="Force Close"
-                icon="pi pi-times-circle"
+                label="Force close"
+                icon={<XCircle size={16} strokeWidth={2} />}
                 severity="danger"
                 outlined
                 className="w-full"
@@ -529,11 +545,11 @@ export default function AdminDisputeDetailPage() {
                   <StatusBadge type="payout" value={d.submission.payoutStatus} size="small" />
                 </div>
                 <Button
-                  label="View Submission"
-                  icon="pi pi-external-link"
+                  label="View submission"
+                  icon={<ExternalLink size={14} strokeWidth={2} />}
                   size="small"
                   text
-                  severity="info"
+                  severity="secondary"
                   className="p-0 mt-1"
                   onClick={() => router.push(`/admin/submissions/${d.submission.id}`)}
                 />
@@ -553,8 +569,8 @@ export default function AdminDisputeDetailPage() {
               <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">Brand</p>
               <p className="text-sm text-text-primary font-medium">{d.brandName}</p>
               <Button
-                label="View Brand"
-                icon="pi pi-building"
+                label="View brand"
+                icon={<Building2 size={14} strokeWidth={2} />}
                 size="small"
                 text
                 severity="secondary"

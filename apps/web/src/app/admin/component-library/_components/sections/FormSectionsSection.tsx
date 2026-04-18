@@ -1,6 +1,7 @@
 'use client';
 
 import { ComponentDemo } from '../ComponentDemo';
+import { Info } from 'lucide-react';
 
 const FORM_SECTIONS = [
   {
@@ -68,12 +69,14 @@ const FORM_SECTIONS = [
 export default function FormSectionsSection() {
   return (
     <div className="space-y-12">
-      <div className="glass-card p-4 mb-4">
-        <p className="text-sm text-text-secondary">
-          <i className="pi pi-info-circle text-accent-cyan mr-2" />
-          All 10 form sections live inside <code className="text-accent-violet text-xs font-mono">CreateBountyForm</code> and
-          share state via <code className="text-accent-violet text-xs font-mono">useReducer</code>. They cannot be rendered
-          standalone without the form context, so only code snippets are shown below.
+      <div className="glass-card p-4 mb-4 rounded-xl">
+        <p className="text-sm text-text-secondary flex items-start gap-2">
+          <Info size={16} strokeWidth={2} className="text-pink-600 mt-0.5 flex-shrink-0" />
+          <span>
+            All 10 form sections live inside <code className="text-pink-600 text-xs font-mono tabular-nums">CreateBountyForm</code> and
+            share state via <code className="text-pink-600 text-xs font-mono tabular-nums">useReducer</code>. They cannot be rendered
+            standalone without the form context, so only code snippets are shown below.
+          </span>
         </p>
       </div>
 

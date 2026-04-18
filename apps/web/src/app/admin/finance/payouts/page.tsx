@@ -15,6 +15,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatCents, formatDateTime, truncate } from '@/lib/utils/format';
+import { RefreshCw } from 'lucide-react';
 
 /**
  * Map StitchPayout status to a PrimeReact Tag severity.
@@ -71,7 +72,7 @@ export default function FinancePayoutsPage() {
         actions={
           <Button
             label="Refresh"
-            icon="pi pi-refresh"
+            icon={<RefreshCw size={16} strokeWidth={2} />}
             outlined
             onClick={() => refetch()}
           />
@@ -107,7 +108,7 @@ export default function FinancePayoutsPage() {
             field="amountCents"
             header="Amount"
             body={(r: AdminPayoutRow) => (
-              <span className="font-mono">{formatCents(r.amountCents, r.currency)}</span>
+              <span className="font-mono tabular-nums">{formatCents(r.amountCents, r.currency)}</span>
             )}
           />
           <Column
@@ -139,13 +140,13 @@ export default function FinancePayoutsPage() {
             field="nextRetryAt"
             header="Next retry"
             body={(r: AdminPayoutRow) =>
-              r.nextRetryAt ? formatDateTime(r.nextRetryAt) : '—'
+              r.nextRetryAt ? <span className="font-mono tabular-nums">{formatDateTime(r.nextRetryAt)}</span> : '—'
             }
           />
           <Column
             field="createdAt"
             header="Created"
-            body={(r: AdminPayoutRow) => formatDateTime(r.createdAt)}
+            body={(r: AdminPayoutRow) => <span className="font-mono tabular-nums">{formatDateTime(r.createdAt)}</span>}
           />
           <Column
             header=""
@@ -153,7 +154,7 @@ export default function FinancePayoutsPage() {
               r.status === 'FAILED' || r.status === 'RETRY_PENDING' ? (
                 <Button
                   label="Retry"
-                  icon="pi pi-refresh"
+                  icon={<RefreshCw size={16} strokeWidth={2} />}
                   size="small"
                   severity="warning"
                   outlined

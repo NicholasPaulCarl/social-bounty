@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Spacing, Radii &amp; Shadows — Social Bounty</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<link rel="stylesheet" href="../components.css" />
+<style>
+  body { padding: 48px 56px; max-width: 1100px; }
+  .grid-2 { display: grid; grid-template-columns: 280px 1fr; gap: 32px; align-items: flex-start; margin-bottom: 48px; }
+  .sidebar h4 { margin: 0 0 4px; font-family: var(--font-heading); font-size: 18px; }
+  .sidebar p { margin: 0; font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+  .space-row { display: flex; align-items: center; gap: 16px; padding: 6px 0; }
+  .space-row .bar { background: var(--pink-600); height: 12px; border-radius: 2px; }
+  .space-row .token { font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); width: 70px; }
+  .space-row .px { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+  .radius-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+  .radius-cell { aspect-ratio: 1; background: var(--bg-surface); border: 1px solid var(--slate-200); display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+  .radius-cell b { font-weight: 600; color: var(--text-primary); font-size: 12px; }
+  .radius-cell .px { font-size: 10px; color: var(--text-muted); }
+
+  .shadow-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 8px; }
+  .shadow-card { aspect-ratio: 4/3; background: var(--bg-surface); border-radius: 12px; display: flex; flex-direction: column; justify-content: flex-end; padding: 14px; border: 1px solid transparent; }
+  .shadow-card b { font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); font-weight: 600; }
+  .shadow-card .desc { font-family: var(--font-body); font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<header style="margin-bottom: 36px;">
+  <div class="eyebrow" style="margin-bottom: 8px;">Spacing · Radii · Shadows</div>
+  <h2 style="margin: 0 0 12px;">A 4-point grid, three radii, four elevations.</h2>
+  <p class="body-lg" style="max-width: 68ch; margin: 0;">
+    Every gap is a multiple of 4px. Every rounded corner is one of three sizes.
+    Cards float <em>just enough</em> to feel tactile without shouting.
+  </p>
+</header>
+
+<!-- ─── Spacing ─── -->
+<div class="grid-2">
+  <div class="sidebar">
+    <h4>Spacing — 4px grid</h4>
+    <p>Base unit 4px. Tokens <code>--space-1</code>…<code>--space-24</code>.
+       Within a card use 1–4. Between cards use 4–6. Between sections use 8–16.
+       Never eyeball — always snap to a token.</p>
+  </div>
+  <div>
+    <div class="space-row"><span class="token">--space-1</span><div class="bar" style="width: 4px;"></div><span class="px">4px</span></div>
+    <div class="space-row"><span class="token">--space-2</span><div class="bar" style="width: 8px;"></div><span class="px">8px</span></div>
+    <div class="space-row"><span class="token">--space-3</span><div class="bar" style="width: 12px;"></div><span class="px">12px</span></div>
+    <div class="space-row"><span class="token">--space-4</span><div class="bar" style="width: 16px;"></div><span class="px">16px  · default card padding</span></div>
+    <div class="space-row"><span class="token">--space-6</span><div class="bar" style="width: 24px;"></div><span class="px">24px  · card padding (default)</span></div>
+    <div class="space-row"><span class="token">--space-8</span><div class="bar" style="width: 32px;"></div><span class="px">32px  · feature-card padding</span></div>
+    <div class="space-row"><span class="token">--space-12</span><div class="bar" style="width: 48px;"></div><span class="px">48px  · between sections (mobile)</span></div>
+    <div class="space-row"><span class="token">--space-16</span><div class="bar" style="width: 64px;"></div><span class="px">64px  · between sections (desktop)</span></div>
+    <div class="space-row"><span class="token">--space-24</span><div class="bar" style="width: 96px;"></div><span class="px">96px  · hero breathing room</span></div>
+  </div>
+</div>
+
+<!-- ─── Radii ─── -->
+<div class="grid-2">
+  <div class="sidebar">
+    <h4>Radii</h4>
+    <p><b style="color: var(--text-primary);">Pills are a brand signal</b> — use <code>--radius-full</code> on CTAs, badges, chips.
+       Default card is <code>--radius-xl</code> (16px). Feature cards go <code>--radius-3xl</code> (24px).
+       Never mix two different non-full radii within one component.</p>
+  </div>
+  <div class="radius-row">
+    <div class="radius-cell" style="border-radius: var(--radius-sm);"><b>sm</b><span class="px">4px</span></div>
+    <div class="radius-cell" style="border-radius: var(--radius-md);"><b>md</b><span class="px">8px · buttons</span></div>
+    <div class="radius-cell" style="border-radius: var(--radius-lg);"><b>lg</b><span class="px">12px</span></div>
+    <div class="radius-cell" style="border-radius: var(--radius-xl);"><b>xl ★</b><span class="px">16px · cards</span></div>
+    <div class="radius-cell" style="border-radius: var(--radius-2xl);"><b>2xl</b><span class="px">20px</span></div>
+    <div class="radius-cell" style="border-radius: var(--radius-3xl);"><b>3xl</b><span class="px">24px · feature</span></div>
+    <div class="radius-cell" style="border-radius: var(--radius-full);"><b>full</b><span class="px">pill · CTA</span></div>
+  </div>
+</div>
+
+<!-- ─── Shadows ─── -->
+<div class="grid-2">
+  <div class="sidebar">
+    <h4>Elevation — 4 levels + 2 glows</h4>
+    <p>Neutral shadows are black with low alpha. Never invent a custom shadow.
+       The two <b style="color: var(--text-primary);">colored glows</b> (pink, blue) are ONLY for primary
+       CTAs and the hero card — used sparingly.</p>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 32px;">
+    <div class="shadow-row">
+      <div class="shadow-card" style="box-shadow: var(--shadow-level-1);"><b>level-1</b><span class="desc">Resting card, input</span></div>
+      <div class="shadow-card" style="box-shadow: var(--shadow-level-2);"><b>level-2</b><span class="desc">Hover, focus</span></div>
+      <div class="shadow-card" style="box-shadow: var(--shadow-level-3);"><b>level-3</b><span class="desc">Dropdown, popover</span></div>
+    </div>
+    <div class="shadow-row">
+      <div class="shadow-card" style="box-shadow: var(--shadow-level-4);"><b>level-4</b><span class="desc">Modal, dialog</span></div>
+      <div class="shadow-card" style="box-shadow: var(--shadow-brand-intense);"><b>glow-brand ★</b><span class="desc">Primary button, hero CTA</span></div>
+      <div class="shadow-card" style="box-shadow: var(--shadow-blue);"><b>glow-blue</b><span class="desc">Gradient-partner uses</span></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -8,6 +8,7 @@ import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Steps } from 'primereact/steps';
+import { CheckCircle2, ChevronRight, ChevronLeft, Info, Flag } from 'lucide-react';
 import { useCreateDispute } from '@/hooks/useDisputes';
 import { useBounties } from '@/hooks/useBounties';
 import { useSubmissionsForBounty } from '@/hooks/useSubmissions';
@@ -191,11 +192,10 @@ export default function NewBusinessDisputePage() {
           ))}
 
           {selectedSubmission && (
-            <div className="mt-4 p-3 rounded-lg bg-accent-cyan/5 border border-accent-cyan/20">
-              <p className="text-sm text-text-secondary">
-                <i className="pi pi-check-circle text-accent-cyan mr-2" />
-                Selected: <span className="font-medium text-text-primary">{selectedSubmission.bountyTitle}</span>
-                {' — '}{selectedSubmission.participantName}
+            <div className="mt-4 p-3 rounded-lg bg-pink-600/5 border border-pink-600/20">
+              <p className="text-sm text-text-secondary flex items-center gap-2">
+                <CheckCircle2 size={16} strokeWidth={2} className="text-pink-600" />
+                <span>Selected: <span className="font-medium text-text-primary">{selectedSubmission.bountyTitle}</span>{' — '}{selectedSubmission.participantName}</span>
               </p>
             </div>
           )}
@@ -203,7 +203,7 @@ export default function NewBusinessDisputePage() {
           <div className="flex justify-end pt-2">
             <Button
               label="Next"
-              icon="pi pi-chevron-right"
+              icon={<ChevronRight size={16} strokeWidth={2} />}
               iconPos="right"
               onClick={handleNext}
               disabled={!canProceedStep0}
@@ -218,8 +218,8 @@ export default function NewBusinessDisputePage() {
           <h2 className="text-lg font-heading font-semibold text-text-primary">Category &amp; Reason</h2>
 
           {suggestedCategory && (
-            <div className="p-3 rounded-lg bg-accent-amber/5 border border-accent-amber/20 flex gap-2">
-              <i className="pi pi-info-circle text-accent-amber mt-0.5 flex-shrink-0" />
+            <div className="p-3 rounded-lg bg-warning-600/5 border border-warning-600/20 flex gap-2">
+              <Info size={16} strokeWidth={2} className="text-warning-600 mt-0.5 flex-shrink-0" />
               <p className="text-sm text-text-secondary">
                 Based on the payout status of this submission, we suggest:{' '}
                 <span className="font-medium text-text-primary">{formatEnumLabel(suggestedCategory)}</span>
@@ -252,10 +252,10 @@ export default function NewBusinessDisputePage() {
           )}
 
           <div className="flex justify-between pt-2">
-            <Button label="Back" icon="pi pi-chevron-left" outlined severity="secondary" onClick={handleBack} />
+            <Button label="Back" icon={<ChevronLeft size={16} strokeWidth={2} />} outlined severity="secondary" onClick={handleBack} />
             <Button
               label="Next"
-              icon="pi pi-chevron-right"
+              icon={<ChevronRight size={16} strokeWidth={2} />}
               iconPos="right"
               onClick={handleNext}
               disabled={!canProceedStep1}
@@ -271,7 +271,7 @@ export default function NewBusinessDisputePage() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-text-secondary">
-              Description <span className="text-accent-rose">*</span>
+              Description <span className="text-danger-600">*</span>
             </label>
             <p className="text-xs text-text-muted">Provide as much detail as possible about the issue.</p>
             <InputTextarea
@@ -287,7 +287,7 @@ export default function NewBusinessDisputePage() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-text-secondary">
-              Desired Outcome <span className="text-accent-rose">*</span>
+              Desired Outcome <span className="text-danger-600">*</span>
             </label>
             <p className="text-xs text-text-muted">What resolution are you seeking?</p>
             <InputTextarea
@@ -302,10 +302,10 @@ export default function NewBusinessDisputePage() {
           </div>
 
           <div className="flex justify-between pt-2">
-            <Button label="Back" icon="pi pi-chevron-left" outlined severity="secondary" onClick={handleBack} />
+            <Button label="Back" icon={<ChevronLeft size={16} strokeWidth={2} />} outlined severity="secondary" onClick={handleBack} />
             <Button
               label="Next"
-              icon="pi pi-chevron-right"
+              icon={<ChevronRight size={16} strokeWidth={2} />}
               iconPos="right"
               onClick={handleNext}
               disabled={!canProceedStep2}
@@ -351,10 +351,10 @@ export default function NewBusinessDisputePage() {
           </div>
 
           <div className="flex justify-between">
-            <Button label="Back" icon="pi pi-chevron-left" outlined severity="secondary" onClick={handleBack} />
+            <Button label="Back" icon={<ChevronLeft size={16} strokeWidth={2} />} outlined severity="secondary" onClick={handleBack} />
             <Button
-              label="File Dispute"
-              icon="pi pi-flag"
+              label="File dispute"
+              icon={<Flag size={16} strokeWidth={2} />}
               severity="danger"
               onClick={handleSubmit}
               loading={createDispute.isPending}

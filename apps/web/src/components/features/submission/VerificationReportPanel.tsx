@@ -1,5 +1,13 @@
 'use client';
 
+import {
+  CheckCircle2,
+  XCircle,
+  Shield,
+  AlertCircle,
+  Info,
+  Loader2,
+} from 'lucide-react';
 import type {
   SubmissionUrlScrapeInfo,
   VerificationCheck,
@@ -107,13 +115,13 @@ function MetricCell({
       <span className="text-text-muted text-[10px] uppercase tracking-wider font-medium">{label}</span>
       <div className="flex items-baseline gap-2 text-sm">
         <span className="text-text-secondary text-xs">Hunter:</span>
-        <span className={hasReported ? 'text-text-primary font-medium' : 'text-text-muted'}>
+        <span className={hasReported ? 'text-text-primary font-mono tabular-nums font-medium' : 'text-text-muted'}>
           {hasReported ? reported.toLocaleString() : '—'}
         </span>
       </div>
       <div className="flex items-baseline gap-2 text-sm">
         <span className="text-text-secondary text-xs">Scraped:</span>
-        <span className={hasScraped ? 'text-text-primary font-medium' : 'text-text-muted'}>
+        <span className={hasScraped ? 'text-text-primary font-mono tabular-nums font-medium' : 'text-text-muted'}>
           {hasScraped ? scraped.toLocaleString() : '—'}
         </span>
       </div>
@@ -134,13 +142,13 @@ function UrlScrapeCard({
   const checks: VerificationCheck[] = scrape.verificationChecks ?? [];
 
   const badgeClass = isVerified
-    ? 'bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30'
-    : 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30';
+    ? 'bg-success-600/10 text-success-600 border border-success-600/30'
+    : 'bg-danger-600/10 text-danger-600 border border-danger-600/30';
 
-  const badgeIcon = isVerified ? 'pi pi-check-circle' : 'pi pi-times-circle';
+  const BadgeIcon = isVerified ? CheckCircle2 : XCircle;
 
   return (
-    <div className="glass-card p-4 space-y-3">
+    <div className="glass-card !rounded-xl p-4 space-y-3">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1 min-w-0">
           <div className="text-sm font-semibold text-text-primary">
@@ -153,7 +161,7 @@ function UrlScrapeCard({
             href={scrape.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-accent-cyan hover:underline text-xs break-all"
+            className="text-pink-600 hover:underline text-xs break-all"
             title={scrape.url}
           >
             {truncateUrl(scrape.url)}
@@ -164,15 +172,15 @@ function UrlScrapeCard({
           role="status"
           aria-label={`Verification status: ${scrape.scrapeStatus}`}
         >
-          <i className={badgeIcon} />
+          <BadgeIcon size={12} strokeWidth={2} aria-hidden="true" />
           {scrape.scrapeStatus}
         </span>
       </div>
 
       {isFailed && scrape.errorMessage && (
-        <div className="bg-accent-rose/10 border border-accent-rose/30 text-accent-rose text-xs px-3 py-2 rounded-lg">
-          <i className="pi pi-exclamation-circle mr-1.5" />
-          {scrape.errorMessage}
+        <div className="bg-danger-600/10 border border-danger-600/30 text-danger-600 text-xs px-3 py-2 rounded-lg flex items-start gap-1.5">
+          <AlertCircle size={14} strokeWidth={2} className="shrink-0 mt-0.5" aria-hidden="true" />
+          <span>{scrape.errorMessage}</span>
         </div>
       )}
 
@@ -186,27 +194,32 @@ function UrlScrapeCard({
 
       {checks.length > 0 && (
         <ul className="space-y-1.5 pt-1">
-          {checks.map((check, idx) => (
-            <li
-              key={`${scrape.id}-${check.rule}-${idx}`}
-              className="flex items-start gap-2 text-xs"
-            >
-              <i
-                className={`mt-0.5 ${check.pass ? 'pi pi-check-circle text-accent-emerald' : 'pi pi-times-circle text-accent-rose'}`}
-                aria-hidden="true"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="text-text-primary font-medium">
-                  {RULE_LABELS[check.rule] ?? check.rule}
+          {checks.map((check, idx) => {
+            const CheckIcon = check.pass ? CheckCircle2 : XCircle;
+            return (
+              <li
+                key={`${scrape.id}-${check.rule}-${idx}`}
+                className="flex items-start gap-2 text-xs"
+              >
+                <CheckIcon
+                  size={14}
+                  strokeWidth={2}
+                  className={`mt-0.5 shrink-0 ${check.pass ? 'text-success-600' : 'text-danger-600'}`}
+                  aria-hidden="true"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="text-text-primary font-medium">
+                    {RULE_LABELS[check.rule] ?? check.rule}
+                  </div>
+                  <div className="text-text-muted">
+                    Required: <span className="text-text-secondary font-mono tabular-nums">{formatRuleValue(check.required)}</span>
+                    <span className="mx-1.5">·</span>
+                    Actual: <span className="text-text-secondary font-mono tabular-nums">{formatRuleValue(check.actual)}</span>
+                  </div>
                 </div>
-                <div className="text-text-muted">
-                  Required: <span className="text-text-secondary">{formatRuleValue(check.required)}</span>
-                  <span className="mx-1.5">·</span>
-                  Actual: <span className="text-text-secondary">{formatRuleValue(check.actual)}</span>
-                </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
@@ -220,8 +233,10 @@ function UrlScrapeCard({
 function PreviewRuleRow({ check }: { check: VerificationCheck }) {
   return (
     <li className="flex items-start gap-2 text-xs">
-      <i
-        className="mt-0.5 pi pi-shield text-accent-cyan"
+      <Shield
+        size={14}
+        strokeWidth={2}
+        className="mt-0.5 shrink-0 text-pink-600"
         aria-hidden="true"
       />
       <div className="flex-1 min-w-0">
@@ -229,9 +244,9 @@ function PreviewRuleRow({ check }: { check: VerificationCheck }) {
           {RULE_LABELS[check.rule] ?? check.rule}
         </div>
         <div className="text-text-muted">
-          Required: <span className="text-text-secondary">{formatRuleValue(check.required)}</span>
+          Required: <span className="text-text-secondary font-mono tabular-nums">{formatRuleValue(check.required)}</span>
           <span className="mx-1.5">·</span>
-          <span className="text-accent-cyan/80">will be auto-verified</span>
+          <span className="text-pink-600/80">will be auto-verified</span>
         </div>
       </div>
     </li>
@@ -249,7 +264,7 @@ function PreviewGroupCard({
 }) {
   if (checks.length === 0) return null;
   return (
-    <div className="glass-card p-4 space-y-3">
+    <div className="glass-card !rounded-xl p-4 space-y-3">
       <div className="space-y-0.5">
         <div className="text-sm font-semibold text-text-primary">{title}</div>
         {subtitle && (
@@ -292,7 +307,12 @@ function PreviewBody({
     const isForm = audience === 'brand-form';
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
-        <i className="pi pi-info-circle text-3xl text-text-muted mb-3" aria-hidden="true" />
+        <Info
+          size={30}
+          strokeWidth={2}
+          className="text-text-muted mb-3"
+          aria-hidden="true"
+        />
         <p className="text-text-primary font-medium">
           {isForm ? 'Nothing to auto-verify yet' : 'No auto-verification rules'}
         </p>
@@ -349,7 +369,7 @@ export function VerificationReportPanel(props: VerificationReportPanelProps) {
   if (props.previewMode) {
     const audience = props.audience ?? 'brand';
     return (
-      <div className="glass-card p-6">
+      <div className="glass-card !rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-text-primary">
             {audience === 'hunter' ? "What you'll need to pass" : 'Auto-verification preview'}
@@ -373,11 +393,11 @@ export function VerificationReportPanel(props: VerificationReportPanelProps) {
   );
 
   return (
-    <div className="glass-card p-6">
+    <div className="glass-card !rounded-xl p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-text-primary">Verification Report</h3>
         {!inFlight && (
-          <span className="text-xs text-text-muted">
+          <span className="text-xs text-text-muted font-mono tabular-nums">
             {urlScrapes.filter((u) => u.scrapeStatus === 'VERIFIED').length} of {urlScrapes.length} verified
           </span>
         )}
@@ -385,7 +405,12 @@ export function VerificationReportPanel(props: VerificationReportPanelProps) {
 
       {inFlight ? (
         <div className="flex flex-col items-center justify-center py-10 text-center">
-          <i className="pi pi-spinner pi-spin text-3xl text-accent-cyan mb-3" aria-hidden="true" />
+          <Loader2
+            size={30}
+            strokeWidth={2}
+            className="animate-spin text-pink-600 mb-3"
+            aria-hidden="true"
+          />
           <p className="text-text-primary font-medium">Verifying social posts...</p>
           <p className="text-text-muted text-sm mt-1">
             Check back in ~30s — Apify is scraping each URL.

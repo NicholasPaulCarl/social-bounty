@@ -15,6 +15,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { useToast } from '@/hooks/useToast';
 import { formatCents, formatDateTime } from '@/lib/utils/format';
 import { csvFilename, saveBlob } from '@/lib/utils/download';
+import { Download, RefreshCw } from 'lucide-react';
 
 const STATUS_SEVERITY: Record<string, 'success' | 'warning' | 'danger' | 'info' | undefined> = {
   CREATED: 'info',
@@ -55,12 +56,12 @@ export default function InboundFundingPage() {
           <div className="flex gap-2">
             <Button
               label="Download CSV"
-              icon="pi pi-download"
+              icon={<Download size={16} strokeWidth={2} />}
               outlined
               loading={downloading}
               onClick={handleDownload}
             />
-            <Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />
+            <Button label="Refresh" icon={<RefreshCw size={16} strokeWidth={2} />} outlined onClick={() => refetch()} />
           </div>
         }
       />
@@ -83,12 +84,12 @@ export default function InboundFundingPage() {
           <Column
             field="amountCents"
             header="Amount"
-            body={(r) => <span className="font-mono">{formatCents(r.amountCents, r.currency)}</span>}
+            body={(r) => <span className="font-mono tabular-nums">{formatCents(r.amountCents, r.currency)}</span>}
           />
           <Column
             field="merchantReference"
             header="merchantReference"
-            body={(r) => <span className="font-mono text-xs">{r.merchantReference}</span>}
+            body={(r) => <span className="font-mono tabular-nums text-xs">{r.merchantReference}</span>}
           />
           <Column
             field="stitchPaymentId"
@@ -97,7 +98,7 @@ export default function InboundFundingPage() {
               <span className="font-mono text-xs">{r.stitchPaymentId ?? '—'}</span>
             )}
           />
-          <Column field="createdAt" header="Created" body={(r) => formatDateTime(r.createdAt)} />
+          <Column field="createdAt" header="Created" body={(r) => <span className="font-mono tabular-nums">{formatDateTime(r.createdAt)}</span>} />
         </DataTable>
       </Card>
     </>

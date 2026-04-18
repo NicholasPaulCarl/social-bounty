@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { InputText } from 'primereact/inputtext';
 import { InputSwitch } from 'primereact/inputswitch';
+import { AlertCircle, ArrowRight, Loader2, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
@@ -66,7 +67,7 @@ export default function SignupPage() {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        setError('Something went wrong. Try again.');
       }
     } finally {
       setLoading(false);
@@ -102,7 +103,7 @@ export default function SignupPage() {
         }
         setError(err.message);
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        setError('Something went wrong. Try again.');
       }
     } finally {
       setLoading(false);
@@ -119,7 +120,7 @@ export default function SignupPage() {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError('Failed to resend code. Please try again.');
+        setError('Couldn\u2019t resend the code. Try again.');
       }
     }
   }, [cooldown, form.email]);
@@ -132,14 +133,15 @@ export default function SignupPage() {
 
   return (
     <div className="glass-card p-8 animate-fade-up">
+      <p className="eyebrow text-center mb-2">Get started</p>
       <h2 className="text-2xl font-heading font-bold text-text-primary text-center mb-6">
-        Create Account
+        Create your account
       </h2>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 text-sm text-accent-rose">
-          <i className="pi pi-exclamation-circle mr-2" />
-          {error}
+        <div className="mb-4 rounded-lg border border-danger-600/30 bg-danger-600/10 px-4 py-3 text-sm text-danger-600 flex items-start gap-2">
+          <AlertCircle size={18} strokeWidth={2} className="flex-none mt-0.5" />
+          <span>{error}</span>
         </div>
       )}
 
@@ -151,7 +153,7 @@ export default function SignupPage() {
                 htmlFor="firstName"
                 className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
               >
-                First Name
+                First name
               </label>
               <InputText
                 id="firstName"
@@ -161,7 +163,7 @@ export default function SignupPage() {
                 className={`w-full ${fieldErrors.firstName ? 'p-invalid' : ''}`}
               />
               {fieldErrors.firstName && (
-                <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.firstName}</small>
+                <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.firstName}</small>
               )}
             </div>
             <div>
@@ -169,7 +171,7 @@ export default function SignupPage() {
                 htmlFor="lastName"
                 className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
               >
-                Last Name
+                Last name
               </label>
               <InputText
                 id="lastName"
@@ -179,7 +181,7 @@ export default function SignupPage() {
                 className={`w-full ${fieldErrors.lastName ? 'p-invalid' : ''}`}
               />
               {fieldErrors.lastName && (
-                <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.lastName}</small>
+                <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.lastName}</small>
               )}
             </div>
           </div>
@@ -201,14 +203,14 @@ export default function SignupPage() {
               placeholder="you@example.com"
             />
             {fieldErrors.email && (
-              <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.email}</small>
+              <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.email}</small>
             )}
           </div>
 
           {/* Register as Brand toggle */}
           <div className="flex items-center justify-between py-2 px-3 rounded-lg border border-glass-border bg-glass-bg/50">
             <div>
-              <p className="text-sm font-medium text-text-primary">Register as a Brand</p>
+              <p className="text-sm font-medium text-text-primary">Register as a brand</p>
               <p className="text-xs text-text-muted">Create a brand profile to post bounties</p>
             </div>
             <InputSwitch
@@ -218,13 +220,13 @@ export default function SignupPage() {
           </div>
 
           {form.registerAsBrand && (
-            <div className="space-y-4 p-4 rounded-lg border border-accent-cyan/20 bg-accent-cyan/5">
+            <div className="space-y-4 p-4 rounded-lg border border-pink-600/20 bg-pink-600/5">
               <div>
                 <label
                   htmlFor="brandName"
                   className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
                 >
-                  Brand Name
+                  Brand name
                 </label>
                 <InputText
                   id="brandName"
@@ -235,7 +237,7 @@ export default function SignupPage() {
                   placeholder="Your brand name"
                 />
                 {fieldErrors.brandName && (
-                  <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.brandName}</small>
+                  <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.brandName}</small>
                 )}
               </div>
               <div>
@@ -243,7 +245,7 @@ export default function SignupPage() {
                   htmlFor="brandContactEmail"
                   className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
                 >
-                  Brand Contact Email
+                  Brand contact email
                 </label>
                 <InputText
                   id="brandContactEmail"
@@ -255,7 +257,7 @@ export default function SignupPage() {
                   placeholder="brand@example.com"
                 />
                 {fieldErrors.brandContactEmail && (
-                  <small className="text-accent-rose text-xs mt-1 block">{fieldErrors.brandContactEmail}</small>
+                  <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.brandContactEmail}</small>
                 )}
               </div>
             </div>
@@ -264,16 +266,12 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white
-                       bg-gradient-to-r from-accent-cyan to-accent-blue
-                       shadow-glow-cyan hover:shadow-glow-cyan-intense
-                       transition-all duration-normal
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary btn-lg w-full rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <i className="pi pi-spinner pi-spin" />
+              <Loader2 size={18} strokeWidth={2} className="animate-spin" />
             ) : (
-              <i className="pi pi-arrow-right" />
+              <ArrowRight size={18} strokeWidth={2} />
             )}
             Continue
           </button>
@@ -289,7 +287,7 @@ export default function SignupPage() {
               htmlFor="otp"
               className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
             >
-              Verification Code
+              Verification code
             </label>
             <InputText
               id="otp"
@@ -298,7 +296,7 @@ export default function SignupPage() {
               onChange={(e) => setOtp(e.target.value)}
               required
               maxLength={6}
-              className="w-full text-center text-lg tracking-[0.3em]"
+              className="w-full text-center font-mono tabular-nums text-lg tracking-[0.3em]"
               placeholder="000000"
               autoFocus
             />
@@ -307,35 +305,31 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading || otp.length < 6}
-            className="group relative w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white
-                       bg-gradient-to-r from-accent-cyan to-accent-blue
-                       shadow-glow-cyan hover:shadow-glow-cyan-intense
-                       transition-all duration-normal
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary btn-lg w-full rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <i className="pi pi-spinner pi-spin" />
+              <Loader2 size={18} strokeWidth={2} className="animate-spin" />
             ) : (
-              <i className="pi pi-user-plus" />
+              <UserPlus size={18} strokeWidth={2} />
             )}
-            Create Account
+            Create account
           </button>
 
           <div className="flex items-center justify-between text-sm">
             <button
               type="button"
               onClick={handleChangeEmail}
-              className="text-accent-cyan hover:text-accent-cyan/80 transition-colors duration-fast"
+              className="text-pink-600 hover:text-pink-700 transition-colors duration-fast"
             >
-              Use different email
+              Use a different email
             </button>
             {cooldown > 0 ? (
-              <span className="text-text-muted">Resend in {cooldown}s</span>
+              <span className="text-text-muted font-mono tabular-nums">Resend in {cooldown}s</span>
             ) : (
               <button
                 type="button"
                 onClick={handleResend}
-                className="text-accent-cyan hover:text-accent-cyan/80 transition-colors duration-fast"
+                className="text-pink-600 hover:text-pink-700 transition-colors duration-fast"
               >
                 Resend code
               </button>
@@ -346,8 +340,8 @@ export default function SignupPage() {
 
       <p className="text-sm text-text-muted text-center mt-6">
         Already have an account?{' '}
-        <Link href="/login" className="text-accent-cyan hover:text-accent-cyan/80 font-medium transition-colors duration-fast">
-          Sign In
+        <Link href="/login" className="text-pink-600 hover:text-pink-700 font-medium transition-colors duration-fast">
+          Log in
         </Link>
       </p>
     </div>

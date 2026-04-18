@@ -5,6 +5,7 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { Dialog } from 'primereact/dialog';
+import { CheckCircle2, AlertCircle, Lock, Save, Send, Check } from 'lucide-react';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -153,12 +154,12 @@ export default function BusinessProfilePage() {
               <div className="flex items-center gap-2">
                 <InputText id="email" value={profile.email || ''} disabled className="w-full" />
                 {profile.emailVerified ? (
-                  <span className="text-accent-emerald text-xs flex items-center gap-1 whitespace-nowrap">
-                    <i className="pi pi-check-circle text-xs" /> Verified
+                  <span className="text-success-600 text-xs flex items-center gap-1 whitespace-nowrap">
+                    <CheckCircle2 size={14} strokeWidth={2} /> Verified
                   </span>
                 ) : (
-                  <span className="text-accent-amber text-xs flex items-center gap-1 whitespace-nowrap">
-                    <i className="pi pi-exclamation-circle text-xs" /> Unverified
+                  <span className="text-warning-600 text-xs flex items-center gap-1 whitespace-nowrap">
+                    <AlertCircle size={14} strokeWidth={2} /> Unverified
                   </span>
                 )}
                 <Button
@@ -172,9 +173,9 @@ export default function BusinessProfilePage() {
 
             <div className="flex justify-end pt-2">
               <Button
-                label="Save Changes"
+                label="Save changes"
                 type="submit"
-                icon="pi pi-save"
+                icon={<Save size={16} strokeWidth={2} />}
                 loading={updateProfile.isPending}
               />
             </div>
@@ -194,7 +195,7 @@ export default function BusinessProfilePage() {
               Authentication Method
             </p>
             <p className="text-text-primary text-sm font-medium flex items-center gap-2">
-              <i className="pi pi-lock text-accent-emerald text-xs" />
+              <Lock size={14} strokeWidth={2} className="text-success-600" />
               Email OTP (one-time passcode)
             </p>
           </div>
@@ -233,8 +234,8 @@ export default function BusinessProfilePage() {
               <div className="flex justify-end gap-2 pt-2">
                 <Button label="Cancel" outlined severity="secondary" onClick={() => setShowEmailDialog(false)} />
                 <Button
-                  label="Send Code"
-                  icon="pi pi-send"
+                  label="Send code"
+                  icon={<Send size={16} strokeWidth={2} />}
                   loading={emailLoading}
                   onClick={handleRequestEmailChange}
                 />
@@ -268,8 +269,8 @@ export default function BusinessProfilePage() {
                 <div className="flex gap-2">
                   <Button label="Cancel" outlined severity="secondary" onClick={() => setShowEmailDialog(false)} />
                   <Button
-                    label="Verify & Update"
-                    icon="pi pi-check"
+                    label="Verify & update"
+                    icon={<Check size={16} strokeWidth={2} />}
                     loading={emailLoading}
                     onClick={handleVerifyEmailChange}
                   />

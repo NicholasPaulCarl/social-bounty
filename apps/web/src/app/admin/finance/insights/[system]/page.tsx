@@ -13,6 +13,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageHeader } from '@/components/common/PageHeader';
 import { formatDateTime } from '@/lib/utils/format';
+import { ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react';
 import type { KbSystemIssueRow } from '@social-bounty/shared';
 
 // Mirror the exceptions page severity mapping so visual language is consistent.
@@ -41,18 +42,18 @@ export default function KbSystemInsightsPage() {
       <div className="mb-4">
         <Link
           href="/admin/finance/insights"
-          className="text-sm text-accent-cyan hover:text-accent-cyan/80 inline-flex items-center gap-1"
+          className="text-sm text-pink-600 hover:text-pink-700 inline-flex items-center gap-1"
         >
-          <i className="pi pi-arrow-left text-xs" />
-          Back to Insights
+          <ArrowLeft size={14} strokeWidth={2} />
+          Back to insights
         </Link>
       </div>
 
       <PageHeader
-        title={`KB Drill-down · ${system}`}
+        title={`KB drill-down · ${system}`}
         subtitle="All RecurringIssue rows filed against this system, most recent first."
         actions={
-          <Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />
+          <Button label="Refresh" icon={<RefreshCw size={16} strokeWidth={2} />} outlined onClick={() => refetch()} />
         }
       />
 
@@ -87,10 +88,10 @@ export default function KbSystemInsightsPage() {
             />
             <Column field="category" header="Category" />
             <Column field="signature" header="Signature" body={(r: KbSystemIssueRow) => (
-              <span className="font-mono text-xs break-all">{r.signature}</span>
+              <span className="font-mono tabular-nums text-xs break-all">{r.signature}</span>
             )} />
             <Column field="title" header="Title" />
-            <Column field="occurrences" header="Hits" />
+            <Column field="occurrences" header="Hits" body={(r: KbSystemIssueRow) => <span className="font-mono tabular-nums">{r.occurrences}</span>} />
             <Column
               field="ineffectiveFix"
               header="Flags"
@@ -98,7 +99,7 @@ export default function KbSystemInsightsPage() {
                 r.ineffectiveFix ? (
                   <Tag
                     severity="danger"
-                    icon="pi pi-exclamation-triangle"
+                    icon={<AlertTriangle size={12} strokeWidth={2} />}
                     value="Ineffective fix"
                   />
                 ) : null
@@ -118,19 +119,19 @@ export default function KbSystemInsightsPage() {
             <Column
               field="firstSeenAt"
               header="First seen"
-              body={(r: KbSystemIssueRow) => formatDateTime(r.firstSeenAt)}
+              body={(r: KbSystemIssueRow) => <span className="font-mono tabular-nums">{formatDateTime(r.firstSeenAt)}</span>}
             />
             <Column
               field="lastSeenAt"
               header="Last seen"
-              body={(r: KbSystemIssueRow) => formatDateTime(r.lastSeenAt)}
+              body={(r: KbSystemIssueRow) => <span className="font-mono tabular-nums">{formatDateTime(r.lastSeenAt)}</span>}
             />
             <Column
               field="kbEntryRef"
               header="KB ref"
               body={(r: KbSystemIssueRow) =>
                 r.kbEntryRef ? (
-                  <span className="font-mono text-xs">{r.kbEntryRef}</span>
+                  <span className="font-mono tabular-nums text-xs">{r.kbEntryRef}</span>
                 ) : (
                   <span className="text-text-muted">—</span>
                 )

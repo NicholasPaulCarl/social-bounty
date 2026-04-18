@@ -8,6 +8,7 @@ import { OverrideModal } from '@/components/common/OverrideModal';
 import { BountyCard } from '@/components/features/bounty/BountyCard';
 import { BountyFilters } from '@/components/features/bounty/BountyFilters';
 import { BountyAccessType, type BountyListItem, type BountyListParams } from '@social-bounty/shared';
+import { Trash2, Zap } from 'lucide-react';
 
 const MOCK_BOUNTIES: BountyListItem[] = [
   {
@@ -81,7 +82,7 @@ export default function OrganismsSection() {
           { name: 'confirmSeverity', type: "'danger' | 'warning' | 'success'", default: "'danger'", description: 'Button color' },
         ]}
       >
-        <Button label="Open ConfirmAction" icon="pi pi-trash" severity="danger" onClick={() => setConfirmVisible(true)} />
+        <Button label="Open ConfirmAction" icon={<Trash2 size={16} strokeWidth={2} />} severity="danger" onClick={() => setConfirmVisible(true)} />
         <ConfirmAction
           visible={confirmVisible}
           onHide={() => setConfirmVisible(false)}
@@ -107,7 +108,7 @@ export default function OrganismsSection() {
           { name: 'onOverride', type: '(newStatus, reason) => void', default: '—', required: true, description: 'Override handler' },
         ]}
       >
-        <Button label="Open OverrideModal" icon="pi pi-bolt" severity="warning" onClick={() => setOverrideVisible(true)} />
+        <Button label="Open OverrideModal" icon={<Zap size={16} strokeWidth={2} />} severity="warning" onClick={() => setOverrideVisible(true)} />
         <OverrideModal
           visible={overrideVisible}
           onHide={() => setOverrideVisible(false)}

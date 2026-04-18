@@ -48,8 +48,12 @@ describe('Navigation', () => {
 
       it('should have icons on all items', () => {
         items.forEach(item => {
-          expect(item.icon).toBeDefined();
-          expect(item.icon.length).toBeGreaterThan(0);
+          // Icon is a Lucide React component (LucideIcon). Lucide 1.x exports
+          // icons as React.forwardRef objects (typeof === 'object'), not plain
+          // functions, so we accept both to stay runtime-correct.
+          expect(item.Icon).toBeDefined();
+          expect(item.Icon).not.toBeNull();
+          expect(['function', 'object']).toContain(typeof item.Icon);
         });
       });
     });

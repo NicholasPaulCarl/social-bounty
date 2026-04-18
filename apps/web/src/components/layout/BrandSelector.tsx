@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Menu } from 'primereact/menu';
 import type { MenuItem } from 'primereact/menuitem';
+import { Building2, Settings, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMyBrands } from '@/hooks/useBrand';
 import { useToast } from '@/hooks/useToast';
@@ -28,7 +29,7 @@ export function BrandSelector() {
         .filter((b) => b.id !== user?.brandId)
         .map((b) => ({
           label: b.name,
-          icon: 'pi pi-building',
+          icon: () => <Building2 size={16} strokeWidth={2} className="mr-2 shrink-0" />,
           command: async () => {
             try {
               await switchBrand(b.id);
@@ -42,7 +43,7 @@ export function BrandSelector() {
     { separator: true },
     {
       label: 'Manage Brands',
-      icon: 'pi pi-cog',
+      icon: () => <Settings size={16} strokeWidth={2} className="mr-2 shrink-0" />,
       command: () => router.push('/business/brands'),
     },
   ];
@@ -51,7 +52,7 @@ export function BrandSelector() {
     <div className="px-3 mb-2">
       <Menu model={menuItems} popup ref={menuRef} />
       <button
-        className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-accent-cyan/5 border border-accent-cyan/20 hover:bg-accent-cyan/10 transition-colors text-left"
+        className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-pink-600/5 border border-pink-600/20 hover:bg-pink-600/10 transition-colors text-left"
         onClick={(e) => menuRef.current?.toggle(e)}
       >
         {activeBrand?.logo ? (
@@ -64,14 +65,14 @@ export function BrandSelector() {
             />
           </div>
         ) : (
-          <div className="w-7 h-7 rounded bg-accent-cyan/20 text-accent-cyan flex items-center justify-center text-xs font-bold shrink-0">
+          <div className="w-7 h-7 rounded bg-pink-600/20 text-pink-600 flex items-center justify-center text-xs font-bold shrink-0">
             {activeBrand?.name.charAt(0).toUpperCase() || '?'}
           </div>
         )}
         <span className="text-sm font-medium text-text-primary truncate flex-1">
           {activeBrand?.name || 'Select Brand'}
         </span>
-        <i className="pi pi-chevron-down text-xs text-text-muted" />
+        <ChevronDown size={14} strokeWidth={2} className="text-text-muted shrink-0" />
       </button>
     </div>
   );

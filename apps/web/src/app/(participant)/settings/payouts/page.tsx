@@ -9,6 +9,7 @@ import { Message } from 'primereact/message';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
+import { Check, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import { payoutsApi } from '@/lib/api/payouts';
 import { useMyPayouts } from '@/hooks/usePayouts';
@@ -167,8 +168,8 @@ export default function ParticipantPayoutsPage() {
           <div className="md:col-span-2 flex justify-end mt-2">
             <Button
               type="submit"
-              label="Save banking details"
-              icon="pi pi-check"
+              label="Save"
+              icon={<Check size={16} strokeWidth={2} />}
               disabled={!valid}
               loading={submitting}
             />
@@ -181,12 +182,12 @@ export default function ParticipantPayoutsPage() {
           <div>
             <h2 className="text-lg font-semibold">Payout history</h2>
             <p className="text-sm text-text-muted">
-              Payouts run every 10 minutes against your cleared earnings.
+              Payouts run every 10 minutes against cleared earnings.
             </p>
           </div>
           <Button
             label="Refresh"
-            icon="pi pi-refresh"
+            icon={<RefreshCw size={14} strokeWidth={2} />}
             outlined
             size="small"
             onClick={() => payouts.refetch()}
@@ -217,7 +218,7 @@ export default function ParticipantPayoutsPage() {
               field="amountCents"
               header="Amount"
               body={(r: HunterPayoutRow) => (
-                <span className="font-mono">{formatCents(r.amountCents, r.currency)}</span>
+                <span className="font-mono tabular-nums">{formatCents(r.amountCents, r.currency)}</span>
               )}
             />
             <Column
@@ -232,7 +233,13 @@ export default function ParticipantPayoutsPage() {
                 r.lastAttemptAt ? formatDateTime(r.lastAttemptAt) : '—'
               }
             />
-            <Column field="attempts" header="Attempts" />
+            <Column
+              field="attempts"
+              header="Attempts"
+              body={(r: HunterPayoutRow) => (
+                <span className="font-mono tabular-nums">{r.attempts}</span>
+              )}
+            />
             <Column
               field="lastError"
               header="Last error"
@@ -255,7 +262,7 @@ export default function ParticipantPayoutsPage() {
               body={(r: HunterPayoutRow) =>
                 r.stitchPayoutId ? (
                   <span
-                    className="font-mono text-xs"
+                    className="font-mono tabular-nums text-xs"
                     title={r.stitchPayoutId}
                   >
                     {truncate(r.stitchPayoutId, 14)}

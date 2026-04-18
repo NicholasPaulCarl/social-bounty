@@ -12,15 +12,16 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { formatCurrency, formatDateTime } from '@/lib/utils/format';
+import { AlertTriangle, Check, Pencil } from 'lucide-react';
 import { WalletTxType } from '@social-bounty/shared';
 import type { WalletTransactionListItem } from '@social-bounty/shared';
 
 const TYPE_CONFIG: Record<WalletTxType, { label: string; className: string }> = {
-  [WalletTxType.CREDIT]: { label: 'Credit', className: 'bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30' },
-  [WalletTxType.DEBIT]: { label: 'Debit', className: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30' },
-  [WalletTxType.HOLD]: { label: 'Hold', className: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30' },
-  [WalletTxType.RELEASE]: { label: 'Release', className: 'bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/30' },
-  [WalletTxType.CORRECTION]: { label: 'Correction', className: 'bg-accent-violet/10 text-accent-violet border border-accent-violet/30' },
+  [WalletTxType.CREDIT]: { label: 'Credit', className: 'bg-success-600/10 text-success-600 border border-success-600/30' },
+  [WalletTxType.DEBIT]: { label: 'Debit', className: 'bg-danger-600/10 text-danger-600 border border-danger-600/30' },
+  [WalletTxType.HOLD]: { label: 'Hold', className: 'bg-warning-600/10 text-warning-600 border border-warning-600/30' },
+  [WalletTxType.RELEASE]: { label: 'Release', className: 'bg-pink-600/10 text-pink-600 border border-pink-600/30' },
+  [WalletTxType.CORRECTION]: { label: 'Correction', className: 'bg-slate-100 text-slate-700 border border-slate-200' },
 };
 
 interface Props {
@@ -75,7 +76,7 @@ export default function AdminWalletDetailPage({ params }: Props) {
   const amountTemplate = (row: WalletTransactionListItem) => {
     const isCredit = row.type === WalletTxType.CREDIT || row.type === WalletTxType.RELEASE;
     return (
-      <span className={`font-semibold text-sm ${isCredit ? 'text-accent-emerald' : 'text-accent-rose'}`}>
+      <span className={`font-semibold text-sm ${isCredit ? 'text-success-600' : 'text-danger-600'}`}>
         {isCredit ? '+' : '-'}{formatCurrency(row.amount, currency)}
       </span>
     );
@@ -91,21 +92,21 @@ export default function AdminWalletDetailPage({ params }: Props) {
 
       {/* Balance cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="glass-card p-5 border border-accent-emerald/30">
-          <p className="text-xs text-text-muted mb-1">Available</p>
-          <p className="text-2xl font-bold text-accent-emerald">{formatCurrency(balance.available, currency)}</p>
+        <div className="glass-card p-5 rounded-xl border border-success-600/30">
+          <p className="eyebrow">Available</p>
+          <p className="font-mono tabular-nums text-2xl font-bold text-success-600">{formatCurrency(balance.available, currency)}</p>
         </div>
-        <div className="glass-card p-5">
-          <p className="text-xs text-text-muted mb-1">Pending</p>
-          <p className="text-2xl font-bold text-accent-amber">{formatCurrency(balance.pending, currency)}</p>
+        <div className="glass-card p-5 rounded-xl">
+          <p className="eyebrow">Pending</p>
+          <p className="font-mono tabular-nums text-2xl font-bold text-warning-600">{formatCurrency(balance.pending, currency)}</p>
         </div>
-        <div className="glass-card p-5">
-          <p className="text-xs text-text-muted mb-1">Total Earned</p>
-          <p className="text-2xl font-bold text-accent-violet">{formatCurrency(balance.totalEarned, currency)}</p>
+        <div className="glass-card p-5 rounded-xl">
+          <p className="eyebrow">Total earned</p>
+          <p className="font-mono tabular-nums text-2xl font-bold text-pink-600">{formatCurrency(balance.totalEarned, currency)}</p>
         </div>
-        <div className="glass-card p-5">
-          <p className="text-xs text-text-muted mb-1">Total Withdrawn</p>
-          <p className="text-2xl font-bold text-accent-blue">{formatCurrency(balance.totalWithdrawn, currency)}</p>
+        <div className="glass-card p-5 rounded-xl">
+          <p className="eyebrow">Total withdrawn</p>
+          <p className="font-mono tabular-nums text-2xl font-bold text-slate-700">{formatCurrency(balance.totalWithdrawn, currency)}</p>
         </div>
       </div>
 
@@ -160,7 +161,7 @@ export default function AdminWalletDetailPage({ params }: Props) {
             <form onSubmit={handleAdjust} noValidate className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-text-secondary">
-                  Amount <span className="text-accent-rose">*</span>
+                  Amount <span className="text-danger-600">*</span>
                 </label>
                 <InputNumber
                   value={adjAmount}
@@ -177,7 +178,7 @@ export default function AdminWalletDetailPage({ params }: Props) {
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-text-secondary">
-                  Reason <span className="text-accent-rose">*</span>
+                  Reason <span className="text-danger-600">*</span>
                 </label>
                 <InputTextarea
                   value={adjReason}
@@ -190,22 +191,22 @@ export default function AdminWalletDetailPage({ params }: Props) {
               </div>
 
               {adjError && (
-                <div className="p-3 rounded-lg bg-accent-rose/10 border border-accent-rose/30 text-accent-rose text-sm">
-                  <i className="pi pi-exclamation-triangle mr-2" />
-                  {adjError}
+                <div className="p-3 rounded-lg bg-danger-600/10 border border-danger-600/30 text-danger-600 text-sm flex items-center gap-2">
+                  <AlertTriangle size={14} strokeWidth={2} />
+                  <span>{adjError}</span>
                 </div>
               )}
               {adjSuccess && (
-                <div className="p-3 rounded-lg bg-accent-emerald/10 border border-accent-emerald/30 text-accent-emerald text-sm">
-                  <i className="pi pi-check mr-2" />
-                  {adjSuccess}
+                <div className="p-3 rounded-lg bg-success-600/10 border border-success-600/30 text-success-600 text-sm flex items-center gap-2">
+                  <Check size={14} strokeWidth={2} />
+                  <span>{adjSuccess}</span>
                 </div>
               )}
 
               <Button
                 type="submit"
-                label="Apply Adjustment"
-                icon="pi pi-pencil"
+                label="Apply adjustment"
+                icon={<Pencil size={16} strokeWidth={2} />}
                 className="w-full"
                 loading={isAdjusting}
               />

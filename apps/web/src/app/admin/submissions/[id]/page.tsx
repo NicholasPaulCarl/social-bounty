@@ -15,6 +15,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { OverrideModal } from '@/components/common/OverrideModal';
 import { formatDateTime, formatEnumLabel } from '@/lib/utils/format';
+import { AlertTriangle, DollarSign, EyeOff } from 'lucide-react';
 
 const submissionStatusOptions = [
   { label: 'Submitted', value: 'SUBMITTED' },
@@ -87,8 +88,8 @@ export default function AdminSubmissionDetailPage() {
         breadcrumbs={breadcrumbs}
         actions={
           <div className="flex gap-2">
-            <Button label="Override Status" icon="pi pi-exclamation-triangle" severity="warning" onClick={() => setShowSubmissionOverride(true)} />
-            <Button label="Override Payout" icon="pi pi-dollar" severity="warning" outlined onClick={() => setShowPayoutOverride(true)} />
+            <Button label="Override status" icon={<AlertTriangle size={16} strokeWidth={2} />} severity="warning" onClick={() => setShowSubmissionOverride(true)} />
+            <Button label="Override payout" icon={<DollarSign size={16} strokeWidth={2} />} severity="warning" outlined onClick={() => setShowPayoutOverride(true)} />
           </div>
         }
       />
@@ -201,10 +202,10 @@ export default function AdminSubmissionDetailPage() {
             check is a sufficient role-and-data guard for this surface.
           */}
           {(submission.consecutiveVisibilityFailures ?? 0) > 0 && (
-            <div className="glass-card p-6 border border-accent-rose/30">
+            <div className="glass-card p-6 border border-danger-600/30">
               <div className="flex items-start justify-between mb-4 gap-3">
                 <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-                  <i className="pi pi-eye-slash text-accent-rose" aria-hidden="true" />
+                  <EyeOff size={18} strokeWidth={2} className="text-danger-600" aria-hidden="true" />
                   Visibility check status
                 </h3>
                 <Tag
@@ -219,7 +220,7 @@ export default function AdminSubmissionDetailPage() {
               <dl className="space-y-3">
                 <div>
                   <dt className="text-sm text-text-muted">Approved at</dt>
-                  <dd className="text-sm font-medium text-text-primary">
+                  <dd className="text-sm font-medium text-text-primary font-mono tabular-nums">
                     {submission.approvedAt
                       ? formatDateTime(submission.approvedAt)
                       : '—'}
@@ -227,17 +228,16 @@ export default function AdminSubmissionDetailPage() {
                 </div>
                 <div>
                   <dt className="text-sm text-text-muted">Last visibility check</dt>
-                  <dd className="text-sm font-medium text-text-primary">
+                  <dd className="text-sm font-medium text-text-primary font-mono tabular-nums">
                     {submission.lastVisibilityCheckAt
                       ? formatDateTime(submission.lastVisibilityCheckAt)
                       : '—'}
                   </dd>
                 </div>
                 {(submission.consecutiveVisibilityFailures ?? 0) >= 2 && (
-                  <div className="bg-accent-rose/10 border border-accent-rose/30 text-accent-rose text-xs px-3 py-2 rounded-lg">
-                    <i className="pi pi-exclamation-triangle mr-1.5" />
-                    Threshold reached — auto-refund will be issued by the
-                    next visibility scheduler tick (ADR 0010).
+                  <div className="bg-danger-600/10 border border-danger-600/30 text-danger-600 text-xs px-3 py-2 rounded-lg flex items-start gap-1.5">
+                    <AlertTriangle size={12} strokeWidth={2} className="mt-0.5 flex-shrink-0" />
+                    <span>Threshold reached — auto-refund will be issued by the next visibility scheduler tick (ADR 0010).</span>
                   </div>
                 )}
               </dl>

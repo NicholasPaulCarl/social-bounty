@@ -83,7 +83,7 @@ export default function BrowseBountiesPage() {
   return (
     <>
       <PageHeader
-        title="Browse Bounties"
+        title="Browse bounties"
         subtitle="Find bounties and earn rewards"
         pills={{
           items: categories,
@@ -130,7 +130,7 @@ export default function BrowseBountiesPage() {
             icon="pi-search"
             title="No bounties in sight"
             message="Fresh hunts get added daily — adjust your filters or check back soon."
-            ctaLabel="Clear Filters"
+            ctaLabel="Clear filters"
             ctaAction={() => {
               setFilters({ page: 1, limit, status: BountyStatus.LIVE });
               setSelectedCategory('all');
@@ -164,7 +164,11 @@ export default function BrowseBountiesPage() {
                   <Column field="category" header="Category" />
                   <Column
                     header="Reward"
-                    body={(row: BountyListItem) => row.rewardValue ? formatCurrency(row.rewardValue, row.currency) : '-'}
+                    body={(row: BountyListItem) => (
+                      <span className="font-mono tabular-nums">
+                        {row.rewardValue ? formatCurrency(row.rewardValue, row.currency) : '-'}
+                      </span>
+                    )}
                   />
                   <Column
                     header="Deadline"

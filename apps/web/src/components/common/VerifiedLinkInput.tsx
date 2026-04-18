@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { InputText } from 'primereact/inputtext';
+import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 
 type VerifyStatus = 'idle' | 'verifying' | 'valid' | 'invalid';
 
@@ -86,13 +87,13 @@ export function VerifiedLinkInput({
       {/* Status icon inside the input */}
       <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
         {status === 'verifying' && (
-          <i className="pi pi-spinner pi-spin text-accent-cyan text-sm" />
+          <Loader2 size={16} strokeWidth={2} className="text-pink-600 animate-spin" />
         )}
         {status === 'valid' && (
-          <i className="pi pi-check-circle text-accent-emerald text-sm" />
+          <CheckCircle2 size={16} strokeWidth={2} className="text-success-600" />
         )}
         {status === 'invalid' && (
-          <i className="pi pi-times-circle text-accent-rose text-sm" />
+          <XCircle size={16} strokeWidth={2} className="text-danger-600" />
         )}
       </div>
     </div>

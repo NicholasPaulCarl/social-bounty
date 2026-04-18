@@ -14,6 +14,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDate } from '@/lib/utils/format';
+import { Eye } from 'lucide-react';
 import type { AdminUserListItem, AdminUserListParams } from '@social-bounty/shared';
 
 const roleOptions = [
@@ -48,17 +49,17 @@ export default function AdminUsersPage() {
   );
 
   const dateTemplate = (rowData: AdminUserListItem) => (
-    <span className="text-text-secondary">{formatDate(rowData.createdAt)}</span>
+    <span className="text-text-secondary font-mono tabular-nums">{formatDate(rowData.createdAt)}</span>
   );
 
   const actionsTemplate = (rowData: AdminUserListItem) => (
     <Button
-      icon="pi pi-eye"
+      icon={<Eye size={18} strokeWidth={2} />}
       rounded
       text
-      severity="info"
+      severity="secondary"
       onClick={() => router.push(`/admin/users/${rowData.id}`)}
-      tooltip="View Details"
+      tooltip="View details"
     />
   );
 

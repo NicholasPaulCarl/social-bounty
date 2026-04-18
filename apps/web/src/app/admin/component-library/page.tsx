@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Star, Palette, Circle, LayoutGrid, Network, List, Crown } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LibrarySidebar } from './_components/LibrarySidebar';
 import DesignTokensSection from './_components/sections/DesignTokensSection';
@@ -45,11 +46,11 @@ export default function ComponentLibraryPage() {
   return (
     <div>
       <PageHeader
-        title="Component Library"
-        subtitle="NeoGlass Design System — Atomic Design Reference"
+        title="Component library"
+        subtitle="Social Bounty design system — canonical tokens + component reference"
         breadcrumbs={[
           { label: 'Dashboard', url: '/admin/dashboard' },
-          { label: 'Component Library' },
+          { label: 'Component library' },
         ]}
       />
 
@@ -59,23 +60,23 @@ export default function ComponentLibraryPage() {
         <main className="flex-1 min-w-0 animate-fade-up">
           <section id="brand" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-star text-accent-amber" />
-              Brand Guidelines
+              <Star size={20} strokeWidth={2} className="text-pink-600" />
+              Brand guidelines
             </h2>
             <BrandSection />
           </section>
 
           <section id="design-tokens" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-palette text-accent-cyan" />
-              Design Tokens
+              <Palette size={20} strokeWidth={2} className="text-pink-600" />
+              Design tokens
             </h2>
             <DesignTokensSection />
           </section>
 
           <section id="atoms" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-circle text-accent-cyan" />
+              <Circle size={20} strokeWidth={2} className="text-pink-600" />
               Atoms
             </h2>
             <AtomsSection />
@@ -83,7 +84,7 @@ export default function ComponentLibraryPage() {
 
           <section id="molecules" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-th-large text-accent-cyan" />
+              <LayoutGrid size={20} strokeWidth={2} className="text-pink-600" />
               Molecules
             </h2>
             <MoleculesSection />
@@ -91,7 +92,7 @@ export default function ComponentLibraryPage() {
 
           <section id="organisms" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-sitemap text-accent-cyan" />
+              <Network size={20} strokeWidth={2} className="text-pink-600" />
               Organisms
             </h2>
             <OrganismsSection />
@@ -99,16 +100,16 @@ export default function ComponentLibraryPage() {
 
           <section id="form-sections" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-list text-accent-cyan" />
-              Form Sections
+              <List size={20} strokeWidth={2} className="text-pink-600" />
+              Form sections
             </h2>
             <FormSectionsSection />
           </section>
 
           <section id="primereact" className="mb-16">
             <h2 className="text-xl font-heading font-bold text-text-primary mb-6 flex items-center gap-2">
-              <i className="pi pi-prime text-accent-cyan" />
-              PrimeReact Components
+              <Crown size={20} strokeWidth={2} className="text-pink-600" />
+              PrimeReact components
             </h2>
             <PrimeReactSection />
           </section>

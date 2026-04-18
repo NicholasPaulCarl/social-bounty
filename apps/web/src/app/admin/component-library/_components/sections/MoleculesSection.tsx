@@ -9,6 +9,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { VerifiedLinkInput } from '@/components/common/VerifiedLinkInput';
 import { SectionPanel } from '@/components/bounty-form/SectionPanel';
+import { Plus, Globe } from 'lucide-react';
 
 export default function MoleculesSection() {
   const [linkValue, setLinkValue] = useState('');
@@ -20,7 +21,7 @@ export default function MoleculesSection() {
         name="PageHeader"
         description="Page title with optional breadcrumbs, subtitle, and action buttons."
         importPath="import { PageHeader } from '@/components/common/PageHeader'"
-        code={`<PageHeader\n  title="Bounties"\n  subtitle="Manage all platform bounties"\n  breadcrumbs={[{ label: 'Dashboard', url: '/admin/dashboard' }, { label: 'Bounties' }]}\n  actions={<Button label="Create" icon="pi pi-plus" />}\n/>`}
+        code={`<PageHeader\n  title="Bounties"\n  subtitle="Manage all platform bounties"\n  breadcrumbs={[{ label: 'Dashboard', url: '/admin/dashboard' }, { label: 'Bounties' }]}\n  actions={<Button label="Create" icon={<Plus size={16} strokeWidth={2} />} />}\n/>`}
         props={[
           { name: 'title', type: 'string', default: '—', required: true, description: 'Page title' },
           { name: 'subtitle', type: 'string', default: '—', description: 'Description below title' },
@@ -35,7 +36,7 @@ export default function MoleculesSection() {
             { label: 'Dashboard', url: '/admin/dashboard' },
             { label: 'Bounties' },
           ]}
-          actions={<Button label="Create" icon="pi pi-plus" size="small" />}
+          actions={<Button label="Create" icon={<Plus size={14} strokeWidth={2} />} size="small" />}
         />
       </ComponentDemo>
 
@@ -156,20 +157,20 @@ export default function MoleculesSection() {
         name="SectionPanel"
         description="Numbered, collapsible form section with completion and error indicators."
         importPath="import { SectionPanel } from '@/components/bounty-form/SectionPanel'"
-        code={`<SectionPanel\n  number={1}\n  title="Channel Selection"\n  icon="pi-globe"\n  isComplete={true}\n  hasError={false}\n  helperText="Choose platforms and formats"\n>\n  <p>Form fields here</p>\n</SectionPanel>`}
+        code={`import { Globe } from 'lucide-react';\n\n<SectionPanel\n  number={1}\n  title="Channel selection"\n  Icon={Globe}\n  isComplete={true}\n  hasError={false}\n  helperText="Choose platforms and formats"\n>\n  <p>Form fields here</p>\n</SectionPanel>`}
         props={[
           { name: 'number', type: 'number', default: '—', required: true, description: 'Section number' },
           { name: 'title', type: 'string', default: '—', required: true, description: 'Section heading' },
-          { name: 'icon', type: 'string', default: '—', required: true, description: 'PrimeIcon class' },
-          { name: 'isComplete', type: 'boolean', default: '—', required: true, description: 'Shows green check when true' },
-          { name: 'hasError', type: 'boolean', default: '—', required: true, description: 'Shows red exclamation when true' },
+          { name: 'Icon', type: 'Lucide icon component', default: '—', required: true, description: 'Lucide icon — renders at 16px, strokeWidth 2, pink-600' },
+          { name: 'isComplete', type: 'boolean', default: '—', required: true, description: 'Flips the status pill to "Complete"' },
+          { name: 'hasError', type: 'boolean', default: '—', required: true, description: 'Overrides completion while errors exist' },
           { name: 'helperText', type: 'string', default: '—', description: 'Description shown below title' },
         ]}
       >
         <SectionPanel
           number={1}
-          title="Channel Selection"
-          icon="pi-globe"
+          title="Channel selection"
+          Icon={Globe}
           isComplete={true}
           hasError={false}
           helperText="Choose which social platforms and post formats are eligible."

@@ -1,9 +1,9 @@
 import { DisputeCategory, DisputeStatus } from '@social-bounty/shared';
 
 export const DISPUTE_CATEGORY_COLORS: Record<string, string> = {
-  NON_PAYMENT: 'text-accent-amber',
-  POST_QUALITY: 'text-accent-rose',
-  POST_NON_COMPLIANCE: 'text-accent-violet',
+  NON_PAYMENT: 'text-warning-600',
+  POST_QUALITY: 'text-danger-600',
+  POST_NON_COMPLIANCE: 'text-blue-600',
 };
 
 export const DISPUTE_STATUS_OPTIONS = [

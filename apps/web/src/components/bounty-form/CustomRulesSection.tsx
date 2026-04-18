@@ -2,6 +2,7 @@
 
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
+import { X, Plus } from 'lucide-react';
 import { BOUNTY_REWARD_LIMITS } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
 
@@ -28,7 +29,7 @@ export function CustomRulesSection({ customRules, dispatch, errors, submitAttemp
               maxLength={BOUNTY_REWARD_LIMITS.CUSTOM_RULE_MAX_LENGTH}
             />
             <Button
-              icon="pi pi-times"
+              icon={<X size={14} strokeWidth={2} />}
               text
               severity="danger"
               size="small"
@@ -37,8 +38,8 @@ export function CustomRulesSection({ customRules, dispatch, errors, submitAttemp
           </div>
         ))}
         <Button
-          label="Add Rule"
-          icon="pi pi-plus"
+          label="Add rule"
+          icon={<Plus size={14} strokeWidth={2} />}
           outlined
           size="small"
           disabled={customRules.length >= BOUNTY_REWARD_LIMITS.MAX_CUSTOM_ELIGIBILITY_RULES}

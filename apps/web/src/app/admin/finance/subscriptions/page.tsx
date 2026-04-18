@@ -12,6 +12,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { PageHeader } from '@/components/common/PageHeader';
 import { formatCurrency, formatDateTime } from '@/lib/utils/format';
+import { RefreshCw } from 'lucide-react';
 import type { FinanceSubscriptionRow } from '@/lib/api/finance-admin';
 
 /**
@@ -47,7 +48,7 @@ export default function FinanceSubscriptionsPage() {
       <PageHeader
         title="Subscriptions"
         subtitle="All hunter and brand subscriptions (read-only)"
-        actions={<Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />}
+        actions={<Button label="Refresh" icon={<RefreshCw size={16} strokeWidth={2} />} outlined onClick={() => refetch()} />}
       />
       <Card>
         <DataTable
@@ -96,28 +97,28 @@ export default function FinanceSubscriptionsPage() {
             field="priceAmount"
             header="Price"
             body={(r: FinanceSubscriptionRow) => (
-              <span className="font-mono">{formatCurrency(r.priceAmount, r.currency)}</span>
+              <span className="font-mono tabular-nums">{formatCurrency(r.priceAmount, r.currency)}</span>
             )}
           />
           <Column
             field="currentPeriodEnd"
             header="Period end"
             body={(r: FinanceSubscriptionRow) =>
-              r.currentPeriodEnd ? formatDateTime(r.currentPeriodEnd) : '—'
+              r.currentPeriodEnd ? <span className="font-mono tabular-nums">{formatDateTime(r.currentPeriodEnd)}</span> : '—'
             }
           />
           <Column
             field="gracePeriodEndsAt"
             header="Grace ends"
             body={(r: FinanceSubscriptionRow) =>
-              r.gracePeriodEndsAt ? formatDateTime(r.gracePeriodEndsAt) : '—'
+              r.gracePeriodEndsAt ? <span className="font-mono tabular-nums">{formatDateTime(r.gracePeriodEndsAt)}</span> : '—'
             }
           />
           <Column
             field="failedPaymentCount"
             header="Failed"
             body={(r: FinanceSubscriptionRow) => (
-              <span className={r.failedPaymentCount > 0 ? 'text-danger-600 font-semibold' : ''}>
+              <span className={`font-mono tabular-nums ${r.failedPaymentCount > 0 ? 'text-danger-600 font-semibold' : ''}`}>
                 {r.failedPaymentCount}
               </span>
             )}

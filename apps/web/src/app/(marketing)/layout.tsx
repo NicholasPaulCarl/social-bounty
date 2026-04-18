@@ -1,37 +1,58 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { Menu, X, Hash } from 'lucide-react';
+
+/* Lucide dropped Twitter/Instagram brand glyphs per their trademark policy.
+   Following ICONS.md — use tiny inline SVGs at Lucide visual weight (24×24,
+   2px strokes or currentColor fill). */
+const TwitterIcon = ({ size = 20, strokeWidth = 2 }: { size?: number; strokeWidth?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+const InstagramIcon = ({ size = 20, strokeWidth = 2 }: { size?: number; strokeWidth?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+);
 
 const NAV_LINKS = [
-  { label: 'How It Works', href: '/#how-it-works' },
-  { label: 'For Hunters', href: '/join/hunter' },
-  { label: 'For Brands', href: '/join/business' },
+  { label: 'How it works', href: '/#how-it-works' },
+  { label: 'For hunters', href: '/join/hunter' },
+  { label: 'For brands', href: '/join/business' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Contact', href: '/contact' },
 ];
 
 const FOOTER_HUNTERS = [
-  { label: 'Browse Bounties', href: '/join/hunter' },
-  { label: 'Join as Hunter', href: '/signup' },
-  { label: 'How It Works', href: '/#how-it-works' },
+  { label: 'Browse bounties', href: '/join/hunter' },
+  { label: 'Join as hunter', href: '/signup' },
+  { label: 'How it works', href: '/#how-it-works' },
 ];
 
 const FOOTER_BRANDS = [
-  { label: 'Post a Bounty', href: '/join/business' },
-  { label: 'Join as Business', href: '/signup' },
+  { label: 'Post a bounty', href: '/join/business' },
+  { label: 'Join as business', href: '/signup' },
 ];
 
 const FOOTER_COMPANY = [
   { label: 'Pricing', href: '/pricing' },
   { label: 'Contact', href: '/contact' },
-  { label: 'Privacy Policy', href: '/privacy' },
-  { label: 'Terms of Service', href: '/terms' },
+  { label: 'Privacy policy', href: '/privacy' },
+  { label: 'Terms of service', href: '/terms' },
+];
+
+const SOCIAL_ICONS: { label: string; Icon: React.ComponentType<{ size?: number; strokeWidth?: number }> }[] = [
+  { label: 'Twitter', Icon: TwitterIcon },
+  { label: 'Instagram', Icon: InstagramIcon },
+  { label: 'Hashtag', Icon: Hash },
 ];
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -60,13 +81,13 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
 
             <div className="hidden md:flex items-center gap-3">
               <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-                Log In
+                Log in
               </Link>
               <Link
                 href="/signup"
-                className="px-5 py-2 text-sm font-semibold text-white bg-pink-600 rounded-full hover:bg-pink-700 hover:scale-[1.02] hover:shadow-lg transition-all duration-200"
+                className="btn btn-primary btn-sm rounded-full"
               >
-                Sign Up
+                Sign up
               </Link>
             </div>
 
@@ -76,7 +97,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
-              <i className={`pi ${mobileOpen ? 'pi-times' : 'pi-bars'} text-xl`} />
+              {mobileOpen ? <X size={24} strokeWidth={2} /> : <Menu size={24} strokeWidth={2} />}
             </button>
           </div>
         </div>
@@ -98,14 +119,14 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               ))}
               <div className="pt-4 border-t border-slate-100 space-y-3">
                 <Link href="/login" className="block text-lg font-medium text-slate-600" onClick={() => setMobileOpen(false)}>
-                  Log In
+                  Log in
                 </Link>
                 <Link
                   href="/signup"
-                  className="block w-full text-center px-5 py-3 text-sm font-semibold text-white bg-pink-600 rounded-full"
+                  className="btn btn-primary w-full rounded-full"
                   onClick={() => setMobileOpen(false)}
                 >
-                  Sign Up
+                  Sign up
                 </Link>
               </div>
             </div>
@@ -125,9 +146,14 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               <p className="text-xl font-heading font-bold text-white mb-2">Social Bounty</p>
               <p className="text-sm text-slate-500 mb-4">The bounty board for the internet.</p>
               <div className="flex gap-4">
-                {['pi-twitter', 'pi-instagram', 'pi-hashtag'].map((icon) => (
-                  <a key={icon} href="#" className="text-slate-500 hover:text-pink-400 hover:scale-[1.12] transition-all duration-200">
-                    <i className={`pi ${icon} text-lg`} />
+                {SOCIAL_ICONS.map(({ label, Icon }) => (
+                  <a
+                    key={label}
+                    href="#"
+                    aria-label={label}
+                    className="text-slate-500 hover:text-pink-400 hover:scale-[1.12] transition-all duration-200"
+                  >
+                    <Icon size={20} strokeWidth={2} />
                   </a>
                 ))}
               </div>
@@ -135,7 +161,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
 
             {/* Hunters */}
             <div>
-              <p className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Hunters</p>
+              <p className="eyebrow text-white mb-4">Hunters</p>
               {FOOTER_HUNTERS.map((link) => (
                 <Link key={link.href} href={link.href} className="block text-sm text-slate-500 hover:text-pink-400 mb-2 group transition-colors">
                   <span className="relative">
@@ -148,7 +174,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
 
             {/* Brands */}
             <div>
-              <p className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Brands</p>
+              <p className="eyebrow text-white mb-4">Brands</p>
               {FOOTER_BRANDS.map((link) => (
                 <Link key={link.href} href={link.href} className="block text-sm text-slate-500 hover:text-pink-400 mb-2 group transition-colors">
                   <span className="relative">
@@ -161,7 +187,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
 
             {/* Company */}
             <div>
-              <p className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Company</p>
+              <p className="eyebrow text-white mb-4">Company</p>
               {FOOTER_COMPANY.map((link) => (
                 <Link key={link.href} href={link.href} className="block text-sm text-slate-500 hover:text-pink-400 mb-2 group transition-colors">
                   <span className="relative">

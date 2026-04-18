@@ -5,6 +5,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
+import { Eye } from 'lucide-react';
 import { useBounty } from '@/hooks/useBounties';
 import { useSubmissionsForBounty } from '@/hooks/useSubmissions';
 import { usePagination } from '@/hooks/usePagination';
@@ -43,15 +44,15 @@ export default function BountySubmissionsPage() {
   );
 
   const dateTemplate = (rowData: SubmissionReviewListItem) => (
-    <span>{formatDate(rowData.createdAt)}</span>
+    <span className="font-mono tabular-nums">{formatDate(rowData.createdAt)}</span>
   );
 
   const actionsTemplate = (rowData: SubmissionReviewListItem) => (
     <Button
-      icon="pi pi-eye"
+      icon={<Eye size={18} strokeWidth={2} />}
       rounded
       text
-      severity="info"
+      severity="secondary"
       onClick={() => router.push(`/business/bounties/${bountyId}/submissions/${rowData.id}`)}
       tooltip="Review"
     />

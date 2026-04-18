@@ -33,13 +33,13 @@ export default function AdminWalletsPage() {
   );
 
   const balanceTemplate = (row: AdminWalletListItem) => (
-    <span className="font-semibold text-accent-emerald text-sm">
+    <span className="font-semibold text-success-600 text-sm">
       {formatCurrency(row.balance, row.currency)}
     </span>
   );
 
   const pendingTemplate = (row: AdminWalletListItem) => (
-    <span className="text-sm text-accent-amber">
+    <span className="text-sm text-warning-600">
       {formatCurrency(row.pendingBalance, row.currency)}
     </span>
   );

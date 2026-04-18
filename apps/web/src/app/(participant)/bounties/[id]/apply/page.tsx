@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
+import { Lock, Send } from 'lucide-react';
 import { useBounty } from '@/hooks/useBounties';
 import { useApplyToBounty } from '@/hooks/useBountyAccess';
 import { useToast } from '@/hooks/useToast';
@@ -67,17 +68,17 @@ export default function ApplyToBountyPage() {
   return (
     <>
       <PageHeader
-        title="Apply to Hunt"
+        title="Apply to hunt"
         breadcrumbs={breadcrumbs}
       />
 
       <div className="max-w-2xl mx-auto">
         {/* Bounty summary */}
         <div className="glass-card p-5 mb-6 flex items-start gap-4">
-          <div className="w-10 h-10 rounded-lg bg-accent-amber/20 flex items-center justify-center flex-shrink-0">
-            <i className="pi pi-lock text-accent-amber" />
+          <div className="w-10 h-10 rounded-lg bg-warning-600/20 flex items-center justify-center flex-shrink-0">
+            <Lock size={20} strokeWidth={2} className="text-warning-600" />
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-semibold text-text-primary">{bounty.title}</p>
             <p className="text-xs text-text-secondary mt-1 line-clamp-2">{bounty.shortDescription}</p>
           </div>
@@ -87,10 +88,9 @@ export default function ApplyToBountyPage() {
         <form onSubmit={handleSubmit}>
           <div className="glass-card p-6 space-y-6">
             <div>
-              <h2 className="text-lg font-heading font-semibold text-text-primary mb-1">Your Application</h2>
+              <h2 className="text-lg font-heading font-semibold text-text-primary mb-1">Your application</h2>
               <p className="text-sm text-text-secondary">
-                Introduce yourself to the business. Explain why you&apos;re a great fit for this bounty.
-                This message is optional but can increase your chances of approval.
+                Introduce yourself. A short note boosts approval odds but isn&apos;t required.
               </p>
             </div>
 
@@ -107,7 +107,7 @@ export default function ApplyToBountyPage() {
                 className="w-full resize-none"
                 maxLength={MAX_MESSAGE_LENGTH}
               />
-              <p className={`text-xs text-right ${remaining < 50 ? 'text-accent-amber' : 'text-text-muted'}`}>
+              <p className={`text-xs text-right font-mono tabular-nums ${remaining < 50 ? 'text-warning-600' : 'text-text-muted'}`}>
                 {remaining} characters remaining
               </p>
             </div>
@@ -125,8 +125,8 @@ export default function ApplyToBountyPage() {
                 onClick={() => router.push(`/bounties/${id}`)}
               />
               <Button
-                label="Submit Application"
-                icon="pi pi-send"
+                label="Submit"
+                icon={<Send size={16} strokeWidth={2} />}
                 type="submit"
                 loading={applyMutation.isPending}
               />

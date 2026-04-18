@@ -14,6 +14,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDate, formatCurrency } from '@/lib/utils/format';
+import { Eye } from 'lucide-react';
 import type { BountyListParams, BountyListItem, BountyStatus, RewardType } from '@social-bounty/shared';
 
 const statusOptions = [
@@ -54,21 +55,21 @@ export default function AdminBountiesPage() {
   );
 
   const rewardTemplate = (rowData: BountyListItem) => (
-    <span>{formatCurrency(rowData.rewardValue, rowData.currency)}</span>
+    <span className="font-mono tabular-nums">{formatCurrency(rowData.rewardValue, rowData.currency)}</span>
   );
 
   const dateTemplate = (rowData: BountyListItem) => (
-    <span>{formatDate(rowData.createdAt)}</span>
+    <span className="font-mono tabular-nums">{formatDate(rowData.createdAt)}</span>
   );
 
   const actionsTemplate = (rowData: BountyListItem) => (
     <Button
-      icon="pi pi-eye"
+      icon={<Eye size={18} strokeWidth={2} />}
       rounded
       text
-      severity="info"
+      severity="secondary"
       onClick={() => router.push(`/admin/bounties/${rowData.id}`)}
-      tooltip="View Details"
+      tooltip="View details"
     />
   );
 

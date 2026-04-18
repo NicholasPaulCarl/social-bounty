@@ -16,6 +16,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatCents, formatDateTime, formatEnumLabel } from '@/lib/utils/format';
 import { csvFilename, saveBlob } from '@/lib/utils/download';
+import { Download, RefreshCw, Check } from 'lucide-react';
 
 const STATE_SEVERITY: Record<string, 'success' | 'warning' | 'danger' | 'info' | undefined> = {
   REQUESTED: 'info',
@@ -69,12 +70,12 @@ export default function FinanceRefundsPage() {
           <div className="flex gap-2">
             <Button
               label="Download CSV"
-              icon="pi pi-download"
+              icon={<Download size={16} strokeWidth={2} />}
               outlined
               loading={downloading}
               onClick={handleDownload}
             />
-            <Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />
+            <Button label="Refresh" icon={<RefreshCw size={16} strokeWidth={2} />} outlined onClick={() => refetch()} />
           </div>
         }
       />
@@ -98,17 +99,17 @@ export default function FinanceRefundsPage() {
           <Column
             field="amountCents"
             header="Amount"
-            body={(r) => <span className="font-mono">{formatCents(r.amountCents)}</span>}
+            body={(r) => <span className="font-mono tabular-nums">{formatCents(r.amountCents)}</span>}
           />
           <Column field="reason" header="Reason" />
-          <Column field="createdAt" header="Created" body={(r) => formatDateTime(r.createdAt)} />
+          <Column field="createdAt" header="Created" body={(r) => <span className="font-mono tabular-nums">{formatDateTime(r.createdAt)}</span>} />
           <Column
             header="Actions"
             body={(r) =>
               r.state === 'REQUESTED' && r.scenario === 'BEFORE_APPROVAL' ? (
                 <Button
                   label="Approve"
-                  icon="pi pi-check"
+                  icon={<Check size={14} strokeWidth={2} />}
                   size="small"
                   onClick={() => setConfirmId(r.id)}
                 />

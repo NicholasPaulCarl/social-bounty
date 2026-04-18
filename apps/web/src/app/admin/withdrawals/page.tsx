@@ -28,11 +28,11 @@ const STATUS_FILTERS = [
 ];
 
 const STATUS_CONFIG: Record<WithdrawalStatus, { label: string; className: string }> = {
-  [WithdrawalStatus.REQUESTED]: { label: 'Requested', className: 'bg-accent-blue/10 text-accent-blue border border-accent-blue/30' },
-  [WithdrawalStatus.PROCESSING]: { label: 'Processing', className: 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30' },
-  [WithdrawalStatus.COMPLETED]: { label: 'Completed', className: 'bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30' },
-  [WithdrawalStatus.FAILED]: { label: 'Failed', className: 'bg-accent-rose/10 text-accent-rose border border-accent-rose/30' },
-  [WithdrawalStatus.CANCELLED]: { label: 'Cancelled', className: 'bg-elevated text-text-muted border border-glass-border' },
+  [WithdrawalStatus.REQUESTED]: { label: 'Requested', className: 'bg-pink-100 text-pink-600 border border-pink-200' },
+  [WithdrawalStatus.PROCESSING]: { label: 'Processing', className: 'bg-warning-600/10 text-warning-600 border border-warning-600/30' },
+  [WithdrawalStatus.COMPLETED]: { label: 'Completed', className: 'bg-success-600/10 text-success-600 border border-success-600/30' },
+  [WithdrawalStatus.FAILED]: { label: 'Failed', className: 'bg-danger-600/10 text-danger-600 border border-danger-600/30' },
+  [WithdrawalStatus.CANCELLED]: { label: 'Cancelled', className: 'bg-slate-100 text-slate-700 border border-slate-200' },
 };
 
 export default function AdminWithdrawalsPage() {
@@ -89,7 +89,7 @@ export default function AdminWithdrawalsPage() {
   );
 
   const amountTemplate = (row: AdminWithdrawalListItem) => (
-    <span className="font-semibold text-sm text-text-primary">
+    <span className="font-mono tabular-nums font-semibold text-sm text-text-primary">
       {formatCurrency(row.amount, row.currency)}
     </span>
   );
@@ -104,7 +104,7 @@ export default function AdminWithdrawalsPage() {
   };
 
   const dateTemplate = (row: AdminWithdrawalListItem) => (
-    <span className="text-sm text-text-muted whitespace-nowrap">{formatDate(row.createdAt)}</span>
+    <span className="text-sm text-text-muted whitespace-nowrap font-mono tabular-nums">{formatDate(row.createdAt)}</span>
   );
 
   const actionsTemplate = (row: AdminWithdrawalListItem) => (

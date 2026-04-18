@@ -9,6 +9,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { PageHeader } from '@/components/common/PageHeader';
 import { formatCents } from '@/lib/utils/format';
+import { RefreshCw } from 'lucide-react';
 
 const ACCOUNT_LABELS: Record<string, string> = {
   hunter_pending: 'Pending (gross, awaiting split)',
@@ -44,16 +45,16 @@ export default function EarningsPayoutsPage() {
       <PageHeader
         title="Earnings & payouts"
         subtitle="Hunter-side ledger totals across the payout pipeline"
-        actions={<Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />}
+        actions={<Button label="Refresh" icon={<RefreshCw size={16} strokeWidth={2} />} outlined onClick={() => refetch()} />}
       />
       <Card>
         <DataTable value={rows} size="small">
-          <Column field="account" header="Account" body={(r) => <span className="font-mono">{r.account}</span>} />
+          <Column field="account" header="Account" body={(r) => <span className="font-mono tabular-nums">{r.account}</span>} />
           <Column field="label" header="What it means" />
           <Column
             field="cents"
             header="Total"
-            body={(r) => <span className="font-mono">{formatCents(r.cents)}</span>}
+            body={(r) => <span className="font-mono tabular-nums">{formatCents(r.cents)}</span>}
           />
         </DataTable>
       </Card>

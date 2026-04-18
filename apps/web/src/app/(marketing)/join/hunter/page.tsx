@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { DollarSign, UserCheck, Eye, Check, Laptop, Star, Home, Search, Mail, Circle } from 'lucide-react';
 
 /* ─────────────────────────────────────────────
    useInView — fade-up on scroll
@@ -63,58 +64,58 @@ function FadeUp({
 const HOW_STEPS = [
   {
     n: 1,
-    icon: '1',
     title: 'Browse the board',
-    body: 'Scroll through live bounties from real brands. Filter by platform, reward size, or category — and find what suits you.',
+    body: 'Scroll through live bounties from real brands. Filter by platform, reward size, or category.',
   },
   {
     n: 2,
-    icon: '2',
     title: 'Claim a bounty',
-    body: 'Lock in your spot on a bounty with one tap. Each claim gives you a clear brief, deadline, and exact payout.',
+    body: 'Lock in your spot with one tap. Each claim gives you a clear brief, deadline, and exact payout.',
   },
   {
     n: 3,
-    icon: '3',
     title: 'Submit your proof',
-    body: 'Upload your screenshot, link, or video. Our submission flow is fast — most Hunters are done in under three minutes.',
+    body: 'Upload your screenshot, link, or video. Most Hunters are done in under three minutes.',
   },
   {
     n: 4,
-    icon: '4',
     title: 'Get your reward',
-    body: 'Brand reviews your work, approves it, and your reward lands in your account. No chasing. No ambiguity.',
+    body: 'Brand reviews your work, approves it, reward lands in your account. No chasing.',
   },
 ];
 
-const WHY_CARDS = [
+const WHY_CARDS: {
+  Icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  title: string;
+  body: string;
+}[] = [
   {
-    icon: '$',
+    Icon: DollarSign,
     title: 'Real daily income',
-    body: 'New bounties drop every day. Stack small wins into a meaningful side income — or go full-time.',
+    body: 'New bounties drop every day. Stack small wins into a meaningful side income \u2014 or go full-time.',
   },
   {
-    icon: '0',
+    Icon: UserCheck,
     title: 'No follower minimums',
-    body: "You don't need an audience. Zero followers, full access. Your effort is what gets rewarded.",
+    body: 'You don\u2019t need an audience. Zero followers, full access. Your effort is what gets rewarded.',
   },
   {
-    icon: '=',
+    Icon: Eye,
     title: 'Transparent requirements',
-    body: "Every bounty spells out exactly what's needed. No guesswork, no surprise rejections.",
+    body: 'Every bounty spells out exactly what\u2019s needed. No guesswork, no surprise rejections.',
   },
   {
-    icon: '\u2713',
+    Icon: Check,
     title: 'Fair review process',
-    body: 'Structured brand reviews with clear criteria. Dispute any decision — we have your back.',
+    body: 'Structured brand reviews with clear criteria. Dispute any decision \u2014 we have your back.',
   },
   {
-    icon: '\u2192',
+    Icon: Laptop,
     title: 'Work from anywhere',
     body: 'Your phone, your laptop, your couch. If you have internet, you can hunt.',
   },
   {
-    icon: '\u2605',
+    Icon: Star,
     title: 'Build your portfolio',
     body: 'Every approved submission is proof of your content skills. Build a reputation, unlock bigger bounties.',
   },
@@ -147,15 +148,15 @@ function PhoneMockup() {
           {/* App header */}
           <div className="flex items-center justify-between py-2 px-1">
             <span className="text-xs font-heading font-bold text-pink-600">Social Bounty</span>
-            <span className="text-xs text-slate-400 font-mono">3 new</span>
+            <span className="text-xs text-slate-400 font-mono tabular-nums">3 new</span>
           </div>
 
           {/* Bounty cards */}
           {[
-            { brand: 'Nando\'s SA', task: 'TikTok review', reward: 'R150', tag: 'Food' },
-            { brand: 'Superbalist', task: 'Instagram story', reward: 'R85', tag: 'Fashion' },
-            { brand: 'Takealot', task: 'Google review', reward: 'R60', tag: 'Retail' },
-            { brand: 'Vida e Caffè', task: 'Reel + tag', reward: 'R200', tag: 'Coffee' },
+            { brand: 'Nando\u2019s SA', task: 'TikTok review', reward: 'R150', tag: 'F' },
+            { brand: 'Superbalist', task: 'Instagram story', reward: 'R85', tag: 'F' },
+            { brand: 'Takealot', task: 'Google review', reward: 'R60', tag: 'R' },
+            { brand: 'Vida e Caff\u00e8', task: 'Reel + tag', reward: 'R200', tag: 'C' },
           ].map((b, i) => (
             <div
               key={i}
@@ -165,22 +166,30 @@ function PhoneMockup() {
               }}
             >
               <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center text-xs font-bold text-pink-600 shrink-0">
-                {b.tag[0]}
+                {b.tag}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-slate-800 truncate">{b.brand}</p>
                 <p className="text-[10px] text-slate-500 truncate">{b.task}</p>
               </div>
-              <span className="text-xs font-mono font-bold text-pink-600 shrink-0">{b.reward}</span>
+              <span className="text-xs font-mono tabular-nums font-bold text-pink-600 shrink-0">{b.reward}</span>
             </div>
           ))}
 
           {/* Bottom bar */}
           <div className="mt-auto flex justify-around pt-2 border-t border-slate-100">
-            {['\u2302', '\u2315', '\u2709', '\u2022'].map((icon, i) => (
-              <span key={i} className={`text-lg ${i === 1 ? 'opacity-100' : 'opacity-30'}`}>
-                {icon}
-              </span>
+            {[
+              { Icon: Home, active: false },
+              { Icon: Search, active: true },
+              { Icon: Mail, active: false },
+              { Icon: Circle, active: false },
+            ].map(({ Icon, active }, i) => (
+              <Icon
+                key={i}
+                size={16}
+                strokeWidth={2}
+                className={active ? 'text-pink-600' : 'text-slate-300'}
+              />
             ))}
           </div>
         </div>
@@ -206,22 +215,18 @@ export default function JoinHunterPage() {
             {/* Left — copy */}
             <div>
               <FadeUp>
-                <div className="inline-flex items-center gap-2 bg-pink-50 text-pink-700 text-sm font-semibold px-4 py-2 rounded-full mb-6">
-                  <span className="w-4 h-4 rounded-full bg-pink-600 inline-block" />
-                  <span>For Hunters</span>
-                </div>
+                <p className="eyebrow mb-6">For hunters</p>
               </FadeUp>
 
               <FadeUp delay={80}>
                 <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight tracking-tight mb-6">
-                  Your internet time, finally worth{' '}
-                  <span className="text-pink-600">something.</span>
+                  Your internet time, finally worth <span className="gradient-text">something.</span>
                 </h1>
               </FadeUp>
 
               <FadeUp delay={160}>
                 <p className="text-lg sm:text-xl text-slate-600 leading-relaxed mb-8 max-w-lg">
-                  Pick up bounties from real brands, complete small tasks, and earn rewards — every day, from anywhere.{' '}
+                  Pick up bounties from real brands, complete small tasks, earn rewards &mdash; every day, from anywhere.{' '}
                   <strong className="text-slate-800 font-semibold">No followers required.</strong>
                 </p>
               </FadeUp>
@@ -230,9 +235,9 @@ export default function JoinHunterPage() {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                   <Link
                     href="/signup"
-                    className="inline-block bg-pink-600 text-white font-semibold px-8 py-4 rounded-full hover:bg-pink-700 hover:scale-[1.03] hover:shadow-lg transition-all duration-200 text-base"
+                    className="btn btn-primary btn-lg rounded-full"
                   >
-                    Create Your Hunter Account
+                    Create your hunter account
                   </Link>
                   <p className="text-sm text-slate-500">Free to join. Takes 30 seconds.</p>
                 </div>
@@ -253,10 +258,9 @@ export default function JoinHunterPage() {
       <section className="py-16 sm:py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-16">
-            <p className="text-sm font-semibold text-pink-600 uppercase tracking-wider mb-3">The process</p>
+            <p className="eyebrow mb-3">The process</p>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
-              How it works{' '}
-              <span className="text-slate-400 font-normal">(spoiler: it's dead simple)</span>
+              How it works.
             </h2>
           </FadeUp>
 
@@ -266,7 +270,7 @@ export default function JoinHunterPage() {
                 <div className={`flex flex-col md:flex-row items-center gap-8 ${i % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
                   {/* Icon block */}
                   <div className="shrink-0 flex flex-col items-center gap-3">
-                    <div className="w-16 h-16 rounded-2xl bg-pink-600 flex items-center justify-center text-white font-heading font-bold text-xl shadow-lg">
+                    <div className="w-16 h-16 rounded-xl bg-pink-600 flex items-center justify-center text-white font-mono tabular-nums font-bold text-xl shadow-lg">
                       {step.n}
                     </div>
                   </div>
@@ -296,22 +300,21 @@ export default function JoinHunterPage() {
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-16">
-            <p className="text-sm font-semibold text-pink-600 uppercase tracking-wider mb-3">Why it works</p>
+            <p className="eyebrow mb-3">Why it works</p>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
-              Built for Hunters,{' '}
-              <span className="text-slate-400 font-normal">not influencers.</span>
+              Built for hunters, not influencers.
             </h2>
           </FadeUp>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {WHY_CARDS.map((card, i) => (
-              <FadeUp key={card.title} delay={i * 60}>
-                <div className="h-full bg-white border border-slate-200 rounded-2xl p-6 hover:border-pink-200 hover:shadow-md transition-all duration-200 group">
-                  <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-lg font-bold text-pink-600 mb-4 group-hover:bg-pink-100 transition-colors">
-                    {card.icon}
+            {WHY_CARDS.map(({ Icon, title, body }, i) => (
+              <FadeUp key={title} delay={i * 60}>
+                <div className="h-full card card-interactive hover:border-pink-200">
+                  <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-pink-600 mb-4">
+                    <Icon size={20} strokeWidth={2} />
                   </div>
-                  <h3 className="font-heading text-lg font-bold text-slate-900 mb-2">{card.title}</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">{card.body}</p>
+                  <h3 className="font-heading text-lg font-bold text-slate-900 mb-2">{title}</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed">{body}</p>
                 </div>
               </FadeUp>
             ))}
@@ -325,18 +328,18 @@ export default function JoinHunterPage() {
       <section className="py-16 sm:py-24 bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-16">
-            <p className="text-sm font-semibold text-pink-400 uppercase tracking-wider mb-3">Earning potential</p>
+            <p className="eyebrow text-pink-400 mb-3">Earning potential</p>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
               What could you earn this week?
             </h2>
           </FadeUp>
 
           <div className="max-w-lg mx-auto">
-            <div className="bg-slate-800 rounded-2xl overflow-hidden border border-slate-700">
+            <div className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
               {/* Header */}
               <div className="px-6 py-4 border-b border-slate-700 flex items-center justify-between">
                 <span className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Example week</span>
-                <span className="text-xs text-pink-400 font-mono">3 bounties</span>
+                <span className="text-xs text-pink-400 font-mono tabular-nums">3 bounties</span>
               </div>
 
               {/* Rows */}
@@ -348,7 +351,7 @@ export default function JoinHunterPage() {
                         <p className="text-sm font-semibold text-white">{b.task}</p>
                         <p className="text-xs text-slate-400 mt-0.5">{b.platform}</p>
                       </div>
-                      <span className="font-mono text-lg font-bold text-pink-400">R{b.amount}</span>
+                      <span className="font-mono tabular-nums text-lg font-bold text-pink-400">R{b.amount}</span>
                     </div>
                   </FadeUp>
                 ))}
@@ -356,8 +359,8 @@ export default function JoinHunterPage() {
 
               {/* Total */}
               <div className="bg-pink-600 px-6 py-5 flex items-center justify-between">
-                <span className="font-heading font-bold text-white text-base">Weekly Total</span>
-                <span className="font-mono text-2xl font-bold text-white">
+                <span className="font-heading font-bold text-white text-base">Weekly total</span>
+                <span className="font-mono tabular-nums text-2xl font-bold text-white">
                   R{BOUNTY_EXAMPLES.reduce((s, b) => s + b.amount, 0)}
                 </span>
               </div>
@@ -378,10 +381,9 @@ export default function JoinHunterPage() {
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-12">
-            <p className="text-sm font-semibold text-pink-600 uppercase tracking-wider mb-3">Plans</p>
+            <p className="eyebrow mb-3">Plans</p>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
-              Free is great.{' '}
-              <span className="text-pink-600">Pro is better.</span>
+              Free is great. <span className="text-pink-600">Pro is better.</span>
             </h2>
             <p className="text-lg text-slate-600 mt-4 max-w-xl mx-auto">
               Start free and upgrade when the savings make sense.
@@ -391,9 +393,9 @@ export default function JoinHunterPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
             {/* Free */}
             <FadeUp delay={0}>
-              <div className="h-full bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
+              <div className="h-full card card-feature">
                 <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Free Hunter</h3>
-                <p className="text-3xl font-heading font-bold text-slate-900 mt-4 mb-6">R0<span className="text-base font-normal text-slate-400">/month</span></p>
+                <p className="font-mono tabular-nums text-3xl font-bold text-slate-900 mt-4 mb-6">R0<span className="text-base font-normal text-slate-400">/month</span></p>
                 <ul className="space-y-3 mb-6">
                   {[
                     '20% platform commission',
@@ -406,20 +408,20 @@ export default function JoinHunterPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/signup" className="block text-center border border-slate-300 text-slate-700 font-semibold px-6 py-3 rounded-full hover:border-slate-400 transition-all duration-200">
-                  Get Started Free
+                <Link href="/signup" className="btn btn-secondary rounded-full text-center justify-center">
+                  Get started free
                 </Link>
               </div>
             </FadeUp>
 
             {/* Pro */}
             <FadeUp delay={100}>
-              <div className="h-full bg-white border-2 border-pink-300 rounded-2xl p-6 sm:p-8 relative shadow-lg shadow-pink-100/50">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-pink-600 text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">
+              <div className="h-full card card-feature relative border-2 border-pink-300 shadow-lg shadow-pink-100/50">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 badge badge-brand px-4 py-1 uppercase">
                   Recommended
                 </div>
                 <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Pro Hunter</h3>
-                <p className="text-3xl font-heading font-bold text-slate-900 mt-4 mb-6">R350<span className="text-base font-normal text-slate-400">/month</span></p>
+                <p className="font-mono tabular-nums text-3xl font-bold text-slate-900 mt-4 mb-6">R350<span className="text-base font-normal text-slate-400">/month</span></p>
                 <ul className="space-y-3 mb-6">
                   {[
                     '10% commission (save 10%)',
@@ -433,7 +435,7 @@ export default function JoinHunterPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/signup" className="block text-center bg-pink-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-pink-700 hover:scale-[1.02] hover:shadow-lg transition-all duration-200">
+                <Link href="/signup" className="btn btn-primary rounded-full text-center justify-center">
                   Upgrade to Pro
                 </Link>
               </div>
@@ -456,12 +458,11 @@ export default function JoinHunterPage() {
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <FadeUp>
-            <div className="w-16 h-16 rounded-2xl bg-pink-100 flex items-center justify-center mx-auto mb-6">
-              <span className="text-2xl font-bold text-pink-600">\u2605</span>
+            <div className="w-16 h-16 rounded-xl bg-pink-100 flex items-center justify-center mx-auto mb-6">
+              <Star size={28} strokeWidth={2} className="text-pink-600" fill="currentColor" />
             </div>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
-              The board's open.{' '}
-              <span className="text-pink-600">Let's get you earning.</span>
+              The board&rsquo;s open. <span className="text-pink-600">Let&rsquo;s get you earning.</span>
             </h2>
             <p className="text-lg text-slate-600 mb-8">
               Join thousands of Hunters already picking up bounties every day.
@@ -471,11 +472,11 @@ export default function JoinHunterPage() {
           <FadeUp delay={100}>
             <Link
               href="/signup"
-              className="inline-block bg-pink-600 text-white font-semibold px-8 py-4 rounded-full hover:bg-pink-700 hover:scale-[1.03] hover:shadow-xl transition-all duration-200 text-base mb-4"
+              className="btn btn-primary btn-lg rounded-full"
             >
-              Create Your Hunter Account
+              Create your hunter account
             </Link>
-            <p className="text-sm text-slate-500">Free forever. No credit card. No follower count check.</p>
+            <p className="text-sm text-slate-500 mt-4">Free forever. No credit card. No follower check.</p>
           </FadeUp>
         </div>
       </section>

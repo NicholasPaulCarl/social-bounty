@@ -19,6 +19,7 @@ import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { VerificationReportPanel } from '@/components/features/submission/VerificationReportPanel';
 import { derivePreviewChecks } from '@/lib/utils/bounty-preview-checks';
 import { formatDate, formatCurrency, formatEnumLabel, formatBytes } from '@/lib/utils/format';
+import { Eye, Pencil, List, Undo2, Trash2, Download, File as FileIcon, Image as ImageIcon } from 'lucide-react';
 
 const CHANNEL_LABELS: Record<string, string> = {
   INSTAGRAM: 'Instagram',
@@ -170,7 +171,7 @@ export default function BusinessBountyDetailPage() {
         actions={
           <div className="flex gap-2">
             <Button
-              icon="pi pi-eye"
+              icon={<Eye size={16} strokeWidth={2} />}
               label="Preview"
               outlined
               severity="secondary"
@@ -187,21 +188,21 @@ export default function BusinessBountyDetailPage() {
               />
             ))}
             <Button
-              icon="pi pi-pencil"
+              icon={<Pencil size={16} strokeWidth={2} />}
               label="Edit"
               outlined
               severity="secondary"
               onClick={() => router.push(`/business/bounties/${id}/edit`)}
             />
             <Button
-              icon="pi pi-list"
+              icon={<List size={16} strokeWidth={2} />}
               label="Submissions"
               outlined
               onClick={() => router.push(`/business/bounties/${id}/submissions`)}
             />
             {bounty.paymentStatus === PaymentStatus.PAID && bounty.status !== 'CLOSED' && (
               <Button
-                icon="pi pi-undo"
+                icon={<Undo2 size={16} strokeWidth={2} />}
                 label="Request refund"
                 outlined
                 severity="warning"
@@ -210,7 +211,7 @@ export default function BusinessBountyDetailPage() {
             )}
             {bounty.status === 'DRAFT' && (
               <Button
-                icon="pi pi-trash"
+                icon={<Trash2 size={16} strokeWidth={2} />}
                 severity="danger"
                 outlined
                 onClick={() => setShowDelete(true)}
@@ -227,12 +228,12 @@ export default function BusinessBountyDetailPage() {
               <div className="flex items-center gap-3">
                 <StatusBadge type="bounty" value={bounty.status} size="large" />
                 {bounty.totalRewardValue && (
-                  <span className="text-lg font-semibold text-text-primary">
+                  <span className="font-mono tabular-nums text-lg font-semibold text-text-primary">
                     {formatCurrency(bounty.totalRewardValue, bounty.currency)}
                   </span>
                 )}
                 {!bounty.totalRewardValue && bounty.rewardValue && (
-                  <span className="text-lg font-semibold text-text-primary">{formatCurrency(bounty.rewardValue, bounty.currency)}</span>
+                  <span className="font-mono tabular-nums text-lg font-semibold text-text-primary">{formatCurrency(bounty.rewardValue, bounty.currency)}</span>
                 )}
                 <span className="text-sm text-text-muted">{formatEnumLabel(bounty.rewardType)}</span>
               </div>
@@ -303,7 +304,7 @@ export default function BusinessBountyDetailPage() {
                       <Tag value={formatEnumLabel(reward.rewardType)} severity="info" />
                       <span className="text-sm text-text-primary">{reward.name}</span>
                     </div>
-                    <span className="text-sm font-medium text-text-primary">
+                    <span className="font-mono tabular-nums text-sm font-medium text-text-primary">
                       {formatCurrency(reward.monetaryValue, bounty.currency)}
                     </span>
                   </div>
@@ -312,8 +313,8 @@ export default function BusinessBountyDetailPage() {
               {bounty.totalRewardValue && (
                 <div className="flex justify-end mt-3 pt-3 border-t border-glass-border">
                   <div className="text-right">
-                    <span className="text-xs text-text-muted uppercase">Total</span>
-                    <p className="text-lg font-bold text-text-primary">
+                    <span className="eyebrow">Total</span>
+                    <p className="font-mono tabular-nums text-lg font-bold text-text-primary">
                       {formatCurrency(bounty.totalRewardValue, bounty.currency)}
                     </p>
                   </div>
@@ -382,14 +383,18 @@ export default function BusinessBountyDetailPage() {
                 {bounty.brandAssets.map((asset) => (
                   <div key={asset.id} className="flex items-center justify-between py-2 border-b border-glass-border last:border-b-0">
                     <div className="flex items-center gap-2 min-w-0">
-                      <i className={`pi ${asset.mimeType === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-text-muted text-sm`} />
+                      {asset.mimeType === 'application/pdf' ? (
+                        <FileIcon size={14} strokeWidth={2} className="text-text-muted" />
+                      ) : (
+                        <ImageIcon size={14} strokeWidth={2} className="text-text-muted" />
+                      )}
                       <div className="min-w-0">
                         <p className="text-sm text-text-primary truncate">{asset.fileName}</p>
-                        <p className="text-xs text-text-muted">{formatBytes(asset.fileSize)}</p>
+                        <p className="text-xs text-text-muted font-mono tabular-nums">{formatBytes(asset.fileSize)}</p>
                       </div>
                     </div>
                     <Button
-                      icon="pi pi-download"
+                      icon={<Download size={14} strokeWidth={2} />}
                       outlined
                       size="small"
                       onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/files/brand-assets/${asset.id}/download`, '_blank')}

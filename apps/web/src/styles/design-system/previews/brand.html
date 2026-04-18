@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Brand — Social Bounty</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<link rel="stylesheet" href="../components.css" />
+<style>
+  body { padding: 48px 56px; max-width: 1100px; }
+  .section { margin-bottom: 48px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--slate-200); }
+  .section-head h4 { margin: 0; font-family: var(--font-heading); font-size: 16px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+
+  .logo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .logo-cell { border: 1px solid var(--slate-200); border-radius: 16px; padding: 40px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; min-height: 200px; justify-content: space-between; }
+  .logo-cell .caption { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+  .voice { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--slate-200); border-radius: 16px; overflow: hidden; }
+  .voice > div { padding: 20px 24px; }
+  .voice > div + div { border-left: 1px solid var(--slate-200); }
+  .voice .head { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 10px; }
+  .voice .yes .head { color: var(--success-600); }
+  .voice .no  .head { color: var(--danger-600); }
+  .voice p { margin: 0 0 6px; font-size: 14px; color: var(--text-primary); line-height: 1.5; }
+  .voice .reason { font-size: 12px; color: var(--text-muted); font-style: italic; }
+
+  .pillar { padding: 20px; border-radius: 12px; background: var(--bg-surface); border: 1px solid var(--slate-200); }
+  .pillar .num { font-family: var(--font-mono); font-size: 11px; color: var(--pink-600); font-weight: 600; letter-spacing: 0.08em; }
+  .pillar h5 { margin: 6px 0 6px; font-size: 17px; font-family: var(--font-heading); }
+  .pillar p { margin: 0; font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+</style>
+</head>
+<body>
+
+<header style="margin-bottom: 36px;">
+  <div class="eyebrow" style="margin-bottom: 8px;">Brand</div>
+  <h2 style="margin: 0 0 12px;">Who we are out loud.</h2>
+  <p class="body-lg" style="max-width: 68ch; margin: 0;">
+    We're the side of the creator economy that pays receipts, not promises.
+    Our voice is <b style="color: var(--text-primary);">direct, a little cheeky,
+    and numbers-first</b>. We don't promise influence — we pay for it.
+  </p>
+</header>
+
+<!-- ─── Logo ─── -->
+<div class="section">
+  <div class="section-head"><h4>Logo</h4></div>
+  <div class="logo-grid">
+    <div class="logo-cell" style="background: var(--bg-surface);">
+      <img src="../assets/logo-wordmark.png" alt="Social Bounty wordmark" style="height: 56px; width: auto;" />
+      <span class="caption">Primary — on white. Wordmark only (no icon lockup yet).</span>
+    </div>
+    <div class="logo-cell" style="background: var(--pink-600);">
+      <img src="../assets/logo-wordmark.png" alt="Social Bounty wordmark" style="height: 56px; width: auto; filter: brightness(0) invert(1);" />
+      <span class="caption" style="color: rgba(255,255,255,0.8);">Reversed — on pink-600. Use for covers, ads, event signage.</span>
+    </div>
+    <div class="logo-cell" style="background: linear-gradient(135deg, var(--pink-600) 0%, var(--blue-600) 100%);">
+      <img src="../assets/logo-wordmark.png" alt="Social Bounty wordmark" style="height: 56px; width: auto; filter: brightness(0) invert(1);" />
+      <span class="caption" style="color: rgba(255,255,255,0.85);">Gradient — hero moments only. Never on small sizes.</span>
+    </div>
+    <div class="logo-cell" style="background: var(--slate-900);">
+      <img src="../assets/logo-wordmark.png" alt="Social Bounty wordmark" style="height: 56px; width: auto; filter: brightness(0) invert(1);" />
+      <span class="caption" style="color: rgba(255,255,255,0.8);">Dark — on slate-900. For embedded placements.</span>
+    </div>
+  </div>
+  <p class="body-sm" style="margin-top: 14px; color: var(--text-muted);">
+    Minimum height: <b style="color: var(--text-primary); font-family: var(--font-mono);">20px digital / 6mm print</b>.
+    Clear-space = the height of the "S" on all sides. Don't stretch, recolor outside of these four treatments, or add drop shadows.
+  </p>
+</div>
+
+<!-- ─── Voice ─── -->
+<div class="section">
+  <div class="section-head"><h4>Voice — do / don't</h4></div>
+  <div class="voice">
+    <div class="yes">
+      <div class="head">✓ We say it like this</div>
+      <p>"You posted. It landed. Here's your $62."</p>
+      <p class="reason">Concrete · past tense · names the number.</p>
+    </div>
+    <div class="no">
+      <div class="head">✕ We don't say it like this</div>
+      <p>"Unlock the power of authentic creator partnerships."</p>
+      <p class="reason">Vague · buzzword-y · promises nothing.</p>
+    </div>
+    <div class="yes">
+      <div class="head">✓ We say it like this</div>
+      <p>"2 cents per click. Ends Friday. 347 creators in."</p>
+      <p class="reason">Hard numbers · a deadline · social proof in that order.</p>
+    </div>
+    <div class="no">
+      <div class="head">✕ We don't say it like this</div>
+      <p>"Join thousands of creators monetizing their influence today!"</p>
+      <p class="reason">Exclamation, "monetize," vague count.</p>
+    </div>
+    <div class="yes">
+      <div class="head">✓ We say it like this</div>
+      <p>"Your link didn't verify. Here's why and what to fix."</p>
+      <p class="reason">Owns the failure · points to the fix · no apologies.</p>
+    </div>
+    <div class="no">
+      <div class="head">✕ We don't say it like this</div>
+      <p>"Oops! Something went wrong 😅 We'll look into it soon."</p>
+      <p class="reason">Cutesy · vague · dodges.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Voice pillars ─── -->
+<div class="section">
+  <div class="section-head"><h4>Three voice pillars</h4></div>
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+    <div class="pillar">
+      <div class="num">01</div>
+      <h5>Receipts-first</h5>
+      <p>Always lead with the number — dollars, clicks, hours. If we can't show a number, we probably shouldn't be saying it.</p>
+    </div>
+    <div class="pillar">
+      <div class="num">02</div>
+      <h5>Friendly, not fake</h5>
+      <p>Contractions, second person, sentence-case. No emoji in product. No "woohoo." We're in on the joke, not the butt of it.</p>
+    </div>
+    <div class="pillar">
+      <div class="num">03</div>
+      <h5>Short &gt; clever</h5>
+      <p>If a button label is longer than three words, cut one. If a heading is longer than ten, rewrite it.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Imagery & illustration ─── -->
+<div class="section">
+  <div class="section-head"><h4>Imagery &amp; illustration</h4></div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+    <div class="card">
+      <div class="label-sm" style="margin-bottom: 8px;">Photography</div>
+      <div style="aspect-ratio: 16/9; background: linear-gradient(135deg, var(--pink-100), var(--blue-100)); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-family: var(--font-mono); font-size: 12px;">[ creator portrait · phone-in-hand ]</div>
+      <p class="body-sm" style="margin: 12px 0 0;">Real creators, phones visible, natural light. Never stocky. Tight crops on hands, faces, and screens. Over-saturate reds and pinks by ~10%.</p>
+    </div>
+    <div class="card">
+      <div class="label-sm" style="margin-bottom: 8px;">Illustration</div>
+      <div style="aspect-ratio: 16/9; background: var(--bg-surface); border: 1px dashed var(--slate-300); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+        <svg viewBox="0 0 200 100" style="width: 70%;">
+          <circle cx="40" cy="50" r="18" fill="none" stroke="var(--pink-600)" stroke-width="3"/>
+          <rect x="80" y="32" width="36" height="36" rx="8" fill="var(--pink-600)"/>
+          <path d="M 140 68 L 160 32 L 180 68 Z" fill="none" stroke="var(--blue-600)" stroke-width="3" stroke-linejoin="round"/>
+          <line x1="10" y1="90" x2="190" y2="90" stroke="var(--slate-300)" stroke-width="1"/>
+        </svg>
+      </div>
+      <p class="body-sm" style="margin: 12px 0 0;">Geometric, flat, 2-color (pink + blue + one neutral). No gradients in illustration — save gradients for type and progress bars.</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -15,6 +15,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ApiError } from '@/lib/api/client';
 import { formatCents, formatDateTime } from '@/lib/utils/format';
+import { ChevronUp, ChevronDown, ArrowLeft } from 'lucide-react';
 import type { TransactionGroupDetailEntry } from '@/lib/api/finance-admin';
 
 function JsonBlock({ label, value }: { label: string; value: Record<string, unknown> | null }) {
@@ -31,7 +32,7 @@ function JsonBlock({ label, value }: { label: string; value: Record<string, unkn
         {collapsible && (
           <Button
             label={expanded ? 'Collapse' : 'Expand'}
-            icon={expanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'}
+            icon={expanded ? <ChevronUp size={14} strokeWidth={2} /> : <ChevronDown size={14} strokeWidth={2} />}
             size="small"
             text
             onClick={() => setExpanded((prev) => !prev)}
@@ -54,8 +55,8 @@ export default function TransactionGroupDetailPage() {
 
   const backButton = (
     <Button
-      label="Back to Finance"
-      icon="pi pi-arrow-left"
+      label="Back to finance"
+      icon={<ArrowLeft size={16} strokeWidth={2} />}
       outlined
       onClick={() => router.push('/admin/finance')}
     />
@@ -149,7 +150,7 @@ export default function TransactionGroupDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <div className="text-xs text-text-muted mb-1">Reference ID</div>
-            <div className="font-mono text-sm break-all">{group.referenceId}</div>
+            <div className="font-mono tabular-nums text-sm break-all">{group.referenceId}</div>
           </div>
           <div>
             <div className="text-xs text-text-muted mb-1">Action</div>
@@ -157,7 +158,7 @@ export default function TransactionGroupDetailPage() {
           </div>
           <div>
             <div className="text-xs text-text-muted mb-1">Created</div>
-            <div className="text-sm">{formatDateTime(group.createdAt)}</div>
+            <div className="text-sm font-mono tabular-nums">{formatDateTime(group.createdAt)}</div>
           </div>
         </div>
         {group.description && (
@@ -170,7 +171,7 @@ export default function TransactionGroupDetailPage() {
 
       <Card title="Ledger entries" className="mb-6">
         <DataTable value={entries} size="small" stripedRows>
-          <Column field="account" header="Account" body={(r: TransactionGroupDetailEntry) => <span className="font-mono text-xs">{r.account}</span>} />
+          <Column field="account" header="Account" body={(r: TransactionGroupDetailEntry) => <span className="font-mono tabular-nums text-xs">{r.account}</span>} />
           <Column
             field="type"
             header="Type"
@@ -185,7 +186,7 @@ export default function TransactionGroupDetailPage() {
             field="amountCents"
             header="Amount"
             body={(r: TransactionGroupDetailEntry) => (
-              <span className="font-mono">{formatCents(r.amountCents)}</span>
+              <span className="font-mono tabular-nums">{formatCents(r.amountCents)}</span>
             )}
           />
           <Column
@@ -193,7 +194,7 @@ export default function TransactionGroupDetailPage() {
             header="External reference"
             body={(r: TransactionGroupDetailEntry) =>
               r.externalReference ? (
-                <span className="font-mono text-xs">{r.externalReference}</span>
+                <span className="font-mono tabular-nums text-xs">{r.externalReference}</span>
               ) : (
                 <span className="text-text-muted text-xs">—</span>
               )
@@ -224,7 +225,7 @@ export default function TransactionGroupDetailPage() {
               </div>
               <div>
                 <div className="text-xs text-text-muted mb-1">When</div>
-                <div className="text-sm">{formatDateTime(auditLog.createdAt)}</div>
+                <div className="text-sm font-mono tabular-nums">{formatDateTime(auditLog.createdAt)}</div>
               </div>
             </div>
             {auditLog.reason && (

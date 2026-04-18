@@ -7,6 +7,7 @@ import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Tag } from 'primereact/tag';
+import { FilePen, DollarSign, Shield, Lock, Images, Check, Pencil, X, Plus, AlertCircle, Video, Image as ImageIcon, Info } from 'lucide-react';
 import { FIELD_LIMITS, ContentFormat, BountyAccessType, SocialChannel } from '@social-bounty/shared';
 import type { BountyDetailResponse, CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useCreateBountyForm } from './useCreateBountyForm';
@@ -50,12 +51,12 @@ function InstructionStepsBuilder({
     <div>
       <div className="flex items-center justify-between mb-2">
         <label className="block text-text-muted text-xs uppercase tracking-wider font-medium">
-          Instructions <span className="text-accent-rose">*</span>
+          Instructions <span className="text-danger-600">*</span>
         </label>
         {hasContent && !isLocked && (
           <Button
             label={isEditing ? 'Done' : 'Edit'}
-            icon={isEditing ? 'pi pi-check' : 'pi pi-pencil'}
+            icon={isEditing ? <Check size={14} strokeWidth={2} /> : <Pencil size={14} strokeWidth={2} />}
             text
             size="small"
             onClick={() => setIsEditing(!isEditing)}
@@ -65,8 +66,8 @@ function InstructionStepsBuilder({
       <p className="text-xs text-text-muted mb-3">Add step-by-step instructions for your hunters.</p>
 
       {submitAttempted && errors.fullInstructions && (
-        <small className="text-xs text-accent-rose mb-2 flex items-center gap-1">
-          <i className="pi pi-exclamation-circle text-xs" />
+        <small className="text-xs text-danger-600 mb-2 flex items-center gap-1">
+          <AlertCircle size={12} strokeWidth={2} />
           {errors.fullInstructions}
         </small>
       )}
@@ -77,7 +78,7 @@ function InstructionStepsBuilder({
             {steps.map((step, index) => (
               <div key={index} className="flex items-start gap-2">
                 <div className="w-7 h-9 flex items-center justify-center shrink-0">
-                  <span className="w-6 h-6 rounded-full bg-accent-cyan/10 text-accent-cyan text-xs font-bold flex items-center justify-center">
+                  <span className="w-6 h-6 rounded-full bg-pink-600/10 text-pink-600 text-xs font-bold flex items-center justify-center">
                     {index + 1}
                   </span>
                 </div>
@@ -93,7 +94,7 @@ function InstructionStepsBuilder({
                 />
                 {steps.length > 1 && (
                   <Button
-                    icon="pi pi-times"
+                    icon={<X size={14} strokeWidth={2} />}
                     text
                     severity="danger"
                     size="small"
@@ -107,8 +108,8 @@ function InstructionStepsBuilder({
           </div>
           <div className="flex items-center gap-3 mt-3">
             <Button
-              label={`Add Step ${steps.length + 1}`}
-              icon="pi pi-plus"
+              label={`Add step ${steps.length + 1}`}
+              icon={<Plus size={14} strokeWidth={2} />}
               outlined
               size="small"
               disabled={isLocked || steps.length >= 20}
@@ -123,7 +124,7 @@ function InstructionStepsBuilder({
         <div className="space-y-2 rounded-lg border border-glass-border p-4 bg-bg-abyss">
           {steps.filter((s) => s.trim()).map((step, index) => (
             <div key={index} className="flex items-start gap-2">
-              <span className="w-6 h-6 rounded-full bg-accent-cyan/10 text-accent-cyan text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-pink-600/10 text-pink-600 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
                 {index + 1}
               </span>
               <p className="text-sm text-text-primary">{step}</p>
@@ -202,8 +203,8 @@ export function CreateBountyForm({
         <div data-section="bountyBasicInfo" className={lockedClass}>
           <SectionPanel
             number={1}
-            title={`Bounty Information${isLocked ? ' (Locked)' : ''}`}
-            icon="pi-file-edit"
+            title={`Bounty information${isLocked ? ' (Locked)' : ''}`}
+            Icon={FilePen}
             isComplete={isSectionComplete('bountyBasicInfo', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyBasicInfo', state.errors).length > 0}
           >
@@ -216,7 +217,7 @@ export function CreateBountyForm({
 
             <div>
               <label htmlFor="title" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                Title <span className="text-accent-rose">*</span>
+                Title <span className="text-danger-600">*</span>
               </label>
               <InputText
                 id="title"
@@ -232,8 +233,8 @@ export function CreateBountyForm({
                 {state.title.length}/{FIELD_LIMITS.BOUNTY_TITLE_MAX}
               </small>
               {state.errors.title && (
-                <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
-                  <i className="pi pi-exclamation-circle text-xs" />
+                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                  <AlertCircle size={12} strokeWidth={2} />
                   {state.errors.title}
                 </small>
               )}
@@ -241,7 +242,7 @@ export function CreateBountyForm({
 
             <div>
               <label htmlFor="shortDescription" className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                Campaign or Brand Description <span className="text-accent-rose">*</span>
+                Campaign or Brand Description <span className="text-danger-600">*</span>
               </label>
               <InputTextarea
                 id="shortDescription"
@@ -258,8 +259,8 @@ export function CreateBountyForm({
                 {state.shortDescription.length}/{FIELD_LIMITS.SHORT_DESCRIPTION_MAX}
               </small>
               {state.submitAttempted && state.errors.shortDescription && (
-                <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
-                  <i className="pi pi-exclamation-circle text-xs" />
+                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                  <AlertCircle size={12} strokeWidth={2} />
                   {state.errors.shortDescription}
                 </small>
               )}
@@ -268,17 +269,17 @@ export function CreateBountyForm({
             {/* Content Format Selector */}
             <div>
               <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-2">
-                Accepted Formats <span className="text-accent-rose">*</span>
+                Accepted Formats <span className="text-danger-600">*</span>
               </label>
               {(() => {
                 const tiktokSelected = SocialChannel.TIKTOK in state.channels;
                 return (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {([
-                      { value: ContentFormat.VIDEO_ONLY, label: 'Video Only', icon: 'pi-video', desc: 'Only video content accepted' },
-                      { value: ContentFormat.PHOTO_ONLY, label: 'Photo Only', icon: 'pi-image', desc: 'Only photo content accepted' },
-                      { value: ContentFormat.BOTH, label: 'Both', icon: 'pi-images', desc: 'Video and photo accepted' },
-                    ] as const).map(({ value, label, icon, desc }) => {
+                      { value: ContentFormat.VIDEO_ONLY, label: 'Video only', Icon: Video, desc: 'Only video content accepted' },
+                      { value: ContentFormat.PHOTO_ONLY, label: 'Photo only', Icon: ImageIcon, desc: 'Only photo content accepted' },
+                      { value: ContentFormat.BOTH, label: 'Both', Icon: Images, desc: 'Video and photo accepted' },
+                    ] as const).map(({ value, label, Icon, desc }) => {
                       const selected = state.contentFormat === value;
                       // TikTok is a video-only platform: when it's one of the
                       // selected channels, Photo Only becomes an invalid choice.
@@ -294,8 +295,8 @@ export function CreateBountyForm({
                             disabled
                               ? 'border-glass-border bg-surface/40 opacity-50 cursor-not-allowed'
                               : selected
-                                ? 'border-2 border-accent-cyan bg-accent-cyan/10 cursor-pointer'
-                                : 'border-glass-border bg-surface hover:border-accent-cyan cursor-pointer'
+                                ? 'border-2 border-pink-600 bg-pink-600/10 cursor-pointer'
+                                : 'border-glass-border bg-surface hover:border-pink-600 cursor-pointer'
                           }`}
                           onClick={() => {
                             if (disabled) return;
@@ -316,8 +317,8 @@ export function CreateBountyForm({
                               className="absolute top-1.5 right-1.5 text-[10px] py-0 px-1.5"
                             />
                           )}
-                          <i className={`pi ${icon} text-2xl ${selected ? 'text-accent-cyan' : 'text-text-muted'} mb-2`} />
-                          <p className={`text-sm font-medium ${selected ? 'text-accent-cyan' : 'text-text-primary'}`}>{label}</p>
+                          <Icon size={24} strokeWidth={2} className={`mx-auto mb-2 ${selected ? 'text-pink-600' : 'text-text-muted'}`} />
+                          <p className={`text-sm font-medium ${selected ? 'text-pink-600' : 'text-text-primary'}`}>{label}</p>
                           <p className="text-xs text-text-muted mt-0.5">{desc}</p>
                         </div>
                       );
@@ -373,8 +374,8 @@ export function CreateBountyForm({
             />
 
             {/* Post link requirement notice */}
-            <div className="flex items-start gap-3 p-4 rounded-lg border border-accent-cyan/30 bg-accent-cyan/5">
-              <i className="pi pi-info-circle text-accent-cyan mt-0.5" />
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-pink-600/30 bg-pink-600/5">
+              <Info size={16} strokeWidth={2} className="text-pink-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-text-primary">Post links are required for all submissions</p>
                 <p className="text-xs text-text-muted mt-0.5">
@@ -389,8 +390,8 @@ export function CreateBountyForm({
         <div data-section="bountyContent" className={lockedClass}>
           <SectionPanel
             number={2}
-            title={`Bounty Reward${isLocked ? ' (Locked)' : ''}`}
-            icon="pi-dollar"
+            title={`Bounty reward${isLocked ? ' (Locked)' : ''}`}
+            Icon={DollarSign}
             isComplete={isSectionComplete('bountyContent', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyContent', state.errors).length > 0}
           >
@@ -411,8 +412,8 @@ export function CreateBountyForm({
         <div data-section="bountyRules">
           <SectionPanel
             number={3}
-            title="Bounty Rules"
-            icon="pi-shield"
+            title="Bounty rules"
+            Icon={Shield}
             isComplete={isSectionComplete('bountyRules', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyRules', state.errors).length > 0}
             optional
@@ -493,8 +494,8 @@ export function CreateBountyForm({
         <div data-section="accessType">
           <SectionPanel
             number={4}
-            title="Access Type"
-            icon="pi-lock"
+            title="Access type"
+            Icon={Lock}
             isComplete={true}
             hasError={false}
             optional
@@ -518,8 +519,8 @@ export function CreateBountyForm({
         <div data-section="brandAssets" className={lockedClass}>
           <SectionPanel
             number={5}
-            title={`Brand Assets${isLocked ? ' (Locked)' : ''}`}
-            icon="pi-images"
+            title={`Brand assets${isLocked ? ' (Locked)' : ''}`}
+            Icon={Images}
             isComplete={isSectionComplete('brandAssets', state)}
             hasError={false}
             optional

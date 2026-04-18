@@ -6,6 +6,7 @@ import type { Area } from 'react-easy-crop';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { Slider } from 'primereact/slider';
+import { Check } from 'lucide-react';
 
 interface ImageCropDialogProps {
   visible: boolean;
@@ -121,7 +122,7 @@ export function ImageCropDialog({
           <Button label="Cancel" outlined severity="secondary" onClick={handleCancel} />
           <Button
             label="Apply"
-            icon="pi pi-check"
+            icon={<Check size={16} strokeWidth={2} />}
             loading={saving}
             onClick={handleConfirm}
           />

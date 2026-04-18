@@ -9,6 +9,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { usePaymentsHealth } from '@/hooks/useAdmin';
 import { formatDateTime } from '@/lib/utils/format';
+import { RefreshCw } from 'lucide-react';
 
 export default function AdminPaymentsHealthPage() {
   const { data, isLoading, error, refetch } = usePaymentsHealth();
@@ -30,10 +31,10 @@ export default function AdminPaymentsHealthPage() {
   return (
     <>
       <PageHeader
-        title="Payments Health"
+        title="Payments health"
         subtitle="Stitch Express connectivity, webhook status, and kill switch"
         actions={
-          <Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />
+          <Button label="Refresh" icon={<RefreshCw size={16} strokeWidth={2} />} outlined onClick={() => refetch()} />
         }
       />
 
@@ -88,11 +89,11 @@ export default function AdminPaymentsHealthPage() {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <div className="text-text-muted">Event type</div>
-              <div className="font-mono">{data.lastWebhook.eventType}</div>
+              <div className="font-mono tabular-nums">{data.lastWebhook.eventType}</div>
             </div>
             <div>
               <div className="text-text-muted">Received</div>
-              <div>{formatDateTime(data.lastWebhook.receivedAt)}</div>
+              <div className="font-mono tabular-nums">{formatDateTime(data.lastWebhook.receivedAt)}</div>
             </div>
             <div>
               <div className="text-text-muted">Status</div>
@@ -115,15 +116,15 @@ export default function AdminPaymentsHealthPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
             <div className="text-text-muted">STITCH_CLIENT_ID</div>
-            <div className="font-mono">{data.credsHashes.clientId}</div>
+            <div className="font-mono tabular-nums">{data.credsHashes.clientId}</div>
           </div>
           <div>
             <div className="text-text-muted">STITCH_CLIENT_SECRET</div>
-            <div className="font-mono">{data.credsHashes.clientSecret}</div>
+            <div className="font-mono tabular-nums">{data.credsHashes.clientSecret}</div>
           </div>
           <div>
             <div className="text-text-muted">STITCH_WEBHOOK_SECRET</div>
-            <div className="font-mono">{data.credsHashes.webhookSecret}</div>
+            <div className="font-mono tabular-nums">{data.credsHashes.webhookSecret}</div>
           </div>
         </div>
       </Card>

@@ -5,6 +5,7 @@ import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { Image } from 'primereact/image';
 import { Divider } from 'primereact/divider';
+import { Pencil } from 'lucide-react';
 import { useSubmission } from '@/hooks/useSubmissions';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -36,8 +37,8 @@ export default function SubmissionDetailPage() {
         actions={
           canUpdate ? (
             <Button
-              label="Update Submission"
-              icon="pi pi-pencil"
+              label="Update"
+              icon={<Pencil size={14} strokeWidth={2} />}
               // Route to the per-format submit page — it detects existing
               // NEEDS_MORE_INFO submissions and switches into resubmit
               // mode (verified URLs read-only, only failed URLs editable).
@@ -81,7 +82,7 @@ export default function SubmissionDetailPage() {
                         href={link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-accent-cyan hover:text-accent-cyan/80 text-sm"
+                        className="text-pink-600 hover:text-pink-700 text-sm"
                       >
                         {link}
                       </a>
@@ -118,25 +119,25 @@ export default function SubmissionDetailPage() {
             <h3 className="text-lg font-semibold text-text-primary mb-4">Timeline</h3>
             <div className="space-y-3">
               <div>
-                <p className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Submitted</p>
-                <p className="font-medium text-text-primary">{formatDate(submission.createdAt)}</p>
+                <p className="eyebrow !text-text-muted !text-[11px]">Submitted</p>
+                <p className="font-medium text-text-primary mt-0.5">{formatDate(submission.createdAt)}</p>
               </div>
               {submission.reviewedBy && (
                 <div>
-                  <p className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Reviewed By</p>
-                  <p className="font-medium text-text-primary">{submission.reviewedBy.firstName} {submission.reviewedBy.lastName}</p>
+                  <p className="eyebrow !text-text-muted !text-[11px]">Reviewed by</p>
+                  <p className="font-medium text-text-primary mt-0.5">{submission.reviewedBy.firstName} {submission.reviewedBy.lastName}</p>
                 </div>
               )}
               <div>
-                <p className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">Last Updated</p>
-                <p className="font-medium text-text-primary">{formatDate(submission.updatedAt)}</p>
+                <p className="eyebrow !text-text-muted !text-[11px]">Last updated</p>
+                <p className="font-medium text-text-primary mt-0.5">{formatDate(submission.updatedAt)}</p>
               </div>
             </div>
           </div>
 
           {submission.reviewerNote && (
             <div className="glass-card p-6">
-              <h3 className="text-lg font-semibold text-text-primary mb-2">Reviewer Note</h3>
+              <h3 className="text-lg font-semibold text-text-primary mb-2">Reviewer note</h3>
               <p className="text-text-secondary">{submission.reviewerNote}</p>
             </div>
           )}

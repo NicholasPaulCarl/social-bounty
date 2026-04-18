@@ -6,6 +6,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Paginator } from 'primereact/paginator';
 import { Button } from 'primereact/button';
+import { Clock, Eye, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useReviewQueue } from '@/hooks/useSubmissions';
 import { usePagination } from '@/hooks/usePagination';
@@ -30,22 +31,21 @@ const statusOptions = [
 ];
 
 interface StatCardProps {
-  icon: string;
+  Icon: typeof Clock;
   count: number;
   label: string;
-  iconClass: string;
 }
 
-function StatCard({ icon, count, label, iconClass }: StatCardProps) {
+function StatCard({ Icon, count, label }: StatCardProps) {
   return (
-    <div className="glass-card p-4">
+    <div className="glass-card p-4 rounded-xl">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg border border-glass-border flex items-center justify-center">
-          <i className={`pi ${icon} ${iconClass}`} />
+        <div className="w-10 h-10 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center">
+          <Icon size={20} strokeWidth={2} />
         </div>
         <div>
-          <p className="text-2xl font-heading font-bold text-text-primary">{count}</p>
-          <p className="text-sm text-text-muted">{label}</p>
+          <p className="font-mono tabular-nums text-2xl font-bold text-text-primary">{count}</p>
+          <p className="eyebrow">{label}</p>
         </div>
       </div>
     </div>
@@ -120,10 +120,10 @@ export default function ReviewCenterPage() {
 
   const actionsTemplate = (rowData: QueueItem) => (
     <Button
-      icon="pi pi-eye"
+      icon={<Eye size={18} strokeWidth={2} />}
       rounded
       text
-      severity="info"
+      severity="secondary"
       onClick={() => router.push(`/business/review-center/${rowData.id}`)}
       tooltip="Review"
     />
@@ -159,11 +159,11 @@ export default function ReviewCenterPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-        <StatCard icon="pi-clock"               count={stats.pending}        label="Pending"          iconClass="text-amber-400"   />
-        <StatCard icon="pi-eye"                  count={stats.inReview}       label="In Review"        iconClass="text-cyan-400"    />
-        <StatCard icon="pi-exclamation-triangle" count={stats.needsMoreInfo}  label="Needs More Info"  iconClass="text-violet-400"  />
-        <StatCard icon="pi-check-circle"         count={stats.approvedToday}  label="Approved Today"   iconClass="text-emerald-400" />
-        <StatCard icon="pi-times-circle"         count={stats.rejectedToday}  label="Rejected Today"   iconClass="text-red-400"     />
+        <StatCard Icon={Clock}          count={stats.pending}       label="Pending" />
+        <StatCard Icon={Eye}            count={stats.inReview}      label="In review" />
+        <StatCard Icon={AlertTriangle}  count={stats.needsMoreInfo} label="Needs more info" />
+        <StatCard Icon={CheckCircle2}   count={stats.approvedToday} label="Approved today" />
+        <StatCard Icon={XCircle}        count={stats.rejectedToday} label="Rejected today" />
       </div>
 
       {isLoading && <LoadingState type="table" rows={10} columns={5} />}

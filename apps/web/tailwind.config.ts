@@ -19,23 +19,63 @@ const config: Config = {
 
     extend: {
       // ═══════════════════════════════════════════
-      // COLORS — NeoGlass Design System
+      // COLORS — Canonical tokens from the design system
+      // (src/styles/design-system/colors_and_type.css)
+      //
+      // Pink leads, blue counters, slate carries everything.
+      // Blue lives ONLY in the signature gradient + `.info`.
+      // Gold lives ONLY on reward surfaces.
       // ═══════════════════════════════════════════
       colors: {
-        // --- Background layers (light mode) ---
+        // --- Pink (THE brand color) ---
+        pink: {
+          50: '#fdf2f8',
+          100: '#fce7f3',
+          200: '#fbcfe8',
+          300: '#f9a8d4',
+          400: '#f472b6',
+          500: '#ec4899',
+          600: '#db2777',
+          700: '#be185d',
+          800: '#9d174d',
+          900: '#831843',
+        },
+
+        // --- Blue (gradient stop + .info only) ---
+        blue: {
+          50:  '#eff6ff',
+          100: '#dbeafe',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+        },
+
+        // --- Slate (neutral workhorse) ---
+        slate: {
+          50:  '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
+        },
+
+        // --- Reward gold (earnings + points only — never interactive) ---
+        reward: {
+          500: '#f59e0b',
+          600: '#d97706',
+        },
+
+        // --- Semantic background layers ---
         'bg-void': '#ffffff',
         'bg-abyss': '#f8fafc',
         'bg-surface': '#ffffff',
         'bg-elevated': '#f1f5f9',
         'bg-hover': '#e2e8f0',
-
-        // --- Accent colors (pink primary, blue secondary) ---
-        'accent-cyan': '#db2777',
-        'accent-violet': '#2563eb',
-        'accent-amber': '#d97706',
-        'accent-emerald': '#059669',
-        'accent-rose': '#e11d48',
-        'accent-blue': '#2563eb',
 
         // --- Text (dark-on-light) ---
         'text-primary': '#0f172a',
@@ -43,7 +83,7 @@ const config: Config = {
         'text-muted': '#94a3b8',
         'text-disabled': '#cbd5e1',
 
-        // --- Glass (light card style) ---
+        // --- Glass (frosted surface overlays) ---
         glass: {
           bg: 'rgba(255, 255, 255, 0.80)',
           border: 'rgba(0, 0, 0, 0.08)',
@@ -52,7 +92,8 @@ const config: Config = {
           overlay: 'rgba(0, 0, 0, 0.30)',
         },
 
-        // --- Legacy semantic colors (preserving for existing components) ---
+        // --- PrimeReact-facing semantic scales (wired via CSS vars;
+        //     keep these so Tailwind classes like `bg-primary-600` map. ---
         primary: {
           50: '#fdf2f8',
           100: '#fce7f3',
@@ -201,18 +242,15 @@ const config: Config = {
         'level-3': '0 8px 24px rgba(0, 0, 0, 0.12)',
         'level-4': '0 16px 48px rgba(0, 0, 0, 0.16)',
 
-        // Subtle colored shadows (light mode equivalents)
-        'glow-cyan': '0 4px 14px rgba(219, 39, 119, 0.10)',
-        'glow-cyan-intense': '0 4px 14px rgba(219, 39, 119, 0.15), 0 1px 3px rgba(219, 39, 119, 0.08)',
-        'glow-violet': '0 4px 14px rgba(37, 99, 235, 0.10)',
-        'glow-violet-intense': '0 4px 14px rgba(37, 99, 235, 0.15), 0 1px 3px rgba(37, 99, 235, 0.08)',
-        'glow-amber': '0 4px 14px rgba(217, 119, 6, 0.10)',
-        'glow-emerald': '0 4px 14px rgba(5, 150, 105, 0.10)',
-        'glow-rose': '0 4px 14px rgba(225, 29, 72, 0.10)',
+        // Brand glow (pink-600) — the canonical colored shadow per the
+        // design system. Blue glow exists only for the hero CTA +
+        // primary button, so use `shadow-brand-intense` for that too.
+        'glow-brand': '0 4px 14px rgba(219, 39, 119, 0.10)',
+        'glow-brand-intense': '0 4px 14px rgba(219, 39, 119, 0.15), 0 1px 3px rgba(219, 39, 119, 0.08)',
         'glow-blue': '0 4px 14px rgba(37, 99, 235, 0.10)',
 
         // Focus ring
-        'ring-glow-cyan': '0 0 0 3px rgba(219, 39, 119, 0.15)',
+        'ring-glow-brand': '0 0 0 3px rgba(219, 39, 119, 0.15)',
       },
 
       // ═══════════════════════════════════════════

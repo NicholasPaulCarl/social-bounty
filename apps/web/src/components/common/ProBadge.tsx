@@ -9,7 +9,7 @@ export function ProBadge({ size = 'sm' }: ProBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center font-bold tracking-wider uppercase rounded ${sizeClasses} bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/30`}
+      className={`inline-flex items-center font-bold tracking-wider uppercase rounded ${sizeClasses} bg-pink-600/20 text-pink-600 border border-pink-600/30`}
       title="Pro Subscription"
     >
       PRO

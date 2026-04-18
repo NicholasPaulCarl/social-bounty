@@ -7,6 +7,16 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Message } from 'primereact/message';
 import Link from 'next/link';
+import {
+  ArrowLeft,
+  Check,
+  Link2,
+  Music2,
+  Plus,
+  Trash2,
+  Upload,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { getUploadUrl } from '@/lib/api/client';
 
 import {
@@ -28,10 +38,17 @@ import { HUNTER_INTERESTS, PROFILE_LIMITS } from '@social-bounty/shared';
 import { SocialChannel } from '@social-bounty/shared';
 import type { SocialLinkResponse } from '@social-bounty/shared';
 
-const PLATFORM_OPTIONS = [
-  { value: SocialChannel.INSTAGRAM, label: 'Instagram' },
-  { value: SocialChannel.TIKTOK, label: 'TikTok' },
-  { value: SocialChannel.FACEBOOK, label: 'Facebook' },
+// Lucide 1.8.0 ships Music2 for TikTok but no Facebook / Instagram
+// brand glyphs. Using Link2 as the neutral chain-link fallback per
+// apps/web/src/styles/design-system/ICONS.md §Social brand marks.
+const PLATFORM_OPTIONS: Array<{
+  value: SocialChannel;
+  label: string;
+  Icon: LucideIcon;
+}> = [
+  { value: SocialChannel.INSTAGRAM, label: 'Instagram', Icon: Link2 },
+  { value: SocialChannel.TIKTOK, label: 'TikTok', Icon: Music2 },
+  { value: SocialChannel.FACEBOOK, label: 'Facebook', Icon: Link2 },
 ];
 
 type LocalSocialLink = {
@@ -224,10 +241,15 @@ export default function ProfileEditPage() {
   return (
     <>
       <PageHeader
-        title="Edit Profile"
+        title="Edit profile"
         actions={
           <Link href="/profile">
-            <Button label="Back to Profile" icon="pi pi-arrow-left" outlined severity="secondary" />
+            <Button
+              label="Back"
+              icon={<ArrowLeft size={14} strokeWidth={2} />}
+              outlined
+              severity="secondary"
+            />
           </Link>
         }
       />
@@ -244,7 +266,7 @@ export default function ProfileEditPage() {
         {/* ── Profile Picture ─────────────────────────────────────────── */}
         <div className="glass-card p-6 animate-fade-up">
           <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">
-            Profile Picture
+            Profile picture
           </h3>
           <div className="flex items-center gap-5">
             {profile.profilePictureUrl ? (
@@ -254,7 +276,7 @@ export default function ProfileEditPage() {
                 className="w-20 h-20 rounded-full object-cover border-2 border-glass-border"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-accent-cyan/20 text-accent-cyan flex items-center justify-center text-2xl font-heading font-semibold border-2 border-glass-border">
+              <div className="w-20 h-20 rounded-full bg-pink-600/20 text-pink-600 flex items-center justify-center text-2xl font-heading font-semibold border-2 border-glass-border">
                 {initials}
               </div>
             )}
@@ -267,16 +289,16 @@ export default function ProfileEditPage() {
                 onChange={handleFileSelected}
               />
               <Button
-                label="Upload Picture"
-                icon="pi pi-upload"
+                label="Upload"
+                icon={<Upload size={14} strokeWidth={2} />}
                 size="small"
                 loading={uploadPicture.isPending}
                 onClick={() => fileInputRef.current?.click()}
               />
               {profile.profilePictureUrl && (
                 <Button
-                  label="Remove Picture"
-                  icon="pi pi-trash"
+                  label="Remove"
+                  icon={<Trash2 size={14} strokeWidth={2} />}
                   size="small"
                   severity="danger"
                   outlined
@@ -291,11 +313,11 @@ export default function ProfileEditPage() {
 
         {/* ── Basic Info ──────────────────────────────────────────────── */}
         <div className="glass-card p-6 animate-fade-up" style={{ animationDelay: '50ms' }}>
-          <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Basic Info</h3>
+          <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Basic info</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                First Name
+                First name
               </label>
               <InputText
                 value={firstName}
@@ -305,7 +327,7 @@ export default function ProfileEditPage() {
             </div>
             <div>
               <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                Last Name
+                Last name
               </label>
               <InputText
                 value={lastName}
@@ -330,7 +352,7 @@ export default function ProfileEditPage() {
               className="w-full"
               placeholder="Tell brands about yourself..."
             />
-            <p className="text-right text-text-muted text-xs mt-1">
+            <p className="text-right text-text-muted text-xs mt-1 font-mono tabular-nums">
               {bio.length} / {PROFILE_LIMITS.BIO_MAX}
             </p>
           </div>
@@ -347,10 +369,10 @@ export default function ProfileEditPage() {
                   key={interest}
                   type="button"
                   onClick={() => toggleInterest(interest)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent-cyan/50 ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-pink-600/50 ${
                     active
-                      ? 'bg-accent-cyan/20 text-accent-cyan border-accent-cyan/50'
-                      : 'bg-transparent text-text-secondary border-glass-border hover:border-accent-cyan/40 hover:text-text-primary'
+                      ? 'bg-pink-600/20 text-pink-600 border-pink-600/50'
+                      : 'bg-transparent text-text-secondary border-glass-border hover:border-pink-600/40 hover:text-text-primary'
                   }`}
                 >
                   {interest}
@@ -360,7 +382,7 @@ export default function ProfileEditPage() {
           </div>
           {interests.length > 0 && (
             <p className="text-text-muted text-xs mt-3">
-              {interests.length} interest{interests.length !== 1 ? 's' : ''} selected
+              <span className="font-mono tabular-nums">{interests.length}</span> interest{interests.length !== 1 ? 's' : ''} selected
             </p>
           )}
         </div>
@@ -368,7 +390,7 @@ export default function ProfileEditPage() {
         {/* ── Social Links ─────────────────────────────────────────────── */}
         <div className="glass-card p-6 animate-fade-up" style={{ animationDelay: '200ms' }}>
           <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">
-            Social Links
+            Social links
           </h3>
 
           {socialLinks.length === 0 && (
@@ -396,8 +418,8 @@ export default function ProfileEditPage() {
           {availablePlatforms.length > 0 && (
             <div className="relative">
               <Button
-                label="Add Social Link"
-                icon="pi pi-plus"
+                label="Add link"
+                icon={<Plus size={14} strokeWidth={2} />}
                 outlined
                 severity="secondary"
                 size="small"
@@ -412,9 +434,7 @@ export default function ProfileEditPage() {
                       className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-primary hover:bg-glass-border/30 rounded transition-colors"
                       onClick={() => addSocialLink(p.value)}
                     >
-                      <i
-                        className={`pi pi-${p.label.toLowerCase()} text-text-muted text-sm`}
-                      />
+                      <p.Icon size={16} strokeWidth={2} className="text-text-muted" />
                       {p.label}
                     </button>
                   ))}
@@ -427,8 +447,8 @@ export default function ProfileEditPage() {
         {/* ── Save ─────────────────────────────────────────────────────── */}
         <div className="flex gap-3 pb-8">
           <Button
-            label="Save Profile"
-            icon="pi pi-check"
+            label="Save"
+            icon={<Check size={16} strokeWidth={2} />}
             onClick={handleSave}
             loading={isSaving}
           />

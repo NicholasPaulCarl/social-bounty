@@ -17,6 +17,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { HUNTER_INTERESTS, BRAND_PROFILE_LIMITS } from '@social-bounty/shared';
 import type { BrandSocialLinks } from '@social-bounty/shared';
 import { ImageCropDialog } from '@/components/common/ImageCropDialog';
+import { Loader2, CheckCircle2, XCircle, Check } from 'lucide-react';
 
 export default function EditBrandPage() {
   const { id } = useParams<{ id: string }>();
@@ -198,7 +199,7 @@ export default function EditBrandPage() {
               onChange={(e) => updateField('name', e.target.value)}
               className={`w-full ${errors.name ? 'p-invalid' : ''}`}
             />
-            {errors.name && <small className="text-accent-rose text-xs mt-1 block">{errors.name}</small>}
+            {errors.name && <small className="text-danger-600 text-xs mt-1 block">{errors.name}</small>}
           </div>
 
           <div>
@@ -212,7 +213,7 @@ export default function EditBrandPage() {
               onChange={(e) => updateField('contactEmail', e.target.value)}
               className={`w-full ${errors.contactEmail ? 'p-invalid' : ''}`}
             />
-            {errors.contactEmail && <small className="text-accent-rose text-xs mt-1 block">{errors.contactEmail}</small>}
+            {errors.contactEmail && <small className="text-danger-600 text-xs mt-1 block">{errors.contactEmail}</small>}
           </div>
 
           <div>
@@ -229,11 +230,11 @@ export default function EditBrandPage() {
                 placeholder="your-brand"
                 maxLength={BRAND_PROFILE_LIMITS.HANDLE_MAX}
               />
-              {handleStatus === 'checking' && <i className="pi pi-spinner pi-spin text-text-muted" />}
-              {handleStatus === 'available' && <i className="pi pi-check-circle text-green-400" />}
-              {handleStatus === 'taken' && <i className="pi pi-times-circle text-accent-rose" />}
+              {handleStatus === 'checking' && <Loader2 size={18} strokeWidth={2} className="text-text-muted animate-spin" />}
+              {handleStatus === 'available' && <CheckCircle2 size={18} strokeWidth={2} className="text-success-600" />}
+              {handleStatus === 'taken' && <XCircle size={18} strokeWidth={2} className="text-danger-600" />}
             </div>
-            {errors.handle && <small className="text-accent-rose text-xs mt-1 block">{errors.handle}</small>}
+            {errors.handle && <small className="text-danger-600 text-xs mt-1 block">{errors.handle}</small>}
           </div>
 
           <div>
@@ -266,7 +267,7 @@ export default function EditBrandPage() {
               }}
               className="text-sm text-text-secondary"
             />
-            {logo && <small className="text-accent-emerald text-xs mt-1 block">Cropped logo ready</small>}
+            {logo && <small className="text-success-600 text-xs mt-1 block">Cropped logo ready</small>}
             <small className="text-text-muted text-xs mt-1 block">Recommended: 200 x 200px, square. Max 2MB.</small>
           </div>
 
@@ -285,7 +286,7 @@ export default function EditBrandPage() {
               }}
               className="text-sm text-text-secondary"
             />
-            {coverPhoto && <small className="text-accent-emerald text-xs mt-1 block">Cropped cover ready</small>}
+            {coverPhoto && <small className="text-success-600 text-xs mt-1 block">Cropped cover ready</small>}
             <small className="text-text-muted text-xs mt-1 block">Recommended: 1200 x 400px (3:1 ratio). Max 5MB.</small>
           </div>
 
@@ -380,8 +381,8 @@ export default function EditBrandPage() {
                   onClick={() => toggleInterest(interest)}
                   className={`px-3 py-1.5 rounded-full text-sm border transition-all duration-fast ${
                     selected
-                      ? 'bg-accent-cyan text-bg-void border-accent-cyan font-medium shadow-glow-cyan'
-                      : 'bg-glass-bg text-text-secondary border-glass-border hover:border-accent-cyan/50 hover:text-accent-cyan'
+                      ? 'bg-pink-600 text-bg-void border-pink-600 font-medium shadow-glow-brand'
+                      : 'bg-glass-bg text-text-secondary border-glass-border hover:border-pink-600/50 hover:text-pink-600'
                   }`}
                 >
                   {interest}
@@ -417,7 +418,7 @@ export default function EditBrandPage() {
           <Button
             type="submit"
             label="Save Changes"
-            icon="pi pi-check"
+            icon={<Check size={16} strokeWidth={2} />}
             loading={updateOrg.isPending}
           />
         </div>

@@ -6,6 +6,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
+import { Send, X, Loader2, Search, AlertCircle } from 'lucide-react';
 import { useCreateConversation, useSearchUsers } from '@/hooks/useInbox';
 import { useAuth } from '@/hooks/useAuth';
 import { ConversationContext, INBOX_CONSTANTS } from '@social-bounty/shared';
@@ -110,7 +111,7 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
       />
       <Button
         label="Send Message"
-        icon="pi pi-send"
+        icon={<Send size={16} strokeWidth={2} />}
         onClick={handleSubmit}
         disabled={!canSubmit}
         loading={createConversation.isPending}
@@ -132,12 +133,12 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
         {/* Recipient Search */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1.5">
-            To <span className="text-accent-rose">*</span>
+            To <span className="text-danger-600">*</span>
           </label>
           <div className="relative" ref={searchRef}>
             {selectedRecipient ? (
               <div className="flex items-center gap-2 glass-input px-3 py-2 rounded-lg">
-                <div className="w-7 h-7 rounded-full bg-accent-cyan/20 text-accent-cyan flex items-center justify-center text-xs font-semibold">
+                <div className="w-7 h-7 rounded-full bg-pink-600/20 text-pink-600 flex items-center justify-center text-xs font-semibold">
                   {selectedRecipient.firstName[0]}{selectedRecipient.lastName[0]}
                 </div>
                 <span className="text-sm text-text-primary flex-1">
@@ -149,13 +150,15 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
                   className="text-text-muted hover:text-text-primary p-1 cursor-pointer"
                   aria-label="Clear recipient"
                 >
-                  <i className="pi pi-times text-xs" />
+                  <X size={14} strokeWidth={2} />
                 </button>
               </div>
             ) : (
               <>
                 <span className="p-input-icon-left w-full">
-                  <i className={isSearching ? 'pi pi-spinner pi-spin' : 'pi pi-search'} />
+                  {isSearching
+                    ? <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+                    : <Search size={16} strokeWidth={2} />}
                   <InputText
                     value={recipientSearch}
                     onChange={(e) => {
@@ -181,7 +184,7 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
                           className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-elevated/60 transition-colors text-left cursor-pointer"
                           onClick={() => selectRecipient(u)}
                         >
-                          <div className="w-8 h-8 rounded-full bg-accent-violet/20 text-accent-violet flex items-center justify-center text-xs font-semibold shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-blue-600/20 text-blue-600 flex items-center justify-center text-xs font-semibold shrink-0">
                             {u.firstName[0]}{u.lastName[0]}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -220,7 +223,7 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
         {/* Subject */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1.5">
-            Subject <span className="text-accent-rose">*</span>
+            Subject <span className="text-danger-600">*</span>
           </label>
           <InputText
             value={subject}
@@ -236,7 +239,7 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
         {/* Message */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1.5">
-            Message <span className="text-accent-rose">*</span>
+            Message <span className="text-danger-600">*</span>
           </label>
           <InputTextarea
             value={message}
@@ -254,8 +257,8 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
         </div>
 
         {createConversation.isError && (
-          <div className="flex items-center gap-2 text-accent-rose text-sm">
-            <i className="pi pi-exclamation-circle" />
+          <div className="flex items-center gap-2 text-danger-600 text-sm">
+            <AlertCircle size={16} strokeWidth={2} />
             <span>{(createConversation.error as Error)?.message || 'Failed to create conversation'}</span>
           </div>
         )}

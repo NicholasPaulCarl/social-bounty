@@ -17,6 +17,7 @@ import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate } from '@/lib/utils/format';
 import { BountyApplicationStatus } from '@social-bounty/shared';
 import { ApiError } from '@/lib/api/client';
+import { Check, X, Inbox } from 'lucide-react';
 import type { BountyApplicationResponse } from '@social-bounty/shared';
 
 export default function ApplicationsPage() {
@@ -73,7 +74,7 @@ export default function ApplicationsPage() {
         label={row.userName.charAt(0).toUpperCase()}
         shape="circle"
         size="normal"
-        className="bg-accent-violet/20 text-accent-violet font-semibold"
+        className="bg-pink-100 text-pink-600 font-semibold"
       />
       <span className="text-sm font-medium text-text-primary">{row.userName}</span>
     </div>
@@ -100,7 +101,7 @@ export default function ApplicationsPage() {
     return (
       <div className="flex items-center gap-2">
         <Button
-          icon="pi pi-check"
+          icon={<Check size={14} strokeWidth={2} />}
           label="Approve"
           size="small"
           severity="success"
@@ -109,7 +110,7 @@ export default function ApplicationsPage() {
           onClick={() => setConfirmApprove(row)}
         />
         <Button
-          icon="pi pi-times"
+          icon={<X size={14} strokeWidth={2} />}
           label="Reject"
           size="small"
           severity="danger"
@@ -131,8 +132,8 @@ export default function ApplicationsPage() {
       <div className="glass-card overflow-hidden">
         {applications.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-              <i className="pi pi-inbox text-2xl text-text-muted" />
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 text-text-muted flex items-center justify-center mx-auto mb-4">
+              <Inbox size={28} strokeWidth={2} />
             </div>
             <p className="text-text-secondary font-medium">No applications yet</p>
             <p className="text-text-muted text-sm mt-1">Applications will appear here once Hunters claim a spot.</p>

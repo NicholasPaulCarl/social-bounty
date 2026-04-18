@@ -6,6 +6,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Paginator } from 'primereact/paginator';
 import { Button } from 'primereact/button';
+import { Plus } from 'lucide-react';
 import { useMyDisputes } from '@/hooks/useDisputes';
 import { usePagination } from '@/hooks/usePagination';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -38,13 +39,13 @@ export default function MyDisputesPage() {
   return (
     <>
       <PageHeader
-        title="My Disputes"
+        title="My disputes"
         subtitle="Track your open disputes"
         actions={
           <Button
-            label="File a Dispute"
-            icon="pi pi-plus"
-            className="bg-accent-cyan border-accent-cyan text-background hover:bg-accent-cyan/90"
+            label="File"
+            icon={<Plus size={16} strokeWidth={2} />}
+            className="bg-pink-600 border-pink-600 text-background hover:bg-pink-700"
             onClick={() => router.push('/my-disputes/new')}
           />
         }
@@ -63,7 +64,7 @@ export default function MyDisputesPage() {
           icon="pi-flag"
           title="All clear"
           message="No disputes on file. We've got your back if you ever need one."
-          ctaLabel="File a Dispute"
+          ctaLabel="File a dispute"
           ctaAction={() => router.push('/my-disputes/new')}
           ctaIcon="pi-plus"
         />
@@ -83,7 +84,7 @@ export default function MyDisputesPage() {
                 field="disputeNumber"
                 header="Dispute #"
                 body={(row: DisputeListItem) => (
-                  <span className="font-mono text-accent-cyan text-sm">{row.disputeNumber}</span>
+                  <span className="font-mono text-pink-600 text-sm">{row.disputeNumber}</span>
                 )}
               />
               <Column
@@ -97,7 +98,7 @@ export default function MyDisputesPage() {
                 field="category"
                 header="Category"
                 body={(row: DisputeListItem) => (
-                  <span className="px-2 py-0.5 rounded text-xs font-medium bg-accent-violet/10 text-accent-violet border border-accent-violet/20">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
                     {formatEnumLabel(row.category)}
                   </span>
                 )}

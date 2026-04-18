@@ -1,6 +1,7 @@
 'use client';
 
 import { Calendar } from 'primereact/calendar';
+import { AlertCircle } from 'lucide-react';
 import type { BountyFormAction } from './types';
 
 interface ScheduleSectionProps {
@@ -48,8 +49,8 @@ export function ScheduleSection({ startDate, endDate, dispatch, errors, submitAt
         />
         <small className="text-xs text-text-muted mt-1 block">When the bounty closes for submissions</small>
         {errors.endDate && (
-          <small className="text-xs text-accent-rose mt-1 flex items-center gap-1">
-            <i className="pi pi-exclamation-circle text-xs" />
+          <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+            <AlertCircle size={12} strokeWidth={2} />
             {errors.endDate}
           </small>
         )}

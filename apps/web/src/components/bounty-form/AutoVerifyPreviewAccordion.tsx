@@ -19,6 +19,7 @@
  * form (DESIGN-SYSTEM.md §10 mobile-tightening checklist).
  */
 import { useState } from 'react';
+import { Shield, ChevronDown } from 'lucide-react';
 import { VerificationReportPanel } from '@/components/features/submission/VerificationReportPanel';
 import {
   derivePreviewChecks,
@@ -46,15 +47,15 @@ export function AutoVerifyPreviewAccordion({ input }: AutoVerifyPreviewAccordion
         className="w-full flex items-center justify-between gap-3 px-3 py-2.5 sm:px-4 sm:py-3 text-left hover:bg-elevated transition-colors"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <i className="pi pi-shield text-accent-cyan text-sm shrink-0" aria-hidden="true" />
+          <Shield size={16} strokeWidth={2} className="text-pink-600 shrink-0" aria-hidden="true" />
           <span className="text-sm sm:text-base font-heading font-semibold text-text-primary truncate">
             Preview auto-verification rules
           </span>
         </div>
-        <i
-          className={`pi pi-chevron-down text-text-muted text-xs transition-transform shrink-0 ${
-            open ? 'rotate-180' : ''
-          }`}
+        <ChevronDown
+          size={16}
+          strokeWidth={2}
+          className={`text-text-muted transition-transform shrink-0 ${open ? 'rotate-180' : ''}`}
           aria-hidden="true"
         />
       </button>
