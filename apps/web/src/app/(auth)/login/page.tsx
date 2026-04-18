@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { InputText } from 'primereact/inputtext';
+import { AlertCircle, ArrowRight, Loader2, LogIn } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
@@ -35,7 +36,7 @@ export default function LoginPage() {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        setError('Something went wrong. Try again.');
       }
     } finally {
       setLoading(false);
@@ -54,7 +55,7 @@ export default function LoginPage() {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        setError('Something went wrong. Try again.');
       }
     } finally {
       setLoading(false);
@@ -71,7 +72,7 @@ export default function LoginPage() {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError('Failed to resend code. Please try again.');
+        setError('Couldn\u2019t resend the code. Try again.');
       }
     }
   }, [cooldown, email]);
@@ -84,14 +85,15 @@ export default function LoginPage() {
 
   return (
     <div className="glass-card p-8 shadow-level-3 animate-fade-up">
+      <p className="eyebrow text-center mb-2">Welcome back</p>
       <h2 className="text-2xl font-heading font-bold text-text-primary text-center mb-6">
-        Sign In
+        Log in
       </h2>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-danger-600/30 bg-danger-600/10 px-4 py-3 text-sm text-danger-600">
-          <i className="pi pi-exclamation-circle mr-2" />
-          {error}
+        <div className="mb-4 rounded-lg border border-danger-600/30 bg-danger-600/10 px-4 py-3 text-sm text-danger-600 flex items-start gap-2">
+          <AlertCircle size={18} strokeWidth={2} className="flex-none mt-0.5" />
+          <span>{error}</span>
         </div>
       )}
 
@@ -118,16 +120,12 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white
-                       bg-gradient-to-r from-pink-600 to-blue-600
-                       shadow-glow-brand hover:shadow-glow-brand-intense
-                       transition-all duration-normal
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary btn-lg w-full rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <i className="pi pi-spinner pi-spin" />
+              <Loader2 size={18} strokeWidth={2} className="animate-spin" />
             ) : (
-              <i className="pi pi-arrow-right" />
+              <ArrowRight size={18} strokeWidth={2} />
             )}
             Continue
           </button>
@@ -143,7 +141,7 @@ export default function LoginPage() {
               htmlFor="otp"
               className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
             >
-              Verification Code
+              Verification code
             </label>
             <InputText
               id="otp"
@@ -152,7 +150,7 @@ export default function LoginPage() {
               onChange={(e) => setOtp(e.target.value)}
               required
               maxLength={6}
-              className="w-full text-center text-lg tracking-[0.3em]"
+              className="w-full text-center font-mono tabular-nums text-lg tracking-[0.3em]"
               placeholder="000000"
               autoFocus
             />
@@ -161,35 +159,31 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading || otp.length < 6}
-            className="group relative w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white
-                       bg-gradient-to-r from-pink-600 to-blue-600
-                       shadow-glow-brand hover:shadow-glow-brand-intense
-                       transition-all duration-normal
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary btn-lg w-full rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <i className="pi pi-spinner pi-spin" />
+              <Loader2 size={18} strokeWidth={2} className="animate-spin" />
             ) : (
-              <i className="pi pi-sign-in" />
+              <LogIn size={18} strokeWidth={2} />
             )}
-            Sign In
+            Log in
           </button>
 
           <div className="flex items-center justify-between text-sm">
             <button
               type="button"
               onClick={handleChangeEmail}
-              className="text-pink-600 hover:text-pink-600/80 transition-colors duration-fast"
+              className="text-pink-600 hover:text-pink-700 transition-colors duration-fast"
             >
-              Use different email
+              Use a different email
             </button>
             {cooldown > 0 ? (
-              <span className="text-text-muted">Resend in {cooldown}s</span>
+              <span className="text-text-muted font-mono tabular-nums">Resend in {cooldown}s</span>
             ) : (
               <button
                 type="button"
                 onClick={handleResend}
-                className="text-pink-600 hover:text-pink-600/80 transition-colors duration-fast"
+                className="text-pink-600 hover:text-pink-700 transition-colors duration-fast"
               >
                 Resend code
               </button>
@@ -200,12 +194,12 @@ export default function LoginPage() {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-text-muted">
-          {"Don't have an account? "}
+          {'Don\u2019t have an account? '}
           <Link
             href="/signup"
-            className="text-pink-600 hover:text-pink-600/80 font-medium transition-colors duration-fast"
+            className="text-pink-600 hover:text-pink-700 font-medium transition-colors duration-fast"
           >
-            Sign Up
+            Sign up
           </Link>
         </p>
       </div>
