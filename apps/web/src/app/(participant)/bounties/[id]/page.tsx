@@ -3,6 +3,23 @@
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
+import type { LucideIcon } from 'lucide-react';
+import {
+  Building2,
+  Check,
+  Clock,
+  Download,
+  File,
+  Globe,
+  Lock,
+  Mail,
+  Send,
+  Upload,
+  Wallet,
+  X,
+  XCircle,
+  Undo2,
+} from 'lucide-react';
 import { useBounty } from '@/hooks/useBounties';
 import { useAuth } from '@/hooks/useAuth';
 import { useMyApplication, useWithdrawApplication, useMyInvitations, useAcceptInvitation, useDeclineInvitation } from '@/hooks/useBountyAccess';
@@ -24,21 +41,21 @@ enum PayoutMethod {
   E_WALLET = 'E_WALLET',
 }
 
-const PAYOUT_METHOD_CONFIG: Record<string, { label: string; icon: string; colorClass: string }> = {
+const PAYOUT_METHOD_CONFIG: Record<string, { label: string; Icon: LucideIcon; colorClass: string }> = {
   [PayoutMethod.PAYPAL]: {
     label: 'PayPal',
-    icon: 'pi-paypal',
-    colorClass: 'bg-blue-600/15 text-blue-600 border-blue-600/30',
+    Icon: Wallet,
+    colorClass: 'bg-pink-600/15 text-pink-600 border-pink-600/30',
   },
   [PayoutMethod.BANK_TRANSFER]: {
-    label: 'Bank Transfer',
-    icon: 'pi-building',
+    label: 'Bank transfer',
+    Icon: Building2,
     colorClass: 'bg-pink-600/15 text-pink-600 border-pink-600/30',
   },
   [PayoutMethod.E_WALLET]: {
-    label: 'E-Wallet',
-    icon: 'pi-wallet',
-    colorClass: 'bg-blue-600/15 text-blue-600 border-blue-600/30',
+    label: 'E-wallet',
+    Icon: Wallet,
+    colorClass: 'bg-slate-100 text-slate-700 border-slate-200',
   },
 };
 
@@ -55,9 +72,10 @@ const FORMAT_LABELS: Record<string, string> = {
   VIDEO_POST: 'Video',
 };
 
+// Channel colors — FB swapped to slate neutral (blue is reserved for gradient + .info per DS).
 const CHANNEL_COLORS: Record<string, string> = {
   INSTAGRAM: 'bg-danger-600/15 text-danger-600 border-danger-600/30',
-  FACEBOOK: 'bg-blue-600/15 text-blue-600 border-blue-600/30',
+  FACEBOOK: 'bg-slate-100 text-slate-700 border-slate-200',
   TIKTOK: 'bg-pink-600/15 text-pink-600 border-pink-600/30',
 };
 
@@ -115,8 +133,8 @@ export default function BountyDetailPage() {
       if (!canSubmit) return null;
       return (
         <Button
-          label="Submit Proof"
-          icon="pi pi-upload"
+          label="Submit proof"
+          icon={<Upload size={16} strokeWidth={2} />}
           onClick={() => router.push(`/bounties/${id}/submit`)}
         />
       );
@@ -131,8 +149,8 @@ export default function BountyDetailPage() {
       if (myInvitation?.status === BountyInvitationStatus.ACCEPTED) {
         return (
           <Button
-            label="Submit Proof"
-            icon="pi pi-upload"
+            label="Submit proof"
+            icon={<Upload size={16} strokeWidth={2} />}
             onClick={() => router.push(`/bounties/${id}/submit`)}
           />
         );
@@ -142,8 +160,8 @@ export default function BountyDetailPage() {
       if (!myApplication && !myInvitation) {
         return (
           <Button
-            label="Apply to Hunt"
-            icon="pi pi-send"
+            label="Apply to hunt"
+            icon={<Send size={16} strokeWidth={2} />}
             className="p-button-outlined"
             onClick={() => router.push(`/bounties/${id}/apply`)}
           />
@@ -152,8 +170,8 @@ export default function BountyDetailPage() {
       if (myApplication?.status === BountyApplicationStatus.APPROVED) {
         return (
           <Button
-            label="Submit Proof"
-            icon="pi pi-upload"
+            label="Submit proof"
+            icon={<Upload size={16} strokeWidth={2} />}
             onClick={() => router.push(`/bounties/${id}/submit`)}
           />
         );
@@ -213,26 +231,26 @@ export default function BountyDetailPage() {
         <div className="glass-card border border-warning-600/40 bg-warning-600/5 p-4 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-warning-600/20 flex items-center justify-center flex-shrink-0">
-              <i className="pi pi-envelope text-warning-600 text-sm" />
+              <Mail size={16} strokeWidth={2} className="text-warning-600" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-text-primary">You&apos;re Invited!</p>
+              <p className="text-sm font-semibold text-text-primary">You&apos;re invited</p>
               <p className="text-xs text-text-secondary mt-0.5">
-                You have been personally invited to participate in this bounty.
+                You have been personally invited to this bounty.
               </p>
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0">
             <Button
               label="Accept"
-              icon="pi pi-check"
+              icon={<Check size={14} strokeWidth={2} />}
               size="small"
               loading={acceptMutation.isPending}
               onClick={handleAcceptInvitation}
             />
             <Button
               label="Decline"
-              icon="pi pi-times"
+              icon={<X size={14} strokeWidth={2} />}
               size="small"
               outlined
               severity="secondary"
@@ -249,17 +267,17 @@ export default function BountyDetailPage() {
           {!appLoading && myApplication?.status === BountyApplicationStatus.PENDING && (
             <div className="glass-card border border-warning-600/40 bg-warning-600/5 p-4 mb-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <i className="pi pi-clock text-warning-600" />
+                <Clock size={20} strokeWidth={2} className="text-warning-600" />
                 <div>
-                  <p className="text-sm font-semibold text-text-primary">Application Pending</p>
+                  <p className="text-sm font-semibold text-text-primary">Application pending</p>
                   <p className="text-xs text-text-secondary mt-0.5">
-                    Your application is under review. You&apos;ll be notified of the outcome.
+                    Under review — we&apos;ll let you know.
                   </p>
                 </div>
               </div>
               <Button
                 label="Withdraw"
-                icon="pi pi-undo"
+                icon={<Undo2 size={14} strokeWidth={2} />}
                 size="small"
                 outlined
                 severity="secondary"
@@ -271,9 +289,9 @@ export default function BountyDetailPage() {
 
           {!appLoading && myApplication?.status === BountyApplicationStatus.REJECTED && (
             <div className="glass-card border border-danger-600/40 bg-danger-600/5 p-4 mb-4 flex items-center gap-3">
-              <i className="pi pi-times-circle text-danger-600" />
+              <XCircle size={20} strokeWidth={2} className="text-danger-600" />
               <div>
-                <p className="text-sm font-semibold text-text-primary">Application Not Approved</p>
+                <p className="text-sm font-semibold text-text-primary">Application not approved</p>
                 {myApplication.reviewNote && (
                   <p className="text-xs text-text-secondary mt-0.5">{myApplication.reviewNote}</p>
                 )}
@@ -299,8 +317,10 @@ export default function BountyDetailPage() {
                     : 'bg-warning-600/10 text-warning-600 border-warning-600/30'
                 }`}
               >
-                <i className={`pi ${isPublic ? 'pi-globe' : 'pi-lock'} text-[10px]`} />
-                {isPublic ? 'Open' : 'Apply Only'}
+                {isPublic
+                  ? <Globe size={12} strokeWidth={2} />
+                  : <Lock size={12} strokeWidth={2} />}
+                {isPublic ? 'Open' : 'Apply only'}
               </span>
             </div>
 
@@ -313,7 +333,7 @@ export default function BountyDetailPage() {
 
             <div className="h-px bg-glass-border my-6" />
 
-            <h3 className="text-lg font-heading font-semibold text-text-primary mb-3">Proof Requirements</h3>
+            <h3 className="text-lg font-heading font-semibold text-text-primary mb-3">Proof requirements</h3>
             <div className="text-text-secondary">
               {bounty.proofRequirements && (bounty.proofRequirements === 'url' || bounty.proofRequirements === 'screenshot' || bounty.proofRequirements === 'url,screenshot' || bounty.proofRequirements === 'screenshot,url') ? (
                 <ul className="space-y-2">
@@ -341,7 +361,7 @@ export default function BountyDetailPage() {
           {/* Channels */}
           {channelKeys.length > 0 && (
             <div className="glass-card p-6">
-              <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Required Channels</h3>
+              <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Required channels</h3>
               <div className="space-y-4">
                 {channelKeys.map((ch) => (
                   <div key={ch} className="flex items-center gap-3">
@@ -364,7 +384,7 @@ export default function BountyDetailPage() {
           {/* Post Visibility */}
           {bounty.postVisibility && (
             <div className="glass-card p-6">
-              <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Post Visibility Requirements</h3>
+              <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Post visibility</h3>
               <div className="text-sm text-text-secondary">
                 {bounty.postVisibility.rule === PostVisibilityRule.MUST_NOT_REMOVE && (
                   <p>Your post must never be removed after submission.</p>
@@ -402,20 +422,20 @@ export default function BountyDetailPage() {
               {bounty.rewards && bounty.rewards.length > 0 ? (
                 <>
                   {bounty.rewards.map((reward) => (
-                    <div key={reward.id} className="flex justify-between items-center py-1.5">
-                      <div>
+                    <div key={reward.id} className="flex justify-between items-center py-1.5 gap-3">
+                      <div className="min-w-0">
                         <span className="text-sm text-text-primary">{reward.name}</span>
                         <span className="text-xs text-text-muted ml-2">({formatEnumLabel(reward.rewardType)})</span>
                       </div>
-                      <span className="text-sm font-medium text-text-primary">
+                      <span className="text-sm font-medium text-text-primary font-mono tabular-nums">
                         {formatCurrency(reward.monetaryValue, bounty.currency)}
                       </span>
                     </div>
                   ))}
                   {bounty.totalRewardValue && (
-                    <div className="pt-3 border-t border-glass-border flex justify-between items-center">
-                      <span className="text-sm font-semibold text-text-secondary">Total</span>
-                      <span className="text-xl font-heading font-bold text-success-600">
+                    <div className="pt-3 border-t border-glass-border flex justify-between items-center gap-3">
+                      <span className="eyebrow !text-text-muted">Total</span>
+                      <span className="metric !text-xl text-success-600">
                         {formatCurrency(bounty.totalRewardValue, bounty.currency)}
                       </span>
                     </div>
@@ -425,8 +445,8 @@ export default function BountyDetailPage() {
                 <>
                   {bounty.rewardValue && (
                     <div>
-                      <p className="text-sm text-text-muted mb-1">Value</p>
-                      <p className="text-2xl font-heading font-bold text-success-600">{formatCurrency(bounty.rewardValue, bounty.currency)}</p>
+                      <p className="eyebrow !text-text-muted">Value</p>
+                      <p className="metric !text-2xl text-success-600">{formatCurrency(bounty.rewardValue, bounty.currency)}</p>
                     </div>
                   )}
                   <div>
@@ -447,12 +467,13 @@ export default function BountyDetailPage() {
           {/* Payment Method card */}
           {bounty.payoutMethod && PAYOUT_METHOD_CONFIG[bounty.payoutMethod] && (() => {
             const config = PAYOUT_METHOD_CONFIG[bounty.payoutMethod as string];
+            const MethodIcon = config.Icon;
             return (
               <div className="glass-card p-6">
-                <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Payment Method</h3>
+                <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Payment method</h3>
                 <div className="flex items-center gap-2">
                   <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border ${config.colorClass}`}>
-                    <i className={`pi ${config.icon} text-sm`} />
+                    <MethodIcon size={14} strokeWidth={2} />
                     {config.label}
                   </span>
                 </div>
@@ -466,26 +487,26 @@ export default function BountyDetailPage() {
             <div className="space-y-4">
               {bounty.startDate && (
                 <div>
-                  <p className="text-sm text-text-muted mb-0.5">Start Date</p>
-                  <p className="font-medium text-text-primary">{formatDate(bounty.startDate)}</p>
+                  <p className="eyebrow !text-text-muted !text-[11px]">Start date</p>
+                  <p className="font-medium text-text-primary mt-0.5">{formatDate(bounty.startDate)}</p>
                 </div>
               )}
               {bounty.endDate && (
                 <div>
-                  <p className="text-sm text-text-muted mb-0.5">End Date</p>
-                  <p className="font-medium text-text-primary">{formatDate(bounty.endDate)}</p>
+                  <p className="eyebrow !text-text-muted !text-[11px]">End date</p>
+                  <p className="font-medium text-text-primary mt-0.5">{formatDate(bounty.endDate)}</p>
                   <p className="text-xs text-warning-600 mt-0.5">{timeRemaining(bounty.endDate)}</p>
                 </div>
               )}
               {bounty.maxSubmissions && (
                 <div>
-                  <p className="text-sm text-text-muted mb-0.5">Submissions</p>
-                  <p className="font-medium text-text-primary">{bounty.submissionCount ?? 0} / {bounty.maxSubmissions}</p>
+                  <p className="eyebrow !text-text-muted !text-[11px]">Submissions</p>
+                  <p className="font-medium text-text-primary mt-0.5 font-mono tabular-nums">{bounty.submissionCount ?? 0} / {bounty.maxSubmissions}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-text-muted mb-0.5">AI Content</p>
-                <p className="font-medium text-text-primary">{bounty.aiContentPermitted ? 'Permitted' : 'Not permitted'}</p>
+                <p className="eyebrow !text-text-muted !text-[11px]">AI content</p>
+                <p className="font-medium text-text-primary mt-0.5">{bounty.aiContentPermitted ? 'Permitted' : 'Not permitted'}</p>
               </div>
             </div>
           </div>
@@ -501,19 +522,19 @@ export default function BountyDetailPage() {
               <div className="space-y-3 text-sm text-text-secondary">
                 {bounty.engagementRequirements.tagAccount && (
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-pink-600 flex-shrink-0" />
                     <p>Tag <span className="font-medium text-text-primary">{bounty.engagementRequirements.tagAccount}</span></p>
                   </div>
                 )}
                 {bounty.engagementRequirements.mention && (
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-pink-600 flex-shrink-0" />
                     <p>Mention the brand in your post</p>
                   </div>
                 )}
                 {bounty.engagementRequirements.comment && (
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-pink-600 flex-shrink-0" />
                     <p>Leave a comment on the post</p>
                   </div>
                 )}
@@ -524,22 +545,22 @@ export default function BountyDetailPage() {
           {/* Brand Assets */}
           {bounty.brandAssets && bounty.brandAssets.length > 0 && (
             <div className="glass-card p-6">
-              <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Brand Assets</h3>
+              <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">Brand assets</h3>
               <div className="space-y-2">
                 {bounty.brandAssets.map((asset) => (
-                  <div key={asset.id} className="flex items-center justify-between py-2.5 border-b border-glass-border last:border-b-0">
+                  <div key={asset.id} className="flex items-center justify-between py-2.5 border-b border-glass-border last:border-b-0 gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5">
-                        <i className={`pi ${asset.mimeType === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-text-muted text-sm`} />
+                      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 shrink-0">
+                        <File size={16} strokeWidth={2} className="text-text-muted" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm text-text-primary truncate">{asset.fileName}</p>
-                        <p className="text-xs text-text-muted">{formatBytes(asset.fileSize)}</p>
+                        <p className="text-xs text-text-muted font-mono tabular-nums">{formatBytes(asset.fileSize)}</p>
                       </div>
                     </div>
                     <Button
                       label="Download"
-                      icon="pi pi-download"
+                      icon={<Download size={14} strokeWidth={2} />}
                       outlined
                       size="small"
                       onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL}/files/brand-assets/${asset.id}/download`, '_blank')}

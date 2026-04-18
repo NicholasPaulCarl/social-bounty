@@ -6,6 +6,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
+import { AlertCircle, Check, CheckCircle2 } from 'lucide-react';
 import { useBounty } from '@/hooks/useBounties';
 import {
   useCreateSubmission,
@@ -237,7 +238,7 @@ export default function SubmitProofPage() {
   const breadcrumbs = [
     { label: 'Bounties', url: '/bounties' },
     { label: bounty.title, url: `/bounties/${bountyId}` },
-    { label: isResubmit ? 'Resubmit Proof' : 'Submit Proof' },
+    { label: isResubmit ? 'Resubmit' : 'Submit' },
   ];
 
   const submitting = createSubmission.isPending || updateSubmission.isPending;
@@ -246,7 +247,7 @@ export default function SubmitProofPage() {
   return (
     <>
       <PageHeader
-        title={isResubmit ? 'Resubmit Proof' : 'Submit Proof'}
+        title={isResubmit ? 'Resubmit proof' : 'Submit proof'}
         breadcrumbs={breadcrumbs}
       />
 
@@ -282,7 +283,7 @@ export default function SubmitProofPage() {
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-sm font-medium text-text-primary mb-1">
-                      Post Links <span className="text-danger-600">*</span>
+                      Post links <span className="text-danger-600">*</span>
                     </h3>
                     <p className="text-xs text-text-muted">
                       Paste one URL per required format. Each link is verified automatically.
@@ -304,7 +305,7 @@ export default function SubmitProofPage() {
                           {labelText} <span className="text-danger-600">*</span>
                           {isVerified && (
                             <span className="ml-2 inline-flex items-center gap-1 text-success-600 normal-case tracking-normal text-xs font-normal">
-                              <i className="pi pi-check-circle text-xs" />
+                              <CheckCircle2 size={12} strokeWidth={2} />
                               Already verified
                             </span>
                           )}
@@ -312,7 +313,7 @@ export default function SubmitProofPage() {
 
                         {isFailed && scrape?.errorMessage && (
                           <p className="text-xs text-danger-600 mb-1.5 flex items-start gap-1">
-                            <i className="pi pi-exclamation-circle text-xs mt-0.5" />
+                            <AlertCircle size={12} strokeWidth={2} className="mt-0.5 shrink-0" />
                             <span>Last attempt failed: {scrape.errorMessage}</span>
                           </p>
                         )}
@@ -335,7 +336,7 @@ export default function SubmitProofPage() {
 
                         {linkErrors[key] && (
                           <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-                            <i className="pi pi-exclamation-circle text-xs" />
+                            <AlertCircle size={12} strokeWidth={2} />
                             {linkErrors[key]}
                           </small>
                         )}
@@ -358,12 +359,12 @@ export default function SubmitProofPage() {
                   placeholder="Any additional notes about your submission..."
                   maxLength={10000}
                 />
-                <p className="text-xs text-text-muted mt-1">{proofText.length}/10000 characters</p>
+                <p className="text-xs text-text-muted mt-1 font-mono tabular-nums">{proofText.length}/10000 characters</p>
               </div>
 
               <div>
                 <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
-                  Proof Images (optional)
+                  Proof images (optional)
                 </label>
                 <div className="glass-card rounded-lg overflow-hidden">
                   <FileUpload
@@ -373,7 +374,7 @@ export default function SubmitProofPage() {
                     maxFileSize={5000000}
                     multiple
                     auto={false}
-                    chooseLabel="Choose Images"
+                    chooseLabel="Choose images"
                     customUpload
                     uploadHandler={(e) => {
                       setImages(e.files as File[]);
@@ -394,8 +395,8 @@ export default function SubmitProofPage() {
               <div className="flex gap-3 pt-4">
                 <Button
                   type="submit"
-                  label={isResubmit ? 'Resubmit Proof' : 'Submit Proof'}
-                  icon="pi pi-check"
+                  label={isResubmit ? 'Resubmit' : 'Submit'}
+                  icon={<Check size={16} strokeWidth={2} />}
                   loading={submitting}
                   disabled={!hasChannels}
                 />
@@ -419,7 +420,7 @@ export default function SubmitProofPage() {
 
         <div>
           <div className="glass-card p-6">
-            <h3 className="text-lg font-semibold text-text-primary mb-3">Bounty Requirements</h3>
+            <h3 className="text-lg font-semibold text-text-primary mb-3">Bounty requirements</h3>
             <p className="text-sm text-text-secondary whitespace-pre-wrap">{bounty.proofRequirements}</p>
           </div>
         </div>
