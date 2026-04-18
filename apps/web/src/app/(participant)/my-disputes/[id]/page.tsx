@@ -7,6 +7,15 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Divider } from 'primereact/divider';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
+import {
+  AlertTriangle,
+  File,
+  Info,
+  Link2,
+  Paperclip,
+  Send,
+  Undo2,
+} from 'lucide-react';
 import { useDispute, useWithdrawDispute, useEscalateDispute, useSendDisputeMessage } from '@/hooks/useDisputes';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -53,7 +62,7 @@ export default function DisputeDetailPage() {
     dispute.status === DisputeStatus.WITHDRAWN;
 
   const breadcrumbs = [
-    { label: 'My Disputes', url: '/my-disputes' },
+    { label: 'My disputes', url: '/my-disputes' },
     { label: dispute.disputeNumber },
   ];
 
@@ -110,7 +119,7 @@ export default function DisputeDetailPage() {
             {canEscalate && (
               <Button
                 label="Escalate"
-                icon="pi pi-exclamation-triangle"
+                icon={<AlertTriangle size={14} strokeWidth={2} />}
                 severity="warning"
                 outlined
                 size="small"
@@ -120,7 +129,7 @@ export default function DisputeDetailPage() {
             {canWithdraw && (
               <Button
                 label="Withdraw"
-                icon="pi pi-undo"
+                icon={<Undo2 size={14} strokeWidth={2} />}
                 severity="danger"
                 outlined
                 size="small"
@@ -135,7 +144,7 @@ export default function DisputeDetailPage() {
         {/* Header Meta */}
         <div className="flex flex-wrap items-center gap-3">
           <StatusBadge type="dispute" value={dispute.status} />
-          <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-600/10 text-blue-600 border border-blue-600/20">
+          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
             {formatEnumLabel(dispute.category)}
           </span>
           <span className="text-text-muted text-sm">
@@ -148,27 +157,27 @@ export default function DisputeDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Details Card */}
             <div className="glass-card p-6">
-              <h3 className="text-base font-semibold text-text-primary mb-4">Dispute Details</h3>
+              <h3 className="text-base font-semibold text-text-primary mb-4">Dispute details</h3>
 
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1.5">Description</p>
-                  <p className="text-text-secondary whitespace-pre-wrap leading-relaxed">{dispute.description}</p>
+                  <p className="eyebrow !text-text-muted !text-[11px]">Description</p>
+                  <p className="text-text-secondary whitespace-pre-wrap leading-relaxed mt-0.5">{dispute.description}</p>
                 </div>
 
                 <Divider className="my-3" />
 
                 <div>
-                  <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1.5">Desired Outcome</p>
-                  <p className="text-text-secondary whitespace-pre-wrap leading-relaxed">{dispute.desiredOutcome}</p>
+                  <p className="eyebrow !text-text-muted !text-[11px]">Desired outcome</p>
+                  <p className="text-text-secondary whitespace-pre-wrap leading-relaxed mt-0.5">{dispute.desiredOutcome}</p>
                 </div>
 
                 {dispute.submission && (
                   <>
                     <Divider className="my-3" />
                     <div>
-                      <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1.5">Related Submission</p>
-                      <p className="text-text-primary font-medium">{dispute.submission.bountyTitle}</p>
+                      <p className="eyebrow !text-text-muted !text-[11px]">Related submission</p>
+                      <p className="text-text-primary font-medium mt-0.5">{dispute.submission.bountyTitle}</p>
                       <p className="text-text-muted text-sm mt-0.5">
                         Submission status:{' '}
                         <StatusBadge type="submission" value={dispute.submission.status} size="small" />
@@ -194,9 +203,9 @@ export default function DisputeDetailPage() {
                     if (isSystem) {
                       return (
                         <div key={msg.id} className="flex justify-center">
-                          <div className="px-4 py-2 rounded-full bg-elevated border border-glass-border text-text-muted text-xs">
-                            <i className="pi pi-info-circle mr-1.5" />
-                            {msg.content}
+                          <div className="px-4 py-2 rounded-full bg-elevated border border-glass-border text-text-muted text-xs inline-flex items-center gap-1.5">
+                            <Info size={12} strokeWidth={2} />
+                            <span>{msg.content}</span>
                             <span className="ml-2 opacity-60">{formatDate(msg.createdAt)}</span>
                           </div>
                         </div>
@@ -241,7 +250,7 @@ export default function DisputeDetailPage() {
               {!isClosed && (
                 <div className="mt-4 pt-4 border-t border-glass-border">
                   <label className="block text-xs text-text-muted uppercase tracking-wider font-medium mb-2">
-                    Send a Message
+                    Send a message
                   </label>
                   <InputTextarea
                     value={messageContent}
@@ -255,9 +264,9 @@ export default function DisputeDetailPage() {
                   <div className="flex justify-end mt-2">
                     <Button
                       label="Send"
-                      icon="pi pi-send"
+                      icon={<Send size={14} strokeWidth={2} />}
                       size="small"
-                      className="bg-pink-600 border-pink-600 text-background hover:bg-pink-600/90"
+                      className="bg-pink-600 border-pink-600 text-background hover:bg-pink-700"
                       disabled={!messageContent.trim() || sendMessage.isPending}
                       loading={sendMessage.isPending}
                       onClick={handleSendMessage}
@@ -272,45 +281,48 @@ export default function DisputeDetailPage() {
               <div className="glass-card p-6">
                 <h3 className="text-base font-semibold text-text-primary mb-4">Evidence</h3>
                 <div className="space-y-3">
-                  {dispute.evidence.map((ev: DisputeEvidenceResponse) => (
-                    <div key={ev.id} className="flex items-start gap-3 p-3 rounded-lg bg-elevated border border-glass-border">
-                      <i
-                        className={`mt-0.5 ${
-                          ev.evidenceType === 'SCREENSHOT' || ev.evidenceType === 'DOCUMENT'
-                            ? 'pi pi-file text-blue-600'
-                            : ev.evidenceType === 'LINK'
-                              ? 'pi pi-link text-pink-600'
-                              : 'pi pi-paperclip text-text-muted'
-                        }`}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-text-muted uppercase tracking-wider">
-                            {formatEnumLabel(ev.evidenceType)}
-                          </span>
-                          <span className="text-xs text-text-muted">
-                            by {ev.uploadedBy.firstName} {ev.uploadedBy.lastName}
-                          </span>
+                  {dispute.evidence.map((ev: DisputeEvidenceResponse) => {
+                    const isFile =
+                      ev.evidenceType === 'SCREENSHOT' || ev.evidenceType === 'DOCUMENT';
+                    const isLink = ev.evidenceType === 'LINK';
+                    const EvidenceIcon = isFile ? File : isLink ? Link2 : Paperclip;
+                    const iconColor = isFile
+                      ? 'text-slate-600'
+                      : isLink
+                        ? 'text-pink-600'
+                        : 'text-text-muted';
+                    return (
+                      <div key={ev.id} className="flex items-start gap-3 p-3 rounded-lg bg-elevated border border-glass-border">
+                        <EvidenceIcon size={16} strokeWidth={2} className={`mt-0.5 ${iconColor}`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-text-muted uppercase tracking-wider">
+                              {formatEnumLabel(ev.evidenceType)}
+                            </span>
+                            <span className="text-xs text-text-muted">
+                              by {ev.uploadedBy.firstName} {ev.uploadedBy.lastName}
+                            </span>
+                          </div>
+                          {ev.fileName && (
+                            <p className="text-sm text-text-primary mt-1 truncate">{ev.fileName}</p>
+                          )}
+                          {ev.url && (
+                            <a
+                              href={ev.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-pink-600 hover:underline truncate block mt-1"
+                            >
+                              {ev.url}
+                            </a>
+                          )}
+                          {ev.description && (
+                            <p className="text-xs text-text-muted mt-1">{ev.description}</p>
+                          )}
                         </div>
-                        {ev.fileName && (
-                          <p className="text-sm text-text-primary mt-1 truncate">{ev.fileName}</p>
-                        )}
-                        {ev.url && (
-                          <a
-                            href={ev.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-pink-600 hover:underline truncate block mt-1"
-                          >
-                            {ev.url}
-                          </a>
-                        )}
-                        {ev.description && (
-                          <p className="text-xs text-text-muted mt-1">{ev.description}</p>
-                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -323,37 +335,37 @@ export default function DisputeDetailPage() {
               <h3 className="text-base font-semibold text-text-primary mb-4">Info</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Filed</p>
-                  <p className="text-sm text-text-primary">{formatDate(dispute.createdAt)}</p>
+                  <p className="eyebrow !text-text-muted !text-[11px]">Filed</p>
+                  <p className="text-sm text-text-primary mt-0.5">{formatDate(dispute.createdAt)}</p>
                 </div>
                 {dispute.responseDeadline && (
                   <div>
-                    <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Response Deadline</p>
-                    <p className="text-sm text-warning-600">{formatDate(dispute.responseDeadline)}</p>
+                    <p className="eyebrow !text-text-muted !text-[11px]">Response deadline</p>
+                    <p className="text-sm text-warning-600 mt-0.5">{formatDate(dispute.responseDeadline)}</p>
                   </div>
                 )}
                 {dispute.escalatedAt && (
                   <div>
-                    <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Escalated</p>
-                    <p className="text-sm text-danger-600">{formatDate(dispute.escalatedAt)}</p>
+                    <p className="eyebrow !text-text-muted !text-[11px]">Escalated</p>
+                    <p className="text-sm text-danger-600 mt-0.5">{formatDate(dispute.escalatedAt)}</p>
                   </div>
                 )}
                 {dispute.resolvedAt && (
                   <div>
-                    <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Resolved</p>
-                    <p className="text-sm text-success-600">{formatDate(dispute.resolvedAt)}</p>
+                    <p className="eyebrow !text-text-muted !text-[11px]">Resolved</p>
+                    <p className="text-sm text-success-600 mt-0.5">{formatDate(dispute.resolvedAt)}</p>
                   </div>
                 )}
                 {dispute.resolutionType && (
                   <div>
-                    <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Resolution</p>
-                    <p className="text-sm text-text-primary">{formatEnumLabel(dispute.resolutionType)}</p>
+                    <p className="eyebrow !text-text-muted !text-[11px]">Resolution</p>
+                    <p className="text-sm text-text-primary mt-0.5">{formatEnumLabel(dispute.resolutionType)}</p>
                   </div>
                 )}
                 {dispute.resolutionSummary && (
                   <div>
-                    <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Summary</p>
-                    <p className="text-sm text-text-secondary">{dispute.resolutionSummary}</p>
+                    <p className="eyebrow !text-text-muted !text-[11px]">Summary</p>
+                    <p className="text-sm text-text-secondary mt-0.5">{dispute.resolutionSummary}</p>
                   </div>
                 )}
               </div>
@@ -362,7 +374,7 @@ export default function DisputeDetailPage() {
             {/* Status History */}
             {dispute.statusHistory && dispute.statusHistory.length > 0 && (
               <div className="glass-card p-6">
-                <h3 className="text-base font-semibold text-text-primary mb-4">Status History</h3>
+                <h3 className="text-base font-semibold text-text-primary mb-4">Status history</h3>
                 <div className="space-y-4">
                   {dispute.statusHistory.map((entry: DisputeStatusHistoryResponse, idx: number) => (
                     <div key={entry.id} className="flex gap-3">
@@ -390,7 +402,7 @@ export default function DisputeDetailPage() {
 
       {/* Escalate Dialog */}
       <Dialog
-        header="Escalate Dispute"
+        header="Escalate dispute"
         visible={escalateDialogOpen}
         onHide={() => setEscalateDialogOpen(false)}
         className="w-full max-w-md"
@@ -398,7 +410,7 @@ export default function DisputeDetailPage() {
       >
         <div className="space-y-4">
           <p className="text-text-secondary text-sm">
-            Escalating will flag this dispute for urgent admin review. Please provide a reason.
+            Escalating flags this dispute for urgent admin review.
           </p>
           <div>
             <label className="block text-xs text-text-muted uppercase tracking-wider font-medium mb-2">
@@ -422,7 +434,7 @@ export default function DisputeDetailPage() {
             />
             <Button
               label="Escalate"
-              icon="pi pi-exclamation-triangle"
+              icon={<AlertTriangle size={14} strokeWidth={2} />}
               severity="warning"
               size="small"
               disabled={!escalateReason.trim() || escalate.isPending}
@@ -435,7 +447,7 @@ export default function DisputeDetailPage() {
 
       {/* Withdraw Dialog */}
       <Dialog
-        header="Withdraw Dispute"
+        header="Withdraw dispute"
         visible={withdrawDialogOpen}
         onHide={() => setWithdrawDialogOpen(false)}
         className="w-full max-w-md"
@@ -443,7 +455,7 @@ export default function DisputeDetailPage() {
       >
         <div className="space-y-4">
           <p className="text-text-secondary text-sm">
-            Withdrawing will close this dispute. This action cannot be undone.
+            Withdrawing closes this dispute. This can&apos;t be undone.
           </p>
           <div>
             <label className="block text-xs text-text-muted uppercase tracking-wider font-medium mb-2">
@@ -464,8 +476,8 @@ export default function DisputeDetailPage() {
               onClick={() => setWithdrawDialogOpen(false)}
             />
             <Button
-              label="Withdraw Dispute"
-              icon="pi pi-undo"
+              label="Withdraw"
+              icon={<Undo2 size={14} strokeWidth={2} />}
               severity="danger"
               size="small"
               disabled={withdraw.isPending}

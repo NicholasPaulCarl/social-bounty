@@ -6,6 +6,17 @@ import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Divider } from 'primereact/divider';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Flag,
+  Inbox,
+  Info,
+  Lock,
+  Search,
+  X,
+} from 'lucide-react';
 import { useCreateDispute } from '@/hooks/useDisputes';
 import { useMySubmissions } from '@/hooks/useSubmissions';
 import { useToast } from '@/hooks/useToast';
@@ -35,7 +46,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
       {Array.from({ length: total }, (_, i) => i + 1).map((step) => (
         <div key={step} className="flex items-center gap-2">
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border transition-all duration-200 ${
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border transition-all duration-200 font-mono tabular-nums ${
               step < current
                 ? 'bg-pink-600 border-pink-600 text-background'
                 : step === current
@@ -43,7 +54,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
                   : 'bg-elevated border-glass-border text-text-muted'
             }`}
           >
-            {step < current ? <i className="pi pi-check text-xs" /> : step}
+            {step < current ? <Check size={14} strokeWidth={2} /> : step}
           </div>
           {step < total && (
             <div
@@ -120,14 +131,14 @@ export default function NewDisputePage() {
   }
 
   const breadcrumbs = [
-    { label: 'My Disputes', url: '/my-disputes' },
-    { label: 'File a Dispute' },
+    { label: 'My disputes', url: '/my-disputes' },
+    { label: 'File' },
   ];
 
   return (
     <>
       <PageHeader
-        title="File a Dispute"
+        title="File a dispute"
         subtitle="Got an issue? Raise it here."
         breadcrumbs={breadcrumbs}
       />
@@ -139,7 +150,7 @@ export default function NewDisputePage() {
         {step === 1 && (
           <div className="glass-card p-6 space-y-4">
             <div>
-              <h2 className="text-lg font-semibold text-text-primary mb-1">Select Submission</h2>
+              <h2 className="text-lg font-semibold text-text-primary mb-1">Select submission</h2>
               <p className="text-sm text-text-muted">
                 Choose the approved submission this dispute relates to.
               </p>
@@ -151,13 +162,13 @@ export default function NewDisputePage() {
               <LoadingState type="form" />
             ) : approvedSubmissions.length === 0 ? (
               <div className="text-center py-8">
-                <i className="pi pi-inbox text-text-muted" style={{ fontSize: '2rem' }} />
+                <Inbox size={32} strokeWidth={2} className="text-text-muted mx-auto" />
                 <p className="text-text-muted text-sm mt-3">
-                  You have no approved submissions to raise a dispute for.
+                  No approved submissions yet.
                 </p>
                 <Button
-                  label="Browse Bounties"
-                  icon="pi pi-search"
+                  label="Browse bounties"
+                  icon={<Search size={14} strokeWidth={2} />}
                   outlined
                   size="small"
                   className="mt-4"
@@ -201,7 +212,7 @@ export default function NewDisputePage() {
         {step === 2 && (
           <div className="glass-card p-6 space-y-4">
             <div>
-              <h2 className="text-lg font-semibold text-text-primary mb-1">Category & Reason</h2>
+              <h2 className="text-lg font-semibold text-text-primary mb-1">Category &amp; reason</h2>
               <p className="text-sm text-text-muted">
                 Participants can file disputes in the Non-Payment category.
               </p>
@@ -212,9 +223,9 @@ export default function NewDisputePage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">Category</label>
-                <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-blue-600/10 border border-blue-600/20">
-                  <i className="pi pi-lock text-blue-600 text-sm" />
-                  <span className="text-sm font-medium text-blue-600">Non-Payment</span>
+                <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-pink-100 border border-pink-200">
+                  <Lock size={14} strokeWidth={2} className="text-pink-700" />
+                  <span className="text-sm font-medium text-pink-700">Non-payment</span>
                   <span className="ml-auto text-xs text-text-muted">Auto-selected for participants</span>
                 </div>
               </div>
@@ -229,12 +240,14 @@ export default function NewDisputePage() {
                   className="w-full"
                 />
                 {reason && (
-                  <p className="text-xs text-text-muted mt-2">
-                    <i className="pi pi-info-circle mr-1" />
-                    {reason === DisputeReason.PAYMENT_NOT_RECEIVED && 'You have not received the payment for your approved submission.'}
-                    {reason === DisputeReason.PAYMENT_INCORRECT_AMOUNT && 'The amount paid does not match the bounty reward.'}
-                    {reason === DisputeReason.PAYMENT_DELAYED_BEYOND_TERMS && 'Payment has not been made within the agreed timeframe.'}
-                    {reason === DisputeReason.PAYOUT_MARKED_BUT_NOT_RECEIVED && 'The payout is marked as paid in the system but you have not received it.'}
+                  <p className="text-xs text-text-muted mt-2 flex items-start gap-1">
+                    <Info size={12} strokeWidth={2} className="mt-0.5 shrink-0" />
+                    <span>
+                      {reason === DisputeReason.PAYMENT_NOT_RECEIVED && 'You have not received the payment for your approved submission.'}
+                      {reason === DisputeReason.PAYMENT_INCORRECT_AMOUNT && 'The amount paid does not match the bounty reward.'}
+                      {reason === DisputeReason.PAYMENT_DELAYED_BEYOND_TERMS && 'Payment has not been made within the agreed timeframe.'}
+                      {reason === DisputeReason.PAYOUT_MARKED_BUT_NOT_RECEIVED && 'The payout is marked as paid in the system but you have not received it.'}
+                    </span>
                   </p>
                 )}
               </div>
@@ -270,14 +283,14 @@ export default function NewDisputePage() {
                   maxLength={DISPUTE_LIMITS.DESCRIPTION_MAX}
                 />
                 <div className="flex justify-between mt-1">
-                  <p className={`text-xs ${descriptionValid ? 'text-success-600' : 'text-text-muted'}`}>
+                  <p className={`text-xs flex items-center gap-1 ${descriptionValid ? 'text-success-600' : 'text-text-muted'}`}>
                     {descriptionValid ? (
-                      <><i className="pi pi-check mr-1" />Minimum length met</>
+                      <><Check size={12} strokeWidth={2} /> Minimum length met</>
                     ) : (
-                      `${description.trim().length}/50 characters minimum`
+                      <span className="font-mono tabular-nums">{description.trim().length}/50 characters minimum</span>
                     )}
                   </p>
-                  <p className="text-xs text-text-muted">
+                  <p className="text-xs text-text-muted font-mono tabular-nums">
                     {description.length}/{DISPUTE_LIMITS.DESCRIPTION_MAX}
                   </p>
                 </div>
@@ -285,7 +298,7 @@ export default function NewDisputePage() {
 
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">
-                  Desired Outcome
+                  Desired outcome
                 </label>
                 <InputTextarea
                   value={desiredOutcome}
@@ -296,7 +309,7 @@ export default function NewDisputePage() {
                   autoResize
                   maxLength={DISPUTE_LIMITS.DESIRED_OUTCOME_MAX}
                 />
-                <p className="text-xs text-text-muted mt-1 text-right">
+                <p className="text-xs text-text-muted mt-1 text-right font-mono tabular-nums">
                   {desiredOutcome.length}/{DISPUTE_LIMITS.DESIRED_OUTCOME_MAX}
                 </p>
               </div>
@@ -308,9 +321,9 @@ export default function NewDisputePage() {
         {step === 4 && (
           <div className="glass-card p-6 space-y-5">
             <div>
-              <h2 className="text-lg font-semibold text-text-primary mb-1">Review & Submit</h2>
+              <h2 className="text-lg font-semibold text-text-primary mb-1">Review &amp; submit</h2>
               <p className="text-sm text-text-muted">
-                Review your dispute details before submitting. Once submitted, it will be reviewed by our team.
+                Check everything before submitting. Our team reviews every dispute.
               </p>
             </div>
 
@@ -319,38 +332,37 @@ export default function NewDisputePage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1.5">Submission</p>
-                  <p className="text-sm text-text-primary">{selectedSubmission?.bounty.title ?? '—'}</p>
+                  <p className="eyebrow !text-text-muted !text-[11px]">Submission</p>
+                  <p className="text-sm text-text-primary mt-0.5">{selectedSubmission?.bounty.title ?? '—'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1.5">Category</p>
-                  <p className="text-sm text-text-primary">Non-Payment</p>
+                  <p className="eyebrow !text-text-muted !text-[11px]">Category</p>
+                  <p className="text-sm text-text-primary mt-0.5">Non-payment</p>
                 </div>
                 <div>
-                  <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1.5">Reason</p>
-                  <p className="text-sm text-text-primary">{reason ? formatEnumLabel(reason) : '—'}</p>
+                  <p className="eyebrow !text-text-muted !text-[11px]">Reason</p>
+                  <p className="text-sm text-text-primary mt-0.5">{reason ? formatEnumLabel(reason) : '—'}</p>
                 </div>
               </div>
 
               <Divider />
 
               <div>
-                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1.5">Description</p>
-                <p className="text-sm text-text-secondary whitespace-pre-wrap">{description}</p>
+                <p className="eyebrow !text-text-muted !text-[11px]">Description</p>
+                <p className="text-sm text-text-secondary whitespace-pre-wrap mt-0.5">{description}</p>
               </div>
 
               <Divider />
 
               <div>
-                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1.5">Desired Outcome</p>
-                <p className="text-sm text-text-secondary whitespace-pre-wrap">{desiredOutcome}</p>
+                <p className="eyebrow !text-text-muted !text-[11px]">Desired outcome</p>
+                <p className="text-sm text-text-secondary whitespace-pre-wrap mt-0.5">{desiredOutcome}</p>
               </div>
 
               <div className="p-3 rounded-lg bg-warning-600/10 border border-warning-600/20 flex gap-2">
-                <i className="pi pi-info-circle text-warning-600 mt-0.5 shrink-0" />
+                <Info size={14} strokeWidth={2} className="text-warning-600 mt-0.5 shrink-0" />
                 <p className="text-xs text-warning-600 leading-relaxed">
-                  Once submitted, your dispute will be reviewed by our team. You will be notified of any updates.
-                  Please ensure all information is accurate before submitting.
+                  We&apos;ll review and update you on any changes. Double-check your details before you submit.
                 </p>
               </div>
             </div>
@@ -361,25 +373,25 @@ export default function NewDisputePage() {
         <div className="flex justify-between mt-6">
           <Button
             label={step === 1 ? 'Cancel' : 'Back'}
-            icon={step === 1 ? 'pi pi-times' : 'pi pi-arrow-left'}
+            icon={step === 1 ? <X size={14} strokeWidth={2} /> : <ArrowLeft size={14} strokeWidth={2} />}
             outlined
             onClick={() => (step === 1 ? router.push('/my-disputes') : setStep(step - 1))}
           />
           {step < TOTAL_STEPS ? (
             <Button
               label="Next"
-              icon="pi pi-arrow-right"
+              icon={<ArrowRight size={14} strokeWidth={2} />}
               iconPos="right"
-              className="bg-pink-600 border-pink-600 text-background hover:bg-pink-600/90"
+              className="bg-pink-600 border-pink-600 text-background hover:bg-pink-700"
               disabled={!canAdvance()}
               onClick={() => setStep(step + 1)}
             />
           ) : (
             <Button
-              label="Submit Dispute"
-              icon="pi pi-flag"
+              label="Submit"
+              icon={<Flag size={14} strokeWidth={2} />}
               iconPos="right"
-              className="bg-pink-600 border-pink-600 text-background hover:bg-pink-600/90"
+              className="bg-pink-600 border-pink-600 text-background hover:bg-pink-700"
               disabled={createDispute.isPending}
               loading={createDispute.isPending}
               onClick={handleSubmit}

@@ -10,6 +10,18 @@ import { Paginator } from 'primereact/paginator';
 import { Tag } from 'primereact/tag';
 import { Message } from 'primereact/message';
 import {
+  BadgeCheck,
+  Clock,
+  Globe,
+  History,
+  Lock,
+  MessageSquare,
+  RefreshCw,
+  Star,
+  Zap,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import {
   useSubscription,
   useSubscribe,
   useInitiateUpgrade,
@@ -33,32 +45,37 @@ import {
 import { formatDate, formatCurrency } from '@/lib/utils/format';
 import type { SubscriptionPaymentDto } from '@social-bounty/shared';
 
-const HUNTER_FEATURES = {
+// Lucide has no 'percentage' or 'lock-open' glyph; Star + Clock + Globe +
+// MessageSquare + BadgeCheck + Lock + Zap cover the semantics, per the DS
+// ICONS.md mapping table.
+type Feature = { label: string; Icon: LucideIcon };
+
+const HUNTER_FEATURES: { free: Feature[]; pro: Feature[] } = {
   free: [
-    { label: '20% commission on bounties', icon: 'pi-percentage' },
-    { label: '3-day payout clearance', icon: 'pi-clock' },
-    { label: 'Public bounties only', icon: 'pi-globe' },
-    { label: 'Standard support', icon: 'pi-comment' },
+    { label: '20% commission on bounties', Icon: Star },
+    { label: '3-day payout clearance', Icon: Clock },
+    { label: 'Public bounties only', Icon: Globe },
+    { label: 'Standard support', Icon: MessageSquare },
   ],
   pro: [
-    { label: '10% commission (save 10%)', icon: 'pi-percentage' },
-    { label: 'Same-day payouts', icon: 'pi-bolt' },
-    { label: 'Apply to any closed bounty', icon: 'pi-lock-open' },
-    { label: 'Verified badge on profile', icon: 'pi-verified' },
-    { label: 'Priority support', icon: 'pi-star' },
+    { label: '10% commission (save 10%)', Icon: Star },
+    { label: 'Same-day payouts', Icon: Zap },
+    { label: 'Apply to any closed bounty', Icon: Lock },
+    { label: 'Verified badge on profile', Icon: BadgeCheck },
+    { label: 'Priority support', Icon: Star },
   ],
 };
 
-const BRAND_FEATURES = {
+const BRAND_FEATURES: { free: Feature[]; pro: Feature[] } = {
   free: [
-    { label: '15% admin fee on bounties', icon: 'pi-percentage' },
-    { label: 'Public bounties only', icon: 'pi-globe' },
-    { label: 'Standard support', icon: 'pi-comment' },
+    { label: '15% admin fee on bounties', Icon: Star },
+    { label: 'Public bounties only', Icon: Globe },
+    { label: 'Standard support', Icon: MessageSquare },
   ],
   pro: [
-    { label: '5% admin fee (save 10%)', icon: 'pi-percentage' },
-    { label: 'Create closed bounties', icon: 'pi-lock' },
-    { label: 'Priority support', icon: 'pi-star' },
+    { label: '5% admin fee (save 10%)', Icon: Star },
+    { label: 'Create closed bounties', Icon: Lock },
+    { label: 'Priority support', Icon: Star },
   ],
 };
 
@@ -170,7 +187,7 @@ export default function SubscriptionPage() {
       REFUNDED: 'text-text-muted bg-elevated',
     };
     return (
-      <span className={`px-2 py-0.5 rounded text-xs font-medium ${colors[row.status] || ''}`}>
+      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${colors[row.status] || ''}`}>
         {row.status}
       </span>
     );
@@ -226,7 +243,7 @@ export default function SubscriptionPage() {
         <div className="glass-card p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <h2 className="text-lg font-heading font-bold text-text-primary">Your Plan: Pro</h2>
+              <h2 className="text-lg font-heading font-bold text-text-primary">Your plan: Pro</h2>
               <ProBadge size="md" />
             </div>
             <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -234,26 +251,26 @@ export default function SubscriptionPage() {
               isCancelled ? 'bg-warning-600/10 text-warning-600' :
               isPastDue ? 'bg-danger-600/10 text-danger-600' : ''
             }`}>
-              {isActive ? 'Active' : isCancelled ? 'Cancelling' : isPastDue ? 'Past Due' : sub.status}
+              {isActive ? 'Active' : isCancelled ? 'Cancelling' : isPastDue ? 'Past due' : sub.status}
             </span>
           </div>
 
           {isCancelled && sub.currentPeriodEnd && (
             <p className="text-sm text-text-secondary mb-4">
-              Your Pro perks are active until <strong>{formatDate(sub.currentPeriodEnd)}</strong>. After that, you&apos;ll move to the Free plan.
+              Pro perks active until <strong>{formatDate(sub.currentPeriodEnd)}</strong>. Then you move to Free.
             </p>
           )}
 
           {isActive && sub.currentPeriodEnd && (
             <p className="text-sm text-text-secondary mb-4">
-              Next billing date: <strong>{formatDate(sub.currentPeriodEnd)}</strong> &middot; {formatCurrency(sub.priceAmount)}/month
+              Next bill: <strong>{formatDate(sub.currentPeriodEnd)}</strong> &middot; <span className="font-mono tabular-nums">{formatCurrency(sub.priceAmount)}</span>/month
             </p>
           )}
 
           <div className="space-y-2 mb-6">
             {features.pro.map((f) => (
               <div key={f.label} className="flex items-center gap-2">
-                <i className={`pi ${f.icon} text-pink-600 text-sm`} />
+                <f.Icon size={16} strokeWidth={2} className="text-pink-600" />
                 <span className="text-sm text-text-primary">{f.label}</span>
               </div>
             ))}
@@ -261,8 +278,8 @@ export default function SubscriptionPage() {
 
           <div className="flex gap-3">
             <Button
-              label={showPayments ? 'Hide Payment History' : 'View Payment History'}
-              icon="pi pi-history"
+              label={showPayments ? 'Hide history' : 'View history'}
+              icon={<History size={14} strokeWidth={2} />}
               outlined
               severity="secondary"
               size="small"
@@ -270,15 +287,15 @@ export default function SubscriptionPage() {
             />
             {isCancelled ? (
               <Button
-                label="Reactivate Pro"
-                icon="pi pi-refresh"
+                label="Reactivate"
+                icon={<RefreshCw size={14} strokeWidth={2} />}
                 size="small"
                 loading={reactivate.isPending}
                 onClick={handleReactivate}
               />
             ) : (
               <Button
-                label="Cancel Subscription"
+                label="Cancel"
                 outlined
                 severity="danger"
                 size="small"
@@ -299,27 +316,27 @@ export default function SubscriptionPage() {
             <div className="space-y-3 mb-6">
               {features.free.map((f) => (
                 <div key={f.label} className="flex items-center gap-2">
-                  <i className={`pi ${f.icon} text-text-muted text-sm`} />
+                  <f.Icon size={16} strokeWidth={2} className="text-text-muted" />
                   <span className="text-sm text-text-secondary">{f.label}</span>
                 </div>
               ))}
             </div>
-            <Button label="Current Plan" disabled className="w-full" outlined severity="secondary" />
+            <Button label="Current plan" disabled className="w-full" outlined severity="secondary" />
           </div>
 
           {/* Pro tier card */}
           <div className="glass-card p-6 border border-pink-600/30 shadow-glow-brand">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="text-lg font-heading font-bold text-text-primary">Pro</h3>
-              <i className="pi pi-star-fill text-pink-600 text-sm" />
+              <Star size={16} strokeWidth={2} className="text-pink-600 fill-current" />
             </div>
-            <p className="text-sm text-pink-600 mb-4">
+            <p className="text-sm text-pink-600 mb-4 font-mono tabular-nums">
               R{proPrice}/month
             </p>
             <div className="space-y-3 mb-6">
               {features.pro.map((f) => (
                 <div key={f.label} className="flex items-center gap-2">
-                  <i className={`pi ${f.icon} text-pink-600 text-sm`} />
+                  <f.Icon size={16} strokeWidth={2} className="text-pink-600" />
                   <span className="text-sm text-text-primary">{f.label}</span>
                 </div>
               ))}
@@ -337,8 +354,8 @@ export default function SubscriptionPage() {
               }
             >
               <Button
-                label={LIVE_UPGRADE_ENABLED ? 'Upgrade to Pro' : 'Pro upgrade coming soon'}
-                icon="pi pi-star"
+                label={LIVE_UPGRADE_ENABLED ? 'Upgrade' : 'Pro upgrade coming soon'}
+                icon={<Star size={16} strokeWidth={2} />}
                 className="w-full"
                 disabled={!LIVE_UPGRADE_ENABLED}
                 loading={subscribe.isPending || initiateUpgrade.isPending}
@@ -359,7 +376,9 @@ export default function SubscriptionPage() {
             />
             <Column
               header="Amount"
-              body={(row: SubscriptionPaymentDto) => formatCurrency(row.amount)}
+              body={(row: SubscriptionPaymentDto) => (
+                <span className="font-mono tabular-nums">{formatCurrency(row.amount)}</span>
+              )}
             />
             <Column header="Status" body={statusTemplate} />
             <Column
@@ -383,7 +402,7 @@ export default function SubscriptionPage() {
         visible={showUpgrade}
         onHide={() => setShowUpgrade(false)}
         title="Upgrade to Pro?"
-        message={`Upgrading to Pro starts a monthly billing cycle at R${proPrice}. You'll be redirected to Stitch to save your card — you can cancel anytime. Continue?`}
+        message={`Starts a monthly billing cycle at R${proPrice}. We'll redirect you to Stitch to save a card — cancel anytime.`}
         confirmLabel="Upgrade"
         confirmSeverity="warning"
         onConfirm={handleSubscribe}
@@ -393,9 +412,9 @@ export default function SubscriptionPage() {
       <ConfirmAction
         visible={showCancel}
         onHide={() => setShowCancel(false)}
-        title="Cancel Subscription?"
-        message="Cancelling will keep your Pro benefits until the end of the current billing period, then revert to Free. Continue?"
-        confirmLabel="Cancel Subscription"
+        title="Cancel subscription?"
+        message="Pro benefits stay active until the end of this billing period, then revert to Free."
+        confirmLabel="Cancel"
         confirmSeverity="warning"
         onConfirm={handleCancel}
         loading={cancel.isPending}
