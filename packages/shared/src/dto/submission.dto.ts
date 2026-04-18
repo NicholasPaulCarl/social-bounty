@@ -247,6 +247,13 @@ export interface SubmissionDetailResponse {
   reportedMetrics: ReportedMetricsInput | null;
   verificationDeadline: string | null;
   urlScrapes: SubmissionUrlScrapeInfo[];
+  // Phase 2A: surfaced for the admin visibility-failure UI (Phase 3+).
+  // `approvedAt` is non-null once the brand approves; the other two are
+  // only meaningful for SUPER_ADMIN — the response builder gates them by
+  // role and emits `null` for non-admins.
+  approvedAt: string | null;
+  lastVisibilityCheckAt: string | null;
+  consecutiveVisibilityFailures: number | null;
   createdAt: string;
   updatedAt: string;
 }

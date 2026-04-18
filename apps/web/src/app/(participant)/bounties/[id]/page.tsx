@@ -11,6 +11,8 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
+import { VerificationReportPanel } from '@/components/features/submission/VerificationReportPanel';
+import { derivePreviewChecks } from '@/lib/utils/bounty-preview-checks';
 import { formatCurrency, formatDate, timeRemaining, formatEnumLabel, formatBytes } from '@/lib/utils/format';
 import { PostVisibilityRule, BountyAccessType, BountyApplicationStatus, BountyInvitationStatus } from '@social-bounty/shared';
 import { ApiError } from '@/lib/api/client';
@@ -381,6 +383,13 @@ export default function BountyDetailPage() {
               </div>
             </div>
           )}
+
+          {/* Auto-verification preview — shows hunters what the scraper will check */}
+          <VerificationReportPanel
+            previewMode
+            audience="hunter"
+            previewChecks={derivePreviewChecks(bounty)}
+          />
         </div>
 
         {/* Sidebar */}

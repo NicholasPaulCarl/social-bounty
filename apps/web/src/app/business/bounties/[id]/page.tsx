@@ -16,6 +16,8 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
+import { VerificationReportPanel } from '@/components/features/submission/VerificationReportPanel';
+import { derivePreviewChecks } from '@/lib/utils/bounty-preview-checks';
 import { formatDate, formatCurrency, formatEnumLabel, formatBytes } from '@/lib/utils/format';
 
 const CHANNEL_LABELS: Record<string, string> = {
@@ -397,6 +399,13 @@ export default function BusinessBountyDetailPage() {
               </div>
             </div>
           )}
+
+          {/* Auto-verification preview — shows brands what the scraper will check */}
+          <VerificationReportPanel
+            previewMode
+            audience="brand"
+            previewChecks={derivePreviewChecks(bounty)}
+          />
         </div>
 
         <div className="space-y-6">

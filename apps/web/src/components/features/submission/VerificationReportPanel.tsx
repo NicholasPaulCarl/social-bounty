@@ -6,11 +6,42 @@ import type {
   ScrapedPostData,
   ReportedMetricsInput,
 } from '@social-bounty/shared';
+import { ELIGIBILITY_KEY } from '@/lib/utils/bounty-preview-checks';
 
-interface VerificationReportPanelProps {
-  urlScrapes: SubmissionUrlScrapeInfo[];
+/**
+ * Two distinct modes:
+ *
+ * 1. Submission-report mode (default): consumers pass `urlScrapes` from a
+ *    submission. Renders per-URL panels with status badges, scraped-vs-
+ *    hunter metrics, and pass/fail check lists. This is the brand-side
+ *    review-page surface that shipped in PR 4 of the bounty-submission feature.
+ *
+ * 2. Preview mode (`previewMode`): consumers pass `previewChecks` derived
+ *    from a bounty (via `derivePreviewChecks`). Renders per-rule-group lists
+ *    with no status/scraped axis — `actual` is unknown until a hunter submits.
+ *    Used on bounty-detail pages so brands and hunters see ahead of time what
+ *    Apify will auto-verify on every submission. The `audience` prop swaps
+ *    the section heading copy.
+ */
+interface BasePanelProps {
   reportedMetrics?: ReportedMetricsInput | null;
 }
+
+interface SubmissionPanelProps extends BasePanelProps {
+  previewMode?: false;
+  urlScrapes: SubmissionUrlScrapeInfo[];
+  previewChecks?: never;
+  audience?: never;
+}
+
+interface PreviewPanelProps extends BasePanelProps {
+  previewMode: true;
+  previewChecks: Record<string, VerificationCheck[]>;
+  audience?: 'brand' | 'hunter';
+  urlScrapes?: never;
+}
+
+type VerificationReportPanelProps = SubmissionPanelProps | PreviewPanelProps;
 
 const CHANNEL_LABELS: Record<string, string> = {
   INSTAGRAM: 'Instagram',
@@ -173,10 +204,141 @@ function UrlScrapeCard({
   );
 }
 
-export function VerificationReportPanel({
-  urlScrapes,
-  reportedMetrics,
-}: VerificationReportPanelProps) {
+// ────────────────────────────────────────────────────────────────────────
+// Preview-mode building blocks
+// ────────────────────────────────────────────────────────────────────────
+
+function PreviewRuleRow({ check }: { check: VerificationCheck }) {
+  return (
+    <li className="flex items-start gap-2 text-xs">
+      <i
+        className="mt-0.5 pi pi-shield text-accent-cyan"
+        aria-hidden="true"
+      />
+      <div className="flex-1 min-w-0">
+        <div className="text-text-primary font-medium">
+          {RULE_LABELS[check.rule] ?? check.rule}
+        </div>
+        <div className="text-text-muted">
+          Required: <span className="text-text-secondary">{formatRuleValue(check.required)}</span>
+          <span className="mx-1.5">·</span>
+          <span className="text-accent-cyan/80">will be auto-verified</span>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function PreviewGroupCard({
+  title,
+  subtitle,
+  checks,
+}: {
+  title: string;
+  subtitle?: string;
+  checks: VerificationCheck[];
+}) {
+  if (checks.length === 0) return null;
+  return (
+    <div className="glass-card p-4 space-y-3">
+      <div className="space-y-0.5">
+        <div className="text-sm font-semibold text-text-primary">{title}</div>
+        {subtitle && (
+          <div className="text-xs text-text-muted">{subtitle}</div>
+        )}
+      </div>
+      <ul className="space-y-1.5">
+        {checks.map((check, idx) => (
+          <PreviewRuleRow key={`${title}-${check.rule}-${idx}`} check={check} />
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function parsePairKey(key: string): { channel: string; format: string } {
+  const idx = key.indexOf('_');
+  if (idx === -1) return { channel: key, format: '' };
+  return { channel: key.slice(0, idx), format: key.slice(idx + 1) };
+}
+
+function PreviewBody({
+  previewChecks,
+  audience,
+}: {
+  previewChecks: Record<string, VerificationCheck[]>;
+  audience: 'brand' | 'hunter';
+}) {
+  const eligibilityChecks = previewChecks[ELIGIBILITY_KEY] ?? [];
+  const pairKeys = Object.keys(previewChecks)
+    .filter((k) => k !== ELIGIBILITY_KEY)
+    .sort();
+  const totalRuleCount =
+    eligibilityChecks.length + pairKeys.reduce((n, k) => n + previewChecks[k].length, 0);
+
+  // Empty state — mirrors the cost-guard branch in SubmissionScraperService.
+  if (totalRuleCount === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <i className="pi pi-info-circle text-3xl text-text-muted mb-3" aria-hidden="true" />
+        <p className="text-text-primary font-medium">No auto-verification rules</p>
+        <p className="text-text-muted text-sm mt-1">
+          Submissions go straight to manual review.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {eligibilityChecks.length > 0 && (
+        <PreviewGroupCard
+          title={audience === 'hunter' ? 'About you' : 'Hunter eligibility'}
+          subtitle={
+            audience === 'hunter'
+              ? 'Checked once, against your linked social profile.'
+              : "Checked against the hunter's linked social profile."
+          }
+          checks={eligibilityChecks}
+        />
+      )}
+      {pairKeys.map((key) => {
+        const { channel, format } = parsePairKey(key);
+        const channelLabel = CHANNEL_LABELS[channel] ?? channel;
+        const formatLabel = FORMAT_LABELS[format] ?? format;
+        return (
+          <PreviewGroupCard
+            key={key}
+            title={`${channelLabel} ${formatLabel}`}
+            subtitle="Checked on the submitted post URL."
+            checks={previewChecks[key]}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────
+// Top-level component — dispatches to submission-report or preview body
+// ────────────────────────────────────────────────────────────────────────
+
+export function VerificationReportPanel(props: VerificationReportPanelProps) {
+  if (props.previewMode) {
+    const audience = props.audience ?? 'brand';
+    return (
+      <div className="glass-card p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-text-primary">
+            {audience === 'hunter' ? "What you'll need to pass" : 'Auto-verification preview'}
+          </h3>
+        </div>
+        <PreviewBody previewChecks={props.previewChecks} audience={audience} />
+      </div>
+    );
+  }
+
+  const { urlScrapes, reportedMetrics } = props;
   if (!urlScrapes || urlScrapes.length === 0) {
     return null;
   }

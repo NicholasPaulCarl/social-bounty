@@ -1,0 +1,61 @@
+<h2 style="margin:0 0 16px;font-size:20px;color:#1a1a2e;">
+  Your Approved Submission Was Auto-Refunded
+</h2>
+
+<p style="margin:0 0 12px;font-size:15px;color:#333333;line-height:1.6;">
+  Hi {{userName}},
+</p>
+
+<p style="margin:0 0 16px;font-size:15px;color:#333333;line-height:1.6;">
+  Our scheduled visibility checks could no longer access the post you
+  submitted for <strong>"{{bountyTitle}}"</strong>. The bounty had a
+  PostVisibility rule (<strong>{{visibilityRule}}</strong>) requiring
+  the post to remain live, so the brand's payment has been
+  automatically refunded.
+</p>
+
+<!-- Status Badge -->
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
+  <tr>
+    <td style="padding:8px 16px;border-radius:4px;font-size:14px;font-weight:600;color:#ffffff;background-color:#dc3545;">
+      Submission Refunded
+    </td>
+  </tr>
+</table>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
+  <tr>
+    <td style="padding:16px;background-color:#f8f9fa;border-left:4px solid #6c63ff;border-radius:0 4px 4px 0;">
+      <p style="margin:0 0 4px;font-size:12px;color:#666666;text-transform:uppercase;font-weight:600;">
+        What Happened
+      </p>
+      <p style="margin:0 0 12px;font-size:14px;color:#333333;line-height:1.5;">
+        {{failureReason}}
+      </p>
+      <p style="margin:0 0 4px;font-size:12px;color:#666666;text-transform:uppercase;font-weight:600;">
+        Why It Matters
+      </p>
+      <p style="margin:0;font-size:14px;color:#333333;line-height:1.5;">
+        Bounties with visibility requirements need the post to stay live
+        for their full duration. If the post comes back online and you
+        believe this was an error, please reach out to support.
+      </p>
+    </td>
+  </tr>
+</table>
+
+{{#if actionUrl}}
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
+  <tr>
+    <td style="background-color:#6c63ff;border-radius:6px;">
+      <a href="{{actionUrl}}" style="display:inline-block;padding:12px 24px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">
+        View Submission
+      </a>
+    </td>
+  </tr>
+</table>
+{{/if}}
+
+<p style="margin:16px 0 0;font-size:13px;color:#999999;">
+  Keep the great work coming — there are plenty more bounties waiting.
+</p>
