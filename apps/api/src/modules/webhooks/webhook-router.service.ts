@@ -1,16 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { WebhookEvent } from '@prisma/client';
+import { WebhookEvent, WebhookProvider } from '@prisma/client';
 import { BrandFundingHandler } from '../payments/brand-funding.handler';
 import { RefundsService } from '../refunds/refunds.service';
 import { PayoutsService } from '../payouts/payouts.service';
 import { UpgradeService } from '../subscriptions/upgrade.service';
+import { TradeSafeWebhookHandler } from '../tradesafe/tradesafe-webhook.handler';
 
 /**
  * Dispatches a verified, recorded webhook event to the appropriate domain handler.
  *
  * Phase 1: wires Stitch inbound (payment.settled, payment.failed, refund.processed).
  * Phase 2: wires Stitch outbound (payout.settled, payout.failed).
+ * R34 (2026-04-18): wires TradeSafe outbound
+ *   (tradesafe.beneficiary.linked, .payout.settled, .payout.failed).
  *
  * Uses ModuleRef to resolve handlers lazily so the webhook module doesn't depend
  * on every payment-adjacent module at compile time.
@@ -22,6 +25,19 @@ export class WebhookRouterService {
   constructor(private readonly moduleRef: ModuleRef) {}
 
   async dispatch(event: WebhookEvent, payload: Record<string, unknown>): Promise<void> {
+    // Route TradeSafe events on the eventType string (webhook-controller writes
+    // `type` from the payload into `WebhookEvent.eventType`). TradeSafe's
+    // `tradesafe.<resource>.<action>` shape fits the rail cleanly. Stitch
+    // events are routed on the (type, status) tuple on the payload body.
+    //
+    // TODO(R34): confirm TradeSafe event-name shape once sandbox docs land —
+    // current arms key on the `tradesafe.<domain>.<verb>` string that ADR 0009
+    // §6 speculatively documents.
+    if (event.provider === WebhookProvider.TRADESAFE) {
+      await this.dispatchTradeSafe(event, payload);
+      return;
+    }
+
     // Stitch sends { type: "LINK" | "WITHDRAWAL" | "REFUND", status: "PAID" | "SETTLED" | "FAILED" | ... }
     // We route on (type, status) rather than eventType alone.
     const resource = this.readString(payload.type) ?? event.eventType;
@@ -87,6 +103,52 @@ export class WebhookRouterService {
       }
     }
     this.logger.debug(`no handler wired for ${resource}/${status}`);
+  }
+
+  /**
+   * TradeSafe event dispatch (R34, 2026-04-18).
+   *
+   * Three arms per ADR 0009 §6 plausible-minimum subscription:
+   *   - `tradesafe.beneficiary.linked` → onBeneficiaryLinked
+   *   - `tradesafe.payout.settled`     → onPayoutSettled
+   *   - `tradesafe.payout.failed`      → onPayoutFailed
+   *
+   * Unknown event types log-and-skip (no retry storm, no ledger mutation).
+   * The controller's try/catch around dispatch + the KbService recurrence
+   * pipeline already handles thrown errors.
+   */
+  private async dispatchTradeSafe(
+    event: WebhookEvent,
+    payload: Record<string, unknown>,
+  ): Promise<void> {
+    const eventType =
+      this.readString(payload.type) ?? event.eventType ?? '';
+    this.logger.log(
+      `routing tradesafe ${eventType} (id=${event.externalEventId})`,
+    );
+
+    const handler = this.moduleRef.get(TradeSafeWebhookHandler, { strict: false });
+
+    if (eventType === 'tradesafe.beneficiary.linked') {
+      await handler.onBeneficiaryLinked(payload);
+      return;
+    }
+    if (eventType === 'tradesafe.payout.settled') {
+      await handler.onPayoutSettled(payload);
+      return;
+    }
+    if (eventType === 'tradesafe.payout.failed') {
+      await handler.onPayoutFailed(payload);
+      return;
+    }
+
+    // TODO(R34): these three events (created, escrow_held, beneficiary.verified)
+    // are ADR 0009 §6 speculative. Left unwired intentionally — ADR 0010 owns
+    // the call on whether they drive ledger/state transitions or stay as
+    // informational "storage-only" events.
+    this.logger.debug(
+      `no handler wired for tradesafe event ${eventType} (id=${event.externalEventId})`,
+    );
   }
 
   async replay(eventId: string, prisma: { webhookEvent: { findUnique: Function } }): Promise<{ replayed: boolean }> {
