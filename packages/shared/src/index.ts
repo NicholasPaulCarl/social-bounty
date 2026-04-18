@@ -285,6 +285,11 @@ export type {
   TransactionGroupDetailEntry,
   TransactionGroupDetailGroup,
   TransactionGroupDetailAuditLog,
+  // Phase 3B: admin visibility-failure surface
+  VisibilityFailureRow,
+  AdminVisibilityFailureListParams,
+  AdminVisibilityFailureListResponse,
+  VisibilityHistoryRow,
 } from './dto/admin.dto';
 
 // Business DTOs

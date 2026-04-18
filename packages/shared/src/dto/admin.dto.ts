@@ -520,6 +520,57 @@ export interface AdminPayoutListResponse {
   meta: { page: number; limit: number; total: number; totalPages: number };
 }
 
+// ─────────────────────────────────────
+// Phase 3B: Admin visibility-failure surface
+// Source: docs/adr/0010-auto-refund-on-visibility-failure.md
+// ─────────────────────────────────────
+
+// GET /admin/finance/visibility-failures (list item)
+// One row per Submission with consecutiveVisibilityFailures > 0. Joined to
+// bounty + brand + hunter for at-a-glance triage; latestErrorMessage pulled
+// from the most recent FAILED row in SubmissionUrlScrapeHistory.
+export interface VisibilityFailureRow {
+  submissionId: string;
+  bountyId: string;
+  bountyTitle: string;
+  brandId: string;
+  brandName: string;
+  hunterId: string;
+  hunterName: string;
+  approvedAt: string | null;
+  lastVisibilityCheckAt: string | null;
+  consecutiveVisibilityFailures: number;
+  latestErrorMessage: string | null;
+  historyRowCount: number;
+}
+
+// GET /admin/finance/visibility-failures (query params)
+export interface AdminVisibilityFailureListParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface AdminVisibilityFailureListResponse {
+  data: VisibilityFailureRow[];
+  meta: { page: number; limit: number; total: number; totalPages: number };
+}
+
+// GET /admin/finance/visibility-failures/:submissionId/history (list item)
+// One row per re-scrape attempt across all URLs of a single submission,
+// newest first. Mirrors the columns of SubmissionUrlScrapeHistory.
+export interface VisibilityHistoryRow {
+  id: string;
+  urlScrapeId: string;
+  url: string;
+  channel: string; // SocialChannel
+  format: string; // PostFormat
+  scrapeStatus: string; // UrlScrapeStatus
+  scrapeResult: Record<string, unknown> | null;
+  verificationChecks: Array<Record<string, unknown>> | null;
+  errorMessage: string | null;
+  checkedAt: string;
+}
+
 // GET /admin/payments-health
 export interface PaymentsHealthResponse {
   paymentsProvider: string;
