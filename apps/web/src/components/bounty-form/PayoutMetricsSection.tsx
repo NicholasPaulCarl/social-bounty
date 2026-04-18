@@ -1,6 +1,7 @@
 'use client';
 
 import { InputNumber } from 'primereact/inputnumber';
+import { Plus, Minus, AlertCircle } from 'lucide-react';
 import { PAYOUT_METRICS_LIMITS } from '@social-bounty/shared';
 import type { PayoutMetricsInput } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
@@ -33,8 +34,8 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
             max={PAYOUT_METRICS_LIMITS.MAX_VIEWS}
             showButtons
             buttonLayout="horizontal"
-            incrementButtonIcon="pi pi-plus"
-            decrementButtonIcon="pi pi-minus"
+            incrementButtonIcon={<Plus size={14} strokeWidth={2} />}
+            decrementButtonIcon={<Minus size={14} strokeWidth={2} />}
             inputClassName="w-28 text-center"
             className={submitAttempted && errors.minViews ? 'p-invalid' : ''}
             placeholder="No minimum"
@@ -43,7 +44,7 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
         <small className="text-xs text-text-muted mt-1.5 block">Leave empty if no view threshold is required</small>
         {submitAttempted && errors.minViews && (
           <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-            <i className="pi pi-exclamation-circle text-xs" />
+            <AlertCircle size={12} strokeWidth={2} />
             {errors.minViews}
           </small>
         )}
@@ -62,8 +63,8 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
             max={PAYOUT_METRICS_LIMITS.MAX_LIKES}
             showButtons
             buttonLayout="horizontal"
-            incrementButtonIcon="pi pi-plus"
-            decrementButtonIcon="pi pi-minus"
+            incrementButtonIcon={<Plus size={14} strokeWidth={2} />}
+            decrementButtonIcon={<Minus size={14} strokeWidth={2} />}
             inputClassName="w-28 text-center"
             className={submitAttempted && errors.minLikes ? 'p-invalid' : ''}
             placeholder="No minimum"
@@ -72,7 +73,7 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
         <small className="text-xs text-text-muted mt-1.5 block">Leave empty if no like threshold is required</small>
         {submitAttempted && errors.minLikes && (
           <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-            <i className="pi pi-exclamation-circle text-xs" />
+            <AlertCircle size={12} strokeWidth={2} />
             {errors.minLikes}
           </small>
         )}
@@ -91,8 +92,8 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
             max={PAYOUT_METRICS_LIMITS.MAX_COMMENTS}
             showButtons
             buttonLayout="horizontal"
-            incrementButtonIcon="pi pi-plus"
-            decrementButtonIcon="pi pi-minus"
+            incrementButtonIcon={<Plus size={14} strokeWidth={2} />}
+            decrementButtonIcon={<Minus size={14} strokeWidth={2} />}
             inputClassName="w-28 text-center"
             className={submitAttempted && errors.minComments ? 'p-invalid' : ''}
             placeholder="No minimum"
@@ -101,7 +102,7 @@ export function PayoutMetricsSection({ payoutMetrics, dispatch, errors, submitAt
         <small className="text-xs text-text-muted mt-1.5 block">Leave empty if no comment threshold is required</small>
         {submitAttempted && errors.minComments && (
           <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-            <i className="pi pi-exclamation-circle text-xs" />
+            <AlertCircle size={12} strokeWidth={2} />
             {errors.minComments}
           </small>
         )}

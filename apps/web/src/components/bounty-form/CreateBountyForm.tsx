@@ -7,6 +7,7 @@ import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Tag } from 'primereact/tag';
+import { FilePen, DollarSign, Shield, Lock, Images, Check, Pencil, X, Plus, AlertCircle, Video, Image as ImageIcon, Info } from 'lucide-react';
 import { FIELD_LIMITS, ContentFormat, BountyAccessType, SocialChannel } from '@social-bounty/shared';
 import type { BountyDetailResponse, CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useCreateBountyForm } from './useCreateBountyForm';
@@ -55,7 +56,7 @@ function InstructionStepsBuilder({
         {hasContent && !isLocked && (
           <Button
             label={isEditing ? 'Done' : 'Edit'}
-            icon={isEditing ? 'pi pi-check' : 'pi pi-pencil'}
+            icon={isEditing ? <Check size={14} strokeWidth={2} /> : <Pencil size={14} strokeWidth={2} />}
             text
             size="small"
             onClick={() => setIsEditing(!isEditing)}
@@ -66,7 +67,7 @@ function InstructionStepsBuilder({
 
       {submitAttempted && errors.fullInstructions && (
         <small className="text-xs text-danger-600 mb-2 flex items-center gap-1">
-          <i className="pi pi-exclamation-circle text-xs" />
+          <AlertCircle size={12} strokeWidth={2} />
           {errors.fullInstructions}
         </small>
       )}
@@ -93,7 +94,7 @@ function InstructionStepsBuilder({
                 />
                 {steps.length > 1 && (
                   <Button
-                    icon="pi pi-times"
+                    icon={<X size={14} strokeWidth={2} />}
                     text
                     severity="danger"
                     size="small"
@@ -107,8 +108,8 @@ function InstructionStepsBuilder({
           </div>
           <div className="flex items-center gap-3 mt-3">
             <Button
-              label={`Add Step ${steps.length + 1}`}
-              icon="pi pi-plus"
+              label={`Add step ${steps.length + 1}`}
+              icon={<Plus size={14} strokeWidth={2} />}
               outlined
               size="small"
               disabled={isLocked || steps.length >= 20}
@@ -202,8 +203,8 @@ export function CreateBountyForm({
         <div data-section="bountyBasicInfo" className={lockedClass}>
           <SectionPanel
             number={1}
-            title={`Bounty Information${isLocked ? ' (Locked)' : ''}`}
-            icon="pi-file-edit"
+            title={`Bounty information${isLocked ? ' (Locked)' : ''}`}
+            Icon={FilePen}
             isComplete={isSectionComplete('bountyBasicInfo', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyBasicInfo', state.errors).length > 0}
           >
@@ -233,7 +234,7 @@ export function CreateBountyForm({
               </small>
               {state.errors.title && (
                 <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-                  <i className="pi pi-exclamation-circle text-xs" />
+                  <AlertCircle size={12} strokeWidth={2} />
                   {state.errors.title}
                 </small>
               )}
@@ -259,7 +260,7 @@ export function CreateBountyForm({
               </small>
               {state.submitAttempted && state.errors.shortDescription && (
                 <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-                  <i className="pi pi-exclamation-circle text-xs" />
+                  <AlertCircle size={12} strokeWidth={2} />
                   {state.errors.shortDescription}
                 </small>
               )}
@@ -275,10 +276,10 @@ export function CreateBountyForm({
                 return (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {([
-                      { value: ContentFormat.VIDEO_ONLY, label: 'Video Only', icon: 'pi-video', desc: 'Only video content accepted' },
-                      { value: ContentFormat.PHOTO_ONLY, label: 'Photo Only', icon: 'pi-image', desc: 'Only photo content accepted' },
-                      { value: ContentFormat.BOTH, label: 'Both', icon: 'pi-images', desc: 'Video and photo accepted' },
-                    ] as const).map(({ value, label, icon, desc }) => {
+                      { value: ContentFormat.VIDEO_ONLY, label: 'Video only', Icon: Video, desc: 'Only video content accepted' },
+                      { value: ContentFormat.PHOTO_ONLY, label: 'Photo only', Icon: ImageIcon, desc: 'Only photo content accepted' },
+                      { value: ContentFormat.BOTH, label: 'Both', Icon: Images, desc: 'Video and photo accepted' },
+                    ] as const).map(({ value, label, Icon, desc }) => {
                       const selected = state.contentFormat === value;
                       // TikTok is a video-only platform: when it's one of the
                       // selected channels, Photo Only becomes an invalid choice.
@@ -316,7 +317,7 @@ export function CreateBountyForm({
                               className="absolute top-1.5 right-1.5 text-[10px] py-0 px-1.5"
                             />
                           )}
-                          <i className={`pi ${icon} text-2xl ${selected ? 'text-pink-600' : 'text-text-muted'} mb-2`} />
+                          <Icon size={24} strokeWidth={2} className={`mx-auto mb-2 ${selected ? 'text-pink-600' : 'text-text-muted'}`} />
                           <p className={`text-sm font-medium ${selected ? 'text-pink-600' : 'text-text-primary'}`}>{label}</p>
                           <p className="text-xs text-text-muted mt-0.5">{desc}</p>
                         </div>
@@ -374,7 +375,7 @@ export function CreateBountyForm({
 
             {/* Post link requirement notice */}
             <div className="flex items-start gap-3 p-4 rounded-lg border border-pink-600/30 bg-pink-600/5">
-              <i className="pi pi-info-circle text-pink-600 mt-0.5" />
+              <Info size={16} strokeWidth={2} className="text-pink-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-text-primary">Post links are required for all submissions</p>
                 <p className="text-xs text-text-muted mt-0.5">
@@ -389,8 +390,8 @@ export function CreateBountyForm({
         <div data-section="bountyContent" className={lockedClass}>
           <SectionPanel
             number={2}
-            title={`Bounty Reward${isLocked ? ' (Locked)' : ''}`}
-            icon="pi-dollar"
+            title={`Bounty reward${isLocked ? ' (Locked)' : ''}`}
+            Icon={DollarSign}
             isComplete={isSectionComplete('bountyContent', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyContent', state.errors).length > 0}
           >
@@ -411,8 +412,8 @@ export function CreateBountyForm({
         <div data-section="bountyRules">
           <SectionPanel
             number={3}
-            title="Bounty Rules"
-            icon="pi-shield"
+            title="Bounty rules"
+            Icon={Shield}
             isComplete={isSectionComplete('bountyRules', state)}
             hasError={state.submitAttempted && getSectionErrors('bountyRules', state.errors).length > 0}
             optional
@@ -493,8 +494,8 @@ export function CreateBountyForm({
         <div data-section="accessType">
           <SectionPanel
             number={4}
-            title="Access Type"
-            icon="pi-lock"
+            title="Access type"
+            Icon={Lock}
             isComplete={true}
             hasError={false}
             optional
@@ -518,8 +519,8 @@ export function CreateBountyForm({
         <div data-section="brandAssets" className={lockedClass}>
           <SectionPanel
             number={5}
-            title={`Brand Assets${isLocked ? ' (Locked)' : ''}`}
-            icon="pi-images"
+            title={`Brand assets${isLocked ? ' (Locked)' : ''}`}
+            Icon={Images}
             isComplete={isSectionComplete('brandAssets', state)}
             hasError={false}
             optional

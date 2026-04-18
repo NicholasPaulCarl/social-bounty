@@ -4,15 +4,19 @@ import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
+import { Banknote, Box, Wrench, Gift, Trash2, Plus, AlertCircle } from 'lucide-react';
+import type { ComponentType, SVGProps } from 'react';
 import { Currency, RewardType, BOUNTY_REWARD_LIMITS } from '@social-bounty/shared';
 import type { RewardLineInput } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
 
-const REWARD_TYPE_OPTIONS = [
-  { label: 'Cash', value: RewardType.CASH, icon: 'pi pi-money-bill', iconColor: 'text-success-600' },
-  { label: 'Product', value: RewardType.PRODUCT, icon: 'pi pi-box', iconColor: 'text-pink-600' },
-  { label: 'Service', value: RewardType.SERVICE, icon: 'pi pi-wrench', iconColor: 'text-warning-600' },
-  { label: 'Other', value: RewardType.OTHER, icon: 'pi pi-gift', iconColor: 'text-text-secondary' },
+type LucideIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
+
+const REWARD_TYPE_OPTIONS: { label: string; value: RewardType; Icon: LucideIcon; iconColor: string }[] = [
+  { label: 'Cash', value: RewardType.CASH, Icon: Banknote, iconColor: 'text-success-600' },
+  { label: 'Product', value: RewardType.PRODUCT, Icon: Box, iconColor: 'text-pink-600' },
+  { label: 'Service', value: RewardType.SERVICE, Icon: Wrench, iconColor: 'text-warning-600' },
+  { label: 'Other', value: RewardType.OTHER, Icon: Gift, iconColor: 'text-text-secondary' },
 ];
 
 const CURRENCY_OPTIONS = [
@@ -50,7 +54,7 @@ export function RewardLinesSection({
 
   const rewardTypeTemplate = (option: typeof REWARD_TYPE_OPTIONS[number]) => (
     <div className="flex items-center gap-2">
-      <i className={`${option.icon} ${option.iconColor}`} />
+      <option.Icon size={16} strokeWidth={2} className={option.iconColor} />
       <span>{option.label}</span>
     </div>
   );
@@ -110,7 +114,7 @@ export function RewardLinesSection({
                 />
                 {submitAttempted && errors[`reward_${index}_name`] && (
                   <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-                    <i className="pi pi-exclamation-circle text-xs" />
+                    <AlertCircle size={12} strokeWidth={2} />
                     {errors[`reward_${index}_name`]}
                   </small>
                 )}
@@ -131,14 +135,14 @@ export function RewardLinesSection({
               />
               {submitAttempted && errors[`reward_${index}_value`] && (
                 <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-                  <i className="pi pi-exclamation-circle text-xs" />
+                  <AlertCircle size={12} strokeWidth={2} />
                   {errors[`reward_${index}_value`]}
                 </small>
               )}
             </div>
             {rewards.length > 1 && (
               <Button
-                icon="pi pi-trash"
+                icon={<Trash2 size={14} strokeWidth={2} />}
                 text
                 severity="danger"
                 size="small"
@@ -160,7 +164,7 @@ export function RewardLinesSection({
               <span className="text-sm font-medium text-text-primary">Reward {index + 1}</span>
               {rewards.length > 1 && (
                 <Button
-                  icon="pi pi-trash"
+                  icon={<Trash2 size={14} strokeWidth={2} />}
                   text
                   severity="danger"
                   size="small"
@@ -202,15 +206,15 @@ export function RewardLinesSection({
 
       {submitAttempted && errors.rewards && (
         <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-          <i className="pi pi-exclamation-circle text-xs" />
+          <AlertCircle size={12} strokeWidth={2} />
           {errors.rewards}
         </small>
       )}
 
       <div className="flex items-center justify-between mt-3">
         <Button
-          label="Add Reward"
-          icon="pi pi-plus"
+          label="Add reward"
+          icon={<Plus size={14} strokeWidth={2} />}
           outlined
           size="small"
           disabled={rewards.length >= BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES}
@@ -223,8 +227,8 @@ export function RewardLinesSection({
 
       <div className="flex justify-end mt-4">
         <div className="text-right">
-          <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward Value</span>
-          <p className="text-lg font-bold text-text-primary mt-0.5">
+          <span className="eyebrow">Total reward value</span>
+          <p className="font-mono tabular-nums text-lg font-bold text-text-primary mt-0.5">
             <span className="text-text-muted text-base font-normal mr-1">{currencySymbol}</span>
             {totalRewardValue.toFixed(2)}
           </p>

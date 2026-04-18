@@ -1,6 +1,7 @@
 'use client';
 
 import { Checkbox } from 'primereact/checkbox';
+import { AlertCircle } from 'lucide-react';
 import type { BountyFormAction } from './types';
 
 interface ProofRequirementsSectionProps {
@@ -40,7 +41,7 @@ export function ProofRequirementsSection({ proofRequirements, dispatch, errors, 
       </div>
       {submitAttempted && errors.proofRequirements && (
         <small className="text-xs text-danger-600 mt-2 flex items-center gap-1">
-          <i className="pi pi-exclamation-circle text-xs" />
+          <AlertCircle size={12} strokeWidth={2} />
           {errors.proofRequirements}
         </small>
       )}

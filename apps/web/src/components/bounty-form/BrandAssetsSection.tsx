@@ -10,6 +10,7 @@ import type { BrandAssetInfo } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
 import { formatBytes } from '@/lib/utils/format';
 import { useUploadBrandAssets, useDeleteBrandAsset } from '@/hooks/useBounties';
+import { Upload, X, Trash2, File as FileIcon, Image as ImageIcon } from 'lucide-react';
 
 interface BrandAssetsSectionProps {
   bountyId: string | null;
@@ -75,8 +76,8 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
           maxFileSize={BRAND_ASSET_LIMITS.MAX_FILE_SIZE}
           multiple
           auto
-          chooseLabel="Upload Files"
-          chooseOptions={{ icon: 'pi pi-upload', className: 'p-button-outlined' }}
+          chooseLabel="Upload files"
+          chooseOptions={{ icon: <Upload size={16} strokeWidth={2} />, className: 'p-button-outlined' }}
           onSelect={handleSelect}
           disabled={bountyId ? upload.isPending : false}
         />
@@ -95,17 +96,21 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
           {stagedFiles.map((file, index) => (
             <div key={`staged-${index}`} className="flex items-center justify-between gap-3 px-4 py-3">
               <div className="flex items-center gap-3 min-w-0 flex-1">
-                <i className={`pi ${file.type === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-text-muted shrink-0`} />
+                {file.type === 'application/pdf' ? (
+                  <FileIcon size={16} strokeWidth={2} className="text-text-muted shrink-0" />
+                ) : (
+                  <ImageIcon size={16} strokeWidth={2} className="text-text-muted shrink-0" />
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-text-primary truncate">{file.name}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <p className="text-xs text-text-muted">{formatBytes(file.size)}</p>
+                    <p className="text-xs text-text-muted font-mono tabular-nums">{formatBytes(file.size)}</p>
                     <Tag value="Pending" severity="warning" className="text-xs py-0 px-1.5 shrink-0" />
                   </div>
                 </div>
               </div>
               <Button
-                icon="pi pi-times"
+                icon={<X size={14} strokeWidth={2} />}
                 severity="danger"
                 text
                 size="small"
@@ -123,14 +128,18 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
           {brandAssets.map((asset) => (
             <div key={asset.id} className="flex items-center justify-between gap-3 px-4 py-3">
               <div className="flex items-center gap-3 min-w-0 flex-1">
-                <i className={`pi ${asset.mimeType === 'application/pdf' ? 'pi-file-pdf' : 'pi-image'} text-text-muted shrink-0`} />
+                {asset.mimeType === 'application/pdf' ? (
+                  <FileIcon size={16} strokeWidth={2} className="text-text-muted shrink-0" />
+                ) : (
+                  <ImageIcon size={16} strokeWidth={2} className="text-text-muted shrink-0" />
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-text-primary truncate">{asset.fileName}</p>
-                  <p className="text-xs text-text-muted">{formatBytes(asset.fileSize)}</p>
+                  <p className="text-xs text-text-muted font-mono tabular-nums">{formatBytes(asset.fileSize)}</p>
                 </div>
               </div>
               <Button
-                icon="pi pi-trash"
+                icon={<Trash2 size={14} strokeWidth={2} />}
                 severity="danger"
                 text
                 size="small"

@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from 'primereact/button';
+import { Check } from 'lucide-react';
 import { Currency } from '@social-bounty/shared';
 
 const CURRENCY_SYMBOLS: Record<Currency, string> = {
@@ -34,15 +35,15 @@ export function FormSummaryFooter({
       {/* Desktop footer — label left, amount + buttons right */}
       <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto px-0 py-2 flex items-center justify-between gap-6">
-          <span className="text-xs text-text-muted uppercase tracking-wider">Total Reward</span>
+          <span className="eyebrow">Total reward</span>
           <div className="flex items-center gap-6">
-            <p className="text-base font-heading font-semibold text-success-600 leading-tight whitespace-nowrap">
+            <p className="font-mono tabular-nums text-base font-semibold text-success-600 leading-tight whitespace-nowrap">
               <span className="text-text-muted text-sm font-normal mr-1">{currencySymbol}</span>
               {totalRewardValue.toFixed(2)}
             </p>
             <div className="flex items-center gap-3">
-              <Button label="Save as Draft" outlined onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
-              <Button label="Create Bounty" icon="pi pi-check" onClick={onCreate} loading={isCreating} disabled={isSaving} />
+              <Button label="Save draft" outlined onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
+              <Button label="Create bounty" icon={<Check size={16} strokeWidth={2} />} onClick={onCreate} loading={isCreating} disabled={isSaving} />
             </div>
           </div>
         </div>
@@ -62,12 +63,12 @@ export function FormSummaryFooter({
       */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl px-3 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom,0.375rem))]">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-heading font-semibold text-success-600 leading-none whitespace-nowrap shrink-0">
+          <p className="font-mono tabular-nums text-sm font-semibold text-success-600 leading-none whitespace-nowrap shrink-0">
             {currencySymbol} {totalRewardValue.toFixed(2)}
           </p>
           <div className="flex items-center gap-2 shrink-0">
             <Button label="Draft" outlined className="text-sm" onClick={onSaveDraft} loading={isSaving} disabled={isCreating} />
-            <Button label="Create" icon="pi pi-check" className="text-sm" onClick={onCreate} loading={isCreating} disabled={isSaving} />
+            <Button label="Create" icon={<Check size={14} strokeWidth={2} />} className="text-sm" onClick={onCreate} loading={isCreating} disabled={isSaving} />
           </div>
         </div>
       </div>

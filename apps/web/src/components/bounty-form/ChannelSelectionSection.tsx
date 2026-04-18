@@ -1,13 +1,17 @@
 'use client';
 
+import { Instagram, Facebook, Video, Check, AlertCircle } from 'lucide-react';
+import type { ComponentType, SVGProps } from 'react';
 import { SocialChannel, PostFormat, CHANNEL_POST_FORMATS } from '@social-bounty/shared';
 import type { ChannelSelection } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
 
-const CHANNEL_META: { channel: SocialChannel; label: string; icon: string }[] = [
-  { channel: SocialChannel.INSTAGRAM, label: 'Instagram', icon: 'pi-instagram' },
-  { channel: SocialChannel.FACEBOOK, label: 'Facebook', icon: 'pi-facebook' },
-  { channel: SocialChannel.TIKTOK, label: 'TikTok', icon: 'pi-video' },
+type LucideIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
+
+const CHANNEL_META: { channel: SocialChannel; label: string; Icon: LucideIcon }[] = [
+  { channel: SocialChannel.INSTAGRAM, label: 'Instagram', Icon: Instagram },
+  { channel: SocialChannel.FACEBOOK, label: 'Facebook', Icon: Facebook },
+  { channel: SocialChannel.TIKTOK, label: 'TikTok', Icon: Video },
 ];
 
 const FORMAT_LABELS: Record<PostFormat, string> = {
@@ -43,7 +47,7 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
         Social Platforms <span className="text-danger-600">*</span>
       </label>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {CHANNEL_META.map(({ channel, label, icon }) => {
+        {CHANNEL_META.map(({ channel, label, Icon }) => {
           const selected = isChannelSelected(channel);
           const formats = CHANNEL_POST_FORMATS[channel];
           return (
@@ -65,9 +69,9 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
                     ? 'border-pink-600 bg-pink-600'
                     : 'border-glass-border bg-white'
                 }`}>
-                  {selected && <i className="pi pi-check text-white text-[10px] font-bold" />}
+                  {selected && <Check size={12} strokeWidth={3} className="text-white" />}
                 </div>
-                <i className={`pi ${icon} text-lg ${selected ? 'text-pink-600' : 'text-text-muted'}`} />
+                <Icon size={20} strokeWidth={2} className={selected ? 'text-pink-600' : 'text-text-muted'} />
                 <span className={`text-sm font-medium ${selected ? 'text-pink-600' : 'text-text-primary'}`}>
                   {label}
                 </span>
@@ -87,7 +91,7 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
                             : 'border-glass-border bg-white text-text-primary hover:border-pink-600'
                         }`}
                       >
-                        {fmtSelected && <i className="pi pi-check text-[10px]" />}
+                        {fmtSelected && <Check size={12} strokeWidth={3} />}
                         {FORMAT_LABELS[fmt]}
                       </button>
                     );
@@ -100,7 +104,7 @@ export function ChannelSelectionSection({ channels, dispatch, errors, submitAtte
       </div>
       {submitAttempted && errors.channels && (
         <small className="text-xs text-danger-600 mt-2 flex items-center gap-1">
-          <i className="pi pi-exclamation-circle text-xs" />
+          <AlertCircle size={12} strokeWidth={2} />
           {errors.channels}
         </small>
       )}

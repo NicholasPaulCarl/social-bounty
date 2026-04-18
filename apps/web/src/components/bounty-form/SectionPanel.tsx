@@ -2,12 +2,17 @@
 
 import { Panel } from 'primereact/panel';
 import { Tag } from 'primereact/tag';
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode, SVGProps } from 'react';
+
+// Lucide icons all accept these props. Typed loose enough to avoid
+// dragging in lucide-react types here, yet strict enough to catch
+// non-Lucide glyphs (no pi-* string shortcuts).
+type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
 
 interface SectionPanelProps {
   number: number;
   title: string;
-  icon: string;
+  Icon: IconComponent;
   isComplete: boolean;
   hasError: boolean;
   /**
@@ -25,7 +30,7 @@ interface SectionPanelProps {
 export function SectionPanel({
   number,
   title,
-  icon,
+  Icon,
   isComplete,
   hasError,
   optional,
@@ -53,7 +58,7 @@ export function SectionPanel({
   const header = (
     <div className="flex items-center justify-between w-full gap-3">
       <div className="flex items-center gap-2 min-w-0">
-        <i className={`pi ${icon} text-pink-600 text-sm`} />
+        <Icon size={16} strokeWidth={2} className="text-pink-600" />
         <span className="text-pink-600 font-heading font-bold">{number}.</span>
         <span className="text-sm sm:text-base font-heading font-semibold text-text-primary truncate">
           {title}
