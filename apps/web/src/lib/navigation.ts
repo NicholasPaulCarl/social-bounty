@@ -54,6 +54,7 @@ const adminNav: NavItem[] = [
       { label: 'Reserves', icon: 'pi pi-circle-fill', href: '/admin/finance/reserves' },
       { label: 'Earnings & Payouts', icon: 'pi pi-circle-fill', href: '/admin/finance/earnings-payouts' },
       { label: 'Refunds', icon: 'pi pi-circle-fill', href: '/admin/finance/refunds' },
+      { label: 'Visibility Failures', icon: 'pi pi-circle-fill', href: '/admin/finance/visibility-failures' },
       { label: 'Exceptions', icon: 'pi pi-circle-fill', href: '/admin/finance/exceptions' },
       { label: 'Audit Trail', icon: 'pi pi-circle-fill', href: '/admin/finance/audit-trail' },
       { label: 'Overrides', icon: 'pi pi-circle-fill', href: '/admin/finance/overrides' },

@@ -11,6 +11,7 @@ const TABS = [
   { label: 'Refunds', href: '/admin/finance/refunds' },
   { label: 'Payouts', href: '/admin/finance/payouts' },
   { label: 'Subscriptions', href: '/admin/finance/subscriptions' },
+  { label: 'Visibility Failures', href: '/admin/finance/visibility-failures' },
   { label: 'Exceptions', href: '/admin/finance/exceptions' },
   { label: 'Audit Trail', href: '/admin/finance/audit-trail' },
   { label: 'Overrides', href: '/admin/finance/overrides' },

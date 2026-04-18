@@ -3,6 +3,7 @@ import {
   hasAnyPreviewChecks,
   pairKey,
   ELIGIBILITY_KEY,
+  type BountyPreviewInput,
 } from '@/lib/utils/bounty-preview-checks';
 import {
   BountyAccessType,
@@ -347,5 +348,96 @@ describe('derivePreviewChecks — multi-channel coverage', () => {
         }),
       ),
     ).toBe(true);
+  });
+});
+
+// ─── BountyPreviewInput accepted directly (not just BountyDetailResponse) ───
+//
+// The function was refactored in Phase 3C to accept the smaller
+// `BountyPreviewInput` shape so the in-flight bounty-form state (which never
+// has `null` fields and never carries `id`/`createdAt`/etc.) can satisfy it
+// without coercion. These tests confirm both shapes round-trip identically.
+
+describe('derivePreviewChecks — BountyPreviewInput shape', () => {
+  it('accepts a minimal input with only channels + contentFormat (no rules)', () => {
+    const input: BountyPreviewInput = {
+      channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
+      contentFormat: ContentFormat.BOTH,
+    };
+    const result = derivePreviewChecks(input);
+    const checks = result[pairKey(SocialChannel.INSTAGRAM, PostFormat.REEL)];
+    // Only formatMatch fires — same as the equivalent BountyDetailResponse test above.
+    expect(checks).toHaveLength(1);
+    expect(checks[0].rule).toBe('formatMatch');
+  });
+
+  it('accepts an input with channels=null (no channels picked yet — form initial state)', () => {
+    const input: BountyPreviewInput = {
+      channels: null,
+      contentFormat: ContentFormat.BOTH,
+    };
+    expect(derivePreviewChecks(input)).toEqual({});
+    expect(hasAnyPreviewChecks(input)).toBe(false);
+  });
+
+  it('accepts an input with channels={} (form-state default — also no channels picked)', () => {
+    const input: BountyPreviewInput = {
+      channels: {},
+      contentFormat: ContentFormat.BOTH,
+    };
+    expect(derivePreviewChecks(input)).toEqual({});
+  });
+
+  it('accepts the full mixed shape — engagement, payout metrics, eligibility', () => {
+    const input: BountyPreviewInput = {
+      channels: {
+        [SocialChannel.INSTAGRAM]: [PostFormat.REEL],
+        [SocialChannel.TIKTOK]: [PostFormat.VIDEO_POST],
+      },
+      contentFormat: ContentFormat.VIDEO_ONLY,
+      engagementRequirements: { tagAccount: '@brand', mention: true },
+      payoutMetrics: { minViews: 1000, minLikes: 50, minComments: 5 },
+      structuredEligibility: { minFollowers: 500, publicProfile: true },
+    };
+    const result = derivePreviewChecks(input);
+    expect(result[ELIGIBILITY_KEY]).toHaveLength(2);
+    const igChecks = result[pairKey(SocialChannel.INSTAGRAM, PostFormat.REEL)];
+    const tkChecks = result[pairKey(SocialChannel.TIKTOK, PostFormat.VIDEO_POST)];
+    expect(igChecks.map((c) => c.rule)).toContain('tagAccount');
+    expect(igChecks.map((c) => c.rule)).toContain('contentFormat');
+    expect(tkChecks.map((c) => c.rule)).toContain('formatMatch');
+  });
+
+  it('treats engagementRequirements / payoutMetrics / structuredEligibility = null and undefined identically', () => {
+    const withNulls: BountyPreviewInput = {
+      channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
+      contentFormat: ContentFormat.BOTH,
+      engagementRequirements: null,
+      payoutMetrics: null,
+      structuredEligibility: null,
+    };
+    const withUndefined: BountyPreviewInput = {
+      channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
+      contentFormat: ContentFormat.BOTH,
+    };
+    expect(derivePreviewChecks(withNulls)).toEqual(derivePreviewChecks(withUndefined));
+  });
+
+  it('produces the same output for a BountyDetailResponse and the equivalent BountyPreviewInput slice', () => {
+    const fullResponse = makeBounty({
+      channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
+      contentFormat: ContentFormat.VIDEO_ONLY,
+      engagementRequirements: { mention: true },
+      payoutMetrics: { minViews: 1000 },
+      structuredEligibility: { minFollowers: 100 },
+    });
+    const slice: BountyPreviewInput = {
+      channels: fullResponse.channels,
+      contentFormat: fullResponse.contentFormat,
+      engagementRequirements: fullResponse.engagementRequirements,
+      payoutMetrics: fullResponse.payoutMetrics,
+      structuredEligibility: fullResponse.structuredEligibility,
+    };
+    expect(derivePreviewChecks(slice)).toEqual(derivePreviewChecks(fullResponse));
   });
 });

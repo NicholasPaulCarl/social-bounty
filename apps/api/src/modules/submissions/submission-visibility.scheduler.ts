@@ -15,6 +15,7 @@ import { RedisService } from '../redis/redis.service';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { KbService } from '../kb/kb.service';
+import { LedgerService } from '../ledger/ledger.service';
 import { RefundsService } from '../refunds/refunds.service';
 import { SubmissionScraperService } from './submission-scraper.service';
 import type { AuthenticatedUser } from '../auth/jwt.strategy';
@@ -56,6 +57,16 @@ import type { AuthenticatedUser } from '../auth/jwt.strategy';
 const MAX_PER_RUN = 100;
 const FAILURE_THRESHOLD = 2;
 const HARD_CAP_DAYS = 90;
+/**
+ * Per-bounty cost cap on visibility re-scrapes (ADR 0010 §4). Counted
+ * across all of a bounty's submissions via SubmissionUrlScrapeHistory
+ * rows. Once a bounty hits the cap, every subsequent tick skips its
+ * submissions and records a KB recurrence under
+ * `VISIBILITY_RESCRAPE_CAP_REACHED`. Generous enough that legitimate
+ * bounties (≤10 submissions, weekly cadence, ≤30d window) never
+ * approach it.
+ */
+const MAX_VISIBILITY_RESCRAPES_PER_BOUNTY = 30;
 const PASS_LOCK_KEY = 'apify:scheduler-lock:visibility-recheck';
 // Slightly under 6 hours so a stuck pass clears itself before the next
 // tick (mirrors the apify-social.scheduler.ts pattern).
@@ -96,6 +107,7 @@ export class SubmissionVisibilityScheduler {
     private auditService: AuditService,
     private mailService: MailService,
     private kbService: KbService,
+    private ledgerService: LedgerService,
     private refundsService: RefundsService,
     private scraper: SubmissionScraperService,
     private config: ConfigService,
@@ -184,10 +196,87 @@ export class SubmissionVisibilityScheduler {
         return;
       }
 
-      const batch = eligible.slice(0, MAX_PER_RUN);
+      // Per-bounty cost cap (ADR 0010 §4). One groupBy across the
+      // eligible set's bounties — bounded set size keeps this cheap
+      // even when 100s of submissions are eligible. Aggregating by
+      // bountyId in JS via the submissionId→bountyId map already in
+      // memory avoids the relational filter cost.
+      const bountyIds = Array.from(new Set(eligible.map((s) => s.bounty.id)));
+      const submissionIdsByBounty = new Map<string, string[]>();
+      for (const s of eligible) {
+        const list = submissionIdsByBounty.get(s.bounty.id) ?? [];
+        list.push(s.id);
+        submissionIdsByBounty.set(s.bounty.id, list);
+      }
+
+      const cappedBountyIds = new Set<string>();
+      try {
+        const historyCounts = await this.prisma.submissionUrlScrapeHistory.groupBy({
+          by: ['submissionId'],
+          where: { submission: { bountyId: { in: bountyIds } } },
+          _count: { _all: true },
+        });
+        const submissionIdToBountyId = new Map(
+          eligible.map((s) => [s.id, s.bounty.id]),
+        );
+        const totalsByBounty = new Map<string, number>();
+        for (const row of historyCounts) {
+          const bId = submissionIdToBountyId.get(row.submissionId);
+          if (!bId) continue;
+          totalsByBounty.set(
+            bId,
+            (totalsByBounty.get(bId) ?? 0) + row._count._all,
+          );
+        }
+        for (const [bId, total] of totalsByBounty.entries()) {
+          if (total >= MAX_VISIBILITY_RESCRAPES_PER_BOUNTY) {
+            cappedBountyIds.add(bId);
+            this.logger.warn(
+              `Bounty ${bId} skipped — visibility re-scrape cap reached (${total}/${MAX_VISIBILITY_RESCRAPES_PER_BOUNTY})`,
+            );
+            await this.kbService
+              .recordRecurrence({
+                category: 'post_visibility',
+                system: 'submission-scraper',
+                title: 'Visibility re-scrape cap reached',
+                severity: 'warning',
+                errorCode: 'VISIBILITY_RESCRAPE_CAP_REACHED',
+                metadata: {
+                  system: 'submission-scraper',
+                  bountyId: bId,
+                  count: total,
+                },
+              })
+              .catch((err) => {
+                this.logger.warn(
+                  `KB cap-reached record failed for bounty ${bId}: ${err instanceof Error ? err.message : err}`,
+                );
+              });
+          }
+        }
+      } catch (err) {
+        // Cap-check failure must not stop the scheduler — fall through
+        // and process the batch unaltered. Logged for visibility.
+        this.logger.warn(
+          `Visibility cap pre-check failed: ${err instanceof Error ? err.message : err}`,
+        );
+      }
+
+      const uncapped = cappedBountyIds.size > 0
+        ? eligible.filter((s) => !cappedBountyIds.has(s.bounty.id))
+        : eligible;
+
+      if (uncapped.length === 0) {
+        this.logger.debug(
+          'Visibility re-check pass: every eligible submission belongs to a capped bounty',
+        );
+        return;
+      }
+
+      const batch = uncapped.slice(0, MAX_PER_RUN);
 
       this.logger.log(
-        `Visibility re-check pass: processing ${batch.length}/${eligible.length} eligible submissions`,
+        `Visibility re-check pass: processing ${batch.length}/${uncapped.length} eligible submissions (${eligible.length - uncapped.length} skipped by per-bounty cap)`,
       );
 
       // Promise.allSettled — one bad submission shouldn't block the batch.
@@ -232,7 +321,33 @@ export class SubmissionVisibilityScheduler {
     // bucketing can advance.
     const now = new Date();
     const anyFailed = summary.failedUrls > 0;
-    const newConsecutive = anyFailed ? submission.consecutiveVisibilityFailures + 1 : 0;
+    const previousConsecutive = submission.consecutiveVisibilityFailures;
+
+    // Kill-switch gate (ADR 0010 §3): when the financial kill switch is
+    // active we must NOT issue an auto-refund. We also do NOT bump the
+    // failure counter past the previous value at the threshold — leaving
+    // it at FAILURE_THRESHOLD-1 means the next post-clearance tick will
+    // immediately re-attempt the refund without inflating the counter.
+    // Emails are suppressed because the brand+hunter "post removed"
+    // copy describes a refund that did not happen.
+    const wouldHitThreshold =
+      anyFailed && previousConsecutive + 1 >= FAILURE_THRESHOLD;
+    const killSwitchActive = wouldHitThreshold
+      ? await this.ledgerService.isKillSwitchActive().catch((err) => {
+          this.logger.warn(
+            `Kill-switch read failed for ${submission.id}; treating as active for safety: ${
+              err instanceof Error ? err.message : err
+            }`,
+          );
+          return true;
+        })
+      : false;
+
+    const newConsecutive = anyFailed
+      ? killSwitchActive
+        ? previousConsecutive
+        : previousConsecutive + 1
+      : 0;
 
     await this.prisma.submission.update({
       where: { id: submission.id },
@@ -241,6 +356,31 @@ export class SubmissionVisibilityScheduler {
         consecutiveVisibilityFailures: newConsecutive,
       },
     });
+
+    if (killSwitchActive) {
+      this.logger.warn(
+        `Auto-refund deferred for submission ${submission.id} — kill switch active`,
+      );
+      await this.kbService
+        .recordRecurrence({
+          category: 'post_visibility',
+          system: 'submission-scraper',
+          title: 'Auto-refund deferred while kill switch is active',
+          severity: 'warning',
+          errorCode: 'POST_VISIBILITY_REFUND_KILL_SWITCHED',
+          metadata: {
+            system: 'submission-scraper',
+            submissionId: submission.id,
+            bountyId: submission.bounty.id,
+          },
+        })
+        .catch((err) => {
+          this.logger.warn(
+            `KB kill-switch record failed for ${submission.id}: ${err instanceof Error ? err.message : err}`,
+          );
+        });
+      return;
+    }
 
     if (!anyFailed) {
       this.logger.debug(
@@ -279,6 +419,46 @@ export class SubmissionVisibilityScheduler {
             `KB record failed for ${submission.id}: ${err instanceof Error ? err.message : err}`,
           );
         });
+
+      // First-failure hunter notification (ADR 0010 §2). Only fires on
+      // the 0→1 transition — `previousConsecutive === 0` is implicit
+      // since `newConsecutive === 1` below the kill-switch + reset
+      // branches. Brand is intentionally NOT notified here. We pull the
+      // first failed row to populate channel/url/errorMessage for the
+      // template; if no row is available (race/cleanup) we skip the
+      // email rather than send a partial one.
+      if (submission.user.email) {
+        try {
+          const failedRow = await this.prisma.submissionUrlScrape.findFirst({
+            where: { submissionId: submission.id, scrapeStatus: 'FAILED' },
+            orderBy: { updatedAt: 'desc' },
+          });
+          if (failedRow) {
+            this.mailService
+              .sendPostVisibilityWarningHunterEmail(submission.user.email, {
+                hunterName: submission.user.firstName || 'Participant',
+                bountyTitle: submission.bounty.title,
+                channel: String(failedRow.channel),
+                url: failedRow.url,
+                errorMessage: failedRow.errorMessage ?? failureReason,
+              })
+              .catch((err) => {
+                this.logger.warn(
+                  `Hunter visibility warning email failed for ${submission.id}: ${err instanceof Error ? err.message : err}`,
+                );
+              });
+          } else {
+            this.logger.debug(
+              `No failed urlScrape row for ${submission.id} — skipping hunter warning email`,
+            );
+          }
+        } catch (err) {
+          this.logger.warn(
+            `Hunter visibility warning lookup failed for ${submission.id}: ${err instanceof Error ? err.message : err}`,
+          );
+        }
+      }
+
       this.logger.warn(
         `Visibility re-check first failure for ${submission.id} — counter at 1, awaiting threshold`,
       );

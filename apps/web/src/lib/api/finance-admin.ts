@@ -19,6 +19,9 @@ import type {
   AdminPayoutListResponse,
   TransactionGroupDetail,
   TransactionGroupDetailEntry,
+  AdminVisibilityFailureListResponse,
+  VisibilityHistoryRow,
+  VisibilityAnalyticsResponse,
 } from '@social-bounty/shared';
 
 // Re-export the shared entry type so existing `@/lib/api/finance-admin` imports
@@ -106,11 +109,38 @@ export const financeAdminApi = {
   getSystemInsights: (system: string): Promise<KbSystemIssueRow[]> =>
     apiClient.get(`/admin/kb/insights/${encodeURIComponent(system)}`),
 
+  /**
+   * Phase 3D — visibility-failure analytics. Default 24h window; the backend
+   * clamps to [1h, 720h] and falls back to 24h on bad input. Polled by the
+   * Insights page so failure-rate spikes show up within a refetch interval.
+   */
+  getVisibilityAnalytics: (windowHours = 24): Promise<VisibilityAnalyticsResponse> =>
+    apiClient.get('/admin/finance/visibility-analytics', {
+      windowHours: String(windowHours),
+    }),
+
   listSubscriptions: (params?: {
     page?: number;
     limit?: number;
   }): Promise<FinanceSubscriptionListResponse> =>
     apiClient.get('/admin/finance/subscriptions', params as Record<string, unknown> | undefined),
+
+  // Phase 3B: admin visibility-failure surface (ADR 0010).
+  listVisibilityFailures: (
+    page = 1,
+    limit = 25,
+  ): Promise<AdminVisibilityFailureListResponse> =>
+    apiClient.get('/admin/finance/visibility-failures', {
+      page: String(page),
+      limit: String(limit),
+    }),
+
+  getVisibilityFailureHistory: (
+    submissionId: string,
+  ): Promise<VisibilityHistoryRow[]> =>
+    apiClient.get(
+      `/admin/finance/visibility-failures/${encodeURIComponent(submissionId)}/history`,
+    ),
 
   /**
    * Download a CSV export as a Blob. We hand-roll fetch here (not apiClient)

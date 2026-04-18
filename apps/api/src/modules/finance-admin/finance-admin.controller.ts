@@ -136,6 +136,51 @@ export class FinanceAdminController {
     return this.svc.getTransactionGroup(transactionGroupId);
   }
 
+  /**
+   * Phase 3B: paginated list of submissions with one or more consecutive
+   * visibility re-check failures (auto-refund precursor — see ADR 0010).
+   * Ordered by failure-count desc, then last-checked desc.
+   */
+  @Get('visibility-failures')
+  @Audited('FINANCE_VISIBILITY_FAILURES_LIST', 'Submission')
+  async visibilityFailures(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.svc.listVisibilityFailures(
+      page ? parseInt(page, 10) : undefined,
+      limit ? parseInt(limit, 10) : undefined,
+    );
+  }
+
+  /**
+   * Phase 3B: per-submission re-check history. Returns every
+   * SubmissionUrlScrapeHistory row for the submission, newest-first.
+   */
+  @Get('visibility-failures/:submissionId/history')
+  @Audited('FINANCE_VISIBILITY_HISTORY_VIEW', 'Submission')
+  async visibilityFailureHistory(
+    @Param('submissionId') submissionId: string,
+  ) {
+    return this.svc.listVisibilityHistory(submissionId);
+  }
+
+  /**
+   * Phase 3D — visibility-failure analytics.
+   * GET /admin/finance/visibility-analytics?windowHours=24
+   *
+   * `windowHours` is parsed loosely on purpose — bad inputs collapse to the
+   * service-level default rather than 400-ing operators on a typo. The
+   * service clamps the window (1..720h) before scanning history.
+   */
+  @Get('visibility-analytics')
+  async visibilityAnalytics(@Query('windowHours') windowHours?: string) {
+    const parsed = windowHours ? parseInt(windowHours, 10) : undefined;
+    return this.svc.getVisibilityAnalytics(
+      parsed !== undefined && Number.isFinite(parsed) ? parsed : undefined,
+    );
+  }
+
   @Post('kill-switch')
   @Audited('KILL_SWITCH_TOGGLE', 'System')
   async toggleKillSwitch(

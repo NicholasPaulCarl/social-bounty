@@ -17,11 +17,17 @@ const keys = {
   auditTrail: (limit: number) => ['financeAdmin', 'auditTrail', limit] as const,
   confidence: ['financeAdmin', 'confidence'] as const,
   systemInsights: (system: string) => ['financeAdmin', 'systemInsights', system] as const,
+  visibilityAnalytics: (windowHours: number) =>
+    ['financeAdmin', 'visibilityAnalytics', windowHours] as const,
   subscriptions: (page: number, limit: number) =>
     ['financeAdmin', 'subscriptions', page, limit] as const,
   payouts: (page: number, limit: number) =>
     ['financeAdmin', 'payouts', page, limit] as const,
   transactionGroup: (id: string) => ['financeAdmin', 'transactionGroup', id] as const,
+  visibilityFailures: (page: number, limit: number) =>
+    ['financeAdmin', 'visibilityFailures', page, limit] as const,
+  visibilityHistory: (submissionId: string) =>
+    ['financeAdmin', 'visibilityHistory', submissionId] as const,
 };
 
 export function useFinanceOverview() {
@@ -81,6 +87,19 @@ export function useSystemInsights(system: string) {
     queryKey: keys.systemInsights(system),
     queryFn: () => financeAdminApi.getSystemInsights(system),
     enabled: Boolean(system),
+  });
+}
+
+/**
+ * Phase 3D — visibility-failure analytics. Polls every 30s so a failure-rate
+ * spike caused by an Apify outage shows up on the Insights page within one
+ * tick (matching the existing exceptions cadence).
+ */
+export function useAdminVisibilityAnalytics({ windowHours = 24 }: { windowHours?: number } = {}) {
+  return useQuery({
+    queryKey: keys.visibilityAnalytics(windowHours),
+    queryFn: () => financeAdminApi.getVisibilityAnalytics(windowHours),
+    refetchInterval: 30000,
   });
 }
 
@@ -152,5 +171,35 @@ export function useApproveRefundBefore() {
     mutationFn: ({ refundId, note }: { refundId: string; note?: string }) =>
       financeAdminApi.approveRefundBefore(refundId, note),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.refunds }),
+  });
+}
+
+/**
+ * Phase 3B: paginated list of submissions with one or more consecutive
+ * post-visibility re-check failures. Powers the
+ * /admin/finance/visibility-failures page (ADR 0010).
+ */
+export function useAdminVisibilityFailures(
+  params?: { page?: number; limit?: number },
+) {
+  const page = params?.page ?? 1;
+  const limit = params?.limit ?? 25;
+  return useQuery({
+    queryKey: keys.visibilityFailures(page, limit),
+    queryFn: () => financeAdminApi.listVisibilityFailures(page, limit),
+    refetchInterval: 30000,
+  });
+}
+
+/**
+ * Per-submission visibility re-check history (newest-first). Drives the
+ * inline drill-down on the visibility-failures page and the
+ * "Visibility check status" panel on the admin submission detail page.
+ */
+export function useAdminVisibilityHistory(submissionId: string | null) {
+  return useQuery({
+    queryKey: keys.visibilityHistory(submissionId ?? ''),
+    queryFn: () => financeAdminApi.getVisibilityFailureHistory(submissionId!),
+    enabled: Boolean(submissionId),
   });
 }

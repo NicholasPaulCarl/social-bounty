@@ -22,6 +22,7 @@ import { PayoutMetricsSection } from './PayoutMetricsSection';
 import { BrandAssetsSection } from './BrandAssetsSection';
 import { AccessTypeSection } from './AccessTypeSection';
 import { FormSummaryFooter } from './FormSummaryFooter';
+import { AutoVerifyPreviewAccordion } from './AutoVerifyPreviewAccordion';
 import { getSectionErrors, isSectionComplete, bountyRulesHasContent } from './validation';
 import { SECTIONS } from './types';
 
@@ -470,6 +471,23 @@ export function CreateBountyForm({
             />
           </SectionPanel>
         </div>
+
+        {/*
+          Phase 3C — live auto-verification preview. Sits directly under the
+          rules section (Section 3) so the cause/effect link is visible:
+          configure rules → see what Apify will check on every submission.
+          Closed by default; brands open it to confirm coverage before saving.
+          Re-renders on every form-state change (cheap pure derivation).
+        */}
+        <AutoVerifyPreviewAccordion
+          input={{
+            channels: Object.keys(state.channels).length > 0 ? state.channels : null,
+            contentFormat: state.contentFormat,
+            engagementRequirements: state.engagementRequirements,
+            payoutMetrics: state.payoutMetrics,
+            structuredEligibility: state.structuredEligibility,
+          }}
+        />
 
         {/* Section 4 (new): Access Type */}
         <div data-section="accessType">

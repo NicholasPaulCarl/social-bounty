@@ -5,6 +5,7 @@ import {
   BountyStatus,
   SubmissionStatus,
   PayoutStatus,
+  SocialChannel,
 } from '../enums';
 
 // ─────────────────────────────────────
@@ -518,6 +519,106 @@ export interface AdminPayoutRow {
 export interface AdminPayoutListResponse {
   data: AdminPayoutRow[];
   meta: { page: number; limit: number; total: number; totalPages: number };
+}
+
+// ─────────────────────────────────────
+// Phase 3B: Admin visibility-failure surface
+// Source: docs/adr/0010-auto-refund-on-visibility-failure.md
+// ─────────────────────────────────────
+
+// GET /admin/finance/visibility-failures (list item)
+// One row per Submission with consecutiveVisibilityFailures > 0. Joined to
+// bounty + brand + hunter for at-a-glance triage; latestErrorMessage pulled
+// from the most recent FAILED row in SubmissionUrlScrapeHistory.
+export interface VisibilityFailureRow {
+  submissionId: string;
+  bountyId: string;
+  bountyTitle: string;
+  brandId: string;
+  brandName: string;
+  hunterId: string;
+  hunterName: string;
+  approvedAt: string | null;
+  lastVisibilityCheckAt: string | null;
+  consecutiveVisibilityFailures: number;
+  latestErrorMessage: string | null;
+  historyRowCount: number;
+}
+
+// GET /admin/finance/visibility-failures (query params)
+export interface AdminVisibilityFailureListParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface AdminVisibilityFailureListResponse {
+  data: VisibilityFailureRow[];
+  meta: { page: number; limit: number; total: number; totalPages: number };
+}
+
+// GET /admin/finance/visibility-failures/:submissionId/history (list item)
+// One row per re-scrape attempt across all URLs of a single submission,
+// newest first. Mirrors the columns of SubmissionUrlScrapeHistory.
+export interface VisibilityHistoryRow {
+  id: string;
+  urlScrapeId: string;
+  url: string;
+  channel: string; // SocialChannel
+  format: string; // PostFormat
+  scrapeStatus: string; // UrlScrapeStatus
+  scrapeResult: Record<string, unknown> | null;
+  verificationChecks: Array<Record<string, unknown>> | null;
+  errorMessage: string | null;
+  checkedAt: string;
+}
+
+// ─────────────────────────────────────
+// Phase 3D — Visibility analytics
+// ─────────────────────────────────────
+// GET /admin/finance/visibility-analytics?windowHours=24
+//
+// Per-channel post-visibility scrape outcome aggregation. Sourced from
+// SubmissionUrlScrapeHistory (append-only, one row per re-scrape pass) joined
+// to SubmissionUrlScrape for channel/format. Powers the Finance Insights
+// "Visibility Failure Rate" panel and surfaces structurally-bad windows so
+// operators can spot Apify-side outages BEFORE the auto-refund machinery
+// flips false positives into mass refunds (ADR 0010, Risk 1).
+//
+// Severity thresholds (computed in the service):
+//   warning  — failureRate >= 0.30 AND total >= 10
+//   critical — failureRate >= 0.50 AND total >= 20
+// Sample-size floors keep tiny windows from emitting noisy alerts.
+
+export interface VisibilityFailureBucket {
+  channel: SocialChannel;
+  total: number;
+  verified: number;
+  failed: number;
+  // PENDING / IN_PROGRESS rows are counted in `total` but not in
+  // verified/failed — they're transient and don't affect failureRate.
+  failureRate: number; // 0..1, rounded to 4 decimal places
+}
+
+export interface VisibilityAnalyticsAlert {
+  channel: SocialChannel;
+  severity: 'warning' | 'critical';
+  message: string;
+}
+
+export interface VisibilityAnalyticsResponse {
+  windowHours: number;
+  windowStart: string; // ISO
+  windowEnd: string; // ISO
+  buckets: VisibilityFailureBucket[];
+  totals: {
+    total: number;
+    verified: number;
+    failed: number;
+    failureRate: number;
+  };
+  // Structurally-bad channels in the window. Empty array when everything is
+  // healthy. Surface these as PrimeReact <Message> components in the UI.
+  alerts: VisibilityAnalyticsAlert[];
 }
 
 // GET /admin/payments-health
