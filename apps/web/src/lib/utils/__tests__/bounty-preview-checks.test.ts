@@ -38,7 +38,7 @@ function makeBounty(overrides: Partial<BountyDetailResponse> = {}): BountyDetail
     proofRequirements: 'url',
     status: BountyStatus.LIVE,
     submissionCount: 0,
-    brand: { id: 'b1', name: 'Brand' },
+    brand: { id: 'b1', name: 'Brand', logo: null },
     createdBy: { id: 'u1', firstName: 'A', lastName: 'B' },
     userSubmission: null,
     createdAt: '2026-04-18T00:00:00Z',
