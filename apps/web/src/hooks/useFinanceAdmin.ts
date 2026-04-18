@@ -17,6 +17,8 @@ const keys = {
   auditTrail: (limit: number) => ['financeAdmin', 'auditTrail', limit] as const,
   confidence: ['financeAdmin', 'confidence'] as const,
   systemInsights: (system: string) => ['financeAdmin', 'systemInsights', system] as const,
+  visibilityAnalytics: (windowHours: number) =>
+    ['financeAdmin', 'visibilityAnalytics', windowHours] as const,
   subscriptions: (page: number, limit: number) =>
     ['financeAdmin', 'subscriptions', page, limit] as const,
   payouts: (page: number, limit: number) =>
@@ -85,6 +87,19 @@ export function useSystemInsights(system: string) {
     queryKey: keys.systemInsights(system),
     queryFn: () => financeAdminApi.getSystemInsights(system),
     enabled: Boolean(system),
+  });
+}
+
+/**
+ * Phase 3D — visibility-failure analytics. Polls every 30s so a failure-rate
+ * spike caused by an Apify outage shows up on the Insights page within one
+ * tick (matching the existing exceptions cadence).
+ */
+export function useAdminVisibilityAnalytics({ windowHours = 24 }: { windowHours?: number } = {}) {
+  return useQuery({
+    queryKey: keys.visibilityAnalytics(windowHours),
+    queryFn: () => financeAdminApi.getVisibilityAnalytics(windowHours),
+    refetchInterval: 30000,
   });
 }
 
