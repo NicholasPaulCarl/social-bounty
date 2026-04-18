@@ -57,6 +57,16 @@ import type { AuthenticatedUser } from '../auth/jwt.strategy';
 const MAX_PER_RUN = 100;
 const FAILURE_THRESHOLD = 2;
 const HARD_CAP_DAYS = 90;
+/**
+ * Per-bounty cost cap on visibility re-scrapes (ADR 0010 §4). Counted
+ * across all of a bounty's submissions via SubmissionUrlScrapeHistory
+ * rows. Once a bounty hits the cap, every subsequent tick skips its
+ * submissions and records a KB recurrence under
+ * `VISIBILITY_RESCRAPE_CAP_REACHED`. Generous enough that legitimate
+ * bounties (≤10 submissions, weekly cadence, ≤30d window) never
+ * approach it.
+ */
+const MAX_VISIBILITY_RESCRAPES_PER_BOUNTY = 30;
 const PASS_LOCK_KEY = 'apify:scheduler-lock:visibility-recheck';
 // Slightly under 6 hours so a stuck pass clears itself before the next
 // tick (mirrors the apify-social.scheduler.ts pattern).
@@ -186,10 +196,87 @@ export class SubmissionVisibilityScheduler {
         return;
       }
 
-      const batch = eligible.slice(0, MAX_PER_RUN);
+      // Per-bounty cost cap (ADR 0010 §4). One groupBy across the
+      // eligible set's bounties — bounded set size keeps this cheap
+      // even when 100s of submissions are eligible. Aggregating by
+      // bountyId in JS via the submissionId→bountyId map already in
+      // memory avoids the relational filter cost.
+      const bountyIds = Array.from(new Set(eligible.map((s) => s.bounty.id)));
+      const submissionIdsByBounty = new Map<string, string[]>();
+      for (const s of eligible) {
+        const list = submissionIdsByBounty.get(s.bounty.id) ?? [];
+        list.push(s.id);
+        submissionIdsByBounty.set(s.bounty.id, list);
+      }
+
+      const cappedBountyIds = new Set<string>();
+      try {
+        const historyCounts = await this.prisma.submissionUrlScrapeHistory.groupBy({
+          by: ['submissionId'],
+          where: { submission: { bountyId: { in: bountyIds } } },
+          _count: { _all: true },
+        });
+        const submissionIdToBountyId = new Map(
+          eligible.map((s) => [s.id, s.bounty.id]),
+        );
+        const totalsByBounty = new Map<string, number>();
+        for (const row of historyCounts) {
+          const bId = submissionIdToBountyId.get(row.submissionId);
+          if (!bId) continue;
+          totalsByBounty.set(
+            bId,
+            (totalsByBounty.get(bId) ?? 0) + row._count._all,
+          );
+        }
+        for (const [bId, total] of totalsByBounty.entries()) {
+          if (total >= MAX_VISIBILITY_RESCRAPES_PER_BOUNTY) {
+            cappedBountyIds.add(bId);
+            this.logger.warn(
+              `Bounty ${bId} skipped — visibility re-scrape cap reached (${total}/${MAX_VISIBILITY_RESCRAPES_PER_BOUNTY})`,
+            );
+            await this.kbService
+              .recordRecurrence({
+                category: 'post_visibility',
+                system: 'submission-scraper',
+                title: 'Visibility re-scrape cap reached',
+                severity: 'warning',
+                errorCode: 'VISIBILITY_RESCRAPE_CAP_REACHED',
+                metadata: {
+                  system: 'submission-scraper',
+                  bountyId: bId,
+                  count: total,
+                },
+              })
+              .catch((err) => {
+                this.logger.warn(
+                  `KB cap-reached record failed for bounty ${bId}: ${err instanceof Error ? err.message : err}`,
+                );
+              });
+          }
+        }
+      } catch (err) {
+        // Cap-check failure must not stop the scheduler — fall through
+        // and process the batch unaltered. Logged for visibility.
+        this.logger.warn(
+          `Visibility cap pre-check failed: ${err instanceof Error ? err.message : err}`,
+        );
+      }
+
+      const uncapped = cappedBountyIds.size > 0
+        ? eligible.filter((s) => !cappedBountyIds.has(s.bounty.id))
+        : eligible;
+
+      if (uncapped.length === 0) {
+        this.logger.debug(
+          'Visibility re-check pass: every eligible submission belongs to a capped bounty',
+        );
+        return;
+      }
+
+      const batch = uncapped.slice(0, MAX_PER_RUN);
 
       this.logger.log(
-        `Visibility re-check pass: processing ${batch.length}/${eligible.length} eligible submissions`,
+        `Visibility re-check pass: processing ${batch.length}/${uncapped.length} eligible submissions (${eligible.length - uncapped.length} skipped by per-bounty cap)`,
       );
 
       // Promise.allSettled — one bad submission shouldn't block the batch.
