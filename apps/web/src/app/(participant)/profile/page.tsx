@@ -3,6 +3,16 @@
 import Link from 'next/link';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
+import {
+  AlertCircle,
+  BarChart3,
+  CheckCircle2,
+  ExternalLink,
+  Link2,
+  Music2,
+  Pencil,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useProfile, useSocialLinks } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
 import { getUploadUrl } from '@/lib/api/client';
@@ -13,10 +23,15 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { SocialChannel } from '@social-bounty/shared';
 
-const PLATFORM_ICONS: Record<SocialChannel, string> = {
-  [SocialChannel.INSTAGRAM]: 'pi pi-instagram',
-  [SocialChannel.TIKTOK]: 'pi pi-tiktok',
-  [SocialChannel.FACEBOOK]: 'pi pi-facebook',
+// Lucide's installed 1.8.0 has no TikTok / Instagram / Facebook brand
+// glyphs. Using Link2 as a generic channel chain-link + Music2 for
+// TikTok (the one brand mark this version does ship), per the DS
+// ICONS.md §Social brand marks guidance (Link2 is the closest
+// uncoloured placeholder until we commission branded SVGs).
+const PLATFORM_ICONS: Record<SocialChannel, LucideIcon> = {
+  [SocialChannel.INSTAGRAM]: Link2,
+  [SocialChannel.TIKTOK]: Music2,
+  [SocialChannel.FACEBOOK]: Link2,
 };
 
 const PLATFORM_LABELS: Record<SocialChannel, string> = {
@@ -54,20 +69,24 @@ export default function ProfilePage() {
   return (
     <>
       <PageHeader
-        title="My Profile"
+        title="My profile"
         actions={
           <div className="flex items-center gap-2">
             <Link href={`/hunters/${profile.id}`} target="_blank" rel="noopener noreferrer">
               <Button
-                label="View Public Profile"
-                icon="pi pi-external-link"
+                label="View public"
+                icon={<ExternalLink size={14} strokeWidth={2} />}
                 outlined
                 severity="secondary"
                 size="small"
               />
             </Link>
             <Link href="/profile/edit">
-              <Button label="Edit Profile" icon="pi pi-pencil" size="small" />
+              <Button
+                label="Edit"
+                icon={<Pencil size={14} strokeWidth={2} />}
+                size="small"
+              />
             </Link>
           </div>
         }
@@ -84,15 +103,15 @@ export default function ProfilePage() {
       {/* Profile completion banner */}
       {completion < 100 && (
         <div className="glass-card p-4 mb-6 animate-fade-up border border-warning-600/30">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-2 gap-3">
             <div className="flex items-center gap-2">
-              <i className="pi pi-chart-bar text-warning-600 text-sm" />
+              <BarChart3 size={16} strokeWidth={2} className="text-warning-600" />
               <span className="text-text-primary text-sm font-medium">
-                Profile {completion}% complete
+                Profile <span className="font-mono tabular-nums">{completion}%</span> complete
               </span>
             </div>
             <Link href="/profile/edit">
-              <span className="text-pink-600 text-xs hover:text-pink-600/80 font-medium cursor-pointer">
+              <span className="text-pink-600 text-xs hover:text-pink-700 font-medium cursor-pointer">
                 Complete now
               </span>
             </Link>
@@ -132,29 +151,29 @@ export default function ProfilePage() {
               </div>
             )}
             <div>
-              <h3 className="text-lg font-heading font-semibold text-text-primary">Account Details</h3>
+              <h3 className="text-lg font-heading font-semibold text-text-primary">Account details</h3>
               {user?.role && <StatusBadge type="role" value={user.role} size="small" />}
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Name</p>
-              <p className="text-text-primary font-medium">
+              <p className="eyebrow !text-text-muted !text-[11px]">Name</p>
+              <p className="text-text-primary font-medium mt-0.5">
                 {profile.firstName} {profile.lastName}
               </p>
             </div>
             <div>
-              <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Email</p>
-              <div className="flex items-center gap-2">
+              <p className="eyebrow !text-text-muted !text-[11px]">Email</p>
+              <div className="flex items-center gap-2 flex-wrap mt-0.5">
                 <p className="text-text-primary font-medium">{profile.email}</p>
                 {profile.emailVerified ? (
                   <span className="text-success-600 text-xs flex items-center gap-1">
-                    <i className="pi pi-check-circle text-xs" /> Verified
+                    <CheckCircle2 size={12} strokeWidth={2} /> Verified
                   </span>
                 ) : (
                   <span className="text-warning-600 text-xs flex items-center gap-1">
-                    <i className="pi pi-exclamation-circle text-xs" /> Unverified
+                    <AlertCircle size={12} strokeWidth={2} /> Unverified
                   </span>
                 )}
               </div>
@@ -193,55 +212,56 @@ export default function ProfilePage() {
         {links.length > 0 && (
           <div className="glass-card p-6 animate-fade-up" style={{ animationDelay: '150ms' }}>
             <h3 className="text-lg font-heading font-semibold text-text-primary mb-4">
-              Social Links
+              Social links
             </h3>
             <div className="space-y-3">
-              {links.map((link) => (
-                <div
-                  key={link.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-glass-border/20 border border-glass-border"
-                >
-                  <div className="flex items-center gap-3">
-                    <i
-                      className={`${PLATFORM_ICONS[link.platform] ?? 'pi pi-link'} text-text-muted`}
-                    />
-                    <div>
-                      <p className="text-text-primary text-sm font-medium">
-                        {PLATFORM_LABELS[link.platform] ?? link.platform}
-                        {link.handle && (
-                          <span className="text-text-muted ml-1 font-normal">@{link.handle}</span>
-                        )}
-                      </p>
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-pink-600 text-xs hover:underline"
-                      >
-                        {link.url}
-                      </a>
+              {links.map((link) => {
+                const PlatformIcon = PLATFORM_ICONS[link.platform] ?? Link2;
+                return (
+                  <div
+                    key={link.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-glass-border/20 border border-glass-border gap-3"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <PlatformIcon size={20} strokeWidth={2} className="text-text-muted shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-text-primary text-sm font-medium truncate">
+                          {PLATFORM_LABELS[link.platform] ?? link.platform}
+                          {link.handle && (
+                            <span className="text-text-muted ml-1 font-normal">@{link.handle}</span>
+                          )}
+                        </p>
+                        <a
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-pink-600 text-xs hover:underline truncate block"
+                        >
+                          {link.url}
+                        </a>
+                      </div>
+                    </div>
+                    <div className="text-right text-xs text-text-muted flex gap-4 shrink-0">
+                      {link.followerCount !== null && (
+                        <div>
+                          <p className="text-text-primary font-medium font-mono tabular-nums">
+                            {formatCount(link.followerCount)}
+                          </p>
+                          <p>followers</p>
+                        </div>
+                      )}
+                      {link.postCount !== null && (
+                        <div>
+                          <p className="text-text-primary font-medium font-mono tabular-nums">
+                            {formatCount(link.postCount)}
+                          </p>
+                          <p>posts</p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="text-right text-xs text-text-muted flex gap-4">
-                    {link.followerCount !== null && (
-                      <div>
-                        <p className="text-text-primary font-medium">
-                          {formatCount(link.followerCount)}
-                        </p>
-                        <p>followers</p>
-                      </div>
-                    )}
-                    {link.postCount !== null && (
-                      <div>
-                        <p className="text-text-primary font-medium">
-                          {formatCount(link.postCount)}
-                        </p>
-                        <p>posts</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
