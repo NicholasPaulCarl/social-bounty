@@ -34,10 +34,19 @@ interface SubmissionPanelProps extends BasePanelProps {
   audience?: never;
 }
 
+/**
+ * `audience` controls the section heading + per-group subtitle copy.
+ *   - 'brand'      — saved-bounty preview shown to the brand owner.
+ *   - 'hunter'     — saved-bounty preview shown to a participant browsing.
+ *   - 'brand-form' — live preview shown inside the bounty create/edit form.
+ *                    Empty-state copy nudges the brand toward picking
+ *                    channels and adding rules, rather than the
+ *                    saved-bounty "submissions go to manual review" framing.
+ */
 interface PreviewPanelProps extends BasePanelProps {
   previewMode: true;
   previewChecks: Record<string, VerificationCheck[]>;
-  audience?: 'brand' | 'hunter';
+  audience?: 'brand' | 'hunter' | 'brand-form';
   urlScrapes?: never;
 }
 
@@ -267,7 +276,7 @@ function PreviewBody({
   audience,
 }: {
   previewChecks: Record<string, VerificationCheck[]>;
-  audience: 'brand' | 'hunter';
+  audience: 'brand' | 'hunter' | 'brand-form';
 }) {
   const eligibilityChecks = previewChecks[ELIGIBILITY_KEY] ?? [];
   const pairKeys = Object.keys(previewChecks)
@@ -277,28 +286,41 @@ function PreviewBody({
     eligibilityChecks.length + pairKeys.reduce((n, k) => n + previewChecks[k].length, 0);
 
   // Empty state — mirrors the cost-guard branch in SubmissionScraperService.
+  // Form context gets a nudge toward action ("pick channels, add rules");
+  // saved-bounty context tells the audience that submissions skip auto-verify.
   if (totalRuleCount === 0) {
+    const isForm = audience === 'brand-form';
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
         <i className="pi pi-info-circle text-3xl text-text-muted mb-3" aria-hidden="true" />
-        <p className="text-text-primary font-medium">No auto-verification rules</p>
+        <p className="text-text-primary font-medium">
+          {isForm ? 'Nothing to auto-verify yet' : 'No auto-verification rules'}
+        </p>
         <p className="text-text-muted text-sm mt-1">
-          Submissions go straight to manual review.
+          {isForm
+            ? 'Select channels and add rules to preview what will be auto-verified.'
+            : 'Submissions go straight to manual review.'}
         </p>
       </div>
     );
   }
 
+  // Eligibility group title swaps:
+  //   - hunter    : "About you"
+  //   - brand     : "Hunter eligibility"
+  //   - brand-form: "Hunter eligibility" (same as saved-brand view)
+  const eligibilityTitle = audience === 'hunter' ? 'About you' : 'Hunter eligibility';
+  const eligibilitySubtitle =
+    audience === 'hunter'
+      ? 'Checked once, against your linked social profile.'
+      : "Checked against the hunter's linked social profile.";
+
   return (
     <div className="space-y-3">
       {eligibilityChecks.length > 0 && (
         <PreviewGroupCard
-          title={audience === 'hunter' ? 'About you' : 'Hunter eligibility'}
-          subtitle={
-            audience === 'hunter'
-              ? 'Checked once, against your linked social profile.'
-              : "Checked against the hunter's linked social profile."
-          }
+          title={eligibilityTitle}
+          subtitle={eligibilitySubtitle}
           checks={eligibilityChecks}
         />
       )}
@@ -333,6 +355,9 @@ export function VerificationReportPanel(props: VerificationReportPanelProps) {
             {audience === 'hunter' ? "What you'll need to pass" : 'Auto-verification preview'}
           </h3>
         </div>
+        {/* Both 'brand' and 'brand-form' show the same heading; only the
+            empty-state copy and (above) the eligibility-section subtitle
+            change between brand-saved and brand-form views. */}
         <PreviewBody previewChecks={props.previewChecks} audience={audience} />
       </div>
     );
