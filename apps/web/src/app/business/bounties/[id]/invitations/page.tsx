@@ -20,6 +20,7 @@ import { bountyAccessApi } from '@/lib/api/bounty-access';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query-keys';
 import type { BountyInvitationResponse } from '@social-bounty/shared';
+import { AtSign, Send, Mail, Ban } from 'lucide-react';
 
 const PLATFORM_OPTIONS = [
   { label: 'X (Twitter)', value: SocialPlatform.X, icon: 'pi-twitter' },
@@ -29,9 +30,9 @@ const PLATFORM_OPTIONS = [
 ];
 
 const PLATFORM_COLORS: Record<string, string> = {
-  [SocialPlatform.X]: 'bg-elevated text-text-primary border-glass-border',
+  [SocialPlatform.X]: 'bg-slate-100 text-slate-700 border-slate-200',
   [SocialPlatform.INSTAGRAM]: 'bg-danger-600/10 text-danger-600 border-danger-600/30',
-  [SocialPlatform.FACEBOOK]: 'bg-blue-600/10 text-blue-600 border-blue-600/30',
+  [SocialPlatform.FACEBOOK]: 'bg-slate-100 text-slate-700 border-slate-200',
   [SocialPlatform.TIKTOK]: 'bg-pink-600/10 text-pink-600 border-pink-600/30',
 };
 
@@ -158,7 +159,7 @@ export default function InvitationsPage() {
           />
           <div className="flex-1 flex gap-3">
             <span className="p-input-icon-left flex-1">
-              <i className="pi pi-at" />
+              <AtSign size={16} strokeWidth={2} />
               <InputText
                 value={handle}
                 onChange={(e) => setHandle(e.target.value)}
@@ -168,8 +169,8 @@ export default function InvitationsPage() {
               />
             </span>
             <Button
-              label="Send Invite"
-              icon="pi pi-send"
+              label="Send invite"
+              icon={<Send size={16} strokeWidth={2} />}
               loading={createInvitationsMutation.isPending}
               onClick={handleAddInvitation}
               className="flex-shrink-0"
@@ -186,8 +187,8 @@ export default function InvitationsPage() {
       <div className="glass-card overflow-hidden">
         {invitations.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-              <i className="pi pi-envelope text-2xl text-text-muted" />
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 text-text-muted flex items-center justify-center mx-auto mb-4">
+              <Mail size={28} strokeWidth={2} />
             </div>
             <p className="text-text-secondary font-medium">No invitations sent yet</p>
             <p className="text-text-muted text-sm mt-1">Invite hunters using the form above.</p>
@@ -285,7 +286,7 @@ function InvitationRow({
         <span className="text-xs text-text-muted hidden sm:block">{formatDate(inv.invitedAt)}</span>
         {inv.status === BountyInvitationStatus.PENDING && onRevoke && (
           <Button
-            icon="pi pi-ban"
+            icon={<Ban size={14} strokeWidth={2} />}
             size="small"
             text
             severity="danger"

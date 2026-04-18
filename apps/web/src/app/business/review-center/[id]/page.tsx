@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Image } from 'primereact/image';
+import { ArrowLeft } from 'lucide-react';
 import { useSubmission, useReviewSubmission, useUpdatePayout } from '@/hooks/useSubmissions';
 import { useToast } from '@/hooks/useToast';
 import { SubmissionStatus, PayoutStatus } from '@social-bounty/shared';
@@ -73,7 +74,7 @@ export default function ReviewCenterDetailPage() {
           <div className="flex gap-3">
             <Button
               label="Back"
-              icon="pi pi-arrow-left"
+              icon={<ArrowLeft size={16} strokeWidth={2} />}
               outlined
               onClick={() => router.push('/business/review-center')}
             />

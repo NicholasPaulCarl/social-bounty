@@ -6,6 +6,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
+import { Plus, Eye, Pencil, Play, Pause, XCircle, Undo2, Trash2 } from 'lucide-react';
 import { useBounties, useDeleteBounty } from '@/hooks/useBounties';
 import { bountyApi } from '@/lib/api/bounties';
 import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
@@ -123,19 +124,19 @@ export default function BusinessBountiesPage() {
   };
 
   const getStatusActions = (rowData: BountyListItem) => {
-    const actions: { label: string; status: string; icon: string; severity: string }[] = [];
+    const actions: { label: string; status: string; Icon: typeof Play; severity: string }[] = [];
     switch (rowData.status) {
       case 'DRAFT':
-        actions.push({ label: 'Publish', status: 'LIVE', icon: 'pi pi-play', severity: 'success' });
+        actions.push({ label: 'Publish', status: 'LIVE', Icon: Play, severity: 'success' });
         break;
       case 'LIVE':
-        actions.push({ label: 'Pause', status: 'PAUSED', icon: 'pi pi-pause', severity: 'warning' });
-        actions.push({ label: 'Close', status: 'CLOSED', icon: 'pi pi-times-circle', severity: 'danger' });
+        actions.push({ label: 'Pause', status: 'PAUSED', Icon: Pause, severity: 'warning' });
+        actions.push({ label: 'Close', status: 'CLOSED', Icon: XCircle, severity: 'danger' });
         break;
       case 'PAUSED':
-        actions.push({ label: 'Resume', status: 'LIVE', icon: 'pi pi-play', severity: 'success' });
-        actions.push({ label: 'Close', status: 'CLOSED', icon: 'pi pi-times-circle', severity: 'danger' });
-        actions.push({ label: 'Revert to Draft', status: 'DRAFT', icon: 'pi pi-undo', severity: 'secondary' });
+        actions.push({ label: 'Resume', status: 'LIVE', Icon: Play, severity: 'success' });
+        actions.push({ label: 'Close', status: 'CLOSED', Icon: XCircle, severity: 'danger' });
+        actions.push({ label: 'Revert to draft', status: 'DRAFT', Icon: Undo2, severity: 'secondary' });
         break;
     }
     return actions;
@@ -149,11 +150,11 @@ export default function BusinessBountiesPage() {
   );
 
   const rewardTemplate = (rowData: BountyListItem) => (
-    <span>{formatCurrency(rowData.rewardValue, rowData.currency)}</span>
+    <span className="font-mono tabular-nums">{formatCurrency(rowData.rewardValue, rowData.currency)}</span>
   );
 
   const dateTemplate = (rowData: BountyListItem) => (
-    <span>{formatDate(rowData.createdAt)}</span>
+    <span className="font-mono tabular-nums">{formatDate(rowData.createdAt)}</span>
   );
 
   const actionsTemplate = (rowData: BountyListItem) => {
@@ -161,15 +162,15 @@ export default function BusinessBountiesPage() {
     return (
       <div className="flex gap-1 items-center">
         <Button
-          icon="pi pi-eye"
+          icon={<Eye size={18} strokeWidth={2} />}
           rounded
           text
-          severity="info"
+          severity="secondary"
           onClick={() => router.push(`/business/bounties/${rowData.id}`)}
           tooltip="View"
         />
         <Button
-          icon="pi pi-pencil"
+          icon={<Pencil size={18} strokeWidth={2} />}
           rounded
           text
           severity="secondary"
@@ -179,7 +180,7 @@ export default function BusinessBountiesPage() {
         {statusActions.map((action) => (
           <Button
             key={action.status}
-            icon={action.icon}
+            icon={<action.Icon size={18} strokeWidth={2} />}
             rounded
             text
             severity={action.severity as 'success' | 'warning' | 'danger' | 'secondary'}
@@ -190,7 +191,7 @@ export default function BusinessBountiesPage() {
         ))}
         {rowData.status === 'DRAFT' && (
           <Button
-            icon="pi pi-trash"
+            icon={<Trash2 size={18} strokeWidth={2} />}
             rounded
             text
             severity="danger"
@@ -210,7 +211,7 @@ export default function BusinessBountiesPage() {
         title="Bounties"
         subtitle="Manage your brand's bounties"
         actions={
-          <Button label="Create Bounty" icon="pi pi-plus" onClick={() => router.push('/business/bounties/new')} />
+          <Button label="Create bounty" icon={<Plus size={18} strokeWidth={2} />} onClick={() => router.push('/business/bounties/new')} />
         }
         tabs={{
           items: statusTabs.map((tab) => ({ label: tab.label })),

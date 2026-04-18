@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from 'primereact/button';
+import { Plus, RefreshCw, Pencil, Eye } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMyBrands } from '@/hooks/useBrand';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -40,8 +41,8 @@ export default function MyBrandsPage() {
         subtitle="Manage your brand profiles"
         actions={
           <Button
-            label="Create Brand"
-            icon="pi pi-plus"
+            label="Create brand"
+            icon={<Plus size={18} strokeWidth={2} />}
             onClick={() => router.push('/business/brands/create')}
           />
         }
@@ -107,7 +108,7 @@ export default function MyBrandsPage() {
                   {!isActive && (
                     <Button
                       label="Switch"
-                      icon="pi pi-sync"
+                      icon={<RefreshCw size={14} strokeWidth={2} />}
                       size="small"
                       outlined
                       onClick={() => handleSwitch(brand)}
@@ -115,14 +116,14 @@ export default function MyBrandsPage() {
                   )}
                   <Button
                     label="Edit"
-                    icon="pi pi-pencil"
+                    icon={<Pencil size={14} strokeWidth={2} />}
                     size="small"
                     outlined
                     onClick={() => router.push(`/business/brands/${brand.id}/edit`)}
                   />
                   <Button
                     label="View"
-                    icon="pi pi-eye"
+                    icon={<Eye size={14} strokeWidth={2} />}
                     size="small"
                     text
                     onClick={() => router.push(`/brands/${brand.handle || brand.id}`)}

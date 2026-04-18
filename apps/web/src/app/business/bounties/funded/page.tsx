@@ -6,6 +6,7 @@ import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { ArrowLeft, Eye, RefreshCw } from 'lucide-react';
 import { bountyApi } from '@/lib/api/bounties';
 
 interface Status {
@@ -96,7 +97,7 @@ export default function BountyFundedReturnPage() {
         <div className="mt-4">
           <Button
             label="Back to bounties"
-            icon="pi pi-arrow-left"
+            icon={<ArrowLeft size={16} strokeWidth={2} />}
             onClick={() => router.push('/business/bounties')}
           />
         </div>
@@ -123,12 +124,12 @@ export default function BountyFundedReturnPage() {
           <div className="mt-4 flex gap-2">
             <Button
               label="View bounty"
-              icon="pi pi-eye"
+              icon={<Eye size={16} strokeWidth={2} />}
               onClick={() => router.push(`/business/bounties/${status.bountyId}`)}
             />
             <Button
               label="Back to bounties"
-              icon="pi pi-arrow-left"
+              icon={<ArrowLeft size={16} strokeWidth={2} />}
               outlined
               onClick={() => router.push('/business/bounties')}
             />
@@ -153,7 +154,7 @@ export default function BountyFundedReturnPage() {
           <div className="mt-4 flex gap-2">
             <Button
               label="Refresh"
-              icon="pi pi-refresh"
+              icon={<RefreshCw size={16} strokeWidth={2} />}
               onClick={() => {
                 setPollCount(0);
                 fetchOnce();
@@ -161,7 +162,7 @@ export default function BountyFundedReturnPage() {
             />
             <Button
               label="Back to bounties"
-              icon="pi pi-arrow-left"
+              icon={<ArrowLeft size={16} strokeWidth={2} />}
               outlined
               onClick={() => router.push('/business/bounties')}
             />

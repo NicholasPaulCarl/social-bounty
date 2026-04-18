@@ -13,6 +13,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { HUNTER_INTERESTS, BRAND_PROFILE_LIMITS } from '@social-bounty/shared';
 import type { BrandSocialLinks } from '@social-bounty/shared';
 import { ImageCropDialog } from '@/components/common/ImageCropDialog';
+import { Loader2, CheckCircle2, XCircle, Check } from 'lucide-react';
 
 export default function CreateBrandPage() {
   const router = useRouter();
@@ -192,9 +193,9 @@ export default function CreateBrandPage() {
                 placeholder="your-brand"
                 maxLength={BRAND_PROFILE_LIMITS.HANDLE_MAX}
               />
-              {handleStatus === 'checking' && <i className="pi pi-spinner pi-spin text-text-muted" />}
-              {handleStatus === 'available' && <i className="pi pi-check-circle text-green-400" />}
-              {handleStatus === 'taken' && <i className="pi pi-times-circle text-danger-600" />}
+              {handleStatus === 'checking' && <Loader2 size={18} strokeWidth={2} className="text-text-muted animate-spin" />}
+              {handleStatus === 'available' && <CheckCircle2 size={18} strokeWidth={2} className="text-success-600" />}
+              {handleStatus === 'taken' && <XCircle size={18} strokeWidth={2} className="text-danger-600" />}
             </div>
             {errors.handle && <small className="text-danger-600 text-xs mt-1 block">{errors.handle}</small>}
           </div>
@@ -360,7 +361,7 @@ export default function CreateBrandPage() {
           <Button
             type="submit"
             label="Create Brand"
-            icon="pi pi-check"
+            icon={<Check size={16} strokeWidth={2} />}
             loading={createOrg.isPending}
           />
         </div>

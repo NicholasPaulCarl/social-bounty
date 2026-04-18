@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { CreateBountyForm } from '@/components/bounty-form';
+import { AlertTriangle, Info, Undo2 } from 'lucide-react';
 import { bountyApi } from '@/lib/api/bounties';
 import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
 import { BountyStatus, PaymentStatus } from '@social-bounty/shared';
@@ -111,11 +112,11 @@ export default function EditBountyPage() {
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Edit Bounty" breadcrumbs={breadcrumbs} />
+      <PageHeader title="Edit bounty" breadcrumbs={breadcrumbs} />
 
       {isLive && (
-        <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 flex items-start gap-3">
-          <i className="pi pi-exclamation-triangle text-amber-500 mt-0.5" />
+        <div className="mb-6 rounded-lg border border-warning-500/30 bg-warning-500/10 p-4 flex items-start gap-3">
+          <AlertTriangle size={18} strokeWidth={2} className="text-warning-600 mt-0.5 flex-shrink-0" />
           <div>
             <p className="font-medium text-text-primary">This bounty is live.</p>
             <p className="text-sm text-text-secondary mt-1">
@@ -127,16 +128,16 @@ export default function EditBountyPage() {
       )}
 
       {isPaused && (
-        <div className="mb-6 rounded-lg border border-blue-500/30 bg-blue-500/10 p-4 flex items-start gap-3">
-          <i className="pi pi-info-circle text-blue-500 mt-0.5" />
+        <div className="mb-6 rounded-lg border border-slate-300 bg-slate-50 p-4 flex items-start gap-3">
+          <Info size={18} strokeWidth={2} className="text-slate-600 mt-0.5 flex-shrink-0" />
           <div>
             <p className="font-medium text-text-primary">This bounty is paused.</p>
             <p className="text-sm text-text-secondary mt-1">
               Editing is limited while in paused state. To make full edits, revert the bounty to draft status first.
             </p>
             <Button
-              label="Revert to Draft"
-              icon="pi pi-undo"
+              label="Revert to draft"
+              icon={<Undo2 size={14} strokeWidth={2} />}
               severity="secondary"
               outlined
               size="small"

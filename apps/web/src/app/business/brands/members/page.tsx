@@ -16,6 +16,7 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate } from '@/lib/utils/format';
+import { Trash2, UserPlus, Send } from 'lucide-react';
 import type { BrandMemberResponse } from '@social-bounty/shared';
 
 export default function BrandMembersPage() {
@@ -74,12 +75,12 @@ export default function BrandMembersPage() {
     if (rowData.role === 'OWNER') return null;
     return (
       <Button
-        icon="pi pi-trash"
+        icon={<Trash2 size={18} strokeWidth={2} />}
         rounded
         text
         severity="danger"
         onClick={() => setRemoveUserId(rowData.userId)}
-        tooltip="Remove Member"
+        tooltip="Remove member"
       />
     );
   };
@@ -97,7 +98,7 @@ export default function BrandMembersPage() {
         title="Brand Members"
         breadcrumbs={breadcrumbs}
         actions={
-          <Button label="Invite Member" icon="pi pi-user-plus" onClick={() => setShowInvite(true)} />
+          <Button label="Invite member" icon={<UserPlus size={18} strokeWidth={2} />} onClick={() => setShowInvite(true)} />
         }
       />
 
@@ -131,8 +132,8 @@ export default function BrandMembersPage() {
           <div className="flex justify-end gap-3">
             <Button label="Cancel" outlined onClick={() => { setShowInvite(false); setInviteEmail(''); }} />
             <Button
-              label="Send Invite"
-              icon="pi pi-send"
+              label="Send invite"
+              icon={<Send size={16} strokeWidth={2} />}
               onClick={handleInvite}
               loading={inviteMember.isPending}
               disabled={!inviteEmail.trim()}

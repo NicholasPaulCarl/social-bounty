@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
+import { Save } from 'lucide-react';
 
 export default function EditBrandPage() {
   const router = useRouter();
@@ -126,7 +127,7 @@ export default function EditBrandPage() {
             <Button
               label="Save Changes"
               type="submit"
-              icon="pi pi-save"
+              icon={<Save size={16} strokeWidth={2} />}
               loading={updateBrand.isPending}
             />
           </div>

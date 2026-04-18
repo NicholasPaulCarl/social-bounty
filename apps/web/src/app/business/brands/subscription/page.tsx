@@ -30,20 +30,26 @@ import {
   SUBSCRIPTION_CONSTANTS,
 } from '@social-bounty/shared';
 import { formatDate, formatCurrency } from '@/lib/utils/format';
+import { Percent, Globe, MessageSquare, Lock, Star, History, RefreshCw } from 'lucide-react';
 import type { SubscriptionPaymentDto } from '@social-bounty/shared';
+
+type IconComponent = typeof Percent;
 
 // Brand-specific feature sets — copy matches the hunter page structure so
 // brand admins see the same shape of info about their subscription.
-const BRAND_FEATURES = {
+const BRAND_FEATURES: {
+  free: Array<{ label: string; Icon: IconComponent }>;
+  pro: Array<{ label: string; Icon: IconComponent }>;
+} = {
   free: [
-    { label: '15% admin fee on bounties', icon: 'pi-percentage' },
-    { label: 'Public bounties only', icon: 'pi-globe' },
-    { label: 'Standard support', icon: 'pi-comment' },
+    { label: '15% admin fee on bounties', Icon: Percent },
+    { label: 'Public bounties only', Icon: Globe },
+    { label: 'Standard support', Icon: MessageSquare },
   ],
   pro: [
-    { label: '5% admin fee (save 10%)', icon: 'pi-percentage' },
-    { label: 'Create closed bounties', icon: 'pi-lock' },
-    { label: 'Priority support', icon: 'pi-star' },
+    { label: '5% admin fee (save 10%)', Icon: Percent },
+    { label: 'Create closed bounties', Icon: Lock },
+    { label: 'Priority support', Icon: Star },
   ],
 };
 
@@ -239,7 +245,7 @@ export default function BrandSubscriptionPage() {
           <div className="space-y-2 mb-6">
             {BRAND_FEATURES.pro.map((f) => (
               <div key={f.label} className="flex items-center gap-2">
-                <i className={`pi ${f.icon} text-pink-600 text-sm`} />
+                <f.Icon size={16} strokeWidth={2} className="text-pink-600" />
                 <span className="text-sm text-text-primary">{f.label}</span>
               </div>
             ))}
@@ -247,8 +253,8 @@ export default function BrandSubscriptionPage() {
 
           <div className="flex gap-3">
             <Button
-              label={showPayments ? 'Hide Payment History' : 'View Payment History'}
-              icon="pi pi-history"
+              label={showPayments ? 'Hide payment history' : 'View payment history'}
+              icon={<History size={14} strokeWidth={2} />}
               outlined
               severity="secondary"
               size="small"
@@ -256,15 +262,15 @@ export default function BrandSubscriptionPage() {
             />
             {isCancelled ? (
               <Button
-                label="Reactivate Pro Brand"
-                icon="pi pi-refresh"
+                label="Reactivate pro brand"
+                icon={<RefreshCw size={14} strokeWidth={2} />}
                 size="small"
                 loading={reactivate.isPending}
                 onClick={handleReactivate}
               />
             ) : (
               <Button
-                label="Cancel Subscription"
+                label="Cancel subscription"
                 outlined
                 severity="danger"
                 size="small"
@@ -284,26 +290,26 @@ export default function BrandSubscriptionPage() {
             <div className="space-y-3 mb-6">
               {BRAND_FEATURES.free.map((f) => (
                 <div key={f.label} className="flex items-center gap-2">
-                  <i className={`pi ${f.icon} text-text-muted text-sm`} />
+                  <f.Icon size={16} strokeWidth={2} className="text-text-muted" />
                   <span className="text-sm text-text-secondary">{f.label}</span>
                 </div>
               ))}
             </div>
-            <Button label="Current Plan" disabled className="w-full" outlined severity="secondary" />
+            <Button label="Current plan" disabled className="w-full" outlined severity="secondary" />
           </div>
 
           <div className="glass-card p-6 border border-pink-600/30 shadow-glow-brand">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="text-lg font-heading font-bold text-text-primary">Pro Brand</h3>
-              <i className="pi pi-star-fill text-pink-600 text-sm" />
+              <Star size={16} strokeWidth={2} className="text-pink-600" fill="currentColor" />
             </div>
-            <p className="text-sm text-pink-600 mb-4">
+            <p className="text-sm text-pink-600 mb-4 font-mono tabular-nums">
               R{proPrice}/month
             </p>
             <div className="space-y-3 mb-6">
               {BRAND_FEATURES.pro.map((f) => (
                 <div key={f.label} className="flex items-center gap-2">
-                  <i className={`pi ${f.icon} text-pink-600 text-sm`} />
+                  <f.Icon size={16} strokeWidth={2} className="text-pink-600" />
                   <span className="text-sm text-text-primary">{f.label}</span>
                 </div>
               ))}
@@ -321,8 +327,8 @@ export default function BrandSubscriptionPage() {
               }
             >
               <Button
-                label={LIVE_UPGRADE_ENABLED ? 'Upgrade to Pro Brand' : 'Pro upgrade coming soon'}
-                icon="pi pi-star"
+                label={LIVE_UPGRADE_ENABLED ? 'Upgrade to pro brand' : 'Pro upgrade coming soon'}
+                icon={<Star size={16} strokeWidth={2} />}
                 className="w-full"
                 disabled={!LIVE_UPGRADE_ENABLED}
                 loading={subscribe.isPending || initiateUpgrade.isPending}

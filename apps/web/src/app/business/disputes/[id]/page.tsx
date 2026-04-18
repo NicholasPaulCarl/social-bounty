@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Tag } from 'primereact/tag';
+import { User, Link2, Image as ImageIcon, File, ExternalLink, AlertTriangle, Send } from 'lucide-react';
 import { useDispute, useSendDisputeMessage, useEscalateDispute } from '@/hooks/useDisputes';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -20,7 +21,7 @@ import { DISPUTE_CATEGORY_COLORS } from '@/lib/constants/disputes';
 const categoryColors: Record<string, string> = {
   NON_PAYMENT: 'bg-danger-600/10 text-danger-600 border border-danger-600/30',
   POST_QUALITY: 'bg-warning-600/10 text-warning-600 border border-warning-600/30',
-  POST_NON_COMPLIANCE: 'bg-blue-600/10 text-blue-600 border border-blue-600/30',
+  POST_NON_COMPLIANCE: 'bg-pink-100 text-pink-600 border border-pink-200',
 };
 
 function MessageBubble({ message }: { message: DisputeMessageResponse }) {
@@ -39,15 +40,15 @@ function MessageBubble({ message }: { message: DisputeMessageResponse }) {
 
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row' : 'flex-row-reverse'}`}>
-      <div className="w-8 h-8 rounded-full bg-blue-600/10 border border-blue-600/30 flex items-center justify-center flex-shrink-0">
-        <i className="pi pi-user text-blue-600 text-xs" />
+      <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+        <User size={14} strokeWidth={2} />
       </div>
       <div className={`flex-1 max-w-[90%] sm:max-w-[80%] ${isUser ? '' : 'items-end flex flex-col'}`}>
         <div className="flex items-center gap-2 mb-1">
           <span className="text-xs font-medium text-text-primary">{message.authorName}</span>
-          <span className="text-xs text-text-muted">{formatDateTime(message.createdAt)}</span>
+          <span className="text-xs text-text-muted font-mono tabular-nums">{formatDateTime(message.createdAt)}</span>
         </div>
-        <div className={`glass-card p-3 rounded-xl ${isUser ? 'border-l-2 border-blue-600/40' : 'border-l-2 border-pink-600/40'}`}>
+        <div className={`glass-card p-3 rounded-xl ${isUser ? 'border-l-2 border-slate-300' : 'border-l-2 border-pink-600/40'}`}>
           <p className="text-sm text-text-secondary whitespace-pre-wrap">{message.content}</p>
         </div>
       </div>
@@ -61,8 +62,8 @@ function EvidenceCard({ evidence }: { evidence: DisputeEvidenceResponse }) {
 
   return (
     <div className="glass-card p-4 flex items-start gap-3">
-      <div className="w-10 h-10 rounded-lg bg-pink-600/10 border border-pink-600/20 flex items-center justify-center flex-shrink-0">
-        <i className={`pi ${isLink ? 'pi-link' : isImage ? 'pi-image' : 'pi-file'} text-pink-600`} />
+      <div className="w-10 h-10 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center flex-shrink-0">
+        {isLink ? <Link2 size={18} strokeWidth={2} /> : isImage ? <ImageIcon size={18} strokeWidth={2} /> : <File size={18} strokeWidth={2} />}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-text-primary truncate">
@@ -80,9 +81,9 @@ function EvidenceCard({ evidence }: { evidence: DisputeEvidenceResponse }) {
           href={evidence.fileUrl || evidence.url || '#'}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-pink-600 hover:text-pink-600/70 transition-colors"
+          className="text-pink-600 hover:text-pink-700 transition-colors"
         >
-          <i className="pi pi-external-link text-sm" />
+          <ExternalLink size={14} strokeWidth={2} />
         </a>
       )}
     </div>
@@ -155,7 +156,7 @@ export default function BusinessDisputeDetailPage() {
           <div className="flex gap-2">
             <Button
               label="Escalate"
-              icon="pi pi-exclamation-triangle"
+              icon={<AlertTriangle size={16} strokeWidth={2} />}
               severity="warning"
               outlined
               onClick={() => setShowEscalate(true)}
@@ -220,8 +221,8 @@ export default function BusinessDisputeDetailPage() {
               />
               <div className="flex justify-end">
                 <Button
-                  label="Send Response"
-                  icon="pi pi-send"
+                  label="Send response"
+                  icon={<Send size={16} strokeWidth={2} />}
                   onClick={handleSendReply}
                   disabled={!replyText.trim()}
                   loading={sendMessage.isPending}
@@ -300,8 +301,8 @@ export default function BusinessDisputeDetailPage() {
                 </p>
               </div>
               <Button
-                label="View Submission"
-                icon="pi pi-external-link"
+                label="View submission"
+                icon={<ExternalLink size={14} strokeWidth={2} />}
                 size="small"
                 outlined
                 severity="secondary"

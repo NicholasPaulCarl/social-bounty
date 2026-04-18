@@ -16,6 +16,7 @@ import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { KybStatus } from '@social-bounty/shared';
 import { ApiError } from '@/lib/api/client';
 import { formatDateTime } from '@/lib/utils/format';
+import { Send } from 'lucide-react';
 
 // Keep the country list short and explicit — per spec we offer ZA, US, GB, NA, BW.
 // These must be ISO 3166-1 alpha-2 codes (backend validates length === 2).
@@ -281,7 +282,7 @@ export default function BrandKybPage() {
               <Button
                 type="submit"
                 label={status === KybStatus.REJECTED ? 'Resubmit KYB' : 'Submit KYB'}
-                icon="pi pi-send"
+                icon={<Send size={16} strokeWidth={2} />}
                 loading={submitKyb.isPending}
                 disabled={submitKyb.isPending}
               />
