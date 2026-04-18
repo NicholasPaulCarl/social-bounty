@@ -4,6 +4,18 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUp,
+  ArrowUpRight,
+  CheckCircle2,
+  Clock,
+  Hourglass,
+  Inbox,
+  Wallet,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useWalletDashboard, useWalletLedgerSnapshot } from '@/hooks/useWallet';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -19,7 +31,7 @@ interface LedgerJourneyStage {
   description: string;
   cents: string;
   severity: 'warning' | 'info' | 'success' | 'secondary';
-  icon: string;
+  Icon: LucideIcon;
   colorClass: string;
 }
 
@@ -40,7 +52,7 @@ function buildJourneyStages(snapshot: LedgerWalletSnapshot | undefined): LedgerJ
       description: 'Awaiting business approval',
       cents: pending,
       severity: 'warning',
-      icon: 'pi pi-hourglass',
+      Icon: Hourglass,
       colorClass: 'text-warning-600',
     },
     {
@@ -49,7 +61,7 @@ function buildJourneyStages(snapshot: LedgerWalletSnapshot | undefined): LedgerJ
       description: 'Approved, in clearance window',
       cents: clearing,
       severity: 'info',
-      icon: 'pi pi-clock',
+      Icon: Clock,
       colorClass: 'text-pink-600',
     },
     {
@@ -58,7 +70,7 @@ function buildJourneyStages(snapshot: LedgerWalletSnapshot | undefined): LedgerJ
       description: 'Ready for payout',
       cents: available,
       severity: 'success',
-      icon: 'pi pi-check-circle',
+      Icon: CheckCircle2,
       colorClass: 'text-success-600',
     },
     {
@@ -67,7 +79,7 @@ function buildJourneyStages(snapshot: LedgerWalletSnapshot | undefined): LedgerJ
       description: 'Settled to your bank',
       cents: paid,
       severity: 'secondary',
-      icon: 'pi pi-wallet',
+      Icon: Wallet,
       colorClass: 'text-text-primary',
     },
   ];
@@ -79,11 +91,11 @@ function TxTypeLabel({ type }: { type: WalletTxType }) {
     [WalletTxType.DEBIT]: { label: 'Debit', className: 'bg-danger-600/10 text-danger-600 border border-danger-600/30' },
     [WalletTxType.HOLD]: { label: 'Hold', className: 'bg-warning-600/10 text-warning-600 border border-warning-600/30' },
     [WalletTxType.RELEASE]: { label: 'Release', className: 'bg-pink-600/10 text-pink-600 border border-pink-600/30' },
-    [WalletTxType.CORRECTION]: { label: 'Correction', className: 'bg-blue-600/10 text-blue-600 border border-blue-600/30' },
+    [WalletTxType.CORRECTION]: { label: 'Correction', className: 'bg-slate-100 text-slate-700 border border-slate-200' },
   };
   const { label, className } = config[type] ?? { label: type, className: 'bg-elevated text-text-muted' };
   return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${className}`}>{label}</span>
+    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${className}`}>{label}</span>
   );
 }
 
@@ -101,10 +113,10 @@ export default function WalletPage() {
         <PageHeader title="Wallet" subtitle="Your earnings — cash out anytime" />
         <div className="glass-card p-12 text-center animate-fade-up">
           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-success-600/10 mx-auto mb-4">
-            <i className="pi pi-wallet text-success-600 text-2xl" />
+            <Wallet size={24} strokeWidth={2} className="text-success-600" />
           </div>
-          <h3 className="text-xl font-semibold text-text-primary mb-2">No Wallet Yet</h3>
-          <p className="text-text-muted">Complete your first bounty to activate your wallet.</p>
+          <h3 className="text-xl font-semibold text-text-primary mb-2">No wallet yet</h3>
+          <p className="text-text-muted">Complete a bounty to activate your wallet.</p>
         </div>
       </>
     );
@@ -122,7 +134,7 @@ export default function WalletPage() {
         actions={
           <Button
             label="Withdraw"
-            icon="pi pi-arrow-up-right"
+            icon={<ArrowUpRight size={16} strokeWidth={2} />}
             className="bg-success-600 border-success-600 text-background hover:bg-success-600/90"
             onClick={() => router.push('/wallet/withdraw')}
           />
@@ -134,7 +146,7 @@ export default function WalletPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-base font-semibold text-text-primary">Ledger journey</h2>
-            <p className="text-xs text-text-muted mt-0.5">Track every earning from submission to bank settlement.</p>
+            <p className="text-xs text-text-muted mt-0.5">Every earning, submission to bank settlement.</p>
           </div>
         </div>
 
@@ -146,12 +158,12 @@ export default function WalletPage() {
             >
               <div className="flex items-center justify-between">
                 <Tag value={stage.label} severity={stage.severity} />
-                <i className={`${stage.icon} text-text-muted text-sm`} />
+                <stage.Icon size={16} strokeWidth={2} className="text-text-muted" />
               </div>
               {isLedgerLoading ? (
                 <div className="h-7 w-24 rounded bg-elevated animate-pulse" />
               ) : (
-                <p className={`text-2xl font-bold tracking-tight ${stage.colorClass}`}>
+                <p className={`metric !text-2xl ${stage.colorClass}`}>
                   {formatCents(stage.cents, currency)}
                 </p>
               )}
@@ -165,17 +177,17 @@ export default function WalletPage() {
         </p>
       </div>
 
-      {/* Balance cards */}
+      {/* Balance cards — the highest-impact metrics on the app */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 animate-fade-up">
-        {/* Available balance - primary */}
+        {/* Available balance - primary, the money you can withdraw now */}
         <div className="glass-card p-6 border border-success-600/30 col-span-1 sm:col-span-2 lg:col-span-1">
           <div className="flex items-center gap-3 mb-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-success-600/10">
-              <i className="pi pi-check-circle text-success-600 text-lg" />
+              <CheckCircle2 size={20} strokeWidth={2} className="text-success-600" />
             </div>
-            <span className="text-sm text-text-muted font-medium">Available Balance</span>
+            <span className="eyebrow">Available</span>
           </div>
-          <p className="text-4xl font-bold text-success-600 tracking-tight">
+          <p className="metric !text-4xl text-success-600">
             {formatCurrency(balance.available, currency)}
           </p>
           <p className="text-xs text-text-muted mt-2">Ready to withdraw</p>
@@ -185,11 +197,11 @@ export default function WalletPage() {
         <div className="glass-card p-6">
           <div className="flex items-center gap-3 mb-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-warning-600/10">
-              <i className="pi pi-clock text-warning-600 text-lg" />
+              <Clock size={20} strokeWidth={2} className="text-warning-600" />
             </div>
-            <span className="text-sm text-text-muted font-medium">Pending</span>
+            <span className="eyebrow !text-text-muted">Pending</span>
           </div>
-          <p className="text-3xl font-bold text-warning-600 tracking-tight">
+          <p className="metric !text-3xl text-warning-600">
             {formatCurrency(balance.pending, currency)}
           </p>
           <p className="text-xs text-text-muted mt-2">Awaiting clearance</p>
@@ -199,35 +211,35 @@ export default function WalletPage() {
         <div className="glass-card p-6">
           <div className="flex items-center gap-3 mb-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-pink-600/10">
-              <i className="pi pi-wallet text-pink-600 text-lg" />
+              <Wallet size={20} strokeWidth={2} className="text-pink-600" />
             </div>
-            <span className="text-sm text-text-muted font-medium">Total Balance</span>
+            <span className="eyebrow !text-text-muted">Total</span>
           </div>
-          <p className="text-3xl font-bold text-text-primary tracking-tight">
+          <p className="metric !text-3xl text-text-primary">
             {formatCurrency(balance.total, currency)}
           </p>
-          <p className="text-xs text-text-muted mt-2">Available + Pending</p>
+          <p className="text-xs text-text-muted mt-2">Available + pending</p>
         </div>
       </div>
 
-      {/* Stats row */}
+      {/* Stats row — historical totals */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 animate-fade-up">
         <div className="glass-card p-5 flex items-center gap-4">
-          <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-600/10 flex-shrink-0">
-            <i className="pi pi-arrow-down text-blue-600 text-xl" />
+          <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-pink-600/10 flex-shrink-0">
+            <ArrowDown size={24} strokeWidth={2} className="text-pink-600" />
           </div>
           <div>
-            <p className="text-sm text-text-muted">Total Earned</p>
-            <p className="text-2xl font-bold text-text-primary">{formatCurrency(balance.totalEarned, currency)}</p>
+            <p className="eyebrow !text-text-muted">Total earned</p>
+            <p className="metric !text-2xl text-text-primary">{formatCurrency(balance.totalEarned, currency)}</p>
           </div>
         </div>
         <div className="glass-card p-5 flex items-center gap-4">
-          <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-600/10 flex-shrink-0">
-            <i className="pi pi-arrow-up text-blue-600 text-xl" />
+          <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-100 flex-shrink-0">
+            <ArrowUp size={24} strokeWidth={2} className="text-slate-600" />
           </div>
           <div>
-            <p className="text-sm text-text-muted">Total Withdrawn</p>
-            <p className="text-2xl font-bold text-text-primary">{formatCurrency(balance.totalWithdrawn, currency)}</p>
+            <p className="eyebrow !text-text-muted">Total withdrawn</p>
+            <p className="metric !text-2xl text-text-primary">{formatCurrency(balance.totalWithdrawn, currency)}</p>
           </div>
         </div>
       </div>
@@ -235,18 +247,18 @@ export default function WalletPage() {
       {/* Recent transactions */}
       <div className="glass-card animate-fade-up">
         <div className="flex items-center justify-between p-5 border-b border-glass-border">
-          <h2 className="text-base font-semibold text-text-primary">Recent Transactions</h2>
+          <h2 className="text-base font-semibold text-text-primary">Recent transactions</h2>
           <Link
             href="/wallet/transactions"
-            className="text-sm text-pink-600 hover:text-pink-600/80 transition-colors flex items-center gap-1"
+            className="text-sm text-pink-600 hover:text-pink-700 transition-colors flex items-center gap-1"
           >
-            View All <i className="pi pi-arrow-right text-xs" />
+            View all <ArrowRight size={14} strokeWidth={2} />
           </Link>
         </div>
 
         {recentTransactions.length === 0 ? (
           <div className="p-10 text-center">
-            <i className="pi pi-inbox text-text-muted text-3xl mb-3 block" />
+            <Inbox size={32} strokeWidth={2} className="text-text-muted mx-auto mb-3" />
             <p className="text-text-muted">No transactions yet.</p>
           </div>
         ) : (
@@ -263,10 +275,10 @@ export default function WalletPage() {
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0 ml-4">
-                    <p className={`text-sm font-semibold ${isCredit ? 'text-success-600' : 'text-danger-600'}`}>
+                    <p className={`text-sm font-semibold font-mono tabular-nums ${isCredit ? 'text-success-600' : 'text-danger-600'}`}>
                       {isCredit ? '+' : '-'}{formatCurrency(tx.amount, currency)}
                     </p>
-                    <p className="text-xs text-text-muted">Balance: {formatCurrency(tx.balanceAfter, currency)}</p>
+                    <p className="text-xs text-text-muted font-mono tabular-nums">Balance: {formatCurrency(tx.balanceAfter, currency)}</p>
                   </div>
                 </div>
               );

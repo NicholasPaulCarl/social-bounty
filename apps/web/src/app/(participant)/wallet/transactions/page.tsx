@@ -33,7 +33,7 @@ const TYPE_CONFIG: Record<WalletTxType, { label: string; className: string }> = 
   [WalletTxType.DEBIT]: { label: 'Debit', className: 'bg-danger-600/10 text-danger-600 border border-danger-600/30' },
   [WalletTxType.HOLD]: { label: 'Hold', className: 'bg-warning-600/10 text-warning-600 border border-warning-600/30' },
   [WalletTxType.RELEASE]: { label: 'Release', className: 'bg-pink-600/10 text-pink-600 border border-pink-600/30' },
-  [WalletTxType.CORRECTION]: { label: 'Correction', className: 'bg-blue-600/10 text-blue-600 border border-blue-600/30' },
+  [WalletTxType.CORRECTION]: { label: 'Correction', className: 'bg-slate-100 text-slate-700 border border-slate-200' },
 };
 
 export default function TransactionsPage() {
@@ -53,20 +53,20 @@ export default function TransactionsPage() {
 
   const typeTemplate = (row: WalletTransactionListItem) => {
     const { label, className } = TYPE_CONFIG[row.type] ?? { label: row.type, className: 'bg-elevated text-text-muted' };
-    return <span className={`px-2 py-0.5 rounded text-xs font-medium ${className}`}>{label}</span>;
+    return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${className}`}>{label}</span>;
   };
 
   const amountTemplate = (row: WalletTransactionListItem) => {
     const isCredit = row.type === WalletTxType.CREDIT || row.type === WalletTxType.RELEASE;
     return (
-      <span className={`font-semibold text-sm ${isCredit ? 'text-success-600' : 'text-danger-600'}`}>
+      <span className={`font-semibold text-sm font-mono tabular-nums ${isCredit ? 'text-success-600' : 'text-danger-600'}`}>
         {isCredit ? '+' : '-'}{formatCurrency(row.amount, currency)}
       </span>
     );
   };
 
   const balanceAfterTemplate = (row: WalletTransactionListItem) => (
-    <span className="text-sm text-text-secondary">{formatCurrency(row.balanceAfter, currency)}</span>
+    <span className="text-sm text-text-secondary font-mono tabular-nums">{formatCurrency(row.balanceAfter, currency)}</span>
   );
 
   const dateTemplate = (row: WalletTransactionListItem) => (

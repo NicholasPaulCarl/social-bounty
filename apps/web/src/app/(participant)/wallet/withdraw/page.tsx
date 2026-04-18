@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
+import { AlertTriangle, Send } from 'lucide-react';
 import { useWalletDashboard, useRequestWithdrawal } from '@/hooks/useWallet';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
@@ -88,8 +89,8 @@ export default function WithdrawPage() {
         <div className="glass-card p-6">
           {/* Available balance hint */}
           <div className="flex items-center justify-between p-4 rounded-lg bg-success-600/5 border border-success-600/20 mb-6">
-            <span className="text-sm text-text-muted">Available to withdraw</span>
-            <span className="text-lg font-bold text-success-600">{formatCurrency(available, currency)}</span>
+            <span className="eyebrow !text-text-muted">Available</span>
+            <span className="metric !text-lg text-success-600">{formatCurrency(available, currency)}</span>
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
@@ -219,9 +220,9 @@ export default function WithdrawPage() {
             )}
 
             {formError && (
-              <div className="p-3 rounded-lg bg-danger-600/10 border border-danger-600/30 text-danger-600 text-sm">
-                <i className="pi pi-exclamation-triangle mr-2" />
-                {formError}
+              <div className="p-3 rounded-lg bg-danger-600/10 border border-danger-600/30 text-danger-600 text-sm flex items-start gap-2">
+                <AlertTriangle size={16} strokeWidth={2} className="mt-0.5 shrink-0" />
+                <span>{formError}</span>
               </div>
             )}
 
@@ -236,8 +237,8 @@ export default function WithdrawPage() {
               />
               <Button
                 type="submit"
-                label="Submit Request"
-                icon="pi pi-send"
+                label="Request"
+                icon={<Send size={16} strokeWidth={2} />}
                 severity="success"
                 className="flex-1"
                 loading={isPending}
