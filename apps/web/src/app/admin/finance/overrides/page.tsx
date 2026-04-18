@@ -10,6 +10,7 @@ import { Message } from 'primereact/message';
 import { usePostOverride } from '@/hooks/useFinanceAdmin';
 import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
+import { Trash2, Plus, Send } from 'lucide-react';
 import type { OverrideLeg } from '@social-bounty/shared';
 
 const ACCOUNTS = [
@@ -147,7 +148,7 @@ export default function FinanceOverridesPage() {
               </div>
               <div className="col-span-2">
                 <Button
-                  icon="pi pi-trash"
+                  icon={<Trash2 size={14} strokeWidth={2} />}
                   outlined
                   severity="danger"
                   size="small"
@@ -161,19 +162,19 @@ export default function FinanceOverridesPage() {
 
         <Button
           label="Add leg"
-          icon="pi pi-plus"
+          icon={<Plus size={14} strokeWidth={2} />}
           outlined
           size="small"
           onClick={() => setLegs((prev) => [...prev, emptyLeg()])}
         />
 
-        <div className="mt-4 p-3 rounded bg-surface-subtle text-sm font-mono">
+        <div className="mt-4 p-3 rounded bg-surface-subtle text-sm font-mono tabular-nums">
           DEBIT total: {debitSum.toString()} cents<br />
           CREDIT total: {creditSum.toString()} cents<br />
           {balanced ? (
-            <span className="text-emerald-700">✓ balanced</span>
+            <span className="text-success-600">Balanced</span>
           ) : (
-            <span className="text-red-700">⚠ unbalanced (debits must equal credits, both &gt; 0)</span>
+            <span className="text-danger-600">Unbalanced — debits must equal credits, both &gt; 0</span>
           )}
         </div>
 
@@ -192,7 +193,7 @@ export default function FinanceOverridesPage() {
         <div className="mt-4 flex justify-end">
           <Button
             label="Post override"
-            icon="pi pi-send"
+            icon={<Send size={16} strokeWidth={2} />}
             severity="warning"
             disabled={!valid}
             loading={post.isPending}

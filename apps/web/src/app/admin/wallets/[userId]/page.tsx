@@ -12,6 +12,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { formatCurrency, formatDateTime } from '@/lib/utils/format';
+import { AlertTriangle, Check, Pencil } from 'lucide-react';
 import { WalletTxType } from '@social-bounty/shared';
 import type { WalletTransactionListItem } from '@social-bounty/shared';
 
@@ -20,7 +21,7 @@ const TYPE_CONFIG: Record<WalletTxType, { label: string; className: string }> = 
   [WalletTxType.DEBIT]: { label: 'Debit', className: 'bg-danger-600/10 text-danger-600 border border-danger-600/30' },
   [WalletTxType.HOLD]: { label: 'Hold', className: 'bg-warning-600/10 text-warning-600 border border-warning-600/30' },
   [WalletTxType.RELEASE]: { label: 'Release', className: 'bg-pink-600/10 text-pink-600 border border-pink-600/30' },
-  [WalletTxType.CORRECTION]: { label: 'Correction', className: 'bg-blue-600/10 text-blue-600 border border-blue-600/30' },
+  [WalletTxType.CORRECTION]: { label: 'Correction', className: 'bg-slate-100 text-slate-700 border border-slate-200' },
 };
 
 interface Props {
@@ -190,22 +191,22 @@ export default function AdminWalletDetailPage({ params }: Props) {
               </div>
 
               {adjError && (
-                <div className="p-3 rounded-lg bg-danger-600/10 border border-danger-600/30 text-danger-600 text-sm">
-                  <i className="pi pi-exclamation-triangle mr-2" />
-                  {adjError}
+                <div className="p-3 rounded-lg bg-danger-600/10 border border-danger-600/30 text-danger-600 text-sm flex items-center gap-2">
+                  <AlertTriangle size={14} strokeWidth={2} />
+                  <span>{adjError}</span>
                 </div>
               )}
               {adjSuccess && (
-                <div className="p-3 rounded-lg bg-success-600/10 border border-success-600/30 text-success-600 text-sm">
-                  <i className="pi pi-check mr-2" />
-                  {adjSuccess}
+                <div className="p-3 rounded-lg bg-success-600/10 border border-success-600/30 text-success-600 text-sm flex items-center gap-2">
+                  <Check size={14} strokeWidth={2} />
+                  <span>{adjSuccess}</span>
                 </div>
               )}
 
               <Button
                 type="submit"
-                label="Apply Adjustment"
-                icon="pi pi-pencil"
+                label="Apply adjustment"
+                icon={<Pencil size={16} strokeWidth={2} />}
                 className="w-full"
                 loading={isAdjusting}
               />

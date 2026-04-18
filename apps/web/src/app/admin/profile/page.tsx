@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/useToast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
+import { Save } from 'lucide-react';
 
 export default function AdminProfilePage() {
   const toast = useToast();
@@ -88,7 +89,7 @@ export default function AdminProfilePage() {
             </div>
 
             <div className="flex justify-end">
-              <Button label="Save Changes" type="submit" icon="pi pi-save" loading={updateProfile.isPending} />
+              <Button label="Save changes" type="submit" icon={<Save size={16} strokeWidth={2} />} loading={updateProfile.isPending} />
             </div>
           </form>
         </div>

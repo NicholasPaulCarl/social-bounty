@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { formatDateTime } from '@/lib/utils/format';
+import { Save } from 'lucide-react';
 
 export default function AdminSettingsPage() {
   const toast = useToast();
@@ -93,8 +94,8 @@ export default function AdminSettingsPage() {
 
         <div className="flex justify-end">
           <Button
-            label="Save Settings"
-            icon="pi pi-save"
+            label="Save settings"
+            icon={<Save size={16} strokeWidth={2} />}
             onClick={handleSave}
             loading={updateSettings.isPending}
           />

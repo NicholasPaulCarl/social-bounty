@@ -13,6 +13,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { PageHeader } from '@/components/common/PageHeader';
 import { formatDateTime } from '@/lib/utils/format';
+import { RefreshCw } from 'lucide-react';
 
 const SEVERITY_MAP: Record<string, 'success' | 'warning' | 'danger' | 'info' | undefined> = {
   info: 'info',
@@ -61,7 +62,7 @@ export default function FinanceExceptionsPage() {
       <PageHeader
         title="Exceptions"
         subtitle="Reconciliation findings and recurring issues"
-        actions={<Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />}
+        actions={<Button label="Refresh" icon={<RefreshCw size={16} strokeWidth={2} />} outlined onClick={() => refetch()} />}
       />
 
       <Card className="mb-4">
@@ -117,8 +118,8 @@ export default function FinanceExceptionsPage() {
               )
             }
           />
-          <Column field="firstSeenAt" header="First seen" body={(r) => formatDateTime(r.firstSeenAt)} />
-          <Column field="lastSeenAt" header="Last seen" body={(r) => formatDateTime(r.lastSeenAt)} />
+          <Column field="firstSeenAt" header="First seen" body={(r) => <span className="font-mono tabular-nums">{formatDateTime(r.firstSeenAt)}</span>} />
+          <Column field="lastSeenAt" header="Last seen" body={(r) => <span className="font-mono tabular-nums">{formatDateTime(r.lastSeenAt)}</span>} />
         </DataTable>
       </Card>
     </>

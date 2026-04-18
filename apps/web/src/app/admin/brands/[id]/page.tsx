@@ -15,6 +15,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate, formatDateTime, formatCurrency } from '@/lib/utils/format';
+import { Ban, Check } from 'lucide-react';
 
 function BrandBountiesTab({ brandId }: { brandId: string }) {
   const router = useRouter();
@@ -32,9 +33,9 @@ function BrandBountiesTab({ brandId }: { brandId: string }) {
     <DataTable value={bounties} stripedRows onRowClick={(e) => router.push(`/admin/bounties/${e.data.id}`)} className="cursor-pointer">
       <Column field="title" header="Title" />
       <Column header="Status" body={(row: any) => <StatusBadge type="bounty" value={row.status} />} />
-      <Column header="Reward" body={(row: any) => formatCurrency(row.rewardValue, row.currency)} />
-      <Column field="submissionCount" header="Submissions" />
-      <Column header="Created" body={(row: any) => formatDate(row.createdAt)} />
+      <Column header="Reward" body={(row: any) => <span className="font-mono tabular-nums">{formatCurrency(row.rewardValue, row.currency)}</span>} />
+      <Column field="submissionCount" header="Submissions" body={(row: any) => <span className="font-mono tabular-nums">{row.submissionCount}</span>} />
+      <Column header="Created" body={(row: any) => <span className="font-mono tabular-nums">{formatDate(row.createdAt)}</span>} />
     </DataTable>
   );
 }
@@ -53,7 +54,7 @@ function BrandSubmissionsTab({ brandId }: { brandId: string }) {
 
   return (
     <DataTable value={submissions} stripedRows onRowClick={(e) => router.push(`/admin/submissions/${e.data.id}`)} className="cursor-pointer">
-      <Column header="ID" body={(row: any) => <span className="font-mono text-xs">{row.id?.slice(0, 8)}</span>} style={{ width: '8rem' }} />
+      <Column header="ID" body={(row: any) => <span className="font-mono tabular-nums text-xs">{row.id?.slice(0, 8)}</span>} style={{ width: '8rem' }} />
       <Column header="Bounty" body={(row: any) => row.bounty?.title || '-'} />
       <Column header="Participant" body={(row: any) => row.user ? `${row.user.firstName} ${row.user.lastName}` : '-'} />
       <Column header="Status" body={(row: any) => <StatusBadge type="submission" value={row.status} />} />
@@ -106,9 +107,9 @@ export default function AdminBrandDetailPage() {
         actions={
           <div className="flex gap-2">
             {brand.status === 'ACTIVE' ? (
-              <Button label="Suspend" icon="pi pi-ban" severity="danger" outlined onClick={() => setShowSuspend(true)} />
+              <Button label="Suspend" icon={<Ban size={16} strokeWidth={2} />} severity="danger" outlined onClick={() => setShowSuspend(true)} />
             ) : (
-              <Button label="Activate" icon="pi pi-check" severity="success" outlined onClick={() => setShowActivate(true)} />
+              <Button label="Activate" icon={<Check size={16} strokeWidth={2} />} severity="success" outlined onClick={() => setShowActivate(true)} />
             )}
           </div>
         }

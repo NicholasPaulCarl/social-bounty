@@ -14,6 +14,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDate } from '@/lib/utils/format';
+import { Eye, Plus } from 'lucide-react';
 import type { AdminBrandListItem, AdminBrandListParams } from '@social-bounty/shared';
 
 const statusOptions = [
@@ -37,17 +38,17 @@ export default function AdminBrandsPage() {
   );
 
   const dateTemplate = (rowData: AdminBrandListItem) => (
-    <span className="text-text-secondary">{formatDate(rowData.createdAt)}</span>
+    <span className="text-text-secondary font-mono tabular-nums">{formatDate(rowData.createdAt)}</span>
   );
 
   const actionsTemplate = (rowData: AdminBrandListItem) => (
     <Button
-      icon="pi pi-eye"
+      icon={<Eye size={18} strokeWidth={2} />}
       rounded
       text
-      severity="info"
+      severity="secondary"
       onClick={() => router.push(`/admin/brands/${rowData.id}`)}
-      tooltip="View Details"
+      tooltip="View details"
     />
   );
 
@@ -57,7 +58,7 @@ export default function AdminBrandsPage() {
         title="Brands"
         subtitle="Manage platform brands"
         actions={
-          <Button label="Create Brand" icon="pi pi-plus" onClick={() => router.push('/admin/brands/new')} />
+          <Button label="Create brand" icon={<Plus size={18} strokeWidth={2} />} onClick={() => router.push('/admin/brands/new')} />
         }
         toolbar={{
           search: {

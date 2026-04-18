@@ -12,6 +12,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { OverrideModal } from '@/components/common/OverrideModal';
 import { formatDate, formatDateTime, formatCurrency, formatEnumLabel } from '@/lib/utils/format';
+import { AlertTriangle } from 'lucide-react';
 
 const bountyStatusOptions = [
   { label: 'Draft', value: 'DRAFT' },
@@ -59,7 +60,7 @@ export default function AdminBountyDetailPage() {
         title={bounty.title}
         breadcrumbs={breadcrumbs}
         actions={
-          <Button label="Override Status" icon="pi pi-exclamation-triangle" severity="warning" onClick={() => setShowOverride(true)} />
+          <Button label="Override status" icon={<AlertTriangle size={16} strokeWidth={2} />} severity="warning" onClick={() => setShowOverride(true)} />
         }
       />
 
@@ -69,7 +70,7 @@ export default function AdminBountyDetailPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <StatusBadge type="bounty" value={bounty.status} size="large" />
-                <span className="text-lg font-semibold text-text-primary">{formatCurrency(bounty.rewardValue, bounty.currency)}</span>
+                <span className="font-mono tabular-nums text-lg font-semibold text-text-primary">{formatCurrency(bounty.rewardValue, bounty.currency)}</span>
                 <span className="text-sm text-text-muted">{formatEnumLabel(bounty.rewardType)}</span>
               </div>
 

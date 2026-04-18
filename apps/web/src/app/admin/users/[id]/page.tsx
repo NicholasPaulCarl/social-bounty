@@ -15,6 +15,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate, formatDateTime } from '@/lib/utils/format';
+import { Ban, Check } from 'lucide-react';
 import type { AuditLogListItem } from '@social-bounty/shared';
 
 function UserSubmissionsTab({ userId }: { userId: string }) {
@@ -106,9 +107,9 @@ export default function AdminUserDetailPage() {
         actions={
           <div className="flex gap-2">
             {user.status === 'ACTIVE' ? (
-              <Button label="Suspend" icon="pi pi-ban" severity="danger" outlined onClick={() => setShowSuspend(true)} />
+              <Button label="Suspend" icon={<Ban size={16} strokeWidth={2} />} severity="danger" outlined onClick={() => setShowSuspend(true)} />
             ) : (
-              <Button label="Activate" icon="pi pi-check" severity="success" outlined onClick={() => setShowActivate(true)} />
+              <Button label="Activate" icon={<Check size={16} strokeWidth={2} />} severity="success" outlined onClick={() => setShowActivate(true)} />
             )}
           </div>
         }

@@ -17,7 +17,11 @@ import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDate, formatEnumLabel } from '@/lib/utils/format';
 import { DISPUTE_STATUS_OPTIONS, DISPUTE_CATEGORY_OPTIONS } from '@/lib/constants/disputes';
 import { DisputeStatus, DisputeCategory } from '@social-bounty/shared';
+import { Flag, Eye, Clock, AlertTriangle, BarChart3 } from 'lucide-react';
+import type { ComponentType, SVGProps } from 'react';
 import type { DisputeListItem } from '@social-bounty/shared';
+
+type LucideIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
 
 const statusOptions = DISPUTE_STATUS_OPTIONS.filter((o) => o.value !== 'DRAFT');
 const categoryOptions = DISPUTE_CATEGORY_OPTIONS;
@@ -25,15 +29,15 @@ const categoryOptions = DISPUTE_CATEGORY_OPTIONS;
 const categoryColors: Record<string, string> = {
   NON_PAYMENT: 'bg-danger-600/10 text-danger-600 border border-danger-600/30',
   POST_QUALITY: 'bg-warning-600/10 text-warning-600 border border-warning-600/30',
-  POST_NON_COMPLIANCE: 'bg-blue-600/10 text-blue-600 border border-blue-600/30',
+  POST_NON_COMPLIANCE: 'bg-pink-100 text-pink-600 border border-pink-200',
 };
 
-const kpiConfig = [
-  { key: 'open', label: 'Total Open', icon: 'pi-flag', bg: 'bg-blue-600/10', text: 'text-blue-600' },
-  { key: 'underReview', label: 'Under Review', icon: 'pi-eye', bg: 'bg-warning-600/10', text: 'text-warning-600' },
-  { key: 'awaitingResponse', label: 'Awaiting Response', icon: 'pi-clock', bg: 'bg-blue-600/10', text: 'text-blue-600' },
-  { key: 'escalated', label: 'Escalated', icon: 'pi-exclamation-triangle', bg: 'bg-danger-600/10', text: 'text-danger-600' },
-  { key: 'avgResolutionDays', label: 'Avg Resolution Days', icon: 'pi-chart-bar', bg: 'bg-pink-600/10', text: 'text-pink-600' },
+const kpiConfig: { key: string; label: string; Icon: LucideIcon }[] = [
+  { key: 'open', label: 'Total open', Icon: Flag },
+  { key: 'underReview', label: 'Under review', Icon: Eye },
+  { key: 'awaitingResponse', label: 'Awaiting response', Icon: Clock },
+  { key: 'escalated', label: 'Escalated', Icon: AlertTriangle },
+  { key: 'avgResolutionDays', label: 'Avg resolution days', Icon: BarChart3 },
 ];
 
 function daysSince(dateStr: string): number {
@@ -75,7 +79,7 @@ export default function AdminDisputesPage() {
   };
 
   const disputeNumberTemplate = (rowData: DisputeListItem) => (
-    <span className="font-mono text-xs text-text-secondary">{rowData.disputeNumber}</span>
+    <span className="font-mono tabular-nums text-xs text-text-secondary">{rowData.disputeNumber}</span>
   );
 
   const categoryTemplate = (rowData: DisputeListItem) => (
@@ -110,13 +114,13 @@ export default function AdminDisputesPage() {
   );
 
   const dateTemplate = (rowData: DisputeListItem) => (
-    <span className="text-sm text-text-muted">{formatDate(rowData.createdAt)}</span>
+    <span className="text-sm text-text-muted font-mono tabular-nums">{formatDate(rowData.createdAt)}</span>
   );
 
   const ageTemplate = (rowData: DisputeListItem) => {
     const days = daysSince(rowData.createdAt);
     return (
-      <span className={`text-sm font-medium ${days > 14 ? 'text-danger-600' : days > 7 ? 'text-warning-600' : 'text-text-muted'}`}>
+      <span className={`text-sm font-medium font-mono tabular-nums ${days > 14 ? 'text-danger-600' : days > 7 ? 'text-warning-600' : 'text-text-muted'}`}>
         {days}d
       </span>
     );
@@ -152,16 +156,16 @@ export default function AdminDisputesPage() {
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         {kpiConfig.map((kpi) => (
-          <div key={kpi.key} className="glass-card p-5 cursor-pointer hover:shadow-glass-lg transition-shadow"
+          <div key={kpi.key} className="glass-card p-5 cursor-pointer hover:shadow-glass-lg transition-shadow rounded-xl"
             onClick={() => kpi.key !== 'avgResolutionDays' && router.push(`/admin/disputes?status=${kpi.key.toUpperCase()}`)}
           >
             <div className="flex items-center gap-3">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${kpi.bg}`}>
-                <i className={`pi ${kpi.icon} ${kpi.text} text-lg`} />
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-pink-100 text-pink-600">
+                <kpi.Icon size={20} strokeWidth={2} />
               </div>
               <div>
-                <p className="text-xl font-bold text-text-primary">{kpiValues[kpi.key]}</p>
-                <p className="text-xs text-text-muted">{kpi.label}</p>
+                <p className="font-mono tabular-nums text-xl font-bold text-text-primary">{kpiValues[kpi.key]}</p>
+                <p className="eyebrow">{kpi.label}</p>
               </div>
             </div>
           </div>

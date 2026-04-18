@@ -16,6 +16,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { useToast } from '@/hooks/useToast';
 import { formatCents } from '@/lib/utils/format';
 import { csvFilename, saveBlob } from '@/lib/utils/download';
+import { Download, RefreshCw } from 'lucide-react';
 
 export default function ReservesPage() {
   const { data, isLoading, error, refetch } = useReserves();
@@ -49,12 +50,12 @@ export default function ReservesPage() {
           <div className="flex gap-2">
             <Button
               label="Download CSV"
-              icon="pi pi-download"
+              icon={<Download size={16} strokeWidth={2} />}
               outlined
               loading={downloading}
               onClick={handleDownload}
             />
-            <Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />
+            <Button label="Refresh" icon={<RefreshCw size={16} strokeWidth={2} />} outlined onClick={() => refetch()} />
           </div>
         }
       />
@@ -89,13 +90,13 @@ export default function ReservesPage() {
           <Column
             field="faceValueCents"
             header="Face value"
-            body={(r) => <span className="font-mono">{formatCents(r.faceValueCents)}</span>}
+            body={(r) => <span className="font-mono tabular-nums">{formatCents(r.faceValueCents)}</span>}
           />
           <Column
             field="reserveBalanceCents"
             header="Reserve balance"
             body={(r) => (
-              <span className="font-mono">{formatCents(r.reserveBalanceCents)}</span>
+              <span className="font-mono tabular-nums">{formatCents(r.reserveBalanceCents)}</span>
             )}
           />
           <Column

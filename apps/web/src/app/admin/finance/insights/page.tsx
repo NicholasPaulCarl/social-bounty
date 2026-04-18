@@ -7,6 +7,7 @@ import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Message } from 'primereact/message';
+import { RefreshCw, AlertTriangle } from 'lucide-react';
 import {
   useAdminVisibilityAnalytics,
   useConfidenceScores,
@@ -35,12 +36,12 @@ function scoreToneClass(score: number): string {
 }
 
 // Phase 3D — failure-rate color bands. Mirrors the backend alert thresholds
-// (warning at 30%, critical at 50%) with a quieter emerald band below 10%.
-// emerald < 10%; amber 10-30%; rose > 30%.
+// (warning at 30%, critical at 50%) with a quieter success band below 10%.
+// success < 10%; warning 10-30%; danger > 30%. Uses DS status tokens.
 function failureRateToneClass(rate: number): string {
-  if (rate < 0.1) return 'text-emerald-600';
-  if (rate < 0.3) return 'text-amber-600';
-  return 'text-rose-600';
+  if (rate < 0.1) return 'text-success-600';
+  if (rate < 0.3) return 'text-warning-600';
+  return 'text-danger-600';
 }
 
 function formatFailureRate(rate: number): string {
@@ -67,9 +68,7 @@ function VisibilityAnalyticsSection() {
     <section className="mb-6">
       <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
         <div>
-          <h2 className="text-xl font-semibold text-text-primary">
-            Visibility Failure Rate (24h)
-          </h2>
+          <span className="eyebrow">Visibility failure rate (24h)</span>
           <p className="text-sm text-text-secondary mt-1">
             Per-channel post-visibility re-scrape outcomes from{' '}
             <span className="font-mono">SubmissionUrlScrapeHistory</span>. Apify
@@ -79,7 +78,7 @@ function VisibilityAnalyticsSection() {
         </div>
         <Button
           label="Refresh"
-          icon="pi pi-refresh"
+          icon={<RefreshCw size={16} strokeWidth={2} />}
           outlined
           size="small"
           onClick={() => refetch()}
@@ -153,14 +152,14 @@ function VisibilityAnalyticsContent({
                 field="total"
                 header="Total"
                 body={(row: VisibilityFailureBucket) => (
-                  <span className="font-mono text-sm">{row.total}</span>
+                  <span className="font-mono tabular-nums text-sm">{row.total}</span>
                 )}
               />
               <Column
                 field="verified"
                 header="Verified"
                 body={(row: VisibilityFailureBucket) => (
-                  <span className="font-mono text-sm text-emerald-600">
+                  <span className="font-mono tabular-nums text-sm text-success-600">
                     {row.verified}
                   </span>
                 )}
@@ -169,7 +168,7 @@ function VisibilityAnalyticsContent({
                 field="failed"
                 header="Failed"
                 body={(row: VisibilityFailureBucket) => (
-                  <span className="font-mono text-sm text-rose-600">
+                  <span className="font-mono tabular-nums text-sm text-danger-600">
                     {row.failed}
                   </span>
                 )}
@@ -179,7 +178,7 @@ function VisibilityAnalyticsContent({
                 header="Failure rate"
                 body={(row: VisibilityFailureBucket) => (
                   <span
-                    className={`font-mono text-sm font-semibold ${failureRateToneClass(row.failureRate)}`}
+                    className={`font-mono tabular-nums text-sm font-semibold ${failureRateToneClass(row.failureRate)}`}
                   >
                     {formatFailureRate(row.failureRate)}
                   </span>
@@ -190,26 +189,26 @@ function VisibilityAnalyticsContent({
             <div className="border-t border-border-subtle mt-3 pt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-text-muted">
               <span>
                 Total rows{' '}
-                <span className="font-semibold text-text-primary">
+                <span className="font-mono tabular-nums font-semibold text-text-primary">
                   {data.totals.total}
                 </span>
               </span>
               <span>
                 Verified{' '}
-                <span className="font-semibold text-emerald-600">
+                <span className="font-mono tabular-nums font-semibold text-success-600">
                   {data.totals.verified}
                 </span>
               </span>
               <span>
                 Failed{' '}
-                <span className="font-semibold text-rose-600">
+                <span className="font-mono tabular-nums font-semibold text-danger-600">
                   {data.totals.failed}
                 </span>
               </span>
               <span>
                 Combined failure rate{' '}
                 <span
-                  className={`font-semibold ${failureRateToneClass(data.totals.failureRate)}`}
+                  className={`font-mono tabular-nums font-semibold ${failureRateToneClass(data.totals.failureRate)}`}
                 >
                   {formatFailureRate(data.totals.failureRate)}
                 </span>
@@ -235,19 +234,17 @@ export default function FinanceInsightsPage() {
   return (
     <>
       <PageHeader
-        title="KB Insights"
+        title="KB insights"
         subtitle="Per-system confidence scores derived from open issues, 90d recurrences, and recent failed reconciliation runs."
         actions={
-          <Button label="Refresh" icon="pi pi-refresh" outlined onClick={() => refetch()} />
+          <Button label="Refresh" icon={<RefreshCw size={16} strokeWidth={2} />} outlined onClick={() => refetch()} />
         }
       />
 
       <VisibilityAnalyticsSection />
 
       <div className="mb-3">
-        <h2 className="text-xl font-semibold text-text-primary">
-          Per-system confidence
-        </h2>
+        <span className="eyebrow">Per-system confidence</span>
       </div>
 
       {isLoading ? (
@@ -289,7 +286,7 @@ export default function FinanceInsightsPage() {
                     {s.ineffectiveFixCount > 0 && (
                       <Tag
                         severity="danger"
-                        icon="pi pi-exclamation-triangle"
+                        icon={<AlertTriangle size={12} strokeWidth={2} />}
                         value={`Ineffective fix${s.ineffectiveFixCount > 1 ? 'es' : ''}`}
                       />
                     )}
@@ -298,11 +295,11 @@ export default function FinanceInsightsPage() {
 
                 <div className="mb-4">
                   <div
-                    className={`text-5xl font-bold leading-none ${scoreToneClass(s.score)}`}
+                    className={`font-mono tabular-nums text-5xl font-bold leading-none ${scoreToneClass(s.score)}`}
                   >
                     {s.score}
                   </div>
-                  <div className="text-xs uppercase tracking-wider text-text-muted mt-1">
+                  <div className="eyebrow mt-1">
                     Confidence score
                   </div>
                 </div>
@@ -310,19 +307,19 @@ export default function FinanceInsightsPage() {
                 <div className="space-y-2 border-t border-border-subtle pt-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-text-muted">Critical open</span>
-                    <span className="font-semibold text-text-primary">{s.criticalOpen}</span>
+                    <span className="font-mono tabular-nums font-semibold text-text-primary">{s.criticalOpen}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-text-muted">High open</span>
-                    <span className="font-semibold text-text-primary">{s.highOpen}</span>
+                    <span className="font-mono tabular-nums font-semibold text-text-primary">{s.highOpen}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-text-muted">Recurrences (90d)</span>
-                    <span className="font-semibold text-text-primary">{s.recurrences90d}</span>
+                    <span className="font-mono tabular-nums font-semibold text-text-primary">{s.recurrences90d}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-text-muted">Failed recon (7d)</span>
-                    <span className="font-semibold text-text-primary">{s.failedRecon7d}</span>
+                    <span className="font-mono tabular-nums font-semibold text-text-primary">{s.failedRecon7d}</span>
                   </div>
                 </div>
               </Card>
