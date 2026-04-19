@@ -133,6 +133,18 @@ describe('BountiesService', () => {
       },
       submission: {
         findFirst: jest.fn(),
+        // Batched per-viewer lookup in `list` — empty by default so existing
+        // tests with non-participant viewers stay unaffected.
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      bountyApplication: {
+        findFirst: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      ledgerEntry: {
+        aggregate: jest
+          .fn()
+          .mockResolvedValue({ _sum: { amount: null } }),
       },
       $transaction: jest.fn((fn: (tx: unknown) => Promise<unknown>) => {
         return fn({
@@ -308,6 +320,80 @@ describe('BountiesService', () => {
 
       const result = await service.findById('bounty-1', mockSA);
       expect(result.accessType).toBe(BountyAccessType.CLOSED);
+    });
+
+    it('derives brand.verified from kybStatus on the detail response', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+        brand: { id: 'org-1', name: 'KYB Done', logo: null, kybStatus: 'APPROVED' },
+        createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        rewards: [baseReward],
+        brandAssets: [],
+        _count: { submissions: 0 },
+      });
+
+      const result = await service.findById('bounty-1', mockSA);
+      expect(result.brand.verified).toBe(true);
+
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+        brand: { id: 'org-2', name: 'Pending', logo: null, kybStatus: 'PENDING' },
+        createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        rewards: [baseReward],
+        brandAssets: [],
+        _count: { submissions: 0 },
+      });
+
+      const result2 = await service.findById('bounty-1', mockSA);
+      expect(result2.brand.verified).toBe(false);
+    });
+
+    it('sets userHasApplied/userHasSubmitted from parallel findFirsts for participants', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+        brand: { id: 'org-1', name: 'Test', logo: null, kybStatus: 'APPROVED' },
+        createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        rewards: [baseReward],
+        brandAssets: [],
+        _count: { submissions: 5 },
+      });
+      prisma.submission.findFirst.mockResolvedValue({
+        id: 'sub-1',
+        status: 'SUBMITTED',
+        payoutStatus: 'NOT_PAID',
+      });
+      prisma.bountyApplication.findFirst.mockResolvedValue({ id: 'app-1' });
+
+      const result = await service.findById('bounty-1', mockParticipant);
+      expect(result.userHasApplied).toBe(true);
+      expect(result.userHasSubmitted).toBe(true);
+      // userSubmission round-trips alongside the new flags.
+      expect(result.userSubmission).toEqual({
+        id: 'sub-1',
+        status: 'SUBMITTED',
+        payoutStatus: 'NOT_PAID',
+      });
+    });
+
+    it('sets userHasApplied/userHasSubmitted to false for non-participant viewers', async () => {
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+        brand: { id: 'org-1', name: 'Test', logo: null, kybStatus: 'APPROVED' },
+        createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
+        rewards: [baseReward],
+        brandAssets: [],
+        _count: { submissions: 0 },
+      });
+
+      const result = await service.findById('bounty-1', mockSA);
+      expect(result.userHasApplied).toBe(false);
+      expect(result.userHasSubmitted).toBe(false);
+      expect(prisma.bountyApplication.findFirst).not.toHaveBeenCalled();
+      expect(prisma.submission.findFirst).not.toHaveBeenCalled();
     });
   });
 
@@ -771,7 +857,11 @@ describe('BountiesService', () => {
 
     it('should return correct pagination meta', async () => {
       prisma.bounty.findMany.mockResolvedValue([]);
-      prisma.bounty.count.mockResolvedValue(45);
+      // First count() = total (where), second count() = newToday — service
+      // calls them in `Promise.all`, so order matches the call sequence.
+      prisma.bounty.count
+        .mockResolvedValueOnce(45)
+        .mockResolvedValueOnce(3);
 
       const result = await service.list(mockSA, { page: 2, limit: 10 });
 
@@ -780,6 +870,9 @@ describe('BountiesService', () => {
         limit: 10,
         total: 45,
         totalPages: 5,
+        newToday: 3,
+        // Non-participant viewer → weekEarnings stays undefined.
+        weekEarnings: undefined,
       });
     });
 
@@ -799,6 +892,143 @@ describe('BountiesService', () => {
       const result = await service.list(mockSA, {});
 
       expect(result.data[0].accessType).toBe(BountyAccessType.CLOSED);
+    });
+
+    it('derives brand.verified from kybStatus on each list item', async () => {
+      prisma.bounty.findMany.mockResolvedValue([
+        {
+          ...baseBounty,
+          id: 'b-approved',
+          status: BountyStatus.LIVE,
+          brand: { id: 'org-1', name: 'KYB Done', logo: null, kybStatus: 'APPROVED' },
+          rewards: [baseReward],
+          _count: { submissions: 0 },
+        },
+        {
+          ...baseBounty,
+          id: 'b-pending',
+          status: BountyStatus.LIVE,
+          brand: { id: 'org-2', name: 'Awaiting KYB', logo: null, kybStatus: 'PENDING' },
+          rewards: [baseReward],
+          _count: { submissions: 0 },
+        },
+      ]);
+      prisma.bounty.count.mockResolvedValueOnce(2).mockResolvedValueOnce(0);
+
+      const result = await service.list(mockSA, {});
+
+      expect(result.data[0].brand.verified).toBe(true);
+      expect(result.data[1].brand.verified).toBe(false);
+    });
+
+    it('maps userHasApplied/userHasSubmitted from batched lookups for participants', async () => {
+      prisma.bounty.findMany.mockResolvedValue([
+        {
+          ...baseBounty,
+          id: 'b-1',
+          status: BountyStatus.LIVE,
+          brand: { id: 'org-1', name: 'Test', logo: null, kybStatus: 'APPROVED' },
+          rewards: [baseReward],
+          _count: { submissions: 0 },
+        },
+        {
+          ...baseBounty,
+          id: 'b-2',
+          status: BountyStatus.LIVE,
+          brand: { id: 'org-1', name: 'Test', logo: null, kybStatus: 'APPROVED' },
+          rewards: [baseReward],
+          _count: { submissions: 0 },
+        },
+        {
+          ...baseBounty,
+          id: 'b-3',
+          status: BountyStatus.LIVE,
+          brand: { id: 'org-1', name: 'Test', logo: null, kybStatus: 'APPROVED' },
+          rewards: [baseReward],
+          _count: { submissions: 0 },
+        },
+      ]);
+      prisma.bounty.count.mockResolvedValueOnce(3).mockResolvedValueOnce(0);
+      // Participant has applied to b-1 and b-3; submitted only on b-3.
+      prisma.bountyApplication.findMany.mockResolvedValue([
+        { bountyId: 'b-1' },
+        { bountyId: 'b-3' },
+      ]);
+      prisma.submission.findMany.mockResolvedValue([{ bountyId: 'b-3' }]);
+
+      const result = await service.list(mockParticipant, {});
+
+      const byId = Object.fromEntries(result.data.map((b) => [b.id, b]));
+      expect(byId['b-1'].userHasApplied).toBe(true);
+      expect(byId['b-1'].userHasSubmitted).toBe(false);
+      expect(byId['b-2'].userHasApplied).toBe(false);
+      expect(byId['b-2'].userHasSubmitted).toBe(false);
+      expect(byId['b-3'].userHasApplied).toBe(true);
+      expect(byId['b-3'].userHasSubmitted).toBe(true);
+      // Single batched query each — never N+1.
+      expect(prisma.bountyApplication.findMany).toHaveBeenCalledTimes(1);
+      expect(prisma.submission.findMany).toHaveBeenCalledTimes(1);
+    });
+
+    it('skips per-viewer applied/submitted lookups for non-participant viewers', async () => {
+      prisma.bounty.findMany.mockResolvedValue([
+        {
+          ...baseBounty,
+          status: BountyStatus.LIVE,
+          brand: { id: 'org-1', name: 'Test', logo: null, kybStatus: 'APPROVED' },
+          rewards: [baseReward],
+          _count: { submissions: 0 },
+        },
+      ]);
+      prisma.bounty.count.mockResolvedValueOnce(1).mockResolvedValueOnce(0);
+
+      const result = await service.list(mockBA, {});
+
+      expect(result.data[0].userHasApplied).toBe(false);
+      expect(result.data[0].userHasSubmitted).toBe(false);
+      expect(prisma.bountyApplication.findMany).not.toHaveBeenCalled();
+      expect(prisma.submission.findMany).not.toHaveBeenCalled();
+      expect(prisma.ledgerEntry.aggregate).not.toHaveBeenCalled();
+    });
+
+    it('computes meta.newToday via the dedicated count call', async () => {
+      prisma.bounty.findMany.mockResolvedValue([]);
+      // Order in Promise.all: total count, newToday count.
+      prisma.bounty.count
+        .mockResolvedValueOnce(99)
+        .mockResolvedValueOnce(7);
+
+      const result = await service.list(mockSA, {});
+
+      expect(result.meta.newToday).toBe(7);
+      // Second call must be the today-bucket query.
+      const secondCall = prisma.bounty.count.mock.calls[1][0];
+      expect(secondCall.where.status).toBe(BountyStatus.LIVE);
+      expect(secondCall.where.createdAt.gte).toBeInstanceOf(Date);
+    });
+
+    it('aggregates meta.weekEarnings only for participants', async () => {
+      prisma.bounty.findMany.mockResolvedValue([]);
+      prisma.bounty.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
+      // 12 345 cents earned in the last 7 days (BigInt → Number).
+      prisma.ledgerEntry.aggregate.mockResolvedValue({ _sum: { amount: BigInt(12345) } });
+
+      const result = await service.list(mockParticipant, {});
+
+      expect(result.meta.weekEarnings).toBe(12345);
+      expect(prisma.ledgerEntry.aggregate).toHaveBeenCalledTimes(1);
+    });
+
+    it('leaves meta.weekEarnings undefined when the ledger aggregate throws', async () => {
+      prisma.bounty.findMany.mockResolvedValue([]);
+      prisma.bounty.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
+      prisma.ledgerEntry.aggregate.mockRejectedValue(new Error('db blip'));
+
+      const result = await service.list(mockParticipant, {});
+
+      // The list endpoint must never break because of a soft analytics failure.
+      expect(result.meta.weekEarnings).toBeUndefined();
+      expect(result.data).toEqual([]);
     });
   });
 });

@@ -24,7 +24,7 @@ const MOCK_BOUNTIES: BountyListItem[] = [
     endDate: new Date(Date.now() + 7 * 86400000).toISOString(),
     status: 'LIVE' as BountyListItem['status'],
     submissionCount: 12,
-    brand: { id: 'org-1', name: 'Acme Shoes', logo: null },
+    brand: { id: 'org-1', name: 'Acme Shoes', logo: null, verified: true },
     createdAt: new Date().toISOString(),
     channels: { INSTAGRAM: ['REEL', 'STORY'] } as BountyListItem['channels'],
     currency: 'ZAR' as BountyListItem['currency'],
@@ -33,6 +33,8 @@ const MOCK_BOUNTIES: BountyListItem[] = [
     payoutMetrics: null,
     paymentStatus: 'UNPAID' as BountyListItem['paymentStatus'],
     accessType: BountyAccessType.PUBLIC,
+    userHasApplied: false,
+    userHasSubmitted: false,
   },
   {
     id: 'demo-2',
@@ -47,7 +49,7 @@ const MOCK_BOUNTIES: BountyListItem[] = [
     endDate: null,
     status: 'DRAFT' as BountyListItem['status'],
     submissionCount: 0,
-    brand: { id: 'org-2', name: 'SoundWave Audio', logo: null },
+    brand: { id: 'org-2', name: 'SoundWave Audio', logo: null, verified: false },
     createdAt: new Date().toISOString(),
     channels: { TIKTOK: ['VIDEO_POST'] } as BountyListItem['channels'],
     currency: 'USD' as BountyListItem['currency'],
@@ -56,6 +58,8 @@ const MOCK_BOUNTIES: BountyListItem[] = [
     payoutMetrics: null,
     paymentStatus: 'UNPAID' as BountyListItem['paymentStatus'],
     accessType: BountyAccessType.PUBLIC,
+    userHasApplied: false,
+    userHasSubmitted: false,
   },
 ];
 

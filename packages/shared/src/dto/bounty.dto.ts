@@ -23,6 +23,18 @@ export interface BountyBrandInfo {
   id: string;
   name: string;
   logo: string | null;
+  /**
+   * KYB-verified brand. Currently derived from `kybStatus === APPROVED` —
+   * the brand finished the KYB flow and has been admin-approved. Drives the
+   * pink BadgeCheck ✓ next to the brand name on bounty cards.
+   */
+  verified: boolean;
+  /**
+   * Optional 0–359 hue for the brand avatar tint. Backend currently leaves
+   * this undefined; the UI derives a stable per-brand hue via
+   * `hashHue(brand.id)`. Reserved for a future admin-assignable colour.
+   */
+  hue?: number;
 }
 
 // Creator summary embedded in bounty detail response
@@ -135,6 +147,47 @@ export interface BountyListItem {
   paymentStatus: PaymentStatus;
   payoutMethod?: PayoutMethod | null;
   accessType: BountyAccessType;
+  /**
+   * True iff the requesting viewer has an existing application row for this
+   * bounty (any status). Drives the "Applied" ribbon on bounty cards.
+   * Always `false` for non-participant viewers (they can't apply).
+   */
+  userHasApplied: boolean;
+  /**
+   * True iff the requesting viewer has an existing submission row for this
+   * bounty (any status). Drives the "Submitted" ribbon on bounty cards.
+   * Always `false` for non-participant viewers (they can't submit).
+   */
+  userHasSubmitted: boolean;
+}
+
+/**
+ * Pagination + soft analytics counters returned alongside `BountyListItem[]`
+ * from `GET /bounties`. The forward-compat counters (`newToday`,
+ * `weekEarnings`) are only populated for participant viewers — BA/SA get
+ * undefined, and the UI silently drops the affected hero-strip clauses.
+ */
+export interface BountyListMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  /**
+   * Count of LIVE bounties created today (server tz). Drives the
+   * "X new today" clause in the Browse hero meta strip.
+   */
+  newToday: number;
+  /**
+   * Sum of the viewer's `hunter_available` credits over the past 7 days,
+   * in minor units (cents). Participant-only; undefined otherwise.
+   * Drives the "earnings up R X this week" clause in the Browse hero.
+   */
+  weekEarnings?: number;
+}
+
+export interface BountyListResponse {
+  data: BountyListItem[];
+  meta: BountyListMeta;
 }
 
 // GET /bounties (query params)
@@ -190,6 +243,10 @@ export interface BountyDetailResponse {
   payoutMethod?: PayoutMethod | null;
   brandAssets: BrandAssetInfo[];
   accessType: BountyAccessType;
+  /** See `BountyListItem.userHasApplied`. */
+  userHasApplied: boolean;
+  /** See `BountyListItem.userHasSubmitted`. */
+  userHasSubmitted: boolean;
 }
 
 // POST /bounties

@@ -196,6 +196,12 @@ export function createMockPrisma() {
   const rewardDeleteMany = jest.fn();
   const rewardFindMany = jest.fn().mockResolvedValue([baseBountyRewardRecord()]);
   const submissionFindFirst = jest.fn();
+  const submissionFindMany = jest.fn().mockResolvedValue([]);
+  const bountyApplicationFindFirst = jest.fn();
+  const bountyApplicationFindMany = jest.fn().mockResolvedValue([]);
+  const ledgerEntryAggregate = jest
+    .fn()
+    .mockResolvedValue({ _sum: { amount: null } });
   const brandAssetCount = jest.fn();
   const brandAssetCreateManyAndReturn = jest.fn();
   const brandAssetFindUnique = jest.fn();
@@ -217,6 +223,14 @@ export function createMockPrisma() {
     },
     submission: {
       findFirst: submissionFindFirst,
+      findMany: submissionFindMany,
+    },
+    bountyApplication: {
+      findFirst: bountyApplicationFindFirst,
+      findMany: bountyApplicationFindMany,
+    },
+    ledgerEntry: {
+      aggregate: ledgerEntryAggregate,
     },
     brandAsset: {
       count: brandAssetCount,

@@ -39,7 +39,7 @@ function makeBounty(overrides: Partial<BountyDetailResponse> = {}): BountyDetail
     proofRequirements: 'url',
     status: BountyStatus.LIVE,
     submissionCount: 0,
-    brand: { id: 'b1', name: 'Brand', logo: null },
+    brand: { id: 'b1', name: 'Brand', logo: null, verified: false },
     createdBy: { id: 'u1', firstName: 'A', lastName: 'B' },
     userSubmission: null,
     createdAt: '2026-04-18T00:00:00Z',
@@ -58,6 +58,8 @@ function makeBounty(overrides: Partial<BountyDetailResponse> = {}): BountyDetail
     payoutMethod: null,
     brandAssets: [],
     accessType: BountyAccessType.PUBLIC,
+    userHasApplied: false,
+    userHasSubmitted: false,
     ...overrides,
   };
 }

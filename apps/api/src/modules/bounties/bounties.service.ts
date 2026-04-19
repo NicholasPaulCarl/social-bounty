@@ -5,7 +5,7 @@ import {
   ForbiddenException,
   Logger,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, KybStatus, LedgerAccount, LedgerEntryType } from '@prisma/client';
 import { promises as fsPromises } from 'fs';
 import * as path from 'path';
 import {
@@ -373,12 +373,18 @@ export class BountiesService {
       ];
     }
 
-    const [bounties, total] = await Promise.all([
+    // Start-of-today (server tz) — used by the `newToday` hero counter.
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const isParticipant = user.role === UserRole.PARTICIPANT;
+
+    const [bounties, total, newToday] = await Promise.all([
       this.prisma.bounty.findMany({
         where,
         include: {
           brand: {
-            select: { id: true, name: true, logo: true },
+            select: { id: true, name: true, logo: true, kybStatus: true },
           },
           rewards: {
             orderBy: { sortOrder: 'asc' },
@@ -390,7 +396,60 @@ export class BountiesService {
         orderBy: { [sortBy]: sortOrder },
       }),
       this.prisma.bounty.count({ where }),
+      this.prisma.bounty.count({
+        where: { status: BountyStatus.LIVE, deletedAt: null, createdAt: { gte: startOfToday } },
+      }),
     ]);
+
+    // Per-viewer applied/submitted lookup. Only meaningful for participants.
+    // Single batched query each — never N+1. Empty `bountyIds` short-circuits.
+    const bountyIds = bounties.map((b) => b.id);
+    const [appliedSet, submittedSet] = await Promise.all([
+      isParticipant && bountyIds.length > 0
+        ? this.prisma.bountyApplication
+            .findMany({
+              where: { userId: user.sub, bountyId: { in: bountyIds } },
+              select: { bountyId: true },
+            })
+            .then((rows) => new Set(rows.map((r) => r.bountyId)))
+        : Promise.resolve(new Set<string>()),
+      isParticipant && bountyIds.length > 0
+        ? this.prisma.submission
+            .findMany({
+              where: { userId: user.sub, bountyId: { in: bountyIds } },
+              select: { bountyId: true },
+              distinct: ['bountyId'],
+            })
+            .then((rows) => new Set(rows.map((r) => r.bountyId)))
+        : Promise.resolve(new Set<string>()),
+    ]);
+
+    // Participant-only weekly earnings. Wrapped so a ledger query failure
+    // leaves the field undefined and the UI silently drops the clause —
+    // the list endpoint is a hot path and must not be blocked by analytics.
+    let weekEarnings: number | undefined;
+    if (isParticipant) {
+      try {
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const sum = await this.prisma.ledgerEntry.aggregate({
+          where: {
+            userId: user.sub,
+            account: LedgerAccount.hunter_available,
+            type: LedgerEntryType.CREDIT,
+            createdAt: { gte: sevenDaysAgo },
+          },
+          _sum: { amount: true },
+        });
+        // BigInt → Number is safe here: realistic 7-day earnings fit in 2^53-1.
+        weekEarnings = sum._sum.amount != null ? Number(sum._sum.amount) : 0;
+      } catch (err) {
+        this.logger.warn(
+          `weekEarnings aggregate failed for ${user.sub}: ${
+            err instanceof Error ? err.message : 'unknown'
+          }`,
+        );
+      }
+    }
 
     return {
       data: bounties.map((b) => ({
@@ -406,7 +465,12 @@ export class BountiesService {
         endDate: b.endDate?.toISOString() || null,
         status: b.status,
         submissionCount: b._count.submissions,
-        brand: b.brand,
+        brand: {
+          id: b.brand.id,
+          name: b.brand.name,
+          logo: b.brand.logo,
+          verified: b.brand.kybStatus === KybStatus.APPROVED,
+        },
         channels: b.channels as Record<string, string[]> | null,
         currency: b.currency,
         totalRewardValue:
@@ -416,6 +480,8 @@ export class BountiesService {
         paymentStatus: b.paymentStatus ?? PaymentStatus.UNPAID,
         payoutMethod: b.payoutMethod ?? null,
         accessType: b.accessType,
+        userHasApplied: appliedSet.has(b.id),
+        userHasSubmitted: submittedSet.has(b.id),
         createdAt: b.createdAt.toISOString(),
       })),
       meta: {
@@ -423,6 +489,8 @@ export class BountiesService {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
+        newToday,
+        weekEarnings,
       },
     };
   }
@@ -434,7 +502,7 @@ export class BountiesService {
       where: { id },
       include: {
         brand: {
-          select: { id: true, name: true, logo: true },
+          select: { id: true, name: true, logo: true, kybStatus: true },
         },
         createdBy: {
           select: { id: true, firstName: true, lastName: true },
@@ -466,20 +534,31 @@ export class BountiesService {
       throw new ForbiddenException('Not authorized to view this bounty');
     }
 
-    // Check if participant has already submitted
-    let userSubmission = null;
+    // Check if participant has already submitted / applied. Both lookups
+    // run in parallel; non-participant viewers always get false.
+    let userSubmission: { id: string; status: string; payoutStatus: string } | null = null;
+    let userHasApplied = false;
+    let userHasSubmitted = false;
     if (user.role === UserRole.PARTICIPANT) {
-      const submission = await this.prisma.submission.findFirst({
-        where: { bountyId: id, userId: user.sub },
-        select: { id: true, status: true, payoutStatus: true },
-      });
+      const [submission, application] = await Promise.all([
+        this.prisma.submission.findFirst({
+          where: { bountyId: id, userId: user.sub },
+          select: { id: true, status: true, payoutStatus: true },
+        }),
+        this.prisma.bountyApplication.findFirst({
+          where: { bountyId: id, userId: user.sub },
+          select: { id: true },
+        }),
+      ]);
       if (submission) {
         userSubmission = {
           id: submission.id,
           status: submission.status,
           payoutStatus: submission.payoutStatus,
         };
+        userHasSubmitted = true;
       }
+      if (application) userHasApplied = true;
     }
 
     const submissionCount = bounty._count.submissions;
@@ -507,9 +586,16 @@ export class BountiesService {
       proofRequirements: bounty.proofRequirements,
       status: bounty.status,
       submissionCount,
-      brand: bounty.brand,
+      brand: {
+        id: bounty.brand.id,
+        name: bounty.brand.name,
+        logo: bounty.brand.logo,
+        verified: bounty.brand.kybStatus === KybStatus.APPROVED,
+      },
       createdBy: bounty.createdBy,
       userSubmission,
+      userHasApplied,
+      userHasSubmitted,
       createdAt: bounty.createdAt.toISOString(),
       updatedAt: bounty.updatedAt.toISOString(),
       // New fields
