@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Shell Navigation — Social Bounty</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<link rel="stylesheet" href="../components.css" />
+<style>
+  body { padding: 48px 56px; max-width: 1360px; background: var(--bg-abyss); }
+  .section { margin-bottom: 56px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--slate-200); }
+  .section-head h4 { margin: 0; font-family: var(--font-heading); font-size: 16px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+  .section-head em { font-style: normal; font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); }
+
+  .spec { margin-top: 12px; font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); line-height: 1.6; }
+  .spec strong { color: var(--text-secondary); font-weight: 600; }
+  .spec-grid { display: grid; grid-template-columns: 140px 1fr; row-gap: 4px; column-gap: 16px; margin-top: 8px; }
+
+  .frame-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+
+  /* Shell frame — the faux app window */
+  .shell {
+    display: flex;
+    background: var(--bg-abyss);
+    height: 700px;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    font-family: var(--font-body);
+    box-shadow: var(--shadow-level-1);
+  }
+  .shell-small { height: 600px; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 256px; min-width: 256px;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--slate-200);
+    display: flex; flex-direction: column;
+    color: var(--text-primary);
+  }
+  .sidebar-collapsed { width: 72px; min-width: 72px; }
+
+  /* Brand mark row */
+  .brand-row {
+    padding: 16px 18px; min-height: 56px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .brand-row-collapsed { padding: 16px 0; justify-content: center; }
+  .logo-mark {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-heading); font-weight: 700;
+    letter-spacing: -0.02em; font-size: 17px;
+  }
+  .logo-glyph {
+    width: 26px; height: 26px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--pink-600), var(--blue-600));
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 13px; font-weight: 700;
+  }
+  .logo-wordmark-pink { color: var(--pink-600); }
+  .collapse-toggle {
+    background: transparent; border: none; color: var(--text-muted);
+    cursor: pointer; padding: 4px; border-radius: 6px;
+    display: inline-flex;
+  }
+
+  /* Workspace switcher */
+  .ws-row { padding: 0 12px 8px; }
+  .ws-button {
+    width: 100%; display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--slate-200);
+    border-radius: 10px;
+    color: var(--text-primary); font-family: var(--font-body);
+    cursor: pointer; text-align: left;
+  }
+  .ws-meta { flex: 1; min-width: 0; }
+  .ws-meta-label { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ws-meta-sub { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+  /* Workspace disc (creator = round pink hue, brand = square tile) */
+  .ws-disc-creator {
+    width: 30px; height: 30px; border-radius: 9999px;
+    background: linear-gradient(135deg, #fbcfe8, #fce7f3);
+    color: #9d174d;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-heading); font-weight: 700;
+    font-size: 13px; letter-spacing: -0.02em;
+    flex: none;
+  }
+  .ws-disc-creator-sm { width: 28px; height: 28px; font-size: 12px; }
+  .ws-disc-creator-lg { width: 36px; height: 36px; font-size: 14px; }
+
+  .ws-tile-brand {
+    width: 30px; height: 30px; border-radius: 8px;
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-heading); font-weight: 700;
+    font-size: 13px; letter-spacing: -0.02em;
+    flex: none;
+  }
+  .ws-tile-brand-sm { width: 28px; height: 28px; font-size: 12px; border-radius: 7px; }
+  .ws-tile-brand-lg { width: 36px; height: 36px; font-size: 14px; }
+  .ws-hue-foschini { background: hsl(220 70% 45%); }
+  .ws-hue-takealot { background: hsl(180 70% 45%); }
+  .ws-hue-nutribox { background: hsl(140 70% 45%); }
+
+  /* Search */
+  .search-row { padding: 6px 12px 10px; }
+  .search-shell {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    background: var(--bg-elevated);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .search-shell span { flex: 1; }
+  .kbd {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 5px;
+    background: var(--bg-surface);
+    border: 1px solid var(--slate-200);
+    border-radius: 4px;
+    color: var(--text-muted);
+  }
+
+  /* Nav sections */
+  .nav-list { flex: 1; overflow-y: auto; padding-bottom: 8px; }
+  .nav-section-label {
+    padding: 14px 20px 6px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .nav-section-divider {
+    margin: 14px 20px 6px; height: 1px;
+    background: var(--slate-200); border: none;
+  }
+  .nav-items { display: flex; flex-direction: column; gap: 2px; }
+
+  /* Nav item */
+  .nav-item {
+    position: relative;
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px; margin: 0 8px;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px; font-weight: 500;
+    text-decoration: none;
+    transition: background var(--duration-normal) var(--ease-standard),
+                color var(--duration-normal) var(--ease-standard);
+    cursor: pointer;
+  }
+  .nav-item[data-active="true"] {
+    background: var(--pink-50);
+    color: var(--pink-700);
+    font-weight: 600;
+  }
+  .nav-item[data-active="true"]::before {
+    content: ""; position: absolute; left: -8px; top: 8px; bottom: 8px;
+    width: 3px; border-radius: 3px; background: var(--pink-600);
+  }
+  .nav-item-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav-item-collapsed {
+    justify-content: center;
+    padding: 10px 0; margin: 0 8px;
+    gap: 0;
+  }
+  .nav-item-collapsed[data-active="true"]::before { display: none; }
+  .nav-icon-wrap { position: relative; display: inline-flex; }
+
+  /* Count pips */
+  .count-pip {
+    min-width: 20px; height: 20px; padding: 0 6px;
+    border-radius: 9999px;
+    background: var(--pink-100); color: var(--pink-700);
+    font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+    font-size: 11px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+  .count-pip-urgent { background: var(--danger-600); color: #fff; }
+  .count-pip-dot {
+    position: absolute; top: -2px; right: -2px;
+    width: 8px; height: 8px; border-radius: 9999px;
+    background: var(--pink-600);
+    box-shadow: 0 0 0 2px var(--bg-surface);
+  }
+  .count-pip-dot-urgent { background: var(--danger-500); }
+
+  /* Footer nav */
+  .nav-footer {
+    border-top: 1px solid var(--slate-200);
+    padding: 8px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+
+  /* Faux content area */
+  .content {
+    flex: 1; background: var(--bg-abyss);
+    padding: 24px 32px;
+    overflow: hidden;
+  }
+  .content-eyebrow {
+    font-size: 10px; font-weight: 700; color: var(--pink-600);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .content-heading {
+    margin: 0 0 8px; font-family: var(--font-heading); font-weight: 700;
+    font-size: 26px; letter-spacing: -0.02em; color: var(--text-primary);
+  }
+  .content-meta { font-size: 13px; color: var(--text-secondary); }
+  .content-meta .num { font-family: var(--font-mono); font-weight: 600; color: var(--text-primary); }
+  .content-tiles { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .content-tile {
+    height: 140px; background: var(--bg-surface);
+    border: 1px solid var(--slate-200); border-radius: 14px;
+    padding: 14px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .content-tile-amount {
+    font-family: var(--font-mono); font-weight: 700;
+    font-size: 20px; color: var(--pink-600);
+    font-variant-numeric: tabular-nums;
+  }
+  .tile-bar-1 { height: 10px; width: 70%; background: var(--slate-100); border-radius: 3px; margin-bottom: 6px; }
+  .tile-bar-2 { height: 8px;  width: 40%; background: var(--slate-100); border-radius: 3px; }
+
+  /* Workspace popover */
+  .ws-wrap { position: relative; }
+  .ws-popover {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--slate-200);
+    border-radius: 12px;
+    box-shadow: var(--shadow-level-3);
+    padding: 6px;
+    z-index: 5;
+  }
+  .ws-popover-head {
+    padding: 6px 10px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .ws-option {
+    width: 100%; display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    background: transparent;
+    border: none; border-radius: 8px;
+    cursor: pointer; text-align: left;
+    color: var(--text-primary); font-family: var(--font-body);
+  }
+  .ws-option:hover { background: var(--bg-elevated); }
+  .ws-option[data-active="true"] { background: var(--pink-50); }
+  .ws-option-meta { flex: 1; min-width: 0; }
+  .ws-option-label { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .ws-option-sub { font-size: 11px; color: var(--text-muted); }
+  .ws-option-check { color: var(--pink-600); }
+  .ws-divider { height: 1px; background: var(--slate-100); margin: 4px 0; }
+  .ws-add-row {
+    width: 100%; display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    background: transparent; border: none; border-radius: 8px;
+    cursor: pointer; text-align: left;
+    color: var(--text-secondary); font-family: var(--font-body); font-size: 13px;
+  }
+  .ws-add-glyph {
+    width: 28px; height: 28px; border-radius: 9999px;
+    background: var(--bg-elevated);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+  }
+  .verified { color: var(--pink-600); display: inline-flex; }
+
+  /* Mobile drawer */
+  .mobile-shell {
+    position: relative; width: 390px; height: 780px;
+    border: 1px solid var(--slate-200); border-radius: var(--radius-xl);
+    overflow: hidden; background: var(--bg-abyss);
+    box-shadow: var(--shadow-level-1);
+  }
+  .mobile-app-behind {
+    position: absolute; inset: 0; background: var(--bg-abyss);
+  }
+  .mobile-top-bar {
+    height: 52px; background: var(--bg-surface);
+    border-bottom: 1px solid var(--slate-200);
+    display: flex; align-items: center; padding: 0 16px; gap: 10px;
+    font-family: var(--font-heading); font-weight: 700; font-size: 16px;
+    color: var(--text-muted);
+  }
+  .mobile-top-bar .logo-glyph { width: 24px; height: 24px; font-size: 12px; }
+  .mobile-scrim {
+    position: absolute; inset: 0; background: rgba(15, 23, 42, 0.55);
+  }
+  .mobile-drawer {
+    position: absolute; top: 0; left: 0; bottom: 0; width: 300px;
+    background: var(--bg-surface);
+    box-shadow: 6px 0 24px rgba(0,0,0,0.15);
+    display: flex; flex-direction: column;
+  }
+  .mobile-drawer-head {
+    padding: 16px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .mobile-close-btn {
+    width: 36px; height: 36px; border-radius: 9999px;
+    background: var(--bg-elevated); border: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--text-secondary); cursor: pointer;
+  }
+
+  /* Collapsed-rail row layout */
+  .collapsed-pair {
+    display: flex; gap: 16px; align-items: stretch;
+    background: var(--bg-abyss);
+    padding: 20px; border-radius: var(--radius-xl);
+    border: 1px solid var(--slate-200);
+  }
+  .collapsed-pair > div {
+    display: flex; flex-direction: column; gap: 8px;
+    align-items: center;
+  }
+  .collapsed-pair-label {
+    font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  .lead { max-width: 68ch; margin: 0 0 28px; color: var(--text-secondary); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header style="margin-bottom: 40px;">
+  <div class="eyebrow" style="margin-bottom: 8px;">Shell Navigation</div>
+  <h2 style="margin: 0 0 12px;">The rail, the switcher, the drawer.</h2>
+  <p class="lead">
+    One IA, three shapes — expanded rail, collapsed rail, mobile drawer. Pink-600 is the active-state
+    constant. Urgent counts turn red. Brand workspaces are squares; creator workspaces are discs.
+  </p>
+</header>
+
+<!-- ────────────────────────────────────────────────────────────
+     1. Expanded sidebar — Creator
+     ──────────────────────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-head"><h4>1 · Expanded sidebar — creator</h4><em>256px · active: "Browse bounties"</em></div>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand-row">
+        <span class="logo-mark">
+          <span class="logo-glyph">S</span>
+          <span>social<span class="logo-wordmark-pink">bounty</span></span>
+        </span>
+        <button class="collapse-toggle" aria-label="Collapse sidebar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg>
+        </button>
+      </div>
+
+      <div class="ws-row">
+        <button class="ws-button">
+          <span class="ws-disc-creator">K</span>
+          <span class="ws-meta">
+            <span class="ws-meta-label" style="display:block;">Kagiso M.</span>
+            <span class="ws-meta-sub" style="display:block;">Creator</span>
+          </span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="search-row">
+        <div class="search-shell">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+          <kbd class="kbd">⌘K</kbd>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <div class="nav-section-label">Main</div>
+        <div class="nav-items">
+          <a href="#" class="nav-item" data-active="true">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            </span>
+            <span class="nav-item-label">Browse bounties</span>
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            </span>
+            <span class="nav-item-label">My applications</span>
+            <span class="count-pip">3</span>
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="m9 13 2 2 4-4"/></svg>
+            </span>
+            <span class="nav-item-label">Submissions</span>
+            <span class="count-pip">1</span>
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+            </span>
+            <span class="nav-item-label">Messages</span>
+            <span class="count-pip">5</span>
+          </a>
+        </div>
+
+        <div class="nav-section-label">Money</div>
+        <div class="nav-items">
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            </span>
+            <span class="nav-item-label">Earnings</span>
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+            </span>
+            <span class="nav-item-label">Wallet</span>
+          </a>
+        </div>
+
+        <div class="nav-section-label">Account</div>
+        <div class="nav-items">
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
+            </span>
+            <span class="nav-item-label">Profile &amp; socials</span>
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+            <span class="nav-item-label">Settings</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="nav-footer">
+        <a href="#" class="nav-item">
+          <span class="nav-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          </span>
+          <span class="nav-item-label">Notifications</span>
+          <span class="count-pip">4</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+          </span>
+          <span class="nav-item-label">Help &amp; support</span>
+        </a>
+      </div>
+    </aside>
+
+    <div class="content">
+      <div class="content-eyebrow">Participant</div>
+      <h1 class="content-heading">Browse bounties</h1>
+      <div class="content-meta">
+        <span class="num">54</span> live ·
+        <span style="color: var(--pink-600); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 12px;"><span class="num" style="color: inherit;">6</span> new today</span>
+      </div>
+      <div class="content-tiles">
+        <div class="content-tile"><div class="content-tile-amount">R 950</div><div><div class="tile-bar-1"></div><div class="tile-bar-2"></div></div></div>
+        <div class="content-tile"><div class="content-tile-amount">R 1 100</div><div><div class="tile-bar-1"></div><div class="tile-bar-2"></div></div></div>
+        <div class="content-tile"><div class="content-tile-amount">R 1 250</div><div><div class="tile-bar-1"></div><div class="tile-bar-2"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spec">
+    <div class="spec-grid">
+      <strong>Active state</strong><span>bg: pink-50 · fg: pink-700 · rail: 3px pink-600, left -8px</span>
+      <strong>Count pip</strong><span>bg: pink-100 · fg: pink-700 · mono · tabular-nums · min-w 20px</span>
+      <strong>Logo glyph</strong><span>26px · 8px radius · pink-600 → blue-600 gradient (135°)</span>
+      <strong>Rail width</strong><span>256px · border-right slate-200</span>
+      <strong>Motion</strong><span>width 200ms · bg/color 250ms · ease-standard</span>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────────────────────────
+     2. Expanded sidebar — Brand
+     ──────────────────────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-head"><h4>2 · Expanded sidebar — brand</h4><em>Foschini workspace · active: "Review queue" with urgent 17</em></div>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand-row">
+        <span class="logo-mark">
+          <span class="logo-glyph">S</span>
+          <span>social<span class="logo-wordmark-pink">bounty</span></span>
+        </span>
+        <button class="collapse-toggle" aria-label="Collapse sidebar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg>
+        </button>
+      </div>
+
+      <div class="ws-row">
+        <button class="ws-button">
+          <span class="ws-tile-brand ws-hue-foschini">F</span>
+          <span class="ws-meta">
+            <span class="ws-meta-label" style="display:block;">Foschini</span>
+            <span class="ws-meta-sub" style="display:block;">Brand · 4 seats</span>
+          </span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="search-row">
+        <div class="search-shell">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+          <kbd class="kbd">⌘K</kbd>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <div class="nav-section-label">Main</div>
+        <div class="nav-items">
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+            </span>
+            <span class="nav-item-label">Dashboard</span>
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+            </span>
+            <span class="nav-item-label">Bounties</span>
+            <span class="count-pip">8</span>
+          </a>
+          <a href="#" class="nav-item" data-active="true">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+            </span>
+            <span class="nav-item-label">Review queue</span>
+            <span class="count-pip count-pip-urgent">17</span>
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
+            <span class="nav-item-label">Creators</span>
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+            </span>
+            <span class="nav-item-label">Messages</span>
+            <span class="count-pip">2</span>
+          </a>
+        </div>
+
+        <div class="nav-section-label">Performance</div>
+        <div class="nav-items">
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            </span>
+            <span class="nav-item-label">Analytics</span>
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            </span>
+            <span class="nav-item-label">Billing</span>
+          </a>
+        </div>
+
+        <div class="nav-section-label">Workspace</div>
+        <div class="nav-items">
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+            <span class="nav-item-label">Settings</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="nav-footer">
+        <a href="#" class="nav-item">
+          <span class="nav-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          </span>
+          <span class="nav-item-label">Notifications</span>
+          <span class="count-pip">4</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+          </span>
+          <span class="nav-item-label">Help &amp; support</span>
+        </a>
+      </div>
+    </aside>
+
+    <div class="content">
+      <div class="content-eyebrow">Brand · Foschini</div>
+      <h1 class="content-heading">Review queue</h1>
+      <div class="content-meta">
+        <span class="num">17</span> waiting ·
+        <span style="color: var(--danger-600); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 12px;"><span class="num" style="color: inherit;">3</span> past SLA</span>
+      </div>
+      <div class="content-tiles">
+        <div class="content-tile"><div class="content-tile-amount">R 950</div><div><div class="tile-bar-1"></div><div class="tile-bar-2"></div></div></div>
+        <div class="content-tile"><div class="content-tile-amount">R 1 100</div><div><div class="tile-bar-1"></div><div class="tile-bar-2"></div></div></div>
+        <div class="content-tile"><div class="content-tile-amount">R 1 250</div><div><div class="tile-bar-1"></div><div class="tile-bar-2"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spec">
+    <div class="spec-grid">
+      <strong>Urgent pip</strong><span>bg: danger-600 · fg: #fff · same geometry as default pip</span>
+      <strong>Brand tile</strong><span>30px · 8px radius (square!) · solid brand hue · white initial</span>
+      <strong>Role cue</strong><span>Square tile = BUSINESS_ADMIN · Disc = USER. Do not cross-use.</span>
+      <strong>Section label</strong><span>10px · weight 700 · tracking 0.10em · uppercase · text-muted</span>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────────────────────────
+     3. Workspace switcher popover open
+     ──────────────────────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-head"><h4>3 · Workspace switcher popover</h4><em>creator + 3 brands · active: Foschini</em></div>
+
+  <div class="shell shell-small">
+    <aside class="sidebar">
+      <div class="brand-row">
+        <span class="logo-mark">
+          <span class="logo-glyph">S</span>
+          <span>social<span class="logo-wordmark-pink">bounty</span></span>
+        </span>
+      </div>
+
+      <div class="ws-row">
+        <div class="ws-wrap">
+          <button class="ws-button">
+            <span class="ws-tile-brand ws-hue-foschini">F</span>
+            <span class="ws-meta">
+              <span class="ws-meta-label" style="display:block;">Foschini</span>
+              <span class="ws-meta-sub" style="display:block;">Brand · 4 seats</span>
+            </span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+
+          <div class="ws-popover">
+            <div class="ws-popover-head">Switch workspace</div>
+
+            <button class="ws-option">
+              <span class="ws-disc-creator ws-disc-creator-sm">K</span>
+              <span class="ws-option-meta">
+                <span class="ws-option-label" style="display:flex;">Kagiso M.</span>
+                <span class="ws-option-sub" style="display:block;">Creator</span>
+              </span>
+            </button>
+
+            <button class="ws-option" data-active="true">
+              <span class="ws-tile-brand ws-tile-brand-sm ws-hue-foschini">F</span>
+              <span class="ws-option-meta">
+                <span class="ws-option-label" style="display:flex;">
+                  Foschini
+                  <span class="verified" aria-label="Verified">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+                  </span>
+                </span>
+                <span class="ws-option-sub" style="display:block;">Brand · 4 seats</span>
+              </span>
+              <span class="ws-option-check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+            </button>
+
+            <button class="ws-option">
+              <span class="ws-tile-brand ws-tile-brand-sm ws-hue-takealot">T</span>
+              <span class="ws-option-meta">
+                <span class="ws-option-label" style="display:flex;">
+                  Takealot
+                  <span class="verified" aria-label="Verified">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+                  </span>
+                </span>
+                <span class="ws-option-sub" style="display:block;">Brand · 12 seats</span>
+              </span>
+            </button>
+
+            <button class="ws-option">
+              <span class="ws-tile-brand ws-tile-brand-sm ws-hue-nutribox">N</span>
+              <span class="ws-option-meta">
+                <span class="ws-option-label" style="display:flex;">Nutribox</span>
+                <span class="ws-option-sub" style="display:block;">Brand · 2 seats</span>
+              </span>
+            </button>
+
+            <div class="ws-divider"></div>
+
+            <button class="ws-add-row">
+              <span class="ws-add-glyph">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              </span>
+              Add a brand workspace
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <nav class="nav-list" style="opacity: 0.5;">
+        <div class="nav-section-label">Main</div>
+        <div class="nav-items">
+          <a href="#" class="nav-item"><span class="nav-icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></span><span class="nav-item-label">Dashboard</span></a>
+          <a href="#" class="nav-item"><span class="nav-icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 18-5v12L3 14v-3z"/></svg></span><span class="nav-item-label">Bounties</span><span class="count-pip">8</span></a>
+        </div>
+      </nav>
+    </aside>
+
+    <div class="content">
+      <div class="content-eyebrow">Brand · Foschini</div>
+      <h1 class="content-heading">Bounties</h1>
+      <div class="content-meta"><span class="num">8</span> live · <span class="num">12</span> drafted</div>
+    </div>
+  </div>
+
+  <div class="spec">
+    <div class="spec-grid">
+      <strong>Popover</strong><span>12px radius · shadow-level-3 · slate-200 border · 6px inner padding</span>
+      <strong>Active row</strong><span>bg pink-50 · trailing Check pink-600</span>
+      <strong>Verified mark</strong><span>BadgeCheck 12px · pink-600</span>
+      <strong>Footer row</strong><span>hairline slate-100 divider above "Add a brand workspace"</span>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────────────────────────
+     4. Collapsed rail (72px) — creator + brand
+     ──────────────────────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-head"><h4>4 · Collapsed rail</h4><em>72px · labels become dividers · counts become dots</em></div>
+
+  <div class="collapsed-pair">
+
+    <!-- Creator collapsed -->
+    <div>
+      <span class="collapsed-pair-label">Creator — browse active</span>
+      <aside class="sidebar sidebar-collapsed" style="height: 560px;">
+        <div class="brand-row brand-row-collapsed">
+          <span class="logo-glyph">S</span>
+        </div>
+
+        <div style="padding: 8px; display: flex; justify-content: center;">
+          <span class="ws-disc-creator ws-disc-creator-lg">K</span>
+        </div>
+
+        <nav class="nav-list">
+          <hr class="nav-section-divider" />
+          <div class="nav-items">
+            <a href="#" class="nav-item nav-item-collapsed" data-active="true">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              </span>
+            </a>
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                <span class="count-pip-dot"></span>
+              </span>
+            </a>
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="m9 13 2 2 4-4"/></svg>
+                <span class="count-pip-dot"></span>
+              </span>
+            </a>
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                <span class="count-pip-dot"></span>
+              </span>
+            </a>
+          </div>
+
+          <hr class="nav-section-divider" />
+          <div class="nav-items">
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+              </span>
+            </a>
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+              </span>
+            </a>
+          </div>
+
+          <hr class="nav-section-divider" />
+          <div class="nav-items">
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
+              </span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="nav-footer">
+          <a href="#" class="nav-item nav-item-collapsed">
+            <span class="nav-icon-wrap">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              <span class="count-pip-dot"></span>
+            </span>
+          </a>
+          <div style="padding: 8px 0; display: flex; justify-content: center;">
+            <button class="collapse-toggle" aria-label="Expand sidebar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 17 5-5-5-5"/><path d="m13 17 5-5-5-5"/></svg>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Brand collapsed (review highlighted, urgent dot) -->
+    <div>
+      <span class="collapsed-pair-label">Brand — review urgent</span>
+      <aside class="sidebar sidebar-collapsed" style="height: 560px;">
+        <div class="brand-row brand-row-collapsed">
+          <span class="logo-glyph">S</span>
+        </div>
+
+        <div style="padding: 8px; display: flex; justify-content: center;">
+          <span class="ws-tile-brand ws-tile-brand-lg ws-hue-foschini">F</span>
+        </div>
+
+        <nav class="nav-list">
+          <hr class="nav-section-divider" />
+          <div class="nav-items">
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+              </span>
+            </a>
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+                <span class="count-pip-dot"></span>
+              </span>
+            </a>
+            <a href="#" class="nav-item nav-item-collapsed" data-active="true">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+                <span class="count-pip-dot count-pip-dot-urgent"></span>
+              </span>
+            </a>
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </span>
+            </a>
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                <span class="count-pip-dot"></span>
+              </span>
+            </a>
+          </div>
+
+          <hr class="nav-section-divider" />
+          <div class="nav-items">
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+              </span>
+            </a>
+            <a href="#" class="nav-item nav-item-collapsed">
+              <span class="nav-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+              </span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="nav-footer">
+          <a href="#" class="nav-item nav-item-collapsed">
+            <span class="nav-icon-wrap">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              <span class="count-pip-dot"></span>
+            </span>
+          </a>
+          <div style="padding: 8px 0; display: flex; justify-content: center;">
+            <button class="collapse-toggle" aria-label="Expand sidebar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 17 5-5-5-5"/><path d="m13 17 5-5-5-5"/></svg>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="spec">
+    <div class="spec-grid">
+      <strong>Rail width</strong><span>72px · desktop only (no collapsed state on mobile)</span>
+      <strong>Icon size</strong><span>20px (vs 18px when expanded) · centred in the pad</span>
+      <strong>Section labels</strong><span>Become a 1px slate-200 hairline divider; no text</span>
+      <strong>Count dot</strong><span>8px · pink-600 (normal) / danger-500 (urgent) · 2px halo in bg-surface</span>
+      <strong>Active</strong><span>Filled pink-50 pad, no 3px rail (the pad is the signal)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────────────────────────
+     5. Mobile drawer
+     ──────────────────────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-head"><h4>5 · Mobile drawer</h4><em>300px · slide-in over slate-900/55% scrim</em></div>
+
+  <div class="frame-row">
+    <!-- Creator mobile drawer -->
+    <div class="mobile-shell">
+      <div class="mobile-app-behind">
+        <div class="mobile-top-bar">
+          <span class="logo-glyph">S</span>
+          <span style="font-family: var(--font-heading); font-weight: 700; font-size: 16px; color: var(--text-muted);">social<span style="color: var(--pink-300);">bounty</span></span>
+        </div>
+      </div>
+
+      <div class="mobile-scrim"></div>
+
+      <div class="mobile-drawer">
+        <div class="mobile-drawer-head">
+          <span class="logo-mark">
+            <span class="logo-glyph">S</span>
+            <span>social<span class="logo-wordmark-pink">bounty</span></span>
+          </span>
+          <button class="mobile-close-btn" aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+
+        <div class="ws-row">
+          <button class="ws-button">
+            <span class="ws-disc-creator">K</span>
+            <span class="ws-meta">
+              <span class="ws-meta-label" style="display:block;">Kagiso M.</span>
+              <span class="ws-meta-sub" style="display:block;">Creator</span>
+            </span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+
+        <nav class="nav-list">
+          <div class="nav-section-label">Main</div>
+          <div class="nav-items">
+            <a href="#" class="nav-item" data-active="true">
+              <span class="nav-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              </span>
+              <span class="nav-item-label">Browse bounties</span>
+            </a>
+            <a href="#" class="nav-item">
+              <span class="nav-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+              </span>
+              <span class="nav-item-label">My applications</span>
+              <span class="count-pip">3</span>
+            </a>
+            <a href="#" class="nav-item">
+              <span class="nav-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="m9 13 2 2 4-4"/></svg>
+              </span>
+              <span class="nav-item-label">Submissions</span>
+              <span class="count-pip">1</span>
+            </a>
+            <a href="#" class="nav-item">
+              <span class="nav-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+              </span>
+              <span class="nav-item-label">Messages</span>
+              <span class="count-pip">5</span>
+            </a>
+          </div>
+
+          <div class="nav-section-label">Money</div>
+          <div class="nav-items">
+            <a href="#" class="nav-item">
+              <span class="nav-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+              </span>
+              <span class="nav-item-label">Earnings</span>
+            </a>
+            <a href="#" class="nav-item">
+              <span class="nav-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+              </span>
+              <span class="nav-item-label">Wallet</span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="nav-footer">
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            </span>
+            <span class="nav-item-label">Notifications</span>
+            <span class="count-pip">4</span>
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+            <span class="nav-item-label">Settings</span>
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+            </span>
+            <span class="nav-item-label">Help &amp; support</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spec">
+    <div class="spec-grid">
+      <strong>Drawer width</strong><span>300px · full height · slides from left</span>
+      <strong>Scrim</strong><span>slate-900 @ 55% alpha (rgba(15,23,42,0.55))</span>
+      <strong>Close button</strong><span>36px circle · bg-elevated · top-right of drawer head</span>
+      <strong>Breakpoint</strong><span>&lt;md only · desktop uses the expanded/collapsed rail instead</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -55,6 +55,18 @@ A creator-economy product. Pays creators per verified click on brand "bounties."
 
 Lucide only, 20–24px, `stroke-width: 2`, `stroke: currentColor`. Draw placeholders at that same visual weight.
 
+## Shell Navigation
+
+- Build from `getNavSections(role)` — never hand-roll. `NavSection[]` → `NavItem[]` → optional children.
+- Active item = `pink-50` bg + `pink-700` text + 3px `pink-600` left rail (expanded); filled `pink-50` pad only (collapsed).
+- Count pips: `urgent: true` → `danger-600` red; truthy count → `pink-100`/`pink-700`; `0`/undefined → render nothing. Mono, `tabular-nums`, 20×20.
+- Collapsed rail = counts become 8px dots (pink / red) with a 2px `bg-surface` halo.
+- Workspace disc: `USER` = round disc w/ soft pink-hue gradient. `BUSINESS_ADMIN` = square 8px-radius tile w/ brand-hue solid fill. Shape is the role cue.
+- Section labels: uppercase, 10px, `tracking-[0.10em]`, `text-muted`. Collapsed = 1px `slate-200` hairline divider instead.
+- Rail is 256px expanded / 72px collapsed — collapse is desktop only.
+- Mobile: no rail. 300px drawer slides from left over `slate-900 @ 55%` scrim.
+- Logo mark = 26px square, 8px radius, `pink-600 → blue-600` gradient, white "S". Wordmark: "social<span class="pink-600">bounty</span>" — the only place the gradient lives in the chrome.
+
 ## Copy & voice
 
 - Lead with the number. "You earned $62 today" beats "Your earnings are growing!"
@@ -78,3 +90,4 @@ Lucide only, 20–24px, `stroke-width: 2`, `stroke: currentColor`. Draw placehol
 - `previews/spacing.html` — spacing scale, radii, shadows
 - `previews/components.html` — every component state
 - `previews/brand.html` — logo lockups, voice do/don't, imagery direction
+- `previews/shell-navigation.html` — sidebar, collapsed rail, workspace switcher, mobile drawer

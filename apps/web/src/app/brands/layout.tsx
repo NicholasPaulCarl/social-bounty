@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { getNavItems } from '@/lib/navigation';
+import { getNavSections } from '@/lib/navigation';
 import { UserRole } from '@social-bounty/shared';
 
 export default function BrandsLayout({ children }: { children: React.ReactNode }) {
@@ -13,7 +13,7 @@ export default function BrandsLayout({ children }: { children: React.ReactNode }
   // Authenticated users get the full app shell with sidebar navigation
   if (isAuthenticated && user) {
     return (
-      <MainLayout navItems={getNavItems(user.role || UserRole.PARTICIPANT)}>
+      <MainLayout navSections={getNavSections(user.role || UserRole.PARTICIPANT)}>
         {children}
       </MainLayout>
     );

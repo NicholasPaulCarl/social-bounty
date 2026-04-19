@@ -164,6 +164,10 @@ import { Check, Wallet, Users, AlertTriangle } from 'lucide-react';
 | `pi-spinner` | `Loader2` + `className="animate-spin"` | `Loader2` is the dashed-circle that spins cleanly |
 | `pi-spin` | `Loader2` + `className="animate-spin"` | Same |
 
+### Shell Navigation
+
+Shell Navigation (see `previews/shell-navigation.html` + canonical nav data) uses these Lucide names: `Compass, Send, FolderCheck, Wallet, Inbox, UserCircle, LayoutDashboard, Megaphone, ClipboardCheck, Users, TrendingUp, CreditCard, Bell, Settings, HelpCircle, Search, ChevronsLeft, ChevronsRight, ChevronDown, Plus, Check, Menu, X, BadgeCheck`.
+
 ### Social brand marks
 
 PrimeIcons ships brand glyphs. Lucide's policy is "no brand logos beyond a small set". Lucide 1.8.0

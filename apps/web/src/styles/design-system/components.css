@@ -346,6 +346,35 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
+   SHELL NAV
+   Reusable primitives. Full spec: previews/shell-navigation.html.
+   ───────────────────────────────────────────────────────────── */
+.count-pip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 6px;
+  border-radius: var(--radius-full);
+  background: var(--pink-100); color: var(--pink-700);
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: 11px; font-weight: 700; line-height: 1;
+}
+.count-pip-urgent { background: var(--danger-600); color: #ffffff; }
+
+.count-pip-dot {
+  position: absolute; top: -2px; right: -2px;
+  width: 8px; height: 8px; border-radius: var(--radius-full);
+  background: var(--pink-600);
+  box-shadow: 0 0 0 2px var(--bg-surface);
+}
+.count-pip-dot-urgent { background: var(--danger-500); }
+
+.nav-section-label {
+  padding: 14px 20px 6px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ─────────────────────────────────────────────────────────────
    SPACING SCALE (utility — use sparingly)
    Base unit: 4px.  1→4, 2→8, 3→12, 4→16, 6→24, 8→32, 12→48, 16→64, 24→96
    ───────────────────────────────────────────────────────────── */

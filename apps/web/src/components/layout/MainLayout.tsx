@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { AppHeader } from './AppHeader';
 import { AppSidebar } from './AppSidebar';
-import type { NavItem } from '@/lib/navigation';
+import type { NavSection } from '@/lib/navigation';
 
 interface MainLayoutProps {
-  navItems: NavItem[];
+  navSections: NavSection[];
   children: React.ReactNode;
 }
 
-export function MainLayout({ navItems, children }: MainLayoutProps) {
+export function MainLayout({ navSections, children }: MainLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
   return (
@@ -24,7 +24,7 @@ export function MainLayout({ navItems, children }: MainLayoutProps) {
 
       <div className="flex">
         <AppSidebar
-          navItems={navItems}
+          navSections={navSections}
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
