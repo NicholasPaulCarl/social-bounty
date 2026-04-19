@@ -95,16 +95,16 @@ Sample: **"You posted. It landed. Here's your $62."** — *not* "Unlock the powe
 
 ---
 
-## IMPLEMENTATION STATUS (2026-04-18)
+## IMPLEMENTATION STATUS (2026-04-19)
 
 ### Done ✅
 - Token layer (`colors_and_type.css`, `components.css`) imported globally — tokens available everywhere.
 - Tailwind config re-exports canonical scales (`pink-*`, `blue-*`, `slate-*`, `reward-*`).
 - Legacy accent-* aliases codemoded to canonical names (90 files, commit `2431945`).
 - **All pages migrated** (branch `ui-ds-apply`, merged to main 2026-04-18): PrimeIcons replaced with Lucide across all three surfaces (marketing/auth, participant, business + admin). `grep -r "pi pi-" apps/web/src --include="*.tsx" | wc -l` → 0. Standalone blue removed from non-info surfaces. Off-spec Tailwind primitives eliminated. Metrics in mono. Eyebrow on stat sections. Card radii normalised. One gradient per view.
+- **`EmptyState.tsx` icon API** (commit `7dce09d`, 2026-04-19) — migrated from `icon?:string` (PrimeIcons suffix) to `Icon?:LucideIcon` / `CtaIcon?:LucideIcon`. Updated 27 call-sites. `grep -r "pi pi-" apps/web/src --include="*.tsx" | wc -l` → 0 globally.
 
 ### Deferred
-- **`EmptyState.tsx` icon API** — component still accepts `icon:string` (pi-* suffix); callers pass `"pi-users"`, `"pi-inbox"` etc. Needs a rework to accept `Icon:LucideIcon` and update ~20 call-sites. Not blocking because the rendered HTML still works via PrimeIcons' global class; it just means those empty states aren't fully Lucide yet.
 - **Dark-mode token layer** — `prefers-color-scheme: dark` overrides for `--slate-*` surfaces and `--bg-*` variables. Nice-to-have; not in MVP scope.
 - **Custom icon commission** — social brand glyphs (Instagram, Facebook, TikTok) are absent from Lucide 1.8 per trademark policy. Current stand-ins: `Camera` → Instagram, `ThumbsUp` → Facebook, `Music2` → TikTok. Replace when the brand-icon commission lands.
 - **Additional component classes** — modals, nav drawers, empty states not yet in `components.css`. Add as patterns stabilise.
