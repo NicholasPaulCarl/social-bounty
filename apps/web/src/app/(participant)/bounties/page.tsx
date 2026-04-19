@@ -1,195 +1,168 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 import { Paginator } from 'primereact/paginator';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
+import { Search, Inbox, X } from 'lucide-react';
 import { useBounties } from '@/hooks/useBounties';
-import { usePagination } from '@/hooks/usePagination';
+import { useBrowseFilters, mapSortToApi } from '@/hooks/useBrowseFilters';
 import { BountyCard } from '@/components/features/bounty/BountyCard';
-import { PageHeader } from '@/components/common/PageHeader';
-import { LoadingState } from '@/components/common/LoadingState';
+import { BountyCardSkeleton } from '@/components/features/bounty/BountyCardSkeleton';
+import { BountyListView } from '@/components/features/bounty/BountyListView';
+import { BrowseHero } from '@/components/features/bounty/BrowseHero';
+import { BrowseCategoryPills } from '@/components/features/bounty/BrowseCategoryPills';
+import { BrowseFilterBar } from '@/components/features/bounty/BrowseFilterBar';
+import { ActiveFilterChips } from '@/components/features/bounty/ActiveFilterChips';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
-import { Search } from 'lucide-react';
-import { StatusBadge } from '@/components/common/StatusBadge';
-import { formatCurrency, timeRemaining } from '@/lib/utils/format';
-import { BountyStatus, BOUNTY_CATEGORIES } from '@social-bounty/shared';
-import type { BountyListParams, BountyListItem, RewardType } from '@social-bounty/shared';
+import { BountyStatus, type BountyListItem } from '@social-bounty/shared';
 
-type LayoutMode = 'grid' | 'list';
+const PAGE_LIMIT = 12;
 
-const categories = [
-  { id: 'all', label: 'All' },
-  ...BOUNTY_CATEGORIES.map((c) => ({ id: c.id, label: c.name })),
-];
+/**
+ * Browse Bounties page — `/bounties`.
+ *
+ * Per the Claude Design handoff (`Browse Bounties.html` live prototype).
+ * Hierarchy top-to-bottom: gradient hero + meta strip → category pills →
+ * sticky filter bar → optional active-filter chips → results region (grid
+ * skeletons → grid → list → empty) → paginator.
+ *
+ * URL contract round-trips through `useBrowseFilters`: refresh / share /
+ * bookmark `/bounties?category=social-media&rewardType=CASH&sortBy=reward-high&view=list`
+ * and the page reloads in that exact state.
+ *
+ * Forward-compat meta clauses (`newToday` / `weekEarnings`) drop silently
+ * when the backend hasn't shipped them — the UI never lies about a "0".
+ */
+function BrowseBountiesContent() {
+  const f = useBrowseFilters();
+  const apiSort = mapSortToApi(f.filters.sortBy);
 
-const rewardTypeOptions = [
-  { label: 'All Types', value: '' },
-  { label: 'Cash', value: 'CASH' },
-  { label: 'Product', value: 'PRODUCT' },
-  { label: 'Service', value: 'SERVICE' },
-  { label: 'Other', value: 'OTHER' },
-];
-
-const sortOptions = [
-  { label: 'Newest', value: 'createdAt' },
-  { label: 'Reward (High)', value: 'rewardValue' },
-  { label: 'Ending Soon', value: 'ending_soon' },
-  { label: 'Title', value: 'title' },
-];
-
-export default function BrowseBountiesPage() {
-  const router = useRouter();
-  const { page, limit, first, onPageChange, resetPage } = usePagination(12);
-  const [layout, setLayout] = useState<LayoutMode>('grid');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [filters, setFilters] = useState<BountyListParams>({
-    page,
-    limit,
+  const { data, isLoading, error, refetch } = useBounties({
+    page: f.filters.page,
+    limit: PAGE_LIMIT,
     status: BountyStatus.LIVE,
-    sortBy: 'createdAt',
-    sortOrder: 'desc',
+    category: f.filters.category === 'all' ? undefined : f.filters.category,
+    rewardType: f.filters.rewardType === 'all' ? undefined : f.filters.rewardType,
+    sortBy: apiSort.sortBy,
+    sortOrder: apiSort.sortOrder,
+    search: f.filters.search || undefined,
   });
 
-  const categoryFilter = selectedCategory === 'all' ? undefined : selectedCategory;
-  const mergedFilters = { ...filters, page, limit, category: categoryFilter };
-  const { data, isLoading, error, refetch } = useBounties(mergedFilters);
-
-  const handleFilterChange = (key: string, value: string) => {
-    if (key === 'rewardType') setFilters({ ...filters, rewardType: (value || undefined) as RewardType, page: 1 });
-    else setFilters({ ...filters, [key]: value || undefined, page: 1 });
-    resetPage();
+  // Forward-compat meta — backend ticket pending. Drop clauses silently.
+  type MetaForwardCompat = {
+    total: number;
+    newToday?: number;
+    weekEarnings?: number;
   };
-
-  const handleCategoryChange = (catId: string) => {
-    setSelectedCategory(catId);
-    resetPage();
-  };
-
-  const hasActiveFilters = !!(filters.search || filters.rewardType || (filters.sortBy && filters.sortBy !== 'createdAt'));
-
-  // For ending_soon sort, sort client-side by endDate ascending and filter to only those with endDate
-  const sortedData = (() => {
-    if (!data?.data) return [];
-    if (filters.sortBy === 'ending_soon') {
-      return [...data.data]
-        .filter((b) => b.endDate)
-        .sort((a, b) => new Date(a.endDate!).getTime() - new Date(b.endDate!).getTime());
-    }
-    return data.data;
-  })();
+  const meta = (data?.meta ?? { total: 0 }) as MetaForwardCompat;
+  const bounties: BountyListItem[] = data?.data ?? [];
+  const hasFilters = f.activeChips.length > 0;
+  const isGrid = f.filters.view === 'grid';
 
   return (
     <>
-      <PageHeader
-        title="Browse bounties"
-        subtitle="Find bounties and earn rewards"
-        pills={{
-          items: categories,
-          activeId: selectedCategory,
-          onChange: handleCategoryChange,
-        }}
-        toolbar={{
-          search: {
-            value: filters.search || '',
-            onChange: (value) => {
-              setFilters({ ...filters, search: value || undefined, page: 1 });
-              resetPage();
-            },
-            placeholder: 'Search bounties...',
-          },
-          filters: [
-            { key: 'rewardType', placeholder: 'Reward Type', options: rewardTypeOptions, ariaLabel: 'Filter by reward type' },
-            { key: 'sortBy', placeholder: 'Sort By', options: sortOptions, ariaLabel: 'Sort bounties' },
-          ],
-          filterValues: {
-            rewardType: (filters.rewardType as string) || '',
-            sortBy: filters.sortBy || 'createdAt',
-          },
-          onFilterChange: handleFilterChange,
-          onClearFilters: () => {
-            setFilters({ page: 1, limit, status: BountyStatus.LIVE, sortBy: 'createdAt', sortOrder: 'desc' });
-            setSelectedCategory('all');
-            resetPage();
-          },
-          hasActiveFilters,
-          viewMode: layout,
-          onViewModeChange: setLayout,
-        }}
+      <BrowseHero
+        live={meta.total ?? 0}
+        newToday={meta.newToday}
+        earnings={meta.weekEarnings}
+        viewMode={f.filters.view}
+        onViewChange={f.setView}
       />
 
-      {/* Main content area with fade-up animation */}
-      <div className="animate-fade-up">
-        {isLoading && <LoadingState type={layout === 'grid' ? 'cards-grid' : 'table'} cards={6} />}
+      <div className="mb-3 sm:mb-4">
+        <BrowseCategoryPills value={f.filters.category} onChange={f.setCategory} />
+      </div>
 
-        {error && <ErrorState error={error} onRetry={() => refetch()} />}
+      <BrowseFilterBar
+        search={f.searchInput}
+        onSearchChange={f.setSearch}
+        rewardType={f.filters.rewardType}
+        onRewardTypeChange={f.setRewardType}
+        sortBy={f.filters.sortBy}
+        onSortByChange={f.setSortBy}
+        hasActiveFilters={hasFilters}
+        onClearAll={f.clearAll}
+      />
 
-        {!isLoading && !error && sortedData.length === 0 && (
+      {hasFilters && (
+        <div className="pt-3 sm:pt-4">
+          <ActiveFilterChips chips={f.activeChips} onRemove={f.removeChip} />
+        </div>
+      )}
+
+      <div className="pb-7 pt-4 sm:pt-5">
+        {isLoading && (
+          <div
+            className={
+              isGrid
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
+                : 'grid grid-cols-1 gap-3'
+            }
+          >
+            {Array.from({ length: 6 }).map((_, i) => (
+              <BountyCardSkeleton key={i} />
+            ))}
+          </div>
+        )}
+
+        {!isLoading && error && <ErrorState error={error as Error} onRetry={() => refetch()} />}
+
+        {!isLoading && !error && bounties.length === 0 && (
           <EmptyState
-            Icon={Search}
-            title="No bounties in sight"
-            message="Fresh hunts get added daily — adjust your filters or check back soon."
-            ctaLabel="Clear filters"
-            ctaAction={() => {
-              setFilters({ page: 1, limit, status: BountyStatus.LIVE });
-              setSelectedCategory('all');
-            }}
+            Icon={hasFilters ? Search : Inbox}
+            title={hasFilters ? 'No bounties match' : 'Nothing live right now'}
+            message={
+              hasFilters
+                ? 'Try a wider category or different reward type.'
+                : 'Fresh hunts get added daily — check back soon.'
+            }
+            ctaLabel={hasFilters ? 'Clear filters' : undefined}
+            ctaAction={hasFilters ? f.clearAll : undefined}
+            CtaIcon={hasFilters ? X : undefined}
           />
         )}
 
-        {!isLoading && !error && sortedData.length > 0 && (
+        {!isLoading && !error && bounties.length > 0 && (
           <>
-            {layout === 'grid' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sortedData.map((bounty) => (
+            {isGrid ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {bounties.map((bounty) => (
                   <BountyCard key={bounty.id} bounty={bounty} />
                 ))}
               </div>
             ) : (
-              <div className="glass-card overflow-x-auto">
-                <DataTable
-                  value={sortedData}
-                  onRowClick={(e) => router.push(`/bounties/${(e.data as BountyListItem).id}`)}
-                  rowClassName={() => 'cursor-pointer'}
-                  aria-label="Bounties table"
-                  scrollable
-                  className="min-w-[600px]"
-                >
-                  <Column field="title" header="Title" />
-                  <Column
-                    header="Status"
-                    body={(row: BountyListItem) => <StatusBadge type="bounty" value={row.status} size="small" />}
-                  />
-                  <Column field="category" header="Category" />
-                  <Column
-                    header="Reward"
-                    body={(row: BountyListItem) => (
-                      <span className="font-mono tabular-nums">
-                        {row.rewardValue ? formatCurrency(row.rewardValue, row.currency) : '-'}
-                      </span>
-                    )}
-                  />
-                  <Column
-                    header="Deadline"
-                    body={(row: BountyListItem) => row.endDate ? timeRemaining(row.endDate) : 'No deadline'}
-                  />
-                  <Column field="submissionCount" header="Submissions" />
-                </DataTable>
-              </div>
+              <BountyListView bounties={bounties} />
             )}
 
-            <Paginator
-              first={first}
-              rows={limit}
-              totalRecords={data?.meta.total ?? 0}
-              onPageChange={onPageChange}
-              className="mt-6"
-            />
+            {meta.total > PAGE_LIMIT && (
+              <div className="mt-5 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
+                <span
+                  className="font-mono tabular-nums text-text-muted"
+                  style={{ fontSize: 12 }}
+                >
+                  {Math.min(bounties.length + (f.filters.page - 1) * PAGE_LIMIT, meta.total)} of{' '}
+                  {meta.total} results
+                </span>
+                <Paginator
+                  first={(f.filters.page - 1) * PAGE_LIMIT}
+                  rows={PAGE_LIMIT}
+                  totalRecords={meta.total}
+                  onPageChange={(e) => f.setPage(e.page + 1)}
+                />
+              </div>
+            )}
           </>
         )}
       </div>
     </>
+  );
+}
+
+export default function BrowseBountiesPage() {
+  // `useSearchParams` requires a Suspense boundary in the App Router.
+  return (
+    <Suspense fallback={null}>
+      <BrowseBountiesContent />
+    </Suspense>
   );
 }

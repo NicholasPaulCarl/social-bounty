@@ -1386,6 +1386,31 @@ input.p-inputtext,
   100% { background-position: 200% 0; }
 }
 
+/* sk-shimmer — used by BountyCardSkeleton bars (Browse Bounties).
+   Mirrors the Claude Design handoff: gradient slides 200% → -200%
+   so each shimmer bar reads left-to-right against slate-100/200. */
+@keyframes sk-shimmer {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Browse-page BountyCard hover — pulls the card up 2px and adds a
+   pink-200 outline + branded shadow, exactly matching the Claude
+   Design handoff (`Browse Bounties.html` lines 17–21). The card
+   element carries `.bounty-card`; we keep this rule global so it
+   stays out of the per-card render loop. */
+.bounty-card {
+  transition:
+    transform var(--duration-normal) var(--ease-standard),
+    box-shadow var(--duration-normal) var(--ease-standard),
+    border-color var(--duration-normal) var(--ease-standard);
+}
+.bounty-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(219, 39, 119, 0.12), 0 0 0 1px var(--pink-100);
+  border-color: var(--pink-200);
+}
+
 @keyframes slide-in-right {
   from {
     opacity: 0;
