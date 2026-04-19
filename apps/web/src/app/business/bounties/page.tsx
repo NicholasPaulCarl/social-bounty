@@ -1,284 +1,336 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
-import { Plus, Eye, Pencil, Play, Pause, XCircle, Undo2, Trash2, Megaphone } from 'lucide-react';
+import { Inbox, Plus, Search, X } from 'lucide-react';
 import { useBounties, useDeleteBounty } from '@/hooks/useBounties';
-import { bountyApi } from '@/lib/api/bounties';
-import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
-import { usePagination } from '@/hooks/usePagination';
+import { useManageFilters, mapManageSortToApi } from '@/hooks/useManageFilters';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
-import { PageHeader } from '@/components/common/PageHeader';
-import { LoadingState } from '@/components/common/LoadingState';
+import { bountyApi } from '@/lib/api/bounties';
+import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
+import { BountyManageCard } from '@/components/features/bounty/BountyManageCard';
+import { BountyCardSkeleton } from '@/components/features/bounty/BountyCardSkeleton';
+import { BusinessBountyListView } from '@/components/features/bounty/BusinessBountyListView';
+import { BountyManageActions, type ManageStatusAction } from '@/components/features/bounty/BountyManageActions';
+import { ManageHero } from '@/components/features/bounty/ManageHero';
+import { BountyStatusPills } from '@/components/features/bounty/BountyStatusPills';
+import { BrowseFilterBar } from '@/components/features/bounty/BrowseFilterBar';
+import { ActiveFilterChips } from '@/components/features/bounty/ActiveFilterChips';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
-import { StatusBadge } from '@/components/common/StatusBadge';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
-import { PaymentDialog } from '@/components/payment/PaymentDialog';
-import { formatDate, formatCurrency, formatEnumLabel } from '@/lib/utils/format';
-import { BountyStatus, PaymentStatus } from '@social-bounty/shared';
-import type { BountyListParams, BountyListItem, RewardType } from '@social-bounty/shared';
+import { formatEnumLabel } from '@/lib/utils/format';
+import { BountyStatus, PaymentStatus, type BountyListItem } from '@social-bounty/shared';
 
-const statusTabs = [
-  { label: 'All', value: undefined as BountyStatus | undefined },
-  { label: 'Draft', value: BountyStatus.DRAFT },
-  { label: 'Live', value: BountyStatus.LIVE },
-  { label: 'Paused', value: BountyStatus.PAUSED },
-  { label: 'Closed', value: BountyStatus.CLOSED },
-];
+const PAGE_LIMIT = 12;
 
-const rewardTypeOptions = [
-  { label: 'All Types', value: '' },
-  { label: 'Cash', value: 'CASH' },
-  { label: 'Product', value: 'PRODUCT' },
-  { label: 'Service', value: 'SERVICE' },
-  { label: 'Other', value: 'OTHER' },
-];
-
-const sortOptions = [
-  { label: 'Newest', value: 'createdAt' },
-  { label: 'Reward (High)', value: 'rewardValue' },
-  { label: 'Ending Soon', value: 'ending_soon' },
-  { label: 'Title', value: 'title' },
-];
-
-export default function BusinessBountiesPage() {
+/**
+ * Manage Bounties page — `/business/bounties`.
+ *
+ * Sibling of the hunter `/bounties` Browse page, sharing the visual
+ * language but tuned for the brand workflow:
+ *
+ *   gradient hero (Manage bounties · counts · view toggle · Create CTA)
+ *   → status pills (All · Draft · Live · Paused · Closed)
+ *   → sticky filter bar (search · reward · sort · clear)
+ *   → optional active-filter chips
+ *   → results: skeleton → grid (manage card + actions footer) →
+ *     list (DataTable) → empty
+ *   → paginator
+ *
+ * URL contract round-trips through `useManageFilters`: every filter is
+ * shareable / bookmarkable / reload-safe at
+ * `/business/bounties?status=DRAFT&rewardType=CASH&sortBy=reward-high&view=list`.
+ *
+ * Per-status counts are fired as four lightweight `limit:1` queries in
+ * parallel; each shares the existing `useBounties` cache key so navigating
+ * between status tabs reuses the data.
+ */
+function BusinessBountiesContent() {
   const router = useRouter();
   const toast = useToast();
-  const { page, limit, first, onPageChange } = usePagination();
   const { user } = useAuth();
-  const [filters, setFilters] = useState<BountyListParams>({ page, limit });
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const f = useManageFilters();
+  const apiSort = mapManageSortToApi(f.filters.sortBy);
+
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [statusAction, setStatusAction] = useState<{ id: string; newStatus: string; label: string } | null>(null);
-  const [paymentBounty, setPaymentBounty] = useState<BountyListItem | null>(null);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [showPayment, setShowPayment] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [statusAction, setStatusAction] = useState<{
+    bounty: BountyListItem;
+    action: ManageStatusAction;
+  } | null>(null);
+  const [paymentBountyId, setPaymentBountyId] = useState<string | null>(null);
 
-  const statusFilter = statusTabs[activeTabIndex].value;
-  const { data, isLoading, error, refetch } = useBounties({ ...filters, page, limit, status: statusFilter });
+  const statusParam = f.filters.status === 'all' ? undefined : f.filters.status;
+
+  const { data, isLoading, error, refetch } = useBounties({
+    page: f.filters.page,
+    limit: PAGE_LIMIT,
+    status: statusParam,
+    rewardType: f.filters.rewardType === 'all' ? undefined : f.filters.rewardType,
+    sortBy: apiSort.sortBy,
+    sortOrder: apiSort.sortOrder,
+    search: f.filters.search || undefined,
+  });
+
+  // Per-status counts — four lightweight queries running in parallel.
+  // React Query dedupes them by key so re-renders are cheap.
+  const live = useBounties({ page: 1, limit: 1, status: BountyStatus.LIVE });
+  const draft = useBounties({ page: 1, limit: 1, status: BountyStatus.DRAFT });
+  const paused = useBounties({ page: 1, limit: 1, status: BountyStatus.PAUSED });
+  const closed = useBounties({ page: 1, limit: 1, status: BountyStatus.CLOSED });
+
+  const statusCounts = {
+    live: live.data?.meta.total,
+    draft: draft.data?.meta.total,
+    paused: paused.data?.meta.total,
+    closed: closed.data?.meta.total,
+  };
+
   const deleteBounty = useDeleteBounty();
+  const bounties: BountyListItem[] = data?.data ?? [];
+  const totalForFilter = data?.meta.total ?? 0;
+  const hasActiveFilters = f.activeChips.length > 0;
+  const isGrid = f.filters.view === 'grid';
 
-  const handleDelete = () => {
+  // ── Action handlers ────────────────────────────────────────────────────
+
+  const refreshAll = () => {
+    refetch();
+    live.refetch();
+    draft.refetch();
+    paused.refetch();
+    closed.refetch();
+  };
+
+  const handleView = (bounty: BountyListItem) =>
+    router.push(`/business/bounties/${bounty.id}`);
+
+  const handleEdit = (bounty: BountyListItem) =>
+    router.push(`/business/bounties/${bounty.id}/edit`);
+
+  const handleStatusActionTap = (bounty: BountyListItem, action: ManageStatusAction) =>
+    setStatusAction({ bounty, action });
+
+  const handleDeleteTap = (bounty: BountyListItem) => setDeleteId(bounty.id);
+
+  const handleDeleteConfirm = () => {
     if (!deleteId) return;
     deleteBounty.mutate(deleteId, {
       onSuccess: () => {
         toast.showSuccess('Bounty removed.');
         setDeleteId(null);
-        refetch();
+        refreshAll();
       },
-      onError: () => toast.showError('Couldn\'t delete bounty. Try again.'),
+      onError: () => toast.showError("Couldn't delete bounty. Try again."),
     });
   };
 
-  const handleStatusChange = async (id: string, newStatus: string, bountyItem?: BountyListItem) => {
-    // For DRAFT -> LIVE, require payment first — route to Stitch hosted checkout.
-    if (bountyItem && bountyItem.status === 'DRAFT' && newStatus === 'LIVE' && bountyItem.paymentStatus !== PaymentStatus.PAID) {
+  const handleStatusConfirm = async () => {
+    if (!statusAction) return;
+    const { bounty, action } = statusAction;
+
+    // DRAFT → LIVE requires payment first; route through Stitch hosted checkout.
+    if (
+      bounty.status === BountyStatus.DRAFT &&
+      action.status === BountyStatus.LIVE &&
+      bounty.paymentStatus !== PaymentStatus.PAID
+    ) {
       setStatusAction(null);
-      setPaymentLoading(true);
+      setPaymentBountyId(bounty.id);
       try {
-        const payerName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim().slice(0, 40) || 'Brand Admin';
-        const { hostedUrl } = await bountyApi.fundBounty(id, {
+        const payerName =
+          `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim().slice(0, 40) || 'Brand Admin';
+        const { hostedUrl } = await bountyApi.fundBounty(bounty.id, {
           payerName,
           payerEmail: user?.email,
         });
-        redirectToHostedCheckout(hostedUrl, id, {
+        redirectToHostedCheckout(hostedUrl, bounty.id, {
           onDevNotice: (msg) => toast.showInfo(msg),
         });
-        // paymentLoading cleared by the finally block below.
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Couldn\'t start funding. Try again.';
+        const message =
+          err instanceof Error ? err.message : "Couldn't start funding. Try again.";
         toast.showError(message);
       } finally {
-        setPaymentLoading(false);
+        setPaymentBountyId(null);
       }
       return;
     }
 
-    bountyApi.updateStatus(id, { status: newStatus as BountyStatus })
+    bountyApi
+      .updateStatus(bounty.id, { status: action.status })
       .then(() => {
-        toast.showSuccess(`Bounty is now ${formatEnumLabel(newStatus)}.`);
+        toast.showSuccess(`Bounty is now ${formatEnumLabel(action.status)}.`);
         setStatusAction(null);
-        refetch();
+        refreshAll();
       })
-      .catch(() => toast.showError('Couldn\'t update status. Try again.'));
+      .catch(() => toast.showError("Couldn't update status. Try again."));
   };
 
-  const handlePaymentSuccess = () => {
-    if (!paymentBounty) return;
-    setShowPayment(false);
-    setClientSecret(null);
-    bountyApi.updateStatus(paymentBounty.id, { status: BountyStatus.LIVE })
-      .then(() => {
-        toast.showSuccess('Payment successful! Bounty is now live.');
-        setPaymentBounty(null);
-        refetch();
-      })
-      .catch(() => toast.showError('Payment went through but couldn\'t update status. Try again.'));
-  };
-
-  const getStatusActions = (rowData: BountyListItem) => {
-    const actions: { label: string; status: string; Icon: typeof Play; severity: string }[] = [];
-    switch (rowData.status) {
-      case 'DRAFT':
-        actions.push({ label: 'Publish', status: 'LIVE', Icon: Play, severity: 'success' });
-        break;
-      case 'LIVE':
-        actions.push({ label: 'Pause', status: 'PAUSED', Icon: Pause, severity: 'warning' });
-        actions.push({ label: 'Close', status: 'CLOSED', Icon: XCircle, severity: 'danger' });
-        break;
-      case 'PAUSED':
-        actions.push({ label: 'Resume', status: 'LIVE', Icon: Play, severity: 'success' });
-        actions.push({ label: 'Close', status: 'CLOSED', Icon: XCircle, severity: 'danger' });
-        actions.push({ label: 'Revert to draft', status: 'DRAFT', Icon: Undo2, severity: 'secondary' });
-        break;
-    }
-    return actions;
-  };
-
-  if (isLoading) return <LoadingState type="table" />;
-  if (error) return <ErrorState error={error} onRetry={() => refetch()} />;
-
-  const statusTemplate = (rowData: BountyListItem) => (
-    <StatusBadge type="bounty" value={rowData.status} />
-  );
-
-  const rewardTemplate = (rowData: BountyListItem) => (
-    <span className="font-mono tabular-nums">{formatCurrency(rowData.rewardValue, rowData.currency)}</span>
-  );
-
-  const dateTemplate = (rowData: BountyListItem) => (
-    <span className="font-mono tabular-nums">{formatDate(rowData.createdAt)}</span>
-  );
-
-  const actionsTemplate = (rowData: BountyListItem) => {
-    const statusActions = getStatusActions(rowData);
+  // ── Hero meta — single-clause when filtered, full breakdown on All ────
+  const filteredLabel = (() => {
+    if (f.filters.status === 'all') return null;
     return (
-      <div className="flex gap-1 items-center">
-        <Button
-          icon={<Eye size={18} strokeWidth={2} />}
-          rounded
-          text
-          severity="secondary"
-          onClick={() => router.push(`/business/bounties/${rowData.id}`)}
-          tooltip="View"
-        />
-        <Button
-          icon={<Pencil size={18} strokeWidth={2} />}
-          rounded
-          text
-          severity="secondary"
-          onClick={() => router.push(`/business/bounties/${rowData.id}/edit`)}
-          tooltip="Edit"
-        />
-        {statusActions.map((action) => (
-          <Button
-            key={action.status}
-            icon={<action.Icon size={18} strokeWidth={2} />}
-            rounded
-            text
-            severity={action.severity as 'success' | 'warning' | 'danger' | 'secondary'}
-            onClick={() => setStatusAction({ id: rowData.id, newStatus: action.status, label: action.label })}
-            tooltip={action.label}
-            loading={action.status === 'LIVE' && rowData.status === 'DRAFT' && paymentLoading && paymentBounty?.id === rowData.id}
-          />
-        ))}
-        {rowData.status === 'DRAFT' && (
-          <Button
-            icon={<Trash2 size={18} strokeWidth={2} />}
-            rounded
-            text
-            severity="danger"
-            onClick={() => setDeleteId(rowData.id)}
-            tooltip="Delete"
-          />
-        )}
-      </div>
+      <span>
+        <span
+          className="font-mono tabular-nums text-text-primary"
+          style={{ fontWeight: 600 }}
+        >
+          {totalForFilter}
+        </span>{' '}
+        {f.statusLabel[f.filters.status].toLowerCase()}
+      </span>
     );
-  };
-
-  const hasActiveFilters = !!(filters.search || filters.rewardType || (filters.sortBy && filters.sortBy !== 'createdAt'));
+  })();
 
   return (
-    <div className="animate-fade-up">
-      <PageHeader
-        title="Bounties"
-        subtitle="Manage your brand's bounties"
-        actions={
-          <Button label="Create bounty" icon={<Plus size={18} strokeWidth={2} />} onClick={() => router.push('/business/bounties/new')} />
-        }
-        tabs={{
-          items: statusTabs.map((tab) => ({ label: tab.label })),
-          activeIndex: activeTabIndex,
-          onChange: (index) => setActiveTabIndex(index),
-        }}
-        toolbar={{
-          search: {
-            value: filters.search || '',
-            onChange: (value) => setFilters({ ...filters, search: value || undefined, page: 1 }),
-            placeholder: 'Search bounties...',
-          },
-          filters: [
-            { key: 'rewardType', placeholder: 'Reward Type', options: rewardTypeOptions, ariaLabel: 'Filter by reward type' },
-            { key: 'sortBy', placeholder: 'Sort By', options: sortOptions, ariaLabel: 'Sort bounties' },
-          ],
-          filterValues: {
-            rewardType: (filters.rewardType as string) || '',
-            sortBy: filters.sortBy || 'createdAt',
-          },
-          onFilterChange: (key, value) => {
-            if (key === 'rewardType') setFilters({ ...filters, rewardType: (value || undefined) as RewardType, page: 1 });
-            else setFilters({ ...filters, [key]: value || undefined, page: 1 });
-          },
-          onClearFilters: () => setFilters({ page: 1, limit }),
-          hasActiveFilters,
-        }}
+    <>
+      <ManageHero
+        statusCounts={f.filters.status === 'all' ? statusCounts : undefined}
+        extraMeta={filteredLabel}
+        viewMode={f.filters.view}
+        onViewChange={f.setView}
+        onCreate={() => router.push('/business/bounties/new')}
       />
 
-      {data && data.data.length > 0 ? (
-        <>
-          <div className="glass-card p-6 overflow-x-auto">
-            <DataTable value={data.data} stripedRows className="min-w-[700px]">
-              <Column field="title" header="Title" sortable />
-              <Column header="Status" body={statusTemplate} />
-              <Column header="Reward" body={rewardTemplate} />
-              <Column field="submissionCount" header="Submissions" />
-              <Column header="Created" body={dateTemplate} />
-              <Column header="Actions" body={actionsTemplate} style={{ width: '18rem' }} />
-            </DataTable>
-          </div>
-          <Paginator
-            first={first}
-            rows={limit}
-            totalRecords={data.meta.total}
-            onPageChange={onPageChange}
-            className="mt-4"
-          />
-        </>
-      ) : (
-        <EmptyState
-          Icon={Megaphone}
-          title="No bounties yet"
-          message="Drop your first bounty and watch the Hunters roll in."
-          ctaLabel="Create Bounty"
-          ctaAction={() => router.push('/business/bounties/new')}
-        />
+      <div className="mb-3 sm:mb-4">
+        <BountyStatusPills value={f.filters.status} onChange={f.setStatus} />
+      </div>
+
+      <BrowseFilterBar
+        search={f.searchInput}
+        onSearchChange={f.setSearch}
+        rewardType={f.filters.rewardType}
+        onRewardTypeChange={f.setRewardType}
+        sortBy={f.filters.sortBy}
+        onSortByChange={f.setSortBy}
+        hasActiveFilters={hasActiveFilters}
+        onClearAll={f.clearAll}
+      />
+
+      {hasActiveFilters && (
+        <div className="pt-3 sm:pt-4">
+          <ActiveFilterChips chips={f.activeChips} onRemove={f.removeChip} />
+        </div>
       )}
+
+      <div className="pb-7 pt-4 sm:pt-5">
+        {isLoading && (
+          <div
+            className={
+              isGrid
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
+                : 'grid grid-cols-1 gap-3'
+            }
+          >
+            {Array.from({ length: 6 }).map((_, i) => (
+              <BountyCardSkeleton key={i} />
+            ))}
+          </div>
+        )}
+
+        {!isLoading && error && (
+          <ErrorState error={error as Error} onRetry={() => refreshAll()} />
+        )}
+
+        {!isLoading && !error && bounties.length === 0 && (
+          <EmptyState
+            Icon={hasActiveFilters || f.filters.status !== 'all' ? Search : Inbox}
+            title={
+              hasActiveFilters || f.filters.status !== 'all'
+                ? 'No bounties match'
+                : 'No bounties yet'
+            }
+            message={
+              hasActiveFilters || f.filters.status !== 'all'
+                ? 'Try a wider status or different reward type.'
+                : "Drop your first bounty and watch the Hunters roll in."
+            }
+            ctaLabel={
+              hasActiveFilters || f.filters.status !== 'all'
+                ? 'Clear filters'
+                : 'Create bounty'
+            }
+            ctaAction={
+              hasActiveFilters || f.filters.status !== 'all'
+                ? () => {
+                    f.clearAll();
+                    if (f.filters.status !== 'all') f.setStatus('all');
+                  }
+                : () => router.push('/business/bounties/new')
+            }
+            CtaIcon={
+              hasActiveFilters || f.filters.status !== 'all' ? X : Plus
+            }
+          />
+        )}
+
+        {!isLoading && !error && bounties.length > 0 && (
+          <>
+            {isGrid ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {bounties.map((bounty) => (
+                  <BountyManageCard
+                    key={bounty.id}
+                    bounty={bounty}
+                    footer={
+                      <BountyManageActions
+                        bounty={bounty}
+                        onView={handleView}
+                        onEdit={handleEdit}
+                        onStatusChange={handleStatusActionTap}
+                        onDelete={handleDeleteTap}
+                        paymentLoading={paymentBountyId === bounty.id}
+                      />
+                    }
+                  />
+                ))}
+              </div>
+            ) : (
+              <BusinessBountyListView
+                bounties={bounties}
+                onView={handleView}
+                onEdit={handleEdit}
+                onStatusChange={handleStatusActionTap}
+                onDelete={handleDeleteTap}
+                paymentBountyId={paymentBountyId}
+              />
+            )}
+
+            {totalForFilter > PAGE_LIMIT && (
+              <div className="mt-5 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
+                <span
+                  className="font-mono tabular-nums text-text-muted"
+                  style={{ fontSize: 12 }}
+                >
+                  {Math.min(
+                    bounties.length + (f.filters.page - 1) * PAGE_LIMIT,
+                    totalForFilter,
+                  )}{' '}
+                  of {totalForFilter} results
+                </span>
+                <Paginator
+                  first={(f.filters.page - 1) * PAGE_LIMIT}
+                  rows={PAGE_LIMIT}
+                  totalRecords={totalForFilter}
+                  onPageChange={(e) => f.setPage(e.page + 1)}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       <ConfirmAction
         visible={!!deleteId}
         onHide={() => setDeleteId(null)}
-        title="Delete Bounty"
+        title="Delete bounty"
         message="Are you sure you want to delete this bounty? This action cannot be undone."
         confirmLabel="Delete"
         confirmSeverity="danger"
-        onConfirm={handleDelete}
+        onConfirm={handleDeleteConfirm}
         loading={deleteBounty.isPending}
       />
 
@@ -286,31 +338,33 @@ export default function BusinessBountiesPage() {
         <ConfirmAction
           visible
           onHide={() => setStatusAction(null)}
-          title={`${statusAction.label} Bounty`}
+          title={`${statusAction.action.label} bounty`}
           message={
-            statusAction.newStatus === 'CLOSED'
+            statusAction.action.status === BountyStatus.CLOSED
               ? 'Are you sure you want to close this bounty? This action cannot be undone.'
-              : `Are you sure you want to ${statusAction.label.toLowerCase()} this bounty?`
+              : `Are you sure you want to ${statusAction.action.label.toLowerCase()} this bounty?`
           }
-          confirmLabel={`Yes, ${statusAction.label}`}
-          confirmSeverity={statusAction.newStatus === 'CLOSED' ? 'danger' : statusAction.newStatus === 'PAUSED' ? 'warning' : 'success'}
-          onConfirm={() => {
-            const bountyItem = data?.data.find((b) => b.id === statusAction.id);
-            handleStatusChange(statusAction.id, statusAction.newStatus, bountyItem);
-          }}
+          confirmLabel={`Yes, ${statusAction.action.label.toLowerCase()}`}
+          confirmSeverity={
+            statusAction.action.status === BountyStatus.CLOSED
+              ? 'danger'
+              : statusAction.action.status === BountyStatus.PAUSED
+                ? 'warning'
+                : 'success'
+          }
+          onConfirm={handleStatusConfirm}
         />
       )}
 
-      {clientSecret && paymentBounty && (
-        <PaymentDialog
-          visible={showPayment}
-          onHide={() => { setShowPayment(false); setClientSecret(null); setPaymentBounty(null); }}
-          clientSecret={clientSecret}
-          amount={paymentBounty.rewardValue ?? '0'}
-          currency={paymentBounty.currency}
-          onSuccess={handlePaymentSuccess}
-        />
-      )}
-    </div>
+    </>
+  );
+}
+
+export default function BusinessBountiesPage() {
+  // `useSearchParams` requires a Suspense boundary in the App Router.
+  return (
+    <Suspense fallback={null}>
+      <BusinessBountiesContent />
+    </Suspense>
   );
 }
