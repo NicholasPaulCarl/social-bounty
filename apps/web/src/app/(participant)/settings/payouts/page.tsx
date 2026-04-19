@@ -9,7 +9,7 @@ import { Message } from 'primereact/message';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
-import { Check, RefreshCw } from 'lucide-react';
+import { Check, RefreshCw, Wallet } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import { payoutsApi } from '@/lib/api/payouts';
 import { useMyPayouts } from '@/hooks/usePayouts';
@@ -201,7 +201,7 @@ export default function ParticipantPayoutsPage() {
           <ErrorState error={payouts.error as Error} onRetry={() => payouts.refetch()} />
         ) : !payouts.data || payouts.data.length === 0 ? (
           <EmptyState
-            icon="pi-wallet"
+            Icon={Wallet}
             title="No payouts yet"
             message="No payouts yet. Once your earnings clear and you have banking captured, payouts run every 10 minutes."
           />

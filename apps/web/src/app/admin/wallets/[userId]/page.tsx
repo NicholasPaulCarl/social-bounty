@@ -12,7 +12,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { formatCurrency, formatDateTime } from '@/lib/utils/format';
-import { AlertTriangle, Check, Pencil } from 'lucide-react';
+import { AlertTriangle, Check, Pencil, List } from 'lucide-react';
 import { WalletTxType } from '@social-bounty/shared';
 import type { WalletTransactionListItem } from '@social-bounty/shared';
 
@@ -115,7 +115,7 @@ export default function AdminWalletDetailPage({ params }: Props) {
         <div className="lg:col-span-2">
           <h2 className="text-base font-semibold text-text-primary mb-4">Recent Transactions</h2>
           {recentTransactions.length === 0 ? (
-            <EmptyState icon="pi-list" title="No transactions" message="This wallet has no transactions yet." />
+            <EmptyState Icon={List} title="No transactions" message="This wallet has no transactions yet." />
           ) : (
             <div className="glass-card overflow-x-auto">
               <DataTable

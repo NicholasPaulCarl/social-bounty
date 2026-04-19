@@ -6,7 +6,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Paginator } from 'primereact/paginator';
 import { Button } from 'primereact/button';
-import { Clock, Eye, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
+import { Clock, Eye, AlertTriangle, CheckCircle2, XCircle, Inbox } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useReviewQueue } from '@/hooks/useSubmissions';
 import { usePagination } from '@/hooks/usePagination';
@@ -171,7 +171,7 @@ export default function ReviewCenterPage() {
 
       {!isLoading && !error && data && data.data.length === 0 && (
         <EmptyState
-          icon="pi-inbox"
+          Icon={Inbox}
           title="All caught up!"
           message="New submissions will appear here when Hunters drop their proof."
         />

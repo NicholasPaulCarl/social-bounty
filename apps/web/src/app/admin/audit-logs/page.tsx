@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
+import { History } from 'lucide-react';
 import { formatDateTime } from '@/lib/utils/format';
 import type { AuditLogListItem, AuditLogListParams } from '@social-bounty/shared';
 
@@ -124,7 +125,7 @@ export default function AdminAuditLogsPage() {
           />
         </>
       ) : (
-        <EmptyState icon="pi-history" title="No activity" message="No audit entries match your filters." />
+        <EmptyState Icon={History} title="No activity" message="No audit entries match your filters." />
       )}
     </div>
   );

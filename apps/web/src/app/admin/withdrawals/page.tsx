@@ -14,6 +14,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
+import { Banknote } from 'lucide-react';
 import { formatCurrency, formatDate, formatPayoutMethod, formatEnumLabel } from '@/lib/utils/format';
 import { WithdrawalStatus } from '@social-bounty/shared';
 import type { AdminWithdrawalListItem } from '@social-bounty/shared';
@@ -158,7 +159,7 @@ export default function AdminWithdrawalsPage() {
       {error && <ErrorState error={error} onRetry={() => refetch()} />}
 
       {!isLoading && !error && withdrawals.length === 0 && (
-        <EmptyState icon="pi-money-bill" title="No payouts pending" message="All squared up — no withdrawal requests in this view." />
+        <EmptyState Icon={Banknote} title="No payouts pending" message="All squared up — no withdrawal requests in this view." />
       )}
 
       {!isLoading && !error && withdrawals.length > 0 && (

@@ -14,7 +14,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDate, formatCurrency } from '@/lib/utils/format';
-import { Eye } from 'lucide-react';
+import { Eye, Megaphone } from 'lucide-react';
 import type { BountyListParams, BountyListItem, BountyStatus, RewardType } from '@social-bounty/shared';
 
 const statusOptions = [
@@ -128,7 +128,7 @@ export default function AdminBountiesPage() {
           />
         </>
       ) : (
-        <EmptyState icon="pi-megaphone" title="No bounties found" message="Nothing matches your current filters." />
+        <EmptyState Icon={Megaphone} title="No bounties found" message="Nothing matches your current filters." />
       )}
     </>
   );

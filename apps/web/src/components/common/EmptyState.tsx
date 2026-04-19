@@ -1,31 +1,31 @@
 'use client';
 
+import { Inbox } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Button } from 'primereact/button';
 
 interface EmptyStateProps {
-  icon?: string;
+  Icon?: LucideIcon;
   title: string;
   message?: string;
   ctaLabel?: string;
   ctaAction?: () => void;
-  ctaIcon?: string;
+  CtaIcon?: LucideIcon;
 }
 
 export function EmptyState({
-  icon = 'pi-inbox',
+  Icon = Inbox,
   title,
   message,
   ctaLabel,
   ctaAction,
-  ctaIcon,
+  CtaIcon,
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-10 sm:py-16 px-4">
       <div className="relative">
         <div className="absolute inset-0 bg-pink-600/10 blur-2xl rounded-full" />
-        <i
-          className={`pi ${icon} text-text-muted relative text-[2rem] sm:text-[3rem]`}
-        />
+        <Icon size={48} strokeWidth={2} className="text-text-muted relative" />
       </div>
       <h3 className="text-base sm:text-lg font-heading font-semibold text-text-primary mt-4 sm:mt-6">
         {title}
@@ -36,7 +36,7 @@ export function EmptyState({
       {ctaLabel && ctaAction && (
         <Button
           label={ctaLabel}
-          icon={ctaIcon ? `pi ${ctaIcon}` : undefined}
+          icon={CtaIcon ? <CtaIcon size={16} strokeWidth={2} /> : undefined}
           outlined
           className="mt-4 sm:mt-6"
           onClick={ctaAction}

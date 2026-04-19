@@ -6,7 +6,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Paginator } from 'primereact/paginator';
 import { Button } from 'primereact/button';
-import { Plus } from 'lucide-react';
+import { Plus, Flag } from 'lucide-react';
 import { useMyDisputes } from '@/hooks/useDisputes';
 import { usePagination } from '@/hooks/usePagination';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -61,12 +61,12 @@ export default function MyDisputesPage() {
 
       {!isLoading && !error && data && data.data.length === 0 && (
         <EmptyState
-          icon="pi-flag"
+          Icon={Flag}
           title="All clear"
           message="No disputes on file. We've got your back if you ever need one."
           ctaLabel="File a dispute"
           ctaAction={() => router.push('/my-disputes/new')}
-          ctaIcon="pi-plus"
+          CtaIcon={Plus}
         />
       )}
 

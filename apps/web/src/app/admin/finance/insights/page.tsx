@@ -7,7 +7,7 @@ import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Message } from 'primereact/message';
-import { RefreshCw, AlertTriangle } from 'lucide-react';
+import { RefreshCw, AlertTriangle, LineChart } from 'lucide-react';
 import {
   useAdminVisibilityAnalytics,
   useConfidenceScores,
@@ -253,7 +253,7 @@ export default function FinanceInsightsPage() {
         <ErrorState error={error as Error} onRetry={() => refetch()} />
       ) : scores.length === 0 ? (
         <EmptyState
-          icon="pi-chart-line"
+          Icon={LineChart}
           title="No insights yet"
           message="No KB recurrence data yet — once reconciliation flags an issue, systems will appear here."
         />

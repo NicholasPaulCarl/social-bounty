@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
+import { List } from 'lucide-react';
 import { formatCurrency, formatDateTime } from '@/lib/utils/format';
 import { WalletTxType } from '@social-bounty/shared';
 import type { WalletTransactionListItem } from '@social-bounty/shared';
@@ -105,7 +106,7 @@ export default function TransactionsPage() {
 
       {!isLoading && !error && data && data.data.length === 0 && (
         <EmptyState
-          icon="pi-list"
+          Icon={List}
           title="Nothing here yet"
           message="Your earnings history will show up once you start hunting."
         />

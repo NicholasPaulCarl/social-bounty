@@ -9,7 +9,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { VerifiedLinkInput } from '@/components/common/VerifiedLinkInput';
 import { SectionPanel } from '@/components/bounty-form/SectionPanel';
-import { Plus, Globe } from 'lucide-react';
+import { Plus, Globe, Search } from 'lucide-react';
 
 export default function MoleculesSection() {
   const [linkValue, setLinkValue] = useState('');
@@ -87,22 +87,23 @@ export default function MoleculesSection() {
         name="EmptyState"
         description="Placeholder when a list or section has no content."
         importPath="import { EmptyState } from '@/components/common/EmptyState'"
-        code={`<EmptyState\n  icon="pi-search"\n  title="No bounties found"\n  message="Try adjusting your filters"\n  ctaLabel="Clear Filters"\n  ctaAction={() => clearFilters()}\n/>`}
+        code={`import { Search, Plus } from 'lucide-react';\n\n<EmptyState\n  Icon={Search}\n  title="No bounties found"\n  message="Try adjusting your filters"\n  ctaLabel="Clear Filters"\n  CtaIcon={Plus}\n  ctaAction={() => clearFilters()}\n/>`}
         props={[
-          { name: 'icon', type: 'string', default: "'pi-inbox'", description: 'PrimeIcons class suffix' },
+          { name: 'Icon', type: 'LucideIcon', default: 'Inbox', description: 'Lucide icon component (passed by reference, not string)' },
           { name: 'title', type: 'string', default: '—', required: true, description: 'Primary message' },
           { name: 'message', type: 'string', default: '—', description: 'Secondary description' },
           { name: 'ctaLabel', type: 'string', default: '—', description: 'Call-to-action button label' },
           { name: 'ctaAction', type: '() => void', default: '—', description: 'CTA click handler' },
+          { name: 'CtaIcon', type: 'LucideIcon', default: '—', description: 'Lucide icon shown on CTA button' },
         ]}
       >
         <EmptyState
-          icon="pi-search"
+          Icon={Search}
           title="No bounties found"
           message="Try adjusting your filters or create a new bounty."
           ctaLabel="Create Bounty"
           ctaAction={() => alert('Create clicked')}
-          ctaIcon="pi-plus"
+          CtaIcon={Plus}
         />
       </ComponentDemo>
 

@@ -13,7 +13,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageHeader } from '@/components/common/PageHeader';
 import { formatDateTime } from '@/lib/utils/format';
-import { ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertTriangle, LineChart } from 'lucide-react';
 import type { KbSystemIssueRow } from '@social-bounty/shared';
 
 // Mirror the exceptions page severity mapping so visual language is consistent.
@@ -59,7 +59,7 @@ export default function KbSystemInsightsPage() {
 
       {rows.length === 0 ? (
         <EmptyState
-          icon="pi-chart-line"
+          Icon={LineChart}
           title="No issues recorded"
           message={`No RecurringIssue rows matched metadata.system = "${system}".`}
         />

@@ -12,6 +12,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
+import { Search } from 'lucide-react';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatCurrency, timeRemaining } from '@/lib/utils/format';
 import { BountyStatus, BOUNTY_CATEGORIES } from '@social-bounty/shared';
@@ -127,7 +128,7 @@ export default function BrowseBountiesPage() {
 
         {!isLoading && !error && sortedData.length === 0 && (
           <EmptyState
-            icon="pi-search"
+            Icon={Search}
             title="No bounties in sight"
             message="Fresh hunts get added daily — adjust your filters or check back soon."
             ctaLabel="Clear filters"

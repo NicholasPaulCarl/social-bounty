@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
+import { Wallet } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/format';
 import type { AdminWalletListItem } from '@social-bounty/shared';
 
@@ -72,7 +73,7 @@ export default function AdminWalletsPage() {
       {error && <ErrorState error={error} onRetry={() => refetch()} />}
 
       {!isLoading && !error && data && data.data.length === 0 && (
-        <EmptyState icon="pi-wallet" title="No wallets found" message="Try adjusting your search." />
+        <EmptyState Icon={Wallet} title="No wallets found" message="Try adjusting your search." />
       )}
 
       {!isLoading && !error && data && data.data.length > 0 && (

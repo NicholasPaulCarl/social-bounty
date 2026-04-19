@@ -5,7 +5,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
-import { Eye } from 'lucide-react';
+import { Eye, Inbox } from 'lucide-react';
 import { useBounty } from '@/hooks/useBounties';
 import { useSubmissionsForBounty } from '@/hooks/useSubmissions';
 import { usePagination } from '@/hooks/usePagination';
@@ -87,7 +87,7 @@ export default function BountySubmissionsPage() {
         </>
       ) : (
         <EmptyState
-          icon="pi-inbox"
+          Icon={Inbox}
           title="Waiting on Hunters"
           message="Share your bounty to get the submissions flowing."
         />

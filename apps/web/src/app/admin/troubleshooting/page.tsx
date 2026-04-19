@@ -11,7 +11,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { formatDateTime } from '@/lib/utils/format';
-import { RefreshCw, Server, Database, Clock, BarChart3 } from 'lucide-react';
+import { RefreshCw, Server, Database, Clock, BarChart3, CheckCircle2 } from 'lucide-react';
 import type { AdminRecentErrorItem } from '@social-bounty/shared';
 
 export default function AdminTroubleshootingPage() {
@@ -110,7 +110,7 @@ export default function AdminTroubleshootingPage() {
             <Column header="Timestamp" body={dateTemplate} />
           </DataTable>
         ) : (
-          <EmptyState icon="pi-check-circle" title="No recent errors" message="The system is running smoothly with no recent errors." />
+          <EmptyState Icon={CheckCircle2} title="No recent errors" message="The system is running smoothly with no recent errors." />
         )}
       </div>
     </>

@@ -16,7 +16,7 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate } from '@/lib/utils/format';
-import { Trash2, UserPlus, Send } from 'lucide-react';
+import { Trash2, UserPlus, Send, Users } from 'lucide-react';
 import type { BrandMemberResponse } from '@social-bounty/shared';
 
 export default function BrandMembersPage() {
@@ -114,7 +114,7 @@ export default function BrandMembersPage() {
         </div>
       ) : (
         <EmptyState
-          icon="pi-users"
+          Icon={Users}
           title="No members"
           message="Invite team members to help manage bounties."
           ctaLabel="Invite Member"

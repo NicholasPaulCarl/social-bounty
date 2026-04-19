@@ -6,7 +6,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Paginator } from 'primereact/paginator';
-import { Plus, Eye, Pencil, Play, Pause, XCircle, Undo2, Trash2 } from 'lucide-react';
+import { Plus, Eye, Pencil, Play, Pause, XCircle, Undo2, Trash2, Megaphone } from 'lucide-react';
 import { useBounties, useDeleteBounty } from '@/hooks/useBounties';
 import { bountyApi } from '@/lib/api/bounties';
 import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
@@ -263,7 +263,7 @@ export default function BusinessBountiesPage() {
         </>
       ) : (
         <EmptyState
-          icon="pi-megaphone"
+          Icon={Megaphone}
           title="No bounties yet"
           message="Drop your first bounty and watch the Hunters roll in."
           ctaLabel="Create Bounty"

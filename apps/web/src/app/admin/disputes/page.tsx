@@ -199,7 +199,7 @@ export default function AdminDisputesPage() {
           />
         </>
       ) : (
-        <EmptyState icon="pi-flag" title="All clear" message="No disputes to review right now." />
+        <EmptyState Icon={Flag} title="All clear" message="No disputes to review right now." />
       )}
     </div>
   );

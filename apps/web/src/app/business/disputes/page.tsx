@@ -165,7 +165,7 @@ export default function BusinessDisputesPage() {
         </>
       ) : (
         <EmptyState
-          icon="pi-flag"
+          Icon={Flag}
           title="All clear"
           message="No disputes on file. That's a good sign."
           ctaLabel="File a Dispute"

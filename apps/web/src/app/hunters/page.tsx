@@ -14,7 +14,7 @@ import { getUploadUrl } from '@/lib/api/client';
 import type { HunterListItem } from '@social-bounty/shared';
 // Lucide 1.8 omits Instagram/Facebook brand glyphs (trademark policy).
 // Camera → Instagram, ThumbsUp → Facebook per ICONS.md §Social brand marks.
-import { Camera, Music2, ThumbsUp, Link2, ArrowRight, Search, X } from 'lucide-react';
+import { Camera, Music2, ThumbsUp, Link2, ArrowRight, Search, X, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -213,7 +213,7 @@ export default function HuntersDirectoryPage() {
         <ErrorState error={error} onRetry={() => refetch()} />
       ) : !data || data.data.length === 0 ? (
         <EmptyState
-          icon="pi-users"
+          Icon={Users}
           title="No hunters found"
           message={
             selectedInterest || debouncedSearch

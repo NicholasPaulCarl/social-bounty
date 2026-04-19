@@ -14,7 +14,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDate } from '@/lib/utils/format';
-import { Eye } from 'lucide-react';
+import { Eye, Users } from 'lucide-react';
 import type { AdminUserListItem, AdminUserListParams } from '@social-bounty/shared';
 
 const roleOptions = [
@@ -107,7 +107,7 @@ export default function AdminUsersPage() {
           />
         </>
       ) : (
-        <EmptyState icon="pi-users" title="No users found" message="Try broadening your search." />
+        <EmptyState Icon={Users} title="No users found" message="Try broadening your search." />
       )}
     </div>
   );

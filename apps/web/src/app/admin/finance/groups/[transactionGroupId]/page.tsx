@@ -15,7 +15,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ApiError } from '@/lib/api/client';
 import { formatCents, formatDateTime } from '@/lib/utils/format';
-import { ChevronUp, ChevronDown, ArrowLeft } from 'lucide-react';
+import { ChevronUp, ChevronDown, ArrowLeft, Search } from 'lucide-react';
 import type { TransactionGroupDetailEntry } from '@/lib/api/finance-admin';
 
 function JsonBlock({ label, value }: { label: string; value: Record<string, unknown> | null }) {
@@ -71,11 +71,11 @@ export default function TransactionGroupDetailPage() {
         <>
           <PageHeader title="Transaction group" actions={backButton} />
           <EmptyState
-            icon="pi-search"
+            Icon={Search}
             title="Transaction group not found"
             message={`No ledger transaction group exists with id ${id}.`}
             ctaLabel="Back to Finance"
-            ctaIcon="pi-arrow-left"
+            CtaIcon={ArrowLeft}
             ctaAction={() => router.push('/admin/finance')}
           />
         </>

@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from 'primereact/button';
-import { Plus, RefreshCw, Pencil, Eye } from 'lucide-react';
+import { Plus, RefreshCw, Pencil, Eye, Building2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMyBrands } from '@/hooks/useBrand';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -50,7 +50,7 @@ export default function MyBrandsPage() {
 
       {!brands || brands.length === 0 ? (
         <EmptyState
-          icon="pi-building"
+          Icon={Building2}
           title="No Brands Yet"
           message="Create your first brand to start posting bounties."
           ctaLabel="Create Brand"

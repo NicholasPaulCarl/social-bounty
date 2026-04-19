@@ -14,7 +14,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDate } from '@/lib/utils/format';
-import { Eye, Plus } from 'lucide-react';
+import { Eye, Plus, Building2 } from 'lucide-react';
 import type { AdminBrandListItem, AdminBrandListParams } from '@social-bounty/shared';
 
 const statusOptions = [
@@ -99,7 +99,7 @@ export default function AdminBrandsPage() {
         </>
       ) : (
         <EmptyState
-          icon="pi-building"
+          Icon={Building2}
           title="No brands found"
           message="Nothing matches your current filters."
         />

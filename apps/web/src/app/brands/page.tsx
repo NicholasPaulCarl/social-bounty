@@ -12,7 +12,7 @@ import { useBrandsPublicList } from '@/hooks/useBrand';
 import { HUNTER_INTERESTS } from '@social-bounty/shared';
 import { getUploadUrl } from '@/lib/api/client';
 import type { BrandListItem } from '@social-bounty/shared';
-import { Megaphone, ArrowRight, Search, X } from 'lucide-react';
+import { Megaphone, ArrowRight, Search, X, Building2 } from 'lucide-react';
 
 // ─── Brand Card ─────────────────────────────────────────────────────────
 
@@ -180,7 +180,7 @@ export default function BrandsDirectoryPage() {
         <ErrorState error={error} onRetry={() => refetch()} />
       ) : !data || data.data.length === 0 ? (
         <EmptyState
-          icon="pi-building"
+          Icon={Building2}
           title="No brands found"
           message={
             selectedInterest || debouncedSearch

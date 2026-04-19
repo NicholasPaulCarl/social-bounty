@@ -6,7 +6,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Paginator } from 'primereact/paginator';
 import { SelectButton } from 'primereact/selectbutton';
-import { CheckCircle2, Clock, Send, Wallet } from 'lucide-react';
+import { CheckCircle2, Clock, Send, Wallet, List, Search } from 'lucide-react';
 import { useMySubmissions, useMyEarnings } from '@/hooks/useSubmissions';
 import { usePagination } from '@/hooks/usePagination';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -142,12 +142,12 @@ export default function MySubmissionsPage() {
 
       {!isLoading && !error && data && data.data.length === 0 && (
         <EmptyState
-          icon="pi-list"
+          Icon={List}
           title="No submissions yet"
           message="Hunt a bounty, drop your proof, claim the reward."
           ctaLabel="Browse bounties"
           ctaAction={() => router.push('/bounties')}
-          ctaIcon="pi-search"
+          CtaIcon={Search}
         />
       )}
 

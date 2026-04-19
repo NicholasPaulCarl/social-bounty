@@ -14,7 +14,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDateTime } from '@/lib/utils/format';
-import { Eye } from 'lucide-react';
+import { Eye, Inbox } from 'lucide-react';
 
 interface SubmissionListFilters {
   page?: number;
@@ -131,7 +131,7 @@ export default function AdminSubmissionsPage() {
           />
         </>
       ) : (
-        <EmptyState icon="pi-inbox" title="No submissions" message="Nothing matches your current filters." />
+        <EmptyState Icon={Inbox} title="No submissions" message="Nothing matches your current filters." />
       )}
     </>
   );
