@@ -32,10 +32,9 @@
 
 ## Relationships
 
-- [[Bounty access & users]] (48 shared connections)
 - [[Admin page routes]] (3 shared connections)
 - [[Admin operations & overrides]] (2 shared connections)
-- [[Community 269]] (1 shared connections)
+- [[Wallet & withdrawals]] (1 shared connections)
 
 ## Source Files
 

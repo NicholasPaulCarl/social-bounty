@@ -33,13 +33,11 @@
 
 ## Relationships
 
-- [[Bounties & Stitch payments]] (175 shared connections)
-- [[Admin page routes]] (12 shared connections)
-- [[Admin operations & overrides]] (7 shared connections)
-- [[business.module.ts]] (3 shared connections)
-- [[BrandsService class]] (1 shared connections)
-- [[Auth & webhook verification]] (1 shared connections)
-- [[.callback()]] (1 shared connections)
+- [[Admin page routes]] (9 shared connections)
+- [[Admin operations & overrides]] (5 shared connections)
+- [[Auth & webhook verification]] (2 shared connections)
+- [[Admin withdrawals UI]] (1 shared connections)
+- [[FinanceExportsService]] (1 shared connections)
 
 ## Source Files
 

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[smoke-brand-go-live.spec.ts]] (2 shared connections)
+- No strong cross-community connections detected
 
 ## Source Files
 

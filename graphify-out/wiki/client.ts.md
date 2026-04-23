@@ -17,8 +17,6 @@
 
 ## Relationships
 
-- [[bounties.validators.ts]] (21 shared connections)
-- [[tradesafe-webhook.handler.payout-failed.]] (1 shared connections)
 - [[Admin page routes]] (1 shared connections)
 
 ## Source Files

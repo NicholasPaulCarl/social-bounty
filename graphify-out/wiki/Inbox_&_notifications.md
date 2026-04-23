@@ -34,7 +34,7 @@
 ## Relationships
 
 - [[Admin operations & overrides]] (2 shared connections)
-- [[Finance admin & KB]] (1 shared connections)
+- [[Apify post scraping]] (1 shared connections)
 - [[App layouts & shells]] (1 shared connections)
 
 ## Source Files

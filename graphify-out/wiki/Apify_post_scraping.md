@@ -33,13 +33,13 @@
 
 ## Relationships
 
-- [[Finance admin & KB]] (153 shared connections)
 - [[Admin operations & overrides]] (11 shared connections)
-- [[Brand funding & form state]] (4 shared connections)
-- [[Admin page routes]] (3 shared connections)
+- [[Bounty form & disputes]] (4 shared connections)
+- [[Admin page routes]] (4 shared connections)
+- [[Bounty access & users]] (2 shared connections)
 - [[Agent team roster]] (2 shared connections)
 - [[App layouts & shells]] (2 shared connections)
-- [[Bounty access & users]] (1 shared connections)
+- [[Wallet & withdrawals]] (1 shared connections)
 - [[Inbox & notifications]] (1 shared connections)
 
 ## Source Files

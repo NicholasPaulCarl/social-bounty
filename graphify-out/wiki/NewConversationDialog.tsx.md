@@ -14,7 +14,6 @@
 
 ## Relationships
 
-- [[useBrowseFilters.ts]] (14 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files

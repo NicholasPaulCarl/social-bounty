@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[postcss.config.js]] (2 shared connections)
+- No strong cross-community connections detected
 
 ## Source Files
 

@@ -33,18 +33,18 @@
 
 ## Relationships
 
-- [[Auth & webhook verification]] (141 shared connections)
-- [[Bounty form & disputes]] (70 shared connections)
-- [[Reconciliation engine]] (36 shared connections)
-- [[ADRs & audit log]] (27 shared connections)
-- [[Bounty access & users]] (17 shared connections)
-- [[Admin operations & overrides]] (16 shared connections)
-- [[Design system components]] (16 shared connections)
-- [[Apify post scraping]] (16 shared connections)
+- [[Reconciliation engine]] (27 shared connections)
+- [[ADRs & audit log]] (23 shared connections)
+- [[Admin operations & overrides]] (21 shared connections)
+- [[Wallet & withdrawals]] (20 shared connections)
+- [[Admin withdrawals UI]] (18 shared connections)
+- [[BrandsService class]] (16 shared connections)
+- [[Bounty access & users]] (16 shared connections)
+- [[AdminService class]] (14 shared connections)
+- [[Auth & webhook verification]] (11 shared connections)
+- [[Wallet controller & projection]] (11 shared connections)
 - [[TradeSafe client & payouts]] (10 shared connections)
-- [[Bounties & Stitch payments]] (10 shared connections)
-- [[Finance admin & KB]] (9 shared connections)
-- [[DisputesController]] (7 shared connections)
+- [[DisputesService]] (9 shared connections)
 
 ## Source Files
 

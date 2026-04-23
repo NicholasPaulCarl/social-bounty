@@ -33,12 +33,9 @@
 
 ## Relationships
 
-- [[Design system components]] (105 shared connections)
-- [[Admin page routes]] (15 shared connections)
-- [[Bounties & Stitch payments]] (4 shared connections)
-- [[page.tsx]] (3 shared connections)
-- [[Auth & webhook verification]] (2 shared connections)
-- [[ADRs & audit log]] (1 shared connections)
+- [[Admin page routes]] (18 shared connections)
+- [[Finance admin & KB]] (1 shared connections)
+- [[Auth & webhook verification]] (1 shared connections)
 
 ## Source Files
 

@@ -33,10 +33,9 @@
 
 ## Relationships
 
-- [[Admin page routes]] (103 shared connections)
-- [[Admin operations & overrides]] (25 shared connections)
-- [[PageHeader common component]] (1 shared connections)
-- [[Community 268]] (1 shared connections)
+- [[Admin page routes]] (27 shared connections)
+- [[Admin operations & overrides]] (5 shared connections)
+- [[BrandsService class]] (1 shared connections)
 
 ## Source Files
 

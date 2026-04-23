@@ -33,11 +33,10 @@
 
 ## Relationships
 
-- [[Admin page routes]] (9 shared connections)
+- [[Admin page routes]] (10 shared connections)
 - [[Admin operations & overrides]] (2 shared connections)
-- [[ADRs & audit log]] (2 shared connections)
-- [[Community 270]] (1 shared connections)
 - [[Agent team roster]] (1 shared connections)
+- [[Wallet controller & projection]] (1 shared connections)
 
 ## Source Files
 

@@ -15,8 +15,7 @@
 
 ## Relationships
 
-- [[refund-after-payout.spec.ts]] (9 shared connections)
-- [[Auth & webhook verification]] (7 shared connections)
+- [[Admin page routes]] (2 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files

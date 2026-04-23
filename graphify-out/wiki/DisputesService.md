@@ -23,7 +23,7 @@
 
 ## Relationships
 
-- [[Admin page routes]] (45 shared connections)
+- [[Admin page routes]] (9 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
 - [[ADRs & audit log]] (1 shared connections)
 

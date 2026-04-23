@@ -2,7 +2,7 @@
 
 > God node · 19 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
 
-**Community:** [[Health, Redis, URL verification]]
+**Community:** [[AdminController]]
 
 ## Connections by Relation
 

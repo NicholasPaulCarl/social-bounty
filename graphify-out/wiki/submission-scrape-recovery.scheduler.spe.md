@@ -14,8 +14,7 @@
 
 ## Relationships
 
-- [[StatusBadge.tsx]] (7 shared connections)
-- [[Auth & webhook verification]] (6 shared connections)
+- [[Admin page routes]] (1 shared connections)
 
 ## Source Files
 

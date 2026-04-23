@@ -10,7 +10,7 @@
 
 ## Relationships
 
-- [[ImageCropDialog.tsx]] (6 shared connections)
+- No strong cross-community connections detected
 
 ## Source Files
 

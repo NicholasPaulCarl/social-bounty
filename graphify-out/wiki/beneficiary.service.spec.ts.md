@@ -11,8 +11,7 @@
 
 ## Relationships
 
-- [[not-found.tsx]] (5 shared connections)
-- [[Admin page routes]] (2 shared connections)
+- [[Admin page routes]] (1 shared connections)
 
 ## Source Files
 

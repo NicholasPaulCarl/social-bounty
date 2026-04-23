@@ -12,7 +12,7 @@
 
 ## Relationships
 
-- [[test-fixtures.ts]] (8 shared connections)
+- No strong cross-community connections detected
 
 ## Source Files
 

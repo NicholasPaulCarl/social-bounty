@@ -33,18 +33,15 @@
 
 ## Relationships
 
-- [[Agent team roster]] (127 shared connections)
-- [[BrandsService class]] (104 shared connections)
-- [[Admin page routes]] (39 shared connections)
-- [[refund-after-approval.spec.ts]] (14 shared connections)
-- [[pickInRange()]] (8 shared connections)
-- [[Admin operations & overrides]] (7 shared connections)
-- [[reconciliation.fault-injection.spec.ts]] (5 shared connections)
-- [[Bounties & Stitch payments]] (3 shared connections)
-- [[Finance admin & KB]] (3 shared connections)
-- [[smoke-recon-to-drilldown.spec.ts]] (3 shared connections)
-- [[Design system components]] (3 shared connections)
-- [[DisputesController]] (1 shared connections)
+- [[Admin page routes]] (11 shared connections)
+- [[Agent team roster]] (10 shared connections)
+- [[Bounties & Stitch payments]] (6 shared connections)
+- [[Admin operations & overrides]] (5 shared connections)
+- [[Finance admin & KB]] (2 shared connections)
+- [[Wallet controller & projection]] (1 shared connections)
+- [[.callback()]] (1 shared connections)
+- [[Admin withdrawals UI]] (1 shared connections)
+- [[BrandsService class]] (1 shared connections)
 
 ## Source Files
 

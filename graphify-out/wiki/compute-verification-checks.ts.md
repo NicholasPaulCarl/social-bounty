@@ -12,9 +12,8 @@
 
 ## Relationships
 
-- [[Auth & webhook verification]] (8 shared connections)
-- [[jest.config.js]] (3 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
+- [[Admin page routes]] (1 shared connections)
 
 ## Source Files
 

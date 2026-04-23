@@ -9,8 +9,7 @@
 
 ## Relationships
 
-- [[index.ts]] (1 shared connections)
-- [[PageHeaderBreadcrumbs.tsx]] (1 shared connections)
+- No strong cross-community connections detected
 
 ## Source Files
 

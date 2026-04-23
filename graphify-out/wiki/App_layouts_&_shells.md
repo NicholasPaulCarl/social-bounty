@@ -35,7 +35,7 @@
 
 - [[Admin operations & overrides]] (15 shared connections)
 - [[Admin page routes]] (2 shared connections)
-- [[Finance admin & KB]] (2 shared connections)
+- [[Apify post scraping]] (2 shared connections)
 - [[Inbox & notifications]] (1 shared connections)
 
 ## Source Files

@@ -33,18 +33,18 @@
 
 ## Relationships
 
-- [[Admin page routes]] (29 shared connections)
-- [[Auth & webhook verification]] (18 shared connections)
-- [[Bounty form & disputes]] (18 shared connections)
+- [[Admin page routes]] (21 shared connections)
 - [[App layouts & shells]] (15 shared connections)
-- [[SocialHandlesController]] (13 shared connections)
-- [[Finance admin & KB]] (12 shared connections)
-- [[Apify post scraping]] (9 shared connections)
-- [[ADRs & audit log]] (8 shared connections)
-- [[Bounties & Stitch payments]] (5 shared connections)
-- [[Bounty access & users]] (5 shared connections)
-- [[Admin brand & user tabs]] (4 shared connections)
-- [[brands.module.ts]] (3 shared connections)
+- [[Apify post scraping]] (11 shared connections)
+- [[Bounty access & users]] (9 shared connections)
+- [[ADRs & audit log]] (6 shared connections)
+- [[Auth & webhook verification]] (5 shared connections)
+- [[Reconciliation engine]] (5 shared connections)
+- [[Finance admin & KB]] (5 shared connections)
+- [[Design system components]] (4 shared connections)
+- [[Agent team roster]] (3 shared connections)
+- [[Wallet & withdrawals]] (3 shared connections)
+- [[InboxController]] (2 shared connections)
 
 ## Source Files
 

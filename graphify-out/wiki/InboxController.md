@@ -30,7 +30,6 @@
 
 ## Relationships
 
-- [[Wallet controller & projection]] (50 shared connections)
 - [[Admin page routes]] (3 shared connections)
 - [[Admin operations & overrides]] (2 shared connections)
 

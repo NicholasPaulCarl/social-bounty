@@ -33,16 +33,14 @@
 
 ## Relationships
 
-- [[Admin operations & overrides]] (21 shared connections)
-- [[Brand funding & form state]] (17 shared connections)
-- [[ConfirmAction.tsx]] (5 shared connections)
-- [[layout.tsx]] (5 shared connections)
+- [[Bounty form & disputes]] (17 shared connections)
+- [[Bounties & Stitch payments]] (11 shared connections)
+- [[Auth & webhook verification]] (10 shared connections)
 - [[Admin page routes]] (4 shared connections)
-- [[Finance admin & KB]] (2 shared connections)
-- [[BrandsService class]] (2 shared connections)
-- [[ADR headline docs]] (2 shared connections)
+- [[Admin operations & overrides]] (3 shared connections)
+- [[Apify post scraping]] (2 shared connections)
+- [[Brand funding & form state]] (2 shared connections)
 - [[TradeSafe client & payouts]] (1 shared connections)
-- [[Bounties & Stitch payments]] (1 shared connections)
 
 ## Source Files
 

@@ -33,8 +33,8 @@
 
 ## Relationships
 
-- [[Wallet & withdrawals]] (143 shared connections)
-- [[Agent team roster]] (124 shared connections)
+- [[Agent team roster]] (11 shared connections)
+- [[Auth & webhook verification]] (6 shared connections)
 
 ## Source Files
 

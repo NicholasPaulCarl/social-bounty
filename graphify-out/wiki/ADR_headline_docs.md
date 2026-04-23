@@ -33,11 +33,8 @@
 
 ## Relationships
 
-- [[AdminService class]] (62 shared connections)
-- [[handleDownload()]] (29 shared connections)
 - [[Admin page routes]] (4 shared connections)
 - [[Admin operations & overrides]] (2 shared connections)
-- [[Community 249]] (1 shared connections)
 
 ## Source Files
 

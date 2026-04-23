@@ -19,7 +19,7 @@
 
 ## Relationships
 
-- [[useDisputes.ts]] (22 shared connections)
+- No strong cross-community connections detected
 
 ## Source Files
 

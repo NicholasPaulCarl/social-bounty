@@ -13,7 +13,7 @@
 
 ## Relationships
 
-- [[Auth & webhook verification]] (19 shared connections)
+- [[Admin page routes]] (1 shared connections)
 
 ## Source Files
 

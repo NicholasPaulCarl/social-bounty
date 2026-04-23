@@ -2,7 +2,7 @@
 
 > God node · 22 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
 
-**Community:** [[Admin withdrawals UI]]
+**Community:** [[Bounty UI components]]
 
 ## Connections by Relation
 

@@ -33,15 +33,13 @@
 
 ## Relationships
 
-- [[Apify post scraping]] (185 shared connections)
-- [[Admin page routes]] (14 shared connections)
+- [[Admin page routes]] (16 shared connections)
 - [[Admin operations & overrides]] (9 shared connections)
-- [[ADRs & audit log]] (3 shared connections)
-- [[Finance admin & KB]] (2 shared connections)
-- [[Auth & webhook verification]] (2 shared connections)
-- [[Admin withdrawals UI]] (1 shared connections)
-- [[Community 247]] (1 shared connections)
-- [[Admin brand & user tabs]] (1 shared connections)
+- [[Apify post scraping]] (2 shared connections)
+- [[ADRs & audit log]] (2 shared connections)
+- [[Bounty UI components]] (1 shared connections)
+- [[Design system components]] (1 shared connections)
+- [[Wallet controller & projection]] (1 shared connections)
 
 ## Source Files
 

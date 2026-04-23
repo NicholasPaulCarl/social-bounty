@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[next.config.mjs]] (2 shared connections)
+- No strong cross-community connections detected
 
 ## Source Files
 

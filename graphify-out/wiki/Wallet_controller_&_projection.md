@@ -33,14 +33,12 @@
 
 ## Relationships
 
-- [[Auth & webhook verification]] (36 shared connections)
-- [[ADRs & audit log]] (24 shared connections)
-- [[Admin page routes]] (7 shared connections)
-- [[seedOtpInRedis()]] (7 shared connections)
+- [[Admin page routes]] (11 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
-- [[Agent team roster]] (1 shared connections)
+- [[Auth & webhook verification]] (1 shared connections)
 - [[TradeSafe client & payouts]] (1 shared connections)
-- [[Apify post scraping]] (1 shared connections)
+- [[ADRs & audit log]] (1 shared connections)
+- [[Bounty access & users]] (1 shared connections)
 
 ## Source Files
 

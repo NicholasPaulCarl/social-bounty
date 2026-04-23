@@ -33,8 +33,6 @@
 
 ## Relationships
 
-- [[ADR headline docs]] (141 shared connections)
-- [[AdminController]] (51 shared connections)
 - [[Agent team roster]] (2 shared connections)
 
 ## Source Files

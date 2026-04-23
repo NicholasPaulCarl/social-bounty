@@ -2,7 +2,7 @@
 
 > God node · 19 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
 
-**Community:** [[Bounties & Stitch payments]]
+**Community:** [[Finance admin & KB]]
 
 ## Connections by Relation
 

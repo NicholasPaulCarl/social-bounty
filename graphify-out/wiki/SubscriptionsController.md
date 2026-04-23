@@ -16,9 +16,8 @@
 
 ## Relationships
 
-- [[Bounty form & disputes]] (17 shared connections)
+- [[Admin page routes]] (2 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
-- [[Admin page routes]] (1 shared connections)
 
 ## Source Files
 

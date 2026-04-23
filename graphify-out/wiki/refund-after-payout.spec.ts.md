@@ -14,8 +14,7 @@
 
 ## Relationships
 
-- [[submission-scraper.service.spec.ts]] (22 shared connections)
-- [[Auth & webhook verification]] (1 shared connections)
+- [[Admin page routes]] (1 shared connections)
 
 ## Source Files
 

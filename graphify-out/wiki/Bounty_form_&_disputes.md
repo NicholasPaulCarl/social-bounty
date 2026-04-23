@@ -33,9 +33,8 @@
 
 ## Relationships
 
-- [[Brand funding & form state]] (304 shared connections)
 - [[Agent team roster]] (17 shared connections)
-- [[Finance admin & KB]] (4 shared connections)
+- [[Apify post scraping]] (4 shared connections)
 
 ## Source Files
 

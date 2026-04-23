@@ -27,7 +27,6 @@
 
 ## Relationships
 
-- [[Health, Redis, URL verification]] (38 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files

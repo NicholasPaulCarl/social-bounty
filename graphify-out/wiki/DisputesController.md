@@ -25,7 +25,6 @@
 
 ## Relationships
 
-- [[InboxController]] (34 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files

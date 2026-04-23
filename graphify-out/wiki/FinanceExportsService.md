@@ -26,11 +26,9 @@
 
 ## Relationships
 
-- [[.callback()]] (65 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
-- [[Community 253]] (1 shared connections)
-- [[Bounties & Stitch payments]] (1 shared connections)
-- [[Auth & webhook verification]] (1 shared connections)
+- [[Finance admin & KB]] (1 shared connections)
+- [[Admin page routes]] (1 shared connections)
 
 ## Source Files
 

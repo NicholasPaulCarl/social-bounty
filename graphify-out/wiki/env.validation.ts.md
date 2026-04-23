@@ -11,8 +11,7 @@
 
 ## Relationships
 
-- [[SelectPill.tsx]] (5 shared connections)
-- [[reported-metrics.spec.ts]] (1 shared connections)
+- No strong cross-community connections detected
 
 ## Source Files
 

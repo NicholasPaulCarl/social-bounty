@@ -33,7 +33,7 @@
 
 ## Relationships
 
-- [[Bounty UI components]] (98 shared connections)
+- No strong cross-community connections detected
 
 ## Source Files
 

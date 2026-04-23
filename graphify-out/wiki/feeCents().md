@@ -18,11 +18,8 @@
 
 ## Relationships
 
-- [[Community 42]] (30 shared connections)
 - [[Admin page routes]] (3 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
-- [[Community 276]] (1 shared connections)
-- [[Community 277]] (1 shared connections)
 
 ## Source Files
 

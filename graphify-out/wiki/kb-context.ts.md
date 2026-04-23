@@ -25,10 +25,7 @@
 
 ## Relationships
 
-- [[FinanceExportsService]] (61 shared connections)
-- [[Admin page routes]] (4 shared connections)
-- [[Auth & webhook verification]] (1 shared connections)
-- [[smoke-finance-group-drilldown.spec.ts]] (1 shared connections)
+- [[Admin page routes]] (5 shared connections)
 
 ## Source Files
 
