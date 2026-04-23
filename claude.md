@@ -323,12 +323,12 @@ On detection of a Critical severity or Critical financial-impact issue, Claude m
 
 ## graphify
 
-This project has a graphify knowledge graph at `graphify-out/`. Current state: **2450 nodes · 4870 edges · ~142 communities · 84% of nodes in the main component**.
+This project has a graphify knowledge graph at `graphify-out/`. Current state: **2450 nodes · 4911 edges · 7 hyperedges · ~142 communities · 91.5% of nodes in the main component · 100% file coverage**.
 
 ### Rules
 
 - Before answering architecture or codebase questions, read `graphify-out/GRAPH_REPORT.md` for god nodes and community structure.
-- If `graphify-out/wiki/index.md` exists, navigate it instead of reading raw files. The 10 highest-degree nodes (`BountiesService`, `FinanceAdminService`, `AdminService`, `SubscriptionsService`, `DisputesService`, `SubmissionsService`, `UpgradeService`, `Social Bounty MVP`, `Design System README`, `Page Specs Index`) have LLM-written `## Summary` blocks — start there for these topics.
+- If `graphify-out/wiki/index.md` exists, navigate it instead of reading raw files. The **top 50 nodes by degree have individual LLM-written articles at `graphify-out/wiki/nodes/<node-id>.md`** — start there for any named class, service, controller, or ADR. Filename slug = node id (stable across re-clusterings).
 - For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files.
 - The graph auto-rebuilds on every `git commit` via a post-commit husky hook (AST-only, no LLM cost). No manual `graphify update .` needed for code changes.
 - For docs/image changes (which require semantic re-extraction), run `graphify update .` manually.
@@ -346,6 +346,12 @@ This project has a graphify knowledge graph at `graphify-out/`. Current state: *
 - **Git-activity overlay** — every file-level node carries `last_touched_days_ago`, `commits_last_90d`, `commits_total` attributes. Query or inspect the graph to see hot vs. stale zones.
 - **Embedding similarity edges (1146)** — `all-MiniLM-L6-v2` (local CPU, cached at `graphify-out/.embeddings.npz`) produces cross-community `semantically_similar_to` edges at cosine ≥ 0.80. Surfaces parallel constructs the chunked extraction missed (e.g. `useBrowseFilters` ↔ `useManageFilters` sort mappers).
 - **Content-based community labels** — stored in `graphify-out/.community-labels.json`, derived from each community's top-degree members rather than rank order. Stable across re-clusterings.
+- **7 curated flow hyperedges** capturing core business flows — `bounty_funding_flow`, `hunter_submission_lifecycle`, `kill_switch_override_bypass` (ADR 0006), `subscription_upgrade_flow`, `brand_onboarding_flow`, `auto_refund_visibility_flow` (ADR 0010), `tradesafe_outbound_rail` (ADR 0008+0009). Each groups 4–8 nodes that together form one conceptual flow but live across multiple modules.
+- **Config → target edges (20)** — `tailwind.config.ts`, `apps/web/jest.config.ts`, `apps/api/jest.config.ts`, `playwright.config.ts`, `next.config.mjs` link to representative files they configure (relation: `configures`).
+- **E2E → page edges (21)** — every `page.goto()` call in `apps/web/e2e/*.spec.ts` maps to its target `page.tsx` node (relation: `exercises`).
+- **Test-type refinement** — the 59 generic `tests` edges were split into `unit_tests` (45, colocated), `integration_tests` (14, under `__tests__/`), and `e2e_tests` (0 — e2e specs use `exercises` instead). Queries can now filter by test granularity.
+- **Top-50 wiki** — `graphify-out/wiki/nodes/` contains LLM-written 1–2-paragraph summaries for the 50 highest-degree nodes; `index.md` lists them sorted by degree. Complements graphify's built-in `to_wiki` which only emits ~10 god-node pages by default.
+- **Completeness audit** at `graphify-out/AUDIT.md` — 100% file coverage, 91.5% in main component, 43 remaining isolated nodes (mostly config files + test fixtures).
 
 ### Tooling exclusions
 
