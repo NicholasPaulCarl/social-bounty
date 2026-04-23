@@ -1,0 +1,62 @@
+# Graphify ignore rules — same syntax as .gitignore
+#
+# Graphify walks the filesystem (not git), so .gitignore does NOT protect secrets
+# or build artefacts from being graphed. Every exclusion below is deliberate.
+
+# ─────────────────────────────────────
+# Secrets — NEVER graph these
+# ─────────────────────────────────────
+.env
+.env.*
+!.env.example
+apps/web/.env
+apps/web/.env.*
+!apps/web/.env.example
+
+# ─────────────────────────────────────
+# Build + dependency output
+# ─────────────────────────────────────
+node_modules/
+apps/api/dist/
+apps/web/.next/
+packages/shared/dist/
+packages/prisma/generated/
+packages/prisma/node_modules/
+coverage/
+*.tsbuildinfo
+
+# ─────────────────────────────────────
+# Runtime artefacts
+# ─────────────────────────────────────
+uploads/
+logs/
+*.log
+apps/web/test-results/
+apps/web/playwright-report/
+
+# ─────────────────────────────────────
+# AI-tool cruft (already gitignored — keep out of the graph too)
+# ─────────────────────────────────────
+.agents/
+AGENTS.md
+.claude/worktrees/
+.claude/scheduled_tasks.lock
+
+# ─────────────────────────────────────
+# Graphify's own output — avoid self-graphing
+# ─────────────────────────────────────
+graphify-out/
+
+# ─────────────────────────────────────
+# Third-party / external-tool clones — not part of Social Bounty
+# ─────────────────────────────────────
+design-os-main/
+product-plan/
+
+# ─────────────────────────────────────
+# Superseded / archival content
+# ─────────────────────────────────────
+md-files/archive/
+
+# NOTE: docs/adr/, docs/reviews/, and md-files/ (except archive/) are
+# intentionally INCLUDED — they carry design rationale the graph should capture.

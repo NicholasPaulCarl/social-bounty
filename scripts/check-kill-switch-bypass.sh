@@ -18,6 +18,8 @@
 #   - docs/contributing.md / CONTRIBUTING.md — documents this guard
 #     and necessarily quotes the flag name.
 #   - this script — quotes the pattern it searches for.
+#   - graphify-out/** — knowledge-graph artefacts extract ADR 0006
+#     prose into graph.json / wiki articles as descriptive data.
 # Any new real caller of `allowDuringKillSwitch: true` in production
 # source code will be caught.
 #
@@ -82,6 +84,7 @@ if command -v rg >/dev/null 2>&1; then
     --glob '!**/*.test.ts' \
     --glob '!docs/contributing.md' \
     --glob '!CONTRIBUTING.md' \
+    --glob '!graphify-out/**' \
     "${PATTERN}" . || true)"
   set -e
 elif command -v grep >/dev/null 2>&1; then
@@ -92,6 +95,7 @@ elif command -v grep >/dev/null 2>&1; then
     --exclude-dir=.next \
     --exclude-dir=coverage \
     --exclude-dir=.git \
+    --exclude-dir=graphify-out \
     --exclude='check-kill-switch-bypass.sh' \
     --exclude='0006-compensating-entries-bypass-kill-switch.md' \
     --exclude='package.json' \
