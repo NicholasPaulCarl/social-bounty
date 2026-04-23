@@ -1,63 +1,58 @@
 # Reconciliation engine
 
-> 53 nodes · cohesion 0.05
+> 31 nodes · cohesion 0.12
 
 ## Key Concepts
 
-- **AdminService** (22 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **SettingsService** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **AuthController** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
-- **auth.controller.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
-- **.isSignupEnabled()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.updateSettings()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.signup()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
-- **setRefreshCookie()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
-- **.getSetting()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.seedDefaults()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **brands.controller.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.verifyOtp()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
-- **HealthController** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/health/health.controller.ts`
-- **.getBoolean()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.getSettings()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.isSubmissionEnabled()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **health.controller.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/health/health.controller.ts`
-- **.getAllSettings()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.getSettings()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.isSignupEnabled()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.isSubmissionEnabled()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.setSetting()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.updateSettings()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.create()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
-- **.createBrand()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- *... and 28 more nodes in this community*
+- **ReconciliationService** (17 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- **bench-reconciliation.ts** (17 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **.run()** (14 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- **main()** (11 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **runBench()** (7 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **seedLedger()** (5 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **.checkReserveVsBounty()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- **applyMigrations()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **createBenchDb()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **dropBenchDb()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **formatTable()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **printHelp()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **psql()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **.checkDuplicateGroups()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- **.checkGroupBalance()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- **.checkWalletProjectionDrift()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- **.persistFindings()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- **.systemActorId()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- **bigintReplacer()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **buildBenchDbConfig()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **detectPgVersion()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **mulberry32()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **parseArgs()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **splitAmount()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- **LedgerTransactionGroup header idempotency** (2 connections) — `docs/adr/0005-ledger-idempotency-via-header-table.md`
+- *... and 6 more nodes in this community*
 
 ## Relationships
 
-- [[Bounty access & users]] (50 shared connections)
-- [[ADRs & audit log]] (42 shared connections)
-- [[Admin withdrawals UI]] (40 shared connections)
-- [[Social Bounty Wordmark]] (18 shared connections)
-- [[Admin page routes]] (13 shared connections)
-- [[ADR headline docs]] (3 shared connections)
-- [[Admin operations & overrides]] (2 shared connections)
+- [[API service layer]] (18 shared connections)
+- [[Webhook handlers & triggers]] (2 shared connections)
+- [[Controllers & RBAC guards]] (1 shared connections)
+- [[Wallet service]] (1 shared connections)
+- [[Project charter & ADRs]] (1 shared connections)
+- [[Bounty service & tests]] (1 shared connections)
+- [[Finance admin dashboard]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/health/health.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/redis/redis.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(auth)/login/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(auth)/signup/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/VerifiedLinkInput.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- `docs/adr/0005-ledger-idempotency-via-header-table.md`
+- `docs/perf/2026-04-15-reconciliation-benchmarks.md`
 
 ## Audit Trail
 
-- EXTRACTED: 126 (75%)
-- INFERRED: 42 (25%)
+- EXTRACTED: 101 (76%)
+- INFERRED: 32 (24%)
 - AMBIGUOUS: 0 (0%)
 
 ---

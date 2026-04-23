@@ -2,7 +2,7 @@
 
 > God node · 21 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
 
-**Community:** [[Reconciliation engine]]
+**Community:** [[Webhook handlers & triggers]]
 
 ## Connections by Relation
 

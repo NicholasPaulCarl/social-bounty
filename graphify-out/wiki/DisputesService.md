@@ -2,7 +2,7 @@
 
 > God node · 22 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/disputes.service.ts`
 
-**Community:** [[.callback()]]
+**Community:** [[API service layer]]
 
 ## Connections by Relation
 

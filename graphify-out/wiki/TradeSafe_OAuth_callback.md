@@ -1,0 +1,42 @@
+# TradeSafe OAuth callback
+
+> 15 nodes · cohesion 0.19
+
+## Key Concepts
+
+- **.callback()** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+- **tradesafe-callback.controller.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+- **tradesafe-callback.controller.spec.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
+- **TradeSafeCallbackController** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+- **.redirect()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+- **.systemActorId()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+- **firstHeader()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+- **isValidStateParam()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+- **sanitizeForLog()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+- **sanitizeQuery()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+- **.constructor()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+- **makeConfig()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
+- **makePrisma()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
+- **makeReq()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
+- **makeRes()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
+
+## Relationships
+
+- [[API service layer]] (5 shared connections)
+- [[Next.js page routes]] (1 shared connections)
+- [[Project charter & ADRs]] (1 shared connections)
+
+## Source Files
+
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+
+## Audit Trail
+
+- EXTRACTED: 39 (83%)
+- INFERRED: 8 (17%)
+- AMBIGUOUS: 0 (0%)
+
+---
+
+*Part of the graphify knowledge wiki. See [[index]] to navigate.*

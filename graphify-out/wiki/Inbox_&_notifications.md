@@ -1,53 +1,48 @@
 # Inbox & notifications
 
-> 21 nodes · cohesion 0.13
+> 21 nodes · cohesion 0.11
 
 ## Key Concepts
 
-- **page.tsx** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **page.tsx** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
-- **page.tsx** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
-- **useInView()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
-- **page.tsx** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/business/page.tsx`
-- **FadeUp()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
-- **TwitterIcon()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
-- **InstagramIcon()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
-- **layout.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
-- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
-- **InstagramIcon()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
-- **Reveal()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
-- **TwitterIcon()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **ComponentLibraryPage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
-- **handleChange()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **PhoneMockup()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
-- **scrollToForm()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **useCountUp()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
-- **useFadeUp()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **visible()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
+- **InboxController** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **NotificationsService** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
+- **.markAsRead()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
+- **.formatResponse()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
+- **inbox.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.markAllNotificationsAsRead()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.markNotificationAsRead()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.getUnreadCount()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
+- **.getUnreadMessageCount()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
+- **.markAllAsRead()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.createConversation()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.deleteMessage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.editMessage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.getConversation()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.getUnreadCount()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.listConversations()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.listNotifications()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.markConversationRead()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
+- **.listNotifications()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
 
 ## Relationships
 
-- [[middleware.ts]] (30 shared connections)
-- [[Bounty access & users]] (17 shared connections)
-- [[PageHeaderTabs.tsx]] (7 shared connections)
-- [[Admin operations & overrides]] (4 shared connections)
-- [[subscription-cancel.spec.ts]] (3 shared connections)
+- [[API service layer]] (3 shared connections)
+- [[Next.js page routes]] (1 shared connections)
+- [[REST API controllers]] (1 shared connections)
+- [[Bounty service & tests]] (1 shared connections)
+- [[Subscription & auth lifecycle]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/business/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 43 (70%)
-- INFERRED: 18 (30%)
+- EXTRACTED: 47 (89%)
+- INFERRED: 6 (11%)
 - AMBIGUOUS: 0 (0%)
 
 ---

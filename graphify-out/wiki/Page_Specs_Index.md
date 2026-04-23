@@ -2,7 +2,7 @@
 
 > God node · 21 connections · `md-files/page-spec/README.md`
 
-**Community:** [[Agent team roster]]
+**Community:** [[Page spec documentation]]
 
 ## Connections by Relation
 

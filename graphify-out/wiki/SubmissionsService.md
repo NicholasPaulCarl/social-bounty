@@ -2,7 +2,7 @@
 
 > God node · 20 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.service.ts`
 
-**Community:** [[Admin page routes]]
+**Community:** [[API service layer]]
 
 ## Connections by Relation
 

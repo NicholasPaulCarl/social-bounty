@@ -9,148 +9,148 @@
 ## Communities
 (sorted by size, largest first)
 
-- [[Admin operations & overrides]] — 279 nodes
-- [[Admin page routes]] — 278 nodes
-- [[Agent team roster]] — 163 nodes
-- [[Auth & webhook verification]] — 159 nodes
-- [[Bounties & Stitch payments]] — 138 nodes
-- [[Finance admin & KB]] — 123 nodes
-- [[Apify post scraping]] — 93 nodes
-- [[Bounty access & users]] — 82 nodes
-- [[App layouts & shells]] — 78 nodes
-- [[Wallet & withdrawals]] — 72 nodes
-- [[ADRs & audit log]] — 72 nodes
-- [[Brand funding & form state]] — 68 nodes
-- [[Bounty form & disputes]] — 66 nodes
-- [[Reconciliation engine]] — 53 nodes
-- [[TradeSafe client & payouts]] — 50 nodes
-- [[ADR headline docs]] — 42 nodes
-- [[Bounty UI components]] — 39 nodes
-- [[Admin withdrawals UI]] — 37 nodes
-- [[AdminService class]] — 31 nodes
-- [[Admin brand & user tabs]] — 31 nodes
-- [[Design system components]] — 29 nodes
-- [[BrandsService class]] — 28 nodes
+- [[Next.js page routes]] — 279 nodes
+- [[API service layer]] — 278 nodes
+- [[React query hooks]] — 163 nodes
+- [[Project charter & ADRs]] — 159 nodes
+- [[REST API controllers]] — 138 nodes
+- [[Page spec documentation]] — 123 nodes
+- [[Finance admin dashboard]] — 93 nodes
+- [[Bounty service & tests]] — 82 nodes
+- [[Subscription & auth lifecycle]] — 78 nodes
+- [[Ledger & payment services]] — 72 nodes
+- [[Roadmap & risk concepts]] — 72 nodes
+- [[User & brand profile services]] — 68 nodes
+- [[Webhook handlers & triggers]] — 66 nodes
+- [[Auth & settings admin]] — 53 nodes
+- [[Wallet service]] — 50 nodes
+- [[Bounty access & mutation]] — 42 nodes
+- [[Controllers & RBAC guards]] — 39 nodes
+- [[Frontend formatters & badges]] — 37 nodes
+- [[Reconciliation engine]] — 31 nodes
+- [[Design system handoff]] — 31 nodes
+- [[Bounty creation form]] — 29 nodes
+- [[Refund flow test fixtures]] — 28 nodes
+- [[Marketing site pages]] — 21 nodes
 - [[Inbox & notifications]] — 21 nodes
-- [[Wallet controller & projection]] — 21 nodes
-- [[apify.mappers.ts]] — 20 nodes
-- [[Health, Redis, URL verification]] — 20 nodes
-- [[kb-context.ts]] — 18 nodes
-- [[useManageFilters.ts]] — 18 nodes
-- [[Signup (OTP + optional brand)]] — 18 nodes
-- [[tradesafe.client.ts]] — 17 nodes
-- [[makeContext()]] — 15 nodes
-- [[.callback()]] — 15 nodes
-- [[feeCents()]] — 11 nodes
-- [[client.ts]] — 10 nodes
-- [[submissions.validators.ts]] — 10 nodes
-- [[bounties.validators.ts]] — 10 nodes
-- [[middleware.ts]] — 9 nodes
-- [[auth.validators.ts]] — 9 nodes
-- [[disputes.validators.ts]] — 9 nodes
-- [[KybController]] — 7 nodes
-- [[AppSidebar.tsx]] — 5 nodes
-- [[compute-verification-checks.ts]] — 5 nodes
-- [[submission-scrape-recovery.scheduler.spe]] — 5 nodes
-- [[Social Bounty Wordmark]] — 5 nodes
-- [[seedOtpInRedis()]] — 4 nodes
-- [[pickInRange()]] — 4 nodes
-- [[SanitizePipe]] — 4 nodes
-- [[kb.module.ts]] — 4 nodes
-- [[participant-flow.spec.ts]] — 3 nodes
-- [[smoke-finance-group-drilldown.spec.ts]] — 3 nodes
-- [[PropsTable.tsx]] — 3 nodes
-- [[SelectPill.tsx]] — 3 nodes
-- [[ImageCropDialog.tsx]] — 3 nodes
-- [[reconciliation.fault-injection.spec.ts]] — 3 nodes
-- [[TradeSafeApiError]] — 3 nodes
-- [[jest-globals.d.ts]] — 2 nodes
-- [[layout.tsx]] — 2 nodes
-- [[not-found.tsx]] — 2 nodes
-- [[providers.tsx]] — 2 nodes
-- [[CodeBlock.tsx]] — 2 nodes
-- [[FormSectionsSection.tsx]] — 2 nodes
-- [[page.tsx]] — 2 nodes
-- [[AutoVerifyPreviewAccordion.tsx]] — 2 nodes
-- [[MainLayout.tsx]] — 2 nodes
-- [[FormatChip.tsx]] — 2 nodes
-- [[UpsellBanner.tsx]] — 2 nodes
-- [[VerifiedBadge.tsx]] — 2 nodes
-- [[error.tsx]] — 2 nodes
-- [[ProBadge.tsx]] — 2 nodes
-- [[PageHeaderTitle.tsx]] — 2 nodes
-- [[useToolbarSearch.ts]] — 2 nodes
-- [[PageHeaderTabs.tsx]] — 2 nodes
-- [[PageHeader.tsx]] — 2 nodes
-- [[usePayouts.ts]] — 2 nodes
-- [[useDashboard.ts]] — 2 nodes
-- [[cn.ts]] — 2 nodes
-- [[query-client.ts]] — 2 nodes
-- [[jest.config.ts]] — 2 nodes
-- [[app.module.ts]] — 2 nodes
-- [[audited.decorator.ts]] — 2 nodes
-- [[public.decorator.ts]] — 2 nodes
-- [[settings.module.ts]] — 2 nodes
-- [[inbox.module.ts]] — 2 nodes
-- [[health.module.ts]] — 2 nodes
-- [[subscription-cancel.spec.ts]] — 2 nodes
-- [[audit.module.ts]] — 2 nodes
-- [[wallet.module.ts]] — 2 nodes
-- [[submissions.module.ts]] — 2 nodes
-- [[webhook-router.tradesafe.spec.ts]] — 2 nodes
-- [[webhooks.module.ts]] — 2 nodes
-- [[apify.module.ts]] — 2 nodes
-- [[SECURITY-COMPLIANCE.md]] — 2 nodes
-- [[jest.config.js]] — 1 nodes
-- [[node-globals.d.ts]] — 1 nodes
-- [[next.config.mjs]] — 1 nodes
-- [[next-env.d.ts]] — 1 nodes
-- [[tailwind.config.ts]] — 1 nodes
-- [[playwright.config.ts]] — 1 nodes
-- [[postcss.config.js]] — 1 nodes
-- [[auth.spec.ts]] — 1 nodes
-- [[smoke-hunter-payouts.spec.ts]] — 1 nodes
-- [[smoke-brand-go-live.spec.ts]] — 1 nodes
-- [[smoke-finance-kill-switch.spec.ts]] — 1 nodes
-- [[global.d.ts]] — 1 nodes
-- [[global-error.tsx]] — 1 nodes
-- [[LibrarySidebar.tsx]] — 1 nodes
-- [[MoleculesSection.tsx]] — 1 nodes
-- [[BrandSection.tsx]] — 1 nodes
-- [[AtomsSection.tsx]] — 1 nodes
-- [[layout.tsx]] — 1 nodes
-- [[ScheduleSection.tsx]] — 1 nodes
-- [[SectionPanel.tsx]] — 1 nodes
-- [[MaxSubmissionsSection.tsx]] — 1 nodes
-- [[index.ts]] — 1 nodes
-- [[ProofRequirementsSection.tsx]] — 1 nodes
-- [[AppHeader.tsx]] — 1 nodes
-- [[BrowseHero.tsx]] — 1 nodes
-- [[BountyCardSkeleton.tsx]] — 1 nodes
-- [[ActiveFilterChips.tsx]] — 1 nodes
-- [[MobileFilterSheet.tsx]] — 1 nodes
-- [[StatusDot.tsx]] — 1 nodes
-- [[ManageHero.tsx]] — 1 nodes
-- [[EmptyState.tsx]] — 1 nodes
-- [[LoadingState.tsx]] — 1 nodes
-- [[PageHeaderBreadcrumbs.tsx]] — 1 nodes
-- [[PageHeaderToolbar.tsx]] — 1 nodes
-- [[types.ts]] — 1 nodes
-- [[PageHeaderViewToggle.tsx]] — 1 nodes
-- [[PageHeaderPills.tsx]] — 1 nodes
-- [[index.ts]] — 1 nodes
-- [[subscriptions-upgrade.test.ts]] — 1 nodes
-- [[current-user.decorator.ts]] — 1 nodes
-- [[index.ts]] — 1 nodes
-- [[tradesafe-webhook.handler.payout-failed.]] — 1 nodes
-- [[tradesafe-webhook.handler.payout-settled]] — 1 nodes
-- [[tradesafe-webhook.handler.beneficiary-li]] — 1 nodes
-- [[reported-metrics.spec.ts]] — 1 nodes
-- [[webhook-router.upgrade.spec.ts]] — 1 nodes
-- [[payout-provider.interface.ts]] — 1 nodes
-- [[Double-entry ledger (CLAUDE.md §4.1)]] — 1 nodes
-- [[UNIQUE(referenceId, actionType) idempote]] — 1 nodes
-- [[QA Known Issues and Checks]] — 1 nodes
+- [[Apify scraping integration]] — 20 nodes
+- [[Wallet page specs]] — 20 nodes
+- [[KB context CLI]] — 18 nodes
+- [[Bounty browse & manage filters]] — 18 nodes
+- [[Marketing page specs]] — 18 nodes
+- [[External API clients]] — 17 nodes
+- [[RBAC controller spec harness]] — 15 nodes
+- [[TradeSafe OAuth callback]] — 15 nodes
+- [[Fee calculator & rounding]] — 11 nodes
+- [[Web API fetch client]] — 10 nodes
+- [[Submission & env validators]] — 10 nodes
+- [[Bounty DTO validators]] — 10 nodes
+- [[Web auth middleware]] — 9 nodes
+- [[Auth DTO validators]] — 9 nodes
+- [[Dispute DTO validators]] — 9 nodes
+- [[KYB brand verification]] — 7 nodes
+- [[App sidebar navigation]] — 5 nodes
+- [[Verification check computation]] — 5 nodes
+- [[Scrape recovery scheduler]] — 5 nodes
+- [[Wordmark asset]] — 5 nodes
+- [[Community 44]] — 4 nodes
+- [[Community 45]] — 4 nodes
+- [[Community 46]] — 4 nodes
+- [[Community 47]] — 4 nodes
+- [[Community 48]] — 3 nodes
+- [[Community 49]] — 3 nodes
+- [[Community 50]] — 3 nodes
+- [[Community 51]] — 3 nodes
+- [[Community 52]] — 3 nodes
+- [[Community 53]] — 3 nodes
+- [[Community 54]] — 3 nodes
+- [[Community 55]] — 2 nodes
+- [[Community 56]] — 2 nodes
+- [[Community 57]] — 2 nodes
+- [[Community 58]] — 2 nodes
+- [[Community 59]] — 2 nodes
+- [[Community 60]] — 2 nodes
+- [[Community 61]] — 2 nodes
+- [[Community 62]] — 2 nodes
+- [[Community 63]] — 2 nodes
+- [[Community 64]] — 2 nodes
+- [[Community 65]] — 2 nodes
+- [[Community 66]] — 2 nodes
+- [[Community 67]] — 2 nodes
+- [[Community 68]] — 2 nodes
+- [[Community 69]] — 2 nodes
+- [[Community 70]] — 2 nodes
+- [[Community 71]] — 2 nodes
+- [[Community 72]] — 2 nodes
+- [[Community 73]] — 2 nodes
+- [[Community 74]] — 2 nodes
+- [[Community 75]] — 2 nodes
+- [[Community 76]] — 2 nodes
+- [[Community 77]] — 2 nodes
+- [[Community 78]] — 2 nodes
+- [[Community 79]] — 2 nodes
+- [[Community 80]] — 2 nodes
+- [[Community 81]] — 2 nodes
+- [[Community 82]] — 2 nodes
+- [[Community 83]] — 2 nodes
+- [[Community 84]] — 2 nodes
+- [[Community 85]] — 2 nodes
+- [[Community 86]] — 2 nodes
+- [[Community 87]] — 2 nodes
+- [[Community 88]] — 2 nodes
+- [[Community 89]] — 2 nodes
+- [[Community 90]] — 2 nodes
+- [[Community 91]] — 2 nodes
+- [[Community 92]] — 1 nodes
+- [[Community 93]] — 1 nodes
+- [[Community 94]] — 1 nodes
+- [[Community 95]] — 1 nodes
+- [[Community 96]] — 1 nodes
+- [[Community 97]] — 1 nodes
+- [[Community 98]] — 1 nodes
+- [[Community 99]] — 1 nodes
+- [[Community 100]] — 1 nodes
+- [[Community 101]] — 1 nodes
+- [[Community 102]] — 1 nodes
+- [[Community 103]] — 1 nodes
+- [[Community 104]] — 1 nodes
+- [[Community 105]] — 1 nodes
+- [[Community 106]] — 1 nodes
+- [[Community 107]] — 1 nodes
+- [[Community 108]] — 1 nodes
+- [[Community 109]] — 1 nodes
+- [[Community 110]] — 1 nodes
+- [[Community 111]] — 1 nodes
+- [[Community 112]] — 1 nodes
+- [[Community 113]] — 1 nodes
+- [[Community 114]] — 1 nodes
+- [[Community 115]] — 1 nodes
+- [[Community 116]] — 1 nodes
+- [[Community 117]] — 1 nodes
+- [[Community 118]] — 1 nodes
+- [[Community 119]] — 1 nodes
+- [[Community 120]] — 1 nodes
+- [[Community 121]] — 1 nodes
+- [[Community 122]] — 1 nodes
+- [[Community 123]] — 1 nodes
+- [[Community 124]] — 1 nodes
+- [[Community 125]] — 1 nodes
+- [[Community 126]] — 1 nodes
+- [[Community 127]] — 1 nodes
+- [[Community 128]] — 1 nodes
+- [[Community 129]] — 1 nodes
+- [[Community 130]] — 1 nodes
+- [[Community 131]] — 1 nodes
+- [[Community 132]] — 1 nodes
+- [[Community 133]] — 1 nodes
+- [[Community 134]] — 1 nodes
+- [[Community 135]] — 1 nodes
+- [[Community 136]] — 1 nodes
+- [[Community 137]] — 1 nodes
+- [[Community 138]] — 1 nodes
+- [[Community 139]] — 1 nodes
+- [[Community 140]] — 1 nodes
+- [[Community 141]] — 1 nodes
 
 ## God Nodes
 (most connected concepts — the load-bearing abstractions)

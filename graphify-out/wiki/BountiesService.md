@@ -2,7 +2,7 @@
 
 > God node · 25 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
 
-**Community:** [[Wallet & withdrawals]]
+**Community:** [[Bounty access & mutation]]
 
 ## Connections by Relation
 

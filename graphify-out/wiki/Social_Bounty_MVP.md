@@ -2,7 +2,7 @@
 
 > God node · 28 connections · `claude.md`
 
-**Community:** [[audited.decorator.ts]]
+**Community:** [[Project charter & ADRs]]
 
 ## Connections by Relation
 

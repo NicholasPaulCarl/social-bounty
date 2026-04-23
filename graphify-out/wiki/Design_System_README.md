@@ -2,7 +2,7 @@
 
 > God node · 21 connections · `apps/web/src/styles/design-system/README.md`
 
-**Community:** [[AdminService class]]
+**Community:** [[Design system handoff]]
 
 ## Connections by Relation
 
