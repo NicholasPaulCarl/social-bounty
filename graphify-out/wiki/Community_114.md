@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **ProofRequirementsSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/ProofRequirementsSection.tsx`
+- **index.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/index.ts`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/ProofRequirementsSection.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/index.ts`
 
 ## Audit Trail
 

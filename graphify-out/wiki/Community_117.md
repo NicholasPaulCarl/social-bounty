@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **BountyCardSkeleton.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyCardSkeleton.tsx`
+- **index.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/index.ts`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyCardSkeleton.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/index.ts`
 
 ## Audit Trail
 

@@ -1,27 +1,25 @@
 # Community 48
 
-> 3 nodes · cohesion 1.00
+> 3 nodes · cohesion 0.67
 
 ## Key Concepts
 
-- **admin-flow.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/admin-flow.spec.ts`
-- **business-flow.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/business-flow.spec.ts`
-- **participant-flow.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/participant-flow.spec.ts`
+- **TradeSafeApiError** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.types.ts`
+- **tradesafe.types.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.types.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.types.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 54]] (4 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/e2e/admin-flow.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/e2e/business-flow.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/e2e/participant-flow.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.types.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 0 (0%)
-- INFERRED: 6 (100%)
+- EXTRACTED: 4 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

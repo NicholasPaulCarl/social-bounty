@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **LibrarySidebar.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/LibrarySidebar.tsx`
+- **StatusDot.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/StatusDot.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/LibrarySidebar.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/StatusDot.tsx`
 
 ## Audit Trail
 

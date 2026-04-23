@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **MainLayout.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/MainLayout.tsx`
-- **MainLayout()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/MainLayout.tsx`
+- **useToolbarSearch.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/useToolbarSearch.ts`
+- **useToolbarSearch()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/useToolbarSearch.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 70]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/MainLayout.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/useToolbarSearch.ts`
 
 ## Audit Trail
 

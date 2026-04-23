@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **next-env.d.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/next-env.d.ts`
+- **ScheduleSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/ScheduleSection.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/next-env.d.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/ScheduleSection.tsx`
 
 ## Audit Trail
 

@@ -4,22 +4,21 @@
 
 ## Key Concepts
 
-- **AutoVerifyPreviewAccordion.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/AutoVerifyPreviewAccordion.tsx`
-- **AutoVerifyPreviewAccordion.test.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/AutoVerifyPreviewAccordion.test.ts`
+- **PageHeaderTitle.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderTitle.tsx`
+- **PageHeaderTitle()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderTitle.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 69]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/AutoVerifyPreviewAccordion.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/AutoVerifyPreviewAccordion.test.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderTitle.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 0 (0%)
-- INFERRED: 2 (100%)
+- EXTRACTED: 2 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

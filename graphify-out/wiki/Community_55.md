@@ -4,17 +4,17 @@
 
 ## Key Concepts
 
-- **jest-globals.d.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/types/jest-globals.d.ts`
-- **jest-globals.d.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/types/jest-globals.d.ts`
+- **page.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/privacy/page.tsx`
+- **page.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/terms/page.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 61]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/types/jest-globals.d.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/types/jest-globals.d.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/privacy/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/terms/page.tsx`
 
 ## Audit Trail
 

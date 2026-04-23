@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **smoke-hunter-payouts.spec.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/smoke-hunter-payouts.spec.ts`
+- **AppHeader.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/AppHeader.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/e2e/smoke-hunter-payouts.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/AppHeader.tsx`
 
 ## Audit Trail
 

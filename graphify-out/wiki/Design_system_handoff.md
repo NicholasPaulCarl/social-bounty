@@ -1,57 +1,53 @@
 # Design system handoff
 
-> 31 nodes · cohesion 0.11
+> 28 nodes · cohesion 0.15
 
 ## Key Concepts
 
-- **Design System README** (21 connections) — `apps/web/src/styles/design-system/README.md`
-- **Design System SKILL.md** (11 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **previews/components.html** (10 connections) — `apps/web/src/styles/design-system/previews/components.html`
-- **previews/colors.html** (5 connections) — `apps/web/src/styles/design-system/previews/colors.html`
-- **previews/type.html** (4 connections) — `apps/web/src/styles/design-system/previews/type.html`
-- **Design System ICONS.md** (3 connections) — `apps/web/src/styles/design-system/ICONS.md`
-- **.avatar** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.badge** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.btn (button)** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.card** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.chip** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.input / .textarea / .select** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.progress** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.table** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.toast** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **Lucide Icons (lucide-react)** (2 connections) — `apps/web/src/styles/design-system/ICONS.md`
-- **Shell Navigation** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **previews/shell-navigation.html** (2 connections) — `apps/web/src/styles/design-system/previews/shell-navigation.html`
-- **--blue-600 (#2563eb)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **--pink-600 (#db2777)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **--reward-500 (gold)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **--slate-* tokens** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **Inter (body)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **JetBrains Mono (metrics)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **Space Grotesk (headings)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- *... and 6 more nodes in this community*
+- **refund-after-approval.spec.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
+- **test-fixtures.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/test-fixtures.ts`
+- **refund-after-payout.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
+- **buildService()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
+- **buildService()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
+- **refund-approval-flow.spec.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
+- **buildPrismaStub()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
+- **buildPrismaStub()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
+- **buildPrismaStub()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
+- **buildService()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
+- **buildStitchStub()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
+- **buildBountyRow()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
+- **buildLedgerStub()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
+- **buildStitchStub()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
+- **buildBountyRow()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
+- **buildLedgerStub()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
+- **buildStitchStub()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
+- **buildBountyRow()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
+- **buildLedgerStub()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
+- **buildSubmissionRow()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
+- **buildSubmissionRow()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
+- **createMockPrisma()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/test-fixtures.ts`
+- **baseBountyRewardRecord()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/test-fixtures.ts`
+- **byAccountType()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
+- **baseBountyRecord()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/test-fixtures.ts`
+- *... and 3 more nodes in this community*
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Refund flow test fixtures]] (112 shared connections)
+- [[API service layer]] (3 shared connections)
+- [[Next.js page routes]] (1 shared connections)
 
 ## Source Files
 
-- `apps/web/src/styles/design-system/ICONS.md`
-- `apps/web/src/styles/design-system/README.md`
-- `apps/web/src/styles/design-system/SKILL.md`
-- `apps/web/src/styles/design-system/previews/brand.html`
-- `apps/web/src/styles/design-system/previews/colors.html`
-- `apps/web/src/styles/design-system/previews/components.html`
-- `apps/web/src/styles/design-system/previews/shell-navigation.html`
-- `apps/web/src/styles/design-system/previews/spacing.html`
-- `apps/web/src/styles/design-system/previews/type.html`
-- `design-system/social-bounty/MASTER.md`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/test-fixtures.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 98 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 79 (68%)
+- INFERRED: 37 (32%)
 - AMBIGUOUS: 0 (0%)
 
 ---

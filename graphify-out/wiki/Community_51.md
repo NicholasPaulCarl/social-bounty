@@ -1,24 +1,23 @@
 # Community 51
 
-> 3 nodes · cohesion 0.67
+> 2 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **SelectPill.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/SelectPill.tsx`
-- **onClick()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/SelectPill.tsx`
-- **onEsc()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/SelectPill.tsx`
+- **not-found.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/not-found.tsx`
+- **NotFound()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/not-found.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 57]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/SelectPill.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/not-found.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 4 (100%)
+- EXTRACTED: 2 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

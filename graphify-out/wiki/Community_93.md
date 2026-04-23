@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **node-globals.d.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/packages/prisma/types/node-globals.d.ts`
+- **AtomsSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/AtomsSection.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/packages/prisma/types/node-globals.d.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/AtomsSection.tsx`
 
 ## Audit Trail
 

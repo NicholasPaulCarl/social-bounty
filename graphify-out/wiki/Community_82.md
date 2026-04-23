@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **inbox.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.module.ts`
-- **InboxModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.module.ts`
+- **ApifyModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.module.ts`
+- **apify.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.module.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 90]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.module.ts`
 
 ## Audit Trail
 

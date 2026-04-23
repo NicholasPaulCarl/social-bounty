@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **StatusDot.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/StatusDot.tsx`
+- **tradesafe-webhook.handler.beneficiary-linked.spec.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.beneficiary-linked.spec.ts`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/StatusDot.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.beneficiary-linked.spec.ts`
 
 ## Audit Trail
 

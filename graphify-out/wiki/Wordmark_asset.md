@@ -1,27 +1,27 @@
 # Wordmark asset
 
-> 5 nodes · cohesion 0.40
+> 4 nodes · cohesion 0.50
 
 ## Key Concepts
 
-- **Social Bounty Wordmark** (4 connections) — `apps/web/src/styles/design-system/assets/logo-wordmark.png`
-- **Wordmark Pink Fill** (1 connections) — `apps/web/src/styles/design-system/assets/logo-wordmark.png`
-- **Wordmark Layout** (1 connections) — `apps/web/src/styles/design-system/assets/logo-wordmark.png`
-- **Wordmark Text: 'Social Bounty'** (1 connections) — `apps/web/src/styles/design-system/assets/logo-wordmark.png`
-- **Wordmark Typography Style** (1 connections) — `apps/web/src/styles/design-system/assets/logo-wordmark.png`
+- **brands.module.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.module.ts`
+- **kb.module.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.module.ts`
+- **BrandsModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.module.ts`
+- **KbModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.module.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 47]] (6 shared connections)
 
 ## Source Files
 
-- `apps/web/src/styles/design-system/assets/logo-wordmark.png`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.module.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 8 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 4 (67%)
+- INFERRED: 2 (33%)
 - AMBIGUOUS: 0 (0%)
 
 ---

@@ -1,29 +1,26 @@
 # Verification check computation
 
-> 5 nodes · cohesion 0.50
+> 4 nodes · cohesion 0.83
 
 ## Key Concepts
 
-- **compute-verification-checks.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/compute-verification-checks.ts`
-- **computeVerificationChecks()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/compute-verification-checks.ts`
-- **compute-verification-checks.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/compute-verification-checks.spec.ts`
-- **normalize()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/compute-verification-checks.ts`
-- **noRules()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/compute-verification-checks.spec.ts`
+- **pickInRange()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/mock/apify.ts`
+- **apify.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/mock/apify.ts`
+- **djb2()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/mock/apify.ts`
+- **getMockBrandSocialAnalytics()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/mock/apify.ts`
 
 ## Relationships
 
-- [[Next.js page routes]] (1 shared connections)
-- [[API service layer]] (1 shared connections)
+- [[Community 45]] (10 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/compute-verification-checks.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/compute-verification-checks.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/mock/apify.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 9 (75%)
-- INFERRED: 3 (25%)
+- EXTRACTED: 10 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

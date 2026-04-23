@@ -1,27 +1,25 @@
 # Community 47
 
-> 4 nodes · cohesion 0.50
+> 3 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **brands.module.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.module.ts`
-- **kb.module.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.module.ts`
-- **BrandsModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.module.ts`
-- **KbModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.module.ts`
+- **reconciliation.fault-injection.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.fault-injection.spec.ts`
+- **buildService()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.fault-injection.spec.ts`
+- **makeQueryRawRouter()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.fault-injection.spec.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 53]] (6 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.module.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.fault-injection.spec.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 4 (67%)
-- INFERRED: 2 (33%)
+- EXTRACTED: 6 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

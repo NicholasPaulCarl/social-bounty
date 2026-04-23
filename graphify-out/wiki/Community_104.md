@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **global-error.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/global-error.tsx`
+- **MobileFilterSheet.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/MobileFilterSheet.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/global-error.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/MobileFilterSheet.tsx`
 
 ## Audit Trail
 

@@ -1,25 +1,24 @@
 # Community 46
 
-> 4 nodes · cohesion 0.67
+> 3 nodes · cohesion 0.67
 
 ## Key Concepts
 
-- **SanitizePipe** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/pipes/sanitize.pipe.ts`
-- **.sanitize()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/pipes/sanitize.pipe.ts`
-- **.transform()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/pipes/sanitize.pipe.ts`
-- **sanitize.pipe.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/pipes/sanitize.pipe.ts`
+- **ImageCropDialog.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ImageCropDialog.tsx`
+- **cropImage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ImageCropDialog.tsx`
+- **ImageCropDialog()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ImageCropDialog.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 52]] (4 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/pipes/sanitize.pipe.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ImageCropDialog.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 8 (100%)
+- EXTRACTED: 4 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

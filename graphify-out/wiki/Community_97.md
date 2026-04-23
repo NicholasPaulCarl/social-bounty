@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **playwright.config.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/playwright.config.ts`
+- **MaxSubmissionsSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/MaxSubmissionsSection.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/playwright.config.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/MaxSubmissionsSection.tsx`
 
 ## Audit Trail
 

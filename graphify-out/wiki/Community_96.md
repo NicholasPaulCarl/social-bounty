@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **tailwind.config.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/tailwind.config.ts`
+- **SectionPanel.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/SectionPanel.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/tailwind.config.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/SectionPanel.tsx`
 
 ## Audit Trail
 

@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **global.d.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/global.d.ts`
+- **ActiveFilterChips.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/ActiveFilterChips.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/global.d.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/ActiveFilterChips.tsx`
 
 ## Audit Trail
 

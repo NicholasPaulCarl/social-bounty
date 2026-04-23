@@ -1,58 +1,59 @@
 # Reconciliation engine
 
-> 31 nodes · cohesion 0.12
+> 30 nodes · cohesion 0.11
 
 ## Key Concepts
 
-- **ReconciliationService** (17 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **bench-reconciliation.ts** (17 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **.run()** (14 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **main()** (11 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **runBench()** (7 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **seedLedger()** (5 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **.checkReserveVsBounty()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **applyMigrations()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **createBenchDb()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **dropBenchDb()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **formatTable()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **printHelp()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **psql()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **.checkDuplicateGroups()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **.checkGroupBalance()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **.checkWalletProjectionDrift()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **.persistFindings()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **.systemActorId()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **bigintReplacer()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **buildBenchDbConfig()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **detectPgVersion()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **mulberry32()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **parseArgs()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **splitAmount()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **LedgerTransactionGroup header idempotency** (2 connections) — `docs/adr/0005-ledger-idempotency-via-header-table.md`
-- *... and 6 more nodes in this community*
+- **WalletService** (15 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **.add()** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **FakeDecimal** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **FakeDecimal** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/withdrawal-service.spec.ts`
+- **.abs()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **.sub()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **.lessThan()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **.getBalance()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **.getOrCreateWallet()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **.releaseFunds()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **.toNumber()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **.adminAdjust()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **.creditWalletWithCommission()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **.getDashboard()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **.holdFunds()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **.add()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/withdrawal-service.spec.ts`
+- **.sub()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/withdrawal-service.spec.ts`
+- **.toString()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/withdrawal-service.spec.ts`
+- **approxDelta()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.spec.ts`
+- **.adminAdjustWallet()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.controller.ts`
+- **.constructor()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **.completeWithdrawal()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **.creditWallet()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **.getTransactions()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **.abs()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/withdrawal-service.spec.ts`
+- *... and 5 more nodes in this community*
 
 ## Relationships
 
-- [[API service layer]] (18 shared connections)
-- [[Webhook handlers & triggers]] (2 shared connections)
-- [[Controllers & RBAC guards]] (1 shared connections)
-- [[Wallet service]] (1 shared connections)
-- [[Project charter & ADRs]] (1 shared connections)
-- [[Bounty service & tests]] (1 shared connections)
-- [[Finance admin dashboard]] (1 shared connections)
+- [[Wallet service]] (97 shared connections)
+- [[API service layer]] (14 shared connections)
+- [[Bounty access & mutation]] (2 shared connections)
+- [[Bounty service & tests]] (2 shared connections)
+- [[Ledger & payment services]] (1 shared connections)
+- [[Subscription & auth lifecycle]] (1 shared connections)
+- [[Bounty creation form]] (1 shared connections)
+- [[User & brand profile services]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- `docs/adr/0005-ledger-idempotency-via-header-table.md`
-- `docs/perf/2026-04-15-reconciliation-benchmarks.md`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/withdrawal-service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 101 (76%)
-- INFERRED: 32 (24%)
+- EXTRACTED: 68 (57%)
+- INFERRED: 52 (43%)
 - AMBIGUOUS: 0 (0%)
 
 ---

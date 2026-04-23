@@ -4,22 +4,21 @@
 
 ## Key Concepts
 
-- **error.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/error.tsx`
-- **ErrorState.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ErrorState.tsx`
+- **useDashboard.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useDashboard.ts`
+- **useBusinessDashboard()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useDashboard.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 74]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/error.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ErrorState.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useDashboard.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 0 (0%)
-- INFERRED: 2 (100%)
+- EXTRACTED: 2 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

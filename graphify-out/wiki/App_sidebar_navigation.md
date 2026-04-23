@@ -1,27 +1,27 @@
 # App sidebar navigation
 
-> 5 nodes · cohesion 0.40
+> 4 nodes · cohesion 0.67
 
 ## Key Concepts
 
-- **AppSidebar.tsx** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/AppSidebar.tsx`
-- **CountPip()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/AppSidebar.tsx`
-- **CreatorIdentity()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/AppSidebar.tsx`
-- **NavItemRow()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/AppSidebar.tsx`
-- **NavSectionLabel()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/AppSidebar.tsx`
+- **helpers.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/helpers.ts`
+- **seedOtpInRedis()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/helpers.ts`
+- **loginAs()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/helpers.ts`
+- **logout()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/helpers.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 44]] (8 shared connections)
+- [[API service layer]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/AppSidebar.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/e2e/helpers.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 8 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 8 (89%)
+- INFERRED: 1 (11%)
 - AMBIGUOUS: 0 (0%)
 
 ---

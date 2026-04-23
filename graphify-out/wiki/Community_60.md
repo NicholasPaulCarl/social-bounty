@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **FormSectionsSection.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/FormSectionsSection.tsx`
-- **FormSectionsSection()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/FormSectionsSection.tsx`
+- **VerifiedBadge.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/VerifiedBadge.tsx`
+- **VerifiedBadge()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/VerifiedBadge.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 66]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/FormSectionsSection.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/VerifiedBadge.tsx`
 
 ## Audit Trail
 

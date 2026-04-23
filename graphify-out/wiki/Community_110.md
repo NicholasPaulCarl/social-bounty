@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **ScheduleSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/ScheduleSection.tsx`
+- **PageHeaderToolbar.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderToolbar.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/ScheduleSection.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderToolbar.tsx`
 
 ## Audit Trail
 

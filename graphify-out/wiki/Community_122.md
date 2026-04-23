@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **EmptyState.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/EmptyState.tsx`
+- **webhook-router.upgrade.spec.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.upgrade.spec.ts`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/EmptyState.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.upgrade.spec.ts`
 
 ## Audit Trail
 

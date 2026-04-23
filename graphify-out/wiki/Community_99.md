@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **auth.spec.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/auth.spec.ts`
+- **ProofRequirementsSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/ProofRequirementsSection.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/e2e/auth.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/ProofRequirementsSection.tsx`
 
 ## Audit Trail
 

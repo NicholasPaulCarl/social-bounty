@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **audited.decorator.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/audited.decorator.ts`
-- **Audited()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/audited.decorator.ts`
+- **submissions.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.module.ts`
+- **SubmissionsModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.module.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 87]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/audited.decorator.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.module.ts`
 
 ## Audit Trail
 

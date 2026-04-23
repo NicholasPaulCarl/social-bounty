@@ -1,26 +1,25 @@
 # Community 50
 
-> 3 nodes · cohesion 0.67
+> 2 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **PropsTable.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/PropsTable.tsx`
-- **ComponentDemo.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/ComponentDemo.tsx`
-- **PropsTable()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/PropsTable.tsx`
+- **error.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/error.tsx`
+- **ErrorState.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ErrorState.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 67]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/ComponentDemo.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/PropsTable.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/error.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ErrorState.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 2 (50%)
-- INFERRED: 2 (50%)
+- EXTRACTED: 0 (0%)
+- INFERRED: 2 (100%)
 - AMBIGUOUS: 0 (0%)
 
 ---

@@ -1,11 +1,10 @@
 # Community 89
 
-> 2 nodes · cohesion 1.00
+> 1 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **webhooks.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhooks.module.ts`
-- **WebhooksModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhooks.module.ts`
+- **global-error.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/global-error.tsx`
 
 ## Relationships
 
@@ -13,11 +12,11 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhooks.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/global-error.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 2 (100%)
+- EXTRACTED: 0 (0%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

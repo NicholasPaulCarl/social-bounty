@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **smoke-finance-kill-switch.spec.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/smoke-finance-kill-switch.spec.ts`
+- **BountyCardSkeleton.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyCardSkeleton.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/e2e/smoke-finance-kill-switch.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyCardSkeleton.tsx`
 
 ## Audit Trail
 

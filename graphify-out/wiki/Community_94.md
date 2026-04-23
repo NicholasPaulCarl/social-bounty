@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **next.config.mjs** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/next.config.mjs`
+- **layout.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/layout.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/next.config.mjs`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/layout.tsx`
 
 ## Audit Trail
 

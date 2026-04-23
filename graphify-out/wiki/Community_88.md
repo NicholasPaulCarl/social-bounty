@@ -1,11 +1,10 @@
 # Community 88
 
-> 2 nodes · cohesion 1.00
+> 1 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **webhook-router.tradesafe.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.tradesafe.spec.ts`
-- **makeTradeSafeEvent()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.tradesafe.spec.ts`
+- **global.d.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/global.d.ts`
 
 ## Relationships
 
@@ -13,11 +12,11 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.tradesafe.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/global.d.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 2 (100%)
+- EXTRACTED: 0 (0%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

@@ -4,21 +4,22 @@
 
 ## Key Concepts
 
-- **ProBadge.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ProBadge.tsx`
-- **ProBadge()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ProBadge.tsx`
+- **query-client.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/query-client.ts`
+- **query-client.test.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/__tests__/query-client.test.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 76]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ProBadge.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/__tests__/query-client.test.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/query-client.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 2 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 0 (0%)
+- INFERRED: 2 (100%)
 - AMBIGUOUS: 0 (0%)
 
 ---

@@ -1,48 +1,46 @@
 # Inbox & notifications
 
-> 21 nodes · cohesion 0.11
+> 19 nodes · cohesion 0.16
 
 ## Key Concepts
 
-- **InboxController** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **NotificationsService** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.markAsRead()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.formatResponse()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **inbox.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.markAllNotificationsAsRead()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.markNotificationAsRead()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.getUnreadCount()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.getUnreadMessageCount()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.markAllAsRead()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.createConversation()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.deleteMessage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.editMessage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.getConversation()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.getUnreadCount()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.listConversations()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.listNotifications()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.markConversationRead()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.listNotifications()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
+- **Wallet dashboard page** (8 connections) — `md-files/page-spec/wallet.md`
+- **Request Withdrawal page** (7 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **LedgerTransactionGroup** (5 connections) — `md-files/page-spec/admin-wallets-userid.md`
+- **Wallet Transactions (transaction history) page** (5 connections) — `md-files/page-spec/wallet-transactions.md`
+- **LedgerEntry** (4 connections) — `md-files/page-spec/wallet-transactions.md`
+- **Wallet** (4 connections) — `md-files/page-spec/wallet.md`
+- **Withdrawal** (4 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **useWalletDashboard** (4 connections) — `md-files/page-spec/wallet.md`
+- **GET /wallet/ledger-snapshot** (2 connections) — `md-files/page-spec/wallet.md`
+- **StitchPayout** (2 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **TradeSafeBeneficiary** (2 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **Transaction history** (2 connections) — `md-files/page-spec/wallet-transactions.md`
+- **WalletBalance** (2 connections) — `md-files/page-spec/wallet.md`
+- **useRequestWithdrawal** (2 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **useWalletLedgerSnapshot** (2 connections) — `md-files/page-spec/wallet.md`
+- **useWalletTransactions** (2 connections) — `md-files/page-spec/wallet-transactions.md`
+- **GET /wallet/dashboard** (1 connections) — `md-files/page-spec/wallet.md`
+- **GET /wallet/transactions** (1 connections) — `md-files/page-spec/wallet-transactions.md`
+- **POST /wallet/withdrawals** (1 connections) — `md-files/page-spec/wallet-withdraw.md`
 
 ## Relationships
 
-- [[API service layer]] (3 shared connections)
-- [[Next.js page routes]] (1 shared connections)
-- [[REST API controllers]] (1 shared connections)
-- [[Bounty service & tests]] (1 shared connections)
-- [[Subscription & auth lifecycle]] (1 shared connections)
+- [[Wallet page specs]] (57 shared connections)
+- [[Project charter & ADRs]] (2 shared connections)
+- [[Page spec documentation]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
+- `md-files/page-spec/admin-wallets-userid.md`
+- `md-files/page-spec/wallet-transactions.md`
+- `md-files/page-spec/wallet-withdraw.md`
+- `md-files/page-spec/wallet.md`
 
 ## Audit Trail
 
-- EXTRACTED: 47 (89%)
-- INFERRED: 6 (11%)
+- EXTRACTED: 53 (88%)
+- INFERRED: 7 (12%)
 - AMBIGUOUS: 0 (0%)
 
 ---

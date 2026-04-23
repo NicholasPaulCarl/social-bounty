@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **layout.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/layout.tsx`
+- **PageHeaderBreadcrumbs.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderBreadcrumbs.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/layout.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderBreadcrumbs.tsx`
 
 ## Audit Trail
 

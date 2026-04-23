@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **PageHeaderTitle.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderTitle.tsx`
-- **PageHeaderTitle()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderTitle.tsx`
+- **cn.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/cn.ts`
+- **cn()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/cn.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 75]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderTitle.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/cn.ts`
 
 ## Audit Trail
 

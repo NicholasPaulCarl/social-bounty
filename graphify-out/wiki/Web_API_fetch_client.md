@@ -1,33 +1,32 @@
 # Web API fetch client
 
-> 10 nodes · cohesion 0.24
+> 9 nodes · cohesion 0.22
 
 ## Key Concepts
 
-- **client.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
-- **request()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
-- **ApiError** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
-- **buildQueryString()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
-- **getAccessToken()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
-- **onUnauthorized()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
-- **client.test.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/__tests__/client.test.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
-- **configureApiClient()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
-- **getUploadUrl()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
+- **disputes.validators.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
+- **AssignDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
+- **CreateDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
+- **EscalateDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
+- **ResolveDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
+- **SendMessageDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
+- **TransitionDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
+- **UpdateDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
+- **WithdrawDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
 
 ## Relationships
 
-- [[API service layer]] (1 shared connections)
+- [[Dispute DTO validators]] (16 shared connections)
+- [[Next.js page routes]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/__tests__/client.test.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 20 (87%)
-- INFERRED: 3 (13%)
+- EXTRACTED: 17 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

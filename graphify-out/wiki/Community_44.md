@@ -1,26 +1,26 @@
 # Community 44
 
-> 4 nodes · cohesion 0.67
+> 3 nodes · cohesion 0.67
 
 ## Key Concepts
 
-- **helpers.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/helpers.ts`
-- **seedOtpInRedis()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/helpers.ts`
-- **loginAs()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/helpers.ts`
-- **logout()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/helpers.ts`
+- **PropsTable.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/PropsTable.tsx`
+- **ComponentDemo.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/ComponentDemo.tsx`
+- **PropsTable()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/PropsTable.tsx`
 
 ## Relationships
 
-- [[API service layer]] (1 shared connections)
+- [[Community 50]] (4 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/e2e/helpers.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/ComponentDemo.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/PropsTable.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 8 (89%)
-- INFERRED: 1 (11%)
+- EXTRACTED: 2 (50%)
+- INFERRED: 2 (50%)
 - AMBIGUOUS: 0 (0%)
 
 ---

@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **SectionPanel.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/SectionPanel.tsx`
+- **types.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/types.ts`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/SectionPanel.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/types.ts`
 
 ## Audit Trail
 

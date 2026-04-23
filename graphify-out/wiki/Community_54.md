@@ -1,24 +1,23 @@
 # Community 54
 
-> 3 nodes · cohesion 0.67
+> 2 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **TradeSafeApiError** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.types.ts`
-- **tradesafe.types.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.types.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.types.ts`
+- **FormSectionsSection.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/FormSectionsSection.tsx`
+- **FormSectionsSection()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/FormSectionsSection.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 60]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.types.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/FormSectionsSection.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 4 (100%)
+- EXTRACTED: 2 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

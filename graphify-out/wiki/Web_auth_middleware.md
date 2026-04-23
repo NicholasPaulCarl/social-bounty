@@ -1,34 +1,29 @@
 # Web auth middleware
 
-> 9 nodes · cohesion 0.28
+> 7 nodes · cohesion 0.29
 
 ## Key Concepts
 
-- **middleware.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/middleware.ts`
-- **AuthContext.tsx** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/auth/AuthContext.tsx`
-- **middleware.test.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/__tests__/middleware.test.ts`
-- **getDashboardUrl()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/auth/AuthContext.tsx`
-- **getDashboardUrl()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/middleware.ts`
-- **getDashboardUrl()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/__tests__/middleware.test.ts`
-- **decodeTokenPayload()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/middleware.ts`
-- **evaluateRoute()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/__tests__/middleware.test.ts`
-- **AuthProvider()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/auth/AuthContext.tsx`
+- **admin.validators.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/dto/admin.validators.ts`
+- **AdminCreateOrgDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/dto/admin.validators.ts`
+- **AdminOverrideBountyDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/dto/admin.validators.ts`
+- **AdminOverrideSubmissionDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/dto/admin.validators.ts`
+- **AdminUpdateBrandStatusDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/dto/admin.validators.ts`
+- **AdminUpdateSettingsDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/dto/admin.validators.ts`
+- **AdminUpdateUserStatusDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/dto/admin.validators.ts`
 
 ## Relationships
 
-- [[API service layer]] (3 shared connections)
-- [[Next.js page routes]] (1 shared connections)
+- [[Next.js page routes]] (13 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/__tests__/middleware.test.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/auth/AuthContext.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/middleware.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/dto/admin.validators.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 17 (71%)
-- INFERRED: 7 (29%)
+- EXTRACTED: 13 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

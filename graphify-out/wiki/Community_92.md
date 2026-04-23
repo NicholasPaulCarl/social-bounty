@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **jest.config.js** (0 connections) — `/Users/nicholasschreiber/social-bounty/scripts/jest.config.js`
+- **BrandSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/BrandSection.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/scripts/jest.config.js`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/BrandSection.tsx`
 
 ## Audit Trail
 

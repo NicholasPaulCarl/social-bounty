@@ -4,22 +4,21 @@
 
 ## Key Concepts
 
-- **jest.config.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/jest.config.ts`
-- **jest.config.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/jest.config.ts`
+- **audit.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/audit/audit.module.ts`
+- **AuditModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/audit/audit.module.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 85]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/jest.config.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/jest.config.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/audit/audit.module.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 0 (0%)
-- INFERRED: 2 (100%)
+- EXTRACTED: 2 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

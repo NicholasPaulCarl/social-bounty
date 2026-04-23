@@ -1,49 +1,50 @@
 # Marketing site pages
 
-> 21 nodes · cohesion 0.13
+> 20 nodes · cohesion 0.10
 
 ## Key Concepts
 
-- **page.tsx** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **page.tsx** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
-- **page.tsx** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
-- **useInView()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
-- **page.tsx** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/business/page.tsx`
-- **FadeUp()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
-- **TwitterIcon()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
-- **InstagramIcon()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
-- **layout.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
-- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
-- **InstagramIcon()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
-- **Reveal()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
-- **TwitterIcon()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **ComponentLibraryPage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
-- **handleChange()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **PhoneMockup()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
-- **scrollToForm()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **useCountUp()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
-- **useFadeUp()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- **visible()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
+- **sign()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.spec.ts`
+- **stitch-webhook.controller.spec.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.spec.ts`
+- **stitch-webhook.controller.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.ts`
+- **tradesafe-webhook.controller.spec.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.spec.ts`
+- **StitchWebhookController** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.ts`
+- **svix.verifier.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.ts`
+- **tradesafe-webhook.controller.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.ts`
+- **makeSecret()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.spec.ts`
+- **makeSecret()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.spec.ts`
+- **TradeSafeWebhookController** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.ts`
+- **svix.verifier.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.spec.ts`
+- **sign()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.spec.ts`
+- **.replay()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.ts`
+- **SvixVerificationError** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.ts`
+- **sign()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.spec.ts`
+- **buildRequest()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.spec.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.ts`
+- **buildRequest()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.spec.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.ts`
 
 ## Relationships
 
-- [[Next.js page routes]] (5 shared connections)
+- [[API service layer]] (48 shared connections)
+- [[Next.js page routes]] (1 shared connections)
+- [[Roadmap & risk concepts]] (1 shared connections)
+- [[Project charter & ADRs]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/business/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 43 (70%)
-- INFERRED: 18 (30%)
+- EXTRACTED: 32 (63%)
+- INFERRED: 19 (37%)
 - AMBIGUOUS: 0 (0%)
 
 ---

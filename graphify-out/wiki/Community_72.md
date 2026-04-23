@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **PageHeader.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeader.tsx`
-- **PageHeader()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeader.tsx`
+- **public.decorator.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/public.decorator.ts`
+- **Public()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/public.decorator.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 80]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeader.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/public.decorator.ts`
 
 ## Audit Trail
 

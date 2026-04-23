@@ -1,11 +1,10 @@
 # Community 84
 
-> 2 nodes · cohesion 1.00
+> 1 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **subscription-cancel.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscription-cancel.spec.ts`
-- **makeActiveSub()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscription-cancel.spec.ts`
+- **jest.config.js** (0 connections) — `/Users/nicholasschreiber/social-bounty/scripts/jest.config.js`
 
 ## Relationships
 
@@ -13,11 +12,11 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscription-cancel.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/scripts/jest.config.js`
 
 ## Audit Trail
 
-- EXTRACTED: 2 (100%)
+- EXTRACTED: 0 (0%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

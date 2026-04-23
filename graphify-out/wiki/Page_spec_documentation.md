@@ -1,72 +1,78 @@
 # Page spec documentation
 
-> 123 nodes · cohesion 0.05
+> 144 nodes · cohesion 0.02
 
 ## Key Concepts
 
-- **SUPER_ADMIN role** (36 connections) — `md-files/page-spec/`
-- **BUSINESS_ADMIN role** (24 connections) — `md-files/page-spec/`
-- **AuthGuard business/layout** (22 connections)
-- **Page Specs Index** (21 connections) — `md-files/page-spec/README.md`
-- **Bounty Detail** (20 connections) — `md-files/page-spec/business-bounties-id.md`
-- **Browse Bounties page** (16 connections) — `md-files/page-spec/bounties.md`
-- **Bounty entity** (16 connections) — `md-files/page-spec/`
-- **/admin/brands/[id]** (15 connections) — `md-files/page-spec/admin-brands-id.md`
-- **/admin/bounties/[id]** (14 connections) — `md-files/page-spec/admin-bounties-id.md`
-- **My Brands** (14 connections) — `md-files/page-spec/business-brands.md`
-- **Brand entity** (14 connections) — `md-files/page-spec/`
-- **Admin Submission Detail page** (12 connections) — `md-files/page-spec/admin-submissions-id.md`
-- **Brand Directory page** (12 connections) — `md-files/page-spec/brands.md`
-- **Manage Bounties** (12 connections) — `md-files/page-spec/business-bounties.md`
-- **Brand Dispute Detail** (12 connections) — `md-files/page-spec/business-disputes-id.md`
-- **/admin/disputes/[id]** (11 connections) — `md-files/page-spec/admin-disputes-id.md`
-- **Participant Layout (AuthGuard + MainLayout)** (11 connections) — `md-files/page-spec/inbox.md`
-- **AuditLog (Hard Rule #3)** (11 connections)
-- **Submission entity** (11 connections) — `md-files/page-spec/`
-- **/admin/bounties** (10 connections) — `md-files/page-spec/admin-bounties.md`
-- **/admin/brands** (10 connections) — `md-files/page-spec/admin-brands.md`
-- **Create Bounty** (10 connections) — `md-files/page-spec/business-bounties-new.md`
-- **File Dispute (Brand)** (10 connections) — `md-files/page-spec/business-disputes-new.md`
-- **Review Center Detail** (10 connections) — `md-files/page-spec/business-review-center-id.md`
-- **BUSINESS_ADMIN Role** (10 connections) — `md-files/page-spec/create-brand.md`
-- *... and 98 more nodes in this community*
+- **AdminController** (19 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
+- **DisputesController** (17 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/disputes.controller.ts`
+- **WalletController** (15 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.controller.ts`
+- **BountyAccessController** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
+- **BrandsController** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
+- **BountiesController** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
+- **SubmissionsController** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- **UsersController** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.list()** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
+- **.uploadBrandAssets()** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
+- **bounties.controller.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
+- **submissions.controller.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- **.delete()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
+- **WalletProjectionService** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet-projection.service.ts`
+- **disputes.controller.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/disputes.controller.ts`
+- **files.controller.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/files/files.controller.ts`
+- **users.controller.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.reviewApplication()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- **.uploadEvidence()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/disputes.controller.ts`
+- **SocialHandlesController** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.controller.ts`
+- **.listMySubmissions()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- **.uploadFiles()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- **.listForBounty()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- **.snapshot()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet-projection.service.ts`
+- **.listUsers()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
+- *... and 119 more nodes in this community*
 
 ## Relationships
 
-- [[Project charter & ADRs]] (36 shared connections)
+- [[REST API controllers]] (325 shared connections)
+- [[Wallet service]] (53 shared connections)
+- [[API service layer]] (18 shared connections)
+- [[User & brand profile services]] (12 shared connections)
 - [[Next.js page routes]] (6 shared connections)
-- [[Marketing page specs]] (6 shared connections)
+- [[Controllers & RBAC guards]] (4 shared connections)
+- [[Auth & settings admin]] (3 shared connections)
+- [[Bounty access & mutation]] (3 shared connections)
+- [[Bounty service & tests]] (2 shared connections)
 - [[React query hooks]] (2 shared connections)
-- [[REST API controllers]] (1 shared connections)
-- [[Wallet page specs]] (1 shared connections)
+- [[Subscription & auth lifecycle]] (1 shared connections)
+- [[Inbox & notifications]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/[id]/edit/page.tsx`
-- `md-files/page-spec/`
-- `md-files/page-spec/README.md`
-- `md-files/page-spec/admin-audit-logs-id.md`
-- `md-files/page-spec/admin-audit-logs.md`
-- `md-files/page-spec/admin-bounties-id.md`
-- `md-files/page-spec/admin-bounties.md`
-- `md-files/page-spec/admin-brands-id.md`
-- `md-files/page-spec/admin-brands-new.md`
-- `md-files/page-spec/admin-brands.md`
-- `md-files/page-spec/admin-component-library.md`
-- `md-files/page-spec/admin-dashboard.md`
-- `md-files/page-spec/admin-disputes-id.md`
-- `md-files/page-spec/admin-disputes.md`
-- `md-files/page-spec/admin-finance-audit-trail.md`
-- `md-files/page-spec/admin-finance-earnings-payouts.md`
-- `md-files/page-spec/admin-finance-exceptions.md`
-- `md-files/page-spec/admin-finance-groups-transactiongroupid.md`
-- `md-files/page-spec/admin-finance-inbound.md`
-- `md-files/page-spec/admin-finance-insights-system.md`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/disputes.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/disputes.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/files/files.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/files/files.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet-projection.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/withdrawal.service.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 646 (78%)
-- INFERRED: 184 (22%)
+- EXTRACTED: 287 (66%)
+- INFERRED: 145 (34%)
 - AMBIGUOUS: 0 (0%)
 
 ---

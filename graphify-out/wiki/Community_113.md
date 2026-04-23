@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **index.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/index.ts`
+- **PageHeaderPills.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderPills.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/index.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderPills.tsx`
 
 ## Audit Trail
 

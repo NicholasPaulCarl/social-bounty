@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **AtomsSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/AtomsSection.tsx`
+- **LoadingState.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/LoadingState.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/AtomsSection.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/LoadingState.tsx`
 
 ## Audit Trail
 

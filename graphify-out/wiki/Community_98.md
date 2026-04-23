@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **postcss.config.js** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/postcss.config.js`
+- **index.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/index.ts`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/postcss.config.js`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/index.ts`
 
 ## Audit Trail
 

@@ -1,40 +1,34 @@
 # TradeSafe OAuth callback
 
-> 15 nodes · cohesion 0.19
+> 10 nodes · cohesion 0.24
 
 ## Key Concepts
 
-- **.callback()** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
-- **tradesafe-callback.controller.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
-- **tradesafe-callback.controller.spec.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
-- **TradeSafeCallbackController** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
-- **.redirect()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
-- **.systemActorId()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
-- **firstHeader()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
-- **isValidStateParam()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
-- **sanitizeForLog()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
-- **sanitizeQuery()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
-- **.constructor()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
-- **makeConfig()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
-- **makePrisma()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
-- **makeReq()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
-- **makeRes()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
+- **client.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
+- **request()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
+- **ApiError** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
+- **buildQueryString()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
+- **getAccessToken()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
+- **onUnauthorized()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
+- **client.test.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/__tests__/client.test.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
+- **configureApiClient()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
+- **getUploadUrl()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
 
 ## Relationships
 
-- [[API service layer]] (5 shared connections)
-- [[Next.js page routes]] (1 shared connections)
-- [[Project charter & ADRs]] (1 shared connections)
+- [[Web API fetch client]] (22 shared connections)
+- [[API service layer]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/__tests__/tradesafe-callback.controller.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-callback.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/__tests__/client.test.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/client.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 39 (83%)
-- INFERRED: 8 (17%)
+- EXTRACTED: 20 (87%)
+- INFERRED: 3 (13%)
 - AMBIGUOUS: 0 (0%)
 
 ---

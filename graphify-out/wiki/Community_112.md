@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **MaxSubmissionsSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/MaxSubmissionsSection.tsx`
+- **PageHeaderViewToggle.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderViewToggle.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/MaxSubmissionsSection.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderViewToggle.tsx`
 
 ## Audit Trail
 

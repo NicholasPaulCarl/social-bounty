@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **VerifiedBadge.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/VerifiedBadge.tsx`
-- **VerifiedBadge()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/VerifiedBadge.tsx`
+- **usePayouts.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/usePayouts.ts`
+- **useMyPayouts()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/usePayouts.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 73]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/VerifiedBadge.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/usePayouts.ts`
 
 ## Audit Trail
 

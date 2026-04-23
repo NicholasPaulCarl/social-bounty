@@ -1,52 +1,50 @@
 # Refund flow test fixtures
 
-> 28 nodes · cohesion 0.15
+> 21 nodes · cohesion 0.13
 
 ## Key Concepts
 
-- **refund-after-approval.spec.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- **test-fixtures.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/test-fixtures.ts`
-- **refund-after-payout.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
-- **buildService()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- **buildService()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
-- **refund-approval-flow.spec.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
-- **buildPrismaStub()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- **buildPrismaStub()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
-- **buildPrismaStub()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
-- **buildService()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
-- **buildStitchStub()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
-- **buildBountyRow()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- **buildLedgerStub()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- **buildStitchStub()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- **buildBountyRow()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
-- **buildLedgerStub()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
-- **buildStitchStub()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
-- **buildBountyRow()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
-- **buildLedgerStub()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
-- **buildSubmissionRow()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- **buildSubmissionRow()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
-- **createMockPrisma()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/test-fixtures.ts`
-- **baseBountyRewardRecord()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/test-fixtures.ts`
-- **byAccountType()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- **baseBountyRecord()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/test-fixtures.ts`
-- *... and 3 more nodes in this community*
+- **page.tsx** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **page.tsx** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
+- **page.tsx** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
+- **useInView()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
+- **page.tsx** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/business/page.tsx`
+- **FadeUp()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
+- **TwitterIcon()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
+- **InstagramIcon()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
+- **layout.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
+- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
+- **InstagramIcon()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
+- **Reveal()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
+- **TwitterIcon()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **ComponentLibraryPage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
+- **handleChange()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **PhoneMockup()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
+- **scrollToForm()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **useCountUp()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
+- **useFadeUp()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **visible()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
 
 ## Relationships
 
-- [[API service layer]] (3 shared connections)
-- [[Next.js page routes]] (1 shared connections)
+- [[Marketing site pages]] (56 shared connections)
+- [[Next.js page routes]] (5 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/test-fixtures.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-payout.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/business/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 79 (68%)
-- INFERRED: 37 (32%)
+- EXTRACTED: 43 (70%)
+- INFERRED: 18 (30%)
 - AMBIGUOUS: 0 (0%)
 
 ---

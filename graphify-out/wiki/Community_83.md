@@ -4,16 +4,17 @@
 
 ## Key Concepts
 
-- **health.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/health/health.module.ts`
-- **HealthModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/health/health.module.ts`
+- **SECURITY-AUDIT.md** (1 connections) — `docs/SECURITY-AUDIT.md`
+- **SECURITY-COMPLIANCE.md** (1 connections) — `docs/SECURITY-COMPLIANCE.md`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 91]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/health/health.module.ts`
+- `docs/SECURITY-AUDIT.md`
+- `docs/SECURITY-COMPLIANCE.md`
 
 ## Audit Trail
 

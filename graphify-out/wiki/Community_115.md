@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **AppHeader.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/AppHeader.tsx`
+- **subscriptions-upgrade.test.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/__tests__/subscriptions-upgrade.test.ts`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/AppHeader.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/__tests__/subscriptions-upgrade.test.ts`
 
 ## Audit Trail
 

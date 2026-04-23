@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **smoke-brand-go-live.spec.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/e2e/smoke-brand-go-live.spec.ts`
+- **BrowseHero.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrowseHero.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/e2e/smoke-brand-go-live.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrowseHero.tsx`
 
 ## Audit Trail
 

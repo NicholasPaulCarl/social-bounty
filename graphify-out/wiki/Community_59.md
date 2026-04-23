@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **CodeBlock.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/CodeBlock.tsx`
-- **CodeBlock()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/CodeBlock.tsx`
+- **UpsellBanner.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/subscription/UpsellBanner.tsx`
+- **UpsellBanner()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/subscription/UpsellBanner.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 65]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/CodeBlock.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/subscription/UpsellBanner.tsx`
 
 ## Audit Trail
 

@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **PageHeaderBreadcrumbs.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderBreadcrumbs.tsx`
+- **Double-entry ledger (CLAUDE.md §4.1)** (0 connections) — `md-files/page-spec/`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderBreadcrumbs.tsx`
+- `md-files/page-spec/`
 
 ## Audit Trail
 

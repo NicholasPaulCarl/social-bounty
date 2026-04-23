@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **BrowseHero.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrowseHero.tsx`
+- **current-user.decorator.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/current-user.decorator.ts`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrowseHero.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/current-user.decorator.ts`
 
 ## Audit Trail
 

@@ -1,70 +1,75 @@
 # React query hooks
 
-> 163 nodes · cohesion 0.02
+> 167 nodes · cohesion 0.04
 
 ## Key Concepts
 
-- **useAdmin.ts** (27 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useBrand.ts** (19 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrand.ts`
-- **useWallet.ts** (19 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useWallet.ts`
-- **useDisputes.ts** (18 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useDisputes.ts`
-- **useBounties.ts** (16 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBounties.ts`
-- **useAuth()** (16 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAuth.ts`
-- **useProfile.ts** (14 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useProfile.ts`
-- **useInbox.ts** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useInbox.ts`
-- **useSubmissions.ts** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useSubmissions.ts`
-- **useBountyAccess.ts** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBountyAccess.ts`
-- **BrandSubscriptionPage()** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/brands/subscription/page.tsx`
-- **SubscriptionPage()** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/settings/subscription/page.tsx`
-- **useSubscription.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useSubscription.ts`
-- **layout.tsx** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/layout.tsx`
-- **useSocialHandles.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useSocialHandles.ts`
-- **useUpdateProfile()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useProfile.ts`
-- **AdminWithdrawalsPage()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/withdrawals/page.tsx`
-- **useApplyToBounty()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBountyAccess.ts`
-- **useUpdatePayout()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useSubmissions.ts`
-- **useToast()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useToast.ts`
-- **ParticipantLayout()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/layout.tsx`
-- **CreateBrandPage()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/brands/create/page.tsx`
-- **useAdminBounties()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **usePagination()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/usePagination.ts`
-- **navigation.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/navigation.ts`
-- *... and 138 more nodes in this community*
+- **SUPER_ADMIN role** (36 connections) — `md-files/page-spec/`
+- **BUSINESS_ADMIN role** (24 connections) — `md-files/page-spec/`
+- **AuthGuard business/layout** (22 connections)
+- **Page Specs Index** (21 connections) — `md-files/page-spec/README.md`
+- **Bounty Detail** (20 connections) — `md-files/page-spec/business-bounties-id.md`
+- **Browse Bounties page** (16 connections) — `md-files/page-spec/bounties.md`
+- **Financial Kill Switch** (16 connections) — `md-files/page-spec/admin-finance.md`
+- **Bounty entity** (16 connections) — `md-files/page-spec/`
+- **/admin/brands/[id]** (15 connections) — `md-files/page-spec/admin-brands-id.md`
+- **/admin/bounties/[id]** (14 connections) — `md-files/page-spec/admin-bounties-id.md`
+- **ADR 0006 — Compensating Entries Bypass the Financial Kill Switch** (14 connections) — `docs/adr/0006-compensating-entries-bypass-kill-switch.md`
+- **My Brands** (14 connections) — `md-files/page-spec/business-brands.md`
+- **Brand entity** (14 connections) — `md-files/page-spec/`
+- **ADR 0010 — Auto-Refund on PostVisibility Failure** (13 connections) — `docs/adr/0010-auto-refund-on-visibility-failure.md`
+- **Finance Overview admin page** (12 connections) — `md-files/page-spec/admin-finance.md`
+- **Admin Submission Detail page** (12 connections) — `md-files/page-spec/admin-submissions-id.md`
+- **Brand Directory page** (12 connections) — `md-files/page-spec/brands.md`
+- **Manage Bounties** (12 connections) — `md-files/page-spec/business-bounties.md`
+- **Brand Dispute Detail** (12 connections) — `md-files/page-spec/business-disputes-id.md`
+- **Financial Non-Negotiables (claude.md §4)** (12 connections) — `claude.md`
+- **/admin/disputes/[id]** (11 connections) — `md-files/page-spec/admin-disputes-id.md`
+- **Visibility Failures admin page** (11 connections) — `md-files/page-spec/admin-finance-visibility-failures.md`
+- **Participant Layout (AuthGuard + MainLayout)** (11 connections) — `md-files/page-spec/inbox.md`
+- **AuditLog (Hard Rule #3)** (11 connections)
+- **Submission entity** (11 connections) — `md-files/page-spec/`
+- *... and 142 more nodes in this community*
 
 ## Relationships
 
-- [[Next.js page routes]] (29 shared connections)
-- [[API service layer]] (3 shared connections)
-- [[Page spec documentation]] (2 shared connections)
-- [[REST API controllers]] (2 shared connections)
+- [[Page spec documentation]] (811 shared connections)
+- [[Project charter & ADRs]] (206 shared connections)
+- [[Next.js page routes]] (7 shared connections)
+- [[Marketing page specs]] (6 shared connections)
+- [[Wallet page specs]] (5 shared connections)
+- [[Ledger & payment services]] (5 shared connections)
+- [[Reconciliation engine]] (4 shared connections)
+- [[Roadmap & risk concepts]] (3 shared connections)
+- [[REST API controllers]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(auth)/layout.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/layout.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/my-submissions/[id]/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/settings/subscription/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/wallet/transactions/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(shared)/layout.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/[id]/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/new/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/layout.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/profile/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/users/[id]/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/withdrawals/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/brands/layout.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/brands/create/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/brands/subscription/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/layout.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/hunters/layout.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/AuthLayout.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAuth.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/[id]/edit/page.tsx`
+- `claude.md`
+- `docs/INCIDENT-RESPONSE.md`
+- `docs/adr/0002-wallet-read-model-projection.md`
+- `docs/adr/0005-ledger-idempotency-via-header-table.md`
+- `docs/adr/0006-compensating-entries-bypass-kill-switch.md`
+- `docs/adr/0010-auto-refund-on-visibility-failure.md`
+- `docs/architecture/api-contracts.md`
+- `docs/architecture/database-schema.md`
+- `docs/architecture/frontend-strategy.md`
+- `docs/architecture/security-and-rbac.md`
+- `docs/architecture/sitemap.md`
+- `docs/backlog/mvp-backlog.md`
+- `docs/deployment/stitch-express-live-readiness.md`
+- `docs/features/AGENCY-FEATURE-SPEC.md`
+- `docs/perf/2026-04-15-reconciliation-benchmarks.md`
+- `docs/qa/automation-strategy.md`
+- `docs/qa/qa-report.md`
+- `docs/qa/test-plan.md`
+- `md-files/page-spec/`
 
 ## Audit Trail
 
-- EXTRACTED: 291 (54%)
-- INFERRED: 247 (46%)
+- EXTRACTED: 839 (80%)
+- INFERRED: 211 (20%)
 - AMBIGUOUS: 0 (0%)
 
 ---

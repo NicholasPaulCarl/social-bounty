@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **ManageHero.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/ManageHero.tsx`
+- **reported-metrics.spec.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/reported-metrics.spec.ts`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/ManageHero.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/reported-metrics.spec.ts`
 
 ## Audit Trail
 

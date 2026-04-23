@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **useDashboard.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useDashboard.ts`
-- **useBusinessDashboard()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useDashboard.ts`
+- **inbox.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.module.ts`
+- **InboxModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.module.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 82]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useDashboard.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.module.ts`
 
 ## Audit Trail
 

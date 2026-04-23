@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **MoleculesSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/MoleculesSection.tsx`
+- **ManageHero.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/ManageHero.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/MoleculesSection.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/ManageHero.tsx`
 
 ## Audit Trail
 

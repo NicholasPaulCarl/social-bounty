@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **BrandSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/BrandSection.tsx`
+- **EmptyState.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/EmptyState.tsx`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/BrandSection.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/EmptyState.tsx`
 
 ## Audit Trail
 

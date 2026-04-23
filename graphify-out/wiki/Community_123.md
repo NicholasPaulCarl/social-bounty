@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **LoadingState.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/LoadingState.tsx`
+- **payout-provider.interface.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.interface.ts`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/LoadingState.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.interface.ts`
 
 ## Audit Trail
 

@@ -1,11 +1,10 @@
 # Community 91
 
-> 2 nodes · cohesion 1.00
+> 1 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **SECURITY-AUDIT.md** (1 connections) — `docs/SECURITY-AUDIT.md`
-- **SECURITY-COMPLIANCE.md** (1 connections) — `docs/SECURITY-COMPLIANCE.md`
+- **MoleculesSection.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/MoleculesSection.tsx`
 
 ## Relationships
 
@@ -13,12 +12,11 @@
 
 ## Source Files
 
-- `docs/SECURITY-AUDIT.md`
-- `docs/SECURITY-COMPLIANCE.md`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/sections/MoleculesSection.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 2 (100%)
+- EXTRACTED: 0 (0%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

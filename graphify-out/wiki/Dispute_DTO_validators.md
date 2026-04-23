@@ -1,31 +1,30 @@
 # Dispute DTO validators
 
-> 9 nodes · cohesion 0.22
+> 5 nodes · cohesion 0.50
 
 ## Key Concepts
 
-- **disputes.validators.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
-- **AssignDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
-- **CreateDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
-- **EscalateDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
-- **ResolveDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
-- **SendMessageDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
-- **TransitionDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
-- **UpdateDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
-- **WithdrawDisputeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
+- **compute-verification-checks.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/compute-verification-checks.ts`
+- **computeVerificationChecks()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/compute-verification-checks.ts`
+- **compute-verification-checks.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/compute-verification-checks.spec.ts`
+- **normalize()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/compute-verification-checks.ts`
+- **noRules()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/compute-verification-checks.spec.ts`
 
 ## Relationships
 
+- [[Verification check computation]] (10 shared connections)
 - [[Next.js page routes]] (1 shared connections)
+- [[API service layer]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/dto/disputes.validators.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/compute-verification-checks.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/compute-verification-checks.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 17 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 9 (75%)
+- INFERRED: 3 (25%)
 - AMBIGUOUS: 0 (0%)
 
 ---

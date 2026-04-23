@@ -1,50 +1,43 @@
 # Marketing page specs
 
-> 18 nodes · cohesion 0.22
+> 15 nodes · cohesion 0.28
 
 ## Key Concepts
 
-- **Signup (OTP + optional brand)** (11 connections) — `md-files/page-spec/signup.md`
-- **For Brands Marketing Page** (9 connections) — `md-files/page-spec/join-business.md`
-- **Marketing Pages (public layout)** (6 connections) — `md-files/page-spec/root.md`
-- **For Hunters Marketing Page** (6 connections) — `md-files/page-spec/join-hunter.md`
-- **Pricing Page** (5 connections) — `md-files/page-spec/pricing.md`
-- **Marketing Home** (5 connections) — `md-files/page-spec/root.md`
-- **SubscriptionTier (FREE/PRO)** (4 connections) — `md-files/page-spec/pricing.md`
-- **Contact Page** (4 connections) — `md-files/page-spec/contact.md`
-- **Login (OTP)** (4 connections) — `md-files/page-spec/login.md`
-- **Subscription Settings** (4 connections) — `md-files/page-spec/settings-subscription.md`
-- **Privacy Policy** (3 connections) — `md-files/page-spec/privacy.md`
-- **Terms of Service page** (3 connections) — `md-files/page-spec/terms.md`
-- **Auth Layout (centered glass card)** (2 connections) — `md-files/page-spec/login.md`
-- **JWT Auth (access + refresh)** (2 connections) — `md-files/page-spec/login.md`
-- **OTP (Passwordless 6-digit)** (2 connections) — `md-files/page-spec/login.md`
-- **TermsAndConditions** (1 connections) — `md-files/page-spec/terms.md`
-- **Signup Flow (2-step OTP)** (1 connections) — `md-files/page-spec/signup.md`
-- **Subscription** (1 connections) — `md-files/page-spec/settings-subscription.md`
+- **makeContext()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.controller.rbac.spec.ts`
+- **makeContext()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/payments-health.controller.rbac.spec.ts`
+- **makeContext()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.controller.rbac.spec.ts`
+- **makeContext()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.controller.rbac.spec.ts`
+- **makeContext()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.replay-rbac.spec.ts`
+- **makeContext()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.rbac.spec.ts`
+- **makeContext()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refunds.controller.rbac.spec.ts`
+- **finance-admin.controller.rbac.spec.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.rbac.spec.ts`
+- **exports.controller.rbac.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.controller.rbac.spec.ts`
+- **payments-health.controller.rbac.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/payments-health.controller.rbac.spec.ts`
+- **payouts.controller.rbac.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.controller.rbac.spec.ts`
+- **reconciliation.controller.rbac.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.controller.rbac.spec.ts`
+- **refunds.controller.rbac.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refunds.controller.rbac.spec.ts`
+- **stitch-webhook.replay-rbac.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.replay-rbac.spec.ts`
+- **handlerExists()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.rbac.spec.ts`
 
 ## Relationships
 
-- [[Page spec documentation]] (6 shared connections)
-- [[Project charter & ADRs]] (1 shared connections)
+- [[RBAC controller spec harness]] (58 shared connections)
 
 ## Source Files
 
-- `md-files/page-spec/contact.md`
-- `md-files/page-spec/join-business.md`
-- `md-files/page-spec/join-hunter.md`
-- `md-files/page-spec/login.md`
-- `md-files/page-spec/pricing.md`
-- `md-files/page-spec/privacy.md`
-- `md-files/page-spec/root.md`
-- `md-files/page-spec/settings-subscription.md`
-- `md-files/page-spec/signup.md`
-- `md-files/page-spec/terms.md`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.controller.rbac.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.rbac.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/payments-health.controller.rbac.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.controller.rbac.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.controller.rbac.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refunds.controller.rbac.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.replay-rbac.spec.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 70 (96%)
-- INFERRED: 3 (4%)
+- EXTRACTED: 16 (28%)
+- INFERRED: 42 (72%)
 - AMBIGUOUS: 0 (0%)
 
 ---

@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **settings.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.module.ts`
-- **SettingsModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.module.ts`
+- **webhooks.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhooks.module.ts`
+- **WebhooksModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhooks.module.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 89]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhooks.module.ts`
 
 ## Audit Trail
 

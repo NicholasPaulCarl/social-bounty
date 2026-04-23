@@ -1,34 +1,31 @@
 # Submission & env validators
 
-> 10 nodes · cohesion 0.20
+> 9 nodes · cohesion 0.22
 
 ## Key Concepts
 
-- **submissions.validators.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/dto/submissions.validators.ts`
-- **env.validation.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.ts`
-- **env.validation.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.spec.ts`
-- **EnvironmentVariables** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.ts`
-- **validateEnv()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.ts`
-- **CreateSubmissionDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/dto/submissions.validators.ts`
-- **ProofLinkInputDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/dto/submissions.validators.ts`
-- **ReviewSubmissionDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/dto/submissions.validators.ts`
-- **UpdatePayoutDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/dto/submissions.validators.ts`
-- **UpdateSubmissionDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/dto/submissions.validators.ts`
+- **auth.validators.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/dto/auth.validators.ts`
+- **LogoutDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/dto/auth.validators.ts`
+- **RefreshTokenDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/dto/auth.validators.ts`
+- **RequestEmailChangeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/dto/auth.validators.ts`
+- **RequestOtpDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/dto/auth.validators.ts`
+- **SignupWithOtpDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/dto/auth.validators.ts`
+- **SwitchBrandDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/dto/auth.validators.ts`
+- **VerifyEmailChangeDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/dto/auth.validators.ts`
+- **VerifyOtpDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/dto/auth.validators.ts`
 
 ## Relationships
 
-- [[Next.js page routes]] (1 shared connections)
+- [[Auth DTO validators]] (16 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/dto/submissions.validators.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/dto/auth.validators.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 15 (79%)
-- INFERRED: 4 (21%)
+- EXTRACTED: 16 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

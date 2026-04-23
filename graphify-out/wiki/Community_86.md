@@ -1,11 +1,10 @@
 # Community 86
 
-> 2 nodes · cohesion 1.00
+> 1 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **wallet.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.module.ts`
-- **WalletModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.module.ts`
+- **next-env.d.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/next-env.d.ts`
 
 ## Relationships
 
@@ -13,11 +12,11 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/next-env.d.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 2 (100%)
+- EXTRACTED: 0 (0%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

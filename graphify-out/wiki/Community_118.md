@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **ActiveFilterChips.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/ActiveFilterChips.tsx`
+- **tradesafe-webhook.handler.payout-failed.spec.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.payout-failed.spec.ts`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/ActiveFilterChips.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.payout-failed.spec.ts`
 
 ## Audit Trail
 

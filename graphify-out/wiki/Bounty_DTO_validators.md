@@ -1,32 +1,31 @@
 # Bounty DTO validators
 
-> 10 nodes · cohesion 0.20
+> 7 nodes · cohesion 0.33
 
 ## Key Concepts
 
-- **bounties.validators.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
-- **CreateBountyDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
-- **EngagementRequirementsDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
-- **IsChannelRecord()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
-- **PayoutMetricsDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
-- **PostVisibilityDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
-- **RewardLineDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
-- **StructuredEligibilityDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
-- **UpdateBountyDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
-- **UpdateBountyStatusDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
+- **useCreateBountyForm.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
+- **useCreateBountyForm.test.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/useCreateBountyForm.test.ts`
+- **buildCreateBountyRequest()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
+- **makeFilledState()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/useCreateBountyForm.test.ts`
+- **makeState()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/useCreateBountyForm.test.ts`
+- **formReducer()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
+- **useCreateBountyForm()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
 
 ## Relationships
 
+- [[Bounty creation form]] (15 shared connections)
 - [[Next.js page routes]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/useCreateBountyForm.test.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 19 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 13 (81%)
+- INFERRED: 3 (19%)
 - AMBIGUOUS: 0 (0%)
 
 ---

@@ -1,75 +1,78 @@
 # Ledger & payment services
 
-> 72 nodes · cohesion 0.04
+> 85 nodes · cohesion 0.05
 
 ## Key Concepts
 
-- **ledger.service.ts** (16 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.service.ts`
-- **finance-admin.service.ts** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- **stitch-payments.service.ts** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
-- **payouts.service.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.ts`
-- **wallet-projection.service.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet-projection.service.ts`
-- **payout-provider.factory.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.factory.ts`
-- **clearance.service.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/clearance.service.ts`
-- **brand-funding.handler.spec.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.spec.ts`
-- **payouts.service.spec.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.spec.ts`
-- **exports.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
-- **finance-admin.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.spec.ts`
-- **approval-ledger.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/approval-ledger.service.ts`
-- **payout-provider.factory.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.factory.spec.ts`
-- **upgrade.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
-- **ledger.module.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.module.ts`
-- **brand-funding.handler.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.ts`
-- **stitch-payout.adapter.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.ts`
-- **refunds.service.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refunds.service.ts`
-- **StitchPayoutAdapter** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.ts`
-- **TradeSafePayoutAdapter** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/tradesafe-payout.adapter.ts`
-- **finance-admin.module.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.module.ts`
-- **stitch-payout.adapter.spec.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.spec.ts`
-- **PayoutProviderFactory** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.factory.ts`
-- **approval-ledger.service.spec.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/approval-ledger.service.spec.ts`
-- **payments.module.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.module.ts`
-- *... and 47 more nodes in this community*
+- **create-bounty.service.spec.ts** (17 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/create-bounty.service.spec.ts`
+- **submissions.service.ts** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.service.ts`
+- **bounty-engagement.service.spec.ts** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-engagement.service.spec.ts`
+- **business.service.ts** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/business/business.service.ts`
+- **disputes.service.ts** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/disputes.service.ts`
+- **admin.service.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **bounties.service.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
+- **bounty-eligibility.service.spec.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-eligibility.service.spec.ts`
+- **bounties.service.spec.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.spec.ts`
+- **bounty-rewards.service.spec.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-rewards.service.spec.ts`
+- **apify.service.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
+- **bounty-access.service.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- **business.service.spec.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/business/business.service.spec.ts`
+- **expired-bounty.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/expired-bounty.service.ts`
+- **bounty-abuse.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-abuse.service.spec.ts`
+- **bounty-channels.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-channels.service.spec.ts`
+- **bounty-status.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-status.service.spec.ts`
+- **brand-assets.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/brand-assets.service.spec.ts`
+- **beneficiary.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/beneficiary.service.spec.ts`
+- **prisma.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/prisma/prisma.service.ts`
+- **reconciliation.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- **withdrawal.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/withdrawal.service.ts`
+- **apify.service.spec.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.spec.ts`
+- **expired-bounty.service.spec.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/expired-bounty.service.spec.ts`
+- **bounty-visibility.service.spec.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-visibility.service.spec.ts`
+- *... and 60 more nodes in this community*
 
 ## Relationships
 
-- [[API service layer]] (13 shared connections)
-- [[Next.js page routes]] (11 shared connections)
-- [[Project charter & ADRs]] (7 shared connections)
-- [[Bounty service & tests]] (6 shared connections)
-- [[Webhook handlers & triggers]] (6 shared connections)
+- [[Bounty service & tests]] (317 shared connections)
+- [[API service layer]] (22 shared connections)
+- [[Next.js page routes]] (16 shared connections)
 - [[Subscription & auth lifecycle]] (4 shared connections)
-- [[Roadmap & risk concepts]] (3 shared connections)
-- [[Finance admin dashboard]] (2 shared connections)
+- [[Controllers & RBAC guards]] (3 shared connections)
+- [[Auth & settings admin]] (2 shared connections)
+- [[REST API controllers]] (2 shared connections)
+- [[Bounty access & mutation]] (2 shared connections)
+- [[Roadmap & risk concepts]] (2 shared connections)
 - [[Wallet service]] (2 shared connections)
+- [[Apify scraping integration]] (1 shared connections)
+- [[Inbox & notifications]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.module.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/finance.module.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/approval-ledger.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/approval-ledger.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/clearance.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/clearance.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.module.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.module.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/filters/http-exception.filter.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/__tests__/admin-edge-cases.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/audit/audit.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-abuse.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-channels.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-eligibility.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-engagement.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-rewards.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-status.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-visibility.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/brand-assets.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/create-bounty-edge-cases.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/create-bounty.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/draft-save.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/payout-metrics.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/update-bounty.service.spec.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 95 (35%)
-- INFERRED: 179 (65%)
+- EXTRACTED: 105 (27%)
+- INFERRED: 280 (73%)
 - AMBIGUOUS: 0 (0%)
 
 ---

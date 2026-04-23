@@ -1,43 +1,38 @@
 # RBAC controller spec harness
 
-> 15 nodes · cohesion 0.28
+> 11 nodes · cohesion 0.29
 
 ## Key Concepts
 
-- **makeContext()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.controller.rbac.spec.ts`
-- **makeContext()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/payments-health.controller.rbac.spec.ts`
-- **makeContext()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.controller.rbac.spec.ts`
-- **makeContext()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.controller.rbac.spec.ts`
-- **makeContext()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.replay-rbac.spec.ts`
-- **makeContext()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.rbac.spec.ts`
-- **makeContext()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refunds.controller.rbac.spec.ts`
-- **finance-admin.controller.rbac.spec.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.rbac.spec.ts`
-- **exports.controller.rbac.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.controller.rbac.spec.ts`
-- **payments-health.controller.rbac.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/payments-health.controller.rbac.spec.ts`
-- **payouts.controller.rbac.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.controller.rbac.spec.ts`
-- **reconciliation.controller.rbac.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.controller.rbac.spec.ts`
-- **refunds.controller.rbac.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refunds.controller.rbac.spec.ts`
-- **stitch-webhook.replay-rbac.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.replay-rbac.spec.ts`
-- **handlerExists()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.rbac.spec.ts`
+- **FeeCalculatorService** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
+- **.forBrandFunding()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
+- **.forHunterApproval()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
+- **feeCents()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.ts`
+- **fee-calculator.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
+- **rounding.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.ts`
+- **.assertNonNegative()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
+- **.assertPositive()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
+- **halfEven()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.ts`
+- **fee-calculator.service.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.spec.ts`
+- **rounding.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.spec.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Fee calculator & rounding]] (32 shared connections)
+- [[API service layer]] (3 shared connections)
+- [[Next.js page routes]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.controller.rbac.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.rbac.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/payments-health.controller.rbac.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.controller.rbac.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.controller.rbac.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refunds.controller.rbac.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.replay-rbac.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 16 (28%)
-- INFERRED: 42 (72%)
+- EXTRACTED: 25 (69%)
+- INFERRED: 11 (31%)
 - AMBIGUOUS: 0 (0%)
 
 ---

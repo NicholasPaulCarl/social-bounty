@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **PageHeaderToolbar.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderToolbar.tsx`
+- **UNIQUE(referenceId, actionType) idempotency** (0 connections) — `md-files/page-spec/`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderToolbar.tsx`
+- `md-files/page-spec/`
 
 ## Audit Trail
 

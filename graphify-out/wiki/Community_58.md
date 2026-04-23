@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **providers.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/providers.tsx`
-- **Providers()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/providers.tsx`
+- **FormatChip.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/FormatChip.tsx`
+- **FormatChip()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/FormatChip.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 64]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/providers.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/FormatChip.tsx`
 
 ## Audit Trail
 

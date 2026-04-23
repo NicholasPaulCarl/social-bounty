@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **UpsellBanner.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/subscription/UpsellBanner.tsx`
-- **UpsellBanner()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/subscription/UpsellBanner.tsx`
+- **PageHeader.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeader.tsx`
+- **PageHeader()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeader.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 72]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/subscription/UpsellBanner.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeader.tsx`
 
 ## Audit Trail
 

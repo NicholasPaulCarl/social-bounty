@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **AppModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/app.module.ts`
-- **app.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/app.module.ts`
+- **wallet.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.module.ts`
+- **WalletModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.module.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 86]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/app.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.module.ts`
 
 ## Audit Trail
 

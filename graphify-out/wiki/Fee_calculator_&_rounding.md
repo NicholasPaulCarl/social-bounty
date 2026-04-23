@@ -1,37 +1,33 @@
 # Fee calculator & rounding
 
-> 11 nodes · cohesion 0.29
+> 10 nodes · cohesion 0.20
 
 ## Key Concepts
 
-- **FeeCalculatorService** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
-- **.forBrandFunding()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
-- **.forHunterApproval()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
-- **feeCents()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.ts`
-- **fee-calculator.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
-- **rounding.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.ts`
-- **.assertNonNegative()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
-- **.assertPositive()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
-- **halfEven()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.ts`
-- **fee-calculator.service.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.spec.ts`
-- **rounding.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.spec.ts`
+- **bounties.validators.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
+- **CreateBountyDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
+- **EngagementRequirementsDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
+- **IsChannelRecord()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
+- **PayoutMetricsDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
+- **PostVisibilityDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
+- **RewardLineDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
+- **StructuredEligibilityDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
+- **UpdateBountyDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
+- **UpdateBountyStatusDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
 
 ## Relationships
 
-- [[API service layer]] (3 shared connections)
+- [[Bounty DTO validators]] (18 shared connections)
 - [[Next.js page routes]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/fee-calculator.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/rounding.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/dto/bounties.validators.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 25 (69%)
-- INFERRED: 11 (31%)
+- EXTRACTED: 19 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

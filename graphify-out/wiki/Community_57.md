@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **not-found.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/not-found.tsx`
-- **NotFound()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/not-found.tsx`
+- **MainLayout.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/MainLayout.tsx`
+- **MainLayout()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/MainLayout.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 63]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/not-found.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/MainLayout.tsx`
 
 ## Audit Trail
 

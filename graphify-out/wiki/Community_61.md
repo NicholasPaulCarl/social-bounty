@@ -4,22 +4,21 @@
 
 ## Key Concepts
 
-- **page.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/privacy/page.tsx`
-- **page.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/terms/page.tsx`
+- **ProBadge.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ProBadge.tsx`
+- **ProBadge()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ProBadge.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 68]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/privacy/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/terms/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ProBadge.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 0 (0%)
-- INFERRED: 2 (100%)
+- EXTRACTED: 2 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

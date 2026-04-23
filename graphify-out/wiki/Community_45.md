@@ -1,25 +1,24 @@
 # Community 45
 
-> 4 nodes · cohesion 0.83
+> 3 nodes · cohesion 0.67
 
 ## Key Concepts
 
-- **pickInRange()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/mock/apify.ts`
-- **apify.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/mock/apify.ts`
-- **djb2()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/mock/apify.ts`
-- **getMockBrandSocialAnalytics()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/mock/apify.ts`
+- **SelectPill.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/SelectPill.tsx`
+- **onClick()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/SelectPill.tsx`
+- **onEsc()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/SelectPill.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 51]] (4 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/mock/apify.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/SelectPill.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 10 (100%)
+- EXTRACTED: 4 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

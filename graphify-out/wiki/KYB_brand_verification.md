@@ -1,29 +1,26 @@
 # KYB brand verification
 
-> 7 nodes · cohesion 0.29
+> 5 nodes · cohesion 0.40
 
 ## Key Concepts
 
-- **KybController** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
-- **kyb.controller.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
-- **.reject()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
-- **.submit()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
-- **RejectKybDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
-- **SubmitKybDto** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
+- **Social Bounty Wordmark** (4 connections) — `apps/web/src/styles/design-system/assets/logo-wordmark.png`
+- **Wordmark Pink Fill** (1 connections) — `apps/web/src/styles/design-system/assets/logo-wordmark.png`
+- **Wordmark Layout** (1 connections) — `apps/web/src/styles/design-system/assets/logo-wordmark.png`
+- **Wordmark Text: 'Social Bounty'** (1 connections) — `apps/web/src/styles/design-system/assets/logo-wordmark.png`
+- **Wordmark Typography Style** (1 connections) — `apps/web/src/styles/design-system/assets/logo-wordmark.png`
 
 ## Relationships
 
-- [[Next.js page routes]] (1 shared connections)
-- [[API service layer]] (1 shared connections)
+- [[Wordmark asset]] (8 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
+- `apps/web/src/styles/design-system/assets/logo-wordmark.png`
 
 ## Audit Trail
 
-- EXTRACTED: 14 (100%)
+- EXTRACTED: 8 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

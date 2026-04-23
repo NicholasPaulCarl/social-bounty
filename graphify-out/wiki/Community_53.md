@@ -1,24 +1,23 @@
 # Community 53
 
-> 3 nodes · cohesion 1.00
+> 2 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **reconciliation.fault-injection.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.fault-injection.spec.ts`
-- **buildService()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.fault-injection.spec.ts`
-- **makeQueryRawRouter()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.fault-injection.spec.ts`
+- **CodeBlock.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/CodeBlock.tsx`
+- **CodeBlock()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/CodeBlock.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 59]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.fault-injection.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/CodeBlock.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 6 (100%)
+- EXTRACTED: 2 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

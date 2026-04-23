@@ -1,41 +1,51 @@
 # KB context CLI
 
-> 18 nodes · cohesion 0.20
+> 18 nodes · cohesion 0.22
 
 ## Key Concepts
 
-- **kb-context.ts** (17 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **run()** (8 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **rankEntries()** (6 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **parseArgs()** (4 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **deriveGuidance()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **parseKbFile()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **printUsage()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **readKbFile()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **readRecurringIssues()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **renderMarkdown()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **buildKbEntry()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **compact()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **describeQuery()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **extractMetaSystem()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **scoreKbFileEntry()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **scoreRecurringIssue()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **pathNestedMatch()** (1 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
-- **kb-context.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.spec.ts`
+- **Signup (OTP + optional brand)** (11 connections) — `md-files/page-spec/signup.md`
+- **For Brands Marketing Page** (9 connections) — `md-files/page-spec/join-business.md`
+- **Marketing Pages (public layout)** (6 connections) — `md-files/page-spec/root.md`
+- **For Hunters Marketing Page** (6 connections) — `md-files/page-spec/join-hunter.md`
+- **Pricing Page** (5 connections) — `md-files/page-spec/pricing.md`
+- **Marketing Home** (5 connections) — `md-files/page-spec/root.md`
+- **SubscriptionTier (FREE/PRO)** (4 connections) — `md-files/page-spec/pricing.md`
+- **Contact Page** (4 connections) — `md-files/page-spec/contact.md`
+- **Login (OTP)** (4 connections) — `md-files/page-spec/login.md`
+- **Subscription Settings** (4 connections) — `md-files/page-spec/settings-subscription.md`
+- **Privacy Policy** (3 connections) — `md-files/page-spec/privacy.md`
+- **Terms of Service page** (3 connections) — `md-files/page-spec/terms.md`
+- **Auth Layout (centered glass card)** (2 connections) — `md-files/page-spec/login.md`
+- **JWT Auth (access + refresh)** (2 connections) — `md-files/page-spec/login.md`
+- **OTP (Passwordless 6-digit)** (2 connections) — `md-files/page-spec/login.md`
+- **TermsAndConditions** (1 connections) — `md-files/page-spec/terms.md`
+- **Signup Flow (2-step OTP)** (1 connections) — `md-files/page-spec/signup.md`
+- **Subscription** (1 connections) — `md-files/page-spec/settings-subscription.md`
 
 ## Relationships
 
-- [[API service layer]] (5 shared connections)
+- [[Marketing page specs]] (66 shared connections)
+- [[Page spec documentation]] (6 shared connections)
+- [[Project charter & ADRs]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/scripts/kb-context.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- `md-files/page-spec/contact.md`
+- `md-files/page-spec/join-business.md`
+- `md-files/page-spec/join-hunter.md`
+- `md-files/page-spec/login.md`
+- `md-files/page-spec/pricing.md`
+- `md-files/page-spec/privacy.md`
+- `md-files/page-spec/root.md`
+- `md-files/page-spec/settings-subscription.md`
+- `md-files/page-spec/signup.md`
+- `md-files/page-spec/terms.md`
 
 ## Audit Trail
 
-- EXTRACTED: 60 (90%)
-- INFERRED: 7 (10%)
+- EXTRACTED: 70 (96%)
+- INFERRED: 3 (4%)
 - AMBIGUOUS: 0 (0%)
 
 ---

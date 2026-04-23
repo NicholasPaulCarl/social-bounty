@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **public.decorator.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/public.decorator.ts`
-- **Public()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/public.decorator.ts`
+- **webhook-router.tradesafe.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.tradesafe.spec.ts`
+- **makeTradeSafeEvent()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.tradesafe.spec.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 88]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/public.decorator.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.tradesafe.spec.ts`
 
 ## Audit Trail
 

@@ -1,47 +1,44 @@
 # Wallet page specs
 
-> 20 nodes · cohesion 0.15
+> 18 nodes · cohesion 0.22
 
 ## Key Concepts
 
-- **Wallet dashboard page** (8 connections) — `md-files/page-spec/wallet.md`
-- **Request Withdrawal page** (7 connections) — `md-files/page-spec/wallet-withdraw.md`
-- **LedgerTransactionGroup** (5 connections) — `md-files/page-spec/admin-wallets-userid.md`
-- **Wallet Transactions (transaction history) page** (5 connections) — `md-files/page-spec/wallet-transactions.md`
-- **LedgerEntry** (4 connections) — `md-files/page-spec/wallet-transactions.md`
-- **Wallet** (4 connections) — `md-files/page-spec/wallet.md`
-- **Withdrawal** (4 connections) — `md-files/page-spec/wallet-withdraw.md`
-- **useWalletDashboard** (4 connections) — `md-files/page-spec/wallet.md`
-- **GET /wallet/ledger-snapshot** (2 connections) — `md-files/page-spec/wallet.md`
-- **StitchPayout** (2 connections) — `md-files/page-spec/wallet-withdraw.md`
-- **TradeSafeBeneficiary** (2 connections) — `md-files/page-spec/wallet-withdraw.md`
-- **Transaction history** (2 connections) — `md-files/page-spec/wallet-transactions.md`
-- **WalletBalance** (2 connections) — `md-files/page-spec/wallet.md`
-- **Withdrawal / Payout request** (2 connections) — `md-files/page-spec/admin-withdrawals.md`
-- **useRequestWithdrawal** (2 connections) — `md-files/page-spec/wallet-withdraw.md`
-- **useWalletLedgerSnapshot** (2 connections) — `md-files/page-spec/wallet.md`
-- **useWalletTransactions** (2 connections) — `md-files/page-spec/wallet-transactions.md`
-- **GET /wallet/dashboard** (1 connections) — `md-files/page-spec/wallet.md`
-- **GET /wallet/transactions** (1 connections) — `md-files/page-spec/wallet-transactions.md`
-- **POST /wallet/withdrawals** (1 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **useBrowseFilters.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **useManageFilters.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **readFromUrl()** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **readFromUrl()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **BountyManageCard.tsx** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyManageCard.tsx`
+- **isValidView()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **isValidReward()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **isValidSort()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **isValidReward()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **isValidSort()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **isValidView()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **isValidCategory()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **mapSortToApi()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **useBrowseFilters()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **isValidStatus()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **mapManageSortToApi()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **useManageFilters()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **goToDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyManageCard.tsx`
 
 ## Relationships
 
-- [[Project charter & ADRs]] (3 shared connections)
-- [[Page spec documentation]] (1 shared connections)
+- [[Bounty browse & manage filters]] (66 shared connections)
+- [[Next.js page routes]] (3 shared connections)
+- [[API service layer]] (2 shared connections)
 
 ## Source Files
 
-- `md-files/page-spec/admin-wallets-userid.md`
-- `md-files/page-spec/admin-withdrawals.md`
-- `md-files/page-spec/wallet-transactions.md`
-- `md-files/page-spec/wallet-withdraw.md`
-- `md-files/page-spec/wallet.md`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyManageCard.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 54 (87%)
-- INFERRED: 8 (13%)
+- EXTRACTED: 49 (69%)
+- INFERRED: 22 (31%)
 - AMBIGUOUS: 0 (0%)
 
 ---

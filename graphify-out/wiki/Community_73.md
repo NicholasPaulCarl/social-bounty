@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **usePayouts.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/usePayouts.ts`
-- **useMyPayouts()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/usePayouts.ts`
+- **settings.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.module.ts`
+- **SettingsModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.module.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 81]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/usePayouts.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.module.ts`
 
 ## Audit Trail
 

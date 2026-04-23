@@ -1,45 +1,42 @@
 # Apify scraping integration
 
-> 20 nodes · cohesion 0.26
+> 18 nodes · cohesion 0.20
 
 ## Key Concepts
 
-- **apify.mappers.ts** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **ApifyService** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- **.refreshForBrand()** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- **emptyCounters()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **numberOrNull()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **mapFacebookPostItem()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **mapInstagramPostItem()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **mapTiktokPostItem()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **.scrapeFacebook()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- **.scrapeInstagram()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- **.scrapeTiktok()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- **emptyScrapedPost()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **isoOrNull()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **mapFacebookItem()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **mapInstagramItem()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **mapTiktokItem()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **normalizeHandle()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **stringOrNull()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **.constructor()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- **.refreshIfStale()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
+- **kb-context.ts** (17 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **run()** (8 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **rankEntries()** (6 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **parseArgs()** (4 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **deriveGuidance()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **parseKbFile()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **printUsage()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **readKbFile()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **readRecurringIssues()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **renderMarkdown()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **buildKbEntry()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **compact()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **describeQuery()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **extractMetaSystem()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **scoreKbFileEntry()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **scoreRecurringIssue()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **pathNestedMatch()** (1 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **kb-context.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.spec.ts`
 
 ## Relationships
 
-- [[API service layer]] (14 shared connections)
-- [[Bounty service & tests]] (1 shared connections)
-- [[Next.js page routes]] (1 shared connections)
+- [[KB context CLI]] (62 shared connections)
+- [[API service layer]] (5 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
+- `/Users/nicholasschreiber/social-bounty/scripts/kb-context.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 86 (75%)
-- INFERRED: 28 (25%)
+- EXTRACTED: 60 (90%)
+- INFERRED: 7 (10%)
 - AMBIGUOUS: 0 (0%)
 
 ---

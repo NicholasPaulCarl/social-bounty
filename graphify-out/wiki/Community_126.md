@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **types.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/types.ts`
+- **QA Known Issues and Checks** (0 connections) — `docs/qa/KNOWN-ISSUES-AND-CHECKS.md`
 
 ## Relationships
 
@@ -12,7 +12,7 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/types.ts`
+- `docs/qa/KNOWN-ISSUES-AND-CHECKS.md`
 
 ## Audit Trail
 

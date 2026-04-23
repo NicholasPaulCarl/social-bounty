@@ -4,22 +4,21 @@
 
 ## Key Concepts
 
-- **query-client.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/query-client.ts`
-- **query-client.test.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/__tests__/query-client.test.ts`
+- **subscription-cancel.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscription-cancel.spec.ts`
+- **makeActiveSub()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscription-cancel.spec.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 84]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/__tests__/query-client.test.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/query-client.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscription-cancel.spec.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 0 (0%)
-- INFERRED: 2 (100%)
+- EXTRACTED: 2 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

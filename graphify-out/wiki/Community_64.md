@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **FormatChip.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/FormatChip.tsx`
-- **FormatChip()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/FormatChip.tsx`
+- **PageHeaderTabs.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderTabs.tsx`
+- **PageHeaderTabs()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderTabs.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 71]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/FormatChip.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/PageHeaderTabs.tsx`
 
 ## Audit Trail
 

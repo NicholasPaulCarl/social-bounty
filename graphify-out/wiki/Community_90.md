@@ -1,11 +1,10 @@
 # Community 90
 
-> 2 nodes · cohesion 1.00
+> 1 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **ApifyModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.module.ts`
-- **apify.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.module.ts`
+- **LibrarySidebar.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/LibrarySidebar.tsx`
 
 ## Relationships
 
@@ -13,11 +12,11 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/_components/LibrarySidebar.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 2 (100%)
+- EXTRACTED: 0 (0%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

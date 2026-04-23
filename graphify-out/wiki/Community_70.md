@@ -4,16 +4,16 @@
 
 ## Key Concepts
 
-- **useToolbarSearch.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/useToolbarSearch.ts`
-- **useToolbarSearch()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/useToolbarSearch.ts`
+- **AppModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/app.module.ts`
+- **app.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/app.module.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 78]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/PageHeader/useToolbarSearch.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/app.module.ts`
 
 ## Audit Trail
 

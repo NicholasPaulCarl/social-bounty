@@ -1,78 +1,75 @@
 # Bounty service & tests
 
-> 82 nodes · cohesion 0.05
+> 118 nodes · cohesion 0.03
 
 ## Key Concepts
 
-- **create-bounty.service.spec.ts** (17 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/create-bounty.service.spec.ts`
-- **submissions.service.ts** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.service.ts`
-- **bounty-engagement.service.spec.ts** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-engagement.service.spec.ts`
-- **business.service.ts** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/business/business.service.ts`
-- **disputes.service.ts** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/disputes.service.ts`
-- **admin.service.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **bounties.service.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **bounty-eligibility.service.spec.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-eligibility.service.spec.ts`
-- **bounties.service.spec.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.spec.ts`
-- **bounty-rewards.service.spec.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-rewards.service.spec.ts`
-- **apify.service.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- **bounty-access.service.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **business.service.spec.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/business/business.service.spec.ts`
-- **expired-bounty.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/expired-bounty.service.ts`
-- **bounty-abuse.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-abuse.service.spec.ts`
-- **bounty-channels.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-channels.service.spec.ts`
-- **bounty-status.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-status.service.spec.ts`
-- **brand-assets.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/brand-assets.service.spec.ts`
-- **beneficiary.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/beneficiary.service.spec.ts`
-- **prisma.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/prisma/prisma.service.ts`
-- **reconciliation.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **withdrawal.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/withdrawal.service.ts`
-- **apify.service.spec.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.spec.ts`
-- **expired-bounty.service.spec.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/expired-bounty.service.spec.ts`
-- **bounty-visibility.service.spec.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-visibility.service.spec.ts`
-- *... and 57 more nodes in this community*
+- **claude.md** (40 connections) — `claude.md`
+- **Social Bounty MVP** (28 connections) — `claude.md`
+- **ADR 0008 — TradeSafe for Hunter Payouts** (17 connections) — `docs/adr/0008-tradesafe-for-hunter-payouts.md`
+- **ADR 0009 — TradeSafe Integration Skeleton** (13 connections) — `docs/adr/0009-tradesafe-integration-skeleton.md`
+- **Agent Back-End** (13 connections) — `claude.md`
+- **Financial Non-Negotiables** (13 connections) — `claude.md`
+- **Agent Front-End** (12 connections) — `claude.md`
+- **Agent Team Overview** (12 connections) — `md-files/agents/agent-overview.md`
+- **Agent DevOps** (11 connections) — `claude.md`
+- **Agent Architect** (10 connections) — `claude.md`
+- **QA Testing Engineer Agent** (10 connections) — `md-files/agents/agent-qa-testing.md`
+- **Agent Team Lead** (10 connections) — `claude.md`
+- **Agent UI Designer** (9 connections) — `claude.md`
+- **Agent UX Designer** (9 connections) — `claude.md`
+- **TradeSafe** (9 connections) — `claude.md`
+- **Hard Rules** (7 connections) — `claude.md`
+- **Stitch Express payment gateway** (7 connections) — `md-files/page-spec/admin-payments-health.md`
+- **Go-Live Checklist** (7 connections) — `docs/deployment/go-live-checklist.md`
+- **PAYOUTS_ENABLED=false gate** (6 connections) — `claude.md`
+- **Svix Webhooks** (6 connections) — `claude.md`
+- **STITCH-IMPLEMENTATION-STATUS.md** (6 connections) — `docs/STITCH-IMPLEMENTATION-STATUS.md`
+- **SystemSetting (data model)** (6 connections) — `claude.md`
+- **Participant** (6 connections) — `claude.md`
+- **ADR 0001 — Stripe Retirement Timing** (5 connections) — `docs/adr/0001-stripe-retirement-timing.md`
+- **LedgerService** (5 connections) — `claude.md`
+- *... and 93 more nodes in this community*
 
 ## Relationships
 
-- [[Next.js page routes]] (15 shared connections)
-- [[API service layer]] (12 shared connections)
-- [[Ledger & payment services]] (6 shared connections)
-- [[Subscription & auth lifecycle]] (4 shared connections)
-- [[Controllers & RBAC guards]] (3 shared connections)
-- [[Auth & settings admin]] (2 shared connections)
-- [[REST API controllers]] (2 shared connections)
-- [[Bounty access & mutation]] (2 shared connections)
-- [[Roadmap & risk concepts]] (2 shared connections)
-- [[Wallet service]] (2 shared connections)
-- [[Apify scraping integration]] (1 shared connections)
-- [[Inbox & notifications]] (1 shared connections)
+- [[Project charter & ADRs]] (422 shared connections)
+- [[Roadmap & risk concepts]] (6 shared connections)
+- [[Page spec documentation]] (3 shared connections)
+- [[Ledger & payment services]] (2 shared connections)
+- [[External API clients]] (1 shared connections)
+- [[TradeSafe OAuth callback]] (1 shared connections)
+- [[Webhook handlers & triggers]] (1 shared connections)
+- [[API service layer]] (1 shared connections)
+- [[Marketing page specs]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/filters/http-exception.filter.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/__tests__/admin-edge-cases.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/audit/audit.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-abuse.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-channels.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-eligibility.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-engagement.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-rewards.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-status.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/bounty-visibility.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/brand-assets.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/create-bounty-edge-cases.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/create-bounty.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/draft-save.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/payout-metrics.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/__tests__/update-bounty.service.spec.ts`
+- `apps/web/e2e/README.md`
+- `claude.md`
+- `docs/BACKUP-STRATEGY.md`
+- `docs/STITCH-IMPLEMENTATION-STATUS.md`
+- `docs/adr/0001-stripe-retirement-timing.md`
+- `docs/adr/0003-tradesafe-out-of-scope.md`
+- `docs/adr/0004-feature-flag-inventory.md`
+- `docs/adr/0007-peach-payments-for-hunter-payouts.md`
+- `docs/adr/0008-tradesafe-for-hunter-payouts.md`
+- `docs/adr/0009-tradesafe-integration-skeleton.md`
+- `docs/contributing.md`
+- `docs/create-bounty-spec.md`
+- `docs/create-bounty-tests.md`
+- `docs/create-bounty-ui.md`
+- `docs/create-bounty-ux.md`
+- `docs/deployment/deployment-plan.md`
+- `docs/deployment/go-live-checklist.md`
+- `docs/deployment/tradesafe-live-readiness.md`
+- `md-files/agents/agent-architect.md`
+- `md-files/agents/agent-backend.md`
 
 ## Audit Trail
 
-- EXTRACTED: 98 (26%)
-- INFERRED: 273 (74%)
+- EXTRACTED: 340 (78%)
+- INFERRED: 98 (22%)
 - AMBIGUOUS: 0 (0%)
 
 ---
