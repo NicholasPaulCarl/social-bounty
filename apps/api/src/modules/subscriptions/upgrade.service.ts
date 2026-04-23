@@ -1,6 +1,7 @@
 import {
   Injectable,
   BadRequestException,
+  ServiceUnavailableException,
   Logger,
   Optional,
 } from '@nestjs/common';
@@ -24,7 +25,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService } from '../ledger/ledger.service';
 import { AuditService } from '../audit/audit.service';
-import { StitchClient } from '../stitch/stitch.client';
+import { StitchClient, StitchApiError } from '../stitch/stitch.client';
 import { PRICING } from './subscription.constants';
 
 export interface InitiateUpgradeResult {
@@ -200,23 +201,48 @@ export class UpgradeService {
     // 1 year max horizon — Stitch rejects endDate > 3y; 1y is a safe default
     // and the mandate is cancelled when the user cancels the subscription.
     const endDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
-    const merchantReference = `sub:${subscriptionId}:${now.getTime()}`;
+    // Stitch rejects merchantReferences with special characters; stick to
+    // [A-Za-z0-9-] (docs example: "sub-hunter-pro"). Short subscription id is
+    // enough for support lookups.
+    const merchantReference = `sub-${subscriptionId.slice(0, 8)}-${now.getTime()}`;
 
-    const stitchSub = await this.stitch.createSubscription({
-      amountCents,
-      initialAmountCents: amountCents,
-      merchantReference,
-      payerFullName: actor.fullName,
-      payerEmail: actor.email,
-      payerId: actor.userId,
-      startDate: now,
-      endDate,
-      recurrence: {
-        frequency: 'Monthly',
-        interval: 1,
-        byMonthDay: Math.min(now.getUTCDate(), 28),
-      },
-    });
+    let stitchSub;
+    try {
+      stitchSub = await this.stitch.createSubscription({
+        amountCents,
+        initialAmountCents: amountCents,
+        merchantReference,
+        payerFullName: actor.fullName,
+        payerEmail: actor.email,
+        payerId: actor.userId,
+        startDate: now,
+        endDate,
+        recurrence: {
+          frequency: 'Monthly',
+          interval: 1,
+          byMonthDay: Math.min(now.getUTCDate(), 28),
+        },
+      });
+    } catch (err) {
+      if (err instanceof StitchApiError) {
+        this.logger.error(
+          `initiateUpgrade: Stitch subscription create failed (status=${err.status}): ${err.message}`,
+        );
+        // Surface 4xx as a client-facing error so the UI shows something
+        // actionable instead of a generic 500. 5xx stays a 503 so retries
+        // are considered.
+        if (err.status >= 400 && err.status < 500) {
+          throw new BadRequestException(
+            'Card billing could not be initialised. ' +
+              'Please contact support if this persists.',
+          );
+        }
+        throw new ServiceUnavailableException(
+          'Card billing is temporarily unavailable. Please try again shortly.',
+        );
+      }
+      throw err;
+    }
 
     const mandate = await this.prisma.stitchSubscription.create({
       data: {

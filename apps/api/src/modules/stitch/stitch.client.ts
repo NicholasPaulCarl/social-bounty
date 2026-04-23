@@ -6,6 +6,10 @@ import { RedisService } from '../redis/redis.service';
 // for `client_paymentrequest` don't collide with recurring-consent tokens.
 const TOKEN_CACHE_KEY = 'stitch:token:v1';
 const TOKEN_LOCK_KEY = 'stitch:token:lock:v1';
+// Stitch scopes. Subscription endpoints require the recurring-consent scope;
+// one-off payments (links, withdrawals, refunds) use the payment-request scope.
+const SCOPE_PAYMENT_REQUEST = 'client_paymentrequest';
+const SCOPE_RECURRING_CONSENT = 'client_recurringpaymentconsentrequest';
 const TOKEN_TTL_SECONDS = 840; // 14 min (Stitch tokens live 15 min)
 const TOKEN_LOCK_TTL_SECONDS = 10;
 const DEFAULT_TIMEOUT_MS = 10_000;
@@ -108,16 +112,18 @@ export class StitchClient {
   }
 
   async getToken(scope = 'client_paymentrequest'): Promise<string> {
-    const cached = await this.redis.get(TOKEN_CACHE_KEY);
+    const cacheKey = `${TOKEN_CACHE_KEY}:${scope}`;
+    const lockKey = `${TOKEN_LOCK_KEY}:${scope}`;
+    const cached = await this.redis.get(cacheKey);
     if (cached) return cached;
 
     // Prevent stampede: one caller fetches, others wait briefly.
-    const acquired = await this.redis.setNxEx(TOKEN_LOCK_KEY, '1', TOKEN_LOCK_TTL_SECONDS);
+    const acquired = await this.redis.setNxEx(lockKey, '1', TOKEN_LOCK_TTL_SECONDS);
     if (!acquired) {
       // Another worker is fetching; poll briefly then fall through.
       for (let i = 0; i < 10; i++) {
         await new Promise((r) => setTimeout(r, 100));
-        const token = await this.redis.get(TOKEN_CACHE_KEY);
+        const token = await this.redis.get(cacheKey);
         if (token) return token;
       }
     }
@@ -137,10 +143,10 @@ export class StitchClient {
       if (!token) {
         throw new StitchApiError('Stitch token response missing accessToken', 500, json);
       }
-      await this.redis.set(TOKEN_CACHE_KEY, token, TOKEN_TTL_SECONDS);
+      await this.redis.set(cacheKey, token, TOKEN_TTL_SECONDS);
       return token;
     } finally {
-      await this.redis.del(TOKEN_LOCK_KEY).catch(() => undefined);
+      await this.redis.del(lockKey).catch(() => undefined);
     }
   }
 
@@ -325,6 +331,8 @@ export class StitchClient {
       'POST',
       '/api/v1/subscriptions',
       body,
+      {},
+      SCOPE_RECURRING_CONSENT,
     );
     const json = (await res.json()) as {
       data?: {
@@ -353,6 +361,9 @@ export class StitchClient {
     const res = await this.authedRequest(
       'GET',
       `/api/v1/subscriptions/${stitchSubscriptionId}`,
+      undefined,
+      {},
+      SCOPE_RECURRING_CONSENT,
     );
     const json = (await res.json()) as { data?: Record<string, unknown> };
     return json.data ?? {};
@@ -362,6 +373,9 @@ export class StitchClient {
     const res = await this.authedRequest(
       'POST',
       `/api/v1/subscriptions/${stitchSubscriptionId}/cancel`,
+      undefined,
+      {},
+      SCOPE_RECURRING_CONSENT,
     );
     const json = (await res.json()) as { data?: { status: string } };
     return json.data ?? { status: 'CANCELLED' };
@@ -379,8 +393,9 @@ export class StitchClient {
     path: string,
     body?: unknown,
     extraHeaders: Record<string, string> = {},
+    scope?: string,
   ): Promise<Response> {
-    const token = await this.getToken();
+    const token = await this.getToken(scope);
     const init: RequestInit = {
       method,
       headers: {

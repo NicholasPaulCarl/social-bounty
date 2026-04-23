@@ -57,8 +57,35 @@ describe('StitchClient', () => {
     const token = await client.getToken();
 
     expect(token).toBe('tok_abc');
-    expect(redis.set).toHaveBeenCalledWith('stitch:token:v1', 'tok_abc', 840);
+    // Cache key is scope-suffixed so payment-request vs recurring-consent
+    // tokens never collide (subscription endpoints require a different scope).
+    expect(redis.set).toHaveBeenCalledWith(
+      'stitch:token:v1:client_paymentrequest',
+      'tok_abc',
+      840,
+    );
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses distinct cache keys per scope (payment-request vs recurring-consent)', async () => {
+    fetchMock
+      .mockResolvedValueOnce(respond(200, { data: { accessToken: 'tok_pay' } }))
+      .mockResolvedValueOnce(respond(200, { data: { accessToken: 'tok_sub' } }));
+    const client = buildClient();
+
+    await client.getToken('client_paymentrequest');
+    await client.getToken('client_recurringpaymentconsentrequest');
+
+    expect(redis.set).toHaveBeenCalledWith(
+      'stitch:token:v1:client_paymentrequest',
+      'tok_pay',
+      840,
+    );
+    expect(redis.set).toHaveBeenCalledWith(
+      'stitch:token:v1:client_recurringpaymentconsentrequest',
+      'tok_sub',
+      840,
+    );
   });
 
   it('returns cached token without hitting the network', async () => {

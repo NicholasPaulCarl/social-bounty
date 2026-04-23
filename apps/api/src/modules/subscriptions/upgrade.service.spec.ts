@@ -39,7 +39,7 @@ import { SubscriptionTier, UserRole } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService } from '../ledger/ledger.service';
 import { AuditService } from '../audit/audit.service';
-import { StitchClient } from '../stitch/stitch.client';
+import { StitchClient, StitchApiError } from '../stitch/stitch.client';
 import { UpgradeService } from './upgrade.service';
 
 describe('UpgradeService', () => {
@@ -217,6 +217,62 @@ describe('UpgradeService', () => {
 
       expect(stitch.createSubscription).not.toHaveBeenCalled();
       expect(result.authorizationUrl).toBe('https://stitch.money/consent/existing');
+    });
+
+    it('maps Stitch 4xx errors to BadRequestException (not leaked as 500)', async () => {
+      prisma.subscription.findFirst.mockResolvedValue(null);
+      stitch.createSubscription.mockRejectedValue(
+        new StitchApiError('Subscriptions not enabled for this client', 400, {}),
+      );
+
+      await expect(
+        service.initiateUpgrade(
+          {
+            userId: 'user-1',
+            role: UserRole.PARTICIPANT,
+            fullName: 'Jane',
+            email: 'j@e.com',
+          },
+          SubscriptionTier.PRO,
+        ),
+      ).rejects.toThrow('Card billing could not be initialised');
+    });
+
+    it('maps Stitch 5xx errors to ServiceUnavailableException', async () => {
+      prisma.subscription.findFirst.mockResolvedValue(null);
+      stitch.createSubscription.mockRejectedValue(
+        new StitchApiError('Stitch 503', 503),
+      );
+
+      await expect(
+        service.initiateUpgrade(
+          {
+            userId: 'user-1',
+            role: UserRole.PARTICIPANT,
+            fullName: 'Jane',
+            email: 'j@e.com',
+          },
+          SubscriptionTier.PRO,
+        ),
+      ).rejects.toThrow('Card billing is temporarily unavailable');
+    });
+
+    it('uses an alphanumeric-only merchantReference (no colons — Stitch rejects special chars)', async () => {
+      prisma.subscription.findFirst.mockResolvedValue(null);
+
+      await service.initiateUpgrade(
+        {
+          userId: 'user-1',
+          role: UserRole.PARTICIPANT,
+          fullName: 'Jane Doe',
+          email: 'jane@example.com',
+        },
+        SubscriptionTier.PRO,
+      );
+
+      const call = stitch.createSubscription.mock.calls[0][0];
+      expect(call.merchantReference).toMatch(/^[A-Za-z0-9-]+$/);
+      expect(call.merchantReference).not.toContain(':');
     });
 
     it('rejects when the user is already on PRO+ACTIVE', async () => {
