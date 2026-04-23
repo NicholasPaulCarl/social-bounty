@@ -323,10 +323,36 @@ On detection of a Critical severity or Critical financial-impact issue, Claude m
 
 ## graphify
 
-This project has a graphify knowledge graph at graphify-out/.
+This project has a graphify knowledge graph at `graphify-out/`. Current state: **2450 nodes · 4870 edges · ~142 communities · 84% of nodes in the main component**.
 
-Rules:
-- Before answering architecture or codebase questions, read graphify-out/GRAPH_REPORT.md for god nodes and community structure
-- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
-- For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
-- After modifying code files in this session, run `graphify update .` to keep the graph current (AST-only, no API cost)
+### Rules
+
+- Before answering architecture or codebase questions, read `graphify-out/GRAPH_REPORT.md` for god nodes and community structure.
+- If `graphify-out/wiki/index.md` exists, navigate it instead of reading raw files. The 10 highest-degree nodes (`BountiesService`, `FinanceAdminService`, `AdminService`, `SubscriptionsService`, `DisputesService`, `SubmissionsService`, `UpgradeService`, `Social Bounty MVP`, `Design System README`, `Page Specs Index`) have LLM-written `## Summary` blocks — start there for these topics.
+- For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files.
+- The graph auto-rebuilds on every `git commit` via a post-commit husky hook (AST-only, no LLM cost). No manual `graphify update .` needed for code changes.
+- For docs/image changes (which require semantic re-extraction), run `graphify update .` manually.
+
+### Using the MCP server
+
+`.mcp.json` registers a `graphify` stdio MCP server at project scope. Parallel sub-agents can call `query_graph`, `shortest_path`, `get_community`, `god_nodes`, `graph_stats` without loading the full `graph.json` into their context. First-time setup requires the `mcp` Python package in graphify's env: `uv tool install --reinstall graphifyy --with mcp --with sentence-transformers`.
+
+### Included node/edge enrichments beyond the base extraction
+
+- **Dedupe pass** — merged 570 redundant nodes (ADR variants, file-level ID collisions from the extractor, concept duplicates). ADRs now have a single canonical node each.
+- **`packages/shared` wiring** — the barrel export's 18 re-exported DTO/enum/ledger files are explicitly linked from `index.ts`, so shared types aren't orphaned from their consumers.
+- **Doc → code rationale edges (20)** — canonical specs (`payment-gateway.md`, `financial-architecture.md`, `knowledge-base.md`, `admin-dashboard.md`, `brand-profile-and-signup.md`) and ADRs 0002/0005/0006/0008/0009/0010 link directly to the service files that implement them.
+- **Test ↔ impl edges (57)** — `*.spec.ts` files link to their sibling `*.ts` via a `tests` relation (pattern match, including `__tests__/` subdirs).
+- **Git-activity overlay** — every file-level node carries `last_touched_days_ago`, `commits_last_90d`, `commits_total` attributes. Query or inspect the graph to see hot vs. stale zones.
+- **Embedding similarity edges (1146)** — `all-MiniLM-L6-v2` (local CPU, cached at `graphify-out/.embeddings.npz`) produces cross-community `semantically_similar_to` edges at cosine ≥ 0.80. Surfaces parallel constructs the chunked extraction missed (e.g. `useBrowseFilters` ↔ `useManageFilters` sort mappers).
+- **Content-based community labels** — stored in `graphify-out/.community-labels.json`, derived from each community's top-degree members rather than rank order. Stable across re-clusterings.
+
+### Tooling exclusions
+
+- `.graphifyignore` excludes `node_modules/`, `dist/`, `.next/`, build artefacts, secrets, and third-party clones (was `design-os-main/`, `product-plan/`).
+- `scripts/check-kill-switch-bypass.sh` excludes `graphify-out/**` (the graph quotes ADR 0006 prose as descriptive data; same class of exclusion as `docs/reviews/` and the ADR itself).
+- `.gitignore` excludes `graphify-out/cache/`, `graphify-out/manifest.json`, `graphify-out/cost.json`, `graphify-out/.embeddings*` — everything else under `graphify-out/` is committed.
+
+### Onboarding automation
+
+`npm install` triggers `scripts/install-graphify-hook.sh` (via the `prepare` script) which idempotently appends the graphify block to husky's post-commit + post-checkout hooks. Silently no-ops if `graphify` isn't on PATH, so `npm install` never fails — just prints a one-line install hint (`uv tool install graphifyy --with mcp`).
