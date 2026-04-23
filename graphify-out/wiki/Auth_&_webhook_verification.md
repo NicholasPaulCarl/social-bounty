@@ -1,75 +1,74 @@
 # Auth & webhook verification
 
-> 104 nodes · cohesion 0.03
+> 159 nodes · cohesion 0.02
 
 ## Key Concepts
 
+- **claude.md** (40 connections) — `claude.md`
+- **Social Bounty MVP** (28 connections) — `claude.md`
 - **ADR 0008 — TradeSafe for Hunter Payouts** (17 connections) — `docs/adr/0008-tradesafe-for-hunter-payouts.md`
+- **Financial Kill Switch** (16 connections) — `md-files/page-spec/admin-finance.md`
+- **ADR 0006 — Compensating Entries Bypass the Financial Kill Switch** (14 connections) — `docs/adr/0006-compensating-entries-bypass-kill-switch.md`
 - **ADR 0009 — TradeSafe Integration Skeleton** (13 connections) — `docs/adr/0009-tradesafe-integration-skeleton.md`
-- **concept:Reconciliation** (10 connections)
-- **doc:md-files/implementation-phases.md** (10 connections) — `md-files/implementation-phases.md`
-- **doc:md-files/payment-gateway.md** (8 connections) — `md-files/payment-gateway.md`
-- **doc:docs/reviews/2026-04-15-team-lead-audit-batch-10.md** (7 connections) — `docs/reviews/2026-04-15-team-lead-audit-batch-10.md`
-- **doc:md-files/admin-dashboard.md** (7 connections) — `md-files/admin-dashboard.md`
-- **doc:md-files/financial-architecture.md** (7 connections) — `md-files/financial-architecture.md`
-- **Go-Live Checklist** (7 connections) — `docs/deployment/go-live-checklist.md`
-- **concept:Ledger** (6 connections)
-- **TradeSafePayoutAdapter** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/tradesafe-payout.adapter.ts`
-- **ADR 0001 — Stripe Retirement Timing** (5 connections) — `docs/adr/0001-stripe-retirement-timing.md`
-- **finance-admin.service.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- **concept:Phase2** (5 connections)
-- **concept:StitchExpress** (5 connections)
-- **doc:docs/reviews/2026-04-15-team-lead-audit-batch-6.md** (5 connections) — `docs/reviews/2026-04-15-team-lead-audit-batch-6.md`
-- **doc:docs/reviews/2026-04-15-team-lead-audit-phases-0-3.md** (5 connections) — `docs/reviews/2026-04-15-team-lead-audit-phases-0-3.md`
-- **ADR 0003 — TradeSafe Escrow Layer Out of Scope** (4 connections) — `docs/adr/0003-tradesafe-out-of-scope.md`
-- **stitch-payments.service.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
-- **reconciliation.service.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **stitch-webhook.controller.spec.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.spec.ts`
-- **stitch-webhook.controller.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.ts`
-- **tradesafe-webhook.controller.spec.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.spec.ts`
-- **concept:FinancialNonNegotiables** (4 connections)
-- **concept:Phase1** (4 connections)
-- *... and 79 more nodes in this community*
+- **ADR 0010 — Auto-Refund on PostVisibility Failure** (13 connections) — `docs/adr/0010-auto-refund-on-visibility-failure.md`
+- **Agent Back-End** (13 connections) — `claude.md`
+- **Financial Non-Negotiables** (13 connections) — `claude.md`
+- **Finance Overview admin page** (12 connections) — `md-files/page-spec/admin-finance.md`
+- **Agent Front-End** (12 connections) — `claude.md`
+- **Agent Team Overview** (12 connections) — `md-files/agents/agent-overview.md`
+- **Financial Non-Negotiables (claude.md §4)** (12 connections) — `claude.md`
+- **Visibility Failures admin page** (11 connections) — `md-files/page-spec/admin-finance-visibility-failures.md`
+- **Agent DevOps** (11 connections) — `claude.md`
+- **ADR 0005 — Ledger Idempotency via Header Table** (10 connections) — `docs/adr/0005-ledger-idempotency-via-header-table.md`
+- **Agent Architect** (10 connections) — `claude.md`
+- **QA Testing Engineer Agent** (10 connections) — `md-files/agents/agent-qa-testing.md`
+- **Agent Team Lead** (10 connections) — `claude.md`
+- **Admin Wallet Detail page** (9 connections) — `md-files/page-spec/admin-wallets-userid.md`
+- **Admin Withdrawals page** (9 connections) — `md-files/page-spec/admin-withdrawals.md`
+- **Agent UI Designer** (9 connections) — `claude.md`
+- **Agent UX Designer** (9 connections) — `claude.md`
+- **TradeSafe** (9 connections) — `claude.md`
+- **/admin/finance/overrides** (7 connections) — `md-files/page-spec/admin-finance-overrides.md`
+- *... and 134 more nodes in this community*
 
 ## Relationships
 
-- [[Admin page routes]] (11 shared connections)
-- [[Agent team roster]] (10 shared connections)
-- [[Bounties & Stitch payments]] (6 shared connections)
-- [[Admin operations & overrides]] (5 shared connections)
-- [[Finance admin & KB]] (2 shared connections)
+- [[Bounties & Stitch payments]] (313 shared connections)
+- [[Agent team roster]] (223 shared connections)
+- [[audited.decorator.ts]] (30 shared connections)
+- [[Bounty form & disputes]] (5 shared connections)
+- [[Brand funding & form state]] (2 shared connections)
+- [[TradeSafe client & payouts]] (1 shared connections)
 - [[Wallet controller & projection]] (1 shared connections)
-- [[.callback()]] (1 shared connections)
-- [[Admin withdrawals UI]] (1 shared connections)
-- [[BrandsService class]] (1 shared connections)
+- [[kb-context.ts]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.factory.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.factory.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/tradesafe-payout.adapter.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/tradesafe-payout.adapter.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.ts`
+- `apps/web/e2e/README.md`
 - `claude.md`
+- `docs/BACKUP-STRATEGY.md`
+- `docs/INCIDENT-RESPONSE.md`
+- `docs/STITCH-IMPLEMENTATION-STATUS.md`
 - `docs/adr/0001-stripe-retirement-timing.md`
+- `docs/adr/0002-wallet-read-model-projection.md`
 - `docs/adr/0003-tradesafe-out-of-scope.md`
 - `docs/adr/0004-feature-flag-inventory.md`
+- `docs/adr/0005-ledger-idempotency-via-header-table.md`
+- `docs/adr/0006-compensating-entries-bypass-kill-switch.md`
 - `docs/adr/0007-peach-payments-for-hunter-payouts.md`
+- `docs/adr/0008-tradesafe-for-hunter-payouts.md`
+- `docs/adr/0009-tradesafe-integration-skeleton.md`
+- `docs/adr/0010-auto-refund-on-visibility-failure.md`
+- `docs/architecture/api-contracts.md`
+- `docs/architecture/database-schema.md`
+- `docs/architecture/frontend-strategy.md`
+- `docs/architecture/security-and-rbac.md`
+- `docs/architecture/sitemap.md`
 
 ## Audit Trail
 
-- EXTRACTED: 280 (87%)
-- INFERRED: 42 (13%)
+- EXTRACTED: 529 (81%)
+- INFERRED: 123 (19%)
 - AMBIGUOUS: 0 (0%)
 
 ---

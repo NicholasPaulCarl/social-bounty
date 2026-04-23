@@ -16,7 +16,7 @@
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[seedOtpInRedis()]] (16 shared connections)
 
 ## Source Files
 

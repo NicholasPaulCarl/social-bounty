@@ -11,7 +11,7 @@
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[UpsellBanner.tsx]] (10 shared connections)
 
 ## Source Files
 

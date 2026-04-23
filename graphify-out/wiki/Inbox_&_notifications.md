@@ -1,52 +1,53 @@
 # Inbox & notifications
 
-> 26 nodes · cohesion 0.08
+> 21 nodes · cohesion 0.13
 
 ## Key Concepts
 
-- **useAdmin.ts** (23 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **AdminCreateBrandPage()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/new/page.tsx`
-- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/users/[id]/page.tsx`
-- **UserSubmissionsTab()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/users/[id]/page.tsx`
-- **useAdminCreateOrg()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminSubmissions()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **page.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/new/page.tsx`
-- **useAdminBountyDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminBrandDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminBrands()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminDashboard()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminSettings()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminSubmissionDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminUserDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminUsers()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAuditLogDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAuditLogs()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useOverrideBountyStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useOverridePayoutStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useOverrideSubmissionStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **usePaymentsHealth()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useRecentErrors()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useSystemHealth()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useUpdateBrandStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useUpdateSettings()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- *... and 1 more nodes in this community*
+- **page.tsx** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **page.tsx** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
+- **page.tsx** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
+- **useInView()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
+- **page.tsx** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/business/page.tsx`
+- **FadeUp()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
+- **TwitterIcon()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
+- **InstagramIcon()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
+- **layout.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
+- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
+- **InstagramIcon()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
+- **Reveal()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
+- **TwitterIcon()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **ComponentLibraryPage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
+- **handleChange()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **PhoneMockup()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
+- **scrollToForm()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **useCountUp()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
+- **useFadeUp()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **visible()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
 
 ## Relationships
 
-- [[Admin operations & overrides]] (2 shared connections)
-- [[Apify post scraping]] (1 shared connections)
-- [[App layouts & shells]] (1 shared connections)
+- [[middleware.ts]] (30 shared connections)
+- [[Bounty access & users]] (17 shared connections)
+- [[PageHeaderTabs.tsx]] (7 shared connections)
+- [[Admin operations & overrides]] (4 shared connections)
+- [[subscription-cancel.spec.ts]] (3 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/new/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/users/[id]/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/business/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/join/hunter/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/pricing/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/component-library/page.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 49 (91%)
-- INFERRED: 5 (9%)
+- EXTRACTED: 43 (70%)
+- INFERRED: 18 (30%)
 - AMBIGUOUS: 0 (0%)
 
 ---

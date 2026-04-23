@@ -11,7 +11,7 @@
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[error.tsx]] (8 shared connections)
 
 ## Source Files
 

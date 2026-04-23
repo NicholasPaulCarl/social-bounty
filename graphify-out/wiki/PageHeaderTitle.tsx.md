@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[playwright.config.ts]] (2 shared connections)
 
 ## Source Files
 

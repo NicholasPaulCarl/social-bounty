@@ -1,54 +1,59 @@
 # Admin withdrawals UI
 
-> 32 nodes · cohesion 0.11
+> 37 nodes · cohesion 0.06
 
 ## Key Concepts
 
-- **bench-reconciliation.ts** (16 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **.run()** (14 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **ReconciliationService** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **main()** (11 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **runBench()** (7 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **seedLedger()** (5 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **.checkReserveVsBounty()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **applyMigrations()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **createBenchDb()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **dropBenchDb()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **formatTable()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **printHelp()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **psql()** (3 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **.toggleKillSwitch()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- **.setKillSwitch()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.service.ts`
-- **.checkDuplicateGroups()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **.checkGroupBalance()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **.checkWalletProjectionDrift()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **.persistFindings()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **.systemActorId()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- **bigintReplacer()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **buildBenchDbConfig()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **detectPgVersion()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **mulberry32()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- **parseArgs()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
-- *... and 7 more nodes in this community*
+- **format.ts** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **bounty-format.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- **BusinessBountyListView.tsx** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
+- **formatRewardZAR()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- **formatCurrency()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **formatEnumLabel()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **StatusBadge.tsx** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/StatusBadge.tsx`
+- **BrandSocialReachCard.tsx** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/brand-profile/BrandSocialReachCard.tsx`
+- **disputes.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/constants/disputes.ts`
+- **formatLabel()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/StatusBadge.tsx`
+- **BountyListView.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyListView.tsx`
+- **hashHue()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- **rewardBody()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyListView.tsx`
+- **BrandAvatar()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrandAvatar.tsx`
+- **display()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/brand-profile/BrandSocialReachCard.tsx`
+- **rewardBody()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
+- **formatDisputeReason()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/constants/disputes.ts`
+- **formatBytes()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **formatCents()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **formatCount()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **formatPayoutMethod()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **StatusBadge()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/StatusBadge.tsx`
+- **BrandAvatar.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrandAvatar.tsx`
+- **getFormatIcon()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- **getFormatLabel()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- *... and 12 more nodes in this community*
 
 ## Relationships
 
-- [[Admin page routes]] (18 shared connections)
-- [[Finance admin & KB]] (1 shared connections)
-- [[Auth & webhook verification]] (1 shared connections)
+- [[Admin brand & user tabs]] (64 shared connections)
+- [[Admin operations & overrides]] (10 shared connections)
+- [[FormatChip.tsx]] (9 shared connections)
+- [[Admin page routes]] (1 shared connections)
+- [[Bounty access & users]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
-- `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/scripts/bench-reconciliation.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/StatusBadge.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyListView.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrandAvatar.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/brand-profile/BrandSocialReachCard.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/constants/disputes.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 101 (78%)
-- INFERRED: 29 (22%)
+- EXTRACTED: 69 (81%)
+- INFERRED: 16 (19%)
 - AMBIGUOUS: 0 (0%)
 
 ---

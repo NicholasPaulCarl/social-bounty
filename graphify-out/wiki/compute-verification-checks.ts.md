@@ -12,6 +12,7 @@
 
 ## Relationships
 
+- [[page.tsx]] (10 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
 - [[Admin page routes]] (1 shared connections)
 

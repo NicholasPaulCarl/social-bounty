@@ -1,51 +1,47 @@
 # Health, Redis, URL verification
 
-> 25 nodes · cohesion 0.08
+> 20 nodes · cohesion 0.15
 
 ## Key Concepts
 
-- **UsersController** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **UsersService** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **users.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **users.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.searchUsers()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.searchUsersForMessaging()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **.updateProfile()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **.uploadProfilePicture()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **users.service.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.spec.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.deleteProfilePicture()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.deleteSocialLink()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.getProfile()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.getPublicProfile()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.getSocialLinks()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.listHunters()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.updateProfile()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.uploadProfilePicture()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.upsertSocialLink()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **.getProfile()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **.getPublicProfile()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **.getSocialLinks()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **.listHunters()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **.upsertSocialLink()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **Wallet dashboard page** (8 connections) — `md-files/page-spec/wallet.md`
+- **Request Withdrawal page** (7 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **LedgerTransactionGroup** (5 connections) — `md-files/page-spec/admin-wallets-userid.md`
+- **Wallet Transactions (transaction history) page** (5 connections) — `md-files/page-spec/wallet-transactions.md`
+- **LedgerEntry** (4 connections) — `md-files/page-spec/wallet-transactions.md`
+- **Wallet** (4 connections) — `md-files/page-spec/wallet.md`
+- **Withdrawal** (4 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **useWalletDashboard** (4 connections) — `md-files/page-spec/wallet.md`
+- **GET /wallet/ledger-snapshot** (2 connections) — `md-files/page-spec/wallet.md`
+- **StitchPayout** (2 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **TradeSafeBeneficiary** (2 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **Transaction history** (2 connections) — `md-files/page-spec/wallet-transactions.md`
+- **WalletBalance** (2 connections) — `md-files/page-spec/wallet.md`
+- **Withdrawal / Payout request** (2 connections) — `md-files/page-spec/admin-withdrawals.md`
+- **useRequestWithdrawal** (2 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **useWalletLedgerSnapshot** (2 connections) — `md-files/page-spec/wallet.md`
+- **useWalletTransactions** (2 connections) — `md-files/page-spec/wallet-transactions.md`
+- **GET /wallet/dashboard** (1 connections) — `md-files/page-spec/wallet.md`
+- **GET /wallet/transactions** (1 connections) — `md-files/page-spec/wallet-transactions.md`
+- **POST /wallet/withdrawals** (1 connections) — `md-files/page-spec/wallet-withdraw.md`
 
 ## Relationships
 
-- [[Admin page routes]] (3 shared connections)
-- [[Admin operations & overrides]] (2 shared connections)
-- [[Wallet & withdrawals]] (1 shared connections)
+- [[Brand funding & form state]] (55 shared connections)
+- [[Agent team roster]] (7 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- `md-files/page-spec/admin-wallets-userid.md`
+- `md-files/page-spec/admin-withdrawals.md`
+- `md-files/page-spec/wallet-transactions.md`
+- `md-files/page-spec/wallet-withdraw.md`
+- `md-files/page-spec/wallet.md`
 
 ## Audit Trail
 
-- EXTRACTED: 48 (89%)
-- INFERRED: 6 (11%)
+- EXTRACTED: 54 (87%)
+- INFERRED: 8 (13%)
 - AMBIGUOUS: 0 (0%)
 
 ---

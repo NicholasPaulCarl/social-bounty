@@ -1,6 +1,6 @@
 # FinanceAdminService
 
-> God node · 19 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
+> God node · 26 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
 
 **Community:** [[Finance admin & KB]]
 
@@ -11,23 +11,32 @@
 
 ### method
 - [[.getVisibilityAnalytics()]] `EXTRACTED`
-- [[.devSeedPayable()]] `EXTRACTED`
+- [[.reserves()]] `EXTRACTED`
 - [[.overview()]] `EXTRACTED`
-- [[.toggleKillSwitch()]] `EXTRACTED`
-- [[.postOverride()]] `EXTRACTED`
+- [[.devSeedPayable()]] `EXTRACTED`
 - [[.inboundList()]] `EXTRACTED`
 - [[.earningsPayouts()]] `EXTRACTED`
-- [[.listPayouts()]] `EXTRACTED`
 - [[.listRefunds()]] `EXTRACTED`
+- [[.toggleKillSwitch()]] `EXTRACTED`
+- [[.listVisibilityHistory()]] `EXTRACTED`
+- [[.postOverride()]] `EXTRACTED`
+- [[.constructor()]] `EXTRACTED`
+- [[.listPayouts()]] `EXTRACTED`
 - [[.listExceptions()]] `EXTRACTED`
 - [[.getTransactionGroup()]] `EXTRACTED`
 - [[.listVisibilityFailures()]] `EXTRACTED`
-- [[.listVisibilityHistory()]] `EXTRACTED`
 - [[.computeFailureRate()]] `EXTRACTED`
 - [[.computeVisibilityAlerts()]] `EXTRACTED`
-- [[.constructor()]] `EXTRACTED`
-- [[.reserves()]] `EXTRACTED`
 - [[.auditTrail()]] `EXTRACTED`
+
+### semantically_similar_to
+- [[UpgradeService]] `INFERRED`
+- [[ReconciliationService]] `INFERRED`
+- [[BrandFundingHandler]] `INFERRED`
+- [[TradeSafeWebhookHandler]] `INFERRED`
+- [[ApprovalLedgerService]] `INFERRED`
+- [[ClearanceService]] `INFERRED`
+- [[ExpiredBountyService]] `INFERRED`
 
 ---
 

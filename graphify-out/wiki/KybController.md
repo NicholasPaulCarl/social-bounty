@@ -1,12 +1,11 @@
 # KybController
 
-> 8 nodes · cohesion 0.25
+> 7 nodes · cohesion 0.29
 
 ## Key Concepts
 
 - **KybController** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
 - **kyb.controller.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
-- **.approve()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
 - **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
 - **.reject()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
 - **.submit()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/kyb.controller.ts`
@@ -15,6 +14,7 @@
 
 ## Relationships
 
+- [[smoke-finance-group-drilldown.spec.ts]] (13 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files
@@ -23,7 +23,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 15 (100%)
+- EXTRACTED: 14 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

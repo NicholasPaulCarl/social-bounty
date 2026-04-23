@@ -17,6 +17,7 @@
 
 ## Relationships
 
+- [[AppSidebar.tsx]] (18 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files

@@ -1,58 +1,78 @@
 # Wallet & withdrawals
 
-> 60 nodes · cohesion 0.05
+> 72 nodes · cohesion 0.04
 
 ## Key Concepts
 
-- **BountyAccessService** (15 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **BountyAccessController** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
-- **SettingsService** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **SocialHandlesService** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- **.addHandle()** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- **.assertBrandAdmin()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.reviewApplication()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.delete()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
-- **.createInvitations()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.getBountyOrThrow()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.getSetting()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.revokeInvitation()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.getBoolean()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.seedDefaults()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.validateHandle()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- **bounty-access.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.listApplications()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.listInvitations()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.getAllSettings()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.setSetting()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **.buildProfileUrl()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- **bounty-access.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
-- **settings.service.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.spec.ts`
-- **settings.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **social-handles.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- *... and 35 more nodes in this community*
+- **ledger.service.ts** (16 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.service.ts`
+- **finance-admin.service.ts** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
+- **stitch-payments.service.ts** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
+- **payouts.service.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.ts`
+- **wallet-projection.service.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet-projection.service.ts`
+- **payout-provider.factory.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.factory.ts`
+- **clearance.service.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/clearance.service.ts`
+- **brand-funding.handler.spec.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.spec.ts`
+- **payouts.service.spec.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.spec.ts`
+- **exports.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
+- **finance-admin.service.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.spec.ts`
+- **approval-ledger.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/approval-ledger.service.ts`
+- **payout-provider.factory.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.factory.spec.ts`
+- **upgrade.service.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
+- **ledger.module.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.module.ts`
+- **brand-funding.handler.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.ts`
+- **stitch-payout.adapter.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.ts`
+- **refunds.service.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refunds.service.ts`
+- **StitchPayoutAdapter** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.ts`
+- **TradeSafePayoutAdapter** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/tradesafe-payout.adapter.ts`
+- **finance-admin.module.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.module.ts`
+- **stitch-payout.adapter.spec.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.spec.ts`
+- **PayoutProviderFactory** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.factory.ts`
+- **approval-ledger.service.spec.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/approval-ledger.service.spec.ts`
+- **payments.module.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.module.ts`
+- *... and 47 more nodes in this community*
 
 ## Relationships
 
-- [[Admin page routes]] (20 shared connections)
-- [[Admin operations & overrides]] (3 shared connections)
-- [[Apify post scraping]] (1 shared connections)
-- [[Health, Redis, URL verification]] (1 shared connections)
+- [[Auth & webhook verification]] (72 shared connections)
+- [[Admin operations & overrides]] (35 shared connections)
+- [[Agent team roster]] (29 shared connections)
+- [[BrandsService class]] (28 shared connections)
+- [[Reconciliation engine]] (19 shared connections)
+- [[Wallet controller & projection]] (16 shared connections)
+- [[Admin page routes]] (14 shared connections)
+- [[TradeSafe client & payouts]] (9 shared connections)
+- [[Signup (OTP + optional brand)]] (7 shared connections)
+- [[MaxSubmissionsSection.tsx]] (7 shared connections)
+- [[PageHeaderPills.tsx]] (7 shared connections)
+- [[SectionPanel.tsx]] (5 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/finance.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/approval-ledger.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/approval-ledger.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/clearance.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/clearance.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.module.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 151 (82%)
-- INFERRED: 34 (18%)
+- EXTRACTED: 95 (35%)
+- INFERRED: 179 (65%)
 - AMBIGUOUS: 0 (0%)
 
 ---

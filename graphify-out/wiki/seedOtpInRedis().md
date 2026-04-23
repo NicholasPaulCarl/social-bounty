@@ -11,6 +11,7 @@
 
 ## Relationships
 
+- [[MainLayout.tsx]] (8 shared connections)
 - [[Admin page routes]] (1 shared connections)
 
 ## Source Files

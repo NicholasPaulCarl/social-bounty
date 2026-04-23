@@ -2,7 +2,7 @@
 
 > God node · 22 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
 
-**Community:** [[Bounty UI components]]
+**Community:** [[Admin withdrawals UI]]
 
 ## Connections by Relation
 
@@ -10,20 +10,20 @@
 - [[admin.service.ts]] `EXTRACTED`
 
 ### method
-- [[.updateUserStatus()]] `EXTRACTED`
-- [[.updateBrandStatus()]] `EXTRACTED`
+- [[.getUserDetail()]] `EXTRACTED`
+- [[.constructor()]] `EXTRACTED`
 - [[.overrideBounty()]] `EXTRACTED`
-- [[.overrideSubmission()]] `EXTRACTED`
-- [[.updateSettings()]] `EXTRACTED`
-- [[.createBrand()]] `EXTRACTED`
+- [[.getBrandDetail()]] `EXTRACTED`
+- [[.updateBrandStatus()]] `EXTRACTED`
 - [[.isSignupEnabled()]] `EXTRACTED`
+- [[.updateSettings()]] `EXTRACTED`
+- [[.updateUserStatus()]] `EXTRACTED`
+- [[.overrideSubmission()]] `EXTRACTED`
 - [[.isSubmissionEnabled()]] `EXTRACTED`
 - [[.getSettings()]] `EXTRACTED`
-- [[.constructor()]] `EXTRACTED`
+- [[.createBrand()]] `EXTRACTED`
 - [[.listUsers()]] `EXTRACTED`
-- [[.getUserDetail()]] `EXTRACTED`
 - [[.listBrands()]] `EXTRACTED`
-- [[.getBrandDetail()]] `EXTRACTED`
 - [[.listSubmissions()]] `EXTRACTED`
 - [[.listAuditLogs()]] `EXTRACTED`
 - [[.getAuditLog()]] `EXTRACTED`

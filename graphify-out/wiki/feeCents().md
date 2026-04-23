@@ -18,6 +18,7 @@
 
 ## Relationships
 
+- [[bounties.validators.ts]] (32 shared connections)
 - [[Admin page routes]] (3 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
 

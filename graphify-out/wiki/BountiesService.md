@@ -1,8 +1,8 @@
 # BountiesService
 
-> God node · 23 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
+> God node · 25 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
 
-**Community:** [[ADRs & audit log]]
+**Community:** [[Wallet & withdrawals]]
 
 ## Connections by Relation
 
@@ -11,25 +11,29 @@
 
 ### method
 - [[.update()]] `EXTRACTED`
-- [[.create()]] `EXTRACTED`
-- [[.computeTotalRewardValue()]] `EXTRACTED`
 - [[.findById()]] `EXTRACTED`
+- [[.create()]] `EXTRACTED`
 - [[.deleteBrandAsset()]] `EXTRACTED`
+- [[.updateStatus()]] `EXTRACTED`
+- [[.delete()]] `EXTRACTED`
+- [[.constructor()]] `EXTRACTED`
+- [[.computeTotalRewardValue()]] `EXTRACTED`
+- [[.acknowledgeVisibility()]] `EXTRACTED`
+- [[.list()]] `EXTRACTED`
+- [[.getBrandAssetForDownload()]] `EXTRACTED`
 - [[.validateChannels()]] `EXTRACTED`
 - [[.validateRewards()]] `EXTRACTED`
 - [[.mapRewards()]] `EXTRACTED`
-- [[.delete()]] `EXTRACTED`
+- [[.duplicate()]] `EXTRACTED`
+- [[.uploadBrandAssets()]] `EXTRACTED`
 - [[.validatePostVisibility()]] `EXTRACTED`
 - [[.validateStructuredEligibility()]] `EXTRACTED`
 - [[.validateEngagementRequirements()]] `EXTRACTED`
 - [[.generateEligibilityText()]] `EXTRACTED`
-- [[.validatePayoutMetrics()]] `EXTRACTED`
-- [[.updateStatus()]] `EXTRACTED`
-- [[.duplicate()]] `EXTRACTED`
-- [[.mapBrandAssets()]] `EXTRACTED`
-- [[.list()]] `EXTRACTED`
-- [[.acknowledgeVisibility()]] `EXTRACTED`
-- [[.uploadBrandAssets()]] `EXTRACTED`
+
+### semantically_similar_to
+- [[SubmissionsService]] `INFERRED`
+- [[BountyAccessService]] `INFERRED`
 
 ---
 

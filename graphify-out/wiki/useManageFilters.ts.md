@@ -1,31 +1,45 @@
 # useManageFilters.ts
 
-> 8 nodes · cohesion 0.39
+> 18 nodes · cohesion 0.22
 
 ## Key Concepts
 
-- **useManageFilters.ts** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
-- **readFromUrl()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
-- **isValidReward()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
-- **isValidSort()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **useBrowseFilters.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **useManageFilters.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **readFromUrl()** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **readFromUrl()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **BountyManageCard.tsx** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyManageCard.tsx`
+- **isValidView()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **isValidReward()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **isValidSort()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **isValidReward()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **isValidSort()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **isValidView()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **isValidCategory()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **mapSortToApi()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
+- **useBrowseFilters()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
 - **isValidStatus()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
-- **isValidView()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
-- **mapManageSortToApi()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
-- **useManageFilters()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **mapManageSortToApi()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **useManageFilters()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
+- **goToDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyManageCard.tsx`
 
 ## Relationships
 
-- [[Admin operations & overrides]] (1 shared connections)
-- [[Admin page routes]] (1 shared connections)
+- [[kb.module.ts]] (31 shared connections)
+- [[SanitizePipe]] (31 shared connections)
+- [[Admin operations & overrides]] (7 shared connections)
+- [[Admin page routes]] (2 shared connections)
 
 ## Source Files
 
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyManageCard.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrowseFilters.ts`
 - `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useManageFilters.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 23 (96%)
-- INFERRED: 1 (4%)
+- EXTRACTED: 49 (69%)
+- INFERRED: 22 (31%)
 - AMBIGUOUS: 0 (0%)
 
 ---

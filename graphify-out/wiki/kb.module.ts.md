@@ -1,24 +1,28 @@
 # kb.module.ts
 
-> 2 nodes · cohesion 1.00
+> 4 nodes · cohesion 0.50
 
 ## Key Concepts
 
-- **kb.module.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.module.ts`
+- **brands.module.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.module.ts`
+- **kb.module.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.module.ts`
+- **BrandsModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.module.ts`
 - **KbModule** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.module.ts`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[ProofRequirementsSection.tsx]] (3 shared connections)
+- [[StatusDot.tsx]] (3 shared connections)
 
 ## Source Files
 
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.module.ts`
 - `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.module.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 2 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 4 (67%)
+- INFERRED: 2 (33%)
 - AMBIGUOUS: 0 (0%)
 
 ---

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[next-env.d.ts]] (2 shared connections)
 
 ## Source Files
 

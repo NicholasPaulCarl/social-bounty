@@ -1,11 +1,10 @@
 # layout.tsx
 
-> 2 nodes · cohesion 1.00
+> 1 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **layout.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/layout.tsx`
-- **RootLayout()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/layout.tsx`
+- **layout.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/layout.tsx`
 
 ## Relationships
 
@@ -13,11 +12,11 @@
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/layout.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/layout.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 2 (100%)
+- EXTRACTED: 0 (0%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

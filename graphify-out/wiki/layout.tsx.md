@@ -1,24 +1,23 @@
 # layout.tsx
 
-> 3 nodes · cohesion 0.67
+> 2 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **layout.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
-- **InstagramIcon()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
-- **TwitterIcon()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
+- **layout.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/layout.tsx`
+- **RootLayout()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/layout.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[public.decorator.ts]] (2 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/layout.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/layout.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 4 (100%)
+- EXTRACTED: 2 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

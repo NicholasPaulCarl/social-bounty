@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[reported-metrics.spec.ts]] (2 shared connections)
 
 ## Source Files
 

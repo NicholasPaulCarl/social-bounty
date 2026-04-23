@@ -1,28 +1,38 @@
 # Social Bounty MVP
 
-> 3 nodes · cohesion 0.67
+> God node · 28 connections · `claude.md`
 
-## Key Concepts
+**Community:** [[audited.decorator.ts]]
 
-- **Social Bounty MVP** (2 connections) — `claude.md`
-- **BACKUP-STRATEGY.md** (1 connections) — `docs/BACKUP-STRATEGY.md`
-- **apps/web/e2e/README.md** (1 connections) — `apps/web/e2e/README.md`
+## Connections by Relation
 
-## Relationships
+### covers
+- [[BACKUP-STRATEGY.md]]
 
-- No strong cross-community connections detected
+### semantically_similar_to
+- [[claude.md]] `INFERRED`
+- [[Financial Non-Negotiables]] `INFERRED`
+- [[TradeSafe]] `INFERRED`
+- [[Hard Rules]] `INFERRED`
+- [[Participant]] `INFERRED`
+- [[Svix Webhooks]] `INFERRED`
+- [[PAYOUTS_ENABLED=false gate]] `INFERRED`
+- [[Business Admin]] `INFERRED`
+- [[Idempotency (UNIQUE referenceId, actionType)]] `INFERRED`
+- [[LedgerService]] `INFERRED`
+- [[Super Admin]] `INFERRED`
+- [[Bounty (data model)]] `INFERRED`
+- [[WebhookEvent (data model)]] `INFERRED`
+- [[Finance Admin Dashboard]] `INFERRED`
+- [[User (data model)]] `INFERRED`
+- [[Submission (data model)]] `INFERRED`
+- [[Platform custody]] `INFERRED`
+- [[Global fee independence (3.5%)]] `INFERRED`
+- [[Reconciliation Engine]] `INFERRED`
+- [[Plan snapshot]] `INFERRED`
 
-## Source Files
-
-- `apps/web/e2e/README.md`
-- `claude.md`
-- `docs/BACKUP-STRATEGY.md`
-
-## Audit Trail
-
-- EXTRACTED: 4 (100%)
-- INFERRED: 0 (0%)
-- AMBIGUOUS: 0 (0%)
+### tests
+- [[apps/web/e2e/README.md]]
 
 ---
 

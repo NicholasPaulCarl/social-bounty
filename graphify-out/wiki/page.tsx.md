@@ -4,21 +4,23 @@
 
 ## Key Concepts
 
-- **page.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/profile/page.tsx`
-- **if()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/profile/page.tsx`
+- **page.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/privacy/page.tsx`
+- **page.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/terms/page.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 188]] (1 shared connections)
+- [[Community 187]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/profile/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/privacy/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/terms/page.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 2 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 0 (0%)
+- INFERRED: 2 (100%)
 - AMBIGUOUS: 0 (0%)
 
 ---

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[SECURITY-COMPLIANCE.md]] (2 shared connections)
 
 ## Source Files
 

@@ -12,23 +12,23 @@
 ### method
 - [[.postChargeLedger()]] `EXTRACTED`
 - [[.getActiveTier()]] `EXTRACTED`
+- [[.subscribe()]] `EXTRACTED`
 - [[.performCancel()]] `EXTRACTED`
 - [[.getSubscription()]] `EXTRACTED`
-- [[.subscribe()]] `EXTRACTED`
-- [[.getActiveOrgTier()]] `EXTRACTED`
 - [[.reactivate()]] `EXTRACTED`
-- [[.expireSubscription()]] `EXTRACTED`
-- [[.autoDowngradeToFree()]] `EXTRACTED`
 - [[.renewSubscription()]] `EXTRACTED`
 - [[.systemActorId()]] `EXTRACTED`
+- [[.getActiveOrgTier()]] `EXTRACTED`
+- [[.expireSubscription()]] `EXTRACTED`
+- [[.autoDowngradeToFree()]] `EXTRACTED`
 - [[.cancel()]] `EXTRACTED`
 - [[.getPaymentHistory()]] `EXTRACTED`
 - [[.findActiveSubscription()]] `EXTRACTED`
 - [[.findSubscriptionRecord()]] `EXTRACTED`
+- [[.constructor()]] `EXTRACTED`
 - [[.isFeatureEnabled()]] `EXTRACTED`
 - [[.cancelById()]] `EXTRACTED`
 - [[.listAll()]] `EXTRACTED`
-- [[.constructor()]] `EXTRACTED`
 
 ---
 

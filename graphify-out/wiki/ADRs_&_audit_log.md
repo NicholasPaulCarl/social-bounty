@@ -1,62 +1,74 @@
 # ADRs & audit log
 
-> 64 nodes · cohesion 0.05
+> 72 nodes · cohesion 0.08
 
 ## Key Concepts
 
-- **BountiesService** (23 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **.update()** (16 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **.create()** (15 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **.keys()** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/redis/redis.service.ts`
-- **validation.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/validation.ts`
-- **ConversationsService** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
-- **useCreateBountyForm.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
-- **bounty-preview-checks.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-preview-checks.ts`
-- **.computeTotalRewardValue()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **.findById()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **.delete()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **.mapRewards()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **.validateChannels()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **.validateRewards()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **derivePreviewChecks()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-preview-checks.ts`
-- **FilesController** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/files/files.controller.ts`
-- **resolveAndValidatePath()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/files/files.controller.ts`
-- **hasChannelSelection()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/validation.ts`
-- **validateFull()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/validation.ts`
-- **bounties.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **files.controller.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/files/files.controller.ts`
-- **useCreateBountyForm.test.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/useCreateBountyForm.test.ts`
-- **.duplicate()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **.generateEligibilityText()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- **.updateStatus()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- *... and 39 more nodes in this community*
+- **risk:R18** (26 connections)
+- **concept:FinancialNonNegotiables** (14 connections)
+- **concept:Phase3** (14 connections)
+- **concept:GlobalFee** (12 connections)
+- **concept:PlanSnapshot** (12 connections)
+- **concept:SvixWebhooks** (12 connections)
+- **concept:Reconciliation** (11 connections)
+- **doc:md-files/implementation-phases.md** (10 connections) — `md-files/implementation-phases.md`
+- **doc:md-files/SPRINT-PLAN.md** (9 connections) — `md-files/SPRINT-PLAN.md`
+- **concept:TradeSafe** (8 connections)
+- **doc:md-files/payment-gateway.md** (8 connections) — `md-files/payment-gateway.md`
+- **concept:Ledger** (7 connections)
+- **doc:docs/reviews/2026-04-15-team-lead-audit-batch-10.md** (7 connections) — `docs/reviews/2026-04-15-team-lead-audit-batch-10.md`
+- **doc:md-files/admin-dashboard.md** (7 connections) — `md-files/admin-dashboard.md`
+- **doc:md-files/financial-architecture.md** (7 connections) — `md-files/financial-architecture.md`
+- **doc:md-files/social-bounty-mvp.md** (7 connections) — `md-files/social-bounty-mvp.md`
+- **risk:R14** (7 connections)
+- **risk:R19** (7 connections)
+- **role:BusinessAdmin** (7 connections)
+- **role:Participant** (7 connections)
+- **role:SuperAdmin** (7 connections)
+- **sprint:0** (7 connections)
+- **sprint:2** (7 connections)
+- **concept:Phase2** (6 connections)
+- **concept:StitchExpress** (6 connections)
+- *... and 47 more nodes in this community*
 
 ## Relationships
 
-- [[Admin page routes]] (23 shared connections)
-- [[Admin operations & overrides]] (6 shared connections)
-- [[Bounty access & users]] (2 shared connections)
-- [[Wallet controller & projection]] (1 shared connections)
-- [[DisputesService]] (1 shared connections)
+- [[Auth & webhook verification]] (254 shared connections)
+- [[submission-scrape-recovery.scheduler.spe]] (65 shared connections)
+- [[ADR headline docs]] (49 shared connections)
+- [[Community 243]] (26 shared connections)
+- [[Agent team roster]] (6 shared connections)
+- [[Community 244]] (5 shared connections)
+- [[Finance admin & KB]] (1 shared connections)
+- [[BrandsService class]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/files/files.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/redis/redis.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/useCreateBountyForm.test.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/validation.test.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/validation.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/__tests__/bounty-preview-checks.test.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-preview-checks.ts`
+- `docs/backlog/release-plan.md`
+- `docs/reviews/2026-04-15-orphan-sweep.md`
+- `docs/reviews/2026-04-15-phase-2-live-test.md`
+- `docs/reviews/2026-04-15-r28-migration-reconciliation.md`
+- `docs/reviews/2026-04-15-team-lead-audit-batch-10.md`
+- `docs/reviews/2026-04-15-team-lead-audit-batch-11.md`
+- `docs/reviews/2026-04-15-team-lead-audit-batch-13.md`
+- `docs/reviews/2026-04-15-team-lead-audit-batch-2.md`
+- `docs/reviews/2026-04-15-team-lead-audit-batch-3.md`
+- `docs/reviews/2026-04-15-team-lead-audit-batch-4.md`
+- `docs/reviews/2026-04-15-team-lead-audit-batch-5.md`
+- `docs/reviews/2026-04-15-team-lead-audit-batch-6.md`
+- `docs/reviews/2026-04-15-team-lead-audit-batch-7.md`
+- `docs/reviews/2026-04-15-team-lead-audit-batch-8.md`
+- `docs/reviews/2026-04-15-team-lead-audit-batch-9.md`
+- `docs/reviews/2026-04-15-team-lead-audit-phases-0-3.md`
+- `docs/ui/component-system-and-screens.md`
+- `docs/ux/screen-specifications.md`
+- `docs/ux/sitemap-and-flows.md`
+- `md-files/RELEASE-NOTES.md`
 
 ## Audit Trail
 
-- EXTRACTED: 184 (79%)
-- INFERRED: 49 (21%)
+- EXTRACTED: 208 (51%)
+- INFERRED: 199 (49%)
 - AMBIGUOUS: 0 (0%)
 
 ---

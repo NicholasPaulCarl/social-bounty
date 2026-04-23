@@ -1,68 +1,71 @@
 # Bounty form & disputes
 
-> 51 nodes · cohesion 0.12
+> 66 nodes · cohesion 0.06
 
 ## Key Concepts
 
-- **BUSINESS_ADMIN role** (24 connections) — `md-files/page-spec/`
-- **AuthGuard business/layout** (22 connections)
-- **Bounty Detail** (17 connections) — `md-files/page-spec/business-bounties-id.md`
-- **Bounty entity** (16 connections) — `md-files/page-spec/`
-- **Brand entity** (14 connections) — `md-files/page-spec/`
-- **AuditLog (Hard Rule #3)** (11 connections)
-- **Submission entity** (11 connections) — `md-files/page-spec/`
-- **Manage Bounties** (10 connections) — `md-files/page-spec/business-bounties.md`
-- **Review Center Detail** (10 connections) — `md-files/page-spec/business-review-center-id.md`
-- **Submit Proof page** (9 connections) — `md-files/page-spec/bounties-id-submit.md`
-- **Submission Review (per-bounty)** (9 connections) — `md-files/page-spec/business-bounties-id-submissions-submissionid.md`
-- **Brand Dispute Detail** (9 connections) — `md-files/page-spec/business-disputes-id.md`
-- **Bounty Applications** (8 connections) — `md-files/page-spec/business-bounties-id-applications.md`
-- **Create Bounty** (8 connections) — `md-files/page-spec/business-bounties-new.md`
-- **Edit Bounty** (7 connections) — `md-files/page-spec/business-bounties-id-edit.md`
-- **My Brands** (7 connections) — `md-files/page-spec/business-brands.md`
-- **ConfirmAction (Hard Rule #6)** (7 connections)
-- **Bounty Detail page** (6 connections) — `md-files/page-spec/bounties-id.md`
-- **Bounty Invitations** (6 connections) — `md-files/page-spec/business-bounties-id-invitations.md`
-- **Bounty Submissions List** (6 connections) — `md-files/page-spec/business-bounties-id-submissions.md`
-- **Edit Brand (Multi-brand)** (6 connections) — `md-files/page-spec/business-brands-id-edit.md`
-- **Brand Subscription** (6 connections) — `md-files/page-spec/business-brands-subscription.md`
-- **File Dispute (Brand)** (6 connections) — `md-files/page-spec/business-disputes-new.md`
-- **Review Center** (6 connections) — `md-files/page-spec/business-review-center.md`
-- **Dispute entity** (6 connections) — `md-files/page-spec/`
-- *... and 26 more nodes in this community*
+- **.dispatch()** (23 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.service.ts`
+- **UpgradeService** (21 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
+- **BrandFundingHandler** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.ts`
+- **TradeSafeWebhookHandler** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`
+- **PayoutsService** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.ts`
+- **.extractPayoutId()** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`
+- **.constructor()** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
+- **.processRecurringCharge()** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
+- **.systemActorId()** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
+- **.onPaymentSettled()** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.ts`
+- **WebhookRouterService** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.service.ts`
+- **.dispatchTradeSafe()** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.service.ts`
+- **.onPayoutFailed()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.ts`
+- **.constructor()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- **.extractReason()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`
+- **.processChargeFailed()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
+- **.processConsentAuthorised()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
+- **.readString()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
+- **.onPaymentFailed()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.ts`
+- **.onPayoutSettled()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.ts`
+- **.systemActorId()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.ts`
+- **StitchPaymentsService** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
+- **.readString()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`
+- **.constructor()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/approval-ledger.service.ts`
+- **tradesafe-webhook.handler.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`
+- *... and 41 more nodes in this community*
 
 ## Relationships
 
-- [[Agent team roster]] (17 shared connections)
-- [[Apify post scraping]] (4 shared connections)
+- [[Reconciliation engine]] (189 shared connections)
+- [[Admin page routes]] (132 shared connections)
+- [[Bounty UI components]] (8 shared connections)
+- [[Admin operations & overrides]] (5 shared connections)
+- [[Finance admin & KB]] (4 shared connections)
+- [[Auth & webhook verification]] (3 shared connections)
+- [[Wallet controller & projection]] (3 shared connections)
+- [[BrandsService class]] (2 shared connections)
+- [[Apify post scraping]] (1 shared connections)
 
 ## Source Files
 
-- `md-files/page-spec/`
-- `md-files/page-spec/admin-finance-subscriptions.md`
-- `md-files/page-spec/admin-finance-visibility-failures.md`
-- `md-files/page-spec/bounties-id-apply.md`
-- `md-files/page-spec/bounties-id-submit.md`
-- `md-files/page-spec/bounties-id.md`
-- `md-files/page-spec/business-bounties-id-applications.md`
-- `md-files/page-spec/business-bounties-id-edit.md`
-- `md-files/page-spec/business-bounties-id-invitations.md`
-- `md-files/page-spec/business-bounties-id-submissions-submissionid.md`
-- `md-files/page-spec/business-bounties-id-submissions.md`
-- `md-files/page-spec/business-bounties-id.md`
-- `md-files/page-spec/business-bounties-new.md`
-- `md-files/page-spec/business-bounties.md`
-- `md-files/page-spec/business-brands-create.md`
-- `md-files/page-spec/business-brands-edit.md`
-- `md-files/page-spec/business-brands-id-edit.md`
-- `md-files/page-spec/business-brands-kyb.md`
-- `md-files/page-spec/business-brands-members.md`
-- `md-files/page-spec/business-brands-subscription.md`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance/payments-health.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/approval-ledger.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/clearance.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/brand-funding.handler.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refunds.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-event.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/webhook-router.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/AccessTypeSection.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/BrandAssetsSection.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/ChannelSelectionSection.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 322 (99%)
-- INFERRED: 3 (1%)
+- EXTRACTED: 211 (61%)
+- INFERRED: 136 (39%)
 - AMBIGUOUS: 0 (0%)
 
 ---

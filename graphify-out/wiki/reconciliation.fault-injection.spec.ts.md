@@ -10,7 +10,7 @@
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[cn.ts]] (6 shared connections)
 
 ## Source Files
 

@@ -1,20 +1,18 @@
 # submission-scrape-recovery.scheduler.spe
 
-> 7 nodes · cohesion 0.29
+> 5 nodes · cohesion 0.40
 
 ## Key Concepts
 
 - **submission-scrape-recovery.scheduler.spec.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/submission-scrape-recovery.scheduler.spec.ts`
-- **SubmissionScrapeRecoveryScheduler** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submission-scrape-recovery.scheduler.ts`
 - **submission-scrape-recovery.scheduler.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submission-scrape-recovery.scheduler.ts`
 - **buildHarness()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/submission-scrape-recovery.scheduler.spec.ts`
 - **minutesAgo()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/submission-scrape-recovery.scheduler.spec.ts`
 - **scrapeImpl()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/submission-scrape-recovery.scheduler.spec.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submission-scrape-recovery.scheduler.ts`
 
 ## Relationships
 
-- [[Admin page routes]] (1 shared connections)
+- [[jest-globals.d.ts]] (9 shared connections)
 
 ## Source Files
 
@@ -23,8 +21,8 @@
 
 ## Audit Trail
 
-- EXTRACTED: 11 (85%)
-- INFERRED: 2 (15%)
+- EXTRACTED: 7 (78%)
+- INFERRED: 2 (22%)
 - AMBIGUOUS: 0 (0%)
 
 ---

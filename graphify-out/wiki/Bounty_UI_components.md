@@ -1,52 +1,73 @@
 # Bounty UI components
 
-> 32 nodes · cohesion 0.06
+> 39 nodes · cohesion 0.06
 
 ## Key Concepts
 
-- **AdminService** (22 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **SubmissionsController** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
-- **.updateSettings()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **admin.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.createBrand()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.getSettings()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.isSubmissionEnabled()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **submissions.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
-- **.create()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.getAuditLog()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.getBrandDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.getDashboard()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.getRecentErrors()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.getSystemHealth()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.getUserDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.listAuditLogs()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.listBrands()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.listSubmissions()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.listUsers()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **.recordError()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- **admin.service.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.spec.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
-- **.findById()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
-- **.getMyEarnings()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
-- *... and 7 more nodes in this community*
+- **subscriptions.controller.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/subscriptions.controller.ts`
+- **exports.controller.ts** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.controller.ts`
+- **social-handles.controller.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.controller.ts`
+- **roles.guard.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/guards/roles.guard.ts`
+- **bounty-access.controller.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
+- **business.controller.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/business/business.controller.ts`
+- **reconciliation.controller.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.controller.ts`
+- **admin.controller.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
+- **kb.controller.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.controller.ts`
+- **.run()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.scheduler.ts`
+- **wallet.controller.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.controller.ts`
+- **KbController** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.controller.ts`
+- **ReconciliationController** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.controller.ts`
+- **FinanceAdminSubscriptionsController** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/subscriptions.controller.ts`
+- **roles.decorator.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/roles.decorator.ts`
+- **BusinessController** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/business/business.controller.ts`
+- **.confidenceScores()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.service.ts`
+- **ReconciliationScheduler** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.scheduler.ts`
+- **RolesGuard** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/guards/roles.guard.ts`
+- **.list()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/subscriptions.controller.ts`
+- **roles.guard.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/guards/roles.guard.spec.ts`
+- **.confidence()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.controller.ts`
+- **.distinctSystems()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.service.ts`
+- **.runNow()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.controller.ts`
+- **.listAll()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
+- *... and 14 more nodes in this community*
 
 ## Relationships
 
-- [[Admin page routes]] (6 shared connections)
-- [[Admin operations & overrides]] (2 shared connections)
-- [[Bounty access & users]] (1 shared connections)
+- [[Admin operations & overrides]] (48 shared connections)
+- [[not-found.tsx]] (17 shared connections)
+- [[Finance admin & KB]] (17 shared connections)
+- [[Admin page routes]] (10 shared connections)
+- [[Signup (OTP + optional brand)]] (8 shared connections)
+- [[participant-flow.spec.ts]] (6 shared connections)
+- [[ADRs & audit log]] (5 shared connections)
+- [[useManageFilters.ts]] (4 shared connections)
+- [[TradeSafe client & payouts]] (3 shared connections)
+- [[BrowseHero.tsx]] (1 shared connections)
+- [[pickInRange()]] (1 shared connections)
+- [[Auth & webhook verification]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/decorators/roles.decorator.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/guards/roles.guard.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/guards/roles.guard.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/business/business.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/subscriptions.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.scheduler.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.controller.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 67 (92%)
-- INFERRED: 6 (8%)
+- EXTRACTED: 68 (55%)
+- INFERRED: 55 (45%)
 - AMBIGUOUS: 0 (0%)
 
 ---

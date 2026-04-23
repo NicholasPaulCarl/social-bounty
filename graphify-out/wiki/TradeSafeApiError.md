@@ -10,7 +10,7 @@
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[jest.config.ts]] (4 shared connections)
 
 ## Source Files
 

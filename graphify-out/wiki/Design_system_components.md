@@ -1,55 +1,65 @@
 # Design system components
 
-> 30 nodes · cohesion 0.07
+> 29 nodes · cohesion 0.09
 
 ## Key Concepts
 
-- **format.ts** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
-- **bounty-format.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
-- **BusinessBountyListView.tsx** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
-- **formatRewardZAR()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
-- **formatCurrency()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
-- **BrandSocialReachCard.tsx** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/brand-profile/BrandSocialReachCard.tsx`
-- **BountyListView.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyListView.tsx`
-- **hashHue()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
-- **rewardBody()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyListView.tsx`
-- **BrandAvatar()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrandAvatar.tsx`
-- **display()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/brand-profile/BrandSocialReachCard.tsx`
-- **rewardBody()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
-- **formatBytes()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
-- **formatCents()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
-- **formatCount()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
-- **formatEnumLabel()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
-- **formatPayoutMethod()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
-- **BrandAvatar.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrandAvatar.tsx`
-- **getFormatIcon()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
-- **getFormatLabel()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
-- **timeLabel()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
-- **hasRealCounters()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/brand-profile/BrandSocialReachCard.tsx`
-- **BusinessBountyListView()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
-- **createdBody()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
-- **submissionsBody()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
-- *... and 5 more nodes in this community*
+- **.keys()** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/redis/redis.service.ts`
+- **validation.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/validation.ts`
+- **useCreateBountyForm.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
+- **bounty-preview-checks.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-preview-checks.ts`
+- **derivePreviewChecks()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-preview-checks.ts`
+- **.listConversations()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
+- **.listHunters()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **hasChannelSelection()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/validation.ts`
+- **validateFull()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/validation.ts`
+- **.adminListWallets()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- **useCreateBountyForm.test.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/useCreateBountyForm.test.ts`
+- **channelFormatErrors()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/validation.ts`
+- **validation.test.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/validation.test.ts`
+- **bounty-preview-checks.test.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/__tests__/bounty-preview-checks.test.ts`
+- **hasAnyPreviewChecks()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-preview-checks.ts`
+- **pairKey()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-preview-checks.ts`
+- **.listPublic()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
+- **buildCreateBountyRequest()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
+- **makeFilledState()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/useCreateBountyForm.test.ts`
+- **makeState()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/useCreateBountyForm.test.ts`
+- **getSectionErrors()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/validation.ts`
+- **isSectionComplete()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/validation.ts`
+- **makeBounty()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/__tests__/bounty-preview-checks.test.ts`
+- **formReducer()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
+- **useCreateBountyForm()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
+- *... and 4 more nodes in this community*
 
 ## Relationships
 
-- [[Admin operations & overrides]] (4 shared connections)
-- [[Admin page routes]] (1 shared connections)
-- [[Bounty access & users]] (1 shared connections)
+- [[Wallet & withdrawals]] (71 shared connections)
+- [[apify.mappers.ts]] (4 shared connections)
+- [[Admin operations & overrides]] (3 shared connections)
+- [[TradeSafe client & payouts]] (3 shared connections)
+- [[Admin page routes]] (3 shared connections)
+- [[ADR headline docs]] (2 shared connections)
+- [[Bounty access & users]] (2 shared connections)
+- [[.callback()]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyListView.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrandAvatar.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/brand-profile/BrandSocialReachCard.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/redis/redis.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/wallet.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/useCreateBountyForm.test.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/__tests__/validation.test.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/useCreateBountyForm.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/bounty-form/validation.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/__tests__/bounty-preview-checks.test.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-preview-checks.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 56 (82%)
-- INFERRED: 12 (18%)
+- EXTRACTED: 56 (63%)
+- INFERRED: 33 (37%)
 - AMBIGUOUS: 0 (0%)
 
 ---

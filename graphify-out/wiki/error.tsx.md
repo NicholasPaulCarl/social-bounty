@@ -1,23 +1,26 @@
 # error.tsx
 
-> 1 nodes · cohesion 1.00
+> 2 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **error.tsx** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/error.tsx`
+- **error.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/error.tsx`
+- **ErrorState.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ErrorState.tsx`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Community 202]] (1 shared connections)
+- [[Community 171]] (1 shared connections)
 
 ## Source Files
 
 - `/Users/nicholasschreiber/social-bounty/apps/web/src/app/error.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/common/ErrorState.tsx`
 
 ## Audit Trail
 
 - EXTRACTED: 0 (0%)
-- INFERRED: 0 (0%)
+- INFERRED: 2 (100%)
 - AMBIGUOUS: 0 (0%)
 
 ---

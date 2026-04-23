@@ -33,7 +33,7 @@
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[AdminService class]] (98 shared connections)
 
 ## Source Files
 

@@ -2,7 +2,7 @@
 
 > God node · 21 connections · `apps/web/src/styles/design-system/README.md`
 
-**Community:** [[Admin brand & user tabs]]
+**Community:** [[AdminService class]]
 
 ## Connections by Relation
 
