@@ -25,8 +25,8 @@
 
 ## Relationships
 
-- [[Health, Redis, URL verification]] (34 shared connections)
-- [[SectionPanel.tsx]] (1 shared connections)
+- [[InboxController]] (34 shared connections)
+- [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files
 

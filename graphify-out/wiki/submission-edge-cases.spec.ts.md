@@ -10,7 +10,7 @@
 
 ## Relationships
 
-- [[OverrideModal.tsx]] (4 shared connections)
+- [[Social Bounty MVP]] (4 shared connections)
 
 ## Source Files
 

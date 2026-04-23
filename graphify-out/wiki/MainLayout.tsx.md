@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[social-handles.module.ts]] (2 shared connections)
+- [[ProBadge.tsx]] (2 shared connections)
 
 ## Source Files
 

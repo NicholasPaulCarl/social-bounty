@@ -11,7 +11,7 @@
 
 ## Relationships
 
-- [[stitch.client.spec.ts]] (6 shared connections)
+- [[Social Bounty Wordmark]] (6 shared connections)
 
 ## Source Files
 

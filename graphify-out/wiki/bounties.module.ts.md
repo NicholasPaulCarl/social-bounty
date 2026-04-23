@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[jest.config.ts]] (2 shared connections)
+- [[submissions.module.ts]] (2 shared connections)
 
 ## Source Files
 

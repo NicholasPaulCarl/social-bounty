@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[reconciliation.module.ts]] (2 shared connections)
+- [[PaymentForm()]] (2 shared connections)
 
 ## Source Files
 

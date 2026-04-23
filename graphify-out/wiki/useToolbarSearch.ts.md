@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[setupDashboardMocks()]] (2 shared connections)
+- [[useDashboard.ts]] (2 shared connections)
 
 ## Source Files
 

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[auth.spec.ts]] (2 shared connections)
+- [[finance.module.ts]] (2 shared connections)
 
 ## Source Files
 

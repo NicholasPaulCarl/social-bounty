@@ -1,51 +1,56 @@
 # BrandsService class
 
-> 28 nodes · cohesion 0.08
+> 29 nodes · cohesion 0.10
 
 ## Key Concepts
 
-- **BrandsController** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **BrandsService** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
-- **.update()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
-- **brands.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **brands.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
-- **.checkHandle()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.getPublicProfile()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.listMine()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.checkHandleAvailability()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
-- **.create()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
-- **.findPublicProfile()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
-- **.inviteMember()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
-- **.listMyBrands()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
-- **.removeMember()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
-- **.uploadCoverPhoto()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.create()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.findById()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.inviteMember()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.listMembers()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.listPublic()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.removeMember()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.update()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.uploadCoverPhoto()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
-- *... and 3 more nodes in this community*
+- **StitchClient** (17 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.authedRequest()** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **StitchPayoutAdapter** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.ts`
+- **.createPayout()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **stitch.client.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.createRefund()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.fetchWithRetry()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **stitch.client.spec.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.spec.ts`
+- **.cancelStitchSubscription()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.constructor()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.createPaymentLink()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.createSubscription()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.cancelMandate()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
+- **stitch-payout.adapter.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.ts`
+- **StitchApiError** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.createBeneficiary()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.getAccountBalance()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.getPayment()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.getSubscription()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.registerWebhook()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- **.initiatePayout()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.ts`
+- **.isMockMode()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.ts`
+- **stitch-payout.adapter.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.spec.ts`
+- **buildClient()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.spec.ts`
+- **respond()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.spec.ts`
+- *... and 4 more nodes in this community*
 
 ## Relationships
 
-- [[AdminService class]] (60 shared connections)
-- [[Admin page routes]] (4 shared connections)
-- [[SectionPanel.tsx]] (2 shared connections)
+- [[Reconciliation engine]] (77 shared connections)
+- [[Admin page routes]] (11 shared connections)
+- [[TradeSafeApiError]] (5 shared connections)
+- [[Community 280]] (1 shared connections)
+- [[Auth & webhook verification]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/brands/brands.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/stitch-payout.adapter.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/stitch/stitch.client.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/upgrade.service.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 56 (85%)
-- INFERRED: 10 (15%)
+- EXTRACTED: 75 (78%)
+- INFERRED: 21 (22%)
 - AMBIGUOUS: 0 (0%)
 
 ---

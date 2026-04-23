@@ -20,8 +20,9 @@
 
 ## Relationships
 
-- [[Bounty access & users]] (25 shared connections)
-- [[SectionPanel.tsx]] (1 shared connections)
+- [[DisputesService]] (24 shared connections)
+- [[Admin operations & overrides]] (1 shared connections)
+- [[Admin page routes]] (1 shared connections)
 
 ## Source Files
 

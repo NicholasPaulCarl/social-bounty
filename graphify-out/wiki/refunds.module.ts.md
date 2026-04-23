@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[page.tsx]] (2 shared connections)
+- [[tailwind.config.ts]] (2 shared connections)
 
 ## Source Files
 

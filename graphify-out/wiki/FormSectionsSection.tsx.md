@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[settings.module.ts]] (2 shared connections)
+- [[MainLayout.tsx]] (2 shared connections)
 
 ## Source Files
 

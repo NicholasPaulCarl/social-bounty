@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[BrandSection.tsx]] (2 shared connections)
+- [[auth.spec.ts]] (2 shared connections)
 
 ## Source Files
 

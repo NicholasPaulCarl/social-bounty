@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[postcss.config.js]] (2 shared connections)
+- [[tradesafe.module.ts]] (2 shared connections)
 
 ## Source Files
 

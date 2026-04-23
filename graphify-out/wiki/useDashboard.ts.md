@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[expired-bounty.service.spec.ts]] (2 shared connections)
+- [[audited.decorator.ts]] (2 shared connections)
 
 ## Source Files
 

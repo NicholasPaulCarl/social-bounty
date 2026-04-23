@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[AtomsSection.tsx]] (2 shared connections)
+- [[smoke-brand-go-live.spec.ts]] (2 shared connections)
 
 ## Source Files
 

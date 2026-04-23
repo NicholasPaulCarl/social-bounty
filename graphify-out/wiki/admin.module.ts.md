@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[next-env.d.ts]] (2 shared connections)
+- [[stitch.module.ts]] (2 shared connections)
 
 ## Source Files
 

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[finance-admin.module.ts]] (2 shared connections)
+- [[query-client.ts]] (2 shared connections)
 
 ## Source Files
 

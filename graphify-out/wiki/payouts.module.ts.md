@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[PrimeReactSection.tsx]] (2 shared connections)
+- [[smoke-hunter-payouts.spec.ts]] (2 shared connections)
 
 ## Source Files
 

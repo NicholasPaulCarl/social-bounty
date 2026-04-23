@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[admin-flow.spec.ts]] (2 shared connections)
+- [[apify.module.ts]] (2 shared connections)
 
 ## Source Files
 

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[page.tsx]] (2 shared connections)
+- [[next.config.mjs]] (2 shared connections)
 
 ## Source Files
 

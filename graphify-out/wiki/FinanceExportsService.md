@@ -1,6 +1,6 @@
 # FinanceExportsService
 
-> 18 nodes · cohesion 0.21
+> 19 nodes · cohesion 0.19
 
 ## Key Concepts
 
@@ -18,26 +18,30 @@
 - **.refundsCsv()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
 - **.reservesCsv()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
 - **exports.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.controller.ts`
-- **exports.service.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
+- **exports.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
+- **exports.service.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.spec.ts`
 - **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.controller.ts`
 - **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
 - **.escapeField()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
 
 ## Relationships
 
-- [[Inbox & notifications]] (65 shared connections)
-- [[SectionPanel.tsx]] (1 shared connections)
+- [[.callback()]] (65 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
+- [[Community 253]] (1 shared connections)
+- [[Bounties & Stitch payments]] (1 shared connections)
+- [[Auth & webhook verification]] (1 shared connections)
 
 ## Source Files
 
 - `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.spec.ts`
 - `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 58 (87%)
-- INFERRED: 9 (13%)
+- EXTRACTED: 58 (84%)
+- INFERRED: 11 (16%)
 - AMBIGUOUS: 0 (0%)
 
 ---

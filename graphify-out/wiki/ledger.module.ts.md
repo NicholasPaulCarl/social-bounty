@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[payments-health.controller.rbac.spec.ts]] (2 shared connections)
+- [[mail.module.ts]] (2 shared connections)
 
 ## Source Files
 

@@ -1,25 +1,28 @@
 # env.validation.ts
 
-> 3 nodes · cohesion 0.67
+> 4 nodes · cohesion 0.50
 
 ## Key Concepts
 
-- **env.validation.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.ts`
+- **env.validation.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.ts`
+- **env.validation.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.spec.ts`
 - **EnvironmentVariables** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.ts`
 - **validateEnv()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.ts`
 
 ## Relationships
 
-- [[layout.tsx]] (4 shared connections)
+- [[SelectPill.tsx]] (5 shared connections)
+- [[reported-metrics.spec.ts]] (1 shared connections)
 
 ## Source Files
 
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.spec.ts`
 - `/Users/nicholasschreiber/social-bounty/apps/api/src/common/config/env.validation.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 4 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 4 (67%)
+- INFERRED: 2 (33%)
 - AMBIGUOUS: 0 (0%)
 
 ---

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[ComponentDemo.tsx]] (2 shared connections)
+- [[postcss.config.js]] (2 shared connections)
 
 ## Source Files
 

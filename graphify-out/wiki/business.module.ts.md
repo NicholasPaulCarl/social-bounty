@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[node-globals.d.ts]] (2 shared connections)
+- [[subscriptions.module.ts]] (2 shared connections)
 
 ## Source Files
 

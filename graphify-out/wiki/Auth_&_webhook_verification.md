@@ -1,75 +1,78 @@
 # Auth & webhook verification
 
-> 109 nodes · cohesion 0.03
+> 104 nodes · cohesion 0.03
 
 ## Key Concepts
 
-- **.set()** (23 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/redis/redis.service.ts`
-- **RedisService** (15 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/redis/redis.service.ts`
-- **.stringify()** (14 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
-- **.scrapeAndVerify()** (14 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submission-scraper.service.ts`
-- **apify.mappers.ts** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **SettingsService** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- **ApifyService** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- **.refreshForBrand()** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- **.del()** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/redis/redis.service.ts`
-- **TradeSafeClient** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
-- **.setNxEx()** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/redis/redis.service.ts`
-- **.getToken()** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
-- **.verifyEmailChange()** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.service.ts`
-- **emptyCounters()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **numberOrNull()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **.refreshStaleBrands()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify-social.scheduler.ts`
-- **refund-after-approval.spec.ts** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- **.authedRequest()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
-- **mapFacebookPostItem()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **mapInstagramPostItem()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **mapTiktokPostItem()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- **buildService()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- **.scrapeFacebook()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- **.scrapeInstagram()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- **.scrapeTiktok()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- *... and 84 more nodes in this community*
+- **ADR 0008 — TradeSafe for Hunter Payouts** (17 connections) — `docs/adr/0008-tradesafe-for-hunter-payouts.md`
+- **ADR 0009 — TradeSafe Integration Skeleton** (13 connections) — `docs/adr/0009-tradesafe-integration-skeleton.md`
+- **concept:Reconciliation** (10 connections)
+- **doc:md-files/implementation-phases.md** (10 connections) — `md-files/implementation-phases.md`
+- **doc:md-files/payment-gateway.md** (8 connections) — `md-files/payment-gateway.md`
+- **doc:docs/reviews/2026-04-15-team-lead-audit-batch-10.md** (7 connections) — `docs/reviews/2026-04-15-team-lead-audit-batch-10.md`
+- **doc:md-files/admin-dashboard.md** (7 connections) — `md-files/admin-dashboard.md`
+- **doc:md-files/financial-architecture.md** (7 connections) — `md-files/financial-architecture.md`
+- **Go-Live Checklist** (7 connections) — `docs/deployment/go-live-checklist.md`
+- **concept:Ledger** (6 connections)
+- **TradeSafePayoutAdapter** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/tradesafe-payout.adapter.ts`
+- **ADR 0001 — Stripe Retirement Timing** (5 connections) — `docs/adr/0001-stripe-retirement-timing.md`
+- **finance-admin.service.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
+- **concept:Phase2** (5 connections)
+- **concept:StitchExpress** (5 connections)
+- **doc:docs/reviews/2026-04-15-team-lead-audit-batch-6.md** (5 connections) — `docs/reviews/2026-04-15-team-lead-audit-batch-6.md`
+- **doc:docs/reviews/2026-04-15-team-lead-audit-phases-0-3.md** (5 connections) — `docs/reviews/2026-04-15-team-lead-audit-phases-0-3.md`
+- **ADR 0003 — TradeSafe Escrow Layer Out of Scope** (4 connections) — `docs/adr/0003-tradesafe-out-of-scope.md`
+- **stitch-payments.service.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
+- **reconciliation.service.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- **stitch-webhook.controller.spec.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.spec.ts`
+- **stitch-webhook.controller.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.ts`
+- **tradesafe-webhook.controller.spec.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.spec.ts`
+- **concept:FinancialNonNegotiables** (4 connections)
+- **concept:Phase1** (4 connections)
+- *... and 79 more nodes in this community*
 
 ## Relationships
 
-- [[Admin operations & overrides]] (334 shared connections)
-- [[Brand funding & form state]] (40 shared connections)
-- [[NewConversationDialog.tsx]] (25 shared connections)
-- [[submission-scraper.service.spec.ts]] (19 shared connections)
-- [[SectionPanel.tsx]] (7 shared connections)
-- [[Admin page routes]] (6 shared connections)
-- [[Bounty access & users]] (3 shared connections)
-- [[Reconciliation engine]] (2 shared connections)
+- [[Agent team roster]] (127 shared connections)
+- [[BrandsService class]] (104 shared connections)
+- [[Admin page routes]] (39 shared connections)
+- [[refund-after-approval.spec.ts]] (14 shared connections)
+- [[pickInRange()]] (8 shared connections)
+- [[Admin operations & overrides]] (7 shared connections)
+- [[reconciliation.fault-injection.spec.ts]] (5 shared connections)
+- [[Bounties & Stitch payments]] (3 shared connections)
+- [[Finance admin & KB]] (3 shared connections)
+- [[smoke-recon-to-drilldown.spec.ts]] (3 shared connections)
+- [[Design system components]] (3 shared connections)
 - [[DisputesController]] (1 shared connections)
-- [[Inbox & notifications]] (1 shared connections)
-- [[Admin withdrawals UI]] (1 shared connections)
-- [[HealthController]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/common/guards/user-status.guard.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify-social.scheduler.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.mappers.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/apify/apify.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/business/business.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/exports.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/redis/redis.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-after-approval.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/refunds/refund-approval-flow.spec.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/compute-verification-checks.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submission-scrape-recovery.scheduler.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submission-scraper.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/e2e/helpers.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/groups/[transactionGroupId]/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.factory.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payout-provider.factory.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/tradesafe-payout.adapter.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/tradesafe-payout.adapter.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/reconciliation/reconciliation.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/stitch-webhook.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/tradesafe-webhook.controller.ts`
+- `claude.md`
+- `docs/adr/0001-stripe-retirement-timing.md`
+- `docs/adr/0003-tradesafe-out-of-scope.md`
+- `docs/adr/0004-feature-flag-inventory.md`
+- `docs/adr/0007-peach-payments-for-hunter-payouts.md`
 
 ## Audit Trail
 
-- EXTRACTED: 301 (67%)
-- INFERRED: 146 (33%)
+- EXTRACTED: 280 (87%)
+- INFERRED: 42 (13%)
 - AMBIGUOUS: 0 (0%)
 
 ---

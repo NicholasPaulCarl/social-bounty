@@ -10,7 +10,7 @@
 
 ## Relationships
 
-- [[page.tsx]] (4 shared connections)
+- [[beneficiary.service.spec.ts]] (4 shared connections)
 
 ## Source Files
 

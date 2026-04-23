@@ -1,73 +1,62 @@
 # Finance admin & KB
 
-> 76 nodes · cohesion 0.03
+> 78 nodes · cohesion 0.03
 
 ## Key Concepts
 
-- **useBrand.ts** (15 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrand.ts`
-- **Browse Bounties page** (12 connections) — `md-files/page-spec/bounties.md`
-- **BountiesController** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
-- **useBounties.ts** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBounties.ts`
-- **page.tsx** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/page.tsx`
-- **page.tsx** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/new/page.tsx`
-- **Brand Directory page** (7 connections) — `md-files/page-spec/brands.md`
-- **PaymentsController** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.controller.ts`
-- **handleStatusConfirm()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/page.tsx`
-- **StitchPaymentsService** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
-- **.list()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
-- **CreateBrandPage()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/brands/create/page.tsx`
-- **payments.controller.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.controller.ts`
-- **page.tsx** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/brands/create/page.tsx`
-- **useHunters.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useHunters.ts`
-- **Brand Profile page** (3 connections) — `md-files/page-spec/brands-id.md`
-- **.fundBounty()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.controller.ts`
-- **useAdminBounties()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **bounties.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
-- **stitch-payments.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
-- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/[id]/page.tsx`
-- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/[id]/edit/page.tsx`
-- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/[id]/page.tsx`
-- **.updateStatus()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
-- **.uploadBrandAssets()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
-- *... and 51 more nodes in this community*
+- **useFinanceAdmin.ts** (21 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useFinanceAdmin.ts`
+- **FinanceAdminService** (19 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
+- **FinanceAdminController** (17 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **KbService** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.service.ts`
+- **finance-admin.controller.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **.getVisibilityAnalytics()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
+- **kb.service.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.service.ts`
+- **KbController** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.controller.ts`
+- **page.tsx** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/visibility-failures/page.tsx`
+- **.payouts()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **.visibilityAnalytics()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **.visibilityFailures()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **.postOverride()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
+- **.confidenceScores()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.service.ts`
+- **useFinanceAuditTrail()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useFinanceAdmin.ts`
+- **kb.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.controller.ts`
+- **kb.service.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.service.spec.ts`
+- **.auditTrail()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **.exceptions()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **.groupDetail()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **.inbound()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **.override()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **.refunds()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **.visibilityFailureHistory()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- **.computeFailureRate()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
+- *... and 53 more nodes in this community*
 
 ## Relationships
 
-- [[App layouts & shells]] (103 shared connections)
-- [[Bounties & Stitch payments]] (34 shared connections)
-- [[Wallet & withdrawals]] (23 shared connections)
-- [[SectionPanel.tsx]] (12 shared connections)
-- [[Auth & webhook verification]] (8 shared connections)
-- [[TradeSafe client & payouts]] (2 shared connections)
-- [[Bounty access & users]] (1 shared connections)
-- [[Brand funding & form state]] (1 shared connections)
-- [[Admin operations & overrides]] (1 shared connections)
+- [[Bounties & Stitch payments]] (175 shared connections)
+- [[Admin page routes]] (12 shared connections)
+- [[Admin operations & overrides]] (7 shared connections)
+- [[business.module.ts]] (3 shared connections)
+- [[BrandsService class]] (1 shared connections)
+- [[Auth & webhook verification]] (1 shared connections)
+- [[.callback()]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/payments.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payments/stitch-payments.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/[id]/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/[id]/edit/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/[id]/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/funded/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/new/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/bounties/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/brands/create/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBounties.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useBrand.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useHunters.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/redirect-to-hosted-checkout.ts`
-- `md-files/page-spec/bounties.md`
-- `md-files/page-spec/brands-id.md`
-- `md-files/page-spec/brands.md`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/audit-trail/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/earnings-payouts/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/visibility-failures/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useFinanceAdmin.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 159 (85%)
-- INFERRED: 28 (15%)
+- EXTRACTED: 156 (78%)
+- INFERRED: 44 (22%)
 - AMBIGUOUS: 0 (0%)
 
 ---

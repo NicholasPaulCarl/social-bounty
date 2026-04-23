@@ -1,43 +1,52 @@
 # Health, Redis, URL verification
 
-> 20 nodes · cohesion 0.10
+> 25 nodes · cohesion 0.08
 
 ## Key Concepts
 
-- **AdminController** (19 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **admin.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.createBrand()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.getAuditLog()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.getBrandDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.getDashboard()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.getRecentErrors()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.getSettings()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.getSystemHealth()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.getUserDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.listAuditLogs()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.listBrands()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.listSubmissions()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.listUsers()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.overrideBounty()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.overrideSubmission()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.updateBrandStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.updateSettings()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
-- **.updateUserStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
+- **UsersController** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **UsersService** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **users.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **users.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.searchUsers()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.searchUsersForMessaging()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **.updateProfile()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **.uploadProfilePicture()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **users.service.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.spec.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.deleteProfilePicture()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.deleteSocialLink()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.getProfile()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.getPublicProfile()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.getSocialLinks()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.listHunters()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.updateProfile()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.uploadProfilePicture()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.upsertSocialLink()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **.getProfile()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **.getPublicProfile()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **.getSocialLinks()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **.listHunters()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- **.upsertSocialLink()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
 
 ## Relationships
 
-- [[Wallet controller & projection]] (38 shared connections)
-- [[SectionPanel.tsx]] (1 shared connections)
+- [[Bounty access & users]] (48 shared connections)
+- [[Admin page routes]] (3 shared connections)
+- [[Admin operations & overrides]] (2 shared connections)
+- [[Community 269]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 39 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 48 (89%)
+- INFERRED: 6 (11%)
 - AMBIGUOUS: 0 (0%)
 
 ---

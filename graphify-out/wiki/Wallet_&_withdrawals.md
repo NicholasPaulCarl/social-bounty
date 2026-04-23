@@ -1,58 +1,62 @@
 # Wallet & withdrawals
 
-> 53 nodes · cohesion 0.05
+> 60 nodes · cohesion 0.05
 
 ## Key Concepts
 
-- **Agent Back-End** (13 connections) — `claude.md`
-- **Agent Team Overview** (12 connections) — `md-files/agents/agent-overview.md`
-- **Agent DevOps** (11 connections) — `claude.md`
-- **Agent Front-End** (11 connections) — `claude.md`
-- **Agent Architect** (10 connections) — `claude.md`
-- **QA Testing Engineer Agent** (10 connections) — `md-files/agents/agent-qa-testing.md`
-- **Agent Team Lead** (10 connections) — `claude.md`
-- **Agent UI Designer** (9 connections) — `claude.md`
-- **Agent UX Designer** (9 connections) — `claude.md`
-- **Approval gates** (2 connections) — `md-files/agents/agent-overview.md`
-- **Sequential workflow** (2 connections) — `md-files/agents/agent-overview.md`
-- **Prisma Migration Drafts README** (2 connections) — `packages/prisma/drafts/README.md`
-- **Prisma migrations workflow** (2 connections) — `md-files/agents/agent-devops.md`
-- **Global guard chain** (1 connections) — `md-files/agents/agent-backend.md`
-- **Handoff points** (1 connections) — `md-files/agents/agent-overview.md`
-- **Monorepo structure** (1 connections) — `md-files/agents/agent-devops.md`
-- **Prisma drafts convention** (1 connections) — `packages/prisma/drafts/README.md`
-- **Shared package as contract** (1 connections) — `md-files/agents/agent-overview.md`
-- **100% pass rate gate** (1 connections) — `md-files/agents/agent-qa-testing.md`
-- **Architectural Decision Records** (1 connections) — `md-files/agents/agent-architect.md`
-- **API contracts** (1 connections) — `md-files/agents/agent-architect.md`
-- **Approval gates enforcement** (1 connections) — `md-files/agents/agent-team-lead.md`
-- **Audit logging** (1 connections) — `md-files/agents/agent-backend.md`
-- **Auth context + guard** (1 connections) — `md-files/agents/agent-frontend.md`
-- **Auth + RBAC guards** (1 connections) — `md-files/agents/agent-backend.md`
-- *... and 28 more nodes in this community*
+- **BountyAccessService** (15 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- **BountyAccessController** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
+- **SettingsService** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
+- **SocialHandlesService** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
+- **.addHandle()** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
+- **.assertBrandAdmin()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- **.reviewApplication()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- **.delete()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
+- **.createInvitations()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- **.getBountyOrThrow()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- **.getSetting()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
+- **.revokeInvitation()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- **.getBoolean()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
+- **.seedDefaults()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
+- **.validateHandle()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
+- **bounty-access.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- **.listApplications()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- **.listInvitations()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- **.getAllSettings()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
+- **.setSetting()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
+- **.buildProfileUrl()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
+- **bounty-access.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
+- **settings.service.spec.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.spec.ts`
+- **settings.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
+- **social-handles.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
+- *... and 35 more nodes in this community*
 
 ## Relationships
 
-- [[Agent team roster]] (143 shared connections)
+- [[Bounty access & users]] (119 shared connections)
+- [[Auth & webhook verification]] (41 shared connections)
+- [[Admin page routes]] (15 shared connections)
+- [[Admin operations & overrides]] (3 shared connections)
+- [[redis.module.ts]] (3 shared connections)
+- [[Bounty form & disputes]] (2 shared connections)
+- [[Community 245]] (1 shared connections)
+- [[Finance admin & KB]] (1 shared connections)
 
 ## Source Files
 
-- `claude.md`
-- `md-files/agents/agent-architect.md`
-- `md-files/agents/agent-backend.md`
-- `md-files/agents/agent-devops.md`
-- `md-files/agents/agent-frontend.md`
-- `md-files/agents/agent-overview.md`
-- `md-files/agents/agent-qa-testing.md`
-- `md-files/agents/agent-team-lead.md`
-- `md-files/agents/agent-ui-designer.md`
-- `md-files/agents/agent-ux-designer.md`
-- `packages/prisma/drafts/README.md`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/settings/settings.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 143 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 151 (82%)
+- INFERRED: 34 (18%)
 - AMBIGUOUS: 0 (0%)
 
 ---

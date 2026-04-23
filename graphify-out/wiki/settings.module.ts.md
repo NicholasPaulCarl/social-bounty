@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[noRules()]] (2 shared connections)
+- [[bounty-access.module.ts]] (2 shared connections)
 
 ## Source Files
 

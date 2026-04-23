@@ -16,7 +16,8 @@
 
 ## Relationships
 
-- [[Admin operations & overrides]] (1 shared connections)
+- [[client.ts]] (16 shared connections)
+- [[Auth & webhook verification]] (1 shared connections)
 
 ## Source Files
 

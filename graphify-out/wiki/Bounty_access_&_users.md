@@ -1,58 +1,72 @@
 # Bounty access & users
 
-> 68 nodes · cohesion 0.04
+> 72 nodes · cohesion 0.04
 
 ## Key Concepts
 
-- **BountyAccessService** (15 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **BountyAccessController** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
-- **SocialHandlesService** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- **UsersController** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **UsersService** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **.addHandle()** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- **.assertBrandAdmin()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.reviewApplication()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.delete()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
-- **.createInvitations()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.getBountyOrThrow()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.revokeInvitation()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.validateHandle()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- **.listApplications()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.listInvitations()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.buildProfileUrl()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- **bounty-access.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
-- **bounty-access.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **social-handles.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- **users.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- **users.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
-- **.approveApplication()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
-- **.rejectApplication()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
-- **.acceptInvitation()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **.canSubmitToBounty()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- *... and 43 more nodes in this community*
+- **handleSubmit()** (14 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **AuthService** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.service.ts`
+- **AuthController** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
+- **.verify()** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.ts`
+- **.generateTokens()** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.service.ts`
+- **page.tsx** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/disputes/new/page.tsx`
+- **page.tsx** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/brands/[id]/edit/page.tsx`
+- **page.tsx** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- **page.tsx** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(auth)/signup/page.tsx`
+- **page.tsx** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/bounties/[id]/submit/page.tsx`
+- **BrandSelector.tsx** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/BrandSelector.tsx`
+- **.signup()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
+- **setRefreshCookie()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
+- **validate()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(auth)/signup/page.tsx`
+- **auth.controller.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
+- **page.tsx** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/wallet/withdraw/page.tsx`
+- **.verifyOtp()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
+- **.refresh()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.service.ts`
+- **.signupWithOtp()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.service.ts`
+- **.switchBrand()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.service.ts`
+- **.verifyOtpAndLogin()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.service.ts`
+- **handleRequestOtp()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(auth)/login/page.tsx`
+- **SvixVerifier** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.ts`
+- **auth.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.service.ts`
+- **svix.verifier.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.ts`
+- *... and 47 more nodes in this community*
 
 ## Relationships
 
-- [[Brand funding & form state]] (118 shared connections)
-- [[useDisputes.ts]] (27 shared connections)
-- [[Admin page routes]] (8 shared connections)
-- [[SectionPanel.tsx]] (5 shared connections)
-- [[App layouts & shells]] (1 shared connections)
-- [[Admin operations & overrides]] (1 shared connections)
+- [[Apify post scraping]] (185 shared connections)
+- [[Admin page routes]] (14 shared connections)
+- [[Admin operations & overrides]] (9 shared connections)
+- [[ADRs & audit log]] (3 shared connections)
+- [[Finance admin & KB]] (2 shared connections)
+- [[Auth & webhook verification]] (2 shared connections)
+- [[Admin withdrawals UI]] (1 shared connections)
+- [[Community 247]] (1 shared connections)
+- [[Admin brand & user tabs]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/social-handles/social-handles.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/users/users.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.controller.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/auth/auth.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/webhooks/svix.verifier.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(auth)/login/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(auth)/signup/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(marketing)/contact/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/bounties/[id]/apply/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/bounties/[id]/submit/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(participant)/wallet/withdraw/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/(shared)/create-brand/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/brands/[id]/edit/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/brands/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/business/disputes/new/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/layout/BrandSelector.tsx`
 
 ## Audit Trail
 
-- EXTRACTED: 161 (86%)
-- INFERRED: 27 (14%)
+- EXTRACTED: 178 (82%)
+- INFERRED: 40 (18%)
 - AMBIGUOUS: 0 (0%)
 
 ---

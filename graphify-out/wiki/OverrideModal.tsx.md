@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[prisma.module.ts]] (2 shared connections)
+- [[PageHeader.tsx]] (2 shared connections)
 
 ## Source Files
 

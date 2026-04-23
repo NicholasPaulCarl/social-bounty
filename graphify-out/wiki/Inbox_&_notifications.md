@@ -1,48 +1,51 @@
 # Inbox & notifications
 
-> 23 nodes · cohesion 0.10
+> 26 nodes · cohesion 0.08
 
 ## Key Concepts
 
-- **InboxController** (13 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **NotificationsService** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.markAsRead()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.formatResponse()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **inbox.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **notifications.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.markAllNotificationsAsRead()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.markNotificationAsRead()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.getUnreadCount()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.getUnreadMessageCount()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.markAllAsRead()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.createConversation()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.deleteMessage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.editMessage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.getConversation()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.getUnreadCount()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.listConversations()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.listNotifications()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.markConversationRead()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.sendMessage()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
-- **.listNotifications()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
+- **useAdmin.ts** (23 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **AdminCreateBrandPage()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/new/page.tsx`
+- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/users/[id]/page.tsx`
+- **UserSubmissionsTab()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/users/[id]/page.tsx`
+- **useAdminCreateOrg()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useAdminSubmissions()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **page.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/new/page.tsx`
+- **useAdminBountyDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useAdminBrandDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useAdminBrands()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useAdminDashboard()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useAdminSettings()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useAdminSubmissionDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useAdminUserDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useAdminUsers()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useAuditLogDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useAuditLogs()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useOverrideBountyStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useOverridePayoutStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useOverrideSubmissionStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **usePaymentsHealth()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useRecentErrors()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useSystemHealth()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useUpdateBrandStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **useUpdateSettings()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- *... and 1 more nodes in this community*
 
 ## Relationships
 
-- [[Design system components]] (50 shared connections)
-- [[SectionPanel.tsx]] (2 shared connections)
-- [[Admin page routes]] (2 shared connections)
-- [[Bounty access & users]] (1 shared connections)
+- [[Admin operations & overrides]] (2 shared connections)
+- [[Finance admin & KB]] (1 shared connections)
+- [[App layouts & shells]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/inbox.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/notifications.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/new/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/users/[id]/page.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 50 (91%)
+- EXTRACTED: 49 (91%)
 - INFERRED: 5 (9%)
 - AMBIGUOUS: 0 (0%)
 

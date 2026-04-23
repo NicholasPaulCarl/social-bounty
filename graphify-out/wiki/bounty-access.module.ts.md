@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[apify.module.ts]] (2 shared connections)
+- [[admin.module.ts]] (2 shared connections)
 
 ## Source Files
 

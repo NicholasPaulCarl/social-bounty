@@ -14,8 +14,8 @@
 
 ## Relationships
 
-- [[TradeSafePayoutAdapter]] (22 shared connections)
-- [[Admin operations & overrides]] (1 shared connections)
+- [[submission-scraper.service.spec.ts]] (22 shared connections)
+- [[Auth & webhook verification]] (1 shared connections)
 
 ## Source Files
 

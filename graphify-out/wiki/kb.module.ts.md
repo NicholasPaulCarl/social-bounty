@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[stitch-webhook.replay-rbac.spec.ts]] (2 shared connections)
+- [[disputes.module.ts]] (2 shared connections)
 
 ## Source Files
 

@@ -1,68 +1,69 @@
 # Brand funding & form state
 
-> 51 nodes · cohesion 0.12
+> 57 nodes · cohesion 0.06
 
 ## Key Concepts
 
-- **BUSINESS_ADMIN role** (24 connections) — `md-files/page-spec/`
-- **AuthGuard business/layout** (22 connections)
-- **Bounty Detail** (17 connections) — `md-files/page-spec/business-bounties-id.md`
-- **Bounty entity** (16 connections) — `md-files/page-spec/`
-- **Brand entity** (14 connections) — `md-files/page-spec/`
-- **AuditLog (Hard Rule #3)** (11 connections)
-- **Submission entity** (11 connections) — `md-files/page-spec/`
-- **Manage Bounties** (10 connections) — `md-files/page-spec/business-bounties.md`
-- **Review Center Detail** (10 connections) — `md-files/page-spec/business-review-center-id.md`
-- **Submit Proof page** (9 connections) — `md-files/page-spec/bounties-id-submit.md`
-- **Submission Review (per-bounty)** (9 connections) — `md-files/page-spec/business-bounties-id-submissions-submissionid.md`
-- **Brand Dispute Detail** (9 connections) — `md-files/page-spec/business-disputes-id.md`
-- **Bounty Applications** (8 connections) — `md-files/page-spec/business-bounties-id-applications.md`
-- **Create Bounty** (8 connections) — `md-files/page-spec/business-bounties-new.md`
-- **Edit Bounty** (7 connections) — `md-files/page-spec/business-bounties-id-edit.md`
-- **My Brands** (7 connections) — `md-files/page-spec/business-brands.md`
-- **ConfirmAction (Hard Rule #6)** (7 connections)
-- **Bounty Detail page** (6 connections) — `md-files/page-spec/bounties-id.md`
-- **Bounty Invitations** (6 connections) — `md-files/page-spec/business-bounties-id-invitations.md`
-- **Bounty Submissions List** (6 connections) — `md-files/page-spec/business-bounties-id-submissions.md`
-- **Edit Brand (Multi-brand)** (6 connections) — `md-files/page-spec/business-brands-id-edit.md`
-- **Brand Subscription** (6 connections) — `md-files/page-spec/business-brands-subscription.md`
-- **File Dispute (Brand)** (6 connections) — `md-files/page-spec/business-disputes-new.md`
-- **Review Center** (6 connections) — `md-files/page-spec/business-review-center.md`
-- **Dispute entity** (6 connections) — `md-files/page-spec/`
-- *... and 26 more nodes in this community*
+- **Participant Layout (AuthGuard + MainLayout)** (11 connections) — `md-files/page-spec/inbox.md`
+- **Signup (OTP + optional brand)** (11 connections) — `md-files/page-spec/signup.md`
+- **Wallet dashboard page** (7 connections) — `md-files/page-spec/wallet.md`
+- **Request Withdrawal page** (7 connections) — `md-files/page-spec/wallet-withdraw.md`
+- **Marketing Pages (public layout)** (6 connections) — `md-files/page-spec/root.md`
+- **For Brands Marketing Page** (6 connections) — `md-files/page-spec/join-business.md`
+- **For Hunters Marketing Page** (6 connections) — `md-files/page-spec/join-hunter.md`
+- **Submission** (5 connections) — `md-files/page-spec/my-submissions.md`
+- **Pricing Page** (5 connections) — `md-files/page-spec/pricing.md`
+- **Marketing Home** (5 connections) — `md-files/page-spec/root.md`
+- **Wallet Transactions (transaction history) page** (5 connections) — `md-files/page-spec/wallet-transactions.md`
+- **LedgerEntry** (4 connections) — `md-files/page-spec/wallet-transactions.md`
+- **Dispute** (4 connections) — `md-files/page-spec/my-disputes-new.md`
+- **PARTICIPANT (Hunter) Role** (4 connections) — `md-files/page-spec/my-disputes-new.md`
+- **SubscriptionTier (FREE/PRO)** (4 connections) — `md-files/page-spec/pricing.md`
+- **useWalletDashboard** (4 connections) — `md-files/page-spec/wallet.md`
+- **Contact Page** (4 connections) — `md-files/page-spec/contact.md`
+- **Conversation Thread** (4 connections) — `md-files/page-spec/inbox-conversations-id.md`
+- **Login (OTP)** (4 connections) — `md-files/page-spec/login.md`
+- **My Disputes List** (4 connections) — `md-files/page-spec/my-disputes.md`
+- **Dispute Detail (Participant)** (4 connections) — `md-files/page-spec/my-disputes-id.md`
+- **File New Dispute Wizard** (4 connections) — `md-files/page-spec/my-disputes-new.md`
+- **Payout Banking Settings** (4 connections) — `md-files/page-spec/settings-payouts.md`
+- **Subscription Settings** (4 connections) — `md-files/page-spec/settings-subscription.md`
+- **Wallet** (3 connections) — `md-files/page-spec/wallet.md`
+- *... and 32 more nodes in this community*
 
 ## Relationships
 
-- [[Wallet & withdrawals]] (308 shared connections)
-- [[Finance admin & KB]] (17 shared connections)
+- [[ADR headline docs]] (141 shared connections)
+- [[AdminController]] (51 shared connections)
+- [[Agent team roster]] (2 shared connections)
 
 ## Source Files
 
-- `md-files/page-spec/`
-- `md-files/page-spec/admin-finance-subscriptions.md`
-- `md-files/page-spec/admin-finance-visibility-failures.md`
-- `md-files/page-spec/bounties-id-apply.md`
-- `md-files/page-spec/bounties-id-submit.md`
-- `md-files/page-spec/bounties-id.md`
-- `md-files/page-spec/business-bounties-id-applications.md`
-- `md-files/page-spec/business-bounties-id-edit.md`
-- `md-files/page-spec/business-bounties-id-invitations.md`
-- `md-files/page-spec/business-bounties-id-submissions-submissionid.md`
-- `md-files/page-spec/business-bounties-id-submissions.md`
-- `md-files/page-spec/business-bounties-id.md`
-- `md-files/page-spec/business-bounties-new.md`
-- `md-files/page-spec/business-bounties.md`
-- `md-files/page-spec/business-brands-create.md`
-- `md-files/page-spec/business-brands-edit.md`
-- `md-files/page-spec/business-brands-id-edit.md`
-- `md-files/page-spec/business-brands-kyb.md`
-- `md-files/page-spec/business-brands-members.md`
-- `md-files/page-spec/business-brands-subscription.md`
+- `md-files/page-spec/contact.md`
+- `md-files/page-spec/create-brand.md`
+- `md-files/page-spec/hunters-id.md`
+- `md-files/page-spec/hunters.md`
+- `md-files/page-spec/inbox-conversations-id.md`
+- `md-files/page-spec/inbox.md`
+- `md-files/page-spec/join-business.md`
+- `md-files/page-spec/join-hunter.md`
+- `md-files/page-spec/login.md`
+- `md-files/page-spec/my-disputes-id.md`
+- `md-files/page-spec/my-disputes-new.md`
+- `md-files/page-spec/my-disputes.md`
+- `md-files/page-spec/my-submissions-id.md`
+- `md-files/page-spec/my-submissions.md`
+- `md-files/page-spec/pricing.md`
+- `md-files/page-spec/privacy.md`
+- `md-files/page-spec/profile-edit.md`
+- `md-files/page-spec/profile.md`
+- `md-files/page-spec/root.md`
+- `md-files/page-spec/settings-payouts.md`
 
 ## Audit Trail
 
-- EXTRACTED: 322 (99%)
-- INFERRED: 3 (1%)
+- EXTRACTED: 194 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

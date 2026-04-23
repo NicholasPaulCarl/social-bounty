@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[subscription-lifecycle.scheduler.spec.ts]] (2 shared connections)
+- [[public.decorator.ts]] (2 shared connections)
 
 ## Source Files
 

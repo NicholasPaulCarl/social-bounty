@@ -2,7 +2,7 @@
 
 > God node · 17 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/disputes/disputes.controller.ts`
 
-**Community:** [[Health, Redis, URL verification]]
+**Community:** [[InboxController]]
 
 ## Connections by Relation
 

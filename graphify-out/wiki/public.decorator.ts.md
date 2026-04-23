@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[users.module.ts]] (2 shared connections)
+- [[payments.module.ts]] (2 shared connections)
 
 ## Source Files
 

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[user-status.guard.spec.ts]] (2 shared connections)
+- [[layout.tsx]] (2 shared connections)
 
 ## Source Files
 

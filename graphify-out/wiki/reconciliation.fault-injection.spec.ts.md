@@ -10,7 +10,7 @@
 
 ## Relationships
 
-- [[validation.test.ts]] (6 shared connections)
+- [[ImageCropDialog.tsx]] (6 shared connections)
 
 ## Source Files
 

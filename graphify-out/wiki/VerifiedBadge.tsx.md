@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[disputes.module.ts]] (2 shared connections)
+- [[useToolbarSearch.ts]] (2 shared connections)
 
 ## Source Files
 

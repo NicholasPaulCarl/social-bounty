@@ -10,7 +10,7 @@
 
 ## Relationships
 
-- [[ProBadge.tsx]] (4 shared connections)
+- [[submission-edge-cases.spec.ts]] (4 shared connections)
 
 ## Source Files
 

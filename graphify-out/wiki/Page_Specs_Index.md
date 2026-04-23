@@ -2,7 +2,7 @@
 
 > God node · 21 connections · `md-files/page-spec/README.md`
 
-**Community:** [[Finance admin & KB]]
+**Community:** [[Agent team roster]]
 
 ## Connections by Relation
 

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[playwright.config.ts]] (2 shared connections)
+- [[wallet.module.ts]] (2 shared connections)
 
 ## Source Files
 

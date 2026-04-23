@@ -15,8 +15,9 @@
 
 ## Relationships
 
-- [[SectionPanel.tsx]] (1 shared connections)
+- [[HealthController]] (22 shared connections)
 - [[Admin operations & overrides]] (1 shared connections)
+- [[Admin page routes]] (1 shared connections)
 
 ## Source Files
 

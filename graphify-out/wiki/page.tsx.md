@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[public.decorator.ts]] (2 shared connections)
+- [[FormSectionsSection.tsx]] (2 shared connections)
 
 ## Source Files
 

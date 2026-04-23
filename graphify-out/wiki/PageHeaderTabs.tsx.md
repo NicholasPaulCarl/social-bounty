@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[makeContext()]] (2 shared connections)
+- [[cn.ts]] (2 shared connections)
 
 ## Source Files
 

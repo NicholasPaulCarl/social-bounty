@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[payouts.module.ts]] (2 shared connections)
+- [[setupDashboardMocks()]] (2 shared connections)
 
 ## Source Files
 

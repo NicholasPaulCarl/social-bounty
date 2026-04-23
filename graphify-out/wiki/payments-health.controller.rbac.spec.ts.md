@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[page.tsx]] (2 shared connections)
+- [[next-env.d.ts]] (2 shared connections)
 
 ## Source Files
 

@@ -14,8 +14,8 @@
 
 ## Relationships
 
-- [[refund-after-payout.spec.ts]] (14 shared connections)
-- [[SectionPanel.tsx]] (1 shared connections)
+- [[KybController]] (14 shared connections)
+- [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files
 

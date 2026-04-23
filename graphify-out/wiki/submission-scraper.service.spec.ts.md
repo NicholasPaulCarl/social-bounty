@@ -1,27 +1,33 @@
 # submission-scraper.service.spec.ts
 
-> 5 nodes · cohesion 0.40
+> 8 nodes · cohesion 0.25
 
 ## Key Concepts
 
-- **submission-scraper.service.spec.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/submission-scraper.service.spec.ts`
+- **submission-scraper.service.spec.ts** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/submission-scraper.service.spec.ts`
+- **SubmissionScraperService** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submission-scraper.service.ts`
+- **submission-scraper.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submission-scraper.service.ts`
 - **basicSubmission()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/submission-scraper.service.spec.ts`
 - **makeApify()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/submission-scraper.service.spec.ts`
 - **makePrisma()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/submission-scraper.service.spec.ts`
 - **makeRedis()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/submission-scraper.service.spec.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submission-scraper.service.ts`
 
 ## Relationships
 
-- [[PayoutProviderFactory]] (8 shared connections)
+- [[refund-after-payout.spec.ts]] (9 shared connections)
+- [[Auth & webhook verification]] (7 shared connections)
+- [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files
 
 - `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/__tests__/submission-scraper.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submission-scraper.service.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 8 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 15 (88%)
+- INFERRED: 2 (12%)
 - AMBIGUOUS: 0 (0%)
 
 ---

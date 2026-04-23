@@ -14,8 +14,8 @@
 
 ## Relationships
 
-- [[admin.validators.ts]] (14 shared connections)
-- [[SectionPanel.tsx]] (1 shared connections)
+- [[useBrowseFilters.ts]] (14 shared connections)
+- [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files
 

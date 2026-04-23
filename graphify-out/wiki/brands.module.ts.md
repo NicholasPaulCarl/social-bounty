@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[SECURITY-COMPLIANCE.md]] (2 shared connections)
+- [[bounties.module.ts]] (2 shared connections)
 
 ## Source Files
 

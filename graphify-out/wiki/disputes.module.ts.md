@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[kb-context.spec.ts]] (2 shared connections)
+- [[subscription-cancel.spec.ts]] (2 shared connections)
 
 ## Source Files
 

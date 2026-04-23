@@ -10,7 +10,7 @@
 
 ## Relationships
 
-- [[localPostgresReachable()]] (4 shared connections)
+- [[JwtStrategy]] (4 shared connections)
 
 ## Source Files
 

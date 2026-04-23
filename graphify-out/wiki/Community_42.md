@@ -1,4 +1,4 @@
-# Community 37
+# Community 42
 
 > 10 nodes · cohesion 0.20
 
@@ -17,7 +17,7 @@
 
 ## Relationships
 
-- [[Community 38]] (18 shared connections)
+- [[useBountyAccess.ts]] (18 shared connections)
 
 ## Source Files
 

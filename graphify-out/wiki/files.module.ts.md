@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[global-error.tsx]] (2 shared connections)
+- [[node-globals.d.ts]] (2 shared connections)
 
 ## Source Files
 

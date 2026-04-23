@@ -1,52 +1,59 @@
 # Wallet controller & projection
 
-> 26 nodes · cohesion 0.08
+> 26 nodes · cohesion 0.10
 
 ## Key Concepts
 
-- **useAdmin.ts** (23 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **AdminCreateBrandPage()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/new/page.tsx`
-- **page.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/users/[id]/page.tsx`
-- **UserSubmissionsTab()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/users/[id]/page.tsx`
-- **useAdminCreateOrg()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminSubmissions()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **page.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/new/page.tsx`
-- **useAdminBountyDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminBrandDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminBrands()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminDashboard()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminSettings()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminSubmissionDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminUserDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAdminUsers()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAuditLogDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useAuditLogs()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useOverrideBountyStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useOverridePayoutStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useOverrideSubmissionStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **usePaymentsHealth()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useRecentErrors()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useSystemHealth()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useUpdateBrandStatus()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
-- **useUpdateSettings()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- **TradeSafeClient** (10 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
+- **FakeDecimal** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **.authedRequest()** (7 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
+- **.deterministicSuffix()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
+- **.abs()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **tradesafe.client.spec.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.spec.ts`
+- **.fetchWithRetry()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
+- **payouts.service.spec.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.spec.ts`
+- **payouts.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.ts`
+- **tradesafe.client.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
+- **wallet-service.spec.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **.createBeneficiary()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
+- **.initiatePayout()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
+- **approxDelta()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.spec.ts`
+- **.constructor()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
+- **.getPayoutStatus()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
+- **.lessThan()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **buildHarness()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.spec.ts`
+- **buildClient()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.spec.ts`
+- **buildConfig()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.spec.ts`
+- **respond()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.spec.ts`
+- **.isMockMode()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
+- **D()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
+- **.toNumber()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
 - *... and 1 more nodes in this community*
 
 ## Relationships
 
-- [[App layouts & shells]] (51 shared connections)
-- [[SectionPanel.tsx]] (2 shared connections)
-- [[Bounties & Stitch payments]] (1 shared connections)
+- [[Auth & webhook verification]] (36 shared connections)
+- [[ADRs & audit log]] (24 shared connections)
+- [[Admin page routes]] (7 shared connections)
+- [[seedOtpInRedis()]] (7 shared connections)
+- [[Admin operations & overrides]] (1 shared connections)
+- [[Agent team roster]] (1 shared connections)
+- [[TradeSafe client & payouts]] (1 shared connections)
+- [[Apify post scraping]] (1 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/brands/new/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/users/[id]/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useAdmin.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/payouts/payouts.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/tradesafe/tradesafe.client.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/wallet/__tests__/wallet-service.spec.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 49 (91%)
-- INFERRED: 5 (9%)
+- EXTRACTED: 62 (79%)
+- INFERRED: 16 (21%)
 - AMBIGUOUS: 0 (0%)
 
 ---

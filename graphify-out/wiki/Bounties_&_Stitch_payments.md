@@ -1,64 +1,65 @@
 # Bounties & Stitch payments
 
-> 77 nodes · cohesion 0.03
+> 96 nodes · cohesion 0.03
 
 ## Key Concepts
 
-- **useFinanceAdmin.ts** (21 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useFinanceAdmin.ts`
-- **FinanceAdminService** (19 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- **FinanceAdminController** (17 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- **finance-admin.controller.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- **.getVisibilityAnalytics()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- **KbController** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.controller.ts`
-- **page.tsx** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/visibility-failures/page.tsx`
-- **.payouts()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- **.visibilityAnalytics()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- **.visibilityFailures()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- **.overview()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- **.postOverride()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- **.toggleKillSwitch()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- **.confidenceScores()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.service.ts`
-- **.setKillSwitch()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.service.ts`
-- **useFinanceAuditTrail()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useFinanceAdmin.ts`
-- **finance-admin.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- **kb.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.controller.ts`
-- **.auditTrail()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- **.exceptions()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- **.groupDetail()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- **.inbound()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- **.override()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- **.refunds()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- **.visibilityFailureHistory()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- *... and 52 more nodes in this community*
+- **claude.md** (38 connections) — `claude.md`
+- **Agent Back-End** (13 connections) — `claude.md`
+- **Agent Team Overview** (12 connections) — `md-files/agents/agent-overview.md`
+- **Agent DevOps** (11 connections) — `claude.md`
+- **Agent Front-End** (11 connections) — `claude.md`
+- **Financial Non-Negotiables** (11 connections) — `claude.md`
+- **Agent Architect** (10 connections) — `claude.md`
+- **QA Testing Engineer Agent** (10 connections) — `md-files/agents/agent-qa-testing.md`
+- **Agent Team Lead** (10 connections) — `claude.md`
+- **Agent UI Designer** (9 connections) — `claude.md`
+- **Agent UX Designer** (9 connections) — `claude.md`
+- **STITCH-IMPLEMENTATION-STATUS.md** (6 connections) — `docs/STITCH-IMPLEMENTATION-STATUS.md`
+- **LedgerService** (4 connections) — `claude.md`
+- **contributing.md** (4 connections) — `docs/contributing.md`
+- **create-bounty-spec.md** (4 connections) — `docs/create-bounty-spec.md`
+- **Idempotency (UNIQUE referenceId, actionType)** (4 connections) — `claude.md`
+- **Hard Rules** (3 connections) — `claude.md`
+- **LedgerTransactionGroup (data model)** (3 connections) — `claude.md`
+- **Approval gates** (2 connections) — `md-files/agents/agent-overview.md`
+- **Finance Admin Dashboard** (2 connections) — `claude.md`
+- **Knowledge Base & Financial Integrity Framework** (2 connections) — `claude.md`
+- **Reconciliation Engine** (2 connections) — `claude.md`
+- **Sequential workflow** (2 connections) — `md-files/agents/agent-overview.md`
+- **create-bounty-ui.md** (2 connections) — `docs/create-bounty-ui.md`
+- **create-bounty-ux.md** (2 connections) — `docs/create-bounty-ux.md`
+- *... and 71 more nodes in this community*
 
 ## Relationships
 
-- [[ADRs & audit log]] (171 shared connections)
-- [[SectionPanel.tsx]] (5 shared connections)
-- [[Admin operations & overrides]] (5 shared connections)
-- [[Reconciliation engine]] (5 shared connections)
-- [[Bounty access & users]] (5 shared connections)
-- [[Inbox & notifications]] (2 shared connections)
-- [[Auth & webhook verification]] (1 shared connections)
-- [[Apify post scraping]] (1 shared connections)
-- [[Admin page routes]] (1 shared connections)
+- [[Wallet & withdrawals]] (143 shared connections)
+- [[Agent team roster]] (124 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/finance-admin.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/kb/kb.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/ledger/ledger.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/audit-trail/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/earnings-payouts/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/app/admin/finance/visibility-failures/page.tsx`
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/hooks/useFinanceAdmin.ts`
+- `claude.md`
+- `docs/STITCH-IMPLEMENTATION-STATUS.md`
+- `docs/contributing.md`
+- `docs/create-bounty-spec.md`
+- `docs/create-bounty-tests.md`
+- `docs/create-bounty-ui.md`
+- `docs/create-bounty-ux.md`
+- `md-files/agents/agent-architect.md`
+- `md-files/agents/agent-backend.md`
+- `md-files/agents/agent-devops.md`
+- `md-files/agents/agent-frontend.md`
+- `md-files/agents/agent-overview.md`
+- `md-files/agents/agent-qa-testing.md`
+- `md-files/agents/agent-team-lead.md`
+- `md-files/agents/agent-ui-designer.md`
+- `md-files/agents/agent-ux-designer.md`
+- `packages/prisma/drafts/README.md`
 
 ## Audit Trail
 
-- EXTRACTED: 149 (76%)
-- INFERRED: 47 (24%)
+- EXTRACTED: 267 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

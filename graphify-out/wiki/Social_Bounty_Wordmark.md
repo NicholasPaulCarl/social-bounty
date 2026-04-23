@@ -12,7 +12,7 @@
 
 ## Relationships
 
-- [[layout.tsx]] (8 shared connections)
+- [[FinanceAdminSubscriptionsController]] (8 shared connections)
 
 ## Source Files
 

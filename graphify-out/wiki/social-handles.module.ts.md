@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[webhooks.module.ts]] (2 shared connections)
+- [[prisma.module.ts]] (2 shared connections)
 
 ## Source Files
 

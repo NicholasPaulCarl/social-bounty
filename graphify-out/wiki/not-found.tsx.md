@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[useDashboard.ts]] (2 shared connections)
+- [[CodeBlock.tsx]] (2 shared connections)
 
 ## Source Files
 

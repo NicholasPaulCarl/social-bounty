@@ -1,10 +1,10 @@
 # kb-context.ts
 
-> 17 nodes · cohesion 0.22
+> 18 nodes · cohesion 0.20
 
 ## Key Concepts
 
-- **kb-context.ts** (16 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **kb-context.ts** (17 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
 - **run()** (8 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
 - **rankEntries()** (6 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
 - **parseArgs()** (4 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
@@ -21,21 +21,24 @@
 - **scoreKbFileEntry()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
 - **scoreRecurringIssue()** (2 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
 - **pathNestedMatch()** (1 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
+- **kb-context.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/scripts/kb-context.spec.ts`
 
 ## Relationships
 
-- [[DisputesController]] (60 shared connections)
-- [[Admin operations & overrides]] (3 shared connections)
-- [[Admin page routes]] (2 shared connections)
+- [[FinanceExportsService]] (61 shared connections)
+- [[Admin page routes]] (4 shared connections)
+- [[Auth & webhook verification]] (1 shared connections)
+- [[smoke-finance-group-drilldown.spec.ts]] (1 shared connections)
 
 ## Source Files
 
+- `/Users/nicholasschreiber/social-bounty/scripts/kb-context.spec.ts`
 - `/Users/nicholasschreiber/social-bounty/scripts/kb-context.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 60 (92%)
-- INFERRED: 5 (8%)
+- EXTRACTED: 60 (90%)
+- INFERRED: 7 (10%)
 - AMBIGUOUS: 0 (0%)
 
 ---

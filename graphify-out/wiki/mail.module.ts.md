@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[payout-provider.factory.spec.ts]] (2 shared connections)
+- [[finance-admin.module.ts]] (2 shared connections)
 
 ## Source Files
 

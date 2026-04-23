@@ -10,7 +10,7 @@
 
 ## Relationships
 
-- [[page.tsx]] (4 shared connections)
+- [[PrismaService]] (4 shared connections)
 
 ## Source Files
 

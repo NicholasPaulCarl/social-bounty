@@ -10,7 +10,7 @@
 
 ## Relationships
 
-- [[PageHeaderTabs.tsx]] (4 shared connections)
+- [[providers.tsx]] (4 shared connections)
 
 ## Source Files
 

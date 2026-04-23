@@ -16,7 +16,7 @@
 
 ## Relationships
 
-- [[client.ts]] (16 shared connections)
+- [[RefundsController]] (16 shared connections)
 
 ## Source Files
 

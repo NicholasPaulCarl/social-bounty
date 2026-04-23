@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[bounties.module.ts]] (2 shared connections)
+- [[app.module.ts]] (2 shared connections)
 
 ## Source Files
 

@@ -1,10 +1,10 @@
-# Community 288
+# Community 243
 
 > 1 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **risk:R32** (0 connections)
+- **risk:R18** (0 connections)
 
 ## Relationships
 

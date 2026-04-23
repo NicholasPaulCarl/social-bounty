@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[submission-coverage.validator.spec.ts]] (2 shared connections)
+- [[social-handles.module.ts]] (2 shared connections)
 
 ## Source Files
 

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[subscriptions.module.ts]] (2 shared connections)
+- [[reconciliation.module.ts]] (2 shared connections)
 
 ## Source Files
 

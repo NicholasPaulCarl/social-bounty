@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[participant-flow.spec.ts]] (2 shared connections)
+- [[payouts.module.ts]] (2 shared connections)
 
 ## Source Files
 

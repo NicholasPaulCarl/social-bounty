@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[MoleculesSection.tsx]] (2 shared connections)
+- [[business-flow.spec.ts]] (2 shared connections)
 
 ## Source Files
 

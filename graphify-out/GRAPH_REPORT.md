@@ -5,8 +5,8 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2450 nodes · 3647 edges · 105 communities detected
-- Extraction: 80% EXTRACTED · 20% INFERRED · 0% AMBIGUOUS · INFERRED: 726 edges (avg confidence: 0.8)
+- 2450 nodes · 3724 edges · 110 communities detected
+- Extraction: 78% EXTRACTED · 22% INFERRED · 0% AMBIGUOUS · INFERRED: 803 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -29,49 +29,54 @@
 - [[_COMMUNITY_Admin withdrawals UI|Admin withdrawals UI]]
 - [[_COMMUNITY_Bounty UI components|Bounty UI components]]
 - [[_COMMUNITY_Admin brand & user tabs|Admin brand & user tabs]]
+- [[_COMMUNITY_Design system components|Design system components]]
 - [[_COMMUNITY_AdminService class|AdminService class]]
 - [[_COMMUNITY_BrandsService class|BrandsService class]]
-- [[_COMMUNITY_Design system components|Design system components]]
-- [[_COMMUNITY_Wallet controller & projection|Wallet controller & projection]]
 - [[_COMMUNITY_Inbox & notifications|Inbox & notifications]]
+- [[_COMMUNITY_Wallet controller & projection|Wallet controller & projection]]
 - [[_COMMUNITY_Health, Redis, URL verification|Health, Redis, URL verification]]
-- [[_COMMUNITY_DisputesController|DisputesController]]
-- [[_COMMUNITY_FinanceExportsService|FinanceExportsService]]
-- [[_COMMUNITY_Wallet dashboard page|Wallet dashboard page]]
-- [[_COMMUNITY_kb-context.ts|kb-context.ts]]
+- [[_COMMUNITY_InboxController|InboxController]]
 - [[_COMMUNITY_.callback()|.callback()]]
+- [[_COMMUNITY_AdminController|AdminController]]
+- [[_COMMUNITY_FinanceExportsService|FinanceExportsService]]
+- [[_COMMUNITY_kb-context.ts|kb-context.ts]]
+- [[_COMMUNITY_DisputesController|DisputesController]]
+- [[_COMMUNITY_DisputesService|DisputesService]]
 - [[_COMMUNITY_useSubmissions.ts|useSubmissions.ts]]
 - [[_COMMUNITY_FakeDecimal|FakeDecimal]]
+- [[_COMMUNITY_feeCents()|feeCents()]]
 - [[_COMMUNITY_useInView()|useInView()]]
 - [[_COMMUNITY_handleDownload()|handleDownload()]]
+- [[_COMMUNITY_client.ts|client.ts]]
 - [[_COMMUNITY_bounties.validators.ts|bounties.validators.ts]]
 - [[_COMMUNITY_RefundsController|RefundsController]]
-- [[_COMMUNITY_Community 37|Community 37]]
-- [[_COMMUNITY_Community 38|Community 38]]
+- [[_COMMUNITY_Community 42|Community 42]]
 - [[_COMMUNITY_HealthController|HealthController]]
-- [[_COMMUNITY_client.ts|client.ts]]
 - [[_COMMUNITY_auth.validators.ts|auth.validators.ts]]
-- [[_COMMUNITY_feeCents()|feeCents()]]
+- [[_COMMUNITY_SubscriptionsController|SubscriptionsController]]
 - [[_COMMUNITY_useManageFilters.ts|useManageFilters.ts]]
 - [[_COMMUNITY_useBrowseFilters.ts|useBrowseFilters.ts]]
 - [[_COMMUNITY_SocialHandlesController|SocialHandlesController]]
 - [[_COMMUNITY_KybController|KybController]]
+- [[_COMMUNITY_submission-scraper.service.spec.ts|submission-scraper.service.spec.ts]]
+- [[_COMMUNITY_refund-after-approval.spec.ts|refund-after-approval.spec.ts]]
 - [[_COMMUNITY_NewConversationDialog.tsx|NewConversationDialog.tsx]]
-- [[_COMMUNITY_admin.validators.ts|admin.validators.ts]]
+- [[_COMMUNITY_UserStatusGuard|UserStatusGuard]]
 - [[_COMMUNITY_test-fixtures.ts|test-fixtures.ts]]
+- [[_COMMUNITY_submission-scrape-recovery.scheduler.spe|submission-scrape-recovery.scheduler.spe]]
 - [[_COMMUNITY_refund-after-payout.spec.ts|refund-after-payout.spec.ts]]
-- [[_COMMUNITY_TradeSafePayoutAdapter|TradeSafePayoutAdapter]]
+- [[_COMMUNITY_FinanceAdminSubscriptionsController|FinanceAdminSubscriptionsController]]
+- [[_COMMUNITY_refund-approval-flow.spec.ts|refund-approval-flow.spec.ts]]
 - [[_COMMUNITY_JwtAuthGuard|JwtAuthGuard]]
+- [[_COMMUNITY_compute-verification-checks.ts|compute-verification-checks.ts]]
 - [[_COMMUNITY_Social Bounty Wordmark|Social Bounty Wordmark]]
+- [[_COMMUNITY_seedOtpInRedis()|seedOtpInRedis()]]
 - [[_COMMUNITY_StatusBadge.tsx|StatusBadge.tsx]]
 - [[_COMMUNITY_pickInRange()|pickInRange()]]
+- [[_COMMUNITY_env.validation.ts|env.validation.ts]]
 - [[_COMMUNITY_SanitizePipe|SanitizePipe]]
 - [[_COMMUNITY_JwtStrategy|JwtStrategy]]
 - [[_COMMUNITY_PrismaService|PrismaService]]
-- [[_COMMUNITY_PayoutProviderFactory|PayoutProviderFactory]]
-- [[_COMMUNITY_useCreateBountyForm.test.ts|useCreateBountyForm.test.ts]]
-- [[_COMMUNITY_middleware.test.ts|middleware.test.ts]]
-- [[_COMMUNITY_env.validation.ts|env.validation.ts]]
 - [[_COMMUNITY_reconciliation.fault-injection.spec.ts|reconciliation.fault-injection.spec.ts]]
 - [[_COMMUNITY_TradeSafeApiError|TradeSafeApiError]]
 - [[_COMMUNITY_Social Bounty MVP|Social Bounty MVP]]
@@ -113,8 +118,8 @@
 - [[_COMMUNITY_PageHeader common component|PageHeader common component]]
 - [[_COMMUNITY_SUPER_ADMIN Role|SUPER_ADMIN Role]]
 - [[_COMMUNITY_QA Known Issues and Checks|QA Known Issues and Checks]]
-- [[_COMMUNITY_Community 287|Community 287]]
-- [[_COMMUNITY_Community 288|Community 288]]
+- [[_COMMUNITY_Community 243|Community 243]]
+- [[_COMMUNITY_Community 244|Community 244]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `BountiesService` - 23 edges
@@ -129,50 +134,50 @@
 10. `DisputesController` - 17 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `Financial Kill Switch` --exposes--> `Finance Admin Dashboard`  [EXTRACTED]
+  md-files/page-spec/admin-finance.md → claude.md
+- `/admin/finance/payouts` --rationale_for--> `ADR 0008 — TradeSafe for Hunter Payouts`  [EXTRACTED]
+  md-files/page-spec/admin-finance-payouts.md → docs/adr/0008-tradesafe-for-hunter-payouts.md
 - `Admin Submissions list page` --semantically_similar_to--> `Browse Bounties page`  [INFERRED] [semantically similar]
   md-files/page-spec/admin-submissions.md → md-files/page-spec/bounties.md
 - `Admin Users list page` --semantically_similar_to--> `Brand Directory page`  [INFERRED] [semantically similar]
   md-files/page-spec/admin-users.md → md-files/page-spec/brands.md
-- `Financial Kill Switch` --stored-in--> `SystemSetting (data model)`  [EXTRACTED]
-  md-files/page-spec/admin-finance.md → claude.md
-- `Financial Kill Switch` --exposes--> `Finance Admin Dashboard`  [EXTRACTED]
-  md-files/page-spec/admin-finance.md → claude.md
-- `Stitch Express payment gateway` --uses--> `Svix Webhooks`  [EXTRACTED]
-  md-files/page-spec/admin-payments-health.md → claude.md
+- `Admin Withdrawals page` --cites--> `ADR 0008 — TradeSafe for Hunter Payouts`  [EXTRACTED]
+  md-files/page-spec/admin-withdrawals.md → docs/adr/0008-tradesafe-for-hunter-payouts.md
 
 ## Communities
 
 ### Community 0 - "Admin operations & overrides"
 Cohesion: 0.01
-Nodes (55): handleSelectHunter(), AuditService, ApplyToBountyDto, CreateInvitationsDto, InvitationItemDto, ReviewApplicationDto, handleSelect(), CreateBrandDto (+47 more)
+Nodes (60): AdminCreateOrgDto, AdminOverrideBountyDto, AdminOverrideSubmissionDto, AdminUpdateBrandStatusDto, AdminUpdateSettingsDto, AdminUpdateUserStatusDto, ApifySocialScheduler, AuditService (+52 more)
 
 ### Community 1 - "Admin page routes"
 Cohesion: 0.02
-Nodes (40): ApprovalLedgerService, runCi(), BeneficiaryService, BrandFundingHandler, ClearanceScheduler, ClearanceService, DisputeSchedulerService, DisputesService (+32 more)
+Nodes (35): ApprovalLedgerService, runCi(), BeneficiaryService, ClearanceScheduler, ClearanceService, DisputeSchedulerService, ExpiredBountyScheduler, ExpiredBountyService (+27 more)
 
 ### Community 2 - "Agent team roster"
-Cohesion: 0.02
-Nodes (166): /admin/audit-logs, /admin/audit-logs/[id], /admin/bounties, /admin/bounties/[id], /admin/brands, /admin/brands/[id], /admin/brands/new, /admin/component-library (+158 more)
+Cohesion: 0.04
+Nodes (94): /admin/audit-logs, /admin/audit-logs/[id], /admin/bounties, /admin/bounties/[id], /admin/brands, /admin/brands/[id], /admin/brands/new, /admin/component-library (+86 more)
 
 ### Community 3 - "Auth & webhook verification"
 Cohesion: 0.03
-Nodes (37): emptyCounters(), emptyScrapedPost(), isoOrNull(), mapFacebookItem(), mapFacebookPostItem(), mapInstagramItem(), mapInstagramPostItem(), mapTiktokItem() (+29 more)
+Nodes (74): ADR 0001 — Stripe Retirement Timing, ADR 0003 — TradeSafe Escrow Layer Out of Scope, ADR 0004 — Feature Flag Inventory for Stitch Rollout, ADR 0007 — Peach Payments for Hunter Payouts, ADR 0008 — TradeSafe for Hunter Payouts, ADR 0009 — TradeSafe Integration Skeleton, concept:AuditLog, concept:FinancialNonNegotiables (+66 more)
 
 ### Community 4 - "Bounties & Stitch payments"
 Cohesion: 0.03
-Nodes (18): DevSeedPayableDto, FinanceAdminController, KillSwitchDto, OverrideDto, OverrideLegDto, FinanceAdminService, KbController, EarningsPayoutsPage() (+10 more)
+Nodes (89): Agent Architect, Agent Back-End, Agent DevOps, Agent Front-End, Agent Team Overview, QA Testing Engineer Agent, Agent QA/Testing, Agent Team Lead (+81 more)
 
 ### Community 5 - "Finance admin & KB"
 Cohesion: 0.03
-Nodes (17): Browse Bounties page, BountiesController, Brand Directory page, Brand Profile page, BrandBountiesTab(), CreateBrandPage(), handleStatusConfirm(), uploadStagedFiles() (+9 more)
+Nodes (19): DevSeedPayableDto, FinanceAdminController, KillSwitchDto, OverrideDto, OverrideLegDto, FinanceAdminService, KbController, KbService (+11 more)
 
 ### Community 6 - "Apify post scraping"
-Cohesion: 0.04
-Nodes (20): AuthController, clearRefreshCookie(), setRefreshCookie(), AuthService, handleSwitch(), handleChangeEmail(), handleRequestOtp(), handleSelectSubmission() (+12 more)
+Cohesion: 0.03
+Nodes (16): Browse Bounties page, BountiesController, Brand Directory page, Brand Profile page, BrandBountiesTab(), CreateBrandPage(), handleStatusConfirm(), uploadStagedFiles() (+8 more)
 
 ### Community 7 - "Bounty access & users"
 Cohesion: 0.04
-Nodes (5): BountyAccessController, BountyAccessService, SocialHandlesService, UsersController, UsersService
+Nodes (20): AuthController, clearRefreshCookie(), setRefreshCookie(), AuthService, handleSwitch(), handleChangeEmail(), handleRequestOtp(), handleSelectSubmission() (+12 more)
 
 ### Community 8 - "App layouts & shells"
 Cohesion: 0.04
@@ -180,402 +185,424 @@ Nodes (31): AdminLayout(), BrandsLayout(), BusinessLayout(), HuntersLayout(), Sh
 
 ### Community 9 - "ADRs & audit log"
 Cohesion: 0.05
-Nodes (15): BountiesService, derivePreviewChecks(), hasAnyPreviewChecks(), pairKey(), FilesController, resolveAndValidatePath(), approxDelta(), validateProofLinkCoverage() (+7 more)
+Nodes (15): BountiesService, derivePreviewChecks(), hasAnyPreviewChecks(), pairKey(), ConversationsService, FilesController, resolveAndValidatePath(), buildCreateBountyRequest() (+7 more)
 
 ### Community 10 - "Wallet & withdrawals"
 Cohesion: 0.05
-Nodes (53): Agent Architect, Agent Back-End, Agent DevOps, Agent Front-End, Agent Team Overview, QA Testing Engineer Agent, Agent Team Lead, Agent UI Designer (+45 more)
+Nodes (4): BountyAccessController, BountyAccessService, SettingsService, SocialHandlesService
 
 ### Community 11 - "Brand funding & form state"
+Cohesion: 0.06
+Nodes (57): GET /wallet/dashboard, GET /wallet/ledger-snapshot, GET /wallet/transactions, POST /wallet/withdrawals, LedgerEntry, StitchPayout, TermsAndConditions, TradeSafeBeneficiary (+49 more)
+
+### Community 12 - "Bounty form & disputes"
 Cohesion: 0.12
 Nodes (51): Bounty Detail page, Apply to Bounty page, Submit Proof page, Manage Bounties, Bounty Detail, Bounty Applications, Edit Bounty, Bounty Invitations (+43 more)
 
-### Community 12 - "Bounty form & disputes"
-Cohesion: 0.06
-Nodes (7): ConversationsService, buildFeaturesDto(), getClearanceDays(), getCommissionRate(), FinanceAdminSubscriptionsController, SubscriptionsController, SubscriptionsService
-
 ### Community 13 - "Reconciliation engine"
-Cohesion: 0.08
-Nodes (4): StitchApiError, StitchClient, StitchPayoutAdapter, UpgradeService
+Cohesion: 0.07
+Nodes (7): handleSelectHunter(), BrandFundingHandler, handleSelect(), toggleChannel(), toggleFormat(), UpgradeService, WebhookRouterService
 
 ### Community 14 - "TradeSafe client & payouts"
 Cohesion: 0.06
 Nodes (3): WalletController, WalletProjectionService, WalletService
 
 ### Community 15 - "ADR headline docs"
-Cohesion: 0.09
-Nodes (39): TermsAndConditions, Auth Layout (centered glass card), BUSINESS_ADMIN Role, Conversation (DM thread), Dispute, JWT Auth (access + refresh), Marketing Pages (public layout), OTP (Passwordless 6-digit) (+31 more)
+Cohesion: 0.06
+Nodes (12): BrandsController, BrandsService, doc:docs/ui/component-system-and-screens.md, doc:docs/ux/screen-specifications.md, doc:docs/ux/sitemap-and-flows.md, doc:md-files/RELEASE-NOTES.md, doc:md-files/brand-profile-and-signup.md, doc:md-files/social-bounty-mvp.md (+4 more)
 
 ### Community 16 - "Admin withdrawals UI"
-Cohesion: 0.07
-Nodes (2): AdminService, SubmissionsController
+Cohesion: 0.11
+Nodes (16): applyMigrations(), bigintReplacer(), buildBenchDbConfig(), createBenchDb(), detectPgVersion(), dropBenchDb(), formatTable(), main() (+8 more)
 
 ### Community 17 - "Bounty UI components"
+Cohesion: 0.06
+Nodes (2): AdminService, SubmissionsController
+
+### Community 18 - "Admin brand & user tabs"
 Cohesion: 0.11
 Nodes (31): .avatar, .badge, .btn (button), .card, .chip, .input / .textarea / .select, .progress, .table (+23 more)
 
-### Community 18 - "Admin brand & user tabs"
+### Community 19 - "Design system components"
 Cohesion: 0.07
 Nodes (12): formatRewardZAR(), hashHue(), rewardBody(), BrandAvatar(), display(), rewardBody(), formatBytes(), formatCents() (+4 more)
 
-### Community 19 - "AdminService class"
-Cohesion: 0.13
-Nodes (16): applyMigrations(), bigintReplacer(), buildBenchDbConfig(), createBenchDb(), detectPgVersion(), dropBenchDb(), formatTable(), main() (+8 more)
+### Community 20 - "AdminService class"
+Cohesion: 0.14
+Nodes (13): emptyCounters(), emptyScrapedPost(), isoOrNull(), mapFacebookItem(), mapFacebookPostItem(), mapInstagramItem(), mapInstagramPostItem(), mapTiktokItem() (+5 more)
 
-### Community 20 - "BrandsService class"
-Cohesion: 0.08
-Nodes (2): BrandsController, BrandsService
+### Community 21 - "BrandsService class"
+Cohesion: 0.1
+Nodes (3): StitchApiError, StitchClient, StitchPayoutAdapter
 
-### Community 21 - "Design system components"
-Cohesion: 0.13
-Nodes (28): concept:AuditLog, concept:FinancialNonNegotiables, concept:GlobalFee, concept:KB, concept:KillSwitch, concept:Ledger, concept:Phase1, concept:Phase2 (+20 more)
-
-### Community 22 - "Wallet controller & projection"
+### Community 22 - "Inbox & notifications"
 Cohesion: 0.08
 Nodes (4): AdminCreateBrandPage(), UserSubmissionsTab(), useAdminCreateOrg(), useAdminSubmissions()
 
-### Community 23 - "Inbox & notifications"
+### Community 23 - "Wallet controller & projection"
+Cohesion: 0.1
+Nodes (3): approxDelta(), TradeSafeClient, FakeDecimal
+
+### Community 24 - "Health, Redis, URL verification"
+Cohesion: 0.08
+Nodes (2): UsersController, UsersService
+
+### Community 25 - "InboxController"
 Cohesion: 0.1
 Nodes (2): InboxController, NotificationsService
 
-### Community 24 - "Health, Redis, URL verification"
+### Community 26 - ".callback()"
+Cohesion: 0.13
+Nodes (10): decodeTokenPayload(), getDashboardUrl(), middleware(), evaluateRoute(), getDashboardUrl(), firstHeader(), isValidStateParam(), sanitizeForLog() (+2 more)
+
+### Community 27 - "AdminController"
 Cohesion: 0.1
 Nodes (1): AdminController
 
-### Community 25 - "DisputesController"
+### Community 28 - "FinanceExportsService"
+Cohesion: 0.19
+Nodes (2): FinanceExportsController, FinanceExportsService
+
+### Community 29 - "kb-context.ts"
+Cohesion: 0.2
+Nodes (15): buildKbEntry(), compact(), deriveGuidance(), describeQuery(), extractMetaSystem(), parseArgs(), parseKbFile(), printUsage() (+7 more)
+
+### Community 30 - "DisputesController"
 Cohesion: 0.11
 Nodes (1): DisputesController
 
-### Community 26 - "FinanceExportsService"
-Cohesion: 0.21
-Nodes (2): FinanceExportsController, FinanceExportsService
+### Community 31 - "DisputesService"
+Cohesion: 0.15
+Nodes (1): DisputesService
 
-### Community 27 - "Wallet dashboard page"
-Cohesion: 0.16
-Nodes (18): GET /wallet/dashboard, GET /wallet/ledger-snapshot, GET /wallet/transactions, POST /wallet/withdrawals, LedgerEntry, StitchPayout, TradeSafeBeneficiary, Transaction history (+10 more)
-
-### Community 28 - "kb-context.ts"
-Cohesion: 0.22
-Nodes (15): buildKbEntry(), compact(), deriveGuidance(), describeQuery(), extractMetaSystem(), parseArgs(), parseKbFile(), printUsage() (+7 more)
-
-### Community 30 - ".callback()"
-Cohesion: 0.22
-Nodes (8): decodeTokenPayload(), getDashboardUrl(), middleware(), firstHeader(), isValidStateParam(), sanitizeForLog(), sanitizeQuery(), TradeSafeCallbackController
-
-### Community 31 - "useSubmissions.ts"
+### Community 33 - "useSubmissions.ts"
 Cohesion: 0.15
 Nodes (2): SubmissionDetailPage(), useSubmission()
 
-### Community 32 - "FakeDecimal"
+### Community 34 - "FakeDecimal"
 Cohesion: 0.17
 Nodes (1): FakeDecimal
 
-### Community 33 - "useInView()"
+### Community 35 - "feeCents()"
+Cohesion: 0.29
+Nodes (3): FeeCalculatorService, feeCents(), halfEven()
+
+### Community 36 - "useInView()"
 Cohesion: 0.29
 Nodes (3): FadeUp(), Reveal(), useInView()
 
-### Community 34 - "handleDownload()"
+### Community 38 - "handleDownload()"
 Cohesion: 0.24
 Nodes (4): csvFilename(), saveBlob(), handleDownload(), handleDownloadLedger()
 
-### Community 35 - "bounties.validators.ts"
+### Community 39 - "client.ts"
+Cohesion: 0.24
+Nodes (5): ApiError, buildQueryString(), getAccessToken(), onUnauthorized(), request()
+
+### Community 40 - "bounties.validators.ts"
 Cohesion: 0.2
 Nodes (8): CreateBountyDto, EngagementRequirementsDto, PayoutMetricsDto, PostVisibilityDto, RewardLineDto, StructuredEligibilityDto, UpdateBountyDto, UpdateBountyStatusDto
 
-### Community 36 - "RefundsController"
+### Community 41 - "RefundsController"
 Cohesion: 0.2
 Nodes (4): ApproveRefundDto, RefundsController, RequestRefundAfterPayoutDto, RequestRefundDto
 
-### Community 37 - "Community 37"
+### Community 42 - "Community 42"
 Cohesion: 0.2
 Nodes (10): doc:md-files/SPRINT-PLAN.md, sprint:0, sprint:1, sprint:2, sprint:3, sprint:4, sprint:5, sprint:6 (+2 more)
 
-### Community 38 - "Community 38"
-Cohesion: 0.31
-Nodes (10): doc:docs/ui/component-system-and-screens.md, doc:docs/ux/screen-specifications.md, doc:docs/ux/sitemap-and-flows.md, doc:md-files/RELEASE-NOTES.md, doc:md-files/brand-profile-and-signup.md, doc:md-files/social-bounty-mvp.md, release:v1.0.0, role:BusinessAdmin (+2 more)
-
-### Community 39 - "HealthController"
+### Community 43 - "HealthController"
 Cohesion: 0.22
 Nodes (2): HealthController, handleBlur()
 
-### Community 40 - "client.ts"
-Cohesion: 0.28
-Nodes (5): ApiError, buildQueryString(), getAccessToken(), onUnauthorized(), request()
-
-### Community 41 - "auth.validators.ts"
+### Community 44 - "auth.validators.ts"
 Cohesion: 0.22
 Nodes (8): LogoutDto, RefreshTokenDto, RequestEmailChangeDto, RequestOtpDto, SignupWithOtpDto, SwitchBrandDto, VerifyEmailChangeDto, VerifyOtpDto
 
-### Community 42 - "feeCents()"
-Cohesion: 0.39
-Nodes (3): FeeCalculatorService, feeCents(), halfEven()
+### Community 45 - "SubscriptionsController"
+Cohesion: 0.22
+Nodes (1): SubscriptionsController
 
-### Community 43 - "useManageFilters.ts"
+### Community 46 - "useManageFilters.ts"
 Cohesion: 0.39
 Nodes (5): isValidReward(), isValidSort(), isValidStatus(), isValidView(), readFromUrl()
 
-### Community 44 - "useBrowseFilters.ts"
+### Community 47 - "useBrowseFilters.ts"
 Cohesion: 0.39
 Nodes (5): isValidCategory(), isValidReward(), isValidSort(), isValidView(), readFromUrl()
 
-### Community 45 - "SocialHandlesController"
+### Community 48 - "SocialHandlesController"
 Cohesion: 0.25
 Nodes (2): AddSocialHandleDto, SocialHandlesController
 
-### Community 46 - "KybController"
+### Community 49 - "KybController"
 Cohesion: 0.25
 Nodes (3): KybController, RejectKybDto, SubmitKybDto
 
-### Community 47 - "NewConversationDialog.tsx"
+### Community 50 - "submission-scraper.service.spec.ts"
+Cohesion: 0.25
+Nodes (1): SubmissionScraperService
+
+### Community 51 - "refund-after-approval.spec.ts"
+Cohesion: 0.43
+Nodes (6): buildBountyRow(), buildLedgerStub(), buildPrismaStub(), buildService(), buildStitchStub(), buildSubmissionRow()
+
+### Community 52 - "NewConversationDialog.tsx"
 Cohesion: 0.33
 Nodes (2): handleClose(), resetForm()
 
-### Community 48 - "admin.validators.ts"
-Cohesion: 0.29
-Nodes (6): AdminCreateOrgDto, AdminOverrideBountyDto, AdminOverrideSubmissionDto, AdminUpdateBrandStatusDto, AdminUpdateSettingsDto, AdminUpdateUserStatusDto
+### Community 53 - "UserStatusGuard"
+Cohesion: 0.33
+Nodes (1): UserStatusGuard
 
-### Community 49 - "test-fixtures.ts"
+### Community 54 - "test-fixtures.ts"
 Cohesion: 0.33
 Nodes (2): baseBountyRewardRecord(), createMockPrisma()
 
-### Community 50 - "refund-after-payout.spec.ts"
+### Community 55 - "submission-scrape-recovery.scheduler.spe"
+Cohesion: 0.29
+Nodes (1): SubmissionScrapeRecoveryScheduler
+
+### Community 56 - "refund-after-payout.spec.ts"
 Cohesion: 0.52
 Nodes (6): buildBountyRow(), buildLedgerStub(), buildPrismaStub(), buildService(), buildStitchStub(), buildSubmissionRow()
 
-### Community 51 - "TradeSafePayoutAdapter"
-Cohesion: 0.29
-Nodes (1): TradeSafePayoutAdapter
+### Community 57 - "FinanceAdminSubscriptionsController"
+Cohesion: 0.33
+Nodes (1): FinanceAdminSubscriptionsController
 
-### Community 54 - "JwtAuthGuard"
+### Community 58 - "refund-approval-flow.spec.ts"
+Cohesion: 0.6
+Nodes (5): buildBountyRow(), buildLedgerStub(), buildPrismaStub(), buildService(), buildStitchStub()
+
+### Community 60 - "JwtAuthGuard"
 Cohesion: 0.4
 Nodes (1): JwtAuthGuard
 
-### Community 57 - "Social Bounty Wordmark"
+### Community 61 - "compute-verification-checks.ts"
+Cohesion: 0.5
+Nodes (2): computeVerificationChecks(), normalize()
+
+### Community 62 - "Social Bounty Wordmark"
 Cohesion: 0.4
 Nodes (5): Social Bounty Wordmark, Wordmark Pink Fill, Wordmark Layout, Wordmark Text: 'Social Bounty', Wordmark Typography Style
 
-### Community 58 - "StatusBadge.tsx"
+### Community 63 - "seedOtpInRedis()"
+Cohesion: 0.67
+Nodes (2): loginAs(), seedOtpInRedis()
+
+### Community 64 - "StatusBadge.tsx"
 Cohesion: 0.67
 Nodes (2): formatLabel(), StatusBadge()
 
-### Community 59 - "pickInRange()"
+### Community 65 - "pickInRange()"
 Cohesion: 0.83
 Nodes (3): djb2(), getMockBrandSocialAnalytics(), pickInRange()
 
-### Community 60 - "SanitizePipe"
+### Community 66 - "env.validation.ts"
+Cohesion: 0.5
+Nodes (1): EnvironmentVariables
+
+### Community 67 - "SanitizePipe"
 Cohesion: 0.67
 Nodes (1): SanitizePipe
 
-### Community 61 - "JwtStrategy"
+### Community 68 - "JwtStrategy"
 Cohesion: 0.5
 Nodes (1): JwtStrategy
 
-### Community 62 - "PrismaService"
+### Community 69 - "PrismaService"
 Cohesion: 0.5
 Nodes (1): PrismaService
 
-### Community 65 - "PayoutProviderFactory"
-Cohesion: 0.5
-Nodes (1): PayoutProviderFactory
-
-### Community 67 - "useCreateBountyForm.test.ts"
-Cohesion: 1.0
-Nodes (2): makeFilledState(), makeState()
-
-### Community 71 - "middleware.test.ts"
-Cohesion: 1.0
-Nodes (2): evaluateRoute(), getDashboardUrl()
-
-### Community 72 - "env.validation.ts"
-Cohesion: 0.67
-Nodes (1): EnvironmentVariables
-
-### Community 73 - "reconciliation.fault-injection.spec.ts"
+### Community 75 - "reconciliation.fault-injection.spec.ts"
 Cohesion: 1.0
 Nodes (2): buildService(), makeQueryRawRouter()
 
-### Community 78 - "TradeSafeApiError"
+### Community 77 - "TradeSafeApiError"
 Cohesion: 0.67
 Nodes (1): TradeSafeApiError
 
-### Community 82 - "Social Bounty MVP"
+### Community 79 - "Social Bounty MVP"
 Cohesion: 0.67
 Nodes (2): Social Bounty MVP, apps/web/e2e/README.md
 
-### Community 109 - "app.module.ts"
+### Community 105 - "app.module.ts"
 Cohesion: 1.0
 Nodes (1): AppModule
 
-### Community 115 - "reconciliation.module.ts"
+### Community 109 - "reconciliation.module.ts"
 Cohesion: 1.0
 Nodes (1): ReconciliationModule
 
-### Community 116 - "settings.module.ts"
+### Community 110 - "settings.module.ts"
 Cohesion: 1.0
 Nodes (1): SettingsModule
 
-### Community 118 - "payments.module.ts"
+### Community 111 - "payments.module.ts"
 Cohesion: 1.0
 Nodes (1): PaymentsModule
 
-### Community 119 - "ledger.module.ts"
+### Community 112 - "ledger.module.ts"
 Cohesion: 1.0
 Nodes (1): LedgerModule
 
-### Community 121 - "inbox.module.ts"
+### Community 113 - "inbox.module.ts"
 Cohesion: 1.0
 Nodes (1): InboxModule
 
-### Community 122 - "kb.module.ts"
+### Community 114 - "kb.module.ts"
 Cohesion: 1.0
 Nodes (1): KbModule
 
-### Community 124 - "social-handles.module.ts"
+### Community 115 - "social-handles.module.ts"
 Cohesion: 1.0
 Nodes (1): SocialHandlesModule
 
-### Community 125 - "bounty-access.module.ts"
+### Community 116 - "bounty-access.module.ts"
 Cohesion: 1.0
 Nodes (1): BountyAccessModule
 
-### Community 126 - "redis.module.ts"
+### Community 117 - "redis.module.ts"
 Cohesion: 1.0
 Nodes (1): RedisModule
 
-### Community 127 - "auth.module.ts"
+### Community 118 - "auth.module.ts"
 Cohesion: 1.0
 Nodes (1): AuthModule
 
-### Community 128 - "mail.module.ts"
+### Community 119 - "mail.module.ts"
 Cohesion: 1.0
 Nodes (1): MailModule
 
-### Community 129 - "brands.module.ts"
+### Community 120 - "brands.module.ts"
 Cohesion: 1.0
 Nodes (1): BrandsModule
 
-### Community 130 - "health.module.ts"
+### Community 121 - "health.module.ts"
 Cohesion: 1.0
 Nodes (1): HealthModule
 
-### Community 131 - "disputes.module.ts"
+### Community 122 - "disputes.module.ts"
 Cohesion: 1.0
 Nodes (1): DisputesModule
 
-### Community 132 - "business.module.ts"
+### Community 123 - "business.module.ts"
 Cohesion: 1.0
 Nodes (1): BusinessModule
 
-### Community 133 - "prisma.module.ts"
+### Community 124 - "prisma.module.ts"
 Cohesion: 1.0
 Nodes (1): PrismaModule
 
-### Community 134 - "admin.module.ts"
+### Community 125 - "admin.module.ts"
 Cohesion: 1.0
 Nodes (1): AdminModule
 
-### Community 137 - "finance-admin.module.ts"
+### Community 128 - "finance-admin.module.ts"
 Cohesion: 1.0
 Nodes (1): FinanceAdminModule
 
-### Community 138 - "bounties.module.ts"
+### Community 129 - "bounties.module.ts"
 Cohesion: 1.0
 Nodes (1): BountiesModule
 
-### Community 143 - "subscriptions.module.ts"
+### Community 132 - "subscriptions.module.ts"
 Cohesion: 1.0
 Nodes (1): SubscriptionsModule
 
-### Community 144 - "audit.module.ts"
+### Community 133 - "audit.module.ts"
 Cohesion: 1.0
 Nodes (1): AuditModule
 
-### Community 145 - "stitch.module.ts"
+### Community 134 - "stitch.module.ts"
 Cohesion: 1.0
 Nodes (1): StitchModule
 
-### Community 146 - "users.module.ts"
+### Community 135 - "users.module.ts"
 Cohesion: 1.0
 Nodes (1): UsersModule
 
-### Community 147 - "wallet.module.ts"
+### Community 136 - "wallet.module.ts"
 Cohesion: 1.0
 Nodes (1): WalletModule
 
-### Community 148 - "tradesafe.module.ts"
+### Community 137 - "tradesafe.module.ts"
 Cohesion: 1.0
 Nodes (1): TradeSafeModule
 
-### Community 149 - "submissions.module.ts"
+### Community 138 - "submissions.module.ts"
 Cohesion: 1.0
 Nodes (1): SubmissionsModule
 
-### Community 152 - "files.module.ts"
+### Community 139 - "files.module.ts"
 Cohesion: 1.0
 Nodes (1): FilesModule
 
-### Community 153 - "finance.module.ts"
+### Community 140 - "finance.module.ts"
 Cohesion: 1.0
 Nodes (1): FinanceModule
 
-### Community 155 - "refunds.module.ts"
+### Community 142 - "refunds.module.ts"
 Cohesion: 1.0
 Nodes (1): RefundsModule
 
-### Community 159 - "webhooks.module.ts"
+### Community 146 - "webhooks.module.ts"
 Cohesion: 1.0
 Nodes (1): WebhooksModule
 
-### Community 160 - "apify.module.ts"
+### Community 147 - "apify.module.ts"
 Cohesion: 1.0
 Nodes (1): ApifyModule
 
-### Community 161 - "payouts.module.ts"
+### Community 148 - "payouts.module.ts"
 Cohesion: 1.0
 Nodes (1): PayoutsModule
 
-### Community 282 - "Double-entry ledger (CLAUDE.md §4.1)"
+### Community 238 - "Double-entry ledger (CLAUDE.md §4.1)"
 Cohesion: 1.0
 Nodes (1): Double-entry ledger (CLAUDE.md §4.1)
 
-### Community 283 - "UNIQUE(referenceId, actionType) idempote"
+### Community 239 - "UNIQUE(referenceId, actionType) idempote"
 Cohesion: 1.0
 Nodes (1): UNIQUE(referenceId, actionType) idempotency
 
-### Community 284 - "PageHeader common component"
+### Community 240 - "PageHeader common component"
 Cohesion: 1.0
 Nodes (1): PageHeader common component
 
-### Community 285 - "SUPER_ADMIN Role"
+### Community 241 - "SUPER_ADMIN Role"
 Cohesion: 1.0
 Nodes (1): SUPER_ADMIN Role
 
-### Community 286 - "QA Known Issues and Checks"
+### Community 242 - "QA Known Issues and Checks"
 Cohesion: 1.0
 Nodes (1): QA Known Issues and Checks
 
-### Community 287 - "Community 287"
+### Community 243 - "Community 243"
 Cohesion: 1.0
 Nodes (1): risk:R18
 
-### Community 288 - "Community 288"
+### Community 244 - "Community 244"
 Cohesion: 1.0
 Nodes (1): risk:R32
 
 ## Knowledge Gaps
-- **208 isolated node(s):** `AppModule`, `EnvironmentVariables`, `ReconciliationModule`, `SettingsModule`, `CreateBountyFundingDto` (+203 more)
+- **207 isolated node(s):** `AppModule`, `EnvironmentVariables`, `ReconciliationModule`, `SettingsModule`, `CreateBountyFundingDto` (+202 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **Thin community `Admin withdrawals UI`** (31 nodes): `AdminService`, `.constructor()`, `.createBrand()`, `.getAuditLog()`, `.getBrandDetail()`, `.getDashboard()`, `.getRecentErrors()`, `.getSettings()`, `.getSystemHealth()`, `.getUserDetail()`, `.isSubmissionEnabled()`, `.listAuditLogs()`, `.listBrands()`, `.listSubmissions()`, `.listUsers()`, `.recordError()`, `.updateSettings()`, `admin.service.ts`, `submissions.controller.ts`, `SubmissionsController`, `.constructor()`, `.create()`, `.findById()`, `.getMyEarnings()`, `.getReviewQueue()`, `.listForBounty()`, `.listMySubmissions()`, `.review()`, `.updatePayout()`, `.updateSubmission()`, `.uploadFiles()`
+- **Thin community `Bounty UI components`** (32 nodes): `AdminService`, `.constructor()`, `.createBrand()`, `.getAuditLog()`, `.getBrandDetail()`, `.getDashboard()`, `.getRecentErrors()`, `.getSettings()`, `.getSystemHealth()`, `.getUserDetail()`, `.isSubmissionEnabled()`, `.listAuditLogs()`, `.listBrands()`, `.listSubmissions()`, `.listUsers()`, `.recordError()`, `.updateSettings()`, `admin.service.spec.ts`, `admin.service.ts`, `submissions.controller.ts`, `SubmissionsController`, `.constructor()`, `.create()`, `.findById()`, `.getMyEarnings()`, `.getReviewQueue()`, `.listForBounty()`, `.listMySubmissions()`, `.review()`, `.updatePayout()`, `.updateSubmission()`, `.uploadFiles()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `BrandsService class`** (28 nodes): `brands.controller.ts`, `brands.service.ts`, `BrandsController`, `.checkHandle()`, `.constructor()`, `.create()`, `.findById()`, `.getPublicProfile()`, `.inviteMember()`, `.listMembers()`, `.listMine()`, `.listPublic()`, `.removeMember()`, `.update()`, `.uploadCoverPhoto()`, `BrandsService`, `.checkHandleAvailability()`, `.constructor()`, `.create()`, `.findById()`, `.findPublicProfile()`, `.inviteMember()`, `.listMembers()`, `.listMyBrands()`, `.listPublic()`, `.removeMember()`, `.update()`, `.uploadCoverPhoto()`
+- **Thin community `Health, Redis, URL verification`** (25 nodes): `users.controller.ts`, `users.service.spec.ts`, `users.service.ts`, `UsersController`, `.constructor()`, `.deleteProfilePicture()`, `.deleteSocialLink()`, `.getProfile()`, `.getPublicProfile()`, `.getSocialLinks()`, `.listHunters()`, `.searchUsers()`, `.updateProfile()`, `.uploadProfilePicture()`, `.upsertSocialLink()`, `UsersService`, `.constructor()`, `.getProfile()`, `.getPublicProfile()`, `.getSocialLinks()`, `.listHunters()`, `.searchUsersForMessaging()`, `.updateProfile()`, `.uploadProfilePicture()`, `.upsertSocialLink()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Inbox & notifications`** (23 nodes): `inbox.controller.ts`, `notifications.service.ts`, `InboxController`, `.constructor()`, `.createConversation()`, `.deleteMessage()`, `.editMessage()`, `.getConversation()`, `.getUnreadCount()`, `.listConversations()`, `.listNotifications()`, `.markAllNotificationsAsRead()`, `.markConversationRead()`, `.markNotificationAsRead()`, `.sendMessage()`, `NotificationsService`, `.constructor()`, `.formatResponse()`, `.getUnreadCount()`, `.getUnreadMessageCount()`, `.listNotifications()`, `.markAllAsRead()`, `.markAsRead()`
+- **Thin community `InboxController`** (23 nodes): `inbox.controller.ts`, `notifications.service.ts`, `InboxController`, `.constructor()`, `.createConversation()`, `.deleteMessage()`, `.editMessage()`, `.getConversation()`, `.getUnreadCount()`, `.listConversations()`, `.listNotifications()`, `.markAllNotificationsAsRead()`, `.markConversationRead()`, `.markNotificationAsRead()`, `.sendMessage()`, `NotificationsService`, `.constructor()`, `.formatResponse()`, `.getUnreadCount()`, `.getUnreadMessageCount()`, `.listNotifications()`, `.markAllAsRead()`, `.markAsRead()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Health, Redis, URL verification`** (20 nodes): `AdminController`, `.constructor()`, `.createBrand()`, `.getAuditLog()`, `.getBrandDetail()`, `.getDashboard()`, `.getRecentErrors()`, `.getSettings()`, `.getSystemHealth()`, `.getUserDetail()`, `.listAuditLogs()`, `.listBrands()`, `.listSubmissions()`, `.listUsers()`, `.overrideBounty()`, `.overrideSubmission()`, `.updateBrandStatus()`, `.updateSettings()`, `.updateUserStatus()`, `admin.controller.ts`
+- **Thin community `AdminController`** (20 nodes): `AdminController`, `.constructor()`, `.createBrand()`, `.getAuditLog()`, `.getBrandDetail()`, `.getDashboard()`, `.getRecentErrors()`, `.getSettings()`, `.getSystemHealth()`, `.getUserDetail()`, `.listAuditLogs()`, `.listBrands()`, `.listSubmissions()`, `.listUsers()`, `.overrideBounty()`, `.overrideSubmission()`, `.updateBrandStatus()`, `.updateSettings()`, `.updateUserStatus()`, `admin.controller.ts`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `FinanceExportsService`** (19 nodes): `exports.controller.ts`, `exports.service.spec.ts`, `exports.service.ts`, `FinanceExportsController`, `.constructor()`, `.inbound()`, `.ledger()`, `.refunds()`, `.reserves()`, `.send()`, `.stamp()`, `FinanceExportsService`, `.constructor()`, `.escapeField()`, `.inboundCsv()`, `.ledgerCsv()`, `.refundsCsv()`, `.reservesCsv()`, `.toCsv()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `DisputesController`** (18 nodes): `disputes.controller.ts`, `DisputesController`, `.assign()`, `.constructor()`, `.create()`, `.escalate()`, `.findById()`, `.getStats()`, `.listAll()`, `.listForBrand()`, `.listMine()`, `.resolve()`, `.sendMessage()`, `.submitDraft()`, `.transition()`, `.update()`, `.uploadEvidence()`, `.withdraw()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `FinanceExportsService`** (18 nodes): `exports.controller.ts`, `exports.service.ts`, `FinanceExportsController`, `.constructor()`, `.inbound()`, `.ledger()`, `.refunds()`, `.reserves()`, `.send()`, `.stamp()`, `FinanceExportsService`, `.constructor()`, `.escapeField()`, `.inboundCsv()`, `.ledgerCsv()`, `.refundsCsv()`, `.reservesCsv()`, `.toCsv()`
+- **Thin community `DisputesService`** (16 nodes): `disputes.service.ts`, `DisputesService`, `.assign()`, `.constructor()`, `.create()`, `.escalate()`, `.findById()`, `.generateDisputeNumber()`, `.getStats()`, `.listAll()`, `.listForBrand()`, `.listMine()`, `.sendMessage()`, `.update()`, `.uploadEvidence()`, `.withdraw()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `useSubmissions.ts`** (13 nodes): `page.tsx`, `useSubmissions.ts`, `SubmissionDetailPage()`, `useCreateSubmission()`, `useMyEarnings()`, `useMySubmissions()`, `useReviewQueue()`, `useReviewSubmission()`, `useSubmission()`, `useSubmissionsForBounty()`, `useSubmissionWithPolling()`, `useUpdatePayout()`, `useUpdateSubmission()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
@@ -583,31 +610,37 @@ Nodes (1): risk:R32
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `HealthController`** (9 nodes): `health.controller.ts`, `VerifiedLinkInput.tsx`, `HealthController`, `.check()`, `.constructor()`, `.verifyUrl()`, `.ping()`, `handleBlur()`, `handleChange()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `SubscriptionsController`** (9 nodes): `subscriptions.controller.ts`, `SubscriptionsController`, `.cancel()`, `.constructor()`, `.getPayments()`, `.getSubscription()`, `.reactivate()`, `.subscribe()`, `.upgrade()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `SocialHandlesController`** (8 nodes): `social-handles.controller.ts`, `AddSocialHandleDto`, `SocialHandlesController`, `.addHandle()`, `.constructor()`, `.getUserHandles()`, `.listMyHandles()`, `.removeHandle()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `submission-scraper.service.spec.ts`** (8 nodes): `submission-scraper.service.ts`, `submission-scraper.service.spec.ts`, `basicSubmission()`, `makeApify()`, `makePrisma()`, `makeRedis()`, `SubmissionScraperService`, `.constructor()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `NewConversationDialog.tsx`** (7 nodes): `NewConversationDialog.tsx`, `clearRecipient()`, `handleClickOutside()`, `handleClose()`, `handleSubmit()`, `resetForm()`, `selectRecipient()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `UserStatusGuard`** (7 nodes): `user-status.guard.spec.ts`, `user-status.guard.ts`, `createMockContext()`, `UserStatusGuard`, `.canActivate()`, `.constructor()`, `.getUserStatus()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `test-fixtures.ts`** (7 nodes): `test-fixtures.ts`, `baseBountyRecord()`, `baseBountyRewardRecord()`, `baseBrandAssetRecord()`, `createMockAuditService()`, `createMockPrisma()`, `validCreateBountyData()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `TradeSafePayoutAdapter`** (7 nodes): `tradesafe-payout.adapter.ts`, `TradeSafePayoutAdapter`, `.constructor()`, `.createBeneficiary()`, `.getPayoutStatus()`, `.initiatePayout()`, `.isMockMode()`
+- **Thin community `submission-scrape-recovery.scheduler.spe`** (7 nodes): `submission-scrape-recovery.scheduler.ts`, `submission-scrape-recovery.scheduler.spec.ts`, `buildHarness()`, `minutesAgo()`, `scrapeImpl()`, `SubmissionScrapeRecoveryScheduler`, `.constructor()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `FinanceAdminSubscriptionsController`** (6 nodes): `subscriptions.controller.ts`, `FinanceAdminSubscriptionsController`, `.cancelById()`, `.constructor()`, `.list()`, `.listAll()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `JwtAuthGuard`** (5 nodes): `jwt-auth.guard.ts`, `JwtAuthGuard`, `.canActivate()`, `.constructor()`, `.handleRequest()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `compute-verification-checks.ts`** (5 nodes): `compute-verification-checks.ts`, `compute-verification-checks.spec.ts`, `computeVerificationChecks()`, `normalize()`, `noRules()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `seedOtpInRedis()`** (4 nodes): `helpers.ts`, `loginAs()`, `logout()`, `seedOtpInRedis()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `StatusBadge.tsx`** (4 nodes): `StatusBadge.tsx`, `formatLabel()`, `mkIcon()`, `StatusBadge()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `env.validation.ts`** (4 nodes): `env.validation.spec.ts`, `env.validation.ts`, `EnvironmentVariables`, `validateEnv()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `SanitizePipe`** (4 nodes): `sanitize.pipe.ts`, `SanitizePipe`, `.sanitize()`, `.transform()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `JwtStrategy`** (4 nodes): `jwt.strategy.ts`, `JwtStrategy`, `.constructor()`, `.validate()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `PrismaService`** (4 nodes): `prisma.service.ts`, `PrismaService`, `.onModuleDestroy()`, `.onModuleInit()`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `PayoutProviderFactory`** (4 nodes): `payout-provider.factory.ts`, `PayoutProviderFactory`, `.getProvider()`, `.getProviderName()`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `useCreateBountyForm.test.ts`** (3 nodes): `useCreateBountyForm.test.ts`, `makeFilledState()`, `makeState()`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `middleware.test.ts`** (3 nodes): `middleware.test.ts`, `evaluateRoute()`, `getDashboardUrl()`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `env.validation.ts`** (3 nodes): `env.validation.ts`, `EnvironmentVariables`, `validateEnv()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `reconciliation.fault-injection.spec.ts`** (3 nodes): `reconciliation.fault-injection.spec.ts`, `buildService()`, `makeQueryRawRouter()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
@@ -691,25 +724,25 @@ Nodes (1): risk:R32
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `QA Known Issues and Checks`** (1 nodes): `QA Known Issues and Checks`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 287`** (1 nodes): `risk:R18`
+- **Thin community `Community 243`** (1 nodes): `risk:R18`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 288`** (1 nodes): `risk:R32`
+- **Thin community `Community 244`** (1 nodes): `risk:R32`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Browse Bounties page` connect `Finance admin & KB` to `Agent team roster`, `Brand funding & form state`?**
-  _High betweenness centrality (0.158) - this node is a cross-community bridge._
-- **Why does `Admin Submissions list page` connect `Agent team roster` to `Brand funding & form state`, `Finance admin & KB`?**
-  _High betweenness centrality (0.064) - this node is a cross-community bridge._
-- **Why does `Bounty Funded Return page` connect `Agent team roster` to `Brand funding & form state`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
+- **Why does `ADR 0009 — TradeSafe Integration Skeleton` connect `Auth & webhook verification` to `.callback()`, `Agent team roster`, `Bounties & Stitch payments`?**
+  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+- **Why does `ADR 0006 — Compensating Entries Bypass the Financial Kill Switch` connect `Agent team roster` to `Auth & webhook verification`, `Bounties & Stitch payments`?**
+  _High betweenness centrality (0.039) - this node is a cross-community bridge._
+- **Why does `Stitch Express payment gateway` connect `Agent team roster` to `Brand funding & form state`, `Bounties & Stitch payments`?**
+  _High betweenness centrality (0.037) - this node is a cross-community bridge._
 - **What connects `AppModule`, `EnvironmentVariables`, `ReconciliationModule` to the rest of the system?**
-  _208 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _207 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Admin operations & overrides` be split into smaller, more focused modules?**
   _Cohesion score 0.01 - nodes in this community are weakly interconnected._
 - **Should `Admin page routes` be split into smaller, more focused modules?**
   _Cohesion score 0.02 - nodes in this community are weakly interconnected._
 - **Should `Agent team roster` be split into smaller, more focused modules?**
-  _Cohesion score 0.02 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.04 - nodes in this community are weakly interconnected._

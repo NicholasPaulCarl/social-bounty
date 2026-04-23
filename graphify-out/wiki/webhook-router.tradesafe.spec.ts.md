@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[LibrarySidebar.tsx]] (2 shared connections)
+- [[jest.config.ts]] (2 shared connections)
 
 ## Source Files
 

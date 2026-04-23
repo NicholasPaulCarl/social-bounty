@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[audit.module.ts]] (2 shared connections)
+- [[settings.module.ts]] (2 shared connections)
 
 ## Source Files
 

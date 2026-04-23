@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[bounty-access.module.ts]] (2 shared connections)
+- [[OverrideModal.tsx]] (2 shared connections)
 
 ## Source Files
 

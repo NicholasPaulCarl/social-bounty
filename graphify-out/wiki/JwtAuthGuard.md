@@ -12,7 +12,7 @@
 
 ## Relationships
 
-- [[SanitizePipe]] (8 shared connections)
+- [[test-fixtures.ts]] (8 shared connections)
 
 ## Source Files
 

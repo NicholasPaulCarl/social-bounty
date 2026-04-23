@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[usePayouts.ts]] (2 shared connections)
+- [[page.tsx]] (2 shared connections)
 
 ## Source Files
 

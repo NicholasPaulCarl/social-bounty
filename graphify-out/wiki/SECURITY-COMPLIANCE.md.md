@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[page.tsx]] (2 shared connections)
+- [[smoke-finance-kill-switch.spec.ts]] (2 shared connections)
 
 ## Source Files
 

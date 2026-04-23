@@ -11,7 +11,7 @@
 
 ## Relationships
 
-- [[env.validation.ts]] (10 shared connections)
+- [[AppSidebar.tsx]] (10 shared connections)
 
 ## Source Files
 

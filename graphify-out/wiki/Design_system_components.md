@@ -1,56 +1,56 @@
 # Design system components
 
-> 28 nodes · cohesion 0.13
+> 30 nodes · cohesion 0.07
 
 ## Key Concepts
 
-- **concept:Reconciliation** (10 connections)
-- **doc:md-files/implementation-phases.md** (10 connections) — `md-files/implementation-phases.md`
-- **concept:Ledger** (6 connections)
-- **doc:md-files/admin-dashboard.md** (6 connections) — `md-files/admin-dashboard.md`
-- **concept:Phase2** (5 connections)
-- **concept:StitchExpress** (5 connections)
-- **doc:docs/reviews/2026-04-15-team-lead-audit-phases-0-3.md** (5 connections) — `docs/reviews/2026-04-15-team-lead-audit-phases-0-3.md`
-- **doc:md-files/financial-architecture.md** (5 connections) — `md-files/financial-architecture.md`
-- **doc:md-files/payment-gateway.md** (5 connections) — `md-files/payment-gateway.md`
-- **concept:FinancialNonNegotiables** (4 connections)
-- **concept:Phase1** (4 connections)
-- **concept:Phase3** (4 connections)
-- **concept:AuditLog** (3 connections)
-- **concept:KB** (3 connections)
-- **concept:KillSwitch** (3 connections)
-- **concept:Phase4** (3 connections)
-- **concept:TradeSafe** (3 connections)
-- **doc:docs/reviews/2026-04-15-phase-2-live-test.md** (3 connections) — `docs/reviews/2026-04-15-phase-2-live-test.md`
-- **concept:GlobalFee** (2 connections)
-- **concept:PlanSnapshot** (2 connections)
-- **concept:SvixWebhooks** (2 connections)
-- **doc:md-files/knowledge-base.md** (2 connections) — `md-files/knowledge-base.md`
-- **concept:ReconciliationCheck_checkGroupBalance** (1 connections)
-- **concept:ReconciliationCheck_checkMissingLegs** (1 connections)
-- **concept:ReconciliationCheck_checkReserveVsBounty** (1 connections)
-- *... and 3 more nodes in this community*
+- **format.ts** (11 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **bounty-format.ts** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- **BusinessBountyListView.tsx** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
+- **formatRewardZAR()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- **formatCurrency()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **BrandSocialReachCard.tsx** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/brand-profile/BrandSocialReachCard.tsx`
+- **BountyListView.tsx** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyListView.tsx`
+- **hashHue()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- **rewardBody()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyListView.tsx`
+- **BrandAvatar()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrandAvatar.tsx`
+- **display()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/brand-profile/BrandSocialReachCard.tsx`
+- **rewardBody()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
+- **formatBytes()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **formatCents()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **formatCount()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **formatEnumLabel()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **formatPayoutMethod()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
+- **BrandAvatar.tsx** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrandAvatar.tsx`
+- **getFormatIcon()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- **getFormatLabel()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- **timeLabel()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- **hasRealCounters()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/brand-profile/BrandSocialReachCard.tsx`
+- **BusinessBountyListView()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
+- **createdBody()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
+- **submissionsBody()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
+- *... and 5 more nodes in this community*
 
 ## Relationships
 
-- [[BrandsService class]] (96 shared connections)
-- [[Agent team roster]] (4 shared connections)
-- [[Finance admin & KB]] (1 shared connections)
+- [[Admin brand & user tabs]] (62 shared connections)
+- [[Admin operations & overrides]] (4 shared connections)
+- [[Admin page routes]] (1 shared connections)
+- [[Apify post scraping]] (1 shared connections)
 
 ## Source Files
 
-- `docs/reviews/2026-04-15-phase-2-live-test.md`
-- `docs/reviews/2026-04-15-team-lead-audit-phases-0-3.md`
-- `md-files/admin-dashboard.md`
-- `md-files/financial-architecture.md`
-- `md-files/implementation-phases.md`
-- `md-files/knowledge-base.md`
-- `md-files/payment-gateway.md`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BountyListView.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BrandAvatar.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/bounty/BusinessBountyListView.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/components/features/brand-profile/BrandSocialReachCard.tsx`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/bounty-format.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/utils/format.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 101 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 56 (82%)
+- INFERRED: 12 (18%)
 - AMBIGUOUS: 0 (0%)
 
 ---

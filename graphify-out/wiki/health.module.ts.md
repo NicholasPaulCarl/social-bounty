@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[jest.config.js]] (2 shared connections)
+- [[mockFile()]] (2 shared connections)
 
 ## Source Files
 

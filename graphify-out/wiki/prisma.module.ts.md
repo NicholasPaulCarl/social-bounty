@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[next.config.mjs]] (2 shared connections)
+- [[audit.module.ts]] (2 shared connections)
 
 ## Source Files
 

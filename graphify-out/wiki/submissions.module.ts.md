@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[global.d.ts]] (2 shared connections)
+- [[payouts.controller.rbac.spec.ts]] (2 shared connections)
 
 ## Source Files
 

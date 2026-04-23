@@ -1,57 +1,54 @@
 # Bounty UI components
 
-> 31 nodes · cohesion 0.11
+> 32 nodes · cohesion 0.06
 
 ## Key Concepts
 
-- **Design System README** (21 connections) — `apps/web/src/styles/design-system/README.md`
-- **Design System SKILL.md** (11 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **previews/components.html** (10 connections) — `apps/web/src/styles/design-system/previews/components.html`
-- **previews/colors.html** (5 connections) — `apps/web/src/styles/design-system/previews/colors.html`
-- **previews/type.html** (4 connections) — `apps/web/src/styles/design-system/previews/type.html`
-- **Design System ICONS.md** (3 connections) — `apps/web/src/styles/design-system/ICONS.md`
-- **.avatar** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.badge** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.btn (button)** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.card** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.chip** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.input / .textarea / .select** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.progress** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.table** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **.toast** (2 connections) — `apps/web/src/styles/design-system/SKILL.md`
-- **Lucide Icons (lucide-react)** (2 connections) — `apps/web/src/styles/design-system/ICONS.md`
-- **Shell Navigation** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **previews/shell-navigation.html** (2 connections) — `apps/web/src/styles/design-system/previews/shell-navigation.html`
-- **--blue-600 (#2563eb)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **--pink-600 (#db2777)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **--reward-500 (gold)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **--slate-* tokens** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **Inter (body)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **JetBrains Mono (metrics)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- **Space Grotesk (headings)** (2 connections) — `apps/web/src/styles/design-system/README.md`
-- *... and 6 more nodes in this community*
+- **AdminService** (22 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **SubmissionsController** (12 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- **.updateSettings()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **admin.service.ts** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.createBrand()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.getSettings()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.isSubmissionEnabled()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **submissions.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- **.create()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.getAuditLog()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.getBrandDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.getDashboard()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.getRecentErrors()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.getSystemHealth()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.getUserDetail()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.listAuditLogs()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.listBrands()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.listSubmissions()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.listUsers()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **.recordError()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- **admin.service.spec.ts** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.spec.ts`
+- **.constructor()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- **.findById()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- **.getMyEarnings()** (1 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
+- *... and 7 more nodes in this community*
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [[Admin withdrawals UI]] (63 shared connections)
+- [[Admin page routes]] (6 shared connections)
+- [[Admin operations & overrides]] (2 shared connections)
+- [[Apify post scraping]] (1 shared connections)
+- [[Community 252]] (1 shared connections)
 
 ## Source Files
 
-- `apps/web/src/styles/design-system/ICONS.md`
-- `apps/web/src/styles/design-system/README.md`
-- `apps/web/src/styles/design-system/SKILL.md`
-- `apps/web/src/styles/design-system/previews/brand.html`
-- `apps/web/src/styles/design-system/previews/colors.html`
-- `apps/web/src/styles/design-system/previews/components.html`
-- `apps/web/src/styles/design-system/previews/shell-navigation.html`
-- `apps/web/src/styles/design-system/previews/spacing.html`
-- `apps/web/src/styles/design-system/previews/type.html`
-- `design-system/social-bounty/MASTER.md`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.spec.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/admin/admin.service.ts`
+- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/submissions/submissions.controller.ts`
 
 ## Audit Trail
 
-- EXTRACTED: 98 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 67 (92%)
+- INFERRED: 6 (8%)
 - AMBIGUOUS: 0 (0%)
 
 ---

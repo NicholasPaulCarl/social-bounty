@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[refunds.controller.rbac.spec.ts]] (2 shared connections)
+- [[health.module.ts]] (2 shared connections)
 
 ## Source Files
 

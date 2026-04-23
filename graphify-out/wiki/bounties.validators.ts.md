@@ -17,8 +17,8 @@
 
 ## Relationships
 
-- [[RefundsController]] (18 shared connections)
-- [[SectionPanel.tsx]] (1 shared connections)
+- [[feeCents()]] (18 shared connections)
+- [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files
 

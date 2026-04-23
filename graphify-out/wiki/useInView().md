@@ -17,7 +17,7 @@
 
 ## Relationships
 
-- [[handleDownload()]] (26 shared connections)
+- [[useSubmissions.ts]] (26 shared connections)
 
 ## Source Files
 

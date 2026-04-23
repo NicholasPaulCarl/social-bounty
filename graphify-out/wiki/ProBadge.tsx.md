@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[business.module.ts]] (2 shared connections)
+- [[PageHeaderTabs.tsx]] (2 shared connections)
 
 ## Source Files
 

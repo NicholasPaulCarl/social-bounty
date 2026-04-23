@@ -21,8 +21,8 @@
 
 ## Relationships
 
-- [[Wallet dashboard page]] (26 shared connections)
-- [[SectionPanel.tsx]] (1 shared connections)
+- [[kb-context.ts]] (26 shared connections)
+- [[Admin operations & overrides]] (1 shared connections)
 
 ## Source Files
 

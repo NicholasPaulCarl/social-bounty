@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[payments.module.ts]] (2 shared connections)
+- [[FormatChip.tsx]] (2 shared connections)
 
 ## Source Files
 

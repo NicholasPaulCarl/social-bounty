@@ -12,7 +12,7 @@
 
 ## Relationships
 
-- [[pickInRange()]] (8 shared connections)
+- [[UserStatusGuard]] (8 shared connections)
 
 ## Source Files
 

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[admin.module.ts]] (2 shared connections)
+- [[usePayouts.ts]] (2 shared connections)
 
 ## Source Files
 

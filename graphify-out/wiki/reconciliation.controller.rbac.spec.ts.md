@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[submissions.module.ts]] (2 shared connections)
+- [[kb.module.ts]] (2 shared connections)
 
 ## Source Files
 

@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[makeConfig()]] (2 shared connections)
+- [[VerifiedBadge.tsx]] (2 shared connections)
 
 ## Source Files
 

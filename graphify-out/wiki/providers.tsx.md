@@ -9,7 +9,7 @@
 
 ## Relationships
 
-- [[cn.ts]] (2 shared connections)
+- [[PropsTable.tsx]] (2 shared connections)
 
 ## Source Files
 

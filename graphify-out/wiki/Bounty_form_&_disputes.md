@@ -1,58 +1,69 @@
 # Bounty form & disputes
 
-> 43 nodes · cohesion 0.06
+> 51 nodes · cohesion 0.12
 
 ## Key Concepts
 
-- **SubscriptionsService** (20 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
-- **ConversationsService** (9 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
-- **SubscriptionsController** (8 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.controller.ts`
-- **.getActiveTier()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
-- **.performCancel()** (6 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
-- **.getSubscription()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
-- **.subscribe()** (5 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
-- **subscription.constants.ts** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscription.constants.ts`
-- **.applyToBounty()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- **buildFeaturesDto()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscription.constants.ts`
-- **FinanceAdminSubscriptionsController** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/subscriptions.controller.ts`
-- **.reactivate()** (4 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
-- **.createConversation()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
-- **.cancel()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
-- **.findActiveSubscription()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
-- **.findSubscriptionRecord()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
-- **.getPaymentHistory()** (3 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
-- **subscriptions.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/subscriptions.controller.ts`
-- **conversations.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
-- **subscriptions.controller.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.controller.ts`
-- **subscriptions.service.ts** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
-- **.deleteMessage()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
-- **.editMessage()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
-- **.getConversation()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
-- **.listConversations()** (2 connections) — `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
-- *... and 18 more nodes in this community*
+- **BUSINESS_ADMIN role** (24 connections) — `md-files/page-spec/`
+- **AuthGuard business/layout** (22 connections)
+- **Bounty Detail** (17 connections) — `md-files/page-spec/business-bounties-id.md`
+- **Bounty entity** (16 connections) — `md-files/page-spec/`
+- **Brand entity** (14 connections) — `md-files/page-spec/`
+- **AuditLog (Hard Rule #3)** (11 connections)
+- **Submission entity** (11 connections) — `md-files/page-spec/`
+- **Manage Bounties** (10 connections) — `md-files/page-spec/business-bounties.md`
+- **Review Center Detail** (10 connections) — `md-files/page-spec/business-review-center-id.md`
+- **Submit Proof page** (9 connections) — `md-files/page-spec/bounties-id-submit.md`
+- **Submission Review (per-bounty)** (9 connections) — `md-files/page-spec/business-bounties-id-submissions-submissionid.md`
+- **Brand Dispute Detail** (9 connections) — `md-files/page-spec/business-disputes-id.md`
+- **Bounty Applications** (8 connections) — `md-files/page-spec/business-bounties-id-applications.md`
+- **Create Bounty** (8 connections) — `md-files/page-spec/business-bounties-new.md`
+- **Edit Bounty** (7 connections) — `md-files/page-spec/business-bounties-id-edit.md`
+- **My Brands** (7 connections) — `md-files/page-spec/business-brands.md`
+- **ConfirmAction (Hard Rule #6)** (7 connections)
+- **Bounty Detail page** (6 connections) — `md-files/page-spec/bounties-id.md`
+- **Bounty Invitations** (6 connections) — `md-files/page-spec/business-bounties-id-invitations.md`
+- **Bounty Submissions List** (6 connections) — `md-files/page-spec/business-bounties-id-submissions.md`
+- **Edit Brand (Multi-brand)** (6 connections) — `md-files/page-spec/business-brands-id-edit.md`
+- **Brand Subscription** (6 connections) — `md-files/page-spec/business-brands-subscription.md`
+- **File Dispute (Brand)** (6 connections) — `md-files/page-spec/business-disputes-new.md`
+- **Review Center** (6 connections) — `md-files/page-spec/business-review-center.md`
+- **Dispute entity** (6 connections) — `md-files/page-spec/`
+- *... and 26 more nodes in this community*
 
 ## Relationships
 
-- [[Admin page routes]] (92 shared connections)
-- [[Bounty access & users]] (25 shared connections)
-- [[JwtAuthGuard]] (11 shared connections)
-- [[SectionPanel.tsx]] (5 shared connections)
-- [[Brand funding & form state]] (2 shared connections)
-- [[Auth & webhook verification]] (2 shared connections)
+- [[Brand funding & form state]] (304 shared connections)
+- [[Agent team roster]] (17 shared connections)
+- [[Finance admin & KB]] (4 shared connections)
 
 ## Source Files
 
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounty-access/bounty-access.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/finance-admin/subscriptions.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/inbox/conversations.service.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscription.constants.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.controller.ts`
-- `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/subscriptions/subscriptions.service.ts`
+- `md-files/page-spec/`
+- `md-files/page-spec/admin-finance-subscriptions.md`
+- `md-files/page-spec/admin-finance-visibility-failures.md`
+- `md-files/page-spec/bounties-id-apply.md`
+- `md-files/page-spec/bounties-id-submit.md`
+- `md-files/page-spec/bounties-id.md`
+- `md-files/page-spec/business-bounties-id-applications.md`
+- `md-files/page-spec/business-bounties-id-edit.md`
+- `md-files/page-spec/business-bounties-id-invitations.md`
+- `md-files/page-spec/business-bounties-id-submissions-submissionid.md`
+- `md-files/page-spec/business-bounties-id-submissions.md`
+- `md-files/page-spec/business-bounties-id.md`
+- `md-files/page-spec/business-bounties-new.md`
+- `md-files/page-spec/business-bounties.md`
+- `md-files/page-spec/business-brands-create.md`
+- `md-files/page-spec/business-brands-edit.md`
+- `md-files/page-spec/business-brands-id-edit.md`
+- `md-files/page-spec/business-brands-kyb.md`
+- `md-files/page-spec/business-brands-members.md`
+- `md-files/page-spec/business-brands-subscription.md`
 
 ## Audit Trail
 
-- EXTRACTED: 115 (84%)
-- INFERRED: 22 (16%)
+- EXTRACTED: 322 (99%)
+- INFERRED: 3 (1%)
 - AMBIGUOUS: 0 (0%)
 
 ---

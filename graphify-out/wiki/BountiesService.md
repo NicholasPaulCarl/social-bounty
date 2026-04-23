@@ -2,7 +2,7 @@
 
 > God node · 23 connections · `/Users/nicholasschreiber/social-bounty/apps/api/src/modules/bounties/bounties.service.ts`
 
-**Community:** [[Auth & webhook verification]]
+**Community:** [[ADRs & audit log]]
 
 ## Connections by Relation
 

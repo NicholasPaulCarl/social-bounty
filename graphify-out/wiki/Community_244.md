@@ -1,18 +1,14 @@
-# client.test.ts
+# Community 244
 
 > 1 nodes · cohesion 1.00
 
 ## Key Concepts
 
-- **client.test.ts** (0 connections) — `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/__tests__/client.test.ts`
+- **risk:R32** (0 connections)
 
 ## Relationships
 
 - No strong cross-community connections detected
-
-## Source Files
-
-- `/Users/nicholasschreiber/social-bounty/apps/web/src/lib/api/__tests__/client.test.ts`
 
 ## Audit Trail
 
