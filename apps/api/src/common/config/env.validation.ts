@@ -166,6 +166,16 @@ class EnvironmentVariables {
   @IsBooleanString()
   EXPIRED_BOUNTY_RELEASE_ENABLED?: string;
 
+  // Gates the live Stitch card-consent upgrade CTA. Default `false` while
+  // Stitch subscriptions remain feature-gated at the account level. Flip to
+  // `true` once Stitch support enables the product on the client id used
+  // for this environment. The UI reflects the same state via its own flag;
+  // the backend gate is defence-in-depth so direct API calls to
+  // `POST /subscription/upgrade` return 503 rather than hitting Stitch.
+  @IsOptional()
+  @IsBooleanString()
+  SUBSCRIPTION_UPGRADE_ENABLED?: string;
+
   // Users.id of the dedicated system-actor row used as the fallback
   // AuditLog actor for webhook- and scheduler-driven ledger writes.
   // Required when payments are live — several services throw loudly

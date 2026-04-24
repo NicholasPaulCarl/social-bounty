@@ -1,4 +1,14 @@
-import { BadRequestException, Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  ServiceUnavailableException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Roles, CurrentUser, Audited } from '../../common/decorators';
 import { SubscriptionTier, UserRole } from '@social-bounty/shared';
 import { SubscriptionsService } from './subscriptions.service';
@@ -20,7 +30,22 @@ export class SubscriptionsController {
     private subscriptionsService: SubscriptionsService,
     private upgradeService: UpgradeService,
     private prisma: PrismaService,
+    private config: ConfigService,
   ) {}
+
+  /**
+   * Pro subscriptions are feature-gated at the Stitch account level until
+   * commercial enablement completes. Until then, the UI hides the CTA and
+   * this gate makes direct calls to `POST /subscription/upgrade` return a
+   * clean 503 instead of leaking through to Stitch. Flip
+   * `SUBSCRIPTION_UPGRADE_ENABLED=true` to re-enable; no other code changes
+   * are required (all upgrade plumbing stays wired and tested).
+   */
+  private isUpgradeEnabled(): boolean {
+    return (
+      this.config.get<string>('SUBSCRIPTION_UPGRADE_ENABLED', 'false') === 'true'
+    );
+  }
 
   @Get()
   @Roles(UserRole.PARTICIPANT, UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
@@ -63,6 +88,14 @@ export class SubscriptionsController {
     @Req() req: RequestWithIp,
     @Body() body?: UpgradeBody,
   ) {
+    // Defence-in-depth gate. The UI already hides the CTA when the feature
+    // is off; this catches direct API calls and returns a clean 503.
+    if (!this.isUpgradeEnabled()) {
+      throw new ServiceUnavailableException(
+        'Pro subscriptions are launching soon. Check back shortly.',
+      );
+    }
+
     const targetTier = body?.targetTier ?? SubscriptionTier.PRO;
     if (targetTier !== SubscriptionTier.PRO) {
       throw new BadRequestException('Only PRO upgrade is supported');

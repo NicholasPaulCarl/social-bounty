@@ -79,11 +79,12 @@ const BRAND_FEATURES: { free: Feature[]; pro: Feature[] } = {
   ],
 };
 
-// Live Stitch card-consent is now wired (batch 10, task B). The Upgrade CTA
-// calls `POST /subscription/upgrade`, receives the hosted Stitch URL, and
-// redirects the user there for card capture. Webhooks flip the tier to PRO
-// asynchronously; the return page refetches the subscription.
-const LIVE_UPGRADE_ENABLED = true;
+// Pro subscriptions are feature-gated at the Stitch account level until
+// commercial enablement completes. The upgrade plumbing (card-consent flow,
+// webhook handlers, ledger writes, tests) stays intact — only this flag
+// hides the CTA. Flip back to `true` in lockstep with the backend
+// `SUBSCRIPTION_UPGRADE_ENABLED` env var once Stitch enables the product.
+const LIVE_UPGRADE_ENABLED = false;
 
 export default function SubscriptionPage() {
   const { user } = useAuth();
