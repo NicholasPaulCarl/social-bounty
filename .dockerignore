@@ -1,0 +1,60 @@
+# Exclude from the Docker build context to keep builds fast + images small.
+# Anything the Dockerfile doesn't COPY-reference can live here.
+
+# ─── Build outputs (regenerated in the image) ───────────
+**/dist
+**/.next
+**/.nest
+**/build
+**/tsconfig.tsbuildinfo
+**/*.tsbuildinfo
+
+# ─── Dependencies (reinstalled via npm ci in the builder stage) ──
+**/node_modules
+
+# ─── VCS + editor ───────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+.github
+.vscode
+.idea
+*.swp
+
+# ─── Local-only tooling ─────────────────────────────────
+.claude
+.agents
+graphify-out
+.husky
+.env
+.env.local
+.env.*.local
+.env.development
+
+# ─── Tests that don't need to ship ──────────────────────
+**/test
+**/__tests__
+**/*.spec.ts
+**/*.test.ts
+**/e2e
+**/playwright.config.ts
+**/playwright-report
+**/test-results
+
+# ─── Docs + plans (don't live in the runtime image) ─────
+docs
+md-files
+*.md
+plan.md
+
+# ─── Misc ───────────────────────────────────────────────
+uploads
+coverage
+logs
+*.log
+npm-debug.log*
+.DS_Store
+
+# ─── Keep the Dockerfile itself out of the context copy ──
+Dockerfile
+apps/api/Dockerfile

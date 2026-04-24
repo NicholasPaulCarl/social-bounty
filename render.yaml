@@ -1,0 +1,159 @@
+# Render Blueprint — Social Bounty API
+# https://render.com/docs/blueprint-spec
+#
+# Deploys the NestJS API only. The Next.js frontend stays on Vercel.
+# Redis + Postgres (Supabase) are external — no Render add-ons needed.
+#
+# What this spec does:
+#  1. Builds the Docker image at apps/api/Dockerfile (multi-stage, ~180MB).
+#  2. Runs `prisma migrate deploy` via preDeployCommand BEFORE swapping
+#     traffic to the new instance. If the migration fails, the deploy
+#     aborts and the old container keeps serving — no partial-state risk.
+#  3. Listens on the PORT Render assigns (bound in apps/api/src/main.ts).
+#  4. Health-checks by probing port 3001. Render marks the deploy live
+#     only when the port accepts connections.
+#
+# After first apply via the Render dashboard (see docs/deployment/
+# render-deploy.md), subsequent pushes to `main` auto-deploy.
+
+services:
+  - type: web
+    name: social-bounty-api
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    # Frankfurt is Render's closest region to South Africa (~150ms round-trip
+    # to Johannesburg vs ~250ms from Oregon). Match Supabase eu-west-3 region.
+    region: frankfurt
+    # Starter: $7/mo, 512MB RAM, 0.5 CPU — enough for the API + schedulers.
+    # Bump to `standard` ($25/mo, 2GB RAM, 1 CPU) once real load lands.
+    plan: starter
+    # Only main deploys. Feature branches can still trigger CI but won't
+    # touch production infra.
+    branch: main
+    autoDeploy: true
+    # Runs BEFORE the new instance takes traffic. The old instance keeps
+    # serving until this command exits 0. Prisma migrations are idempotent
+    # (batch 13A pattern) so retries are safe.
+    preDeployCommand: npx prisma migrate deploy --schema=packages/prisma/schema.prisma
+    # Render polls this until it responds; when it does, the deploy flips
+    # live. The API has no /healthz endpoint today — Render falls back to
+    # a TCP probe on $PORT, which is fine for now. Add a /api/v1/health
+    # endpoint later if you want HTTP-level health.
+    # healthCheckPath: /api/v1/health
+    envVars:
+      # ─── Runtime ────────────────────────────────────
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+
+      # ─── Secrets (sync: false → Render prompts in the dashboard) ──
+      # Never commit these. Paste into Render's env var UI on first apply;
+      # Render stores them encrypted and injects at runtime.
+
+      # Database — Supabase pooler for runtime, direct for migrations
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+
+      # Redis (Upstash / external)
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        sync: false
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: REDIS_DB
+        value: "0"
+
+      # Auth
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_ACCESS_EXPIRY
+        value: 15m
+      - key: JWT_REFRESH_EXPIRY
+        value: 7d
+
+      # Stitch Express (inbound, still live pre-TradeSafe cutover)
+      - key: PAYMENTS_PROVIDER
+        value: stitch_sandbox
+      - key: STITCH_API_BASE
+        value: https://express.stitch.money
+      - key: STITCH_CLIENT_ID
+        sync: false
+      - key: STITCH_CLIENT_SECRET
+        sync: false
+      - key: STITCH_WEBHOOK_SECRET
+        sync: false
+      - key: STITCH_REDIRECT_URL
+        value: https://app.socialbounty.cash/business/bounties/funded
+      - key: STITCH_PAYOUT_SPEED
+        value: DEFAULT
+      - key: STITCH_MIN_PAYOUT_CENTS
+        value: "2000"
+      - key: STITCH_SYSTEM_ACTOR_ID
+        sync: false
+
+      # Subscription upgrade — stays OFF until Stitch enables the feature
+      - key: SUBSCRIPTION_UPGRADE_ENABLED
+        value: "false"
+
+      # TradeSafe GraphQL rail (ADR 0011)
+      - key: TRADESAFE_AUTH_URL
+        value: https://auth.tradesafe.co.za/oauth/token
+      - key: TRADESAFE_GRAPHQL_URL
+        value: https://api.tradesafe.co.za/graphql
+      - key: TRADESAFE_CLIENT_ID
+        sync: false
+      - key: TRADESAFE_CLIENT_SECRET
+        sync: false
+      - key: TRADESAFE_MOCK
+        value: "false"
+      - key: TRADESAFE_CALLBACK_SECRET
+        sync: false
+      - key: TRADESAFE_OAUTH_REDIRECT_URL
+        value: https://api.socialbounty.cash/api/v1/auth/tradesafe/callback
+      - key: TRADESAFE_SUCCESS_URL
+        value: https://app.socialbounty.cash/hunters/me?tradesafe=linked
+      - key: TRADESAFE_FAILURE_URL
+        value: https://app.socialbounty.cash/hunters/me?tradesafe=failed
+
+      # Payout + financial gates
+      - key: PAYOUTS_ENABLED
+        value: "false"
+      - key: PAYOUT_PROVIDER
+        value: stitch
+      - key: RECONCILIATION_ENABLED
+        value: "true"
+      - key: BENEFICIARY_ENC_KEY
+        sync: false
+
+      # Apify
+      - key: APIFY_API_TOKEN
+        sync: false
+      - key: APIFY_ACTOR_TIMEOUT_MS
+        value: "60000"
+
+      # Mail (SMTP — replace with real provider on first live sends)
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        value: noreply@socialbounty.cash
+
+      # Observability (optional on first boot)
+      - key: SENTRY_DSN
+        sync: false
+
+      # CORS — production web origin
+      - key: CORS_ORIGIN
+        value: https://app.socialbounty.cash
