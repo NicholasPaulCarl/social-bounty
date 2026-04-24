@@ -136,7 +136,7 @@
 **Responsibilities**:
 - Own the database schema (Prisma) and all migrations
 - Define API contracts before implementation begins
-- Design system integration patterns (Stripe, email, file storage)
+- Design system integration patterns (TradeSafe, email, file storage)
 - Performance architecture (caching strategy, query optimization, connection pooling)
 - Security architecture (auth flow, RBAC model, data encryption)
 - Scalability planning (multi-instance, Redis, cloud storage)
@@ -147,7 +147,7 @@
 1. Redis integration for token/session/cache storage
 2. Cloud storage migration (local disk → S3/GCS)
 3. Database-backed settings service
-4. Payment webhook architecture (Stripe)
+4. Payment webhook architecture (TradeSafe — URL-path-secret + GraphQL re-fetch per ADR 0011)
 5. Notification system design (email + in-app)
 6. Caching strategy (Redis + React Query)
 
@@ -183,7 +183,7 @@
 - [ ] Submission flow best practices (proof upload, multi-step forms)
 - [ ] Admin panel patterns (data tables, audit logs, system health)
 - [ ] Review/approval workflow patterns (kanban, inline review)
-- [ ] Payment UX patterns (Stripe integration, payout flows)
+- [ ] Payment UX patterns (TradeSafe hosted checkout, payout flows)
 - [ ] Notification system patterns (toast, bell, email digest)
 - [ ] Onboarding flow research (progressive disclosure, empty states)
 
@@ -383,7 +383,7 @@ Confirmations:    Impact +         ("Delete this draft bounty? This action canno
 **Technical Ownership**:
 - `apps/api/src/main.ts` — Application bootstrap and security middleware
 - `apps/api/src/modules/auth/` — Authentication and authorization
-- `apps/api/src/modules/payments/` — Stripe integration
+- `apps/api/src/modules/payments/` — TradeSafe integration (per ADR 0011)
 - `apps/api/src/common/guards/` — RBAC guard chain
 - `packages/prisma/schema.prisma` — Database schema
 - Redis integration (new)
@@ -391,7 +391,7 @@ Confirmations:    Impact +         ("Delete this draft bounty? This action canno
 
 **Critical Fixes Backlog** (from audit):
 1. Replace in-memory token storage with Redis
-2. Implement Stripe webhook handling
+2. Implement TradeSafe webhook handling (URL-path-secret + GraphQL re-fetch)
 3. Add idempotency keys to payment operations
 4. Fix payout scheduler race condition
 5. Database-back the settings service

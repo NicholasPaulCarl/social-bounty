@@ -1,14 +1,14 @@
 # Admin Dashboard — Financial Control Centre & KB Surface
 
-Super Admin surface for reconciling payment providers (Stitch inbound, Stitch + TradeSafe outbound) against the ledger, managing reserves, payouts, refunds, overrides, and exceptions — plus monitoring KB-level system health. UI uses PrimeReact + Tailwind (Hard Rule #5). All routes RBAC-gated to Super Admin only.
+Super Admin surface for reconciling the payment provider (TradeSafe — inbound + outbound unified rail per ADR 0011) against the ledger, managing reserves, payouts, refunds, overrides, and exceptions — plus monitoring KB-level system health. UI uses PrimeReact + Tailwind (Hard Rule #5). All routes RBAC-gated to Super Admin only.
 
-Payment behaviour (flows, states, fees, webhooks) is defined canonically in `md-files/payment-gateway.md`. This file describes the UI and operational actions on top of that model.
+Payment behaviour (flows, states, fees, webhooks) is defined canonically in `docs/adr/0011-tradesafe-unified-rail.md`. This file describes the UI and operational actions on top of that model.
 
 ---
 
 ## 1. Finance Reconciliation Dashboard
 
-Purpose: provide a full financial control centre to reconcile payment providers (Stitch + TradeSafe) against the ledger, track reserves, payouts, refunds, manage overrides and exceptions, and audit all financial activity.
+Purpose: provide a full financial control centre to reconcile the TradeSafe payment rail against the ledger, track reserves, payouts, refunds, manage overrides and exceptions, and audit all financial activity.
 
 ### Core modules
 
@@ -39,7 +39,7 @@ Metric tiles (live, read-through, no cache > 60s):
 
 ### 1.2 Inbound Reconciliation
 
-Tracks Stitch references vs internal records. Each row: Stitch payment id · internal bounty / brand · amount · status · discrepancy.
+Tracks TradeSafe transaction references vs internal records. Each row: TradeSafe `transactionId` · internal bounty / brand · amount · status · discrepancy.
 
 Statuses: `matched | mismatch | missing | duplicate`.
 
@@ -70,7 +70,7 @@ Statuses: `requested | approved | processing | completed | failed`.
 
 Actions: **approve** · **reject** · **retry**.
 
-Refund rules and allowed paths (before approval / before payout / after payout) are defined in `payment-gateway.md` §11.
+Refund rules and allowed paths (before approval / before payout / after payout) are defined in `docs/adr/0011-tradesafe-unified-rail.md` §3.
 
 ### 1.6 Overrides & Adjustments
 
@@ -100,7 +100,7 @@ Fully searchable and filterable. Read-only.
 
 ### 1.9 Exports
 
-CSV / XLSX exports for: payments · payouts · refunds · overrides · statements · audit logs. All exports include the Stitch external reference and the internal `transactionGroupId` for traceability.
+CSV / XLSX exports for: payments · payouts · refunds · overrides · statements · audit logs. All exports include the TradeSafe `transactionId` / `allocationId` and the internal `transactionGroupId` for traceability.
 
 ---
 
@@ -110,11 +110,11 @@ Each mismatch generates an exception with severity.
 
 | Rule | Sources | Raises |
 |------|---------|--------|
-| Inbound | Stitch settlements vs `gateway_clearing` ledger | mismatch, missing, duplicate |
-| Reserve | `bounty.face_value` vs `brand_reserve` ledger balance | underfunded, over-allocation |
-| Payouts | `hunter_available` → `payout_in_transit` → `hunter_paid` continuity | stuck in transit, missing leg |
-| Refunds | Refund requested vs completed (Stitch + ledger) | failure, drift |
-| Revenue | Computed fee amounts vs `commission_revenue`, `admin_fee_revenue`, `global_fee_revenue` | mismatch |
+| Inbound | TradeSafe `FUNDS_RECEIVED` transactions vs `tradesafe_escrow` ledger | mismatch, missing, duplicate |
+| Reserve | `bounty.face_value` vs `bounty_reserved` ledger balance | underfunded, over-allocation |
+| Payouts | `bounty_reserved → hunter_paid` via allocation `FUNDS_RELEASED` | stuck in transit, missing leg |
+| Refunds | Allocation `CANCELLED` vs ledger compensating entries | failure, drift |
+| Revenue | Computed fee amounts vs `hunter_commission`, `platform_admin_fee`, `global_fee_revenue` | mismatch |
 
 ---
 
@@ -186,7 +186,7 @@ Dashboard shows a rolling 90-day effectiveness ratio: `resolved_without_recurren
 
 ## 8. Acceptance Criteria
 
-- Stitch records match ledger records daily.
+- TradeSafe records match ledger records daily.
 - Reserves always equal sum of open bounty face values.
 - Payouts initiate only from `hunter_available` funds.
 - Every failure (payment, payout, refund) is handled without ledger drift.
@@ -222,4 +222,4 @@ Destructive actions (kill switch toggle, refund approval, override application, 
 - Read-heavy panels; acceptable to cache aggregates for 60 seconds.
 - Kill switch toggle must be strongly consistent — read-through, no cache.
 - All panel queries must respect RBAC at the API layer.
-- All exports must include Stitch external reference and internal `transactionGroupId`.
+- All exports must include TradeSafe `transactionId` / `allocationId` and internal `transactionGroupId`.

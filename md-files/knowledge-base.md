@@ -4,6 +4,8 @@ System-memory layer for incidents, fixes, and recurring patterns. Claude reads t
 
 Runtime recurring-issue tracking lives in the database (`RecurringIssue` table) and is surfaced in the Admin Dashboard — not in this file. This file holds **narrative incident records and structural lessons**.
 
+> **Historical context (pre-2026-04-24):** Entries KB-2026-04-15-001 through KB-2026-04-15-004 describe incidents on the legacy Stitch Express integration, which was fully removed per ADR 0011 single-rail TradeSafe cutover (2026-04-24). The structural lessons — idempotency, response-shape verification, error-body surfacing, router-payload-tuple switching — remain applicable to TradeSafe integration work. <!-- historical -->
+
 ---
 
 ## KB Entry Schema
@@ -109,6 +111,8 @@ One or two durable takeaways future Claude sessions should apply.
 
 ## [KB-2026-04-15-001] Duplicate payout on retry
 
+> **Historical (pre-2026-04-24 ADR 0011 cutover).** The legacy Stitch-era bug; the idempotency lesson still applies to TradeSafe work. <!-- historical -->
+
 Date: 2026-04-15
 Type: Financial
 Severity: Critical
@@ -118,7 +122,7 @@ Environment: Production
 Detected By: Reconciliation engine
 Financial Impact: Critical
 User Impact: Moderate
-Tags: idempotency, retry, payout, stitch
+Tags: idempotency, retry, payout, historical-stitch
 
 ### Summary
 Payout webhook retried after a 30s gateway timeout produced two ledger credits for the same bounty approval.
@@ -177,6 +181,8 @@ Always verify idempotency before modifying payout or ledger-writing code. A miss
 
 ## [KB-2026-04-15-004] Webhook event-type routing mismatch
 
+> **Historical (pre-2026-04-24 ADR 0011 cutover).** Legacy Stitch webhook routing bug; retained because the structural lesson (verify real payload shape before writing router logic) applies to TradeSafe and any future provider integration. <!-- historical -->
+
 Date: 2026-04-15
 Type: Integration
 Severity: High
@@ -186,16 +192,16 @@ Environment: Sandbox
 Detected By: Manual smoke test (first real sandbox payment completion)
 Financial Impact: None
 User Impact: Severe
-Tags: webhook, stitch, routing, payload-shape, brand-funding
+Tags: webhook, historical-stitch, routing, payload-shape, brand-funding
 
 ### Summary
-Stitch webhook arrived and was stored, but the router switched on a field name / value pattern that never matched, so the brand-funding handler never ran and the bounty stayed DRAFT.
+Historical — legacy provider webhook arrived and was stored, but the router switched on a field name / value pattern that never matched, so the brand-funding handler never ran and the bounty stayed DRAFT.
 
 ### Problem
-After a live sandbox payment completed, `WebhookEvent` rows were persisted but no `LedgerEntry` rows appeared and the bounty did not flip to LIVE. Logs showed `LINK/PAID` being observed but no handler dispatching.
+Historical — after a live sandbox payment completed, `WebhookEvent` rows were persisted but no `LedgerEntry` rows appeared and the bounty did not flip to LIVE. Logs showed `LINK/PAID` being observed but no handler dispatching.
 
 ### Root Cause
-`WebhookRouterService.dispatch` switched on `event.eventType` expecting values like `"payment.settled"` (resource.action form). Stitch actually sends `{ type: "LINK", status: "PAID", linkId, amount }` — a resource+status pair, not a dotted event type. No case matched, so dispatch silently no-op'd. `BrandFundingHandler.extractSettlementData` also assumed the older `{ data: { payment: { ... } } }` shape instead of the real `{ id, linkId, fees[] }`.
+Historical — `WebhookRouterService.dispatch` switched on `event.eventType` expecting values like `"payment.settled"` (resource.action form). The legacy provider actually sent `{ type: "LINK", status: "PAID", linkId, amount }` — a resource+status pair, not a dotted event type. No case matched, so dispatch silently no-op'd.
 
 ### Trigger
 Webhook replay | **Other (external-provider payload shape assumption)**
@@ -204,7 +210,7 @@ Webhook replay | **Other (external-provider payload shape assumption)**
 - Rewrote `WebhookRouterService.dispatch` to switch on the `(payload.type, payload.status)` tuple: `LINK/{PAID|SETTLED}` -> brand-funding settled, `WITHDRAWAL/{PAID|SETTLED}` -> payout settled, `REFUND/{PROCESSED|COMPLETED}` -> refund processed, plus the FAILED / EXPIRED variants.
 - Updated `BrandFundingHandler.extractSettlementData` to understand the real `{ id, linkId, fees[] }` payload; kept the nested `{ data: { payment: { ... } } }` path for backwards compatibility.
 - Confirmed `WebhookEvent` already persists the raw payload, which is what made this diagnosable.
-- Added a dev-only replay endpoint `POST /webhooks/stitch/replay/:eventId` for rerunning stored events.
+- Added a dev-only replay endpoint for rerunning stored events (historical provider; endpoint removed post-cutover).
 
 ### Ledger Impact
 None. The handler was never reached, so no entries were written. Once routing was fixed, the ledger was correct end-to-end (no replay or psql surgery needed).
@@ -233,36 +239,38 @@ Structural flaw — any new webhook type we add will hit this unless we verify t
 - [ ] Monitoring / alerting (alert on `dispatch` no-op for known types — pending)
 
 ### Regression Risk
-Medium — every new Stitch webhook type needs a matching case; a silent miss will not throw.
+Historical — every new provider webhook type needs a matching case; a silent miss will not throw. Lesson carries over to TradeSafe.
 
 ### Lessons for Claude
 For any webhook-receiving endpoint, capture one real sandbox payload into a test fixture before writing router logic. Never infer external payload shape from our own docs or prior integrations — verify against the live provider.
 
 ---
 
-## [KB-2026-04-15-003] Stitch merchantReference rejects special characters
+## [KB-2026-04-15-003] Stitch merchantReference rejects special characters (historical)
+
+> **Historical (pre-2026-04-24 ADR 0011 cutover).** Legacy Stitch-specific validation bug; the structural lesson (embed provider response body in thrown errors, sweep every provider POST for reference-encoding constraints) applies to any provider integration. <!-- historical -->
 
 Date: 2026-04-15
 Type: Integration
 Severity: High
 System: Payments
-Module: stitch-payments-service
+Module: historical-stitch-payments-service
 Environment: Sandbox
 Detected By: Manual smoke test (first fund attempt)
 Financial Impact: None
 User Impact: Severe
-Tags: stitch, validation, merchant-reference, error-surfacing, idempotency
+Tags: historical-stitch, validation, merchant-reference, error-surfacing, idempotency
 
 ### Summary
-Stitch rejected `POST /payment-links` because `merchantReference = "bounty:{id}:fund"` contained colons; the error was swallowed as a generic "Invalid data provided" 500 until we surfaced the response body.
+Historical — the legacy provider rejected `POST /payment-links` because `merchantReference = "bounty:{id}:fund"` contained colons; the error was swallowed as a generic "Invalid data provided" 500 until we surfaced the response body.
 
 ### Problem
-First live brand-funding attempt failed with an opaque 500. Stitch's real response was `400 "Reference should not contain special characters"` but our `StitchApiError` did not include the provider response body, so the underlying cause was invisible.
+Historical — first live brand-funding attempt failed with an opaque 500. The provider's real response was `400 "Reference should not contain special characters"` but our `ApiError` wrapper did not include the provider response body, so the underlying cause was invisible.
 
 ### Root Cause
-Two compounding issues:
-1. Our `merchantReference` pattern (`bounty:{id}:fund`) violated Stitch's undocumented alphanumeric-only constraint.
-2. `StitchApiError` threw with a generic message and dropped the provider response body, hiding the real 4xx reason.
+Historical. Two compounding issues:
+1. Our `merchantReference` pattern (`bounty:{id}:fund`) violated the legacy provider's undocumented alphanumeric-only constraint.
+2. The provider `ApiError` threw with a generic message and dropped the provider response body, hiding the real 4xx reason.
 
 ### Trigger
 Other — input-validation rule on the external provider, masked by our own error handling.
@@ -270,15 +278,15 @@ Other — input-validation rule on the external provider, masked by our own erro
 ### Action Taken
 - Collapsed `merchantReference` to alphanumeric only: `bountyfund{uuidCompact}t{timestamp}`. Made it unique-per-attempt to avoid collisions on retry.
 - Applied the same alphanumeric pattern to payout merchantReferences and idempotency keys.
-- Tightened `StitchApiError` to embed the Stitch response body in the thrown message so future 4xx failures surface the real reason instead of a blank 500.
+- Historical — tightened the provider `ApiError` to embed the full provider response body in the thrown message so future 4xx failures surface the real reason instead of a blank 500. (Pattern applied to `TradeSafeApiError` post-cutover.)
 
 ### Ledger Impact
 None. The request never succeeded, so no ledger row was written.
 
 ### Files / Services Affected
-- `apps/api/src/modules/payments/stitch-payments.service.ts`
+- Historical: `apps/api/src/modules/payments/stitch-payments.service.ts` (file removed post-cutover) <!-- historical -->
 - `apps/api/src/modules/payouts/payouts.service.ts`
-- `apps/api/src/modules/stitch/stitch.client.ts`
+- Historical: `apps/api/src/modules/stitch/stitch.client.ts` (file removed post-cutover) <!-- historical -->
 
 ### Data Impact
 None.
@@ -287,7 +295,7 @@ None.
 Resolved.
 
 ### Pattern Classification
-Structural flaw — same pattern (reference/idempotency-key encoding) exists in every Stitch POST and in our error-handling wrapper.
+Historical structural flaw — same pattern (reference/idempotency-key encoding) existed in every legacy provider POST and in our error-handling wrapper. Lesson re-applied to TradeSafe adapter.
 
 ### Related Entries
 - KB-2026-04-15-002
@@ -307,39 +315,41 @@ Never swallow 4xx response bodies from external providers — always embed the b
 
 ---
 
-## [KB-2026-04-15-002] Stitch payment-links response shape mismatch
+## [KB-2026-04-15-002] Stitch payment-links response shape mismatch (historical)
+
+> **Historical (pre-2026-04-24 ADR 0011 cutover).** Legacy Stitch-specific integration bug; the structural lesson (verify external-API response shape against the live sandbox before writing the unwrap) applies to TradeSafe work. <!-- historical -->
 
 Date: 2026-04-15
 Type: Integration
 Severity: High
 System: Payments
-Module: stitch-client
+Module: historical-stitch-client
 Environment: Sandbox
 Detected By: Manual smoke test (first live sandbox funding attempt)
 Financial Impact: None
 User Impact: Severe
-Tags: stitch, payment-links, response-shape, api-contract, brand-funding
+Tags: historical-stitch, payment-links, response-shape, api-contract, brand-funding
 
 ### Summary
-`StitchClient.createPaymentLink` assumed the wrong response shape from `POST /api/v1/payment-links`; the parsed `id` and `hostedUrl` came back undefined and Prisma threw before any ledger write.
+Historical — the legacy provider client's `createPaymentLink` method assumed the wrong response shape from `POST /api/v1/payment-links`; the parsed `id` and `hostedUrl` came back undefined and Prisma threw before any ledger write.
 
 ### Problem
-First live sandbox funding attempt failed with `PrismaClientKnownRequestError: Argument hostedUrl is missing`. Stitch had actually returned a valid 200 with a payment link, but our unwrap pulled nothing out of it.
+Historical — first live sandbox funding attempt failed with `PrismaClientKnownRequestError: Argument hostedUrl is missing`. The provider had actually returned a valid 200 with a payment link, but our unwrap pulled nothing out of it.
 
 ### Root Cause
-We typed the response as `{ data: { id, url, status } }`. The real Stitch response is `{ data: { payment: { id, link, status } } }` — nested under `payment`, with `link` (not `url`) as the URL key. This was a response-shape assumption that was never verified against the live sandbox.
+Historical — we typed the response as `{ data: { id, url, status } }`. The real provider response was `{ data: { payment: { id, link, status } } }` — nested under `payment`, with `link` (not `url`) as the URL key. A response-shape assumption that was never verified against the live sandbox.
 
 ### Trigger
 Other — external-API response-shape assumption not grounded in the real API.
 
 ### Action Taken
-- Updated the response type and unwrapping in `StitchClient.createPaymentLink` to return `{ id: json.data.payment.id, url: json.data.payment.link, status: json.data.payment.status }`.
+- Historical — updated the response type and unwrapping in the legacy client's `createPaymentLink` to return `{ id: json.data.payment.id, url: json.data.payment.link, status: json.data.payment.status }`. Client code fully removed post-cutover.
 
 ### Ledger Impact
 None. The request never reached a ledger write.
 
 ### Files / Services Affected
-- `apps/api/src/modules/stitch/stitch.client.ts`
+- Historical: `apps/api/src/modules/stitch/stitch.client.ts` (file removed post-cutover) <!-- historical -->
 
 ### Data Impact
 None.
@@ -348,7 +358,7 @@ None.
 Resolved.
 
 ### Pattern Classification
-Emerging — the same assumption risk applies to every other Stitch client method we have not yet smoke-tested against the live sandbox.
+Historical — the same assumption risk applied to every legacy provider client method not yet smoke-tested against the live sandbox. Lesson applied end-to-end to the TradeSafe GraphQL adapter (Phase 1b live sandbox smoke per ADR 0011).
 
 ### Related Entries
 - KB-2026-04-15-003
@@ -356,11 +366,11 @@ Emerging — the same assumption risk applies to every other Stitch client metho
 
 ### Required Safeguards
 - [x] Input validation (response typed against the real shape)
-- [ ] Tests added (integration fixture stubbing the real Stitch response — pending)
+- [ ] Tests added (historical — integration fixture stubbing the legacy provider response was pending at time of removal)
 - [ ] Monitoring / alerting (alert on unwrap returning undefined id/url — pending)
 
 ### Regression Risk
-Medium — any new Stitch client method added without sandbox verification will repeat this.
+Historical — any new provider client method added without sandbox verification will repeat this. Lesson carries over to TradeSafe GraphQL adapter work.
 
 ### Lessons for Claude
 When adding a new external-API client method, verify the response shape against the live sandbox before writing the unwrap logic. Write integration tests that stub the real response, not the imagined one.

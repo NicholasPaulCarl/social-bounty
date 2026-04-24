@@ -17,7 +17,7 @@
 | **3** | Participant Experience | Marketplace, submissions, profile | Bounty browse, submit, track — fully polished |
 | **4** | Business Admin Experience | Dashboard, bounty mgmt, review | Dashboard viz, creation wizard, review center |
 | **5** | Super Admin & Platform | Admin panel, audit, settings | Admin dashboard, user mgmt, system controls |
-| **6** | Payments, Notifications & Polish | Stitch Express, emails, in-app notifications | Payment flow, notification system, UX polish |
+| **6** | Payments, Notifications & Polish | TradeSafe unified rail, emails, in-app notifications | Payment flow, notification system, UX polish |
 | **7** | QA Hardening & Performance | Full test suite, load tests, a11y | 100% tests passing, performance budgets met |
 | **8** | Production Readiness | CI/CD, monitoring, docs, final QA | Production deployment, runbook, sign-off |
 
@@ -235,7 +235,7 @@
 ### Research Track
 | ID | Story | Points | Owner |
 |----|-------|--------|-------|
-| S4-R1 | Research: Business dashboard patterns (Stripe, Shopify, HubSpot) | 3 | UX Researcher |
+| S4-R1 | Research: Business dashboard patterns (Stripe, Shopify, HubSpot) | 3 | UX Researcher | <!-- historical -->
 | S4-R2 | Research: Content creation wizard UX (WordPress, Notion, Figma) | 3 | UX Researcher |
 | S4-R3 | Research: Review/approval workflow patterns (GitHub PRs, Jira) | 2 | UX Researcher |
 
@@ -349,7 +349,7 @@
 ### Research Track
 | ID | Story | Points | Owner |
 |----|-------|--------|-------|
-| S6-R1 | Research: Payment UX patterns (Stripe Checkout, in-app payments) | 3 | UX Researcher |
+| S6-R1 | Research: Payment UX patterns (hosted checkout, in-app payments) | 3 | UX Researcher |
 | S6-R2 | Research: Notification system patterns (bell icon, toast, email digest) | 3 | UX Researcher |
 | S6-R3 | Research: Micro-interaction patterns (success, error, loading) | 2 | UX Researcher |
 
@@ -358,7 +358,7 @@
 |----|-------|--------|-------|
 | S6-D1 | UX flow: Payment → fund bounty → track payout | 3 | UX Designer |
 | S6-D2 | UX flow: Notification delivery (in-app + email) | 3 | UX Designer |
-| S6-D3 | UI mockup: Payment flow (Stitch hosted checkout redirect, success/failure) | 5 | UI Designer |
+| S6-D3 | UI mockup: Payment flow (TradeSafe hosted checkout redirect, success/failure) | 5 | UI Designer |
 | S6-D4 | UI mockup: Notification center (bell icon, dropdown, list) | 5 | UI Designer |
 | S6-D5 | UI mockup: Email templates (receipt, status change, payout) | 3 | UI Designer |
 | S6-D6 | Define all micro-animations (hover, click, transition, loading) | 3 | UI Designer |
@@ -368,7 +368,7 @@
 ### Backend Track
 | ID | Story | Points | Owner |
 |----|-------|--------|-------|
-| S6-B1 | Implement Stitch webhook handling via Svix (payment.settled, payout.settled, refund.processed) | 8 | Sr. Backend Dev |
+| S6-B1 | Implement TradeSafe webhook handling via URL-path-secret + GraphQL re-fetch (transaction.FUNDS_RECEIVED, allocation.FUNDS_RELEASED, allocation.CANCELLED) | 8 | Sr. Backend Dev |
 | S6-B2 | Enforce double-entry ledger idempotency via UNIQUE(referenceId, actionType) on LedgerTransactionGroup | 3 | Sr. Backend Dev |
 | S6-B3 | Implement in-app notification system (DB + API) | 8 | Sr. Backend Dev |
 | S6-B4 | Implement email notification triggers (submission status, payout) | 5 | Mid Backend Dev |
@@ -380,7 +380,7 @@
 ### Frontend Track
 | ID | Story | Points | Owner |
 |----|-------|--------|-------|
-| S6-F1 | Implement payment flow via Stitch hosted checkout redirect + return page | 8 | Sr. Frontend Dev |
+| S6-F1 | Implement payment flow via TradeSafe hosted checkout redirect + return page | 8 | Sr. Frontend Dev |
 | S6-F2 | Implement notification center (bell icon + dropdown) | 5 | Sr. Frontend Dev |
 | S6-F3 | Implement real-time notification updates (polling or WebSocket) | 5 | Sr. Frontend Dev |
 | S6-F4 | UX polish pass: All participant pages | 5 | Mid Frontend Dev |
@@ -393,10 +393,10 @@
 | ID | Story | Points | Owner |
 |----|-------|--------|-------|
 | S6-Q1 | Test plan: Payment + notification system | 3 | QA Lead |
-| S6-Q2 | E2E tests: Fund bounty → Stitch hosted checkout → settlement webhook → payout | 5 | QA Engineer |
+| S6-Q2 | E2E tests: Fund bounty → TradeSafe hosted checkout → FUNDS_RECEIVED webhook → allocationAcceptDelivery payout | 5 | QA Engineer |
 | S6-Q3 | E2E tests: Notification delivery (in-app + email via MailHog) | 3 | QA Engineer |
 | S6-Q4 | Visual regression testing setup (Percy or Chromatic) | 5 | QA Engineer |
-| S6-Q5 | Security review: Payment flow (Stitch, Svix signatures, ledger idempotency, data handling) | 3 | Security Engineer |
+| S6-Q5 | Security review: Payment flow (TradeSafe URL-path-secret, GraphQL re-fetch, ledger idempotency, data handling) | 3 | Security Engineer |
 
 ---
 
@@ -525,7 +525,7 @@
 |------|--------|-------------|------------|
 | Redis integration complexity | High | Medium | Spike in Sprint 1, fallback to in-memory with proper abstraction |
 | PrimeReact customization limits | Medium | Medium | CSS override layer, consider Radix for complex components |
-| Stitch / Svix webhook reliability | High | Low | UNIQUE dedup on WebhookEvent, ledger idempotency header, retry logic, reconciliation catch-up |
+| TradeSafe webhook reliability | High | Low | UNIQUE dedup on WebhookEvent, GraphQL re-fetch for authoritative state, ledger idempotency header, retry logic, reconciliation catch-up |
 | Performance with large datasets | Medium | Medium | Virtual scrolling, pagination, caching |
 | Accessibility compliance gaps | Medium | High | Continuous auditing, axe-core integration |
 | Scope creep | High | High | PO enforces MVP boundaries, PM shields team |
