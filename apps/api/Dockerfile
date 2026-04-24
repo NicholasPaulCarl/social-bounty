@@ -125,10 +125,16 @@ COPY --from=builder /app/packages/prisma ./packages/prisma
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/shared/package.json ./packages/shared/package.json
 
-# API build output + manifest + .prisma client (workspace mirror).
+# API build output + manifest + full node_modules (includes the workspace
+# symlinks back to hoisted root deps + any workspace-specific packages
+# like `@prisma/client` that npm didn't hoist cleanly + the `.prisma/`
+# client mirror from the build stage). Copying the whole tree rather than
+# just `.prisma` fixes MODULE_NOT_FOUND at runtime — previous partial
+# copy missed `@prisma/client` which apps/api's PrismaService requires
+# at the top of every boot.
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
-COPY --from=builder /app/apps/api/node_modules/.prisma ./apps/api/node_modules/.prisma
+COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 
 EXPOSE 3001
 
