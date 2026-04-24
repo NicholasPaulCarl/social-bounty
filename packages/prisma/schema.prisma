@@ -389,6 +389,34 @@ enum PayoutRail {
   TRADESAFE
 }
 
+// TradeSafe transaction-level state machine.
+// Source: docs.tradesafe.co.za quick-start + mirrored in
+// apps/api/src/modules/tradesafe/tradesafe-graphql.operations.ts.
+// CREATED → FUNDS_RECEIVED → INITIATED → DELIVERED → FUNDS_RELEASED
+// DISPUTE / CANCELLED are terminal off-ramps.
+enum TradeSafeTransactionState {
+  CREATED
+  FUNDS_RECEIVED
+  INITIATED
+  DELIVERED
+  FUNDS_RELEASED
+  DISPUTE
+  CANCELLED
+}
+
+// TradeSafe allocation-level state machine. Mirrors TransactionState today
+// but kept as a distinct enum so the two state machines can diverge later
+// (TradeSafe's GraphQL treats them as separate types). Same values.
+enum TradeSafeAllocationState {
+  CREATED
+  FUNDS_RECEIVED
+  INITIATED
+  DELIVERED
+  FUNDS_RELEASED
+  DISPUTE
+  CANCELLED
+}
+
 // Stitch recurring-subscription mandate statuses. Matches Stitch's
 // /api/v1/subscriptions state machine (PENDING is our local initial state
 // between create-request and first authorised webhook).
@@ -447,6 +475,11 @@ model User {
   bio               String?    @db.VarChar(500)
   profilePictureUrl String?
   interests         Json? // string array: ["Fitness & Wellness", "Food & Cooking", ...]
+  // TradeSafe party token (from `tokenCreate` mutation). Opaque string, one per
+  // user. Set by TradeSafeTokenService.ensureToken on first need (signup hook
+  // fire-and-forget, or blocking from the bounty-funding path in Phase 3).
+  // See ADR 0011 (TradeSafe unified rail) + md-files/payment-gateway.md.
+  tradeSafeTokenId  String?    @unique
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
@@ -606,16 +639,17 @@ model Bounty {
   faceValueCents       BigInt?
 
   // Relations
-  brand              Brand               @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  createdBy          User                @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
-  submissions        Submission[]
-  rewards            BountyReward[]
-  brandAssets        BrandAsset[]
-  applications       BountyApplication[] @relation("BountyApplications")
-  invitations        BountyInvitation[]  @relation("BountyInvitations")
-  stitchPaymentLinks StitchPaymentLink[]
-  ledgerEntries      LedgerEntry[]
-  refunds            Refund[]
+  brand                Brand                 @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  createdBy            User                  @relation("BountyCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  submissions          Submission[]
+  rewards              BountyReward[]
+  brandAssets          BrandAsset[]
+  applications         BountyApplication[]   @relation("BountyApplications")
+  invitations          BountyInvitation[]    @relation("BountyInvitations")
+  stitchPaymentLinks   StitchPaymentLink[]
+  tradeSafeTransaction TradeSafeTransaction?
+  ledgerEntries        LedgerEntry[]
+  refunds              Refund[]
 
   @@index([brandId])
   @@index([status])
@@ -1473,6 +1507,61 @@ model StitchPayout {
   @@index([status, nextRetryAt])
   @@index([provider, status])
   @@map("stitch_payouts")
+}
+
+// ─────────────────────────────────────
+// TradeSafe (unified inbound + outbound rail per ADR 0011)
+// One TradeSafeTransaction per Bounty. Allocations model the per-hunter
+// payout legs. Integer minor units throughout (Financial Non-Negotiable #4);
+// conversion to/from TradeSafe's ZAR decimal happens at the adapter boundary
+// via toCents / toZar in tradesafe-graphql.operations.ts.
+// ─────────────────────────────────────
+
+model TradeSafeTransaction {
+  id                     String                    @id @default(uuid())
+  bountyId               String                    @unique
+  tradeSafeTransactionId String                    @unique
+  // Merchant-side reference sent to TradeSafe (`reference` field). Echoed
+  // back on webhooks for correlation. Nullable because some legacy/mock
+  // rows may not have set it.
+  reference              String?
+  state                  TradeSafeTransactionState @default(CREATED)
+  // Integer minor units (cents). Non-Negotiable #4 — never store as float.
+  totalValueCents        BigInt
+  currency               Currency                  @default(ZAR)
+  // Hosted-checkout URL from `checkoutLink` mutation. Nullable because it's
+  // generated after the initial transactionCreate — populated on a
+  // subsequent call.
+  checkoutUrl            String?
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
+
+  bounty      Bounty                @relation(fields: [bountyId], references: [id], onDelete: Restrict)
+  allocations TradeSafeAllocation[]
+
+  @@index([state])
+  @@map("tradesafe_transactions")
+}
+
+model TradeSafeAllocation {
+  id                    String                   @id @default(uuid())
+  transactionId         String
+  tradeSafeAllocationId String                   @unique
+  title                 String
+  // Integer minor units (cents). Sum of allocations equals parent
+  // transaction.totalValueCents modulo fee-side allocations.
+  valueCents            BigInt
+  state                 TradeSafeAllocationState @default(CREATED)
+  daysToDeliver         Int
+  daysToInspect         Int
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+
+  transaction TradeSafeTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@index([transactionId])
+  @@index([state])
+  @@map("tradesafe_allocations")
 }
 
 // Audit row per scheduled-job execution (observability for Phase 2+ jobs).

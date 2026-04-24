@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TradeSafeModule } from '../tradesafe/tradesafe.module';
 import { StitchWebhookController } from './stitch-webhook.controller';
+import { TradeSafeTransactionCallbackController } from './tradesafe-transaction-callback.controller';
 import { TradeSafeWebhookController } from './tradesafe-webhook.controller';
 import { SvixVerifier } from './svix.verifier';
 import { WebhookEventService } from './webhook-event.service';
@@ -19,7 +20,11 @@ import { WebhookRouterService } from './webhook-router.service';
  */
 @Module({
   imports: [TradeSafeModule],
-  controllers: [StitchWebhookController, TradeSafeWebhookController],
+  controllers: [
+    StitchWebhookController,
+    TradeSafeTransactionCallbackController,
+    TradeSafeWebhookController,
+  ],
   providers: [SvixVerifier, WebhookEventService, WebhookRouterService],
   exports: [WebhookEventService, SvixVerifier, WebhookRouterService],
 })

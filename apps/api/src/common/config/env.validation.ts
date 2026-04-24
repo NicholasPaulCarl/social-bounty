@@ -112,6 +112,22 @@ class EnvironmentVariables {
   @IsString()
   TRADESAFE_WEBHOOK_SECRET?: string;
 
+  // Plan item 1.2 / Phase 1d (ADR 0011): URL-path secret embedded in the
+  // callback URL configured inside TradeSafe's Merchant Portal. TradeSafe
+  // does not currently document a body-signature scheme, so this secret is
+  // the interim trust anchor for the transaction-state callback at
+  // `POST /api/v1/webhooks/tradesafe/:secret`. Minimum length 32 to give
+  // the URL-segment comparison a real guessing floor (any 32-char
+  // alphanumeric is >190 bits of entropy, well above `crypto/timing`
+  // concerns). Optional in dev — the controller rejects every callback
+  // when unset, so leaving it off is the natural "disabled" state.
+  @IsOptional()
+  @IsString()
+  @MinLength(32, {
+    message: 'TRADESAFE_CALLBACK_SECRET must be at least 32 characters',
+  })
+  TRADESAFE_CALLBACK_SECRET?: string;
+
   @IsOptional()
   @IsBooleanString()
   TRADESAFE_MOCK?: string;
