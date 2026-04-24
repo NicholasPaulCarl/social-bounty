@@ -1,20 +1,22 @@
-# Render Blueprint — Social Bounty API
+# Render Blueprint — Social Bounty (API + Web)
 # https://render.com/docs/blueprint-spec
 #
-# Deploys the NestJS API only. The Next.js frontend stays on Vercel.
+# Deploys both the NestJS API and Next.js web frontend on Render.
 # Redis + Postgres (Supabase) are external — no Render add-ons needed.
 #
-# What this spec does:
-#  1. Builds the Docker image at apps/api/Dockerfile (multi-stage, ~180MB).
-#  2. Runs `prisma migrate deploy` via preDeployCommand BEFORE swapping
-#     traffic to the new instance. If the migration fails, the deploy
-#     aborts and the old container keeps serving — no partial-state risk.
-#  3. Listens on the PORT Render assigns (bound in apps/api/src/main.ts).
-#  4. Health-checks by probing port 3001. Render marks the deploy live
-#     only when the port accepts connections.
+# API service (social-bounty-api):
+#  1. Builds Docker image at apps/api/Dockerfile (multi-stage, ~180MB).
+#  2. Runs `prisma migrate deploy` via preDeployCommand BEFORE traffic switch.
+#     If migrations fail, deploy aborts and old instance keeps serving.
+#  3. Listens on port 3001 with health-check via TCP probe.
+#
+# Web service (social-bounty-web):
+#  1. Builds Docker image at apps/web/Dockerfile (multi-stage, ~150MB).
+#  2. Serves Next.js static + ISR at port 3000.
+#  3. Configured with NEXT_PUBLIC_API_URL pointing to API endpoint.
 #
 # After first apply via the Render dashboard (see docs/deployment/
-# render-deploy.md), subsequent pushes to `main` auto-deploy.
+# render-deploy.md), subsequent pushes to `main` auto-deploy both services.
 
 services:
   - type: web
@@ -145,3 +147,30 @@ services:
       # CORS — production web origin
       - key: CORS_ORIGIN
         value: https://app.socialbounty.cash
+
+  - type: web
+    name: social-bounty-web
+    runtime: docker
+    dockerfilePath: ./apps/web/Dockerfile
+    dockerContext: .
+    # Match API region for co-location.
+    region: frankfurt
+    # Starter plan sufficient for frontend.
+    plan: starter
+    # Only main deploys.
+    branch: main
+    autoDeploy: true
+    # Health-check: TCP probe on port 3000 (Next.js listening).
+    # Add a /api/health endpoint later if you want HTTP-level health.
+    # healthCheckPath: /
+    envVars:
+      # ─── Runtime ────────────────────────────────────
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+
+      # ─── API Connectivity ──────────────────────────────
+      # Points to the API endpoint. Must be HTTPS for production.
+      - key: NEXT_PUBLIC_API_URL
+        value: https://api.socialbounty.cash/api/v1
