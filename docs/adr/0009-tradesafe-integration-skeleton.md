@@ -1,8 +1,10 @@
 # ADR 0009 — TradeSafe Integration Skeleton
 
-**Status:** Proposed (2026-04-15)
+> **Partially superseded 2026-04-24 by ADR 0011 (single-rail TradeSafe).** Schema direction (Option B peer tables) was swapped for the simpler `TradeSafeTransaction` + `TradeSafeAllocation` model. The webhook, env-var, and routing conventions described here are retained and inherited by ADR 0011. Historical references below to Stitch Express as the inbound rail describe the pre-2026-04-24 hybrid posture. <!-- historical -->
+
+**Status:** Proposed (2026-04-15). Partially superseded by ADR 0011.
 **Implements:** ADR 0008 (TradeSafe for Hunter Payouts)
-**Relates to:** ADR 0003 (TradeSafe Out of Scope — partially superseded)
+**Relates to:** ADR 0003 (TradeSafe Out of Scope — partially superseded), ADR 0011 (TradeSafe Unified Rail — supersedes the hybrid posture)
 **Type:** Skeleton / blueprint ADR — not an implementation plan
 
 > This ADR is the architectural blueprint for a **future** TradeSafe integration
@@ -16,9 +18,9 @@
 
 ADR 0008 (2026-04-15) locked the decision that **TradeSafe**, South Africa's
 longest-running digital escrow service, becomes the outbound hunter-payout rail
-for Social Bounty. Stitch Express remains the inbound rail for brand bounty
-funding. The driver for the switch away from Stitch-only was the
-no-beneficiary-endpoint finding during Phase 2 live testing: Stitch Express
+for Social Bounty. Stitch Express remains the inbound rail for brand bounty <!-- historical -->
+funding. The driver for the switch away from Stitch-only was the <!-- historical -->
+no-beneficiary-endpoint finding during Phase 2 live testing: Stitch Express <!-- historical -->
 exposes no multi-recipient payout surface that fits the platform's reserve →
 hunter flow, which forced `// TRADESAFE MIGRATION (ADR 0008):` markers onto
 eight call sites in `apps/api/src/modules/payouts/` and the synthetic
@@ -85,21 +87,21 @@ Add new models alongside the existing ones:
 - `TradeSafePayout` — TradeSafe's outbound leg.
 - `TradeSafeBeneficiary` — TradeSafe-side hunter beneficiary record.
 
-The existing `StitchPayout` and `StitchBeneficiary` tables are marked
+The existing `StitchPayout` and `StitchBeneficiary` tables are marked <!-- historical -->
 **retired** (no new rows, data kept for history).
 
 **Pros**
 
-- No data migration. Zero risk to live Stitch inbound data.
+- No data migration. Zero risk to live Stitch inbound data. <!-- historical -->
 - Provider-specific columns (TradeSafe may expose escrow-release ids, beneficiary
   KYC states, sub-account refs) are native first-class fields.
-- Type safety: `Prisma.TradeSafePayoutCreateInput` is distinct from Stitch.
+- Type safety: `Prisma.TradeSafePayoutCreateInput` is distinct from Stitch. <!-- historical -->
 
 **Cons**
 
 - Two models with ~80% overlapping fields. Any new provider (the third)
   triples the table count.
-- The `StitchPayout` table holds no real data today (feature flag is off),
+- The `StitchPayout` table holds no real data today (feature flag is off), <!-- historical -->
   so keeping it purely for "history" is dead weight.
 - Call sites like `BeneficiaryService.findActiveForUser()` have to know which
   provider table to read, which pushes provider awareness up the stack.
@@ -108,9 +110,9 @@ The existing `StitchPayout` and `StitchBeneficiary` tables are marked
 
 Rename and generalise:
 
-- `StitchPayout` → `ProviderPayout`, add `provider` discriminator column
-  (enum: `STITCH`, `TRADESAFE`).
-- `StitchBeneficiary` → `ProviderBeneficiary`, add `provider` discriminator
+- `StitchPayout` → `ProviderPayout`, add `provider` discriminator column <!-- historical -->
+  (enum: `STITCH`, `TRADESAFE`). <!-- historical -->
+- `StitchBeneficiary` → `ProviderBeneficiary`, add `provider` discriminator <!-- historical -->
   column.
 - Provider-specific external ids stored in existing columns
   (`externalPayoutId`, `externalBeneficiaryId`) — they are already opaque
@@ -131,15 +133,15 @@ Rename and generalise:
 
 **Cons**
 
-- Requires a migration against the existing `stitch_payouts` and
-  `stitch_beneficiaries` tables. On current data volume (Phase 2 is not live;
+- Requires a migration against the existing `stitch_payouts` and <!-- historical -->
+  `stitch_beneficiaries` tables. On current data volume (Phase 2 is not live; <!-- historical -->
   `PAYOUTS_ENABLED=false`) this is effectively cosmetic — near-zero production
   rows — but it is still a schema rename with `@@map` changes.
 - Loses the synthetic-id workaround's current co-location with the
-  Stitch-named model. The synthetic `local:…` beneficiaries move over as
-  `provider=STITCH, externalBeneficiaryId="local:…"` rows, which is
+  Stitch-named model. The synthetic `local:…` beneficiaries move over as <!-- historical -->
+  `provider=STITCH, externalBeneficiaryId="local:…"` rows, which is <!-- historical -->
   semantically cleaner anyway.
-- Application code that reads `StitchPayout`/`StitchBeneficiary` by name
+- Application code that reads `StitchPayout`/`StitchBeneficiary` by name <!-- historical -->
   (including the 8 `// TRADESAFE MIGRATION (ADR 0008):` call sites) has to be
   updated to the new model name.
 
@@ -153,19 +155,19 @@ credentials surface any provider-specific columns we had not anticipated.
 
 ### Migration considerations (Option B)
 
-- Rename `stitch_payouts` → `provider_payouts`, `stitch_beneficiaries` →
+- Rename `stitch_payouts` → `provider_payouts`, `stitch_beneficiaries` → <!-- historical -->
   `provider_beneficiaries` via Prisma migration.
-- Backfill `provider = 'STITCH'` on all existing rows.
-- Replace `StitchPayoutStatus` enum with `ProviderPayoutStatus`
+- Backfill `provider = 'STITCH'` on all existing rows. <!-- historical -->
+- Replace `StitchPayoutStatus` enum with `ProviderPayoutStatus` <!-- historical -->
   (value set unchanged initially; TradeSafe-specific states like
   `ESCROW_HELD` / `ESCROW_RELEASED` added as needed).
-- Drop the Stitch-specific unique constraint on `externalPayoutId` (now
-  `stitchPayoutId` column), replace with `@@unique([provider,
+- Drop the Stitch-specific unique constraint on `externalPayoutId` (now <!-- historical -->
+  `stitchPayoutId` column), replace with `@@unique([provider, <!-- historical -->
   externalPayoutId])`.
 - Update the 8 `// TRADESAFE MIGRATION (ADR 0008):` call sites to reference
   the new model names — tracked as a bulk rename PR in the integration
   workstream.
-- Keep the Prisma relation name `stitchBeneficiary` on `User` in a
+- Keep the Prisma relation name `stitchBeneficiary` on `User` in a <!-- historical -->
   backwards-compat sense for one migration window, then rename to
   `providerBeneficiary` in a follow-up PR.
 
@@ -197,9 +199,9 @@ Operational notes:
   committed, never logged, never surfaced to the frontend. Only
   `TRADESAFE_SUCCESS_URL` and `TRADESAFE_FAILURE_URL` cross the API/web
   boundary.
-- A new `PAYOUTS_PROVIDER` flag (values: `STITCH` | `TRADESAFE`) gates which
+- A new `PAYOUTS_PROVIDER` flag (values: `STITCH` | `TRADESAFE`) gates which <!-- historical -->
   provider is active. During cutover, staging runs `TRADESAFE` while
-  production stays on `STITCH` (disabled) until green reconciliation.
+  production stays on `STITCH` (disabled) until green reconciliation. <!-- historical -->
 
 ---
 
@@ -229,11 +231,11 @@ handlers, not new routes.
   string, shows a confirmation toast (success) or an error message
   (error + reason code), and refreshes the beneficiary state from the API.
   No new page is created; the page already exists and handles the current
-  Stitch workflow, so the work is additive.
+  Stitch workflow, so the work is additive. <!-- historical -->
 
 ### Why these paths already exist
 
-- `/api/v1/webhooks/{provider}` is a pattern — `stitch` handler lives
+- `/api/v1/webhooks/{provider}` is a pattern — `stitch` handler lives <!-- historical -->
   there today, `tradesafe` is a sibling.
 - `/api/v1/auth/{provider}/callback` matches the project's OAuth callback
   convention.
@@ -250,15 +252,15 @@ existing conventions.
 
 ```
 enum WebhookProvider {
-  STITCH
-  STRIPE     // legacy, retired — see ADR 0001
+  STITCH <!-- historical -->
+  STRIPE     // legacy, retired — see ADR 0001 <!-- historical -->
   TRADESAFE  // added by this ADR
 }
 ```
 
 Prisma migration is the enum-value addition only. `WebhookEvent.UNIQUE(provider,
 externalEventId)` continues to enforce idempotency cross-provider — a TradeSafe
-event id collision with a Stitch event id is impossible because they are
+event id collision with a Stitch event id is impossible because they are <!-- historical -->
 namespaced by the `provider` column.
 
 ### Router dispatch
@@ -280,7 +282,7 @@ until sandbox. ADR 0010 locks them.
 ### Signature verification
 
 TradeSafe's signature scheme is unknown at time of writing. If Svix is used
-(as Stitch does), the same `svix/webhooks` package is reused and the
+(as Stitch does), the same `svix/webhooks` package is reused and the <!-- historical -->
 `TRADESAFE_WEBHOOK_SECRET` is just another secret key. If TradeSafe uses a
 proprietary HMAC scheme, a new verifier module is added under
 `apps/api/src/modules/webhooks/verifiers/tradesafe.verifier.ts`. Either way
@@ -290,7 +292,7 @@ the `WebhookRouterService` interface is unchanged.
 
 ## 7. Clearance window impact (policy question)
 
-**Current behaviour (Stitch model, Free tier):** ledger posts
+**Current behaviour (Stitch model, Free tier):** ledger posts <!-- historical -->
 `hunter_available → payout_in_transit` immediately on approval, then a 72h
 clearance period elapses (chargeback buffer) before the money is actually
 released to the hunter via the outbound rail. The 72h wait is a policy choice
@@ -323,7 +325,7 @@ it flags the question.
 - `release to beneficiary` is called immediately; TradeSafe's own escrow
   mechanism provides the hold window.
 - Pro: Simpler ledger. Fewer moving parts. TradeSafe's escrow is the hold.
-- Con: The 72h buffer is a policy-shaped chargeback-risk control that Stitch
+- Con: The 72h buffer is a policy-shaped chargeback-risk control that Stitch <!-- historical -->
   does not have and TradeSafe's default escrow window may not match. Losing
   control of the window is a regulatory and finance-team conversation.
 
@@ -365,7 +367,7 @@ These block ADR 0010 from being written. They are the pre-sandbox unknowns.
    schema — if fees are on every payout, we need a `providerFeeCents` column.
 8. **Webhook delivery guarantees.** At-least-once vs exactly-once, retry
    cadence, dead-letter behaviour, signature scheme (Svix-style or custom
-   HMAC). Determines whether we can reuse the Stitch webhook verifier.
+   HMAC). Determines whether we can reuse the Stitch webhook verifier. <!-- historical -->
 
 ---
 
@@ -397,7 +399,7 @@ The provider-agnostic core of the platform is unaffected. Specifically:
   still calculated independently.
 - **Hard Rules 1–10.** All 10 financial non-negotiables continue to apply.
   This ADR creates no exceptions.
-- **Inbound (Stitch Express) path.** Brand → hosted checkout → platform
+- **Inbound (Stitch Express) path.** Brand → hosted checkout → platform <!-- historical -->
   reserve flow is untouched. It is live, tested, and remains so.
 - **User-facing submission / review / approval flow.** Participants and
   Business Admins see no change until payouts are enabled in production.
@@ -406,7 +408,7 @@ The provider-agnostic core of the platform is unaffected. Specifically:
 
 ## 10. Rollout plan (skeleton)
 
-Three phases, gated, no concurrent work with existing Stitch inbound.
+Three phases, gated, no concurrent work with existing Stitch inbound. <!-- historical -->
 
 ### Phase 1 — ADR 0010 (concrete integration plan)
 
@@ -452,10 +454,10 @@ Three phases, gated, no concurrent work with existing Stitch inbound.
 ## References
 
 - ADR 0003 (TradeSafe Out of Scope) — partially superseded by ADR 0008;
-  the "out of scope" status applies only to the escrow-layer-beside-Stitch
+  the "out of scope" status applies only to the escrow-layer-beside-Stitch <!-- historical -->
   interpretation, which remains deferred.
 - ADR 0008 (TradeSafe for Hunter Payouts) — the decision this ADR implements.
-- `md-files/payment-gateway.md` — canonical Stitch Express spec. Unchanged.
+- `md-files/payment-gateway.md` — canonical Stitch Express spec. Unchanged. <!-- historical -->
 - `md-files/financial-architecture.md` — ledger mechanics, idempotency
   patterns, reconciliation engine. Unchanged.
 - `md-files/knowledge-base.md` — KB entry template, failure-pattern library.

@@ -19,13 +19,13 @@ Introduce `LedgerTransactionGroup` as a header table. `UNIQUE(referenceId, actio
 
 | `actionType` | `referenceId` |
 |---|---|
-| `stitch_payment_settled` | `stitchPaymentId` |
-| `stitch_payment_failed` | `stitchPaymentId` |
+| `stitch_payment_settled` | `stitchPaymentId` | <!-- historical -->
+| `stitch_payment_failed` | `stitchPaymentId` | <!-- historical -->
 | `submission_approved` | `submissionId` |
 | `clearance_released` | `hunterNetPayableLedgerEntryId` |
-| `payout_initiated` | `stitchPayoutRowId` |
-| `stitch_payout_settled` | `stitchPayoutId` |
-| `stitch_payout_failed` | `stitchPayoutId` |
+| `payout_initiated` | `stitchPayoutRowId` | <!-- historical -->
+| `stitch_payout_settled` | `stitchPayoutId` | <!-- historical -->
+| `stitch_payout_failed` | `stitchPayoutId` | <!-- historical -->
 | `refund_processed` | `refundId` |
 | `subscription_charged` | `subscriptionPaymentId` |
 | `bounty_expired_release` | `bountyId` |

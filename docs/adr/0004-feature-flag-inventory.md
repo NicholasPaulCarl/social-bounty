@@ -1,4 +1,6 @@
-# ADR 0004 — Feature Flag Inventory for Stitch Rollout
+# ADR 0004 — Feature Flag Inventory for Stitch Rollout <!-- historical -->
+
+> **Superseded 2026-04-24** — All Stitch feature flags (PAYMENTS_PROVIDER, SUBSCRIPTION_UPGRADE_ENABLED) deleted along with the Stitch integration itself. See ADR 0011.
 
 **Status:** Accepted
 **Date:** 2026-04-15
@@ -13,7 +15,7 @@ Five flags. Phase 0–2: env-backed only. Phase 3: each flag is mirrored into a 
 
 | Flag | Values | Gate | Default (dev) |
 |---|---|---|---|
-| `PAYMENTS_PROVIDER` | `none \| stitch_sandbox \| stitch_live` | Creation of new Stitch checkout sessions. `none` blocks all new payments. | `stitch_sandbox` |
+| `PAYMENTS_PROVIDER` | `none \| stitch_sandbox \| stitch_live` | Creation of new Stitch checkout sessions. `none` blocks all new payments. | `stitch_sandbox` | <!-- historical -->
 | `PAYOUTS_ENABLED` | `true \| false` | Payout execution job will no-op when false. Also auto-false when Financial Kill Switch is active. | `false` until Phase 2 |
 | `RECONCILIATION_ENABLED` | `true \| false` | The 15-min reconciliation scheduler. | `true` from Phase 1 |
 | `DASHBOARD_FINANCE_UI` | `true \| false` | Mounts the nine `/admin/finance/*` routes. | `false` until Phase 3 |
@@ -21,7 +23,7 @@ Five flags. Phase 0–2: env-backed only. Phase 3: each flag is mirrored into a 
 
 ## Validation
 
-`apps/api/src/common/config/env.validation.ts` fails boot if `PAYMENTS_PROVIDER != 'none'` and any of `STITCH_CLIENT_ID`, `STITCH_CLIENT_SECRET`, `STITCH_API_BASE`, `STITCH_REDIRECT_URL` are missing.
+`apps/api/src/common/config/env.validation.ts` fails boot if `PAYMENTS_PROVIDER != 'none'` and any of `STITCH_CLIENT_ID`, `STITCH_CLIENT_SECRET`, `STITCH_API_BASE`, `STITCH_REDIRECT_URL` are missing. <!-- historical -->
 
 ## Consequences
 
