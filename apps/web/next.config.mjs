@@ -22,6 +22,12 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      { source: '/privacy', destination: '/legal/privacy-policy', permanent: true },
+      { source: '/terms', destination: '/legal/terms-of-service', permanent: true },
+    ];
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Isolate PrimeReact into its own chunk — prevents every page from bundling it independently

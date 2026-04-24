@@ -42,8 +42,7 @@ const FOOTER_BRANDS = [
 const FOOTER_COMPANY = [
   { label: 'Pricing', href: '/pricing' },
   { label: 'Contact', href: '/contact' },
-  { label: 'Privacy policy', href: '/privacy' },
-  { label: 'Terms of service', href: '/terms' },
+  { label: 'Legal', href: '/legal' },
 ];
 
 const SOCIAL_ICONS: { label: string; Icon: React.ComponentType<{ size?: number; strokeWidth?: number }> }[] = [

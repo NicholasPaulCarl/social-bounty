@@ -14,6 +14,13 @@
       "runtimeArgs": ["run", "dev:api"],
       "port": 3001,
       "autoPort": false
+    },
+    {
+      "name": "web-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--workspace=apps/web", "next", "dev", "--port", "3010"],
+      "port": 3010,
+      "autoPort": false
     }
   ]
 }

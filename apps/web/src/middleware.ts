@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const PUBLIC_ROUTES = ['/login', '/signup'];
-const MARKETING_ROUTES = ['/', '/join', '/contact', '/how-it-works', '/privacy', '/terms', '/brands'];
+const MARKETING_ROUTES = ['/', '/join', '/contact', '/how-it-works', '/legal', '/brands'];
 const BUSINESS_ROUTES_PREFIX = '/business';
 const ADMIN_ROUTES_PREFIX = '/admin';
 const MY_DISPUTES_PREFIX = '/my-disputes';
