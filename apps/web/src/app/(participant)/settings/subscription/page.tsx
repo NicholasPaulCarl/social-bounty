@@ -24,7 +24,6 @@ import type { LucideIcon } from 'lucide-react';
 import {
   useSubscription,
   useSubscribe,
-  useInitiateUpgrade,
   useCancelSubscription,
   useReactivateSubscription,
   useSubscriptionPayments,
@@ -79,11 +78,11 @@ const BRAND_FEATURES: { free: Feature[]; pro: Feature[] } = {
   ],
 };
 
-// Pro subscriptions are feature-gated at the Stitch account level until
-// commercial enablement completes. The upgrade plumbing (card-consent flow,
-// webhook handlers, ledger writes, tests) stays intact — only this flag
-// hides the CTA. Flip back to `true` in lockstep with the backend
-// `SUBSCRIPTION_UPGRADE_ENABLED` env var once Stitch enables the product.
+// Pro subscriptions are disabled until TradeSafe recurring-billing is wired.
+// The upgrade plumbing (webhook handlers, ledger writes, tests) stays intact
+// — only this flag hides the CTA. Flip back to `true` in lockstep with the
+// backend `SUBSCRIPTION_UPGRADE_ENABLED` env var once the provider enables
+// the product.
 const LIVE_UPGRADE_ENABLED = false;
 
 export default function SubscriptionPage() {
@@ -93,7 +92,6 @@ export default function SubscriptionPage() {
   const searchParams = useSearchParams();
   const { data: sub, isLoading } = useSubscription();
   const subscribe = useSubscribe();
-  const initiateUpgrade = useInitiateUpgrade();
   const cancel = useCancelSubscription();
   const reactivate = useReactivateSubscription();
   const [showCancel, setShowCancel] = useState(false);
@@ -102,7 +100,7 @@ export default function SubscriptionPage() {
   const { page, limit, first, onPageChange } = usePagination(10);
   const { data: payments } = useSubscriptionPayments(showPayments ? { page, limit } : undefined);
 
-  // Return handler: Stitch redirects the user back here with
+  // Return handler: the hosted checkout redirects the user back here with
   // `?upgrade=return` after card consent. The webhook may or may not have
   // fired yet — we always refetch on mount so whichever happens first
   // resolves correctly. Handles both "webhook-before-return" (subscription
@@ -133,24 +131,10 @@ export default function SubscriptionPage() {
   const isPastDue = sub.status === SubscriptionStatus.PAST_DUE;
 
   const handleSubscribe = () => {
-    // Live upgrade path: POST /subscription/upgrade → Stitch hosted URL.
-    // Fallback to legacy `subscribe()` only if LIVE_UPGRADE_ENABLED is off
-    // (for dev/local where card billing isn't provisioned).
-    if (LIVE_UPGRADE_ENABLED) {
-      initiateUpgrade.mutate(SubscriptionTier.PRO, {
-        onSuccess: (data) => {
-          setShowUpgrade(false);
-          toast.showSuccess('Redirecting to secure card capture…');
-          // Use window.location so we leave the SPA and hand off to Stitch.
-          window.location.href = data.authorizationUrl;
-        },
-        onError: (err) => {
-          toast.showError((err as Error).message || "Couldn't start upgrade. Try again.");
-          setShowUpgrade(false);
-        },
-      });
-      return;
-    }
+    // Live upgrade path is parked until TradeSafe recurring-billing is wired
+    // (LIVE_UPGRADE_ENABLED=false). Fallback calls the local `subscribe`
+    // endpoint which simply flips the tier for staging / dev without
+    // moving money.
     subscribe.mutate(undefined, {
       onSuccess: () => {
         toast.showSuccess('Welcome to Pro! Your perks are now active.');
@@ -212,7 +196,7 @@ export default function SubscriptionPage() {
         />
       </div>
 
-      {/* Return from Stitch: webhook-before-return vs return-before-webhook. */}
+      {/* Return from checkout: webhook-before-return vs return-before-webhook. */}
       {upgradeReturnMode === 'return' && (
         <Message
           severity={isPro ? 'success' : 'info'}
@@ -344,8 +328,8 @@ export default function SubscriptionPage() {
             </div>
 
             {/* Hard Rule #6 — wrap upgrade in ConfirmAction. Disabled until
-                live Stitch card-consent is wired; native title tooltip explains
-                why so we don't silently fake-upgrade the user. */}
+                live TradeSafe card-consent is wired; native title tooltip
+                explains why so we don't silently fake-upgrade the user. */}
             <span
               className="inline-block w-full"
               title={
@@ -359,7 +343,7 @@ export default function SubscriptionPage() {
                 icon={<Star size={16} strokeWidth={2} />}
                 className="w-full"
                 disabled={!LIVE_UPGRADE_ENABLED}
-                loading={subscribe.isPending || initiateUpgrade.isPending}
+                loading={subscribe.isPending}
                 onClick={() => setShowUpgrade(true)}
               />
             </span>
@@ -403,11 +387,11 @@ export default function SubscriptionPage() {
         visible={showUpgrade}
         onHide={() => setShowUpgrade(false)}
         title="Upgrade to Pro?"
-        message={`Starts a monthly billing cycle at R${proPrice}. We'll redirect you to Stitch to save a card — cancel anytime.`}
+        message={`Starts a monthly billing cycle at R${proPrice}. We'll redirect you to checkout to save a card — cancel anytime.`}
         confirmLabel="Upgrade"
         confirmSeverity="warning"
         onConfirm={handleSubscribe}
-        loading={subscribe.isPending || initiateUpgrade.isPending}
+        loading={subscribe.isPending}
       />
 
       <ConfirmAction

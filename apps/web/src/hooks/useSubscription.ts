@@ -1,7 +1,6 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { SubscriptionTier } from '@social-bounty/shared';
 import { useAuth } from '@/hooks/useAuth';
 import { subscriptionApi } from '@/lib/api/subscriptions';
 
@@ -26,27 +25,6 @@ export function useSubscribe() {
   return useMutation({
     mutationFn: () => subscriptionApi.subscribe(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: subscriptionKeys.all });
-    },
-  });
-}
-
-/**
- * Initiate the live Stitch card-consent upgrade flow.
- *
- * On success, `data.authorizationUrl` is the Stitch-hosted URL the user must
- * redirect to. The subscription query is invalidated so the UI refetches
- * when the user returns (webhook flips the tier to PRO while they're on
- * the hosted page).
- */
-export function useInitiateUpgrade() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (targetTier: SubscriptionTier = SubscriptionTier.PRO) =>
-      subscriptionApi.upgrade(targetTier),
-    onSuccess: () => {
-      // Invalidate so the subscription view reflects any mandate state
-      // the webhook already flipped to AUTHORISED while we were dispatching.
       queryClient.invalidateQueries({ queryKey: subscriptionKeys.all });
     },
   });

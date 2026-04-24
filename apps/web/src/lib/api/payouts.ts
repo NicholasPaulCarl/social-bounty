@@ -10,7 +10,7 @@ export interface UpsertBeneficiaryRequest {
 
 export interface BeneficiaryResponse {
   id: string;
-  stitchBeneficiaryId: string;
+  tradeSafeBeneficiaryId: string;
 }
 
 export const payoutsApi = {

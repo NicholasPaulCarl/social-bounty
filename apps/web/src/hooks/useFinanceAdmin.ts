@@ -143,7 +143,7 @@ export function useFinanceSubscriptions(params?: { page?: number; limit?: number
 }
 
 /**
- * Platform-wide StitchPayout listing (SUPER_ADMIN). Paginated, newest-first.
+ * Platform-wide payout listing (SUPER_ADMIN). Paginated, newest-first.
  */
 export function usePayoutsAdmin(page = 1, limit = 25) {
   return useQuery({

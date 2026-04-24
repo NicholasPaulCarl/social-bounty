@@ -27,7 +27,7 @@ export default function KbSystemInsightsPage() {
   const params = useParams<{ system: string }>();
   const systemParam = params?.system ?? '';
   // Next.js App Router encodes path segments — decode once so the header +
-  // API call see the raw system name (e.g. "stitch.webhooks").
+  // API call see the raw system name (e.g. "tradesafe.webhooks").
   const system = decodeURIComponent(systemParam);
 
   const { data, isLoading, error, refetch } = useSystemInsights(system);

@@ -18,7 +18,7 @@ import { formatCents, formatDateTime, truncate } from '@/lib/utils/format';
 import { RefreshCw } from 'lucide-react';
 
 /**
- * Map StitchPayout status to a PrimeReact Tag severity.
+ * Map payout status to a PrimeReact Tag severity.
  * - SETTLED = success (terminal, good)
  * - INITIATED / CREATED = info (in-flight, nothing to act on)
  * - FAILED = danger (needs operator attention — Retry button shown)
@@ -68,7 +68,7 @@ export default function FinancePayoutsPage() {
     <>
       <PageHeader
         title="Payouts"
-        subtitle="All hunter payouts platform-wide (StitchPayout)"
+        subtitle="All hunter payouts platform-wide"
         actions={
           <Button
             label="Refresh"

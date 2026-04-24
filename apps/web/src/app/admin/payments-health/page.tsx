@@ -18,90 +18,105 @@ export default function AdminPaymentsHealthPage() {
   if (error) return <ErrorState error={error as Error} onRetry={() => refetch()} />;
   if (!data) return null;
 
+  // Agent 1B renames shared DTO fields (stitchTokenProbe → tokenProbe).
+  // Cast bridges the handoff window within Wave 1.
+  const health = data as unknown as {
+    paymentsProvider: string;
+    tokenProbe: { ok: boolean; latencyMs: number; error?: string };
+    killSwitch: { active: boolean; reason?: string };
+    lastWebhook: {
+      eventType: string;
+      receivedAt: string;
+      status: string;
+      externalEventId: string;
+    } | null;
+    credsHashes: { clientId: string; clientSecret: string; webhookSecret: string };
+  };
+
   const providerSeverity =
-    data.paymentsProvider === 'stitch_live'
+    health.paymentsProvider === 'tradesafe_live'
       ? 'success'
-      : data.paymentsProvider === 'stitch_sandbox'
+      : health.paymentsProvider === 'tradesafe_sandbox'
         ? 'warning'
         : 'danger';
 
-  const probeSeverity = data.stitchTokenProbe.ok ? 'success' : 'danger';
-  const killSwitchSeverity = data.killSwitch.active ? 'danger' : 'success';
+  const probeSeverity = health.tokenProbe.ok ? 'success' : 'danger';
+  const killSwitchSeverity = health.killSwitch.active ? 'danger' : 'success';
 
   return (
     <>
       <PageHeader
         title="Payments health"
-        subtitle="Stitch Express connectivity, webhook status, and kill switch"
+        subtitle="TradeSafe connectivity, webhook status, and kill switch"
         actions={
           <Button label="Refresh" icon={<RefreshCw size={16} strokeWidth={2} />} outlined onClick={() => refetch()} />
         }
       />
 
-      {data.killSwitch.active ? (
+      {health.killSwitch.active ? (
         <Message
           severity="error"
           className="w-full mb-4"
-          text={`Financial Kill Switch is ACTIVE${data.killSwitch.reason ? ` — ${data.killSwitch.reason}` : ''}. All outbound payouts are halted.`}
+          text={`Financial Kill Switch is ACTIVE${health.killSwitch.reason ? ` — ${health.killSwitch.reason}` : ''}. All outbound payouts are halted.`}
         />
       ) : null}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <Card title="Provider">
           <div className="flex items-center gap-2">
-            <Tag value={data.paymentsProvider} severity={providerSeverity} />
+            <Tag value={health.paymentsProvider} severity={providerSeverity} />
           </div>
           <p className="text-sm text-text-muted mt-2">
-            PAYMENTS_PROVIDER env flag. `stitch_live` is production.
+            PAYMENTS_PROVIDER env flag. `tradesafe_live` is production.
           </p>
         </Card>
 
-        <Card title="Stitch Token Probe">
+        <Card title="TradeSafe Token Probe">
           <div className="flex items-center gap-2">
             <Tag
-              value={data.stitchTokenProbe.ok ? 'OK' : 'FAIL'}
+              value={health.tokenProbe.ok ? 'OK' : 'FAIL'}
               severity={probeSeverity}
             />
             <span className="text-sm text-text-muted">
-              {data.stitchTokenProbe.latencyMs}ms
+              {health.tokenProbe.latencyMs}ms
             </span>
           </div>
-          {data.stitchTokenProbe.error ? (
-            <p className="text-sm text-red-600 mt-2">{data.stitchTokenProbe.error}</p>
+          {health.tokenProbe.error ? (
+            <p className="text-sm text-red-600 mt-2">{health.tokenProbe.error}</p>
           ) : null}
         </Card>
 
         <Card title="Financial Kill Switch">
           <div className="flex items-center gap-2">
             <Tag
-              value={data.killSwitch.active ? 'ACTIVE' : 'off'}
+              value={health.killSwitch.active ? 'ACTIVE' : 'off'}
               severity={killSwitchSeverity}
             />
           </div>
-          {data.killSwitch.reason ? (
-            <p className="text-sm text-text-muted mt-2">{data.killSwitch.reason}</p>
+          {health.killSwitch.reason ? (
+            <p className="text-sm text-text-muted mt-2">{health.killSwitch.reason}</p>
           ) : null}
         </Card>
       </div>
 
-      <Card title="Last Stitch Webhook" className="mb-6">
-        {data.lastWebhook ? (
+      <Card title="Last TradeSafe Webhook" className="mb-6">
+        {health.lastWebhook ? (
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <div className="text-text-muted">Event type</div>
-              <div className="font-mono tabular-nums">{data.lastWebhook.eventType}</div>
+              <div className="font-mono tabular-nums">{health.lastWebhook.eventType}</div>
             </div>
             <div>
               <div className="text-text-muted">Received</div>
-              <div className="font-mono tabular-nums">{formatDateTime(data.lastWebhook.receivedAt)}</div>
+              <div className="font-mono tabular-nums">{formatDateTime(health.lastWebhook.receivedAt)}</div>
             </div>
             <div>
               <div className="text-text-muted">Status</div>
-              <Tag value={data.lastWebhook.status} />
+              <Tag value={health.lastWebhook.status} />
             </div>
             <div>
               <div className="text-text-muted">Svix ID</div>
-              <div className="font-mono text-xs break-all">{data.lastWebhook.externalEventId}</div>
+              <div className="font-mono text-xs break-all">{health.lastWebhook.externalEventId}</div>
             </div>
           </div>
         ) : (
@@ -115,16 +130,16 @@ export default function AdminPaymentsHealthPage() {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <div className="text-text-muted">STITCH_CLIENT_ID</div>
-            <div className="font-mono tabular-nums">{data.credsHashes.clientId}</div>
+            <div className="text-text-muted">TRADESAFE_CLIENT_ID</div>
+            <div className="font-mono tabular-nums">{health.credsHashes.clientId}</div>
           </div>
           <div>
-            <div className="text-text-muted">STITCH_CLIENT_SECRET</div>
-            <div className="font-mono tabular-nums">{data.credsHashes.clientSecret}</div>
+            <div className="text-text-muted">TRADESAFE_CLIENT_SECRET</div>
+            <div className="font-mono tabular-nums">{health.credsHashes.clientSecret}</div>
           </div>
           <div>
-            <div className="text-text-muted">STITCH_WEBHOOK_SECRET</div>
-            <div className="font-mono tabular-nums">{data.credsHashes.webhookSecret}</div>
+            <div className="text-text-muted">TRADESAFE_WEBHOOK_SECRET</div>
+            <div className="font-mono tabular-nums">{health.credsHashes.webhookSecret}</div>
           </div>
         </div>
       </Card>

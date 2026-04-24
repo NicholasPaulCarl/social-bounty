@@ -12,7 +12,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { CreateBountyForm } from '@/components/bounty-form';
 import { AlertTriangle, Info, Undo2 } from 'lucide-react';
 import { bountyApi } from '@/lib/api/bounties';
-import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
+import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-checkout';
 import { BountyStatus, PaymentStatus } from '@social-bounty/shared';
 import type { CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useState } from 'react';
@@ -29,7 +29,7 @@ export default function EditBountyPage() {
   const [formError, setFormError] = useState('');
   const [isDraftSave, setIsDraftSave] = useState(false);
   // isFunding bridges the gap between the update-bounty mutation settling
-  // and the Stitch hosted redirect firing — keeps the Create Bounty
+  // and the TradeSafe hosted redirect firing — keeps the Create Bounty
   // button in its loading state across both steps.
   const [isFunding, setIsFunding] = useState(false);
 
@@ -42,7 +42,7 @@ export default function EditBountyPage() {
     setFormError('');
     updateBounty.mutate(data as UpdateBountyRequest, {
       onSuccess: async () => {
-        // DRAFT + unpaid → chain straight into the Stitch hosted checkout.
+        // DRAFT + unpaid → chain straight into the TradeSafe hosted checkout.
         // Same flow the new-bounty page uses (commit bd2480b) and the
         // detail-page "Go Live" button (handleStatusChange DRAFT→LIVE).
         // LIVE / PAUSED / already-PAID bounties skip this and just save.

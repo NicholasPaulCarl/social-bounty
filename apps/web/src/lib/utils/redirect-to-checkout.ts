@@ -1,8 +1,8 @@
 /**
- * Send the user to a Stitch hosted-checkout URL.
+ * Send the user to the TradeSafe hosted-checkout URL.
  *
  * In production we use a same-page redirect (window.location.href) — the
- * standard hosted-checkout pattern. After payment, Stitch redirects the
+ * standard hosted-checkout pattern. After payment, TradeSafe redirects the
  * same window back to our /funded page where the bountyId is resolved.
  *
  * In development the page is often loaded inside an iframe (Claude
@@ -12,8 +12,8 @@
  * a new tab instead, which iframe sandboxes do allow.
  *
  * Both paths stash the bountyId in sessionStorage so the /funded page
- * can resolve the bounty even if Stitch's globally-registered redirect
- * URL doesn't carry it in the query string.
+ * can resolve the bounty even if the provider's globally-registered
+ * redirect URL doesn't carry it in the query string.
  */
 export interface HostedCheckoutHandlers {
   /** Toast .showInfo handler for the dev-mode "opened in new tab" notice. */
@@ -33,7 +33,7 @@ export function redirectToHostedCheckout(
   // either way (works for the production same-tab return AND the dev-
   // mode new-tab return).
   try {
-    sessionStorage.setItem('stitchFundingBountyId', bountyId);
+    sessionStorage.setItem('fundingBountyId', bountyId);
   } catch {
     // sessionStorage unavailable (private mode, disabled). Best-effort.
   }
@@ -45,7 +45,7 @@ export function redirectToHostedCheckout(
     // so popup blockers shouldn't fire.
     window.open(hostedUrl, '_blank', 'noopener,noreferrer');
     handlers.onDevNotice?.(
-      'Opened Stitch checkout in a new tab (dev mode — preview iframes block external redirects).',
+      'Opened checkout in a new tab (dev mode — preview iframes block external redirects).',
     );
     handlers.onDevSettled?.();
     return;

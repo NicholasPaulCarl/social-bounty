@@ -51,7 +51,7 @@ export default function InboundFundingPage() {
     <>
       <PageHeader
         title="Inbound funding"
-        subtitle="Brand bounty funding via Stitch hosted checkout"
+        subtitle="Brand bounty funding via TradeSafe hosted checkout"
         actions={
           <div className="flex gap-2">
             <Button
@@ -92,10 +92,10 @@ export default function InboundFundingPage() {
             body={(r) => <span className="font-mono tabular-nums text-xs">{r.merchantReference}</span>}
           />
           <Column
-            field="stitchPaymentId"
-            header="Stitch payment id"
+            field="transactionId"
+            header="Transaction id"
             body={(r) => (
-              <span className="font-mono text-xs">{r.stitchPaymentId ?? '—'}</span>
+              <span className="font-mono text-xs">{r.transactionId ?? '—'}</span>
             )}
           />
           <Column field="createdAt" header="Created" body={(r) => <span className="font-mono tabular-nums">{formatDateTime(r.createdAt)}</span>} />
