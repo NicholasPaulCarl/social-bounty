@@ -37,6 +37,12 @@ COPY apps/web/package*.json ./apps/web/
 COPY packages/shared/package*.json ./packages/shared/
 COPY packages/prisma/package*.json ./packages/prisma/
 
+# Root tsconfig.json is extended by both packages/shared/tsconfig.json and
+# apps/api/tsconfig.json via `"extends": "../../tsconfig.json"`. Must live
+# at /app before the `tsc` / `nest build` invocations or they fail with
+# TS5083 "Cannot read file".
+COPY tsconfig*.json ./
+
 # Remove the root `prepare` script before `npm ci`. The script runs
 # `husky && bash scripts/install-graphify-hook.sh`, but `scripts/` isn't
 # copied into the build context at this point — only the workspace
