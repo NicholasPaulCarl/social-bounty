@@ -13,69 +13,26 @@ import {
   validateSync,
 } from 'class-validator';
 
-export enum PaymentsProvider {
-  NONE = 'none',
-  STITCH_SANDBOX = 'stitch_sandbox',
-  STITCH_LIVE = 'stitch_live',
-}
-
-export enum StitchPayoutSpeed {
-  INSTANT = 'INSTANT',
-  DEFAULT = 'DEFAULT',
-}
-
 /**
- * Outbound payout provider selector (ADR 0009). Defaults to `stitch` —
- * the current live inbound rail and gated outbound rail. `tradesafe` is
- * the forthcoming TradeSafe escrow adapter (scaffolded, not live). `mock`
- * routes through the TradeSafe adapter in mock mode for dev / CI.
+ * Outbound payout provider selector (ADR 0009). `tradesafe` is the live
+ * rail post-ADR 0011 (single-rail cutover). `mock` routes through the
+ * TradeSafe adapter in mock mode for dev / CI.
  */
 export enum PayoutProvider {
-  STITCH = 'stitch',
   TRADESAFE = 'tradesafe',
   MOCK = 'mock',
 }
 
 class EnvironmentVariables {
-  @IsEnum(PaymentsProvider)
-  PAYMENTS_PROVIDER!: PaymentsProvider;
-
-  @ValidateIf((o) => o.PAYMENTS_PROVIDER !== PaymentsProvider.NONE)
-  @IsString()
-  STITCH_CLIENT_ID!: string;
-
-  @ValidateIf((o) => o.PAYMENTS_PROVIDER !== PaymentsProvider.NONE)
-  @IsString()
-  STITCH_CLIENT_SECRET!: string;
-
-  @ValidateIf((o) => o.PAYMENTS_PROVIDER !== PaymentsProvider.NONE)
-  @IsUrl({ require_tld: false, require_protocol: true })
-  STITCH_API_BASE!: string;
-
-  @ValidateIf((o) => o.PAYMENTS_PROVIDER !== PaymentsProvider.NONE)
-  @IsUrl({ require_tld: false, require_protocol: true })
-  STITCH_REDIRECT_URL!: string;
-
-  @IsOptional()
-  @IsString()
-  STITCH_WEBHOOK_SECRET?: string;
-
-  @IsOptional()
-  @IsEnum(StitchPayoutSpeed)
-  STITCH_PAYOUT_SPEED?: StitchPayoutSpeed;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  STITCH_MIN_PAYOUT_CENTS?: number;
-
   // NOTE: `FINANCIAL_KILL_SWITCH` was removed 2026-04-15 (orphan sweep C2).
   // The kill switch is a DB row (`SystemSetting.financial.kill_switch.active`)
   // flipped via the Finance admin dashboard — NOT an env var. See
   // `apps/api/src/modules/ledger/ledger.service.ts` (`isKillSwitchActive`).
 
-  // ADR 0009 — TradeSafe adapter scaffolding. All optional except
-  // PAYOUT_PROVIDER which defaults to 'stitch'. Live TradeSafe calls require
+  // ADR 0011 — TradeSafe unified inbound + outbound rail (supersedes the
+  // prior split-provider posture from ADR 0008). All optional except the
+  // always-required URL + secret fields above; PAYOUT_PROVIDER defaults
+  // to 'tradesafe' at the reading site. Live TradeSafe calls require
   // TRADESAFE_CLIENT_ID + TRADESAFE_CLIENT_SECRET AND TRADESAFE_MOCK != 'true'.
   @IsOptional()
   @IsEnum(PayoutProvider)
@@ -88,18 +45,21 @@ class EnvironmentVariables {
   // TradeSafe OAuth 2.0 token endpoint (Client Credentials grant). Required
   // for live GraphQL calls; sandbox and prod share the same auth host:
   //   https://auth.tradesafe.co.za/oauth/token
-  @IsOptional()
   @IsUrl({ require_tld: false, require_protocol: true })
-  TRADESAFE_AUTH_URL?: string;
+  TRADESAFE_AUTH_URL!: string;
 
   // TradeSafe GraphQL endpoint. Sandbox:
   //   https://api-developer.tradesafe.dev/graphql
   // Production:
   //   https://api.tradesafe.co.za/graphql
-  @IsOptional()
   @IsUrl({ require_tld: false, require_protocol: true })
-  TRADESAFE_GRAPHQL_URL?: string;
+  TRADESAFE_GRAPHQL_URL!: string;
 
+  // Optional while mock-mode boot is supported: TRADESAFE_MOCK defaults to
+  // `true` when creds are absent, which keeps dev/CI unblocked without
+  // issuing real OAuth tokens. Live (PAYOUTS_ENABLED=true + MOCK=false)
+  // requires both values populated — the TradeSafe client throws loudly
+  // on the first GraphQL call otherwise.
   @IsOptional()
   @IsString()
   TRADESAFE_CLIENT_ID?: string;
@@ -119,15 +79,16 @@ class EnvironmentVariables {
   // `POST /api/v1/webhooks/tradesafe/:secret`. Minimum length 32 to give
   // the URL-segment comparison a real guessing floor (any 32-char
   // alphanumeric is >190 bits of entropy, well above `crypto/timing`
-  // concerns). Optional in dev — the controller rejects every callback
-  // when unset, so leaving it off is the natural "disabled" state.
-  @IsOptional()
-  @IsString()
+  // concerns).
   @MinLength(32, {
     message: 'TRADESAFE_CALLBACK_SECRET must be at least 32 characters',
   })
-  TRADESAFE_CALLBACK_SECRET?: string;
+  TRADESAFE_CALLBACK_SECRET!: string;
 
+  // Defaults to `true` when TRADESAFE_CLIENT_ID + SECRET are absent so
+  // dev/CI boots cleanly without issuing real OAuth tokens. Mock mode
+  // returns fake checkout URLs / deposit callbacks — no real money moves.
+  // Must be flipped to `false` once prod creds (R24) land and PAYOUTS_ENABLED=true.
   @IsOptional()
   @IsBooleanString()
   TRADESAFE_MOCK?: string;
@@ -152,6 +113,14 @@ class EnvironmentVariables {
   @ValidateIf((o) => o.PAYOUTS_ENABLED === 'true')
   @IsUrl({ require_tld: false, require_protocol: true })
   TRADESAFE_FAILURE_URL?: string;
+
+  // ADR 0011 (single-rail inbound + outbound). The browser redirect target
+  // `TradeSafePaymentsService.checkoutLink` passes back to the hosted
+  // checkout — brands land here after completing their bounty-funding
+  // payment. Required at boot so live funding flows never redirect to
+  // `undefined`; dev default is `http://localhost:3000/business/bounties/funded`.
+  @IsUrl({ require_tld: false, require_protocol: true })
+  TRADESAFE_REDIRECT_URL!: string;
 
   // Dev-only override for Free-tier clearance window, in hours.
   // When set, ApprovalLedgerService uses this instead of CLEARANCE_HOURS.FREE (72).
@@ -197,27 +166,8 @@ class EnvironmentVariables {
   @IsBooleanString()
   EXPIRED_BOUNTY_RELEASE_ENABLED?: string;
 
-  // Gates the live Stitch card-consent upgrade CTA. Default `false` while
-  // Stitch subscriptions remain feature-gated at the account level. Flip to
-  // `true` once Stitch support enables the product on the client id used
-  // for this environment. The UI reflects the same state via its own flag;
-  // the backend gate is defence-in-depth so direct API calls to
-  // `POST /subscription/upgrade` return 503 rather than hitting Stitch.
-  @IsOptional()
-  @IsBooleanString()
-  SUBSCRIPTION_UPGRADE_ENABLED?: string;
-
-  // Users.id of the dedicated system-actor row used as the fallback
-  // AuditLog actor for webhook- and scheduler-driven ledger writes.
-  // Required when payments are live — several services throw loudly
-  // at runtime if this is unset and they need to write an AuditLog.
-  // Optional for `PAYMENTS_PROVIDER=none` so dev boots cleanly.
-  @ValidateIf((o) => o.PAYMENTS_PROVIDER !== PaymentsProvider.NONE)
-  @IsString()
-  STITCH_SYSTEM_ACTOR_ID?: string;
-
-  // AES-256-GCM key used to encrypt bank account numbers on
-  // `StitchBeneficiary`. SECURITY-SENSITIVE.
+  // AES-256-GCM key used to encrypt hunter bank account numbers on the
+  // beneficiary row. SECURITY-SENSITIVE.
   //
   // R29 hardening (batch 14A, 2026-04-15): required when
   // `PAYOUTS_ENABLED=true`. The JWT_SECRET fallback in `BeneficiaryService`
@@ -236,16 +186,6 @@ class EnvironmentVariables {
       'BENEFICIARY_ENC_KEY must be at least 32 characters when PAYOUTS_ENABLED=true (AES-256 key material)',
   })
   BENEFICIARY_ENC_KEY?: string;
-
-  // Stripe (ADR 0001 legacy). Kept optional until the retirement batch
-  // lands; still read by `PaymentsService` for any in-flight legacy flow.
-  @IsOptional()
-  @IsString()
-  STRIPE_SECRET_KEY?: string;
-
-  @IsOptional()
-  @IsString()
-  STRIPE_WEBHOOK_SECRET?: string;
 
   // Apify — optional social analytics scraper. When unset, the service
   // logs a warning and the front-end falls back to the deterministic mock.
