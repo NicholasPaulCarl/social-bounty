@@ -10,11 +10,11 @@
 See `docs/architecture/sitemap.md` §4.
 
 ## Purpose
-Edit form for an existing bounty. Reuses `<CreateBountyForm>` with `initialBounty` + `readOnlyMode`. DRAFT + unpaid bounties chain straight into Stitch hosted checkout on Submit (mirroring the new-bounty flow).
+Edit form for an existing bounty. Reuses `<CreateBountyForm>` with `initialBounty` + `readOnlyMode`. DRAFT + unpaid bounties chain straight into Stitch hosted checkout on Submit (mirroring the new-bounty flow). <!-- historical -->
 
 ## Entry & exit
 - **Reached from:** `/business/bounties/{id}` (Edit action), `/business/bounties` (Edit icon).
-- **Links out to:** `/business/bounties/{id}` (Save Draft, readonly save, fund-failure fallback); Stitch hosted checkout (DRAFT unpaid path).
+- **Links out to:** `/business/bounties/{id}` (Save Draft, readonly save, fund-failure fallback); Stitch hosted checkout (DRAFT unpaid path). <!-- historical -->
 
 ## Data
 - **React Query hooks:** `useBounty(id)`, `useUpdateBounty(id)`, `useAuth`.
@@ -42,7 +42,7 @@ Edit form for an existing bounty. Reuses `<CreateBountyForm>` with `initialBount
 | Label | Action | Destination / Effect |
 |-------|--------|----------------------|
 | Save Draft | `updateBounty.mutate` → detail page | DRAFT preserved. |
-| Save Changes / Go Live | `updateBounty.mutate` + DRAFT unpaid → fund | Detail page (LIVE+) or Stitch hosted checkout (DRAFT unpaid). |
+| Save Changes / Go Live | `updateBounty.mutate` + DRAFT unpaid → fund | Detail page (LIVE+) or Stitch hosted checkout (DRAFT unpaid). | <!-- historical -->
 | Revert to draft (banner shortcut, PAUSED) | `router.push` | `/business/bounties/{id}` (user then clicks the actual revert button). |
 
 ## Business rules

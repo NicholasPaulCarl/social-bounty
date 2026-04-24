@@ -35,7 +35,7 @@ The flag is set in exactly two callers and nowhere else:
 | Caller | File:Line | `actionType` | Purpose |
 |---|---|---|---|
 | `FinanceAdminService.postOverride` | `apps/api/src/modules/finance-admin/finance-admin.service.ts:300` | `compensating_entry` | Super Admin posts a balanced correction group to restore ledger integrity. |
-| `FinanceAdminService.devSeedPayable` | `apps/api/src/modules/finance-admin/finance-admin.service.ts:253` | `compensating_entry` | Dev-only payout-pipeline seed; refuses to run when `PAYMENTS_PROVIDER=stitch_live` (`finance-admin.service.ts:231`). |
+| `FinanceAdminService.devSeedPayable` | `apps/api/src/modules/finance-admin/finance-admin.service.ts:253` | `compensating_entry` | Dev-only payout-pipeline seed; refuses to run when `PAYMENTS_PROVIDER=stitch_live` (`finance-admin.service.ts:231`). | <!-- historical -->
 
 Both callers are on `@Controller('admin/finance')` with class-level `@Roles(SUPER_ADMIN)` (`finance-admin.controller.ts:77-78`). Both use `actionType=compensating_entry` exclusively — per ADR 0005, this `actionType` takes a one-shot operator-minted UUID as `referenceId`, so it can never collide with a forward economic event.
 
@@ -69,6 +69,6 @@ This ADR authorises the bypass **only** for `actionType='compensating_entry'`. A
 
 ## Consequences
 
-- `devSeedPayable` uses the same bypass because a dev smoke-test of the payout pipeline must work even if staging's Kill Switch is flipped; the `PAYMENTS_PROVIDER=stitch_live` guard (`finance-admin.service.ts:231`) keeps this mechanism out of production.
+- `devSeedPayable` uses the same bypass because a dev smoke-test of the payout pipeline must work even if staging's Kill Switch is flipped; the `PAYMENTS_PROVIDER=stitch_live` guard (`finance-admin.service.ts:231`) keeps this mechanism out of production. <!-- historical -->
 - CI / linting should enforce that `allowDuringKillSwitch: true` only ever appears inside the `finance-admin.service.ts` file (future enforcement task — not in scope for this ADR).
 - The Reconciliation Dashboard's `compensating_entry` filter is the primary post-incident audit view; it must never be removed.

@@ -12,7 +12,7 @@
 
 - [ ] Latest `main` is at [41c3a18](https://github.com/NicholasPaulCarl/social-bounty/commit/41c3a18) or later. (Current session's ADR 0011 + token service + webhook handler all landed.)
 - [ ] `apps/api/Dockerfile` + `render.yaml` + `.dockerignore` all exist at repo root (they do, as of this doc).
-- [ ] You have the secrets handy for env vars (Supabase URLs, Redis creds, JWT secrets, Stitch creds, Apify token, SMTP, `BENEFICIARY_ENC_KEY`, `STITCH_SYSTEM_ACTOR_ID`). Open your local `.env` as a reference.
+- [ ] You have the secrets handy for env vars (Supabase URLs, Redis creds, JWT secrets, Stitch creds, Apify token, SMTP, `BENEFICIARY_ENC_KEY`, `STITCH_SYSTEM_ACTOR_ID`). Open your local `.env` as a reference. <!-- historical -->
 - [ ] TradeSafe has NOT yet issued production creds — that's expected. Leave `TRADESAFE_CLIENT_ID` + `TRADESAFE_CLIENT_SECRET` blank for now; the API boots fine with them empty (it falls into mock mode, which is safe).
 
 ---
@@ -63,13 +63,13 @@ openssl rand -hex 32   # for JWT_SECRET
 openssl rand -hex 32   # for JWT_REFRESH_SECRET
 ```
 
-### Stitch
+### Stitch <!-- historical -->
 
 Copy from your local `.env`:
-- `STITCH_CLIENT_ID`
-- `STITCH_CLIENT_SECRET`
-- `STITCH_WEBHOOK_SECRET`
-- `STITCH_SYSTEM_ACTOR_ID` — the user UUID the system uses for AuditLog fallback. If you don't have one, create a row in `users` with role `SUPER_ADMIN` and paste its id.
+- `STITCH_CLIENT_ID` <!-- historical -->
+- `STITCH_CLIENT_SECRET` <!-- historical -->
+- `STITCH_WEBHOOK_SECRET` <!-- historical -->
+- `STITCH_SYSTEM_ACTOR_ID` — the user UUID the system uses for AuditLog fallback. If you don't have one, create a row in `users` with role `SUPER_ADMIN` and paste its id. <!-- historical -->
 
 ### TradeSafe
 
@@ -224,4 +224,4 @@ If a deploy breaks:
 2. Click **Rollback**
 3. Render re-deploys that version (runs its preDeployCommand too — migrations already idempotent so this is safe)
 
-For a code-level emergency (kill-switch the whole API): set `PAYMENTS_PROVIDER=none` in Render env vars — forces all Stitch/TradeSafe calls to a safe mock mode. Still need to verify each code path respects this — not a substitute for the DB-backed financial kill switch (`SystemSetting.financial.kill_switch.active`), which is the canonical stop.
+For a code-level emergency (kill-switch the whole API): set `PAYMENTS_PROVIDER=none` in Render env vars — forces all Stitch/TradeSafe calls to a safe mock mode. Still need to verify each code path respects this — not a substitute for the DB-backed financial kill switch (`SystemSetting.financial.kill_switch.active`), which is the canonical stop. <!-- historical -->

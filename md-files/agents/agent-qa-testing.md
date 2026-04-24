@@ -121,7 +121,7 @@ apps/api/src/
       __tests__/update-bounty.service.spec.ts       # Update bounty tests
       __tests__/create-bounty-edge-cases.spec.ts   # Edge cases: minimal data, empty rewards, DRAFT→LIVE
       __tests__/brand-assets.service.spec.ts       # Brand assets upload/validation tests
-    payments/payments.service.spec.ts    # Stitch Express payment tests
+    payments/payments.service.spec.ts    # TradeSafe payment tests (per ADR 0011)
     submissions/
       submissions.service.spec.ts        # SubmissionsService unit tests
       __tests__/reported-metrics.spec.ts # Reported metrics + verification tests
@@ -389,7 +389,7 @@ describe('useCreateBountyForm', () => {
 | **Runtime smoke** | Start full stack, login with each relevant role, execute feature happy path, verify data persists across page refresh |
 | **Draft saving** | Minimal draft (title only), partial draft, full draft, edit draft, defaults applied for missing fields |
 | **Payout metrics** | Create with thresholds, submit with reported values, threshold comparison, verification deadline, auto-payout after 48h |
-| **Stitch Express payments** | Inbound funding (account debit) creation, successful/failed payment, Svix webhook handling (replay-safe), DRAFT→LIVE gate, payment status badge |
+| **TradeSafe payments** | Inbound funding (hosted checkout) creation, successful/failed transaction, URL-path-secret webhook handling + GraphQL re-fetch (replay-safe), DRAFT→LIVE gate, payment status badge |
 
 ### For each guard:
 
@@ -523,13 +523,13 @@ Execute these flows manually after all automated tests pass:
    - Attempt to Go Live from the draft detail page
    - **Verify**: Validation errors are shown for missing required fields
 
-7. **Bounty publishing with Stitch Express payment**
+7. **Bounty publishing with TradeSafe payment**
    - Login as Business Admin
    - Create a complete bounty with all required fields → Save Draft
    - Navigate to the draft detail page → click Go Live
-   - **Verify**: Stitch Express hosted consent flow launches showing total reward amount
-   - Complete the sandbox consent flow (see `docs/STITCH-IMPLEMENTATION-STATUS.md` for sandbox test account setup — Stitch does not use card numbers; funding runs through a hosted account-debit consent)
-   - **Verify**: Payment succeeds, bounty status changes to LIVE, payment status badge shows PAID
+   - **Verify**: TradeSafe hosted checkout flow launches showing total reward amount
+   - Complete the sandbox checkout flow (see `docs/adr/0011-tradesafe-unified-rail.md` §5 for the inbound lifecycle; sandbox supports card / EFT / OZOW / SnapScan)
+   - **Verify**: Payment succeeds, `FUNDS_RECEIVED` webhook verified against TradeSafe via GraphQL re-fetch, bounty status changes to LIVE, payment status badge shows PAID
    - Login as Participant → navigate to bounties list
    - **Verify**: The published bounty is visible to participants
 
@@ -543,12 +543,12 @@ Execute these flows manually after all automated tests pass:
    - Approve the submission
    - **Verify**: Verification deadline is set (48 hours from now), visible in submission detail
 
-9. **Stitch Express payment failure**
+9. **TradeSafe payment failure**
    - Login as Business Admin
    - Create a complete bounty → Save Draft → click Go Live
-   - Use the Stitch sandbox decline path (see `docs/STITCH-IMPLEMENTATION-STATUS.md` for the failure-case sandbox account) to simulate a failed account debit
+   - Use a TradeSafe sandbox decline path (cancel checkout / EFT timeout) to simulate a failed transaction
    - **Verify**: Error message shown, bounty stays in DRAFT status, payment status shows UNPAID
-   - Retry with the passing sandbox account
+   - Retry with a passing sandbox flow
    - **Verify**: Payment succeeds, bounty goes LIVE
 
 ### Failure Protocol

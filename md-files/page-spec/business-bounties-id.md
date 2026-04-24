@@ -14,7 +14,7 @@ Single-bounty detail page with inline status transitions (including Go Live fund
 
 ## Entry & exit
 - **Reached from:** `/business/bounties` (View action), Save Draft redirect from `/business/bounties/new`, funded-return page.
-- **Links out to:** `/business/bounties/{id}/edit`, `/business/bounties/{id}/submissions`, `/bounties/{id}?preview=1` (new tab preview), Stitch hosted checkout.
+- **Links out to:** `/business/bounties/{id}/edit`, `/business/bounties/{id}/submissions`, `/bounties/{id}?preview=1` (new tab preview), Stitch hosted checkout. <!-- historical -->
 
 ## Data
 - **React Query hooks:** `useBounty(id)`, `useUpdateBountyStatus(id)`, `useDeleteBounty()` (from `hooks/useBounties.ts`); `bountyApi.fundBounty`, `bountyApi.requestRefundBeforeApproval` direct calls.
@@ -39,7 +39,7 @@ Single-bounty detail page with inline status transitions (including Go Live fund
 | Label | Action | Destination / Effect |
 |-------|--------|----------------------|
 | Preview | `window.open(/bounties/{id}?preview=1)` | Hunter-facing view in new tab. |
-| Go Live (DRAFT) | `bountyApi.fundBounty` + `redirectToHostedCheckout` | Stitch hosted checkout. On settlement webhook → `paymentStatus=PAID` → user returns to `/business/bounties/funded`. |
+| Go Live (DRAFT) | `bountyApi.fundBounty` + `redirectToHostedCheckout` | Stitch hosted checkout. On settlement webhook → `paymentStatus=PAID` → user returns to `/business/bounties/funded`. | <!-- historical -->
 | Pause (LIVE) / Close (LIVE/PAUSED) / Resume (PAUSED) / Revert to Draft (PAUSED) | PATCH `/status` via `useUpdateBountyStatus` | With `ConfirmAction`. |
 | Edit | `router.push` | `/business/bounties/{id}/edit` |
 | Submissions | `router.push` | `/business/bounties/{id}/submissions` |
@@ -48,7 +48,7 @@ Single-bounty detail page with inline status transitions (including Go Live fund
 
 ## Business rules
 - **Bounty state machine:** DRAFT → (Go Live + funded) → LIVE ↔ PAUSED → CLOSED. Revert-to-Draft from PAUSED.
-- **DRAFT→LIVE funding gate (CLAUDE.md §4):** same as the list page. Payment must be PAID before the LIVE flip; flow routes DRAFT + unpaid through Stitch hosted checkout.
+- **DRAFT→LIVE funding gate (CLAUDE.md §4):** same as the list page. Payment must be PAID before the LIVE flip; flow routes DRAFT + unpaid through Stitch hosted checkout. <!-- historical -->
 - **Refund-before-approval gate (CLAUDE.md §4 #5 compensating entries):** allowed when PAID and no submission has been approved yet. Backend is authoritative — the UI only surfaces the button based on `paymentStatus === PAID && status !== CLOSED`; if an approved submission exists the API returns an error.
 - Delete only on DRAFT (protected ledger history).
 - All status / refund / delete actions routed through `ConfirmAction` (Hard Rule #6).
@@ -69,7 +69,7 @@ None colocated.
 - `lib/utils/bounty-preview-checks.ts` — `derivePreviewChecks`
 - `components/features/submission/VerificationReportPanel.tsx`
 - `components/common/PageHeader.tsx`, `StatusBadge.tsx`, `ConfirmAction.tsx`
-- `components/payment/PaymentDialog.tsx` (legacy Stripe — retained, likely dead)
+- `components/payment/PaymentDialog.tsx` (legacy Stripe — retained, likely dead) <!-- historical -->
 
 ## Open questions / TODOs
 - `PaymentDialog` only renders when `clientSecret` state is truthy, but the code never sets it (same dead-path as `/business/bounties`).

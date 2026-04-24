@@ -1211,7 +1211,7 @@ Three optional `InputNumber` fields in a responsive grid:
 
 ### 12.1 Component: PaymentDialog
 
-A modal dialog using PrimeReact `Dialog` with Stripe Elements integration.
+A modal dialog using PrimeReact `Dialog` with Stripe Elements integration. <!-- historical -->
 
 ```
 +--------------------------------------------------+
@@ -1259,7 +1259,7 @@ A modal dialog using PrimeReact `Dialog` with Stripe Elements integration.
       A payment of <span className="font-semibold">{formatCurrency(amount, currency)}</span> is required.
     </p>
     <div className="border border-neutral-200 rounded-lg p-4">
-      {/* Stripe PaymentElement */}
+      {/* Stripe PaymentElement */} <!-- historical -->
       <PaymentElement />
     </div>
     {error && (

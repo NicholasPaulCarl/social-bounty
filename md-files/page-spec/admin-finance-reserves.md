@@ -25,7 +25,7 @@ Per-bounty view of the `brand_reserve` ledger account balance versus the bounty'
 ## UI structure
 - `PageHeader` with title "Brand reserves", subtitle "Per-bounty brand_reserve balance vs face value". Actions: Download CSV, Refresh.
 - Amber `<Message severity="warn">` banner above the table when any row has `drift: true` ("N bounty/bounties have reserve drift").
-- `<Card>` wrapping a 25-row paginated `<DataTable>`, stripedRows, cursor-pointer on rows.
+- `<Card>` wrapping a 25-row paginated `<DataTable>`, stripedRows, cursor-pointer on rows. <!-- historical -->
 - Row tint: `bg-yellow-50` class applied to drifted rows.
 - Columns: Bounty title (primary colour link text), Payment status Tag, Face value cents (mono), Reserve balance cents (mono), Drift (success `ok` or warning `DRIFT` Tag).
 - Row click routes to `/admin/bounties/{bountyId}`.

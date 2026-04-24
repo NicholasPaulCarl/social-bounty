@@ -62,7 +62,7 @@ All contacts are placeholders. Replace with real names and channels before going
 | Security Lead | [Security Lead Name] | Slack #security / Mobile | [Security Lead Email] | Any suspected breach, account compromise, or CVE exploitation |
 | Product Lead | [Product Lead Name] | Slack DM | [Product Lead Email] | SEV-1/SEV-2; any user-facing impact lasting >1 hour |
 | Legal Counsel | [Legal Counsel Name/Firm] | [Phone] | [Email] | Any confirmed data breach (GDPR/POPIA notification obligations) |
-| Payment Processor Support (Stitch Express) | <TO BE FILLED — Stitch account manager name> | <TO BE FILLED — Stitch support email + out-of-hours phone> | <TO BE FILLED — Stitch merchant dashboard URL (https://express.stitch.money)> | Any payment processing failure, settlement webhook failure, or Stitch API outage |
+| Payment Processor Support (Stitch Express) | <TO BE FILLED — Stitch account manager name> | <TO BE FILLED — Stitch support email + out-of-hours phone> | <TO BE FILLED — Stitch merchant dashboard URL (https://express.stitch.money)> | Any payment processing failure, settlement webhook failure, or Stitch API outage | <!-- historical -->
 | Infrastructure / Hosting Support | [Hosting Provider] | [Support Ticket URL] | [Emergency Phone] | Infrastructure-level outages |
 
 **Incident Commander:** The first senior engineer to acknowledge a SEV-1 or SEV-2 becomes the Incident Commander (IC) until explicitly handed off. The IC coordinates response, owns communication, and makes containment decisions.

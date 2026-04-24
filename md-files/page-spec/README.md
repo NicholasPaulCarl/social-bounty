@@ -165,7 +165,7 @@ Each spec follows the same template:
 Side-findings the agents flagged while reading source. Not a formal audit — treat as leads, verify before acting.
 
 ### Content drift
-- `/pricing` FAQ #6 says "via Stripe" — stale; live provider is Stitch Express
+- `/pricing` FAQ #6 says "via Stripe" — stale; live provider is Stitch Express <!-- historical -->
 - `/terms` §Limitation of Liability caps at **USD $100** on an otherwise ZAR platform
 - `/terms` §Eligibility requires **18+** but `/signup` has no age gate
 - `/join/hunter` + `/pricing` advertise "same-day payouts" for Pro Hunters vs canonical T+3 clearance in `md-files/payment-gateway.md`
@@ -173,7 +173,7 @@ Side-findings the agents flagged while reading source. Not a formal audit — tr
 ### Dead / stub code
 - `/contact` form submit is simulated (`setTimeout` + `Math.random()`) — no backend endpoint wired
 - `/hunters/[id]` "Invite to Bounty" button has no `onClick`
-- `/business/bounties` + `/business/bounties/[id]` `PaymentDialog` (legacy embedded Stripe) rendered only when `clientSecret` is set — but nothing sets it after the Stitch hosted-checkout refactor (commit `bd2480b`)
+- `/business/bounties` + `/business/bounties/[id]` `PaymentDialog` (legacy embedded Stripe) rendered only when `clientSecret` is set — but nothing sets it after the Stitch hosted-checkout refactor (commit `bd2480b`) <!-- historical -->
 - `/business/bounties/[id]/invitations` hardcodes "Revoke is not yet supported by the API" — the `DELETE /api/v1/bounties/:bountyId/invitations/:id` endpoint exists
 - `/business/disputes/[id]` unused `DISPUTE_CATEGORY_COLORS` import duplicated by local `categoryColors`
 

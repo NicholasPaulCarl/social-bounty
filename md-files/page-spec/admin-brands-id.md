@@ -65,6 +65,6 @@ Integration-only.
 - `apps/api/src/modules/admin/admin.service.ts`.
 
 ## Open questions / TODOs
-- KYB state + subscription tier + Stitch funding balance would be high-value here (needs a cross-module aggregate).
+- KYB state + subscription tier + Stitch funding balance would be high-value here (needs a cross-module aggregate). <!-- historical -->
 - Member list (with role + joined date) missing; currently only `memberCount` scalar.
 - No direct link to brand's funding / reserves surface (`/admin/finance/reserves?brandId=`).

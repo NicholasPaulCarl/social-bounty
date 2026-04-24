@@ -7,7 +7,7 @@
 **Nav entry:** `/wallet` Withdraw CTA.
 **Layout:** `apps/web/src/app/(participant)/layout.tsx`.
 
-See also: `docs/architecture/sitemap.md`, `claude.md` §4 Financial Non-Negotiables, `md-files/payment-gateway.md` (outbound-rail clearance / kill switch rules). Note: the dedicated Stitch-backed banking flow lives at `/settings/payouts`; this page captures a one-off destination per request.
+See also: `docs/architecture/sitemap.md`, `claude.md` §4 Financial Non-Negotiables, `md-files/payment-gateway.md` (outbound-rail clearance / kill switch rules). Note: the dedicated Stitch-backed banking flow lives at `/settings/payouts`; this page captures a one-off destination per request. <!-- historical -->
 
 ## Purpose
 Request a one-off withdrawal against the hunter's available balance. Enforces min/max bounds, method-specific destination fields (PayPal / Bank transfer / E-wallet), and shows balance up-front.

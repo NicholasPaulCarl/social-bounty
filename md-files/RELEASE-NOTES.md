@@ -198,14 +198,14 @@ SUBMITTED ──→ IN_REVIEW ──→ APPROVED ──→ (payout)
 | **Auto-Payout** | Approved submissions past their verification deadline are automatically marked as Paid (runs every 10 minutes). |
 | **Email Notification** | Participants receive an email when their payout status changes to Paid. |
 
-### 3.7 Payment (Stripe Integration)
+### 3.7 Payment (TradeSafe Integration)
 
 | Function | Description |
 |----------|-------------|
-| **Fund Bounty** | Create a Stripe payment intent to fund a bounty before publishing. |
-| **Payment Confirmation** | Stripe webhooks automatically confirm payment and transition bounty from Draft to Live. |
-| **Idempotency** | Duplicate payment requests are prevented using idempotency keys. |
-| **Payment Failure Handling** | Failed payments are logged and the bounty remains in Draft status. |
+| **Fund Bounty** | Redirect to TradeSafe hosted checkout to fund a bounty before publishing (per ADR 0011 single-rail cutover). |
+| **Payment Confirmation** | TradeSafe `FUNDS_RECEIVED` webhook, verified via URL-path-secret + authoritative GraphQL re-fetch, transitions bounty from Draft to Live. |
+| **Idempotency** | Duplicate callbacks are prevented via `WebhookEvent.UNIQUE(provider, externalEventId)` + ledger `UNIQUE(referenceId, actionType)`. |
+| **Payment Failure Handling** | Failed or cancelled transactions are logged; bounty remains in Draft status. |
 
 ### 3.8 Brand Management
 
@@ -281,7 +281,7 @@ Super Admins have full platform access for user management, troubleshooting, com
 - Bounty: creation, updates, status transitions, overrides, brand asset changes
 - Submission: creation, reviews, payout changes, overrides
 - Settings: platform configuration changes
-- Payments: Stripe payment success/failure events
+- Payments: TradeSafe transaction state transitions (FUNDS_RECEIVED / FUNDS_RELEASED / CANCELLED / REFUNDED)
 
 ### 4.7 Platform Settings
 
@@ -348,7 +348,7 @@ All emails use branded HTML templates with retry logic (3 attempts with exponent
 | ORM | Prisma 6 |
 | Cache | Redis 7 |
 | Auth | Passport JWT |
-| Payments | Stripe |
+| Payments | TradeSafe (inbound + outbound unified rail per ADR 0011) |
 | Email | Nodemailer + Handlebars templates |
 | Tests | 505 unit tests (24 suites), all passing |
 

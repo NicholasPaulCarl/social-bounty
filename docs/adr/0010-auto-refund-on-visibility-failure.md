@@ -9,7 +9,7 @@
 
 Phase 1 of the hunter submission verification feature (merged 2026-04-18, commit `16e2095`) added per-URL Apify scraping and a hard approval gate. Phase 2A (merged 2026-04-18, commit `071f98f`) extended this with **scheduled re-scraping** to enforce the bounty's `PostVisibility` rule (`MUST_NOT_REMOVE` or `MINIMUM_DURATION`) **after** the brand has approved the submission and (potentially) paid the hunter.
 
-The visibility scheduler — `apps/api/src/modules/submissions/submission-visibility.scheduler.ts` — runs every 6 hours, picks up to 100 eligible approved submissions, and re-scrapes the URLs the hunter originally provided. When a re-scrape fails (the post 404s, the actor times out, the profile flips private, the URL stops resolving), the failure increments `Submission.consecutiveVisibilityFailures`. After **two consecutive failures**, the scheduler invokes `RefundService.requestAfterApproval(submissionId, reason, systemUser)` — posting a compensating ledger group that returns the bounty's payout to the brand and (if `PAYOUTS_ENABLED=true`) initiates a Stitch outbound transfer.
+The visibility scheduler — `apps/api/src/modules/submissions/submission-visibility.scheduler.ts` — runs every 6 hours, picks up to 100 eligible approved submissions, and re-scrapes the URLs the hunter originally provided. When a re-scrape fails (the post 404s, the actor times out, the profile flips private, the URL stops resolving), the failure increments `Submission.consecutiveVisibilityFailures`. After **two consecutive failures**, the scheduler invokes `RefundService.requestAfterApproval(submissionId, reason, systemUser)` — posting a compensating ledger group that returns the bounty's payout to the brand and (if `PAYOUTS_ENABLED=true`) initiates a Stitch outbound transfer. <!-- historical -->
 
 This is the platform spending money — moving funds out of the hunter's earnings and back to the brand — **without a human in the loop**, on the basis of an automated read of an external service (Apify). That deserves an explicit decision record, not a buried implementation detail.
 
@@ -62,7 +62,7 @@ The cap is generous enough that legitimate bounties (≤10 submissions, weekly c
 
 Every auto-refund writes:
 - A `LedgerTransactionGroup` row (the compensating entry, balanced double-entry per Non-Negotiable #1).
-- An `AuditLog` row with `action = SUBMISSION_VISIBILITY_AUTO_REFUND`, `actorId = STITCH_SYSTEM_ACTOR_ID`, and the structured failure metadata.
+- An `AuditLog` row with `action = SUBMISSION_VISIBILITY_AUTO_REFUND`, `actorId = STITCH_SYSTEM_ACTOR_ID`, and the structured failure metadata. <!-- historical -->
 - A `SubmissionUrlScrapeHistory` row capturing the second failure that triggered the refund.
 - A `RecurringIssue` row (or bumped occurrences on an existing one) under `category = 'post_visibility'`.
 

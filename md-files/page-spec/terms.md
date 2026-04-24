@@ -56,7 +56,7 @@ Rendered from a `SECTIONS` array identical in shape to `/privacy`. `export const
 - Legal copy; changes gated by Team Lead sign-off.
 - §Eligibility requires users be 18+. Signup page currently does NOT gate on this — no age field.
 - §Bounty Participation references "Brands" / "Hunters" terminology consistent with the Organisation→Brand rename (`CLAUDE.md` HEAD banner).
-- §Payments & Rewards line "Brands must fund their bounty reward pool before a bounty goes live. Funds are held in escrow by Social Bounty" — this aligns with the Stitch Express inbound rail + platform-custody rule in `CLAUDE.md §4` (Financial Non-Negotiables #8).
+- §Payments & Rewards line "Brands must fund their bounty reward pool before a bounty goes live. Funds are held in escrow by Social Bounty" — this aligns with the Stitch Express inbound rail + platform-custody rule in `CLAUDE.md §4` (Financial Non-Negotiables #8). <!-- historical -->
 - §Limitation of Liability cap is the greater of 12 months' fees paid or **USD $100** — ZAR rest of platform; USD here is a copy inconsistency.
 - Disputes must be raised within **14 days** — enforceable in `md-files/knowledge-base.md` / Disputes module, worth validating.
 
@@ -74,6 +74,6 @@ No colocated tests.
 ## Open questions / TODOs
 - **Age verification** — §Eligibility requires 18+ but signup collects no DOB. Either add a gate or remove the hard number.
 - **Currency mismatch** — §Limitation of Liability says "USD $100" on an otherwise ZAR platform.
-- **"Escrow by Social Bounty"** — wording suggests a TradeSafe-style escrow layer, but ADR 0003 + the current implementation uses platform-custody via Stitch. Align copy with `md-files/payment-gateway.md`.
+- **"Escrow by Social Bounty"** — wording suggests a TradeSafe-style escrow layer, but ADR 0003 + the current implementation uses platform-custody via Stitch. Align copy with `md-files/payment-gateway.md`. <!-- historical -->
 - **14-day dispute window** — confirm enforced in Disputes state machine (`disputes.controller.ts` / `disputes.service.ts`).
 - Email `legal@socialbounty.com` must exist before launch.

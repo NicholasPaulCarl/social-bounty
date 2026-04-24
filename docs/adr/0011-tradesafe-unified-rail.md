@@ -3,23 +3,25 @@
 **Status:** Accepted, 2026-04-24
 **Supersedes:** ADR 0003 (TradeSafe Out of Scope — platform reserve as sole custody layer)
 **Extends:** ADR 0008 (TradeSafe for Hunter Payouts — outbound only)
-**Related:** ADR 0005 (ledger idempotency), ADR 0006 (kill-switch bypass scope), ADR 0009 (integration skeleton), `CLAUDE.md` Financial Non-Negotiables §4, `md-files/payment-gateway.md`, `md-files/financial-architecture.md`
+**Related:** ADR 0005 (ledger idempotency), ADR 0006 (kill-switch bypass scope), ADR 0009 (integration skeleton), `CLAUDE.md` Financial Non-Negotiables §4, `md-files/financial-architecture.md`
+
+> **About historical references in this document:** This ADR documents the decision to replace the legacy Stitch Express integration (and earlier Stripe / Peach Payments choices). References to those historical providers below describe the pre-2026-04-24 state that this cutover replaces. Historical context only.
 
 ## Context
 
-ADR 0008 (2026-04-15) locked TradeSafe as the outbound hunter-payout rail while keeping Stitch Express as the inbound (brand-funding) rail. ADR 0009 (2026-04-15) scaffolded the TradeSafe integration shape — Option B peer tables, `PAYOUTS_PROVIDER` flag, Svix-equivalent webhook route — without committing to one rail or two.
+ADR 0008 (2026-04-15) locked TradeSafe as the outbound hunter-payout rail while keeping Stitch Express as the inbound (brand-funding) rail. ADR 0009 (2026-04-15) scaffolded the TradeSafe integration shape — Option B peer tables, `PAYOUTS_PROVIDER` flag, Svix-equivalent webhook route — without committing to one rail or two. <!-- historical -->
 
 Three things have changed since then:
 
-1. **Stitch subscriptions are commercially blocked.** The Pro-tier card-consent flow was gated behind `SUBSCRIPTION_UPGRADE_ENABLED=false` in commit `8ca5c57` (2026-04-22) because Stitch's `recurring-consent` scope was not enabled on the sandbox tenant and the commercial enablement timeline is unclear. Live card-consent checkouts against `secure.stitch.money` returned `INVALID_SCOPE` on every attempt. We can fund one-off bounty payments today but cannot price a Pro subscription.
+1. **Stitch subscriptions are commercially blocked.** The Pro-tier card-consent flow was gated behind `SUBSCRIPTION_UPGRADE_ENABLED=false` in commit `8ca5c57` (2026-04-22) because Stitch's `recurring-consent` scope was not enabled on the sandbox tenant and the commercial enablement timeline is unclear. Live card-consent checkouts against `secure.stitch.money` returned `INVALID_SCOPE` on every attempt. We can fund one-off bounty payments today but cannot price a Pro subscription. <!-- historical -->
 2. **TradeSafe's GraphQL API is live and verified against sandbox.** Commits `0687cb5` (Phase 1a — GraphQL client + OAuth client-credentials flow against `https://auth.tradesafe.co.za/oauth/token`) and `fee3571` (Phase 1b — mutation helpers + live sandbox smoke round-tripping `tokenCreate` → `transactionCreate` → `checkoutLink` → `allocationAcceptDelivery`) prove the rail works end-to-end. Hosted checkout returns a live URL the browser can redirect to for card / EFT / OZOW / SnapScan capture. Auto-payout to the SELLER fires on `allocationAcceptDelivery` without a separate outbound call.
 3. **Per-bounty escrow maps cleanly to the bounty lifecycle.** TradeSafe's transaction model — one transaction per commercial arrangement, allocations for each payment slice, BUYER / SELLER / AGENT party roles — is a natural fit for "brand creates bounty, hunter delivers, platform takes a cut". The platform reserve abstraction (ADR 0003) becomes redundant: TradeSafe's own escrow is the custody layer.
 
-The hybrid Stitch-inbound / TradeSafe-outbound posture from ADR 0008 was defensible when inbound was live and outbound was blocked on creds. It is no longer defensible when inbound would need to live alongside a TradeSafe rail that can already do the inbound flow (hosted checkout), and when the inbound rail's subscription path is gated on an unknown commercial timeline.
+The hybrid Stitch-inbound / TradeSafe-outbound posture from ADR 0008 was defensible when inbound was live and outbound was blocked on creds. It is no longer defensible when inbound would need to live alongside a TradeSafe rail that can already do the inbound flow (hosted checkout), and when the inbound rail's subscription path is gated on an unknown commercial timeline. <!-- historical -->
 
 ## Decision
 
-Adopt TradeSafe as the **single payment rail** for Social Bounty. Stitch Express stays operational during the phased cutover (see §6) and is deleted in full once the TradeSafe inbound + outbound paths are green in production.
+Adopt TradeSafe as the **single payment rail** for Social Bounty. Stitch Express stays operational during the phased cutover (see §6) and is deleted in full once the TradeSafe inbound + outbound paths are green in production. <!-- historical -->
 
 ### 1. Party role mapping
 
@@ -91,10 +93,10 @@ All ten Non-Negotiables from `CLAUDE.md §4` are honoured. The only architectura
 4. **Integer minor units.** Ledger continues in cents. `toZar` / `toCents` at the adapter boundary only. Zero Float on the ledger side.
 5. **Append-only ledger.** Refunds (allocation `CANCELLED`) post compensating entries, never updates. No TradeSafe event mutates a prior `LedgerEntry` row.
 6. **AuditLog entry.** Every TradeSafe-driven state change writes an `AuditLog` row inside the same transaction as the ledger posting. New audit actions: `TRADESAFE_BOUNTY_FUNDED`, `TRADESAFE_SUBMISSION_PAYOUT`, `TRADESAFE_ALLOCATION_CANCELLED`.
-7. **Retry-safe.** Webhook replays no-op on the `UNIQUE(provider, externalEventId)` guard (unchanged from Stitch). `allocationAcceptDelivery` is idempotent-by-state on the TradeSafe side (a second call on an already-released allocation returns the same `FUNDS_RELEASED` state without double-paying). Our handler's guard is the ledger unique constraint.
+7. **Retry-safe.** Webhook replays no-op on the `UNIQUE(provider, externalEventId)` guard (unchanged from Stitch). `allocationAcceptDelivery` is idempotent-by-state on the TradeSafe side (a second call on an already-released allocation returns the same `FUNDS_RELEASED` state without double-paying). Our handler's guard is the ledger unique constraint. <!-- historical -->
 8. **Platform custody — reinterpreted.** ADR 0003's original statement was "all funds flow through platform-controlled custody; no direct brand-to-hunter payments". This ADR reinterprets *platform-controlled* as *controlled by a custody layer the platform is the AGENT of*. TradeSafe's escrow is a registered SA escrow service holding funds on behalf of the platform-mediated transaction; the platform (as AGENT) controls release via `allocationAcceptDelivery`. Funds never move brand → hunter directly; they move brand → TradeSafe-held escrow → hunter with the platform gating every release. The intent of Non-Negotiable #8 (no rogue direct payments, platform controls every release) is preserved; only the identity of the custody account changes.
 9. **Plan snapshot.** Tier (Free / Pro) is still snapshotted onto `LedgerTransactionGroup.planSnapshot` at posting time. TradeSafe has no opinion on our subscription tiers — the snapshot is purely internal. In-flight transactions are never re-priced on plan change.
-10. **Global fee independence.** The 3.5% global platform fee (originally Stitch's processing cost pass-through) is **re-homed** as a conceptual platform fee under TradeSafe. TradeSafe's own processing fee is a separate concern (see §8 OQ-2). `global_fee_revenue` remains its own ledger account, calculated independently of the 20 / 15 / 5 splits, and shown as a separate line in all UI and reports. The exact 3.5% number may be revised pending clarification of TradeSafe's own fee pass-through — the **independence** property is what Non-Negotiable #10 requires, not the specific rate.
+10. **Global fee independence.** The 3.5% global platform fee (originally Stitch's processing cost pass-through) is **re-homed** as a conceptual platform fee under TradeSafe. TradeSafe's own processing fee is a separate concern (see §8 OQ-2). `global_fee_revenue` remains its own ledger account, calculated independently of the 20 / 15 / 5 splits, and shown as a separate line in all UI and reports. The exact 3.5% number may be revised pending clarification of TradeSafe's own fee pass-through — the **independence** property is what Non-Negotiable #10 requires, not the specific rate. <!-- historical -->
 
 ## 4. Webhook signature strategy
 
@@ -121,7 +123,7 @@ RBAC is unchanged: the `PAYOUTS_ENABLED` operator flag remains the top-level gat
 
 ## 6. Phased cutover plan
 
-The cutover is deliberately staged so each phase lands on green reconciliation before the next begins. Stitch stays live across the full arc; deletion is the final step.
+The cutover is deliberately staged so each phase lands on green reconciliation before the next begins. Stitch stays live across the full arc; deletion is the final step. <!-- historical -->
 
 | Phase | Scope | Status | Gate |
 |---|---|---|---|
@@ -130,31 +132,31 @@ The cutover is deliberately staged so each phase lands on green reconciliation b
 | **1c** | This ADR | Done (this file, 2026-04-24) | — |
 | **1d** | Webhook callback controller + domain handlers. URL-path secret, GraphQL re-fetch, `WebhookRouterService` dispatch arms for `transaction.*` / `allocation.*` / `deposit.*` events. Full 5-test matrix per `CLAUDE.md §5`. | Pending (next up) | — |
 | **2** | Token lifecycle service. Prisma migration adding `User.tradeSafeTokenId`, `TradeSafeTransaction`, `TradeSafeAllocation` tables. `TradeSafeTokenService.ensureToken(user)` idempotent helper, fired fire-and-forget from signup; blocking on first bounty-apply. | Pending | 1d merged |
-| **3** | Inbound cutover. Swap `StitchPaymentsService` → `TradeSafePaymentsService` on bounty-funding endpoint. Live reconciliation for 24h staging before production flip. | **Blocked** | Live TradeSafe creds (R24), AGENT fee mapping confirmed (§8 OQ-1), full integration test matrix green |
+| **3** | Inbound cutover. Swap `StitchPaymentsService` → `TradeSafePaymentsService` on bounty-funding endpoint. Live reconciliation for 24h staging before production flip. | **Blocked** | Live TradeSafe creds (R24), AGENT fee mapping confirmed (§8 OQ-1), full integration test matrix green | <!-- historical -->
 | **4** | Outbound cutover. Wire submission approval → `allocationAcceptDelivery`. Clearance-window policy decision (§8 OQ-4). | **Blocked** | Phase 3 green in production for 48h |
-| **5** | Reconciliation engine update — `checkPayoutsVsLedger` extended to cover TradeSafe transactions + allocations. Stitch code deleted (services, routes, config, docs). `PAYOUTS_PROVIDER` flag removed. | **Blocked** | Phase 4 green in production for 7 days |
+| **5** | Reconciliation engine update — `checkPayoutsVsLedger` extended to cover TradeSafe transactions + allocations. Stitch code deleted (services, routes, config, docs). `PAYOUTS_PROVIDER` flag removed. | **Blocked** | Phase 4 green in production for 7 days | <!-- historical -->
 
 Phases 3–5 are gated on external commercial closures (live creds, TradeSafe fee-model clarification). Phases 1d + 2 land in the current session.
 
 ## 7. Alternatives considered
 
-### (a) Keep Stitch + wait for subscriptions feature enablement
+### (a) Keep Stitch + wait for subscriptions feature enablement <!-- historical -->
 
-- Keep the hybrid Stitch-inbound / TradeSafe-outbound posture from ADR 0008.
-- Wait for Stitch's `recurring-consent` scope to be enabled on our sandbox tenant.
-- Rationale for rejection: commercial timeline on Stitch's side is unclear (weeks to months per the last support thread). The Pro subscription CTA is already gated behind `SUBSCRIPTION_UPGRADE_ENABLED=false` indefinitely. Two rails to maintain with no commercial payoff is net-negative. TradeSafe does not support recurring subscriptions either — so the subscription path is deferred regardless (see below).
+- Keep the hybrid Stitch-inbound / TradeSafe-outbound posture from ADR 0008. <!-- historical -->
+- Wait for Stitch's `recurring-consent` scope to be enabled on our sandbox tenant. <!-- historical -->
+- Rationale for rejection: commercial timeline on Stitch's side is unclear (weeks to months per the last support thread). The Pro subscription CTA is already gated behind `SUBSCRIPTION_UPGRADE_ENABLED=false` indefinitely. Two rails to maintain with no commercial payoff is net-negative. TradeSafe does not support recurring subscriptions either — so the subscription path is deferred regardless (see below). <!-- historical -->
 
-### (b) Hybrid Stitch-inbound + TradeSafe-outbound (ADR 0008 as-is)
+### (b) Hybrid Stitch-inbound + TradeSafe-outbound (ADR 0008 as-is) <!-- historical -->
 
 - Keep both rails in production permanently.
-- Rationale for rejection: two providers to reconcile (two webhook handlers, two idempotency namespaces, two fee models, two credential bundles), no user-facing benefit, doubled operational surface. The only argument for it was "Stitch inbound is live today" — Phase 1a/1b demonstrated TradeSafe inbound is also live today.
+- Rationale for rejection: two providers to reconcile (two webhook handlers, two idempotency namespaces, two fee models, two credential bundles), no user-facing benefit, doubled operational surface. The only argument for it was "Stitch inbound is live today" — Phase 1a/1b demonstrated TradeSafe inbound is also live today. <!-- historical -->
 
-### (c) Card-consents + manual renewal cron on Stitch for subscriptions
+### (c) Card-consents + manual renewal cron on Stitch for subscriptions <!-- historical -->
 
 - Implement Pro subscriptions as a manual monthly cron that triggers a card-consent authorised charge per active Pro user.
-- Rationale for rejection: still needs Stitch's `recurring-consent` scope, which is the gate we're currently behind. Buys nothing.
+- Rationale for rejection: still needs Stitch's `recurring-consent` scope, which is the gate we're currently behind. Buys nothing. <!-- historical -->
 
-**Subscription implication of this decision:** TradeSafe has no recurring-subscription primitive — it's per-transaction escrow only. Pro tier stays gated behind `SUBSCRIPTION_UPGRADE_ENABLED=false` after this ADR ships; enabling Pro becomes a separate workstream that either (i) waits for Stitch subscriptions to unblock commercially and re-integrates them narrowly for subscription-only, or (ii) picks a subscription-capable PSP (Paystack, Stripe — both have SA coverage). Out of scope for this ADR.
+**Subscription implication of this decision:** TradeSafe has no recurring-subscription primitive — it's per-transaction escrow only. Pro tier stays gated behind `SUBSCRIPTION_UPGRADE_ENABLED=false` after this ADR ships; enabling Pro becomes a separate workstream that either (i) waits for Stitch subscriptions to unblock commercially and re-integrates them narrowly for subscription-only, or (ii) picks a subscription-capable PSP (Paystack, Stripe — both have SA coverage). Out of scope for this ADR. <!-- historical -->
 
 ## 8. Open questions
 
@@ -174,7 +176,7 @@ The following must be closed before Phases 3–5 proceed. Each has a concrete de
 
 **OQ-4 — Clearance window policy.** ADR 0009 §7 flagged two options: (a) keep our internal 72h clearance + TradeSafe-hold, or (b) rely on TradeSafe's default escrow dwell time as the hold window.
 
-*Decision criterion:* Finance team confirms whether 72h chargeback-buffer ownership is a Stitch-specific control (cards can chargeback for months) or a general platform policy (TradeSafe's escrow-to-bank window already collapses the window naturally). If the former, option (a); if the latter, option (b). Target resolution: before Phase 4 goes live. Owner: Finance team.
+*Decision criterion:* Finance team confirms whether 72h chargeback-buffer ownership is a Stitch-specific control (cards can chargeback for months) or a general platform policy (TradeSafe's escrow-to-bank window already collapses the window naturally). If the former, option (a); if the latter, option (b). Target resolution: before Phase 4 goes live. Owner: Finance team. <!-- historical -->
 
 **OQ-5 — Webhook signature scheme evolution.** TradeSafe does not sign webhooks today. If they introduce HMAC signing later, do we layer it over the URL-path-secret (defence-in-depth) or replace it?
 
@@ -196,12 +198,12 @@ The following must be closed before Phases 3–5 proceed. Each has a concrete de
 - GraphQL learning curve for anyone new to the codebase (TradeSafe's API uses nested input types, non-obvious enum casing, and `Email` / `Country` / `UniversalBranchCode` custom scalars).
 - Per-bounty escrow means we cannot aggregate funds across brands (e.g. "pre-fund a spending cap"). Every bounty is its own escrow unit. Acceptable for the MVP product model; a future enterprise-tier "spending wallet" feature would need a separate aggregation abstraction.
 - Token lifecycle adds signup friction: brand users need a TradeSafe BUYER token to fund; hunter users need a SELLER token with banking details to receive. We mitigate with lazy token creation (fire-and-forget from signup, blocking on first use) — see Wave 2 of the Phase 2 plan.
-- Pro subscriptions stay blocked. This is not new (Stitch was also blocked) but this ADR makes "no subscriptions for now" an explicit architectural consequence rather than a temporary commercial workaround.
+- Pro subscriptions stay blocked. This is not new (Stitch was also blocked) but this ADR makes "no subscriptions for now" an explicit architectural consequence rather than a temporary commercial workaround. <!-- historical -->
 - Losing direct control of the clearance-buffer window (OQ-4) is a policy shift. Not a loss if Finance signs off that TradeSafe's escrow window is equivalent protection.
 
 **Neutral.**
 
-- Ledger stays provider-agnostic. `LedgerService.postTransactionGroup` does not know or care that the rail is TradeSafe rather than Stitch. The reconciliation engine's `checkPayoutsVsLedger` (already provider-aware via the `PayoutRail` enum from commit `0d141c2`) gains a TradeSafe branch mirroring the existing Stitch branch.
+- Ledger stays provider-agnostic. `LedgerService.postTransactionGroup` does not know or care that the rail is TradeSafe rather than Stitch. The reconciliation engine's `checkPayoutsVsLedger` (already provider-aware via the `PayoutRail` enum from commit `0d141c2`) gains a TradeSafe branch mirroring the existing Stitch branch. <!-- historical -->
 - AuditLog, kill switch, reconciliation engine, KB automation all continue to work unchanged. Only the audit-action names and the reconciliation data source change.
 - Hard Rules 1-10 from `CLAUDE.md` all continue to apply. This ADR creates no exceptions.
 
@@ -214,8 +216,8 @@ The following must be closed before Phases 3–5 proceed. Each has a concrete de
 - `apps/api/src/modules/tradesafe/tradesafe.types.ts` — `TradeSafeApiError` + shared type exports.
 - Commit `0687cb5` (2026-04-22) — Phase 1a: GraphQL client foundation + OAuth.
 - Commit `fee3571` (2026-04-23) — Phase 1b: mutation helpers + live sandbox smoke.
-- Commit `8ca5c57` (2026-04-22) — Stitch Pro-tier CTA gated behind `SUBSCRIPTION_UPGRADE_ENABLED=false` (context for this pivot).
-- Commit `0d141c2` (2026-04-18) — `PayoutRail` enum + `StitchPayout.provider` column (R32 close; the reconciliation hook this ADR builds on).
+- Commit `8ca5c57` (2026-04-22) — Stitch Pro-tier CTA gated behind `SUBSCRIPTION_UPGRADE_ENABLED=false` (context for this pivot). <!-- historical -->
+- Commit `0d141c2` (2026-04-18) — `PayoutRail` enum + `StitchPayout.provider` column (R32 close; the reconciliation hook this ADR builds on). <!-- historical -->
 
 **Prior ADRs.**
 
@@ -224,7 +226,7 @@ The following must be closed before Phases 3–5 proceed. Each has a concrete de
 - ADR 0006 — Compensating entries bypass kill switch. Scope preserved; TradeSafe handlers are not on the bypass list.
 - ADR 0008 — TradeSafe for Hunter Payouts. **Extended by this ADR** from outbound-only to inbound + outbound.
 - ADR 0009 — TradeSafe Integration Skeleton. Superseded on schema direction (Option B peer tables) in favour of the simpler `TradeSafeTransaction` + `TradeSafeAllocation` model described in §6 Phase 2. Referenced for the webhook / env-var / routing conventions, which this ADR inherits.
-- ADR 0010 — Auto-refund on visibility failure. Unchanged; the auto-refund path will post compensating entries against TradeSafe-funded bounties the same way it does against Stitch-funded ones today.
+- ADR 0010 — Auto-refund on visibility failure. Unchanged; the auto-refund path will post compensating entries against TradeSafe-funded bounties the same way it does against Stitch-funded ones today. <!-- historical -->
 
 **Canonical specs.**
 

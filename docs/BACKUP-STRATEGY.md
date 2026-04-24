@@ -561,9 +561,9 @@ aws s3 sync \
 The ledger is the platform's source of financial truth. Losing or corrupting ledger history is categorically different from losing session data or file uploads — it breaks the double-entry invariant, voids reconciliation, and creates unrecoverable accounting drift. This section adds hard constraints that sit on top of the general PostgreSQL strategy in §3 and the PITR targets in §2.
 
 Cross-references:
-- `md-files/payment-gateway.md` — canonical Stitch Express spec.
+- `md-files/payment-gateway.md` — canonical Stitch Express spec. <!-- historical -->
 - `md-files/financial-architecture.md` — ledger mechanics, accounts, idempotency.
-- `docs/STITCH-IMPLEMENTATION-STATUS.md` — what is live, what is gated.
+- `docs/STITCH-IMPLEMENTATION-STATUS.md` — what is live, what is gated. <!-- historical -->
 - `docs/adr/0005-ledger-idempotency-via-header-table.md` — idempotency guarantees that backups must preserve.
 - `docs/adr/0006-compensating-entries-bypass-kill-switch.md` — why corrections are always new INSERTs, never UPDATEs.
 
@@ -595,9 +595,9 @@ Scoped tables:
 
 - `ledger_entries`
 - `ledger_transaction_groups`
-- `stitch_payment_links`
-- `stitch_payouts`
-- `stitch_beneficiaries`
+- `stitch_payment_links` <!-- historical -->
+- `stitch_payouts` <!-- historical -->
+- `stitch_beneficiaries` <!-- historical -->
 - `refunds`
 - `audit_logs`
 - `webhook_events`
@@ -610,7 +610,7 @@ Example scoped dump:
 pg_dump \
   -h "${DB_HOST}" -U "${DB_USER}" -Fc -Z 6 \
   -t ledger_entries -t ledger_transaction_groups \
-  -t stitch_payment_links -t stitch_payouts -t stitch_beneficiaries \
+  -t stitch_payment_links -t stitch_payouts -t stitch_beneficiaries \ <!-- historical -->
   -t refunds -t audit_logs -t webhook_events \
   -t job_runs -t recurring_issues \
   -f /var/backups/postgres/social_bounty_financial_$(date +%Y-%m-%d).pgdump \
@@ -625,7 +625,7 @@ In addition to the monthly restore test in §8.1, run a **quarterly ledger-speci
 
 1. Restore the nightly scoped backup (above) into a staging Postgres instance.
 2. Run the full `ReconciliationService.run()` end-to-end against the restored data.
-3. Compare the restored balances and Stitch external references against the Stitch **sandbox** ledger for the same window (using `STITCH_CLIENT_ID` / `STITCH_CLIENT_SECRET` sandbox creds).
+3. Compare the restored balances and Stitch external references against the Stitch **sandbox** ledger for the same window (using `STITCH_CLIENT_ID` / `STITCH_CLIENT_SECRET` sandbox creds). <!-- historical -->
 4. Record the drift (expected: zero). Any non-zero drift halts the drill and opens a KB entry under the "reconciliation mismatch" trigger (`claude.md` §9).
 
 This drill doubles as a reconciliation-engine health check.

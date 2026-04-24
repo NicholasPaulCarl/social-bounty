@@ -173,6 +173,6 @@ order (open before resolved), and the `--limit` cap.
 - `CLAUDE.md` — Financial Non-Negotiables, Hard Rules
 - `docs/adr/0006-compensating-entries-bypass-kill-switch.md` — the
   authoritative ADR the guard enforces
-- `md-files/payment-gateway.md` — canonical Stitch Express spec
+- `md-files/payment-gateway.md` — canonical Stitch Express spec <!-- historical -->
 - `md-files/financial-architecture.md` — ledger mechanics
 - `md-files/agents/agent-qa-testing.md` — QA gate + smoke-test checklist

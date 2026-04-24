@@ -50,7 +50,7 @@ Queue + state-machine surface for withdrawal (payout) requests: REQUESTED → PR
 - **Audit log mandatory (Hard Rule #3)** — every transition.
 - **Payout rail gates:**
   - `PAYOUTS_ENABLED=false` flag still gates live TradeSafe calls (ADR 0008/0009). While off, "Complete" is a manual-proof attestation rather than a live-rail release — the admin enters a proof URL of the out-of-band transfer.
-  - When flipped on, the complete path integrates with TradeSafe webhook (`R34` closed) via `StitchPayout.provider` rail discriminator (`R32` closed with new PayoutRail enum).
+  - When flipped on, the complete path integrates with TradeSafe webhook (`R34` closed) via `StitchPayout.provider` rail discriminator (`R32` closed with new PayoutRail enum). <!-- historical -->
 - **Kill switch visibility:** the kill switch (`SystemSetting.financial.kill_switch.active`) is **not** shown here — its live surface is `/admin/payments-health` + `/admin/finance` — but the backend respects it (disabled Complete path on the ledger service).
 - Withdrawal state-machine is strict — can't jump states (e.g., REQUESTED → COMPLETED direct); admin must Process first.
 
@@ -72,6 +72,6 @@ Integration-only (backend 5-test idempotency matrix per Hard Rule §5 applies to
 
 ## Open questions / TODOs
 - No bulk select (can't approve N withdrawals at once).
-- No provider rail column (STITCH vs TRADESAFE) — would surface `StitchPayout.provider` once live.
+- No provider rail column (STITCH vs TRADESAFE) — would surface `StitchPayout.provider` once live. <!-- historical -->
 - No visibility into kill-switch state alongside Complete/Fail buttons (admin could hit it blind).
-- Dialog for "Complete" doesn't ask for rail — currently implicit (STITCH default).
+- Dialog for "Complete" doesn't ask for rail — currently implicit (STITCH default). <!-- historical -->

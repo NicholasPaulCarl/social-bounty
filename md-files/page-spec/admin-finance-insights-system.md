@@ -8,7 +8,7 @@
 **Layout:** `apps/web/src/app/admin/layout.tsx` → `apps/web/src/app/admin/finance/layout.tsx`
 
 ## Purpose
-List of all `RecurringIssue` rows filed against a specific `metadata.system` value (e.g. `stitch.webhooks`, `submission-scraper`, `reconciliation.reserves`). Most recent first. Highlights ineffective-fix rows (Phase 4 auto-flag) and resolved rows. Full audit-style view for engineering RCA.
+List of all `RecurringIssue` rows filed against a specific `metadata.system` value (e.g. `stitch.webhooks`, `submission-scraper`, `reconciliation.reserves`). Most recent first. Highlights ineffective-fix rows (Phase 4 auto-flag) and resolved rows. Full audit-style view for engineering RCA. <!-- historical -->
 
 ## Entry & exit
 - **Reached from:** `/admin/finance/insights` card click → `router.push('/admin/finance/insights/{encodeURIComponent(system)}')`.
@@ -25,7 +25,7 @@ List of all `RecurringIssue` rows filed against a specific `metadata.system` val
 - Back link at the top: "Back to insights" (pink-600 `ArrowLeft` chevron).
 - `PageHeader` with title `"KB drill-down · {system}"`, subtitle "All RecurringIssue rows filed against this system, most recent first.". Action: Refresh.
 - If zero rows: `EmptyState` with `LineChart` icon, title "No issues recorded", message `"No RecurringIssue rows matched metadata.system = \"{system}\"."`.
-- Otherwise `<Card>` wrapping a paginated `<DataTable>` (25/page), stripedRows, custom `rowClassName`:
+- Otherwise `<Card>` wrapping a paginated `<DataTable>` (25/page), stripedRows, custom `rowClassName`: <!-- historical -->
   - Ineffective-fix rows get `bg-danger-50/40` tint.
   - Resolved rows get `opacity-60` (muted).
 - Columns: Severity Tag (via `SEVERITY_MAP` — critical=danger, warning=warning, info=info), Category, Signature (mono xs, break-all), Title, Hits (`occurrences`), Flags (Ineffective fix Tag with `AlertTriangle` icon if set), Status (resolved=success / open=warning), First seen (mono datetime), Last seen (mono datetime), KB ref (mono or `—`).
@@ -52,7 +52,7 @@ Reference CLAUDE.md §4 Financial Non-Negotiables:
 - Kill switch: read-only surface, unaffected.
 
 Page-specific:
-- Per-system view of all 7 reconciliation checks indirectly (since reconciliation calls `KbService.recordRecurrence({ system, category, … })` from each check). For example, `system='reconciliation.reserves'` collects reserve-vs-bounty findings; `system='stitch.webhooks'` collects webhook-failure recurrences.
+- Per-system view of all 7 reconciliation checks indirectly (since reconciliation calls `KbService.recordRecurrence({ system, category, … })` from each check). For example, `system='reconciliation.reserves'` collects reserve-vs-bounty findings; `system='stitch.webhooks'` collects webhook-failure recurrences. <!-- historical -->
 - Displays **live** state (React Query cache only — no polling here; rely on manual Refresh).
 - No write operations. Ineffective-fix flags are set upstream by `KbService` when a previously-resolved issue recurs inside the 90 d window (CLAUDE.md §2 "If an issue recurs, treat it as a structural flaw, not a bug").
 
