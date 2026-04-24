@@ -2,6 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
 import { TradeSafeGraphQLClient } from './tradesafe-graphql.client';
 import { TradeSafeApiError } from './tradesafe.types';
+import { toCents, toZar } from './tradesafe-graphql.operations';
 
 type FetchMock = jest.Mock<Promise<Response>, [string, RequestInit?]>;
 
@@ -279,6 +280,194 @@ describe('TradeSafeGraphQLClient', () => {
       await expect(client.request('query { foo }')).rejects.toThrow(
         /missing data/,
       );
+    });
+  });
+
+  describe('typed operation wrappers', () => {
+    function mockTokenAndResponse(body: unknown) {
+      fetchMock
+        .mockResolvedValueOnce(
+          respond(200, { access_token: 'tok', token_type: 'Bearer', expires_in: 1800 }),
+        )
+        .mockResolvedValueOnce(respond(200, body));
+    }
+
+    it('getApiProfile() unwraps the apiProfile envelope', async () => {
+      mockTokenAndResponse({
+        data: { apiProfile: { organizations: [{ name: 'Acme', token: 'org-tok' }] } },
+      });
+      const client = buildClient(buildConfig());
+
+      const profile = await client.getApiProfile();
+
+      expect(profile.organizations).toEqual([{ name: 'Acme', token: 'org-tok' }]);
+    });
+
+    it('tokenCreate() sends user/org/bank fields as variables', async () => {
+      mockTokenAndResponse({
+        data: {
+          tokenCreate: { id: 'new-token-id', name: 'Jane Doe', reference: 'REF123' },
+        },
+      });
+      const client = buildClient(buildConfig());
+
+      const result = await client.tokenCreate({
+        givenName: 'Jane',
+        familyName: 'Doe',
+        email: 'jane@example.com',
+      });
+
+      expect(result.id).toBe('new-token-id');
+      const body = JSON.parse((fetchMock.mock.calls[1][1] as RequestInit).body as string);
+      expect(body.query).toContain('tokenCreate');
+      expect(body.variables.givenName).toBe('Jane');
+      expect(body.variables.email).toBe('jane@example.com');
+    });
+
+    it('transactionCreate() passes allocations + parties through as-is', async () => {
+      mockTokenAndResponse({
+        data: {
+          transactionCreate: {
+            id: 'tx-1',
+            title: 'Bounty #1',
+            createdAt: '2026-04-24T00:00:00Z',
+            state: 'CREATED',
+            reference: 'bounty-xyz',
+            allocations: [{ id: 'alloc-1', title: 'Reward', value: 100, state: 'CREATED' }],
+            parties: [
+              { id: 'p-1', role: 'BUYER' },
+              { id: 'p-2', role: 'SELLER' },
+            ],
+          },
+        },
+      });
+      const client = buildClient(buildConfig());
+
+      const result = await client.transactionCreate({
+        title: 'Bounty #1',
+        description: 'Description',
+        industry: 'GENERAL_GOODS_SERVICES',
+        workflow: 'STANDARD',
+        feeAllocation: 'BUYER',
+        reference: 'bounty-xyz',
+        allocations: [
+          { title: 'Reward', description: 'Hunter payout', value: 100, daysToDeliver: 30, daysToInspect: 7 },
+        ],
+        parties: [
+          { token: 'brand-tok', role: 'BUYER' },
+          { token: 'hunter-tok', role: 'SELLER' },
+        ],
+      });
+
+      expect(result.id).toBe('tx-1');
+      const body = JSON.parse((fetchMock.mock.calls[1][1] as RequestInit).body as string);
+      expect(body.variables.allocations).toEqual([
+        { title: 'Reward', description: 'Hunter payout', value: 100, daysToDeliver: 30, daysToInspect: 7 },
+      ]);
+      expect(body.variables.parties).toEqual([
+        { token: 'brand-tok', role: 'BUYER' },
+        { token: 'hunter-tok', role: 'SELLER' },
+      ]);
+    });
+
+    it('checkoutLink() returns the URL string', async () => {
+      mockTokenAndResponse({
+        data: { checkoutLink: 'https://pay-sandbox.tradesafe.dev/checkout/abc' },
+      });
+      const client = buildClient(buildConfig());
+
+      const url = await client.checkoutLink('tx-1');
+      expect(url).toBe('https://pay-sandbox.tradesafe.dev/checkout/abc');
+    });
+
+    it('allocationStartDelivery() returns state', async () => {
+      mockTokenAndResponse({
+        data: { allocationStartDelivery: { id: 'alloc-1', state: 'INITIATED' } },
+      });
+      const client = buildClient(buildConfig());
+
+      const result = await client.allocationStartDelivery('alloc-1');
+      expect(result.state).toBe('INITIATED');
+    });
+
+    it('allocationAcceptDelivery() returns state', async () => {
+      mockTokenAndResponse({
+        data: { allocationAcceptDelivery: { id: 'alloc-1', state: 'DELIVERED' } },
+      });
+      const client = buildClient(buildConfig());
+
+      const result = await client.allocationAcceptDelivery('alloc-1');
+      expect(result.state).toBe('DELIVERED');
+    });
+
+    it('getTransaction() returns null when transaction not found', async () => {
+      mockTokenAndResponse({ data: { transaction: null } });
+      const client = buildClient(buildConfig());
+
+      const tx = await client.getTransaction('missing');
+      expect(tx).toBeNull();
+    });
+
+    it('getTransaction() surfaces deposits + allocations for webhook re-fetch', async () => {
+      mockTokenAndResponse({
+        data: {
+          transaction: {
+            id: 'tx-1',
+            title: 'Bounty',
+            reference: 'bounty-xyz',
+            state: 'FUNDS_RECEIVED',
+            parties: [{ id: 'p-1', role: 'BUYER' }],
+            allocations: [
+              {
+                id: 'alloc-1',
+                title: 'Reward',
+                value: 100,
+                state: 'FUNDS_RECEIVED',
+                deliverBy: null,
+                inspectBy: null,
+              },
+            ],
+            deposits: [
+              {
+                id: 'dep-1',
+                method: 'OZOW',
+                value: 105,
+                processed: true,
+                paymentLink: null,
+              },
+            ],
+          },
+        },
+      });
+      const client = buildClient(buildConfig());
+
+      const tx = await client.getTransaction('tx-1');
+      expect(tx?.state).toBe('FUNDS_RECEIVED');
+      expect(tx?.deposits[0].processed).toBe(true);
+      expect(tx?.allocations[0].value).toBe(100);
+    });
+  });
+
+  describe('amount converters', () => {
+    it('toZar converts cents → rand Float', () => {
+      expect(toZar(10000n)).toBe(100);
+      expect(toZar(15050n)).toBe(150.5);
+      expect(toZar(0n)).toBe(0);
+    });
+
+    it('toCents converts rand Float → cents (round-safe)', () => {
+      expect(toCents(100)).toBe(10000n);
+      expect(toCents(150.5)).toBe(15050n);
+      expect(toCents(0)).toBe(0n);
+      // Float drift guard: 0.1 + 0.2 = 0.30000000000000004
+      expect(toCents(0.1 + 0.2)).toBe(30n);
+    });
+
+    it('round-trips cents → zar → cents without drift', () => {
+      const amounts = [10000n, 15000n, 123456n, 1n, 99n, 99999n];
+      for (const cents of amounts) {
+        expect(toCents(toZar(cents))).toBe(cents);
+      }
     });
   });
 

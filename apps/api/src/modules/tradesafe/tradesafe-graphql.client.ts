@@ -2,6 +2,23 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
 import { TradeSafeApiError } from './tradesafe.types';
+import {
+  ALLOCATION_ACCEPT_DELIVERY_MUTATION,
+  ALLOCATION_START_DELIVERY_MUTATION,
+  API_PROFILE_QUERY,
+  ApiProfileData,
+  AllocationStateData,
+  CHECKOUT_LINK_MUTATION,
+  CheckoutLinkData,
+  TOKEN_CREATE_MUTATION,
+  TRANSACTION_CREATE_MUTATION,
+  TRANSACTION_QUERY,
+  TokenCreateData,
+  TokenCreateInput,
+  TransactionCreateData,
+  TransactionCreateInput,
+  TransactionData,
+} from './tradesafe-graphql.operations';
 
 // Token cache — separate from the REST-era `tradesafe:token:v1` key so the
 // two clients never collide during the Phase 1 → Phase 4 cutover window.
@@ -217,6 +234,112 @@ export class TradeSafeGraphQLClient {
       );
     }
     return json.data;
+  }
+
+  // ─── Typed operation wrappers ───────────────────────────
+
+  /**
+   * Retrieve the API owner's profile + organization tokens. The platform's
+   * own organization token is consumed elsewhere as the AGENT party on every
+   * bounty transaction (so TradeSafe knows which merchant is facilitating).
+   */
+  async getApiProfile(): Promise<ApiProfileData['apiProfile']> {
+    const data = await this.request<ApiProfileData>(API_PROFILE_QUERY);
+    return data.apiProfile;
+  }
+
+  /**
+   * Create a party token. One token per user (hunter / brand admin) — stored
+   * on the User row so subsequent transactions re-use it. Banking details are
+   * required for SELLER parties (i.e. hunters); BUYER-only parties (brand
+   * admins who never receive payouts) may omit them.
+   */
+  async tokenCreate(input: TokenCreateInput): Promise<TokenCreateData['tokenCreate']> {
+    const data = await this.request<TokenCreateData>(
+      TOKEN_CREATE_MUTATION,
+      input as unknown as Record<string, unknown>,
+    );
+    return data.tokenCreate;
+  }
+
+  /**
+   * Create an escrow transaction with its allocations + parties. Use
+   * {@link toZar} to convert ledger cents → ZAR Float for `allocations[].value`.
+   */
+  async transactionCreate(
+    input: TransactionCreateInput,
+  ): Promise<TransactionCreateData['transactionCreate']> {
+    const variables = {
+      title: input.title,
+      description: input.description,
+      industry: input.industry,
+      workflow: input.workflow,
+      feeAllocation: input.feeAllocation,
+      reference: input.reference ?? null,
+      allocations: input.allocations,
+      parties: input.parties,
+    };
+    const data = await this.request<TransactionCreateData>(
+      TRANSACTION_CREATE_MUTATION,
+      variables,
+    );
+    return data.transactionCreate;
+  }
+
+  /**
+   * Generate the hosted checkout URL for the BUYER. Returns a URL the client
+   * must redirect the browser to for card / EFT / OZOW / SnapScan capture.
+   */
+  async checkoutLink(transactionId: string): Promise<string> {
+    const data = await this.request<CheckoutLinkData>(CHECKOUT_LINK_MUTATION, {
+      id: transactionId,
+    });
+    return data.checkoutLink;
+  }
+
+  /**
+   * Mark an allocation as "delivery started" — hunter has begun work.
+   * Transition: FUNDS_RECEIVED → INITIATED.
+   */
+  async allocationStartDelivery(
+    allocationId: string,
+  ): Promise<{ id: string; state: string }> {
+    const data = await this.request<AllocationStateData>(
+      ALLOCATION_START_DELIVERY_MUTATION,
+      { id: allocationId },
+    );
+    if (!data.allocationStartDelivery) {
+      throw new TradeSafeApiError('allocationStartDelivery returned no data', 500);
+    }
+    return data.allocationStartDelivery;
+  }
+
+  /**
+   * Accept delivery — brand signs off on the hunter's submission. TradeSafe
+   * then auto-pays the SELLER's registered bank account from the allocation.
+   * Transition: INITIATED/DELIVERED → DELIVERED → FUNDS_RELEASED.
+   */
+  async allocationAcceptDelivery(
+    allocationId: string,
+  ): Promise<{ id: string; state: string }> {
+    const data = await this.request<AllocationStateData>(
+      ALLOCATION_ACCEPT_DELIVERY_MUTATION,
+      { id: allocationId },
+    );
+    if (!data.allocationAcceptDelivery) {
+      throw new TradeSafeApiError('allocationAcceptDelivery returned no data', 500);
+    }
+    return data.allocationAcceptDelivery;
+  }
+
+  /**
+   * Fetch canonical transaction state. Used by the webhook handler as the
+   * authoritative source after receiving a callback (webhook body is
+   * treated as untrusted — we re-fetch via this query before acting).
+   */
+  async getTransaction(id: string): Promise<TransactionData['transaction']> {
+    const data = await this.request<TransactionData>(TRANSACTION_QUERY, { id });
+    return data.transaction;
   }
 
   private async fetchWithRetry(url: string, init: RequestInit): Promise<Response> {
