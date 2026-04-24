@@ -4,13 +4,13 @@ import { createHash } from 'crypto';
 import { WebhookProvider } from '@prisma/client';
 import { UserRole } from '@social-bounty/shared';
 import { Roles } from '../../common/decorators';
-import { StitchClient } from '../stitch/stitch.client';
+import { TradeSafeGraphQLClient } from '../tradesafe/tradesafe-graphql.client';
 import { WebhookEventService } from '../webhooks/webhook-event.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface PaymentsHealthResponse {
   paymentsProvider: string;
-  stitchTokenProbe: { ok: boolean; latencyMs: number; error?: string };
+  tradeSafeTokenProbe: { ok: boolean; latencyMs: number; error?: string };
   lastWebhook: {
     receivedAt: string;
     eventType: string;
@@ -18,28 +18,33 @@ export interface PaymentsHealthResponse {
     externalEventId: string;
   } | null;
   killSwitch: { active: boolean; reason?: string };
-  credsHashes: { clientId: string; clientSecret: string; webhookSecret: string };
+  credsHashes: { clientId: string; clientSecret: string; callbackSecret: string };
 }
 
+/**
+ * Admin payments-health probe (ADR 0011 — TradeSafe unified rail).
+ *
+ * Post-cutover: Stitch probes removed. The probe round-trips the
+ * TradeSafe OAuth + `apiProfile` query so operators can eyeball auth
+ * + provider connectivity alongside kill-switch / last-webhook state.
+ */
 @Controller('admin/payments-health')
 @Roles(UserRole.SUPER_ADMIN)
 export class PaymentsHealthController {
   constructor(
     private readonly config: ConfigService,
-    private readonly stitch: StitchClient,
+    private readonly tradeSafe: TradeSafeGraphQLClient,
     private readonly webhooks: WebhookEventService,
     private readonly prisma: PrismaService,
   ) {}
 
   @Get()
   async get(): Promise<PaymentsHealthResponse> {
-    const provider = this.config.get<string>('PAYMENTS_PROVIDER', 'none');
+    const provider = this.config.get<string>('PAYMENTS_PROVIDER', 'tradesafe');
 
     const [probe, lastWebhook, killSwitchRow] = await Promise.all([
-      this.stitch.isEnabled()
-        ? this.stitch.probeToken()
-        : Promise.resolve({ ok: false, latencyMs: 0, error: 'provider disabled' }),
-      this.webhooks.lastReceivedByProvider(WebhookProvider.STITCH),
+      this.tradeSafe.probe(),
+      this.webhooks.lastReceivedByProvider(WebhookProvider.TRADESAFE),
       this.prisma.systemSetting.findUnique({
         where: { key: 'financial.kill_switch.active' },
       }),
@@ -47,7 +52,7 @@ export class PaymentsHealthController {
 
     return {
       paymentsProvider: provider,
-      stitchTokenProbe: probe,
+      tradeSafeTokenProbe: probe,
       lastWebhook: lastWebhook
         ? {
             receivedAt: lastWebhook.receivedAt.toISOString(),
@@ -61,9 +66,9 @@ export class PaymentsHealthController {
         reason: killSwitchRow?.value === 'true' ? 'see audit log' : undefined,
       },
       credsHashes: {
-        clientId: this.hash(this.config.get<string>('STITCH_CLIENT_ID', '')),
-        clientSecret: this.hash(this.config.get<string>('STITCH_CLIENT_SECRET', '')),
-        webhookSecret: this.hash(this.config.get<string>('STITCH_WEBHOOK_SECRET', '')),
+        clientId: this.hash(this.config.get<string>('TRADESAFE_CLIENT_ID', '')),
+        clientSecret: this.hash(this.config.get<string>('TRADESAFE_CLIENT_SECRET', '')),
+        callbackSecret: this.hash(this.config.get<string>('TRADESAFE_CALLBACK_SECRET', '')),
       },
     };
   }

@@ -1,11 +1,11 @@
-import { Module } from '@nestjs/common';
-import { StitchModule } from '../stitch/stitch.module';
+import { Module, forwardRef } from '@nestjs/common';
+import { TradeSafeModule } from '../tradesafe/tradesafe.module';
 import { WebhooksModule } from '../webhooks/webhooks.module';
 import { FeeCalculatorService } from './fee-calculator.service';
 import { PaymentsHealthController } from './payments-health.controller';
 
 @Module({
-  imports: [StitchModule, WebhooksModule],
+  imports: [forwardRef(() => TradeSafeModule), WebhooksModule],
   controllers: [PaymentsHealthController],
   providers: [FeeCalculatorService],
   exports: [FeeCalculatorService],

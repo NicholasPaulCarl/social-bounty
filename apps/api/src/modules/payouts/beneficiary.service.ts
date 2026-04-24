@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
-import { StitchClient } from '../stitch/stitch.client';
+import { PayoutProviderFactory } from './payout-provider.factory';
 
 const ALGORITHM = 'aes-256-gcm';
 
@@ -20,7 +20,7 @@ export class BeneficiaryService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly stitch: StitchClient,
+    private readonly providerFactory: PayoutProviderFactory,
     private readonly config: ConfigService,
   ) {
     // R29 hardening (batch 14A, 2026-04-15).
@@ -57,11 +57,17 @@ export class BeneficiaryService {
     this.key = scryptSync(secret, 'stitch-beneficiary', 32);
   }
 
-  // TRADESAFE MIGRATION (ADR 0008): the local-fallback branch (synthetic
-  // `local:{userId}` id when Stitch is disabled) is removed when TradeSafe is
-  // integrated — TradeSafe's beneficiary API returns a real provider id in all
-  // environments, so `stitchBeneficiaryId` becomes `tradesafeBeneficiaryId`.
-  // Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
+  /**
+   * ADR 0011 — TradeSafe unified rail. The `StitchClient`-backed local-fallback
+   * branch has been removed; `PayoutProviderFactory` always resolves to the
+   * TradeSafe adapter (mock mode for dev). TradeSafe returns a real provider
+   * id in all environments; the local-synthetic `local:<userId>` fallback
+   * is gone.
+   *
+   * The `StitchBeneficiary` Prisma model name is retained until agent 1B
+   * renames the schema; semantically these rows now store TradeSafe
+   * beneficiary ids.
+   */
   async upsertForUser(userId: string, input: BeneficiaryInput) {
     if (!/^\d{6,20}$/.test(input.accountNumber)) {
       throw new BadRequestException('accountNumber must be 6-20 digits');
@@ -72,40 +78,32 @@ export class BeneficiaryService {
       return existing;
     }
 
-    let stitchBeneficiaryId: string;
-    if (this.stitch.isEnabled()) {
-      // Real call in live/sandbox; in unit tests this module is mocked.
-      const result = await this.stitch.createBeneficiary(input);
-      stitchBeneficiaryId = (result as any).id ?? `local:${userId}`;
-    } else {
-      stitchBeneficiaryId = `local:${userId}`;
-    }
+    const provider = this.providerFactory.getProvider();
+    const result = await provider.createBeneficiary({
+      accountHolderName: input.accountHolderName,
+      bankCode: input.bankCode,
+      accountNumber: input.accountNumber,
+      accountType: input.accountType,
+      externalReference: userId,
+    });
+    const providerBeneficiaryId = result.id;
 
-    // KB R12/R13 — silent-local-fallback antipattern.
-    //
-    // StitchClient.createBeneficiary always mints a synthetic `local:<...>`
-    // id because Stitch Express has no beneficiary endpoint (see ADR 0008 —
-    // TradeSafe migration pending). That is acceptable in
-    // dev / stitch_sandbox because payouts in those envs are exercised
-    // against the local flow / test doubles. In production
-    // (`PAYMENTS_PROVIDER=stitch_live`) a synthetic id is useless: the
-    // downstream `POST /api/v1/withdrawal` call would silently pay the
-    // merchant's single verified bank account instead of the hunter's,
-    // which is a Critical financial-impact failure.
-    //
-    // Fail loud BEFORE we insert the row so the hunter sees a clear error
-    // instead of a silent break at payout time.
-    const provider = this.config.get<string>('PAYMENTS_PROVIDER', 'none');
-    if (provider === 'stitch_live' && stitchBeneficiaryId.startsWith('local:')) {
+    // Fail-loud guard: if a live rail returns a synthetic id, something
+    // is misconfigured and we would silently misroute funds.
+    const paymentsProvider = this.config.get<string>('PAYMENTS_PROVIDER', 'none');
+    if (
+      paymentsProvider === 'tradesafe_live' &&
+      providerBeneficiaryId.startsWith('local:')
+    ) {
       throw new BadRequestException(
-        'Beneficiary creation requires a real TradeSafe beneficiary id but the provider returned a local fallback. ADR 0008: TradeSafe integration pending — payouts are not yet supported in stitch_live.',
+        'Beneficiary creation returned a local fallback id in live mode. Check TradeSafe provider configuration (ADR 0011).',
       );
     }
 
     return this.prisma.stitchBeneficiary.create({
       data: {
         userId,
-        stitchBeneficiaryId,
+        stitchBeneficiaryId: providerBeneficiaryId,
         accountHolderName: input.accountHolderName,
         bankCode: input.bankCode,
         accountNumberEnc: this.encrypt(input.accountNumber),

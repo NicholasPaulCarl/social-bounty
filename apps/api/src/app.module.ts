@@ -17,7 +17,6 @@ import { HealthModule } from './modules/health/health.module';
 import { FilesModule } from './modules/files/files.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { WalletModule } from './modules/wallet/wallet.module';
-import { StitchModule } from './modules/stitch/stitch.module';
 import { TradeSafeModule } from './modules/tradesafe/tradesafe.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { FinanceModule } from './modules/finance/finance.module';
@@ -71,7 +70,6 @@ import { validateEnv } from './common/config/env.validation';
     FilesModule,
     PaymentsModule,
     WalletModule,
-    StitchModule,
     TradeSafeModule,
     WebhooksModule,
     FinanceModule,

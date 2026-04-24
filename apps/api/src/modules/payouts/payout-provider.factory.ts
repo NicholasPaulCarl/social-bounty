@@ -1,46 +1,33 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PayoutProvider } from './payout-provider.interface';
-import { StitchPayoutAdapter } from './stitch-payout.adapter';
 import { TradeSafePayoutAdapter } from './tradesafe-payout.adapter';
 
-export type PayoutProviderName = 'stitch' | 'tradesafe' | 'mock';
-
-const VALID_PROVIDERS: ReadonlyArray<PayoutProviderName> = [
-  'stitch',
-  'tradesafe',
-  'mock',
-];
+export type PayoutProviderName = 'tradesafe' | 'mock';
 
 /**
- * Resolves the active {@link PayoutProvider} based on `PAYOUT_PROVIDER` env.
+ * Outbound payout provider resolver (ADR 0011 — TradeSafe unified rail).
  *
- * Defaults to `stitch` (current live inbound + gated outbound path). `mock`
- * maps onto the TradeSafe adapter in mock mode (no network, deterministic
- * fixtures) so tests and local dev can exercise the interface without any
- * creds. Unknown values throw at boot time — silent fallbacks would mask
- * config drift (Section 6 failure pattern).
+ * Post-cutover only one real rail exists: TradeSafe. `mock` mode routes
+ * through the same adapter in mock-mode so tests + local dev exercise
+ * the interface without any creds.
  *
- * This factory is a pure lookup; it does not flip any kill-switch or feature
- * flag. Selecting `tradesafe` here does NOT enable payouts — `PAYOUTS_ENABLED`
- * still gates the outbound rail.
+ * The `PAYOUT_PROVIDER` env still exists for defence-in-depth — unknown
+ * values throw at boot so config drift surfaces loudly (cf. CLAUDE.md
+ * Section 6 failure patterns).
  */
 @Injectable()
 export class PayoutProviderFactory {
   private readonly logger = new Logger(PayoutProviderFactory.name);
   private readonly providerName: PayoutProviderName;
 
-  constructor(
-    private readonly config: ConfigService,
-    private readonly stitchAdapter: StitchPayoutAdapter,
-    private readonly tradesafeAdapter: TradeSafePayoutAdapter,
-  ) {
-    const raw = (this.config.get<string>('PAYOUT_PROVIDER', 'stitch') ?? 'stitch')
+  constructor(private readonly tradesafeAdapter: TradeSafePayoutAdapter) {
+    // PAYOUT_PROVIDER env kept for operator observability; unset → tradesafe.
+    const raw = (process.env.PAYOUT_PROVIDER ?? 'tradesafe')
       .trim()
       .toLowerCase();
-    if (!VALID_PROVIDERS.includes(raw as PayoutProviderName)) {
+    if (raw !== 'tradesafe' && raw !== 'mock') {
       throw new Error(
-        `Invalid PAYOUT_PROVIDER=${raw}; must be one of ${VALID_PROVIDERS.join(',')}`,
+        `Invalid PAYOUT_PROVIDER=${raw}; must be one of tradesafe, mock`,
       );
     }
     this.providerName = raw as PayoutProviderName;
@@ -48,17 +35,7 @@ export class PayoutProviderFactory {
   }
 
   getProvider(): PayoutProvider {
-    switch (this.providerName) {
-      case 'stitch':
-        return this.stitchAdapter;
-      case 'tradesafe':
-        return this.tradesafeAdapter;
-      case 'mock':
-        // Mock mode currently routes through the TradeSafe adapter which has
-        // first-class mock-mode support. The Stitch path's local-synth shortcut
-        // is NOT the same thing — it's a workaround for a missing endpoint.
-        return this.tradesafeAdapter;
-    }
+    return this.tradesafeAdapter;
   }
 
   getProviderName(): PayoutProviderName {

@@ -1,24 +1,24 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { InboxModule } from '../inbox/inbox.module';
 import { LedgerModule } from '../ledger/ledger.module';
-import { StitchModule } from '../stitch/stitch.module';
 import { SubscriptionsController } from './subscriptions.controller';
 import { SubscriptionsService } from './subscriptions.service';
 import { SubscriptionLifecycleScheduler } from './subscription-lifecycle.scheduler';
-import { UpgradeService } from './upgrade.service';
 
+/**
+ * Subscriptions (ADR 0011 — TradeSafe unified rail).
+ *
+ * Post-cutover: `UpgradeService` deleted (was Stitch-specific
+ * recurring-consent flow). TradeSafe has no recurring-subscription
+ * primitive — Pro tier upgrade is paused pending a subscription-capable
+ * PSP decision (see ADR 0011 §7 alternative (c)). The lifecycle
+ * scheduler remains provider-agnostic (tier snapshot, auto-downgrade,
+ * grace period).
+ */
 @Module({
-  // LedgerModule is wrapped in forwardRef: LedgerModule imports SubscriptionsModule
-  // (ApprovalLedgerService needs SubscriptionsService for tier lookup), and
-  // SubscriptionsService now depends on LedgerService for subscription_charged
-  // ledger posts. forwardRef breaks the cycle at Nest DI resolution.
-  imports: [
-    forwardRef(() => InboxModule),
-    forwardRef(() => LedgerModule),
-    StitchModule,
-  ],
+  imports: [forwardRef(() => InboxModule), forwardRef(() => LedgerModule)],
   controllers: [SubscriptionsController],
-  providers: [SubscriptionsService, SubscriptionLifecycleScheduler, UpgradeService],
-  exports: [SubscriptionsService, UpgradeService],
+  providers: [SubscriptionsService, SubscriptionLifecycleScheduler],
+  exports: [SubscriptionsService],
 })
 export class SubscriptionsModule {}

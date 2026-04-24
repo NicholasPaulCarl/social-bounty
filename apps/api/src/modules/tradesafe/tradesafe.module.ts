@@ -1,10 +1,13 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { RedisModule } from '../redis/redis.module';
 import { LedgerModule } from '../ledger/ledger.module';
+import { FinanceModule } from '../finance/finance.module';
+import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 import { TradeSafeCallbackController } from './tradesafe-callback.controller';
 import { TradeSafeClient } from './tradesafe.client';
 import { TradeSafeGraphQLClient } from './tradesafe-graphql.client';
 import { TradeSafeTokenService } from './tradesafe-token.service';
+import { TradeSafePaymentsService } from './tradesafe-payments.service';
 import { TradeSafeTransactionCallbackHandler } from './tradesafe-transaction-callback.handler';
 import { TradeSafeWebhookHandler } from './tradesafe-webhook.handler';
 
@@ -39,12 +42,18 @@ import { TradeSafeWebhookHandler } from './tradesafe-webhook.handler';
  * (`ledger.module.ts:11`). R34, 2026-04-18.
  */
 @Module({
-  imports: [RedisModule, forwardRef(() => LedgerModule)],
+  imports: [
+    RedisModule,
+    forwardRef(() => LedgerModule),
+    forwardRef(() => FinanceModule),
+    forwardRef(() => SubscriptionsModule),
+  ],
   controllers: [TradeSafeCallbackController],
   providers: [
     TradeSafeClient,
     TradeSafeGraphQLClient,
     TradeSafeTokenService,
+    TradeSafePaymentsService,
     TradeSafeTransactionCallbackHandler,
     TradeSafeWebhookHandler,
   ],
@@ -52,6 +61,7 @@ import { TradeSafeWebhookHandler } from './tradesafe-webhook.handler';
     TradeSafeClient,
     TradeSafeGraphQLClient,
     TradeSafeTokenService,
+    TradeSafePaymentsService,
     TradeSafeTransactionCallbackHandler,
     TradeSafeWebhookHandler,
   ],
