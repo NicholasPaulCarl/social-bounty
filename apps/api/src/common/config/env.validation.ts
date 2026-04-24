@@ -125,9 +125,22 @@ class EnvironmentVariables {
   // Provider-agnostic system actor ID used by webhook handlers, schedulers,
   // and reconciliation to write AuditLog rows. AuditLog.actorId is a FK to
   // users.id — this must be a real user UUID (typically a SUPER_ADMIN).
-  // Required for webhook-driven ledger posts and clearance jobs.
+  //
+  // Optional at boot so the API can come up in a fresh environment before
+  // an operator has created the system-actor user and pasted the UUID.
+  // Every consumer is already defensive at runtime:
+  //   - audit-only writes (kb, subscriptions, reconciliation kill-switch
+  //     flip, TradeSafe callback/transaction-callback) log a warning and
+  //     skip the audit row when this is empty;
+  //   - ledger writes (clearance, expired-bounty, visibility auto-refund,
+  //     TradeSafe FUNDS_RECEIVED webhook) throw a specific error so the
+  //     caller/retry layer sees it.
+  // See 2026-04-25 deploy-unblock commit — relaxing the boot gate does not
+  // weaken the money-movement guarantee because the throw sites are still
+  // in place.
+  @IsOptional()
   @IsString()
-  SYSTEM_ACTOR_ID!: string;
+  SYSTEM_ACTOR_ID?: string;
 
   // Dev-only override for Free-tier clearance window, in hours.
   // When set, ApprovalLedgerService uses this instead of CLEARANCE_HOURS.FREE (72).

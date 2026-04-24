@@ -85,6 +85,20 @@ describe('validateEnv', () => {
         /TRADESAFE_MOCK/,
       );
     });
+
+    // 2026-04-25 — SYSTEM_ACTOR_ID was previously `@IsString()` (required at
+    // boot) which bricked the Render deploy before an operator had pasted a
+    // UUID. Consumers are already defensive at runtime (see env.validation.ts
+    // for the contract), so the boot gate was relaxed. These two cases lock
+    // in the new shape.
+    it('passes when SYSTEM_ACTOR_ID is absent (optional at boot, enforced at write sites)', () => {
+      const { SYSTEM_ACTOR_ID: _, ...rest } = base;
+      expect(() => validateEnv(rest)).not.toThrow();
+    });
+
+    it('still passes when SYSTEM_ACTOR_ID is present', () => {
+      expect(() => validateEnv(base)).not.toThrow();
+    });
   });
 
   describe('feature flags (H2 — orphan sweep)', () => {
