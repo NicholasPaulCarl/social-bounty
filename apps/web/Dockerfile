@@ -77,9 +77,10 @@ RUN npm ci --production --omit=dev
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/shared/package.json ./packages/shared/package.json
 
-# Next.js build output (.next/) + public assets.
+# Next.js build output (.next/) + manifest + config.
+# Note: apps/web/public/ is optional in Next.js — only copied when present.
+# This project doesn't currently use a public/ directory, so it's omitted.
 COPY --from=builder /app/apps/web/.next ./apps/web/.next
-COPY --from=builder /app/apps/web/public ./apps/web/public
 COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
 COPY --from=builder /app/apps/web/next.config.mjs ./apps/web/next.config.mjs
 
