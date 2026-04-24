@@ -141,7 +141,7 @@ export default function AcceptableUsePage() {
             humiliate.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Dox es or exposes personal information</strong> of another person
+            <strong className="font-semibold text-slate-900">Doxxes or exposes personal information</strong> of another person
             (including home or work address, private phone number, ID or passport
             number, financial account details, or real name where the person uses a
             pseudonym) without their informed consent and a lawful basis.
