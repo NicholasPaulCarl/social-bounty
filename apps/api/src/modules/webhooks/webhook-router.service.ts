@@ -1,22 +1,23 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { WebhookEvent, WebhookProvider } from '@prisma/client';
-import { BrandFundingHandler } from '../payments/brand-funding.handler';
-import { RefundsService } from '../refunds/refunds.service';
-import { PayoutsService } from '../payouts/payouts.service';
-import { UpgradeService } from '../subscriptions/upgrade.service';
 import { TradeSafeWebhookHandler } from '../tradesafe/tradesafe-webhook.handler';
 
 /**
- * Dispatches a verified, recorded webhook event to the appropriate domain handler.
+ * Webhook event dispatcher (ADR 0011 — TradeSafe unified rail).
  *
- * Phase 1: wires Stitch inbound (payment.settled, payment.failed, refund.processed).
- * Phase 2: wires Stitch outbound (payout.settled, payout.failed).
- * R34 (2026-04-18): wires TradeSafe outbound
- *   (tradesafe.beneficiary.linked, .payout.settled, .payout.failed).
+ * Post-cutover: Stitch + Svix routing removed. All inbound/outbound
+ * events flow through TradeSafe's native callback and its Svix-format
+ * outbound webhooks:
  *
- * Uses ModuleRef to resolve handlers lazily so the webhook module doesn't depend
- * on every payment-adjacent module at compile time.
+ *   - tradesafe.funds.received        → handleFundsReceived
+ *     (brand-funding settlement — ADR 0011 §5 inbound lifecycle)
+ *   - tradesafe.beneficiary.linked    → onBeneficiaryLinked
+ *   - tradesafe.payout.settled        → onPayoutSettled
+ *   - tradesafe.payout.failed         → onPayoutFailed
+ *
+ * Uses ModuleRef to resolve the handler lazily so the webhook module
+ * doesn't depend on TradeSafe internals at compile time.
  */
 @Injectable()
 export class WebhookRouterService {
@@ -25,102 +26,13 @@ export class WebhookRouterService {
   constructor(private readonly moduleRef: ModuleRef) {}
 
   async dispatch(event: WebhookEvent, payload: Record<string, unknown>): Promise<void> {
-    // Route TradeSafe events on the eventType string (webhook-controller writes
-    // `type` from the payload into `WebhookEvent.eventType`). TradeSafe's
-    // `tradesafe.<resource>.<action>` shape fits the rail cleanly. Stitch
-    // events are routed on the (type, status) tuple on the payload body.
-    //
-    // TODO(R34): confirm TradeSafe event-name shape once sandbox docs land —
-    // current arms key on the `tradesafe.<domain>.<verb>` string that ADR 0009
-    // §6 speculatively documents.
-    if (event.provider === WebhookProvider.TRADESAFE) {
-      await this.dispatchTradeSafe(event, payload);
+    if (event.provider !== WebhookProvider.TRADESAFE) {
+      this.logger.warn(
+        `webhook-router received non-TRADESAFE event (provider=${event.provider}) — ignoring post-ADR-0011`,
+      );
       return;
     }
 
-    // Stitch sends { type: "LINK" | "WITHDRAWAL" | "REFUND", status: "PAID" | "SETTLED" | "FAILED" | ... }
-    // We route on (type, status) rather than eventType alone.
-    const resource = this.readString(payload.type) ?? event.eventType;
-    const status = this.readString(payload.status) ?? '';
-    this.logger.log(
-      `routing ${event.provider} ${resource}/${status} (id=${event.externalEventId})`,
-    );
-
-    if (resource === 'LINK') {
-      const handler = this.moduleRef.get(BrandFundingHandler, { strict: false });
-      if (status === 'PAID' || status === 'SETTLED') {
-        await handler.onPaymentSettled(payload);
-        return;
-      }
-      if (status === 'FAILED' || status === 'EXPIRED') {
-        await handler.onPaymentFailed(payload);
-        return;
-      }
-    }
-    if (resource === 'WITHDRAWAL') {
-      const payouts = this.moduleRef.get(PayoutsService, { strict: false });
-      const payoutId = this.extractStitchPayoutId(payload);
-      if (!payoutId) return;
-      if (status === 'PAID' || status === 'SETTLED') {
-        await payouts.onPayoutSettled(payoutId);
-        return;
-      }
-      if (status === 'FAILED') {
-        await payouts.onPayoutFailed(payoutId, this.extractReason(payload) ?? 'unknown');
-        return;
-      }
-    }
-    if (resource === 'REFUND' && (status === 'PROCESSED' || status === 'COMPLETED')) {
-      const refunds = this.moduleRef.get(RefundsService, { strict: false });
-      const refundId = this.extractStitchRefundId(payload);
-      if (refundId) await refunds.onStitchRefundProcessed(refundId);
-      return;
-    }
-    if (resource === 'CONSENT') {
-      const upgrade = this.moduleRef.get(UpgradeService, { strict: false });
-      if (status === 'AUTHORISED' || status === 'AUTHORIZED' || status === 'CONSENTED') {
-        await upgrade.processConsentAuthorised(payload);
-        return;
-      }
-      if (status === 'UNAUTHORISED' || status === 'UNAUTHORIZED' || status === 'FAILED') {
-        await upgrade.processChargeFailed(payload);
-        return;
-      }
-    }
-    if (resource === 'SUBSCRIPTION') {
-      const upgrade = this.moduleRef.get(UpgradeService, { strict: false });
-      if (status === 'AUTHORISED' || status === 'AUTHORIZED') {
-        await upgrade.processConsentAuthorised(payload);
-        return;
-      }
-      if (status === 'PAID' || status === 'SETTLED') {
-        await upgrade.processRecurringCharge(payload);
-        return;
-      }
-      if (status === 'FAILED' || status === 'UNAUTHORISED' || status === 'EXPIRED' || status === 'CANCELLED') {
-        await upgrade.processChargeFailed(payload);
-        return;
-      }
-    }
-    this.logger.debug(`no handler wired for ${resource}/${status}`);
-  }
-
-  /**
-   * TradeSafe event dispatch (R34, 2026-04-18).
-   *
-   * Three arms per ADR 0009 §6 plausible-minimum subscription:
-   *   - `tradesafe.beneficiary.linked` → onBeneficiaryLinked
-   *   - `tradesafe.payout.settled`     → onPayoutSettled
-   *   - `tradesafe.payout.failed`      → onPayoutFailed
-   *
-   * Unknown event types log-and-skip (no retry storm, no ledger mutation).
-   * The controller's try/catch around dispatch + the KbService recurrence
-   * pipeline already handles thrown errors.
-   */
-  private async dispatchTradeSafe(
-    event: WebhookEvent,
-    payload: Record<string, unknown>,
-  ): Promise<void> {
     const eventType =
       this.readString(payload.type) ?? event.eventType ?? '';
     this.logger.log(
@@ -129,6 +41,10 @@ export class WebhookRouterService {
 
     const handler = this.moduleRef.get(TradeSafeWebhookHandler, { strict: false });
 
+    if (eventType === 'tradesafe.funds.received') {
+      await handler.handleFundsReceived(payload);
+      return;
+    }
     if (eventType === 'tradesafe.beneficiary.linked') {
       await handler.onBeneficiaryLinked(payload);
       return;
@@ -142,10 +58,6 @@ export class WebhookRouterService {
       return;
     }
 
-    // TODO(R34): these three events (created, escrow_held, beneficiary.verified)
-    // are ADR 0009 §6 speculative. Left unwired intentionally — ADR 0010 owns
-    // the call on whether they drive ledger/state transitions or stay as
-    // informational "storage-only" events.
     this.logger.debug(
       `no handler wired for tradesafe event ${eventType} (id=${event.externalEventId})`,
     );
@@ -160,20 +72,5 @@ export class WebhookRouterService {
 
   private readString(v: unknown): string | undefined {
     return typeof v === 'string' ? v : undefined;
-  }
-
-  private extractStitchRefundId(payload: Record<string, unknown>): string | undefined {
-    const id = payload.refundId ?? payload.id;
-    return typeof id === 'string' ? id : undefined;
-  }
-
-  private extractStitchPayoutId(payload: Record<string, unknown>): string | undefined {
-    const id = payload.withdrawalId ?? payload.payoutId ?? payload.id;
-    return typeof id === 'string' ? id : undefined;
-  }
-
-  private extractReason(payload: Record<string, unknown>): string | undefined {
-    const reason = payload.failureReason ?? payload.reason ?? payload.error;
-    return typeof reason === 'string' ? reason : undefined;
   }
 }

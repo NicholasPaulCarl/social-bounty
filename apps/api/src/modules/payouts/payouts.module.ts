@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { StitchModule } from '../stitch/stitch.module';
 import { TradeSafeModule } from '../tradesafe/tradesafe.module';
 import { LedgerModule } from '../ledger/ledger.module';
 import { WalletModule } from '../wallet/wallet.module';
@@ -8,17 +7,22 @@ import { PayoutsService } from './payouts.service';
 import { PayoutsScheduler } from './payouts.scheduler';
 import { PayoutsController } from './payouts.controller';
 import { PayoutProviderFactory } from './payout-provider.factory';
-import { StitchPayoutAdapter } from './stitch-payout.adapter';
 import { TradeSafePayoutAdapter } from './tradesafe-payout.adapter';
 
+/**
+ * Outbound-payout wiring (ADR 0011 — TradeSafe unified rail).
+ *
+ * Post-cutover: only TradeSafe remains. `StitchPayoutAdapter` was
+ * deleted; the factory resolves directly to the TradeSafe adapter
+ * (see {@link PayoutProviderFactory}).
+ */
 @Module({
-  imports: [StitchModule, TradeSafeModule, LedgerModule, WalletModule],
+  imports: [TradeSafeModule, LedgerModule, WalletModule],
   controllers: [PayoutsController],
   providers: [
     BeneficiaryService,
     PayoutsService,
     PayoutsScheduler,
-    StitchPayoutAdapter,
     TradeSafePayoutAdapter,
     PayoutProviderFactory,
   ],
@@ -26,7 +30,6 @@ import { TradeSafePayoutAdapter } from './tradesafe-payout.adapter';
     BeneficiaryService,
     PayoutsService,
     PayoutProviderFactory,
-    StitchPayoutAdapter,
     TradeSafePayoutAdapter,
   ],
 })

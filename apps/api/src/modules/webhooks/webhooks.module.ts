@@ -1,31 +1,27 @@
 import { Module } from '@nestjs/common';
 import { TradeSafeModule } from '../tradesafe/tradesafe.module';
-import { StitchWebhookController } from './stitch-webhook.controller';
 import { TradeSafeTransactionCallbackController } from './tradesafe-transaction-callback.controller';
-import { TradeSafeWebhookController } from './tradesafe-webhook.controller';
-import { SvixVerifier } from './svix.verifier';
 import { WebhookEventService } from './webhook-event.service';
 import { WebhookRouterService } from './webhook-router.service';
 
 /**
- * Imports {@link TradeSafeModule} so {@link WebhookRouterService} can resolve
- * {@link TradeSafeWebhookHandler} via `ModuleRef.get` (R34, 2026-04-18).
+ * Webhook ingestion (ADR 0011 — TradeSafe unified rail).
  *
- * Stitch-side handlers (`BrandFundingHandler`, `PayoutsService`,
- * `RefundsService`, `UpgradeService`) are reachable through the app-level DI
- * graph because their modules are imported at the `AppModule` root; we do NOT
- * import each of those modules here because it would create circular imports
- * (`PaymentsModule` already imports `WebhooksModule` transitively). TradeSafe
- * is different: it sits lower in the graph and needs this explicit edge.
+ * Post-cutover: Stitch inbound + Svix verifier deleted. TradeSafe's
+ * native callback (URL-path-secreted) and its Svix-format outbound
+ * webhook handlers are the only two live paths.
+ *
+ * Imports {@link TradeSafeModule} so {@link WebhookRouterService} can
+ * resolve {@link TradeSafeWebhookHandler} via `ModuleRef.get`.
+ *
+ * Domain-handler wiring for inbound/outbound flows (brand funding,
+ * payouts, refunds, subscriptions) is reachable through the app-level
+ * DI graph via `moduleRef.get(..., { strict: false })` in the router.
  */
 @Module({
   imports: [TradeSafeModule],
-  controllers: [
-    StitchWebhookController,
-    TradeSafeTransactionCallbackController,
-    TradeSafeWebhookController,
-  ],
-  providers: [SvixVerifier, WebhookEventService, WebhookRouterService],
-  exports: [WebhookEventService, SvixVerifier, WebhookRouterService],
+  controllers: [TradeSafeTransactionCallbackController],
+  providers: [WebhookEventService, WebhookRouterService],
+  exports: [WebhookEventService, WebhookRouterService],
 })
 export class WebhooksModule {}

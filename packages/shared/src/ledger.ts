@@ -26,22 +26,14 @@ export type LedgerAccountName =
 
 // Canonical idempotency action types. Paired with a stable referenceId per flow,
 // they form the UNIQUE(referenceId, actionType) constraint on LedgerTransactionGroup.
+// Post-ADR-0011: Stitch action types removed. TradeSafe is the sole provider.
 export const LEDGER_ACTION_TYPES = {
-  STITCH_PAYMENT_SETTLED: 'stitch_payment_settled',
-  STITCH_PAYMENT_FAILED: 'stitch_payment_failed',
   SUBMISSION_APPROVED: 'submission_approved',
   CLEARANCE_RELEASED: 'clearance_released',
   PAYOUT_INITIATED: 'payout_initiated',
-  STITCH_PAYOUT_SETTLED: 'stitch_payout_settled',
-  STITCH_PAYOUT_FAILED: 'stitch_payout_failed',
+  // TradeSafe inbound (ADR 0011 §5 — brand-funding settlement).
+  TRADESAFE_FUNDS_RECEIVED: 'tradesafe_funds_received',
   // TradeSafe outbound rail (ADR 0009 §6, R32 + R34 — wired 2026-04-18).
-  // R32 (reconciliation): anti-join against `stitch_payouts WHERE
-  // provider=TRADESAFE` now catches missing ledger groups for settled
-  // TradeSafe payouts. R34 (webhooks): handlers post these action types
-  // on `tradesafe.payout.settled` / `.failed` events. Ledger legs mirror
-  // the Stitch equivalents exactly — only the action-type discriminator
-  // differs so reconciliation + audit trails can tell which provider
-  // moved the money.
   TRADESAFE_PAYOUT_SETTLED: 'tradesafe_payout_settled',
   TRADESAFE_PAYOUT_FAILED: 'tradesafe_payout_failed',
   REFUND_PROCESSED: 'refund_processed',

@@ -13,9 +13,29 @@ import {
 import { UserRole } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService } from '../ledger/ledger.service';
-import { StitchClient } from '../stitch/stitch.client';
 import { WalletProjectionService } from '../wallet/wallet-projection.service';
+import { PayoutProviderFactory } from './payout-provider.factory';
 
+/**
+ * Outbound payouts (ADR 0011 — TradeSafe unified rail).
+ *
+ * Post-cutover: direct `StitchClient` dependency removed. All
+ * provider-side calls now route through {@link PayoutProviderFactory}
+ * → {@link TradeSafePayoutAdapter}. Retry policy, idempotency-key
+ * generation, and ledger leg structure remain provider-agnostic.
+ *
+ * Settlement + failure webhook-dispatch lives in
+ * {@link TradeSafeWebhookHandler} — this service owns initiation +
+ * retry only. The old `onPayoutSettled` / `onPayoutFailed` methods
+ * that consumed Stitch's `WITHDRAWAL` event shape have been removed.
+ *
+ * NB: the `StitchPayout` Prisma model name is preserved until agent 1B
+ * finishes the schema rename. Semantically the rows represent
+ * TradeSafe-rail payouts post-cutover (the `provider` column defaults
+ * to `STITCH` historically; new rows are written by this service
+ * without specifying a rail — the column is a historical artifact per
+ * ADR 0011 §9 neutral).
+ */
 @Injectable()
 export class PayoutsService {
   private readonly logger = new Logger(PayoutsService.name);
@@ -25,21 +45,23 @@ export class PayoutsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly ledger: LedgerService,
-    private readonly stitch: StitchClient,
+    private readonly providerFactory: PayoutProviderFactory,
     private readonly projection: WalletProjectionService,
     private readonly config: ConfigService,
   ) {
-    const raw = this.config.get<string>('STITCH_MIN_PAYOUT_CENTS', '2000');
+    const raw = this.config.get<string>('TRADESAFE_MIN_PAYOUT_CENTS')
+      ?? this.config.get<string>('STITCH_MIN_PAYOUT_CENTS', '2000');
     this.minPayoutCents = BigInt(raw);
-    this.speed = (this.config.get<string>('STITCH_PAYOUT_SPEED', 'DEFAULT') as
+    this.speed = (this.config.get<string>('TRADESAFE_PAYOUT_SPEED')
+      ?? this.config.get<string>('STITCH_PAYOUT_SPEED', 'DEFAULT')) as
       | 'INSTANT'
-      | 'DEFAULT');
+      | 'DEFAULT';
   }
 
   /**
-   * Resolve the STITCH_SYSTEM_ACTOR_ID — required because AuditLog.actorId has
-   * a FK to users.id. Previously this passed 'payout-job' which would fail the
-   * FK constraint (mirrors the brand-funding bug).
+   * Resolve the system actor id — required because AuditLog.actorId has a
+   * FK to users.id. The env var keeps its legacy name for continuity with
+   * already-configured operators; no semantic change.
    */
   private systemActorId(): string {
     const id = this.config.get<string>('STITCH_SYSTEM_ACTOR_ID', '');
@@ -52,15 +74,10 @@ export class PayoutsService {
   }
 
   /**
-   * Enumerates hunters with spare available balance, creates a StitchPayout row,
-   * posts hunter_available → payout_in_transit, and calls Stitch. Payout settlement
-   * (and the corresponding ledger move to hunter_paid) arrives via webhook.
-   *
-   * TRADESAFE MIGRATION (ADR 0008): eligibility + ledger legs stay, but the
-   * Stitch dispatch call inside initiatePayout is swapped for TradeSafe's payout
-   * API. Webhook settlement handlers (onPayoutSettled / onPayoutFailed) also
-   * change shape.
-   * Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
+   * Enumerates hunters with spare available balance, creates a payout row,
+   * posts hunter_available → payout_in_transit, and dispatches via the
+   * active payout provider. Settlement (and the corresponding ledger move
+   * to hunter_paid) arrives via the TradeSafe webhook.
    */
   async runBatch(batchSize = 100): Promise<{ initiated: number; skipped: number; failed: number }> {
     const jobRun = await this.prisma.jobRun.create({
@@ -72,7 +89,6 @@ export class PayoutsService {
     let failed = 0;
 
     try {
-      // Find hunters with a StitchBeneficiary and no in-flight payout.
       const eligibleBeneficiaries = await this.prisma.stitchBeneficiary.findMany({
         where: {
           isActive: true,
@@ -136,21 +152,12 @@ export class PayoutsService {
     return { initiated, skipped, failed };
   }
 
-  // TRADESAFE MIGRATION (ADR 0008): the stitch.createPayout() call inside this
-  // method is replaced by the TradeSafe payouts API. beneficiary lookup switches
-  // from the local-synth path to TradeSafe's real beneficiary id.
-  // Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
   async initiatePayout(userId: string, beneficiaryId: string, amountCents: bigint) {
-    // Stitch merchantReference + our Idempotency-Key: alphanumeric only.
     const stamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
     const userSlug = userId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
     const idempotencyKey = `payout${userSlug}${stamp}`;
     const merchantReference = `payout${userSlug}${stamp}`.slice(0, 50);
 
-    // Load the beneficiary up-front: we need its Stitch-side id for the
-    // createPayout call. `beneficiaryId` here is our internal PK; Stitch wants
-    // the stitchBeneficiaryId it minted (or, for local-only placeholders, the
-    // synthetic `local:...` id).
     const beneficiary = await this.prisma.stitchBeneficiary.findUnique({
       where: { id: beneficiaryId },
     });
@@ -202,10 +209,10 @@ export class PayoutsService {
     });
 
     try {
-      const stitchResult = await this.stitch.createPayout(
+      const provider = this.providerFactory.getProvider();
+      const result = await provider.initiatePayout(
         {
           amountCents,
-          // Stitch wants the id it minted, NOT our internal FK.
           beneficiaryId: beneficiary.stitchBeneficiaryId,
           merchantReference,
           speed: this.speed,
@@ -215,7 +222,7 @@ export class PayoutsService {
       await this.prisma.stitchPayout.update({
         where: { id: payout.id },
         data: {
-          stitchPayoutId: stitchResult.id,
+          stitchPayoutId: result.id,
           status: StitchPayoutStatus.INITIATED,
           lastAttemptAt: new Date(),
           attempts: { increment: 1 },
@@ -234,8 +241,8 @@ export class PayoutsService {
       });
       // Compensating entry so balance returns to hunter_available.
       await this.ledger.postTransactionGroup({
-        actionType: 'stitch_payout_failed',
-        referenceId: payout.id, // use internal id since no stitchPayoutId yet
+        actionType: 'tradesafe_payout_failed',
+        referenceId: payout.id,
         referenceType: 'StitchPayout',
         description: `Payout dispatch failed: ${err instanceof Error ? err.message : 'unknown'}`,
         postedBy: actorId,
@@ -265,9 +272,6 @@ export class PayoutsService {
     }
   }
 
-  // TRADESAFE MIGRATION (ADR 0008): replace stitch.createPayout() retry call with
-  // TradeSafe's equivalent; retry/backoff policy itself is provider-agnostic.
-  // Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
   async retryBatch(batchSize = 50): Promise<{ retried: number }> {
     const now = new Date();
     const candidates = await this.prisma.stitchPayout.findMany({
@@ -280,15 +284,15 @@ export class PayoutsService {
       take: batchSize,
     });
     let retried = 0;
+    const provider = this.providerFactory.getProvider();
     for (const p of candidates) {
       try {
         if (!p.beneficiary) {
           throw new Error(`StitchPayout ${p.id} has no beneficiary loaded`);
         }
-        const result = await this.stitch.createPayout(
+        const result = await provider.initiatePayout(
           {
             amountCents: p.amountCents,
-            // Use the Stitch-side id (same fix as initiatePayout).
             beneficiaryId: p.beneficiary.stitchBeneficiaryId,
             merchantReference: p.merchantReference,
             speed: (p.speed as 'INSTANT' | 'DEFAULT') ?? 'DEFAULT',
@@ -322,115 +326,9 @@ export class PayoutsService {
     return { retried };
   }
 
-  // TRADESAFE MIGRATION (ADR 0008): webhook payload + provider id field change
-  // when TradeSafe is live; the ledger legs (payout_in_transit → hunter_paid)
-  // stay the same.
-  // Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
-  async onPayoutSettled(stitchPayoutId: string): Promise<void> {
-    const payout = await this.prisma.stitchPayout.findUnique({
-      where: { stitchPayoutId },
-    });
-    if (!payout) {
-      this.logger.warn(`payout.settled for unknown stitchPayoutId=${stitchPayoutId}`);
-      return;
-    }
-    const actorId = this.systemActorId();
-    await this.ledger.postTransactionGroup({
-      actionType: 'stitch_payout_settled',
-      referenceId: stitchPayoutId,
-      referenceType: 'StitchPayout',
-      description: `Payout settled: ${payout.id}`,
-      postedBy: actorId,
-      legs: [
-        {
-          account: LedgerAccount.payout_in_transit,
-          type: LedgerEntryType.DEBIT,
-          amountCents: payout.amountCents,
-          userId: payout.userId,
-          externalReference: stitchPayoutId,
-        },
-        {
-          account: LedgerAccount.hunter_paid,
-          type: LedgerEntryType.CREDIT,
-          amountCents: payout.amountCents,
-          userId: payout.userId,
-          externalReference: stitchPayoutId,
-        },
-      ],
-      audit: {
-        actorId,
-        actorRole: UserRole.SUPER_ADMIN,
-        action: 'PAYOUT_SETTLED',
-        entityType: 'StitchPayout',
-        entityId: payout.id,
-      },
-    });
-    await this.prisma.stitchPayout.update({
-      where: { id: payout.id },
-      data: { status: StitchPayoutStatus.SETTLED },
-    });
-  }
-
-  // TRADESAFE MIGRATION (ADR 0008): webhook payload + provider id field change
-  // when TradeSafe is live; the compensating legs (payout_in_transit → hunter_available)
-  // stay the same.
-  // Adapter target: modules/payouts/payout-provider.interface.ts (ADR 0009).
-  async onPayoutFailed(stitchPayoutId: string, reason: string): Promise<void> {
-    const payout = await this.prisma.stitchPayout.findUnique({
-      where: { stitchPayoutId },
-    });
-    if (!payout) {
-      this.logger.warn(`payout.failed for unknown stitchPayoutId=${stitchPayoutId}`);
-      return;
-    }
-    const actorId = this.systemActorId();
-    await this.ledger.postTransactionGroup({
-      actionType: 'stitch_payout_failed',
-      referenceId: stitchPayoutId,
-      referenceType: 'StitchPayout',
-      description: `Payout failed: ${reason}`,
-      postedBy: actorId,
-      legs: [
-        {
-          account: LedgerAccount.payout_in_transit,
-          type: LedgerEntryType.DEBIT,
-          amountCents: payout.amountCents,
-          userId: payout.userId,
-          externalReference: stitchPayoutId,
-        },
-        {
-          account: LedgerAccount.hunter_available,
-          type: LedgerEntryType.CREDIT,
-          amountCents: payout.amountCents,
-          userId: payout.userId,
-          externalReference: stitchPayoutId,
-        },
-      ],
-      audit: {
-        actorId,
-        actorRole: UserRole.SUPER_ADMIN,
-        action: 'PAYOUT_FAILED',
-        entityType: 'StitchPayout',
-        entityId: payout.id,
-        reason,
-      },
-    });
-    const attempts = payout.attempts + 1;
-    await this.prisma.stitchPayout.update({
-      where: { id: payout.id },
-      data: {
-        status: attempts >= 3 ? StitchPayoutStatus.RETRY_PENDING : StitchPayoutStatus.FAILED,
-        attempts,
-        lastAttemptAt: new Date(),
-        lastError: reason,
-        nextRetryAt: attempts >= 3 ? null : new Date(Date.now() + 2 ** attempts * 60 * 60 * 1000),
-      },
-    });
-  }
-
   /**
-   * List this hunter's StitchPayout rows, newest first. Returns a shape safe
-   * to hand back over HTTP: bigint cents → string.
+   * List this hunter's payout rows, newest first. Returns a shape safe to
+   * hand back over HTTP: bigint cents → string.
    */
   async listForUser(userId: string) {
     const rows = await this.prisma.stitchPayout.findMany({
@@ -457,7 +355,7 @@ export class PayoutsService {
       lastError: r.lastError,
       createdAt: r.createdAt.toISOString(),
       lastAttemptAt: r.lastAttemptAt ? r.lastAttemptAt.toISOString() : null,
-      stitchPayoutId: r.stitchPayoutId,
+      providerPayoutId: r.stitchPayoutId,
     }));
   }
 
@@ -467,7 +365,6 @@ export class PayoutsService {
     }
     const payout = await this.prisma.stitchPayout.findUnique({ where: { id: payoutId } });
     if (!payout) return { retried: false };
-    // Reset the retry clock + count and let the retry batch pick it up.
     await this.prisma.stitchPayout.update({
       where: { id: payoutId },
       data: { status: StitchPayoutStatus.FAILED, attempts: 0, nextRetryAt: new Date() },
