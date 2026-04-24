@@ -69,17 +69,21 @@ COPY apps/api ./apps/api
 # the same path the `db:generate` script uses locally.
 RUN npm run db:generate
 
+# Mirror the freshly-generated Prisma client into apps/api's node_modules
+# BEFORE `nest build` runs. Per CLAUDE.md infra note: `db:generate` writes
+# only into packages/prisma/node_modules/.prisma/client/, but tsc in
+# apps/api resolves `@prisma/client` through `apps/api/node_modules/
+# .prisma/client/` which is otherwise empty. Without this copy, the build
+# fails with ~300 type errors like "Namespace 'Prisma' has no exported
+# member 'InputJsonValue'" or "Property 'DbNull' does not exist".
+RUN mkdir -p apps/api/node_modules/.prisma \
+ && cp -R packages/prisma/node_modules/.prisma/client apps/api/node_modules/.prisma/
+
 # Build the shared package (tsc)
 RUN npm run build:shared
 
 # Build the API (nest build)
 RUN npm run build:api
-
-# Prisma generates into packages/prisma/node_modules/.prisma/client — mirror
-# into apps/api/node_modules so the API's resolver finds it at runtime.
-# Matches the infra note in CLAUDE.md about the workspace Prisma client drift.
-RUN mkdir -p apps/api/node_modules/.prisma \
- && cp -R packages/prisma/node_modules/.prisma/client apps/api/node_modules/.prisma/
 
 # ════════════════════════════════════════════════════════════════════
 # Stage 2 — Runtime
