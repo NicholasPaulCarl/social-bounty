@@ -56,8 +56,12 @@ COPY packages/prisma ./packages/prisma
 COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 
-# Generate Prisma client — engines already on disk from postinstall.
-RUN npx prisma generate --schema=packages/prisma/schema.prisma
+# Generate Prisma client via the existing workspace script. Running it
+# through `npm run --workspace=packages/prisma` sets cwd to packages/prisma
+# and prepends `packages/prisma/node_modules/.bin` to PATH, so the prisma
+# CLI resolves even though it's not hoisted to the root `.bin/`. This is
+# the same path the `db:generate` script uses locally.
+RUN npm run db:generate
 
 # Build the shared package (tsc)
 RUN npm run build:shared
