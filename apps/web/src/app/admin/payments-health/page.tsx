@@ -18,7 +18,7 @@ export default function AdminPaymentsHealthPage() {
   if (error) return <ErrorState error={error as Error} onRetry={() => refetch()} />;
   if (!data) return null;
 
-  // Agent 1B renames shared DTO fields (stitchTokenProbe → tokenProbe).
+  // Agent 1B renames the legacy shared DTO fields to neutral names.
   // Cast bridges the handoff window within Wave 1.
   const health = data as unknown as {
     paymentsProvider: string;
