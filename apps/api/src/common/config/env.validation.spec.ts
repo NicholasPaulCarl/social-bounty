@@ -11,51 +11,78 @@ import { validateEnv } from './env.validation';
  * that gates financial behaviour (H2, orphan sweep 2026-04-15). Every
  * flag added to env.validation.ts gets coverage here so a future
  * refactor can't silently drop a validator.
+ *
+ * Post-ADR 0011 (2026-04-24): legacy payment-provider env vars dropped;
+ * TradeSafe is the single rail. `base` carries only the always-required
+ * TradeSafe URLs + callback secret + redirect URL.
  */
 describe('validateEnv', () => {
   const base = {
-    PAYMENTS_PROVIDER: 'stitch_sandbox',
-    STITCH_CLIENT_ID: 'client-id',
-    STITCH_CLIENT_SECRET: 'client-secret',
-    STITCH_API_BASE: 'https://express.stitch.money',
-    STITCH_REDIRECT_URL: 'http://localhost:3000/business/bounties/funded',
-    STITCH_SYSTEM_ACTOR_ID: '00000000-0000-0000-0000-000000000001',
+    TRADESAFE_AUTH_URL: 'https://auth.tradesafe.co.za/oauth/token',
+    TRADESAFE_GRAPHQL_URL: 'https://api-developer.tradesafe.dev/graphql',
+    TRADESAFE_CALLBACK_SECRET: 'a'.repeat(32),
+    TRADESAFE_REDIRECT_URL: 'http://localhost:3000/business/bounties/funded',
   };
 
-  describe('required fields (payments enabled)', () => {
-    it('passes with the minimum valid Stitch-sandbox config', () => {
+  describe('required TradeSafe fields (ADR 0011)', () => {
+    it('passes with the minimum valid TradeSafe config', () => {
       expect(() => validateEnv(base)).not.toThrow();
     });
 
-    it('throws when PAYMENTS_PROVIDER is missing', () => {
-      const { PAYMENTS_PROVIDER: _, ...rest } = base;
-      expect(() => validateEnv(rest)).toThrow(/PAYMENTS_PROVIDER/);
+    it('throws when TRADESAFE_AUTH_URL is missing', () => {
+      const { TRADESAFE_AUTH_URL: _, ...rest } = base;
+      expect(() => validateEnv(rest)).toThrow(/TRADESAFE_AUTH_URL/);
     });
 
-    it('throws when PAYMENTS_PROVIDER is an invalid value', () => {
-      expect(() => validateEnv({ ...base, PAYMENTS_PROVIDER: 'paypal' })).toThrow(
-        /PAYMENTS_PROVIDER/,
+    it('throws when TRADESAFE_AUTH_URL is not a valid URL', () => {
+      expect(() =>
+        validateEnv({ ...base, TRADESAFE_AUTH_URL: 'not-a-url' }),
+      ).toThrow(/TRADESAFE_AUTH_URL/);
+    });
+
+    it('throws when TRADESAFE_GRAPHQL_URL is missing', () => {
+      const { TRADESAFE_GRAPHQL_URL: _, ...rest } = base;
+      expect(() => validateEnv(rest)).toThrow(/TRADESAFE_GRAPHQL_URL/);
+    });
+
+    it('throws when TRADESAFE_GRAPHQL_URL is not a valid URL', () => {
+      expect(() =>
+        validateEnv({ ...base, TRADESAFE_GRAPHQL_URL: 'missing-scheme.example.com' }),
+      ).toThrow(/TRADESAFE_GRAPHQL_URL/);
+    });
+
+    it('throws when TRADESAFE_CALLBACK_SECRET is missing', () => {
+      const { TRADESAFE_CALLBACK_SECRET: _, ...rest } = base;
+      expect(() => validateEnv(rest)).toThrow(/TRADESAFE_CALLBACK_SECRET/);
+    });
+
+    it('throws when TRADESAFE_CALLBACK_SECRET is shorter than 32 chars', () => {
+      expect(() =>
+        validateEnv({ ...base, TRADESAFE_CALLBACK_SECRET: 'short' }),
+      ).toThrow(/TRADESAFE_CALLBACK_SECRET/);
+    });
+
+    it('throws when TRADESAFE_REDIRECT_URL is missing', () => {
+      const { TRADESAFE_REDIRECT_URL: _, ...rest } = base;
+      expect(() => validateEnv(rest)).toThrow(/TRADESAFE_REDIRECT_URL/);
+    });
+
+    it('throws when TRADESAFE_REDIRECT_URL is not a valid URL', () => {
+      expect(() =>
+        validateEnv({ ...base, TRADESAFE_REDIRECT_URL: 'not-a-url' }),
+      ).toThrow(/TRADESAFE_REDIRECT_URL/);
+    });
+
+    it('accepts TRADESAFE_MOCK=true|false and missing (defaults to true at read site)', () => {
+      expect(() => validateEnv({ ...base, TRADESAFE_MOCK: 'true' })).not.toThrow();
+      expect(() => validateEnv({ ...base, TRADESAFE_MOCK: 'false' })).not.toThrow();
+      expect(() => validateEnv({ ...base })).not.toThrow();
+    });
+
+    it('rejects TRADESAFE_MOCK with a non-boolean string', () => {
+      expect(() => validateEnv({ ...base, TRADESAFE_MOCK: 'yes' })).toThrow(
+        /TRADESAFE_MOCK/,
       );
-    });
-
-    it('throws when STITCH_CLIENT_ID is missing with payments enabled', () => {
-      const { STITCH_CLIENT_ID: _, ...rest } = base;
-      expect(() => validateEnv(rest)).toThrow(/STITCH_CLIENT_ID/);
-    });
-
-    it('throws when STITCH_API_BASE is not a valid URL', () => {
-      expect(() => validateEnv({ ...base, STITCH_API_BASE: 'not-a-url' })).toThrow(
-        /STITCH_API_BASE/,
-      );
-    });
-
-    it('throws when STITCH_SYSTEM_ACTOR_ID is missing with payments enabled', () => {
-      const { STITCH_SYSTEM_ACTOR_ID: _, ...rest } = base;
-      expect(() => validateEnv(rest)).toThrow(/STITCH_SYSTEM_ACTOR_ID/);
-    });
-
-    it('skips Stitch-conditional checks when PAYMENTS_PROVIDER=none', () => {
-      expect(() => validateEnv({ PAYMENTS_PROVIDER: 'none' })).not.toThrow();
     });
   });
 
@@ -207,8 +234,8 @@ describe('validateEnv', () => {
   });
 
   describe('TradeSafe adapter scaffolding (ADR 0009)', () => {
-    it('accepts PAYOUT_PROVIDER=stitch|tradesafe|mock', () => {
-      for (const v of ['stitch', 'tradesafe', 'mock']) {
+    it('accepts PAYOUT_PROVIDER=tradesafe|mock', () => {
+      for (const v of ['tradesafe', 'mock']) {
         expect(() => validateEnv({ ...base, PAYOUT_PROVIDER: v })).not.toThrow();
       }
     });
@@ -327,18 +354,13 @@ describe('validateEnv', () => {
       expect(() =>
         validateEnv({
           ...base,
-          STITCH_WEBHOOK_SECRET: 'whsec_abc',
-          STITCH_PAYOUT_SPEED: 'DEFAULT',
-          STITCH_MIN_PAYOUT_CENTS: 2000,
           PAYOUTS_ENABLED: 'false',
           RECONCILIATION_ENABLED: 'true',
           EXPIRED_BOUNTY_RELEASE_ENABLED: 'false',
           BENEFICIARY_ENC_KEY: 'prod-enc-key',
-          STRIPE_SECRET_KEY: 'sk_live_x',
-          STRIPE_WEBHOOK_SECRET: 'whsec_y',
           APIFY_API_TOKEN: 'apify_token',
           APIFY_ACTOR_TIMEOUT_MS: 60000,
-          PAYOUT_PROVIDER: 'stitch',
+          PAYOUT_PROVIDER: 'tradesafe',
           TRADESAFE_API_BASE: 'https://tradesafe.example/api',
           TRADESAFE_MOCK: 'true',
           CLEARANCE_OVERRIDE_HOURS_FREE: 0.0083,
