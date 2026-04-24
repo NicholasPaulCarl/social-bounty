@@ -313,8 +313,9 @@ enum EvidenceType {
 }
 
 // ─────────────────────────────────────
-// Ledger & Payment Enums (Stitch Express)
+// Ledger & Payment Enums
 // Source: md-files/payment-gateway.md + md-files/financial-architecture.md
+// Payment rail: TradeSafe (unified inbound + outbound per ADR 0011).
 // ─────────────────────────────────────
 
 enum LedgerAccount {
@@ -362,28 +363,11 @@ enum WebhookStatus {
   DUPLICATE
 }
 
-enum StitchPaymentLinkStatus {
-  CREATED
-  INITIATED
-  CAPTURED
-  SETTLED
-  FAILED
-  EXPIRED
-  REFUNDED
-}
-
-enum StitchPayoutStatus {
-  CREATED
-  INITIATED
-  SETTLED
-  FAILED
-  RETRY_PENDING
-  CANCELLED
-}
-
-// Outbound-payout rail discriminator. Added for R32 so reconciliation can
-// attribute "settled but no ledger group" findings to the correct provider.
-// See ADR 0009 §3 Option B — this is the minimal slice of the rename.
+// Outbound-payout rail discriminator. Originally added for R32 so
+// reconciliation could attribute "settled but no ledger group" findings
+// to the correct provider. Post-ADR 0011 (single-rail TradeSafe), STITCH
+// is retained as a legacy value so historical rows remain readable; no
+// new rows are created with STITCH. See ADR 0011.
 enum PayoutRail {
   STITCH
   TRADESAFE
@@ -414,19 +398,6 @@ enum TradeSafeAllocationState {
   DELIVERED
   FUNDS_RELEASED
   DISPUTE
-  CANCELLED
-}
-
-// Stitch recurring-subscription mandate statuses. Matches Stitch's
-// /api/v1/subscriptions state machine (PENDING is our local initial state
-// between create-request and first authorised webhook).
-// Source: md-files/payment-gateway.md §12.
-enum StitchSubscriptionMandateStatus {
-  PENDING
-  AUTHORISED
-  UNAUTHORISED
-  FAILED
-  EXPIRED
   CANCELLED
 }
 
@@ -511,8 +482,6 @@ model User {
   conversationMemberships ConversationParticipant[] @relation("ConversationParticipants")
   messagesSent            Message[]                 @relation("MessagesSent")
   subscription            Subscription?             @relation("UserSubscription")
-  stitchBeneficiary       StitchBeneficiary?
-  stitchPayouts           StitchPayout[]
   ledgerEntries           LedgerEntry[]
   refundsRequested        Refund[]                  @relation("RefundRequester")
   refundsApproved         Refund[]                  @relation("RefundApprover")
@@ -632,7 +601,7 @@ model Bounty {
   adminFeePercent        Decimal?            @db.Decimal(5, 2)
   adminFeeAmount         Decimal?            @db.Decimal(18, 2)
 
-  // Stitch / ledger snapshots (Non-Negotiable #9: plan snapshot at funding time)
+  // Ledger snapshots (Non-Negotiable #9: plan snapshot at funding time)
   planSnapshotBrand    SubscriptionTier?
   brandAdminFeeRateBps Int?
   globalFeeRateBps     Int?
@@ -646,7 +615,6 @@ model Bounty {
   brandAssets          BrandAsset[]
   applications         BountyApplication[]   @relation("BountyApplications")
   invitations          BountyInvitation[]    @relation("BountyInvitations")
-  stitchPaymentLinks   StitchPaymentLink[]
   tradeSafeTransaction TradeSafeTransaction?
   ledgerEntries        LedgerEntry[]
   refunds              Refund[]
@@ -695,7 +663,7 @@ model Submission {
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
 
-  // Stitch / ledger snapshots (Non-Negotiable #9: plan snapshot at approval time)
+  // Ledger snapshots (Non-Negotiable #9: plan snapshot at approval time)
   planSnapshotHunter         SubscriptionTier?
   commissionRateBps          Int?
   clearanceReleaseAt         DateTime?
@@ -1279,10 +1247,9 @@ model Subscription {
   createdAt          DateTime               @default(now())
   updatedAt          DateTime               @updatedAt
 
-  user               User?                 @relation("UserSubscription", fields: [userId], references: [id])
-  brand              Brand?                @relation("BrandSubscription", fields: [brandId], references: [id])
-  payments           SubscriptionPayment[]
-  stitchSubscription StitchSubscription?
+  user     User?                 @relation("UserSubscription", fields: [userId], references: [id])
+  brand    Brand?                @relation("BrandSubscription", fields: [brandId], references: [id])
+  payments SubscriptionPayment[]
 
   @@unique([userId, entityType])
   @@unique([brandId, entityType])
@@ -1290,37 +1257,6 @@ model Subscription {
   @@index([currentPeriodEnd])
   @@index([tier])
   @@map("subscriptions")
-}
-
-// Stitch recurring-subscription mandate (card-consent + recurrence).
-// One-to-one with our Subscription row. Stores the Stitch-side identifiers
-// (subscriptionId + paymentAuthorizationRequestId) so we can correlate
-// webhook payments back to our Subscription. The first successful charge
-// flips the mandate to AUTHORISED and the Subscription to ACTIVE.
-//
-// Non-Negotiable #2: processSubscriptionCharge() uses UNIQUE(referenceId,
-// actionType) on LedgerTransactionGroup with referenceId=stitchPaymentId so
-// webhook replays are idempotent.
-model StitchSubscription {
-  id                           String                          @id @default(uuid())
-  subscriptionId               String                          @unique
-  stitchSubscriptionId         String                          @unique
-  stitchPaymentAuthorizationId String?                         @unique
-  hostedConsentUrl             String
-  merchantReference            String
-  amountCents                  BigInt
-  currency                     Currency                        @default(ZAR)
-  tierSnapshot                 SubscriptionTier
-  mandateStatus                StitchSubscriptionMandateStatus @default(PENDING)
-  lastErrorMessage             String?
-  metadata                     Json?
-  createdAt                    DateTime                        @default(now())
-  updatedAt                    DateTime                        @updatedAt
-
-  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-
-  @@index([mandateStatus])
-  @@map("stitch_subscriptions")
 }
 
 model SubscriptionPayment {
@@ -1349,8 +1285,9 @@ model SubscriptionPayment {
 }
 
 // ─────────────────────────────────────
-// Stitch Express / Double-entry Ledger
+// Double-entry Ledger
 // Source: md-files/payment-gateway.md + md-files/financial-architecture.md
+// Payment rail: TradeSafe (unified inbound + outbound per ADR 0011).
 // ─────────────────────────────────────
 
 // Transaction group header. Idempotency constraint UNIQUE(referenceId, actionType)
@@ -1433,80 +1370,6 @@ model WebhookEvent {
   @@index([provider, eventType, receivedAt])
   @@index([status])
   @@map("webhook_events")
-}
-
-model StitchPaymentLink {
-  id                  String                  @id @default(uuid())
-  bountyId            String
-  stitchPaymentLinkId String                  @unique
-  stitchPaymentId     String?                 @unique
-  hostedUrl           String
-  merchantReference   String
-  amountCents         BigInt
-  currency            Currency                @default(ZAR)
-  status              StitchPaymentLinkStatus @default(CREATED)
-  expiresAt           DateTime?
-  metadata            Json?
-  createdAt           DateTime                @default(now())
-  updatedAt           DateTime                @updatedAt
-
-  bounty Bounty @relation(fields: [bountyId], references: [id], onDelete: Cascade)
-
-  @@index([bountyId])
-  @@index([status])
-  @@map("stitch_payment_links")
-}
-
-model StitchBeneficiary {
-  id                  String    @id @default(uuid())
-  userId              String    @unique
-  stitchBeneficiaryId String    @unique
-  accountHolderName   String
-  bankCode            String
-  accountNumberEnc    String // app-layer AES-256 encrypted
-  accountType         String
-  verifiedAt          DateTime?
-  isActive            Boolean   @default(true)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-
-  user    User           @relation(fields: [userId], references: [id], onDelete: Restrict)
-  payouts StitchPayout[]
-
-  @@map("stitch_beneficiaries")
-}
-
-model StitchPayout {
-  id                String             @id @default(uuid())
-  userId            String
-  beneficiaryId     String
-  stitchPayoutId    String?            @unique
-  merchantReference String
-  amountCents       BigInt
-  currency          Currency           @default(ZAR)
-  speed             String             @default("DEFAULT") // INSTANT | DEFAULT
-  status            StitchPayoutStatus @default(CREATED)
-  // Outbound rail that actually moved (or is moving) the money. Defaults to
-  // STITCH to preserve existing rows' semantics; TradeSafe webhook handlers
-  // (R34) set this to TRADESAFE on new rows. Reconciliation's
-  // `checkPayoutsVsLedger` uses this to attribute drift per rail.
-  provider          PayoutRail         @default(STITCH)
-  attempts          Int                @default(0)
-  lastAttemptAt     DateTime?
-  lastError         String?            @db.Text
-  nextRetryAt       DateTime?
-  idempotencyKey    String             @unique
-  metadata          Json?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-
-  user        User              @relation(fields: [userId], references: [id], onDelete: Restrict)
-  beneficiary StitchBeneficiary @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
-
-  @@index([userId])
-  @@index([status, nextRetryAt])
-  @@index([provider, status])
-  @@map("stitch_payouts")
 }
 
 // ─────────────────────────────────────
@@ -1594,7 +1457,6 @@ model Refund {
   approvalNote         String?
   dualApprovalByUserId String?
   kbEntryId            String?
-  stitchRefundId       String?        @unique
   transactionGroupId   String?
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
