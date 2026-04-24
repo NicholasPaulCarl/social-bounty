@@ -428,18 +428,16 @@ export class TradeSafeWebhookHandler {
     }
 
     const actorId = this.systemActorId();
-    const amountCents = txn.totalValueCents;
-    const faceValueCents = bounty.faceValueCents ?? amountCents;
+    // Ledger amounts are rebuilt from the bounty snapshot (Non-Negotiable #9
+    // — in-flight transactions are never re-priced). The TradeSafe-side
+    // `totalValueCents` is used only as a cross-check; any drift between the
+    // two surfaces in reconciliation (check_tradesafe_vs_ledger).
+    const faceValueCents = bounty.faceValueCents ?? txn.totalValueCents;
     const adminBps = bounty.brandAdminFeeRateBps ?? 0;
     const globalBps = bounty.globalFeeRateBps ?? 0;
     const adminFee = (faceValueCents * BigInt(adminBps)) / 10000n;
     const globalFee = (faceValueCents * BigInt(globalBps)) / 10000n;
-    const totalCharged = faceValueCents + adminFee + globalFee;
-
-    // Use the authoritative amount (from the TradeSafeTransaction row).
-    // If the brand paid exactly the brand-total-charge amount, sums match;
-    // defensive check guards against drift on live callbacks.
-    const cashInCents = amountCents >= totalCharged ? amountCents : totalCharged;
+    const cashInCents = faceValueCents + adminFee + globalFee;
 
     // Post the funding ledger group + AuditLog inside one Prisma tx,
     // flanked by the Bounty + TradeSafeTransaction state flip (single
