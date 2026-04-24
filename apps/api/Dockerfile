@@ -102,7 +102,18 @@ ENV NODE_ENV=production \
     PORT=3001 \
     HUSKY=0
 
-# Full node_modules (inc. prisma CLI for preDeployCommand's `migrate deploy`).
+# Install Prisma CLI globally so `prisma migrate deploy` is on PATH
+# regardless of npm workspace hoisting quirks. Pinned to the same version
+# as `@prisma/client` in the workspace. Previous attempts to use
+# `npx prisma` or `npm run --workspace=packages/prisma migrate:deploy`
+# both hit `sh: 1: prisma: not found` in the runtime image — either the
+# workspace's local `.bin/prisma` didn't survive the builder→runtime
+# COPY, or npm's workspace PATH resolution behaves differently here.
+# A global install bypasses both problems.
+RUN npm install -g prisma@6.19.3 \
+ && prisma --version
+
+# Full node_modules (inc. @prisma/client for runtime queries).
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
