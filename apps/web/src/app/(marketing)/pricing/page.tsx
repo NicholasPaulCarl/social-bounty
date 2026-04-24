@@ -63,7 +63,7 @@ const FAQS = [
   { q: 'How does the commission saving work?', a: 'Free Hunters pay 20% platform commission on each bounty reward. Pro Hunters pay only 10%. If you earn R3,500/month in bounties, Pro pays for itself.' },
   { q: 'What happens to my closed bounties if I downgrade?', a: 'Existing closed bounties stay as-is. You can still manage them, review applications, and handle invitations. You just can\u2019t create new closed ones.' },
   { q: 'Is the Brand subscription per-user or per-brand?', a: 'Per-brand. When your brand subscribes, all members get Pro features.' },
-  { q: 'What payment methods do you accept?', a: 'We accept all major credit and debit cards via Stripe. All prices are in ZAR.' },
+  { q: 'What payment methods do you accept?', a: 'We accept instant EFT and major credit and debit cards via our secure checkout. All prices are in ZAR.' },
 ];
 
 /* ── Page ── */

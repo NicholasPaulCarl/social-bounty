@@ -9,7 +9,7 @@ import { useManageFilters, mapManageSortToApi } from '@/hooks/useManageFilters';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
 import { bountyApi } from '@/lib/api/bounties';
-import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
+import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-checkout';
 import { BountyManageCard } from '@/components/features/bounty/BountyManageCard';
 import { BountyCardSkeleton } from '@/components/features/bounty/BountyCardSkeleton';
 import { BusinessBountyListView } from '@/components/features/bounty/BusinessBountyListView';
@@ -131,7 +131,7 @@ function BusinessBountiesContent() {
     if (!statusAction) return;
     const { bounty, action } = statusAction;
 
-    // DRAFT → LIVE requires payment first; route through Stitch hosted checkout.
+    // DRAFT → LIVE requires payment first; route through TradeSafe hosted checkout.
     if (
       bounty.status === BountyStatus.DRAFT &&
       action.status === BountyStatus.LIVE &&

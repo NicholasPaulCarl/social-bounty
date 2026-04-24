@@ -5,12 +5,11 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { useBounty, useUpdateBountyStatus, useDeleteBounty } from '@/hooks/useBounties';
-import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
+import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-checkout';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
 import { BountyStatus, PostVisibilityRule, DurationUnit, PaymentStatus } from '@social-bounty/shared';
 import { bountyApi } from '@/lib/api/bounties';
-import { PaymentDialog } from '@/components/payment/PaymentDialog';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -46,8 +45,6 @@ export default function BusinessBountyDetailPage() {
   const { user } = useAuth();
   const [showDelete, setShowDelete] = useState(false);
   const [statusAction, setStatusAction] = useState<string | null>(null);
-  const [showPayment, setShowPayment] = useState(false);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [showRefundConfirm, setShowRefundConfirm] = useState(false);
   const [refundLoading, setRefundLoading] = useState(false);
@@ -57,7 +54,7 @@ export default function BusinessBountyDetailPage() {
   if (!bounty) return null;
 
   const handleStatusChange = async (newStatus: string) => {
-    // For DRAFT→LIVE, require payment first — route to Stitch hosted checkout.
+    // For DRAFT→LIVE, require payment first — route to TradeSafe hosted checkout.
     if (bounty.status === 'DRAFT' && newStatus === 'LIVE' && bounty.paymentStatus !== PaymentStatus.PAID) {
       setStatusAction(null);
       setPaymentLoading(true);
@@ -87,19 +84,6 @@ export default function BusinessBountyDetailPage() {
         refetch();
       },
       onError: () => toast.showError('Couldn\'t update status. Try again.'),
-    });
-  };
-
-  const handlePaymentSuccess = () => {
-    setShowPayment(false);
-    setClientSecret(null);
-    // After successful payment, publish the bounty
-    updateStatus.mutate(BountyStatus.LIVE, {
-      onSuccess: () => {
-        toast.showSuccess('Payment successful! Bounty is now live.');
-        refetch();
-      },
-      onError: () => toast.showError('Payment went through but couldn\'t update status. Try again.'),
     });
   };
 
@@ -541,16 +525,6 @@ export default function BusinessBountyDetailPage() {
         loading={refundLoading}
       />
 
-      {clientSecret && (
-        <PaymentDialog
-          visible={showPayment}
-          onHide={() => { setShowPayment(false); setClientSecret(null); }}
-          clientSecret={clientSecret}
-          amount={bounty.totalRewardValue ?? bounty.rewardValue ?? '0'}
-          currency={bounty.currency}
-          onSuccess={handlePaymentSuccess}
-        />
-      )}
     </div>
   );
 }

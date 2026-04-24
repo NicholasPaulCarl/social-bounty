@@ -53,7 +53,7 @@ export default function FinanceRefundsPage() {
     if (!confirmId) return;
     try {
       await approve.mutateAsync({ refundId: confirmId });
-      toast.showSuccess('Refund approved. Stitch will process and send a webhook on completion.');
+      toast.showSuccess('Refund approved. TradeSafe will process and send a webhook on completion.');
       setConfirmId(null);
       refetch();
     } catch (err) {
@@ -123,7 +123,7 @@ export default function FinanceRefundsPage() {
         visible={Boolean(confirmId)}
         onHide={() => setConfirmId(null)}
         title="Approve refund"
-        message="This will call Stitch to process the refund and post compensating ledger entries when the webhook arrives. Proceed?"
+        message="This will call TradeSafe to process the refund and post compensating ledger entries when the webhook arrives. Proceed?"
         confirmLabel="Approve refund"
         confirmSeverity="warning"
         onConfirm={onApprove}

@@ -16,7 +16,7 @@ const ACCOUNT_LABELS: Record<string, string> = {
   hunter_net_payable: 'Net payable (in clearance)',
   hunter_clearing: 'Clearing (held / clawback)',
   hunter_available: 'Available (eligible for payout)',
-  payout_in_transit: 'In transit (sent to Stitch)',
+  payout_in_transit: 'In transit (sent to TradeSafe)',
   hunter_paid: 'Paid (settled to bank)',
 };
 

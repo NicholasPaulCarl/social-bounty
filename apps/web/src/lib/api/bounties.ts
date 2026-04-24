@@ -32,14 +32,11 @@ export const bountyApi = {
   delete: (id: string): Promise<MessageResponse> =>
     apiClient.delete(`/bounties/${id}`),
 
-  createPaymentIntent: (bountyId: string): Promise<{ clientSecret: string }> =>
-    apiClient.post(`/bounties/${bountyId}/payment-intent`),
-
   fundBounty: (
     bountyId: string,
     payer: { payerName: string; payerEmail?: string },
   ): Promise<{
-    paymentLinkId: string;
+    transactionId: string;
     hostedUrl: string;
     amountCents: string;
     faceValueCents: string;
@@ -55,14 +52,13 @@ export const bountyApi = {
 
   fundingStatus: (params: {
     bountyId?: string;
-    stitchPaymentId?: string;
     merchantReference?: string;
   }): Promise<{
     bountyId: string;
     bountyTitle: string;
     status: string;
     paymentStatus: string;
-    stitchPaymentLinkStatus: string | null;
+    checkoutStatus: string | null;
   }> =>
     apiClient.get('/payments/funding-status', params as Record<string, unknown>),
 

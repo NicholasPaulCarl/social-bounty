@@ -179,7 +179,7 @@ export function useSystemHealth() {
   });
 }
 
-// Payments Health (Stitch)
+// Payments Health (TradeSafe)
 export function usePaymentsHealth() {
   return useQuery({
     queryKey: ['admin', 'paymentsHealth'] as const,

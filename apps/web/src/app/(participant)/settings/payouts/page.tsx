@@ -20,8 +20,7 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { formatCents, formatDateTime, truncate } from '@/lib/utils/format';
 import type { HunterPayoutRow } from '@social-bounty/shared';
 
-// Banks supported by Stitch Express in South Africa.
-// Source: .claude/skills/DevStitchPayments/SKILL.md
+// Banks supported for TradeSafe payouts in South Africa.
 const SA_BANKS = [
   { label: 'ABSA', value: 'ABSA' },
   { label: 'Capitec', value: 'CAPITEC' },
@@ -105,7 +104,7 @@ export default function ParticipantPayoutsPage() {
 
       <Card>
         <p className="text-sm text-text-muted mb-4">
-          We send your cleared hunter earnings to this account via Stitch Express. Free hunters
+          We send your cleared hunter earnings to this account via TradeSafe. Free hunters
           clear 72 hours after a business approves a submission; Pro hunters clear immediately.
           Your account number is encrypted at rest.
         </p>
@@ -257,20 +256,24 @@ export default function ParticipantPayoutsPage() {
               }
             />
             <Column
-              field="stitchPayoutId"
-              header="Stitch payout ID"
-              body={(r: HunterPayoutRow) =>
-                r.stitchPayoutId ? (
+              field="payoutTransactionId"
+              header="Payout ID"
+              body={(r: HunterPayoutRow) => {
+                // Agent 1B renames the shared DTO field to `payoutTransactionId`.
+                // Cast bridges the handoff window within Wave 1.
+                const id = (r as unknown as { payoutTransactionId?: string })
+                  .payoutTransactionId;
+                return id ? (
                   <span
                     className="font-mono tabular-nums text-xs"
-                    title={r.stitchPayoutId}
+                    title={id}
                   >
-                    {truncate(r.stitchPayoutId, 14)}
+                    {truncate(id, 14)}
                   </span>
                 ) : (
                   <span className="text-text-muted">—</span>
-                )
-              }
+                );
+              }}
             />
           </DataTable>
         )}

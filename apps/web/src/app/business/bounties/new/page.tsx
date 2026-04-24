@@ -9,7 +9,7 @@ import { useBrand } from '@/hooks/useBrand';
 import { CreateBountyForm } from '@/components/bounty-form';
 import { Building2 } from 'lucide-react';
 import { bountyApi } from '@/lib/api/bounties';
-import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-hosted-checkout';
+import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-checkout';
 import type { CreateBountyRequest } from '@social-bounty/shared';
 import { useState } from 'react';
 
@@ -22,7 +22,7 @@ export default function CreateBountyPage() {
   const [formError, setFormError] = useState('');
   const [isDraftSave, setIsDraftSave] = useState(false);
   // isFunding covers the gap between the create-bounty mutation settling
-  // and the Stitch hosted redirect firing — keeps the Create Bounty
+  // and the TradeSafe hosted redirect firing — keeps the Create Bounty
   // button in its loading state across both steps.
   const [isFunding, setIsFunding] = useState(false);
   const stagedFilesRef = useRef<File[]>([]);
@@ -55,8 +55,8 @@ export default function CreateBountyPage() {
     createBounty.mutate(data, {
       onSuccess: async (res) => {
         await uploadStagedFiles(res.id);
-        // Go straight to the Stitch hosted checkout — no detour through the
-        // detail page. Mirrors the "Go Live" flow on the detail page
+        // Go straight to the TradeSafe hosted checkout — no detour through
+        // the detail page. Mirrors the "Go Live" flow on the detail page
         // (/business/bounties/[id] handleStatusChange DRAFT→LIVE).
         setIsFunding(true);
         try {

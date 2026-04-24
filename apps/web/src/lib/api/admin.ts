@@ -94,7 +94,7 @@ export const adminApi = {
   getSystemHealth: (): Promise<AdminSystemHealthResponse> =>
     apiClient.get('/admin/system-health'),
 
-  // Payments Health (Stitch)
+  // Payments Health (TradeSafe)
   getPaymentsHealth: (): Promise<PaymentsHealthResponse> =>
     apiClient.get('/admin/payments-health'),
 

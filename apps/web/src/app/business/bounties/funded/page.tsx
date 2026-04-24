@@ -14,7 +14,7 @@ interface Status {
   bountyTitle: string;
   status: string;
   paymentStatus: string;
-  stitchPaymentLinkStatus: string | null;
+  checkoutStatus: string | null;
 }
 
 const MAX_POLLS = 30; // ~90s at 3s interval
@@ -23,34 +23,29 @@ export default function BountyFundedReturnPage() {
   const router = useRouter();
   const params = useSearchParams();
 
-  // Stitch may return with any of these identifier keys — or none of them, if
-  // the redirect was stripped. Accept them all, and fall back to a bountyId
-  // stashed in sessionStorage before the Go Live redirect left our site.
+  // TradeSafe may return with any of these identifier keys — or none of them,
+  // if the redirect was stripped. Accept them all, and fall back to a
+  // bountyId stashed in sessionStorage before the Go Live redirect left our
+  // site.
   const identifiers = useMemo(() => {
     const fromUrl = {
       bountyId: params.get('bountyId') ?? undefined,
-      stitchPaymentId:
-        params.get('stitchPaymentId') ??
-        params.get('paymentId') ??
-        params.get('id') ??
-        undefined,
       merchantReference:
         params.get('merchantReference') ?? params.get('reference') ?? undefined,
     };
     if (
       !fromUrl.bountyId &&
-      !fromUrl.stitchPaymentId &&
       !fromUrl.merchantReference &&
       typeof window !== 'undefined'
     ) {
-      const stashed = sessionStorage.getItem('stitchFundingBountyId');
+      const stashed = sessionStorage.getItem('fundingBountyId');
       if (stashed) fromUrl.bountyId = stashed;
     }
     return fromUrl;
   }, [params]);
 
   const hasIdentifier = Boolean(
-    identifiers.bountyId || identifiers.stitchPaymentId || identifiers.merchantReference,
+    identifiers.bountyId || identifiers.merchantReference,
   );
 
   const [status, setStatus] = useState<Status | null>(null);
@@ -85,8 +80,9 @@ export default function BountyFundedReturnPage() {
   }, [hasIdentifier, status?.paymentStatus, pollCount, fetchOnce]);
 
   if (!hasIdentifier) {
-    // Stitch sometimes returns without any identifier in the URL (e.g. cancelled
-    // or the redirect has been stripped). Webhook will still flip server-side.
+    // TradeSafe sometimes returns without any identifier in the URL (e.g.
+    // cancelled or the redirect has been stripped). Webhook will still flip
+    // server-side.
     return (
       <Card title="Payment completed">
         <Message
@@ -140,7 +136,7 @@ export default function BountyFundedReturnPage() {
         <div className="flex flex-col items-center gap-4 py-6">
           <ProgressSpinner style={{ width: 40, height: 40 }} />
           <p className="text-sm text-text-muted">
-            Waiting for Stitch to confirm settlement. This usually completes within a minute.
+            Waiting for TradeSafe to confirm settlement. This usually completes within a minute.
           </p>
         </div>
       )}
@@ -149,7 +145,7 @@ export default function BountyFundedReturnPage() {
           <Message
             severity="warn"
             className="w-full"
-            text="We haven't received settlement confirmation from Stitch yet. This can take a few minutes."
+            text="We haven't received settlement confirmation from TradeSafe yet. This can take a few minutes."
           />
           <div className="mt-4 flex gap-2">
             <Button

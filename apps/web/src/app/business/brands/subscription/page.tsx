@@ -12,7 +12,6 @@ import { Message } from 'primereact/message';
 import {
   useSubscription,
   useSubscribe,
-  useInitiateUpgrade,
   useCancelSubscription,
   useReactivateSubscription,
   useSubscriptionPayments,
@@ -53,11 +52,11 @@ const BRAND_FEATURES: {
   ],
 };
 
-// Pro subscriptions are feature-gated at the Stitch account level until
-// commercial enablement completes. The upgrade plumbing (card-consent flow,
-// webhook handlers, ledger writes, tests) stays intact — only this flag
-// hides the CTA. Flip back to `true` in lockstep with the backend
-// `SUBSCRIPTION_UPGRADE_ENABLED` env var once Stitch enables the product.
+// Pro subscriptions are disabled until TradeSafe recurring-billing is wired.
+// The upgrade plumbing (webhook handlers, ledger writes, tests) stays intact
+// — only this flag hides the CTA. Flip back to `true` in lockstep with the
+// backend `SUBSCRIPTION_UPGRADE_ENABLED` env var once the provider enables
+// the product.
 const LIVE_UPGRADE_ENABLED = false;
 
 export default function BrandSubscriptionPage() {
@@ -67,7 +66,6 @@ export default function BrandSubscriptionPage() {
   const searchParams = useSearchParams();
   const { data: sub, isLoading } = useSubscription();
   const subscribe = useSubscribe();
-  const initiateUpgrade = useInitiateUpgrade();
   const cancel = useCancelSubscription();
   const reactivate = useReactivateSubscription();
   const [showCancel, setShowCancel] = useState(false);
@@ -109,23 +107,10 @@ export default function BrandSubscriptionPage() {
   const isPastDue = sub.status === SubscriptionStatus.PAST_DUE;
 
   const handleSubscribe = () => {
-    // Live upgrade path: POST /subscription/upgrade → Stitch hosted URL for
-    // card-consent capture. The brand stays on Free until Stitch webhooks
-    // confirm the charge — the user lands on the return page and refetches.
-    if (LIVE_UPGRADE_ENABLED) {
-      initiateUpgrade.mutate(SubscriptionTier.PRO, {
-        onSuccess: (data) => {
-          setShowUpgrade(false);
-          toast.showSuccess('Redirecting to secure card capture…');
-          window.location.href = data.authorizationUrl;
-        },
-        onError: (err) => {
-          toast.showError((err as Error).message || "Couldn't start upgrade. Try again.");
-          setShowUpgrade(false);
-        },
-      });
-      return;
-    }
+    // Live upgrade path is parked until TradeSafe recurring-billing is wired
+    // (LIVE_UPGRADE_ENABLED=false). Fallback calls the local `subscribe`
+    // endpoint which simply flips the tier for staging / dev without
+    // moving money.
     subscribe.mutate(undefined, {
       onSuccess: () => {
         toast.showSuccess('Welcome to Pro Brand! Your perks are now active.');
@@ -187,7 +172,7 @@ export default function BrandSubscriptionPage() {
         />
       </div>
 
-      {/* Return from Stitch: webhook-before-return vs return-before-webhook. */}
+      {/* Return from checkout: webhook-before-return vs return-before-webhook. */}
       {upgradeReturnMode === 'return' && (
         <Message
           severity={isPro ? 'success' : 'info'}
@@ -317,8 +302,8 @@ export default function BrandSubscriptionPage() {
             </div>
 
             {/* Hard Rule #6 — confirm upgrade in ConfirmAction. Disabled
-                until live Stitch card-consent is wired so we don't silently
-                fake-upgrade the brand. */}
+                until live TradeSafe card-consent is wired so we don't
+                silently fake-upgrade the brand. */}
             <span
               className="inline-block w-full"
               title={
@@ -332,7 +317,7 @@ export default function BrandSubscriptionPage() {
                 icon={<Star size={16} strokeWidth={2} />}
                 className="w-full"
                 disabled={!LIVE_UPGRADE_ENABLED}
-                loading={subscribe.isPending || initiateUpgrade.isPending}
+                loading={subscribe.isPending}
                 onClick={() => setShowUpgrade(true)}
               />
             </span>
@@ -374,11 +359,11 @@ export default function BrandSubscriptionPage() {
         visible={showUpgrade}
         onHide={() => setShowUpgrade(false)}
         title="Upgrade brand to Pro?"
-        message={`Upgrading to Pro starts a monthly billing cycle at R${proPrice}. You'll be redirected to Stitch to save your card — you can cancel anytime. Continue?`}
+        message={`Upgrading to Pro starts a monthly billing cycle at R${proPrice}. You'll be redirected to checkout to save your card — you can cancel anytime. Continue?`}
         confirmLabel="Upgrade"
         confirmSeverity="warning"
         onConfirm={handleSubscribe}
-        loading={subscribe.isPending || initiateUpgrade.isPending}
+        loading={subscribe.isPending}
       />
 
       <ConfirmAction
