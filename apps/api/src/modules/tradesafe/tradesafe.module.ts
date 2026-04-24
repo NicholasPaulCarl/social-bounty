@@ -4,6 +4,7 @@ import { LedgerModule } from '../ledger/ledger.module';
 import { TradeSafeCallbackController } from './tradesafe-callback.controller';
 import { TradeSafeClient } from './tradesafe.client';
 import { TradeSafeGraphQLClient } from './tradesafe-graphql.client';
+import { TradeSafeTokenService } from './tradesafe-token.service';
 import { TradeSafeTransactionCallbackHandler } from './tradesafe-transaction-callback.handler';
 import { TradeSafeWebhookHandler } from './tradesafe-webhook.handler';
 
@@ -43,12 +44,14 @@ import { TradeSafeWebhookHandler } from './tradesafe-webhook.handler';
   providers: [
     TradeSafeClient,
     TradeSafeGraphQLClient,
+    TradeSafeTokenService,
     TradeSafeTransactionCallbackHandler,
     TradeSafeWebhookHandler,
   ],
   exports: [
     TradeSafeClient,
     TradeSafeGraphQLClient,
+    TradeSafeTokenService,
     TradeSafeTransactionCallbackHandler,
     TradeSafeWebhookHandler,
   ],

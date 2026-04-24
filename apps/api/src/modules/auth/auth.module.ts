@@ -8,6 +8,16 @@ import { JwtStrategy } from './jwt.strategy';
 import { TokenStoreService } from './token-store.service';
 import { ApifyModule } from '../apify/apify.module';
 
+/**
+ * NOTE: `TradeSafeModule` is intentionally NOT imported here. A compile-time
+ * import would introduce a cycle — `AppModule → AuthModule → TradeSafeModule
+ * → LedgerModule → … → WebhooksModule → TradeSafeModule` — that makes
+ * `WebhooksModule.imports[0]` undefined at scan time. `AuthService` resolves
+ * `TradeSafeTokenService` lazily through `ModuleRef` at signup time instead
+ * (same idiom `WebhookRouterService` uses for its handler fan-out). The
+ * service still runs because it's in the app-level DI graph via
+ * `AppModule → TradeSafeModule`.
+ */
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),

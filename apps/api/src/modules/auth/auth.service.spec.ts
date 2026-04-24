@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { ModuleRef } from '@nestjs/core';
 import {
   BadRequestException,
   ConflictException,
@@ -13,6 +14,8 @@ import { MailService } from '../mail/mail.service';
 import { TokenStoreService } from './token-store.service';
 import { RedisService } from '../redis/redis.service';
 import { ApifyService } from '../apify/apify.service';
+import { TradeSafeGraphQLClient } from '../tradesafe/tradesafe-graphql.client';
+import { TradeSafeTokenService } from '../tradesafe/tradesafe-token.service';
 import { UserRole, UserStatus, OTP_RULES } from '@social-bounty/shared';
 
 describe('AuthService', () => {
@@ -34,6 +37,8 @@ describe('AuthService', () => {
     deleteRefreshToken: jest.Mock;
     invalidateAllUserTokens: jest.Mock;
   };
+  let tradeSafeGraphQLClient: { isMockMode: jest.Mock };
+  let tradeSafeTokenService: { ensureToken: jest.Mock };
 
   beforeEach(async () => {
     prisma = {
@@ -64,6 +69,14 @@ describe('AuthService', () => {
       getRefreshToken: jest.fn().mockResolvedValue(null),
       deleteRefreshToken: jest.fn().mockResolvedValue(undefined),
       invalidateAllUserTokens: jest.fn().mockResolvedValue(undefined),
+    };
+
+    tradeSafeGraphQLClient = {
+      isMockMode: jest.fn().mockReturnValue(true),
+    };
+
+    tradeSafeTokenService = {
+      ensureToken: jest.fn().mockResolvedValue('mock-token-id'),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -106,11 +119,31 @@ describe('AuthService', () => {
             refreshForBrand: jest.fn().mockResolvedValue(null),
           },
         },
+        {
+          provide: ModuleRef,
+          useValue: {
+            // AuthService calls `moduleRef.get(Service, { strict: false })`
+            // lazily inside the fire-and-forget hook; route the two tokens
+            // to the prepared mocks and let everything else fall through
+            // (no other tokens are resolved via ModuleRef in AuthService).
+            get: jest.fn((token: unknown) => {
+              if (token === TradeSafeGraphQLClient) return tradeSafeGraphQLClient;
+              if (token === TradeSafeTokenService) return tradeSafeTokenService;
+              throw new Error(`Unexpected ModuleRef.get(${String(token)})`);
+            }),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
   });
+
+  // Helper: flush the setImmediate queue so fire-and-forget side-effects
+  // (like TradeSafe token provisioning) can be observed in assertions.
+  async function flushImmediates(): Promise<void> {
+    await new Promise((resolve) => setImmediate(resolve));
+  }
 
   // ── requestOtp ───────────────────────────────────────────
 
@@ -330,6 +363,140 @@ describe('AuthService', () => {
           }),
         }),
       );
+    });
+
+    // ─── TradeSafe token provisioning hook (Wave 2.2) ──────
+
+    describe('TradeSafe token provisioning hook', () => {
+      const createdUser = {
+        id: 'new-user-id',
+        email: 'new@example.com',
+        firstName: 'New',
+        lastName: 'User',
+        role: UserRole.PARTICIPANT,
+        status: UserStatus.ACTIVE,
+        emailVerified: true,
+        createdAt: new Date(),
+      };
+
+      beforeEach(() => {
+        tokenStore.getOtp.mockResolvedValue({ otp: '123456', attempts: 0 });
+        prisma.user.findUnique.mockResolvedValue(null);
+        prisma.user.create.mockResolvedValue(createdUser);
+      });
+
+      it('skips the TradeSafe token call in mock mode', async () => {
+        tradeSafeGraphQLClient.isMockMode.mockReturnValue(true);
+
+        const result = await service.signupWithOtp(
+          'new@example.com',
+          '123456',
+          'New',
+          'User',
+        );
+
+        await flushImmediates();
+
+        expect(result.accessToken).toBe('mock-token');
+        expect(tradeSafeTokenService.ensureToken).not.toHaveBeenCalled();
+      });
+
+      it('fires the TradeSafe token call non-blocking when live', async () => {
+        tradeSafeGraphQLClient.isMockMode.mockReturnValue(false);
+
+        // ensureToken intentionally delayed — if the signup path awaited it,
+        // this test would time out. Instead the signup response must return
+        // immediately and the token call resolves later.
+        let resolveEnsure!: (value: string) => void;
+        tradeSafeTokenService.ensureToken.mockImplementation(
+          () =>
+            new Promise<string>((resolve) => {
+              resolveEnsure = resolve;
+            }),
+        );
+
+        const result = await service.signupWithOtp(
+          'new@example.com',
+          '123456',
+          'New',
+          'User',
+        );
+
+        // Response returned while ensureToken is still pending — proof of
+        // non-blocking dispatch.
+        expect(result.accessToken).toBe('mock-token');
+        expect(result.user.id).toBe('new-user-id');
+
+        // Now drain the setImmediate queue and confirm the hook fired.
+        await flushImmediates();
+        expect(tradeSafeTokenService.ensureToken).toHaveBeenCalledTimes(1);
+        expect(tradeSafeTokenService.ensureToken).toHaveBeenCalledWith(
+          'new-user-id',
+        );
+
+        resolveEnsure('tok-after-the-fact');
+      });
+
+      it('does not propagate a TradeSafe failure back to the signup response', async () => {
+        tradeSafeGraphQLClient.isMockMode.mockReturnValue(false);
+        tradeSafeTokenService.ensureToken.mockRejectedValue(
+          new Error('TradeSafe sandbox is down'),
+        );
+
+        const result = await service.signupWithOtp(
+          'new@example.com',
+          '123456',
+          'New',
+          'User',
+        );
+
+        // Response is still a successful signup.
+        expect(result.accessToken).toBe('mock-token');
+        expect(result.user.id).toBe('new-user-id');
+
+        // The rejected promise is caught inside the hook — flushing the
+        // microtask queue must not produce an unhandled rejection.
+        await flushImmediates();
+        expect(tradeSafeTokenService.ensureToken).toHaveBeenCalledTimes(1);
+      });
+
+      it('fires the hook for brand-admin signup as well', async () => {
+        tradeSafeGraphQLClient.isMockMode.mockReturnValue(false);
+        // Brand-admin path uses $transaction — mock it to run the callback.
+        const brandUser = {
+          ...createdUser,
+          id: 'brand-user-id',
+          role: UserRole.BUSINESS_ADMIN,
+        };
+        (prisma as unknown as { $transaction?: jest.Mock }).$transaction = jest
+          .fn()
+          .mockImplementation(async (fn: (tx: unknown) => unknown) => {
+            return fn({
+              user: { create: jest.fn().mockResolvedValue(brandUser) },
+              brand: {
+                create: jest.fn().mockResolvedValue({ id: 'brand-1' }),
+              },
+              brandMember: { create: jest.fn().mockResolvedValue({}) },
+            });
+          });
+
+        const result = await service.signupWithOtp(
+          'brand@example.com',
+          '123456',
+          'Brand',
+          'Admin',
+          undefined,
+          true,
+          'Brand Co',
+          'contact@brand.co',
+        );
+
+        expect(result.user.role).toBe(UserRole.BUSINESS_ADMIN);
+        await flushImmediates();
+        expect(tradeSafeTokenService.ensureToken).toHaveBeenCalledWith(
+          'brand-user-id',
+        );
+      });
     });
   });
 

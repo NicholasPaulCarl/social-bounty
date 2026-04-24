@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { ModuleRef } from '@nestjs/core';
 import { randomInt, timingSafeEqual } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -22,6 +23,8 @@ import { RedisService } from '../redis/redis.service';
 import { MailService } from '../mail/mail.service';
 import { TokenStoreService } from './token-store.service';
 import { ApifyService } from '../apify/apify.service';
+import { TradeSafeGraphQLClient } from '../tradesafe/tradesafe-graphql.client';
+import { TradeSafeTokenService } from '../tradesafe/tradesafe-token.service';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +38,67 @@ export class AuthService {
     private mailService: MailService,
     private tokenStore: TokenStoreService,
     private apify: ApifyService,
+    private moduleRef: ModuleRef,
   ) {}
+
+  /**
+   * Fire-and-forget: provision a TradeSafe party token for a newly-created
+   * user. Called right after email-verified signup so the user can act as
+   * BUYER/SELLER in any subsequent escrow transaction without a network
+   * round-trip delay on the first bounty-funding request.
+   *
+   * Intentionally non-blocking: if TradeSafe is down the signup response must
+   * still return immediately. The Phase 3 bounty-funding path calls
+   * `ensureToken` blocking so any error surfaces there synchronously instead.
+   * Idempotent — `ensureToken` no-ops if the token was already created.
+   *
+   * **Lazy resolution via ModuleRef.** TradeSafeModule can't be imported at
+   * compile time into AuthModule without closing a cycle with WebhooksModule.
+   * Resolving lazily keeps the cycle out of the module graph entirely —
+   * same idiom `WebhookRouterService` uses for its handler fan-out
+   * (`webhook-router.service.ts:130`).
+   *
+   * Short-circuited in mock mode so dev/test flows don't fail when
+   * TradeSafe creds are unset. Mirrors the background-apify pattern at
+   * `verifyOtpAndLogin` (line ~155) — every branch is wrapped so no path
+   * surfaces as an unhandled rejection.
+   */
+  private scheduleTradeSafeTokenProvisioning(userId: string): void {
+    let graphqlClient: TradeSafeGraphQLClient;
+    let tokenService: TradeSafeTokenService;
+    try {
+      graphqlClient = this.moduleRef.get(TradeSafeGraphQLClient, {
+        strict: false,
+      });
+      tokenService = this.moduleRef.get(TradeSafeTokenService, {
+        strict: false,
+      });
+    } catch (err) {
+      // DI resolution failed — treat as disabled, don't block signup.
+      this.logger.warn(
+        `Skipping TradeSafe token provisioning for user=${userId} — service not resolvable: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+      return;
+    }
+
+    if (graphqlClient.isMockMode()) {
+      this.logger.debug(
+        `Skipping TradeSafe token provisioning for user=${userId} — mock mode`,
+      );
+      return;
+    }
+    setImmediate(() => {
+      tokenService.ensureToken(userId).catch((err) => {
+        this.logger.warn(
+          `Non-blocking TradeSafe token creation failed for user=${userId}: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+        );
+      });
+    });
+  }
 
   async requestOtp(email: string) {
     const normalizedEmail = email.toLowerCase().trim();
@@ -279,6 +342,11 @@ export class AuthService {
         result.user.lastName,
       );
 
+      // Fire-and-forget: provision a TradeSafe party token for the brand
+      // admin so the first bounty-funding call doesn't pay the cold-path
+      // tokenCreate latency. Signup response is never blocked on this.
+      this.scheduleTradeSafeTokenProvisioning(result.user.id);
+
       return {
         ...tokens,
         user: {
@@ -315,6 +383,11 @@ export class AuthService {
       user.firstName,
       user.lastName,
     );
+
+    // Fire-and-forget: provision a TradeSafe party token for the hunter.
+    // BUYER-eligible only; banking details (for SELLER eligibility) are
+    // captured later in Phase 2 hunter banking UX and pushed via tokenUpdate.
+    this.scheduleTradeSafeTokenProvisioning(user.id);
 
     return {
       ...tokens,

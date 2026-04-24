@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { ModuleRef } from '@nestjs/core';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -8,6 +9,8 @@ import { MailService } from '../../mail/mail.service';
 import { TokenStoreService } from '../token-store.service';
 import { RedisService } from '../../redis/redis.service';
 import { ApifyService } from '../../apify/apify.service';
+import { TradeSafeGraphQLClient } from '../../tradesafe/tradesafe-graphql.client';
+import { TradeSafeTokenService } from '../../tradesafe/tradesafe-token.service';
 import { UserRole, UserStatus } from '@social-bounty/shared';
 
 /**
@@ -113,6 +116,22 @@ describe('AuthService — Refresh Token Race Condition', () => {
           useValue: {
             refreshIfStale: jest.fn().mockResolvedValue(undefined),
             refreshForBrand: jest.fn().mockResolvedValue(null),
+          },
+        },
+        {
+          // AuthService now resolves TradeSafe services lazily via ModuleRef
+          // (see auth.service.ts:60 — avoids a WebhooksModule circular dep).
+          provide: ModuleRef,
+          useValue: {
+            get: jest.fn((token: unknown) => {
+              if (token === TradeSafeGraphQLClient) {
+                return { isMockMode: jest.fn().mockReturnValue(true) };
+              }
+              if (token === TradeSafeTokenService) {
+                return { ensureToken: jest.fn().mockResolvedValue('tok') };
+              }
+              throw new Error(`Unexpected ModuleRef.get(${String(token)})`);
+            }),
           },
         },
       ],
