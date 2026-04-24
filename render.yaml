@@ -35,7 +35,12 @@ services:
     # Runs BEFORE the new instance takes traffic. The old instance keeps
     # serving until this command exits 0. Prisma migrations are idempotent
     # (batch 13A pattern) so retries are safe.
-    preDeployCommand: npx prisma migrate deploy --schema=packages/prisma/schema.prisma
+    #
+    # Uses workspace-scoped npm run so the prisma CLI resolves from
+    # packages/prisma/node_modules/.bin/ (it's a devDep of that workspace,
+    # not hoisted to the root .bin/). Same reason the Dockerfile build
+    # step uses `npm run db:generate` instead of `npx prisma generate`.
+    preDeployCommand: npm run migrate:deploy --workspace=packages/prisma
     # Render polls this until it responds; when it does, the deploy flips
     # live. The API has no /healthz endpoint today — Render falls back to
     # a TCP probe on $PORT, which is fine for now. Add a /api/v1/health
