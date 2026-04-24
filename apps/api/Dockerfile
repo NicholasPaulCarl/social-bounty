@@ -37,11 +37,19 @@ COPY apps/web/package*.json ./apps/web/
 COPY packages/shared/package*.json ./packages/shared/
 COPY packages/prisma/package*.json ./packages/prisma/
 
-# HUSKY=0 makes husky a no-op during the root `prepare` script.
-# Scripts stay enabled so Prisma's postinstall fetches query engines.
-ENV HUSKY=0
-
-RUN npm ci
+# Remove the root `prepare` script before `npm ci`. The script runs
+# `husky && bash scripts/install-graphify-hook.sh`, but `scripts/` isn't
+# copied into the build context at this point — only the workspace
+# manifests are — so the bash invocation exits 127 (file not found).
+# HUSKY=0 alone isn't enough because `prepare` uses `&&` to chain into
+# the graphify script.
+#
+# `npm pkg delete` only mutates the package.json inside the image; the
+# committed file is untouched. Prisma's postinstall lives in
+# `@prisma/engines`'s own package.json, not ours, so engine downloads
+# are unaffected by this removal.
+RUN npm pkg delete scripts.prepare \
+ && npm ci
 
 # Copy only what's needed to build the API (skip apps/web — frontend deploys elsewhere).
 COPY packages/prisma ./packages/prisma
