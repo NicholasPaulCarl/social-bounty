@@ -105,6 +105,11 @@ services:
       - key: TRADESAFE_FAILURE_URL
         value: https://app.socialbounty.cash/hunters/me?tradesafe=failed
 
+      # Provider-agnostic system actor for webhook/scheduler AuditLog writes.
+      # Must be a real users.id row (SUPER_ADMIN). Paste in the Render UI.
+      - key: SYSTEM_ACTOR_ID
+        sync: false
+
       # Payout + financial gates
       - key: PAYOUTS_ENABLED
         value: "false"

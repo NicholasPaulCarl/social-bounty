@@ -50,7 +50,9 @@ describe('SubmissionVisibilityScheduler', () => {
         id: string;
         title: string;
         brandId: string;
-        postVisibility: { rule: PostVisibilityRule; minDurationValue?: number; minDurationUnit?: DurationUnit } | null;
+        postVisibilityRule: PostVisibilityRule | null;
+        postMinDurationValue: number | null;
+        postMinDurationUnit: DurationUnit | null;
       };
       user: { email: string; firstName: string | null; lastName: string | null };
     }>;
@@ -209,7 +211,7 @@ describe('SubmissionVisibilityScheduler', () => {
 
     const config = {
       get: jest.fn((key: string, defaultValue?: string) =>
-        key === 'STITCH_SYSTEM_ACTOR_ID' ? SYSTEM_ACTOR : defaultValue ?? '',
+        key === 'SYSTEM_ACTOR_ID' ? SYSTEM_ACTOR : defaultValue ?? '',
       ),
     } as unknown as ConfigService;
 
@@ -250,7 +252,7 @@ describe('SubmissionVisibilityScheduler', () => {
         id: 'bounty-1',
         title: 'Test Bounty',
         brandId: 'brand-1',
-        postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+        postVisibilityRule: PostVisibilityRule.MUST_NOT_REMOVE, postMinDurationValue: null, postMinDurationUnit: null,
       },
       user: overrides.user ?? {
         email: 'hunter@test.com',
@@ -409,7 +411,7 @@ describe('SubmissionVisibilityScheduler', () => {
             id: 'b1',
             title: 'Old Bounty',
             brandId: 'brand-1',
-            postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+            postVisibilityRule: PostVisibilityRule.MUST_NOT_REMOVE, postMinDurationValue: null, postMinDurationUnit: null,
           },
         }),
       ],
@@ -431,11 +433,9 @@ describe('SubmissionVisibilityScheduler', () => {
             id: 'b1',
             title: 'Min Duration Bounty',
             brandId: 'brand-1',
-            postVisibility: {
-              rule: PostVisibilityRule.MINIMUM_DURATION,
-              minDurationValue: 10,
-              minDurationUnit: DurationUnit.DAYS,
-            },
+            postVisibilityRule: PostVisibilityRule.MINIMUM_DURATION,
+            postMinDurationValue: 10,
+            postMinDurationUnit: DurationUnit.DAYS,
           },
         }),
       ],
@@ -692,7 +692,7 @@ describe('SubmissionVisibilityScheduler', () => {
               id: 'bounty-under',
               title: 'Under-Cap Bounty',
               brandId: 'brand-1',
-              postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+              postVisibilityRule: PostVisibilityRule.MUST_NOT_REMOVE, postMinDurationValue: null, postMinDurationUnit: null,
             },
           }),
         ],
@@ -719,7 +719,7 @@ describe('SubmissionVisibilityScheduler', () => {
               id: 'bounty-capped',
               title: 'Capped Bounty',
               brandId: 'brand-1',
-              postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+              postVisibilityRule: PostVisibilityRule.MUST_NOT_REMOVE, postMinDurationValue: null, postMinDurationUnit: null,
             },
           }),
           buildSubmission({
@@ -730,7 +730,7 @@ describe('SubmissionVisibilityScheduler', () => {
               id: 'bounty-capped',
               title: 'Capped Bounty',
               brandId: 'brand-1',
-              postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+              postVisibilityRule: PostVisibilityRule.MUST_NOT_REMOVE, postMinDurationValue: null, postMinDurationUnit: null,
             },
           }),
         ],
@@ -760,7 +760,7 @@ describe('SubmissionVisibilityScheduler', () => {
               id: 'bounty-capped',
               title: 'Capped Bounty',
               brandId: 'brand-1',
-              postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+              postVisibilityRule: PostVisibilityRule.MUST_NOT_REMOVE, postMinDurationValue: null, postMinDurationUnit: null,
             },
           }),
           buildSubmission({
@@ -771,7 +771,7 @@ describe('SubmissionVisibilityScheduler', () => {
               id: 'bounty-ok',
               title: 'Healthy Bounty',
               brandId: 'brand-2',
-              postVisibility: { rule: PostVisibilityRule.MUST_NOT_REMOVE },
+              postVisibilityRule: PostVisibilityRule.MUST_NOT_REMOVE, postMinDurationValue: null, postMinDurationUnit: null,
             },
           }),
         ],

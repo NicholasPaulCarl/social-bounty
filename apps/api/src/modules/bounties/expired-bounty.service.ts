@@ -42,10 +42,10 @@ export class ExpiredBountyService {
    * not a string like 'expired-bounty-job' (same pattern as ClearanceService).
    */
   private systemActorId(): string {
-    const id = this.config.get<string>('STITCH_SYSTEM_ACTOR_ID', '');
+    const id = this.config.get<string>('SYSTEM_ACTOR_ID', '');
     if (!id) {
       throw new Error(
-        'STITCH_SYSTEM_ACTOR_ID is not set; expired-bounty release cannot write AuditLog rows',
+        'SYSTEM_ACTOR_ID is not set; expired-bounty release cannot write AuditLog rows',
       );
     }
     return id;

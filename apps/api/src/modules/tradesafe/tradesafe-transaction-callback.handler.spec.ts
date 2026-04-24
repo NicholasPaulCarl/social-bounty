@@ -8,7 +8,7 @@ function makeConfig(
   overrides: Record<string, string | undefined> = {},
 ): ConfigService {
   const values: Record<string, string | undefined> = {
-    STITCH_SYSTEM_ACTOR_ID: '00000000-0000-0000-0000-000000000001',
+    SYSTEM_ACTOR_ID: '00000000-0000-0000-0000-000000000001',
     ...overrides,
   };
   return {
@@ -95,9 +95,9 @@ describe('TradeSafeTransactionCallbackHandler', () => {
     expect(prisma.auditLog.create).not.toHaveBeenCalled();
   });
 
-  it('skips the AuditLog write (but does not throw) when STITCH_SYSTEM_ACTOR_ID is unset', async () => {
+  it('skips the AuditLog write (but does not throw) when SYSTEM_ACTOR_ID is unset', async () => {
     const prisma = makePrisma();
-    const config = makeConfig({ STITCH_SYSTEM_ACTOR_ID: undefined });
+    const config = makeConfig({ SYSTEM_ACTOR_ID: undefined });
     const handler = new TradeSafeTransactionCallbackHandler(
       prisma as unknown as PrismaService,
       config,

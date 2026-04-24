@@ -49,10 +49,10 @@ export class SubscriptionsService {
    * have a real user row. Mirrors PayoutsService / BrandFundingHandler.
    */
   private systemActorId(): string {
-    const id = this.config?.get<string>('STITCH_SYSTEM_ACTOR_ID', '') ?? '';
+    const id = this.config?.get<string>('SYSTEM_ACTOR_ID', '') ?? '';
     if (!id) {
       throw new Error(
-        'STITCH_SYSTEM_ACTOR_ID is not set; subscription billing cannot write AuditLog rows',
+        'SYSTEM_ACTOR_ID is not set; subscription billing cannot write AuditLog rows',
       );
     }
     return id;

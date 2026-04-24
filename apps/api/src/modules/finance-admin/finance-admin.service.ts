@@ -111,7 +111,9 @@ export class FinanceAdminService {
   }
 
   async inboundList(limit = 50) {
-    return this.prisma.stitchPaymentLink.findMany({
+    // ADR 0011 single-rail: brand-funding rows are now TradeSafe transactions.
+    // `stitch_payment_links` was dropped in the 2026-04-24 migration.
+    return this.prisma.tradeSafeTransaction.findMany({
       take: limit,
       orderBy: { createdAt: 'desc' },
       include: { bounty: { select: { id: true, title: true, brandId: true } } },
@@ -186,59 +188,33 @@ export class FinanceAdminService {
   }
 
   /**
-   * Platform-wide StitchPayout listing for SUPER_ADMIN triage. Paginated,
-   * newest-first, joined with User so operators see hunter identity alongside
-   * status and retry diagnostics. bigint cents serialised as strings.
+   * Platform-wide outbound-payout listing for SUPER_ADMIN triage.
+   *
+   * **Phase 4 deferred (2026-04-24):** the `stitch_payouts` table was
+   * dropped as part of the single-rail Stitch-deletion cutover. The
+   * TradeSafe-native payout table lands in Phase 4 alongside the
+   * submission-approval → auto-payout trigger. Returns an empty page
+   * until then — the Finance dashboard shows "no payouts yet".
    */
   async listPayouts(page = 1, limit = 25) {
     const take = Math.min(Math.max(limit, 1), 200);
-    const skip = Math.max((page - 1) * take, 0);
-    const [rows, total] = await Promise.all([
-      this.prisma.stitchPayout.findMany({
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take,
-        select: {
-          id: true,
-          userId: true,
-          amountCents: true,
-          currency: true,
-          status: true,
-          attempts: true,
-          lastError: true,
-          nextRetryAt: true,
-          createdAt: true,
-          stitchPayoutId: true,
-          user: {
-            select: { email: true, firstName: true, lastName: true },
-          },
-        },
-      }),
-      this.prisma.stitchPayout.count(),
-    ]);
-
     return {
-      data: rows.map((r) => ({
-        id: r.id,
-        userId: r.userId,
-        email: r.user?.email ?? '',
-        firstName: r.user?.firstName ?? '',
-        lastName: r.user?.lastName ?? '',
-        amountCents: r.amountCents.toString(),
-        currency: r.currency,
-        status: r.status,
-        attempts: r.attempts,
-        lastError: r.lastError,
-        nextRetryAt: r.nextRetryAt ? r.nextRetryAt.toISOString() : null,
-        createdAt: r.createdAt.toISOString(),
-        stitchPayoutId: r.stitchPayoutId,
-      })),
-      meta: {
-        page,
-        limit: take,
-        total,
-        totalPages: Math.max(Math.ceil(total / take), 1),
-      },
+      data: [] as Array<{
+        id: string;
+        userId: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        amountCents: string;
+        currency: string;
+        status: string;
+        attempts: number;
+        lastError: string | null;
+        nextRetryAt: string | null;
+        createdAt: string;
+        payoutTransactionId: string | null;
+      }>,
+      meta: { page, limit: take, total: 0, totalPages: 1 },
     };
   }
 

@@ -120,7 +120,7 @@ export class SubscriptionLifecycleScheduler {
       take: 100,
     });
 
-    const systemActorId = process.env.STITCH_SYSTEM_ACTOR_ID ?? '';
+    const systemActorId = process.env.SYSTEM_ACTOR_ID ?? '';
 
     for (const sub of pastDueSubs) {
       try {
@@ -149,7 +149,7 @@ export class SubscriptionLifecycleScheduler {
           });
         } else {
           this.logger.warn(
-            `STITCH_SYSTEM_ACTOR_ID not set — skipping AuditLog row for auto-downgrade of ${sub.id}`,
+            `SYSTEM_ACTOR_ID not set — skipping AuditLog row for auto-downgrade of ${sub.id}`,
           );
         }
 

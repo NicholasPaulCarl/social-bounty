@@ -72,7 +72,7 @@ describe('TradeSafeWebhookHandler.handleFundsReceived (ADR 0011 Phase 3)', () =>
     } as unknown as LedgerService;
 
     const config = {
-      get: jest.fn((key: string) => (key === 'STITCH_SYSTEM_ACTOR_ID' ? 'sys-actor' : '')),
+      get: jest.fn((key: string) => (key === 'SYSTEM_ACTOR_ID' ? 'sys-actor' : '')),
     } as unknown as ConfigService;
 
     const handler = new TradeSafeWebhookHandler(prisma, ledger, config);

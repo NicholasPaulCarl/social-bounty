@@ -122,6 +122,13 @@ class EnvironmentVariables {
   @IsUrl({ require_tld: false, require_protocol: true })
   TRADESAFE_REDIRECT_URL!: string;
 
+  // Provider-agnostic system actor ID used by webhook handlers, schedulers,
+  // and reconciliation to write AuditLog rows. AuditLog.actorId is a FK to
+  // users.id — this must be a real user UUID (typically a SUPER_ADMIN).
+  // Required for webhook-driven ledger posts and clearance jobs.
+  @IsString()
+  SYSTEM_ACTOR_ID!: string;
+
   // Dev-only override for Free-tier clearance window, in hours.
   // When set, ApprovalLedgerService uses this instead of CLEARANCE_HOURS.FREE (72).
   // Fractional values are allowed so we can simulate near-instant clearance in

@@ -22,6 +22,7 @@ describe('validateEnv', () => {
     TRADESAFE_GRAPHQL_URL: 'https://api-developer.tradesafe.dev/graphql',
     TRADESAFE_CALLBACK_SECRET: 'a'.repeat(32),
     TRADESAFE_REDIRECT_URL: 'http://localhost:3000/business/bounties/funded',
+    SYSTEM_ACTOR_ID: 'system-actor-uuid',
   };
 
   describe('required TradeSafe fields (ADR 0011)', () => {

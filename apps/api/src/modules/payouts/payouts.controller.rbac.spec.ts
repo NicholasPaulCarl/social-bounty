@@ -67,9 +67,8 @@ describe('PayoutsController RBAC contract', () => {
   let reflector: Reflector;
 
   beforeEach(() => {
-    const beneficiaries = { upsertForUser: jest.fn() };
-    const payouts = { adminRetry: jest.fn() };
-    controller = new PayoutsController(beneficiaries as any, payouts as any);
+    const payouts = { adminRetry: jest.fn(), listForUser: jest.fn() };
+    controller = new PayoutsController(payouts as any);
     reflector = new Reflector();
     rolesGuard = new RolesGuard(reflector);
     jwtGuard = new JwtAuthGuard(reflector);
@@ -82,9 +81,12 @@ describe('PayoutsController RBAC contract', () => {
     allowed: AuthUser[];
   };
 
+  // `upsertMyBeneficiary` dropped 2026-04-24 (ADR 0011 single-rail cutover —
+  // beneficiary management handled inside TradeSafe via SELLER user token;
+  // our local beneficiary table was deleted, Phase 4 will rebuild if needed).
   const routes: Route[] = [
     {
-      handler: 'upsertMyBeneficiary',
+      handler: 'listMine',
       expected: [UserRole.PARTICIPANT],
       forbidden: [BUSINESS_ADMIN, SUPER_ADMIN],
       allowed: [PARTICIPANT],

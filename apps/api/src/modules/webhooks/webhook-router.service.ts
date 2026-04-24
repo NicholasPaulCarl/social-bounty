@@ -6,15 +6,16 @@ import { TradeSafeWebhookHandler } from '../tradesafe/tradesafe-webhook.handler'
 /**
  * Webhook event dispatcher (ADR 0011 — TradeSafe unified rail).
  *
- * Post-cutover: Stitch + Svix routing removed. All inbound/outbound
- * events flow through TradeSafe's native callback and its Svix-format
- * outbound webhooks:
+ * Post-2026-04-24 single-rail cutover: only the INBOUND event
+ * `tradesafe.funds.received` is wired. Outbound events
+ * (`beneficiary.linked`, `payout.settled`, `payout.failed`) are
+ * Phase 4 territory — logged and no-op'd until the submission-approval
+ * → auto-payout flow lands.
  *
- *   - tradesafe.funds.received        → handleFundsReceived
- *     (brand-funding settlement — ADR 0011 §5 inbound lifecycle)
- *   - tradesafe.beneficiary.linked    → onBeneficiaryLinked
- *   - tradesafe.payout.settled        → onPayoutSettled
- *   - tradesafe.payout.failed         → onPayoutFailed
+ *   - tradesafe.funds.received        → handleFundsReceived (Phase 3 inbound)
+ *   - tradesafe.beneficiary.linked    → log-only (Phase 4 deferred)
+ *   - tradesafe.payout.settled        → log-only (Phase 4 deferred)
+ *   - tradesafe.payout.failed         → log-only (Phase 4 deferred)
  *
  * Uses ModuleRef to resolve the handler lazily so the webhook module
  * doesn't depend on TradeSafe internals at compile time.
@@ -45,16 +46,18 @@ export class WebhookRouterService {
       await handler.handleFundsReceived(payload);
       return;
     }
-    if (eventType === 'tradesafe.beneficiary.linked') {
-      await handler.onBeneficiaryLinked(payload);
-      return;
-    }
-    if (eventType === 'tradesafe.payout.settled') {
-      await handler.onPayoutSettled(payload);
-      return;
-    }
-    if (eventType === 'tradesafe.payout.failed') {
-      await handler.onPayoutFailed(payload);
+
+    // Phase 4 outbound events — landed in the router before the outbound
+    // cutover ships. Log-and-return keeps Svix retries happy (200 OK) while
+    // the proper handlers are built alongside TradeSafe payout tables.
+    if (
+      eventType === 'tradesafe.beneficiary.linked' ||
+      eventType === 'tradesafe.payout.settled' ||
+      eventType === 'tradesafe.payout.failed'
+    ) {
+      this.logger.warn(
+        `phase-4-deferred: tradesafe ${eventType} received (id=${event.externalEventId}); outbound handlers land with Phase 4 (submission-approval → auto-payout)`,
+      );
       return;
     }
 

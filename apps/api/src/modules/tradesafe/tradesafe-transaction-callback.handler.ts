@@ -70,13 +70,13 @@ export class TradeSafeTransactionCallbackHandler {
 
     // AuditLog is required per Hard Rule #3 and Financial Non-Negotiable #6.
     // Actor id is the system-actor row (FK on `audit_logs.actorId`). If
-    // STITCH_SYSTEM_ACTOR_ID isn't set (dev mode), skip the audit write
+    // SYSTEM_ACTOR_ID isn't set (dev mode), skip the audit write
     // rather than crash — mirrors `TradeSafeCallbackController.systemActorId`
     // and `ReconciliationService.systemActorId`.
     const actorId = this.systemActorId();
     if (!actorId) {
       this.logger.debug(
-        'STITCH_SYSTEM_ACTOR_ID unset; skipping AuditLog for transaction callback',
+        'SYSTEM_ACTOR_ID unset; skipping AuditLog for transaction callback',
       );
       return;
     }
@@ -109,6 +109,6 @@ export class TradeSafeTransactionCallbackHandler {
   }
 
   private systemActorId(): string | null {
-    return this.config.get<string>('STITCH_SYSTEM_ACTOR_ID', '') || null;
+    return this.config.get<string>('SYSTEM_ACTOR_ID', '') || null;
   }
 }

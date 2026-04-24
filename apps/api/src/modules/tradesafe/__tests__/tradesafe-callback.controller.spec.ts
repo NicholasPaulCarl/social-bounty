@@ -27,7 +27,7 @@ function makeConfig(overrides: Record<string, string | undefined> = {}): ConfigS
   const values: Record<string, string | undefined> = {
     TRADESAFE_SUCCESS_URL: 'https://app.example.com/hunters/me?tradesafe=linked',
     TRADESAFE_FAILURE_URL: 'https://app.example.com/hunters/me?tradesafe=failed',
-    STITCH_SYSTEM_ACTOR_ID: '00000000-0000-0000-0000-000000000001',
+    SYSTEM_ACTOR_ID: '00000000-0000-0000-0000-000000000001',
     ...overrides,
   };
   return {
@@ -304,8 +304,8 @@ describe('TradeSafeCallbackController', () => {
     expect(prisma.webhookEvent.create).not.toHaveBeenCalled();
   });
 
-  it('still redirects to success when STITCH_SYSTEM_ACTOR_ID is unset (audit skipped, persistence kept)', async () => {
-    const config = makeConfig({ STITCH_SYSTEM_ACTOR_ID: undefined });
+  it('still redirects to success when SYSTEM_ACTOR_ID is unset (audit skipped, persistence kept)', async () => {
+    const config = makeConfig({ SYSTEM_ACTOR_ID: undefined });
     const prisma = makePrisma();
     (prisma.webhookEvent.create as jest.Mock).mockResolvedValue({ id: 'evt_1' });
     const controller = new TradeSafeCallbackController(

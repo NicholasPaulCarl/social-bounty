@@ -21,15 +21,15 @@ export class ClearanceService {
   ) {}
 
   /**
-   * Resolve the STITCH_SYSTEM_ACTOR_ID — required because AuditLog.actorId has
+   * Resolve the SYSTEM_ACTOR_ID — required because AuditLog.actorId has
    * a FK to users.id. Previously this passed the string 'clearance-job' which
    * would fail the FK constraint (mirrors the brand-funding bug).
    */
   private systemActorId(): string {
-    const id = this.config.get<string>('STITCH_SYSTEM_ACTOR_ID', '');
+    const id = this.config.get<string>('SYSTEM_ACTOR_ID', '');
     if (!id) {
       throw new Error(
-        'STITCH_SYSTEM_ACTOR_ID is not set; scheduled clearance cannot write AuditLog rows',
+        'SYSTEM_ACTOR_ID is not set; scheduled clearance cannot write AuditLog rows',
       );
     }
     return id;

@@ -48,7 +48,7 @@ import type { AuthenticatedUser } from '../auth/jwt.strategy';
  * load — a never-checked submission has lastVisibilityCheckAt=null
  * which sorts before any timestamped row.
  *
- * Refund actor: STITCH_SYSTEM_ACTOR_ID (the same env-driven system
+ * Refund actor: SYSTEM_ACTOR_ID (the same env-driven system
  * actor used by ClearanceService and SubscriptionLifecycleScheduler).
  * If unset, the scheduler logs a warning and skips refund issuance —
  * checks still bump the counter so the next tick (after env fix) can
@@ -149,7 +149,9 @@ export class SubmissionVisibilityScheduler {
               id: true,
               title: true,
               brandId: true,
-              postVisibility: true,
+              postVisibilityRule: true,
+              postMinDurationValue: true,
+              postMinDurationUnit: true,
             },
           },
           user: { select: { email: true, firstName: true, lastName: true } },
@@ -159,8 +161,18 @@ export class SubmissionVisibilityScheduler {
       });
 
       const eligible = candidates.filter((s) => {
-        const visibility = (s.bounty.postVisibility ??
-          null) as unknown as PostVisibilityInput | null;
+        // The scheduler originally expected a single `postVisibility` JSON
+        // column; the schema uses three scalar columns. Re-hydrate the
+        // expected shape so the downstream logic stays identical. The
+        // Prisma-client enum and the shared-types enum are structurally
+        // identical; the cast crosses the nominal gap.
+        const visibility = (s.bounty.postVisibilityRule
+          ? {
+              rule: s.bounty.postVisibilityRule as unknown as PostVisibilityRule,
+              minDurationValue: s.bounty.postMinDurationValue ?? undefined,
+              minDurationUnit: s.bounty.postMinDurationUnit ?? undefined,
+            }
+          : null) as PostVisibilityInput | null;
         if (!visibility?.rule) return false;
         if (!s.approvedAt) return false;
 
@@ -312,7 +324,14 @@ export class SubmissionVisibilityScheduler {
     id: string;
     userId: string;
     consecutiveVisibilityFailures: number;
-    bounty: { id: string; title: string; brandId: string; postVisibility: unknown };
+    bounty: {
+      id: string;
+      title: string;
+      brandId: string;
+      postVisibilityRule: unknown;
+      postMinDurationValue?: number | null;
+      postMinDurationUnit?: unknown;
+    };
     user: { email: string; firstName: string | null; lastName: string | null };
   }): Promise<void> {
     const summary = await this.scraper.rescrapeForVisibility(submission.id);
@@ -390,8 +409,15 @@ export class SubmissionVisibilityScheduler {
     }
 
     const failureReason = summary.failureMessages.join('; ') || 'unknown failure';
-    const visibility = (submission.bounty.postVisibility ??
-      null) as unknown as PostVisibilityInput | null;
+    // Re-hydrate the structured visibility input from scalar columns (see
+    // the matching block in the candidate filter above).
+    const visibility = (submission.bounty.postVisibilityRule
+      ? {
+          rule: submission.bounty.postVisibilityRule,
+          minDurationValue: submission.bounty.postMinDurationValue ?? undefined,
+          minDurationUnit: submission.bounty.postMinDurationUnit ?? undefined,
+        }
+      : null) as PostVisibilityInput | null;
     const ruleLabel = visibility?.rule ?? 'PostVisibility';
 
     // KB recurrence record on every failure — the first failure is
@@ -515,13 +541,13 @@ export class SubmissionVisibilityScheduler {
     ruleLabel: string,
     consecutiveFailures: number,
   ): Promise<void> {
-    const systemActorId = this.config.get<string>('STITCH_SYSTEM_ACTOR_ID', '') ?? '';
+    const systemActorId = this.config.get<string>('SYSTEM_ACTOR_ID', '') ?? '';
 
     const reason = `Auto-detected: post no longer accessible after ${consecutiveFailures} consecutive scrape failures (${failureReason})`;
 
     if (!systemActorId) {
       this.logger.error(
-        `STITCH_SYSTEM_ACTOR_ID unset — cannot issue auto-refund for ${submission.id}. Counter held at threshold; next tick after env fix will retry.`,
+        `SYSTEM_ACTOR_ID unset — cannot issue auto-refund for ${submission.id}. Counter held at threshold; next tick after env fix will retry.`,
       );
       return;
     }

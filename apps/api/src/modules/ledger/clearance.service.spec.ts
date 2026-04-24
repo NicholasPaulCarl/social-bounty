@@ -42,7 +42,7 @@ describe('ClearanceService.releaseEligible', () => {
 
     const config = {
       get: jest.fn((key: string, fallback?: unknown) =>
-        key === 'STITCH_SYSTEM_ACTOR_ID' ? SYSTEM_ACTOR : fallback,
+        key === 'SYSTEM_ACTOR_ID' ? SYSTEM_ACTOR : fallback,
       ),
     } as unknown as ConfigService;
 
@@ -53,7 +53,7 @@ describe('ClearanceService.releaseEligible', () => {
     );
   });
 
-  it('passes STITCH_SYSTEM_ACTOR_ID as actorId + postedBy to postTransactionGroup', async () => {
+  it('passes SYSTEM_ACTOR_ID as actorId + postedBy to postTransactionGroup', async () => {
     const result = await service.releaseEligible();
     expect(result.released).toBe(1);
     expect(post).toHaveBeenCalledTimes(1);
@@ -71,7 +71,7 @@ describe('ClearanceService.releaseEligible', () => {
     expect(credit.account).toBe(LedgerAccount.hunter_available);
   });
 
-  it('throws when STITCH_SYSTEM_ACTOR_ID is not configured', async () => {
+  it('throws when SYSTEM_ACTOR_ID is not configured', async () => {
     const config = {
       get: jest.fn((_key: string, fallback?: unknown) => fallback),
     } as unknown as ConfigService;
@@ -80,7 +80,7 @@ describe('ClearanceService.releaseEligible', () => {
       ledger as LedgerService,
       config,
     );
-    await expect(missingService.releaseEligible()).rejects.toThrow(/STITCH_SYSTEM_ACTOR_ID/);
+    await expect(missingService.releaseEligible()).rejects.toThrow(/SYSTEM_ACTOR_ID/);
     // Make sure the job run was marked FAILED.
     const updateCalls = prisma.jobRun.update.mock.calls;
     const failedCall = updateCalls.find(

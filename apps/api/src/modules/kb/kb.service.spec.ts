@@ -7,7 +7,7 @@ const SYSTEM_ACTOR = 'system-actor-1';
 function makeConfig(actorId: string | null = SYSTEM_ACTOR): ConfigService {
   return {
     get: (key: string, fallback?: any) =>
-      key === 'STITCH_SYSTEM_ACTOR_ID' ? (actorId ?? '') : fallback,
+      key === 'SYSTEM_ACTOR_ID' ? (actorId ?? '') : fallback,
   } as unknown as ConfigService;
 }
 

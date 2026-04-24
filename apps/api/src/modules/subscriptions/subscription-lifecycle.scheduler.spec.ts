@@ -22,17 +22,17 @@ import { SubscriptionsService } from './subscriptions.service';
  * mutation. We only assert tier/status + audit log.
  */
 describe('SubscriptionLifecycleScheduler.processGracePeriod — auto-downgrade on grace expiry', () => {
-  const originalEnv = process.env.STITCH_SYSTEM_ACTOR_ID;
+  const originalEnv = process.env.SYSTEM_ACTOR_ID;
 
   beforeAll(() => {
-    process.env.STITCH_SYSTEM_ACTOR_ID = 'system-actor-1';
+    process.env.SYSTEM_ACTOR_ID = 'system-actor-1';
   });
 
   afterAll(() => {
     if (originalEnv === undefined) {
-      delete process.env.STITCH_SYSTEM_ACTOR_ID;
+      delete process.env.SYSTEM_ACTOR_ID;
     } else {
-      process.env.STITCH_SYSTEM_ACTOR_ID = originalEnv;
+      process.env.SYSTEM_ACTOR_ID = originalEnv;
     }
   });
 

@@ -133,7 +133,7 @@ export class KbService {
    * writes a matching AuditLog entry. If the row is already flagged, this
    * is a no-op (no duplicate AuditLog).
    *
-   * Uses STITCH_SYSTEM_ACTOR_ID as the audit actor since this is triggered
+   * Uses SYSTEM_ACTOR_ID as the audit actor since this is triggered
    * by automated recurrence detection, not a human admin.
    */
   async flagIneffectiveFix(category: string, signature: string): Promise<void> {
@@ -146,7 +146,7 @@ export class KbService {
       return;
     }
 
-    const actorId = this.config?.get<string>('STITCH_SYSTEM_ACTOR_ID', '') ?? '';
+    const actorId = this.config?.get<string>('SYSTEM_ACTOR_ID', '') ?? '';
     const now = new Date();
 
     await this.prisma.recurringIssue.update({
@@ -185,7 +185,7 @@ export class KbService {
       }
     } else {
       this.logger.warn(
-        'STITCH_SYSTEM_ACTOR_ID not set — ineffective-fix flag applied but not audit-logged',
+        'SYSTEM_ACTOR_ID not set — ineffective-fix flag applied but not audit-logged',
       );
     }
 

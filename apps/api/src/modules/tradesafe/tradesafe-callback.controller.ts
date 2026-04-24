@@ -234,7 +234,7 @@ export class TradeSafeCallbackController {
     // Same pattern as `ReconciliationService.systemActorId`: AuditLog.actorId
     // has a FK to users.id, so an unset env means "skip the audit log"
     // rather than crash the callback.
-    return this.config.get<string>('STITCH_SYSTEM_ACTOR_ID', '') || null;
+    return this.config.get<string>('SYSTEM_ACTOR_ID', '') || null;
   }
 }
 

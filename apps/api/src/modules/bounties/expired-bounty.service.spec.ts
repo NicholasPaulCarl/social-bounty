@@ -30,7 +30,7 @@ describe('ExpiredBountyService.releaseEligible', () => {
     ledger = { postTransactionGroup: post };
     const config = {
       get: jest.fn((key: string, fallback?: unknown) =>
-        key === 'STITCH_SYSTEM_ACTOR_ID' ? SYSTEM_ACTOR : fallback,
+        key === 'SYSTEM_ACTOR_ID' ? SYSTEM_ACTOR : fallback,
       ),
     } as unknown as ConfigService;
     return new ExpiredBountyService(
@@ -139,7 +139,7 @@ describe('ExpiredBountyService.releaseEligible', () => {
     expect(post).not.toHaveBeenCalled();
   });
 
-  it('throws and marks JobRun FAILED when STITCH_SYSTEM_ACTOR_ID is missing', async () => {
+  it('throws and marks JobRun FAILED when SYSTEM_ACTOR_ID is missing', async () => {
     service = buildService([
       {
         id: 'bounty_1',
@@ -153,7 +153,7 @@ describe('ExpiredBountyService.releaseEligible', () => {
       get: jest.fn((_key: string, fallback?: unknown) => fallback),
     };
 
-    await expect(service.releaseEligible()).rejects.toThrow(/STITCH_SYSTEM_ACTOR_ID/);
+    await expect(service.releaseEligible()).rejects.toThrow(/SYSTEM_ACTOR_ID/);
     const failedUpdate = prisma.jobRun.update.mock.calls.find(
       ([args]: any) => args.data.status === JobRunStatus.FAILED,
     );

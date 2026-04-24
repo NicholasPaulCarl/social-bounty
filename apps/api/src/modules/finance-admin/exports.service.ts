@@ -68,30 +68,41 @@ export class FinanceExportsService {
   }
 
   // ---------------------------------------------------------------------------
-  // Inbound: StitchPaymentLink rows (brand funding).
+  // Inbound: TradeSafeTransaction rows (brand funding — ADR 0011).
   // ---------------------------------------------------------------------------
   async inboundCsv(): Promise<string> {
-    const rows = await this.prisma.stitchPaymentLink.findMany({
+    type InboundRow = {
+      id: string;
+      bountyId: string | null;
+      tradeSafeTransactionId: string;
+      totalValueCents: bigint;
+      state: string;
+      createdAt: Date;
+      updatedAt: Date;
+      bounty: { id: string; title: string; brandId: string } | null;
+    };
+
+    const rows = (await this.prisma.tradeSafeTransaction.findMany({
       orderBy: { createdAt: 'desc' },
       take: 5000,
       include: {
         bounty: { select: { id: true, title: true, brandId: true } },
       },
-    });
+    })) as InboundRow[];
 
-    // Map paymentLink → transactionGroup via referenceId=stitchPaymentLinkId,
-    // actionType='brand_funding'. One query, then lookup in-memory.
+    // Map transaction → ledger group via referenceId=tradeSafeTransactionId,
+    // actionType='BOUNTY_FUNDED_VIA_TRADESAFE'. One query, then lookup in-memory.
     const groups = await this.prisma.ledgerTransactionGroup.findMany({
       where: {
-        actionType: 'brand_funding',
-        referenceId: { in: rows.map((r) => r.stitchPaymentLinkId) },
+        actionType: 'BOUNTY_FUNDED_VIA_TRADESAFE',
+        referenceId: { in: rows.map((r) => r.tradeSafeTransactionId) },
       },
       select: { id: true, referenceId: true },
     });
     const groupByRef = new Map(groups.map((g) => [g.referenceId, g.id]));
 
-    return this.toCsv(rows, [
-      { key: 'id', header: 'paymentLinkId' },
+    return this.toCsv<InboundRow>(rows, [
+      { key: 'id', header: 'transactionId' },
       { key: 'bountyId', header: 'bountyId' },
       {
         key: 'bountyTitle',
@@ -103,16 +114,13 @@ export class FinanceExportsService {
         header: 'brandId',
         value: (r) => r.bounty?.brandId ?? '',
       },
-      { key: 'stitchPaymentLinkId', header: 'externalReference' },
-      { key: 'stitchPaymentId', header: 'stitchPaymentId' },
-      { key: 'merchantReference', header: 'merchantReference' },
-      { key: 'amountCents', header: 'amountCents' },
-      { key: 'currency', header: 'currency' },
-      { key: 'status', header: 'status' },
+      { key: 'tradeSafeTransactionId', header: 'externalReference' },
+      { key: 'totalValueCents', header: 'amountCents' },
+      { key: 'state', header: 'state' },
       {
         key: 'transactionGroupId',
         header: 'transactionGroupId',
-        value: (r) => groupByRef.get(r.stitchPaymentLinkId) ?? '',
+        value: (r) => groupByRef.get(r.tradeSafeTransactionId) ?? '',
       },
       { key: 'createdAt', header: 'createdAt' },
       { key: 'updatedAt', header: 'updatedAt' },
@@ -222,7 +230,9 @@ export class FinanceExportsService {
       { key: 'approvedByUserId', header: 'approvedByUserId' },
       { key: 'dualApprovalByUserId', header: 'dualApprovalByUserId' },
       { key: 'kbEntryId', header: 'kbEntryId' },
-      { key: 'stitchRefundId', header: 'externalReference' },
+      // Refund.stitchRefundId column dropped in the 2026-04-24 migration.
+      // External refund references now flow via the compensating ledger group
+      // (Refund.transactionGroupId) per ADR 0011 refund handling.
       { key: 'transactionGroupId', header: 'transactionGroupId' },
       { key: 'createdAt', header: 'createdAt' },
       { key: 'updatedAt', header: 'updatedAt' },

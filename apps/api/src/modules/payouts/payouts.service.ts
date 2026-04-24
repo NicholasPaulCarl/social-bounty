@@ -1,374 +1,50 @@
-import {
-  Injectable,
-  Logger,
-  ForbiddenException,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import {
-  JobRunStatus,
-  LedgerAccount,
-  LedgerEntryType,
-  StitchPayoutStatus,
-} from '@prisma/client';
-import { UserRole } from '@social-bounty/shared';
-import { PrismaService } from '../prisma/prisma.service';
-import { LedgerService } from '../ledger/ledger.service';
-import { WalletProjectionService } from '../wallet/wallet-projection.service';
-import { PayoutProviderFactory } from './payout-provider.factory';
+import { Injectable, Logger, NotImplementedException } from '@nestjs/common';
 
 /**
  * Outbound payouts (ADR 0011 — TradeSafe unified rail).
  *
- * Post-cutover: direct `StitchClient` dependency removed. All
- * provider-side calls now route through {@link PayoutProviderFactory}
- * → {@link TradeSafePayoutAdapter}. Retry policy, idempotency-key
- * generation, and ledger leg structure remain provider-agnostic.
+ * **Phase 4 deferred (2026-04-24):** the `stitch_beneficiaries` and
+ * `stitch_payouts` tables were dropped as part of the single-rail
+ * Stitch-deletion cutover. The proper TradeSafe-native payout tables
+ * (and the submission-approval → auto-release trigger wiring) land
+ * with Phase 4. This service is a stub that fails loud on write
+ * attempts and returns empty lists on reads.
  *
- * Settlement + failure webhook-dispatch lives in
- * {@link TradeSafeWebhookHandler} — this service owns initiation +
- * retry only. The old `onPayoutSettled` / `onPayoutFailed` methods
- * that consumed Stitch's `WITHDRAWAL` event shape have been removed.
- *
- * NB: the `StitchPayout` Prisma model name is preserved until agent 1B
- * finishes the schema rename. Semantically the rows represent
- * TradeSafe-rail payouts post-cutover (the `provider` column defaults
- * to `STITCH` historically; new rows are written by this service
- * without specifying a rail — the column is a historical artifact per
- * ADR 0011 §9 neutral).
+ * Imports stay wired so Nest DI graph doesn't collapse — the service
+ * is still referenced from ReconciliationService, SubscriptionsService,
+ * the scheduler, and PayoutsController, all of which will get
+ * rebuilt alongside Phase 4.
  */
 @Injectable()
 export class PayoutsService {
   private readonly logger = new Logger(PayoutsService.name);
-  private readonly minPayoutCents: bigint;
-  private readonly speed: 'INSTANT' | 'DEFAULT';
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly ledger: LedgerService,
-    private readonly providerFactory: PayoutProviderFactory,
-    private readonly projection: WalletProjectionService,
-    private readonly config: ConfigService,
-  ) {
-    const raw = this.config.get<string>('TRADESAFE_MIN_PAYOUT_CENTS')
-      ?? this.config.get<string>('STITCH_MIN_PAYOUT_CENTS', '2000');
-    this.minPayoutCents = BigInt(raw);
-    this.speed = (this.config.get<string>('TRADESAFE_PAYOUT_SPEED')
-      ?? this.config.get<string>('STITCH_PAYOUT_SPEED', 'DEFAULT')) as
-      | 'INSTANT'
-      | 'DEFAULT';
+  async runBatch(_batchSize = 100): Promise<{ initiated: number; skipped: number; failed: number }> {
+    this.logger.warn('payouts.runBatch: Phase 4 deferred — no-op');
+    return { initiated: 0, skipped: 0, failed: 0 };
   }
 
-  /**
-   * Resolve the system actor id — required because AuditLog.actorId has a
-   * FK to users.id. The env var keeps its legacy name for continuity with
-   * already-configured operators; no semantic change.
-   */
-  private systemActorId(): string {
-    const id = this.config.get<string>('STITCH_SYSTEM_ACTOR_ID', '');
-    if (!id) {
-      throw new Error(
-        'STITCH_SYSTEM_ACTOR_ID is not set; payout jobs cannot write AuditLog rows',
-      );
-    }
-    return id;
+  async initiatePayout(_userId: string, _beneficiaryId: string, _amountCents: bigint): Promise<void> {
+    throw new NotImplementedException(
+      'Outbound payouts are Phase 4 of the TradeSafe cutover (ADR 0011) and are not yet wired. PAYOUTS_ENABLED must stay false until the submission-approval → auto-payout flow lands.',
+    );
   }
 
-  /**
-   * Enumerates hunters with spare available balance, creates a payout row,
-   * posts hunter_available → payout_in_transit, and dispatches via the
-   * active payout provider. Settlement (and the corresponding ledger move
-   * to hunter_paid) arrives via the TradeSafe webhook.
-   */
-  async runBatch(batchSize = 100): Promise<{ initiated: number; skipped: number; failed: number }> {
-    const jobRun = await this.prisma.jobRun.create({
-      data: { jobName: 'payout-execution', status: JobRunStatus.STARTED },
-    });
-
-    let initiated = 0;
-    let skipped = 0;
-    let failed = 0;
-
-    try {
-      const eligibleBeneficiaries = await this.prisma.stitchBeneficiary.findMany({
-        where: {
-          isActive: true,
-          user: {
-            stitchPayouts: {
-              none: {
-                status: {
-                  in: [
-                    StitchPayoutStatus.CREATED,
-                    StitchPayoutStatus.INITIATED,
-                    StitchPayoutStatus.RETRY_PENDING,
-                  ],
-                },
-              },
-            },
-          },
-        },
-        take: batchSize,
-      });
-
-      for (const bene of eligibleBeneficiaries) {
-        const available = await this.projection.availableCents(bene.userId);
-        if (available < this.minPayoutCents) {
-          skipped += 1;
-          continue;
-        }
-
-        try {
-          await this.initiatePayout(bene.userId, bene.id, available);
-          initiated += 1;
-        } catch (err) {
-          failed += 1;
-          this.logger.error(
-            `payout initiation failed for ${bene.userId}: ${err instanceof Error ? err.message : err}`,
-          );
-        }
-      }
-
-      await this.prisma.jobRun.update({
-        where: { id: jobRun.id },
-        data: {
-          status: JobRunStatus.SUCCEEDED,
-          finishedAt: new Date(),
-          itemsSeen: eligibleBeneficiaries.length,
-          itemsOk: initiated,
-          itemsFailed: failed,
-          details: { initiated, skipped, failed },
-        },
-      });
-    } catch (err) {
-      await this.prisma.jobRun.update({
-        where: { id: jobRun.id },
-        data: {
-          status: JobRunStatus.FAILED,
-          finishedAt: new Date(),
-          error: err instanceof Error ? err.message : String(err),
-        },
-      });
-      throw err;
-    }
-    return { initiated, skipped, failed };
+  async retryBatch(_batchSize = 50): Promise<{ retried: number }> {
+    this.logger.warn('payouts.retryBatch: Phase 4 deferred — no-op');
+    return { retried: 0 };
   }
 
-  async initiatePayout(userId: string, beneficiaryId: string, amountCents: bigint) {
-    const stamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
-    const userSlug = userId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
-    const idempotencyKey = `payout${userSlug}${stamp}`;
-    const merchantReference = `payout${userSlug}${stamp}`.slice(0, 50);
-
-    const beneficiary = await this.prisma.stitchBeneficiary.findUnique({
-      where: { id: beneficiaryId },
-    });
-    if (!beneficiary) {
-      throw new Error(`Beneficiary ${beneficiaryId} not found for user ${userId}`);
-    }
-
-    const payout = await this.prisma.stitchPayout.create({
-      data: {
-        userId,
-        beneficiaryId,
-        merchantReference,
-        amountCents,
-        speed: this.speed,
-        status: StitchPayoutStatus.CREATED,
-        idempotencyKey,
-      },
-    });
-
-    const actorId = this.systemActorId();
-    await this.ledger.postTransactionGroup({
-      actionType: 'payout_initiated',
-      referenceId: payout.id,
-      referenceType: 'StitchPayout',
-      description: `Payout initiated: hunter ${userId}`,
-      postedBy: actorId,
-      legs: [
-        {
-          account: LedgerAccount.hunter_available,
-          type: LedgerEntryType.DEBIT,
-          amountCents,
-          userId,
-        },
-        {
-          account: LedgerAccount.payout_in_transit,
-          type: LedgerEntryType.CREDIT,
-          amountCents,
-          userId,
-        },
-      ],
-      audit: {
-        actorId,
-        actorRole: UserRole.SUPER_ADMIN,
-        action: 'PAYOUT_INITIATED',
-        entityType: 'StitchPayout',
-        entityId: payout.id,
-        afterState: { amountCents: amountCents.toString() },
-      },
-    });
-
-    try {
-      const provider = this.providerFactory.getProvider();
-      const result = await provider.initiatePayout(
-        {
-          amountCents,
-          beneficiaryId: beneficiary.stitchBeneficiaryId,
-          merchantReference,
-          speed: this.speed,
-        },
-        idempotencyKey,
-      );
-      await this.prisma.stitchPayout.update({
-        where: { id: payout.id },
-        data: {
-          stitchPayoutId: result.id,
-          status: StitchPayoutStatus.INITIATED,
-          lastAttemptAt: new Date(),
-          attempts: { increment: 1 },
-        },
-      });
-    } catch (err) {
-      await this.prisma.stitchPayout.update({
-        where: { id: payout.id },
-        data: {
-          status: StitchPayoutStatus.FAILED,
-          attempts: { increment: 1 },
-          lastAttemptAt: new Date(),
-          lastError: err instanceof Error ? err.message : String(err),
-          nextRetryAt: new Date(Date.now() + 60 * 60 * 1000),
-        },
-      });
-      // Compensating entry so balance returns to hunter_available.
-      await this.ledger.postTransactionGroup({
-        actionType: 'tradesafe_payout_failed',
-        referenceId: payout.id,
-        referenceType: 'StitchPayout',
-        description: `Payout dispatch failed: ${err instanceof Error ? err.message : 'unknown'}`,
-        postedBy: actorId,
-        legs: [
-          {
-            account: LedgerAccount.payout_in_transit,
-            type: LedgerEntryType.DEBIT,
-            amountCents,
-            userId,
-          },
-          {
-            account: LedgerAccount.hunter_available,
-            type: LedgerEntryType.CREDIT,
-            amountCents,
-            userId,
-          },
-        ],
-        audit: {
-          actorId,
-          actorRole: UserRole.SUPER_ADMIN,
-          action: 'PAYOUT_DISPATCH_FAILED',
-          entityType: 'StitchPayout',
-          entityId: payout.id,
-        },
-      });
-      throw err;
-    }
+  async listForUser(_userId: string) {
+    // Empty list — no payout rows exist in the DB post-Stitch-deletion,
+    // and Phase 4 tables aren't scaffolded yet. Returning [] keeps the
+    // UI stable (participant /settings/payouts renders "no payouts yet").
+    return [];
   }
 
-  async retryBatch(batchSize = 50): Promise<{ retried: number }> {
-    const now = new Date();
-    const candidates = await this.prisma.stitchPayout.findMany({
-      where: {
-        status: StitchPayoutStatus.FAILED,
-        attempts: { lt: 3 },
-        OR: [{ nextRetryAt: null }, { nextRetryAt: { lte: now } }],
-      },
-      include: { beneficiary: true },
-      take: batchSize,
-    });
-    let retried = 0;
-    const provider = this.providerFactory.getProvider();
-    for (const p of candidates) {
-      try {
-        if (!p.beneficiary) {
-          throw new Error(`StitchPayout ${p.id} has no beneficiary loaded`);
-        }
-        const result = await provider.initiatePayout(
-          {
-            amountCents: p.amountCents,
-            beneficiaryId: p.beneficiary.stitchBeneficiaryId,
-            merchantReference: p.merchantReference,
-            speed: (p.speed as 'INSTANT' | 'DEFAULT') ?? 'DEFAULT',
-          },
-          p.idempotencyKey,
-        );
-        await this.prisma.stitchPayout.update({
-          where: { id: p.id },
-          data: {
-            stitchPayoutId: result.id,
-            status: StitchPayoutStatus.INITIATED,
-            attempts: { increment: 1 },
-            lastAttemptAt: new Date(),
-          },
-        });
-        retried += 1;
-      } catch (err) {
-        const attempts = p.attempts + 1;
-        await this.prisma.stitchPayout.update({
-          where: { id: p.id },
-          data: {
-            attempts,
-            lastAttemptAt: new Date(),
-            lastError: err instanceof Error ? err.message : String(err),
-            status: attempts >= 3 ? StitchPayoutStatus.RETRY_PENDING : StitchPayoutStatus.FAILED,
-            nextRetryAt: attempts >= 3 ? null : new Date(Date.now() + 2 ** attempts * 60 * 60 * 1000),
-          },
-        });
-      }
-    }
-    return { retried };
-  }
-
-  /**
-   * List this hunter's payout rows, newest first. Returns a shape safe to
-   * hand back over HTTP: bigint cents → string.
-   */
-  async listForUser(userId: string) {
-    const rows = await this.prisma.stitchPayout.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        amountCents: true,
-        currency: true,
-        status: true,
-        attempts: true,
-        lastError: true,
-        createdAt: true,
-        lastAttemptAt: true,
-        stitchPayoutId: true,
-      },
-    });
-    return rows.map((r) => ({
-      id: r.id,
-      amountCents: r.amountCents.toString(),
-      currency: r.currency,
-      status: r.status,
-      attempts: r.attempts,
-      lastError: r.lastError,
-      createdAt: r.createdAt.toISOString(),
-      lastAttemptAt: r.lastAttemptAt ? r.lastAttemptAt.toISOString() : null,
-      providerPayoutId: r.stitchPayoutId,
-    }));
-  }
-
-  async adminRetry(payoutId: string, actor: { role: string; sub: string }) {
-    if (actor.role !== UserRole.SUPER_ADMIN) {
-      throw new ForbiddenException('Only SUPER_ADMIN can retry payouts');
-    }
-    const payout = await this.prisma.stitchPayout.findUnique({ where: { id: payoutId } });
-    if (!payout) return { retried: false };
-    await this.prisma.stitchPayout.update({
-      where: { id: payoutId },
-      data: { status: StitchPayoutStatus.FAILED, attempts: 0, nextRetryAt: new Date() },
-    });
-    return { retried: true };
+  async adminRetry(_payoutId: string, _actor: { role: string; sub: string }) {
+    throw new NotImplementedException(
+      'Outbound payouts are Phase 4 of the TradeSafe cutover (ADR 0011).',
+    );
   }
 }

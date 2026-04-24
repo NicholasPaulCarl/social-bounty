@@ -47,7 +47,7 @@ export class ReconciliationService {
    * switch" rather than aborting the whole job.
    */
   private systemActorId(): string | null {
-    return this.config?.get<string>('STITCH_SYSTEM_ACTOR_ID', '') || null;
+    return this.config?.get<string>('SYSTEM_ACTOR_ID', '') || null;
   }
 
   /**
@@ -139,7 +139,7 @@ export class ReconciliationService {
           }
         } else {
           this.logger.warn(
-            'STITCH_SYSTEM_ACTOR_ID not set — kill-switch activation not audit-logged',
+            'SYSTEM_ACTOR_ID not set — kill-switch activation not audit-logged',
           );
         }
       }
@@ -602,117 +602,43 @@ export class ReconciliationService {
   private async checkPayoutsVsLedger(): Promise<ReconciliationFinding[]> {
     const findings: ReconciliationFinding[] = [];
 
-    // (a) SETTLED StitchPaymentLink without stitch_payment_settled group.
-    // Inbound rail is Stitch-only for MVP (Brand→platform funding); there is
-    // no TradeSafe inbound arm. Kept unchanged.
-    const orphanLinks = await this.prisma.$queryRaw<
-      { id: string; stitchPaymentId: string | null; bountyId: string }[]
+    // ADR 0011 single-rail — 2026-04-24 Stitch-deletion cutover.
+    //
+    // The `stitch_payment_links` and `stitch_payouts` tables were dropped;
+    // the raw-SQL anti-joins that lived here would fail at runtime. Scoped
+    // down for now:
+    //
+    // (a) TradeSafeTransaction (inbound) anti-join — Phase 3 in scope.
+    // (b) Outbound payouts — Phase 4 deferred (no payout tables exist yet;
+    //     `PayoutsService` is a stub). Rebuild this arm when Phase 4 lands.
+    const orphanTransactions = await this.prisma.$queryRaw<
+      { id: string; tradeSafeTransactionId: string; bountyId: string | null }[]
     >`
-      SELECT spl.id                AS id,
-             spl."stitchPaymentId" AS "stitchPaymentId",
-             spl."bountyId"        AS "bountyId"
-        FROM stitch_payment_links spl
-       WHERE spl.status = 'SETTLED'::"StitchPaymentLinkStatus"
-         AND spl."stitchPaymentId" IS NOT NULL
+      SELECT t.id                        AS id,
+             t."tradeSafeTransactionId"  AS "tradeSafeTransactionId",
+             t."bountyId"                AS "bountyId"
+        FROM tradesafe_transactions t
+       WHERE t.state = 'FUNDS_RECEIVED'::"TradeSafeTransactionState"
          AND NOT EXISTS (
            SELECT 1
              FROM ledger_transaction_groups g
-            WHERE g."actionType"  = 'stitch_payment_settled'
-              AND g."referenceId" = spl."stitchPaymentId"
+            WHERE g."actionType"  = 'BOUNTY_FUNDED_VIA_TRADESAFE'
+              AND g."referenceId" = t."tradeSafeTransactionId"
          )
     `;
-    for (const r of orphanLinks) {
-      const externalId = r.stitchPaymentId ?? r.id;
-      findings.push({
-        category: 'stitch-ledger-gap',
-        signature: `stitch-ledger-gap:${externalId}`,
-        system: 'ledger',
-        errorCode: `stitch-ledger-gap:${externalId}`,
-        severity: 'critical',
-        title: `StitchPaymentLink ${r.id} SETTLED but no stitch_payment_settled ledger group`,
-        detail: {
-          stitchPaymentLinkId: r.id,
-          stitchPaymentId: r.stitchPaymentId,
-          bountyId: r.bountyId,
-          kind: 'payment',
-          provider: 'stitch',
-        },
-      });
-    }
-
-    // (b) SETTLED Stitch-rail StitchPayout without stitch_payout_settled group.
-    const orphanStitchPayouts = await this.prisma.$queryRaw<
-      { id: string; stitchPayoutId: string | null; userId: string }[]
-    >`
-      SELECT sp.id                AS id,
-             sp."stitchPayoutId" AS "stitchPayoutId",
-             sp."userId"         AS "userId"
-        FROM stitch_payouts sp
-       WHERE sp.status = 'SETTLED'::"StitchPayoutStatus"
-         AND sp.provider = 'STITCH'::"PayoutRail"
-         AND sp."stitchPayoutId" IS NOT NULL
-         AND NOT EXISTS (
-           SELECT 1
-             FROM ledger_transaction_groups g
-            WHERE g."actionType"  = 'stitch_payout_settled'
-              AND g."referenceId" = sp."stitchPayoutId"
-         )
-    `;
-    for (const r of orphanStitchPayouts) {
-      const externalId = r.stitchPayoutId ?? r.id;
-      findings.push({
-        category: 'stitch-ledger-gap',
-        signature: `stitch-ledger-gap:${externalId}`,
-        system: 'ledger',
-        errorCode: `stitch-ledger-gap:${externalId}`,
-        severity: 'critical',
-        title: `StitchPayout ${r.id} SETTLED but no stitch_payout_settled ledger group`,
-        detail: {
-          stitchPayoutDbId: r.id,
-          stitchPayoutId: r.stitchPayoutId,
-          userId: r.userId,
-          kind: 'payout',
-          provider: 'stitch',
-        },
-      });
-    }
-
-    // (c) SETTLED TradeSafe-rail StitchPayout without tradesafe_payout_settled
-    // group (R32). Uses the same physical table but a different action-type
-    // on the anti-join, so Stitch and TradeSafe drift are surfaced as separate
-    // findings (different `provider` metadata) and pinned to distinct KB
-    // signatures via `tradesafe-ledger-gap` category.
-    const orphanTradesafePayouts = await this.prisma.$queryRaw<
-      { id: string; stitchPayoutId: string | null; userId: string }[]
-    >`
-      SELECT sp.id                AS id,
-             sp."stitchPayoutId" AS "stitchPayoutId",
-             sp."userId"         AS "userId"
-        FROM stitch_payouts sp
-       WHERE sp.status = 'SETTLED'::"StitchPayoutStatus"
-         AND sp.provider = 'TRADESAFE'::"PayoutRail"
-         AND sp."stitchPayoutId" IS NOT NULL
-         AND NOT EXISTS (
-           SELECT 1
-             FROM ledger_transaction_groups g
-            WHERE g."actionType"  = 'tradesafe_payout_settled'
-              AND g."referenceId" = sp."stitchPayoutId"
-         )
-    `;
-    for (const r of orphanTradesafePayouts) {
-      const externalId = r.stitchPayoutId ?? r.id;
+    for (const r of orphanTransactions) {
       findings.push({
         category: 'tradesafe-ledger-gap',
-        signature: `tradesafe-ledger-gap:${externalId}`,
+        signature: `tradesafe-inbound-ledger-gap:${r.tradeSafeTransactionId}`,
         system: 'ledger',
-        errorCode: `tradesafe-ledger-gap:${externalId}`,
+        errorCode: `tradesafe-inbound-ledger-gap:${r.tradeSafeTransactionId}`,
         severity: 'critical',
-        title: `TradeSafe payout ${r.id} SETTLED but no tradesafe_payout_settled ledger group`,
+        title: `TradeSafeTransaction ${r.id} FUNDS_RECEIVED but no bounty_funded ledger group`,
         detail: {
-          stitchPayoutDbId: r.id,
-          stitchPayoutId: r.stitchPayoutId,
-          userId: r.userId,
-          kind: 'payout',
+          tradeSafeTransactionDbId: r.id,
+          tradeSafeTransactionId: r.tradeSafeTransactionId,
+          bountyId: r.bountyId,
+          kind: 'payment',
           provider: 'tradesafe',
         },
       });
