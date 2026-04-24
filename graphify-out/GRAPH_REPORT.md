@@ -1,7 +1,7 @@
-# Graph Report - social-bounty  (2026-04-24)
+# Graph Report - relaxed-sammet-f4af0b  (2026-04-24)
 
 ## Corpus Check
-- 527 files · ~619,076 words
+- 527 files · ~619,056 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary

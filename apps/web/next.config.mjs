@@ -26,6 +26,7 @@ const nextConfig = {
     return [
       { source: '/privacy', destination: '/legal/privacy-policy', permanent: true },
       { source: '/terms', destination: '/legal/terms-of-service', permanent: true },
+      { source: '/pricing', destination: '/payment', permanent: true },
     ];
   },
   webpack: (config, { isServer }) => {

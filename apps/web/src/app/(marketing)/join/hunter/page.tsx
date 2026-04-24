@@ -383,10 +383,10 @@ export default function JoinHunterPage() {
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">Plans</p>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
-              Free is great. <span className="text-pink-600">Pro is better.</span>
+              Free today. <span className="text-pink-600">Pro coming soon.</span>
             </h2>
             <p className="text-lg text-slate-600 mt-4 max-w-xl mx-auto">
-              Start free and upgrade when the savings make sense.
+              Every hunter starts on Free. Pro Hunter is on the way — pricing will land on the Payment page before launch.
             </p>
           </FadeUp>
 
@@ -408,44 +408,48 @@ export default function JoinHunterPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/signup" className="btn btn-secondary rounded-full text-center justify-center">
+                <Link href="/signup" className="btn btn-primary rounded-full text-center justify-center">
                   Get started free
                 </Link>
               </div>
             </FadeUp>
 
-            {/* Pro */}
+            {/* Pro — coming soon */}
             <FadeUp delay={100}>
-              <div className="h-full card card-feature relative border-2 border-pink-300 shadow-lg shadow-pink-100/50">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 badge badge-brand px-4 py-1 uppercase">
-                  Recommended
+              <div className="h-full card card-feature relative opacity-75">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 badge badge-neutral px-4 py-1 uppercase">
+                  Coming soon
                 </div>
                 <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Pro Hunter</h3>
-                <p className="font-mono tabular-nums text-3xl font-bold text-slate-900 mt-4 mb-6">R350<span className="text-base font-normal text-slate-400">/month</span></p>
+                <p className="text-sm text-slate-500 mt-4 mb-6">Pricing published before launch</p>
                 <ul className="space-y-3 mb-6">
                   {[
-                    '10% commission (save 10%)',
-                    'Same-day payouts',
-                    'Apply to any closed bounty',
-                    'Verified badge on your profile',
+                    'Lower platform commission',
+                    'Faster payouts',
+                    'Apply to closed (invite-only) bounties',
+                    'Verified hunter badge',
                     'Priority support',
                   ].map((f) => (
-                    <li key={f} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
-                      <span className="text-pink-600 mt-0.5 font-bold">{'\u2713'}</span>{f}
+                    <li key={f} className="flex items-start gap-3 text-sm text-slate-500">
+                      <span className="text-slate-400 mt-0.5">{'\u2014'}</span>{f}
                     </li>
                   ))}
                 </ul>
-                <Link href="/signup" className="btn btn-primary rounded-full text-center justify-center">
-                  Upgrade to Pro
-                </Link>
+                <button
+                  disabled
+                  aria-disabled="true"
+                  className="btn btn-secondary rounded-full text-center justify-center w-full cursor-not-allowed"
+                >
+                  Pro upgrade coming soon
+                </button>
               </div>
             </FadeUp>
           </div>
 
           <FadeUp delay={200}>
             <p className="text-center mt-8">
-              <Link href="/pricing" className="text-sm text-pink-600 font-semibold hover:underline">
-                View full feature comparison {'\u2192'}
+              <Link href="/payment" className="text-sm text-pink-600 font-semibold hover:underline">
+                See how payments &amp; fees work {'\u2192'}
               </Link>
             </p>
           </FadeUp>

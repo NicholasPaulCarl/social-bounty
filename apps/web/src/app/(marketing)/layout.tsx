@@ -24,7 +24,7 @@ const NAV_LINKS = [
   { label: 'How it works', href: '/#how-it-works' },
   { label: 'For hunters', href: '/join/hunter' },
   { label: 'For brands', href: '/join/business' },
-  { label: 'Pricing', href: '/pricing' },
+  { label: 'Payment', href: '/payment' },
   { label: 'Contact', href: '/contact' },
 ];
 
@@ -40,7 +40,7 @@ const FOOTER_BRANDS = [
 ];
 
 const FOOTER_COMPANY = [
-  { label: 'Pricing', href: '/pricing' },
+  { label: 'Payment', href: '/payment' },
   { label: 'Contact', href: '/contact' },
   { label: 'Legal', href: '/legal' },
 ];

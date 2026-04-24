@@ -437,10 +437,10 @@ export default function JoinBusinessPage() {
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">Plans</p>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
-              Start free. <span className="text-pink-600">Scale with Pro.</span>
+              Start free. <span className="text-pink-600">Pro coming soon.</span>
             </h2>
             <p className="text-lg text-slate-600 mt-4 max-w-xl mx-auto">
-              Every brand starts on Free. Upgrade when you need closed bounties and lower fees.
+              Every brand starts on Free. Pro Brand is on the way — pricing will land on the Payment page before launch.
             </p>
           </FadeUp>
 
@@ -453,6 +453,7 @@ export default function JoinBusinessPage() {
                 <ul className="space-y-3 mb-6">
                   {[
                     '15% admin fee per bounty',
+                    '5% transaction fee',
                     'Public bounties only',
                     'Standard support',
                   ].map((f) => (
@@ -461,43 +462,47 @@ export default function JoinBusinessPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/signup" className="btn btn-secondary rounded-full text-center justify-center">
+                <Link href="/signup" className="btn btn-primary rounded-full text-center justify-center">
                   Get started free
                 </Link>
               </div>
             </FadeUp>
 
-            {/* Pro */}
+            {/* Pro — coming soon */}
             <FadeUp delay={100}>
-              <div className="h-full card card-feature relative border-2 border-pink-300 shadow-lg shadow-pink-100/50">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 badge badge-brand px-4 py-1 uppercase">
-                  Best value
+              <div className="h-full card card-feature relative opacity-75">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 badge badge-neutral px-4 py-1 uppercase">
+                  Coming soon
                 </div>
                 <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Pro Brand</h3>
-                <p className="font-mono tabular-nums text-3xl font-bold text-slate-900 mt-4 mb-6">R950<span className="text-base font-normal text-slate-400">/month</span></p>
+                <p className="text-sm text-slate-500 mt-4 mb-6">Pricing published before launch</p>
                 <ul className="space-y-3 mb-6">
                   {[
-                    '5% admin fee (save 10%)',
-                    'Create closed (invite-only) bounties',
+                    'Lower brand admin fee',
+                    'Closed (invite-only) bounties',
                     'Application and invitation management',
                     'Priority support',
                   ].map((f) => (
-                    <li key={f} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
-                      <span className="text-pink-600 mt-0.5 font-bold">{'\u2713'}</span>{f}
+                    <li key={f} className="flex items-start gap-3 text-sm text-slate-500">
+                      <span className="text-slate-400 mt-0.5">{'\u2014'}</span>{f}
                     </li>
                   ))}
                 </ul>
-                <Link href="/signup" className="btn btn-primary rounded-full text-center justify-center">
-                  Upgrade to Pro
-                </Link>
+                <button
+                  disabled
+                  aria-disabled="true"
+                  className="btn btn-secondary rounded-full text-center justify-center w-full cursor-not-allowed"
+                >
+                  Pro upgrade coming soon
+                </button>
               </div>
             </FadeUp>
           </div>
 
           <FadeUp delay={200}>
             <p className="text-center mt-8">
-              <Link href="/pricing" className="text-sm text-pink-600 font-semibold hover:underline">
-                View full feature comparison {'\u2192'}
+              <Link href="/payment" className="text-sm text-pink-600 font-semibold hover:underline">
+                See how payments &amp; fees work {'\u2192'}
               </Link>
             </p>
           </FadeUp>

@@ -430,9 +430,10 @@ export default function TermsOfServicePage() {
           </li>
         </ul>
         <p className="mb-4">
-          Plan-tier reductions (currently Pro Hunter / Pro Brand) may lower the commission or admin
-          fee, but the 3.5% global platform fee applies to every transaction regardless of plan. The
-          plan in force at the moment of bounty funding (for the brand) and at the moment of
+          Plan-tier reductions (Pro Hunter / Pro Brand are coming soon) may lower the commission or
+          admin fee, but the 3.5% global platform fee applies to every transaction regardless of
+          plan. Until Pro plans are live, every transaction is priced at the Free-plan rates above.
+          The plan in force at the moment of bounty funding (for the brand) and at the moment of
           submission approval (for the hunter) is recorded on the transaction and is not changed by
           subsequent plan changes.
         </p>
