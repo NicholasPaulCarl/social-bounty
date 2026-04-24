@@ -85,6 +85,21 @@ class EnvironmentVariables {
   @IsUrl({ require_tld: false, require_protocol: true })
   TRADESAFE_API_BASE?: string;
 
+  // TradeSafe OAuth 2.0 token endpoint (Client Credentials grant). Required
+  // for live GraphQL calls; sandbox and prod share the same auth host:
+  //   https://auth.tradesafe.co.za/oauth/token
+  @IsOptional()
+  @IsUrl({ require_tld: false, require_protocol: true })
+  TRADESAFE_AUTH_URL?: string;
+
+  // TradeSafe GraphQL endpoint. Sandbox:
+  //   https://api-developer.tradesafe.dev/graphql
+  // Production:
+  //   https://api.tradesafe.co.za/graphql
+  @IsOptional()
+  @IsUrl({ require_tld: false, require_protocol: true })
+  TRADESAFE_GRAPHQL_URL?: string;
+
   @IsOptional()
   @IsString()
   TRADESAFE_CLIENT_ID?: string;

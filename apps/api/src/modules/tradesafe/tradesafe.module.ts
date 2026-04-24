@@ -3,6 +3,7 @@ import { RedisModule } from '../redis/redis.module';
 import { LedgerModule } from '../ledger/ledger.module';
 import { TradeSafeCallbackController } from './tradesafe-callback.controller';
 import { TradeSafeClient } from './tradesafe.client';
+import { TradeSafeGraphQLClient } from './tradesafe-graphql.client';
 import { TradeSafeWebhookHandler } from './tradesafe-webhook.handler';
 
 /**
@@ -38,7 +39,7 @@ import { TradeSafeWebhookHandler } from './tradesafe-webhook.handler';
 @Module({
   imports: [RedisModule, forwardRef(() => LedgerModule)],
   controllers: [TradeSafeCallbackController],
-  providers: [TradeSafeClient, TradeSafeWebhookHandler],
-  exports: [TradeSafeClient, TradeSafeWebhookHandler],
+  providers: [TradeSafeClient, TradeSafeGraphQLClient, TradeSafeWebhookHandler],
+  exports: [TradeSafeClient, TradeSafeGraphQLClient, TradeSafeWebhookHandler],
 })
 export class TradeSafeModule {}
