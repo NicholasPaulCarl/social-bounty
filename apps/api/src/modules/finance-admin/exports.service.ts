@@ -211,7 +211,8 @@ export class FinanceExportsService {
   }
 
   // ---------------------------------------------------------------------------
-  // Refunds: Refund rows with linked transactionGroup + Stitch reference.
+  // Refunds: Refund rows with linked transactionGroup (ADR 0005/0006 —
+  // refunds flow via compensating ledger entries, no external provider ref).
   // ---------------------------------------------------------------------------
   async refundsCsv(): Promise<string> {
     const rows = await this.prisma.refund.findMany({

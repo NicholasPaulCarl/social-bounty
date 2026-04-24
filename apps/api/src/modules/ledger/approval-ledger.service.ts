@@ -62,15 +62,15 @@ export class ApprovalLedgerService {
     const hasOverride = raw !== undefined && raw !== null && `${raw}`.length > 0;
 
     // Hard refusal: the override is a dev/staging convenience. If it is set in
-    // live mode, fail loud — a shrunken clearance window in production would
+    // production, fail loud — a shrunken clearance window in production would
     // release hunter funds before the canonical 72h window, breaking the
     // approved-payment-reversal safety net. (Cross-ref: CLAUDE.md §4
     // Financial Non-Negotiables; Hard Rule #6.)
     if (hasOverride) {
-      const provider = this.config?.get<string>('PAYMENTS_PROVIDER') ?? 'none';
-      if (provider === 'stitch_live') {
+      const nodeEnv = this.config?.get<string>('NODE_ENV') ?? 'development';
+      if (nodeEnv === 'production') {
         throw new Error(
-          `Refusing to apply clearance override in live mode: ${envKey}=${raw} while PAYMENTS_PROVIDER=stitch_live. Unset the override or switch to stitch_sandbox.`,
+          `Refusing to apply clearance override in production: ${envKey}=${raw}. Unset the override or run against a non-production environment.`,
         );
       }
     }

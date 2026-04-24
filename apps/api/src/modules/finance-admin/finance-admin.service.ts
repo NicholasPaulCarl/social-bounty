@@ -239,7 +239,11 @@ export class FinanceAdminService {
       where: {
         OR: [
           { entityType: 'Refund' },
+          // Historical Stitch-rail payout audit rows from before the
+          // 2026-04-24 single-rail cutover. Retained for forensics.
           { entityType: 'StitchPayout' },
+          // Forward-compat: future TradeSafe-rail payout audit rows.
+          { entityType: 'Payout' },
           { entityType: 'Bounty', action: { contains: 'FUND' } },
           { entityType: 'Submission', action: { contains: 'LEDGER' } },
           { action: { contains: 'KILL_SWITCH' } },
@@ -275,7 +279,7 @@ export class FinanceAdminService {
   /**
    * DEV-ONLY: seed a fully-cleared hunter_net_payable position for a user so
    * the payout job can pick them up immediately, bypassing brand-funding and
-   * approval. Refuses to run when PAYMENTS_PROVIDER === 'stitch_live'.
+   * approval. Refuses to run in production (NODE_ENV=production).
    *
    * The ledger group is balanced by debiting compensating_entry — it does NOT
    * represent real economic activity and is intended only for smoke-testing
@@ -288,10 +292,10 @@ export class FinanceAdminService {
     if (actor.role !== UserRole.SUPER_ADMIN) {
       throw new ForbiddenException('Only SUPER_ADMIN can seed payable');
     }
-    const provider = this.config.get<string>('PAYMENTS_PROVIDER', 'none');
-    if (provider === 'stitch_live') {
+    const nodeEnv = this.config.get<string>('NODE_ENV', 'development');
+    if (nodeEnv === 'production') {
       throw new ForbiddenException(
-        'devSeedPayable is disabled when PAYMENTS_PROVIDER=stitch_live',
+        'devSeedPayable is disabled in production',
       );
     }
     if (input.faceValueCents <= 0n) {

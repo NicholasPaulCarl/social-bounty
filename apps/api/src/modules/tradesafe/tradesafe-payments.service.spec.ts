@@ -33,7 +33,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
     isKillSwitchActive: boolean;
     tradeSafeTransactionResult: Record<string, unknown>;
     checkoutLinkResult: string;
-    paymentsProvider: string;
+    tradeSafeMock: string;
   }> = {}) {
     const bounty = overrides.bounty === undefined
       ? {
@@ -84,7 +84,8 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
 
     const config = {
       get: jest.fn((key: string, fallback?: unknown) => {
-        if (key === 'PAYMENTS_PROVIDER') return overrides.paymentsProvider ?? 'tradesafe_sandbox';
+        // Single-rail post ADR 0011: "live mode" = TRADESAFE_MOCK=false.
+        if (key === 'TRADESAFE_MOCK') return overrides.tradeSafeMock ?? 'true';
         if (key === 'TRADESAFE_AGENT_TOKEN') return 'agent-token';
         if (key === 'TRADESAFE_DEFAULT_BUYER_TOKEN') return 'buyer-token';
         if (key === 'TRADESAFE_ESCROW_PLACEHOLDER_TOKEN') return 'seller-token';
@@ -144,7 +145,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
 
   it('rejects when brand KYB is not approved on live rail', async () => {
     const { svc } = buildService({
-      paymentsProvider: 'tradesafe_live',
+      tradeSafeMock: 'false',
       brand: { kybStatus: 'PENDING' },
     });
     await expect(

@@ -173,9 +173,9 @@ describe('ApprovalLedgerService.postApproval', () => {
     expect(deltaMs).toBeLessThan(73 * 60 * 60 * 1000);
   });
 
-  it('throws in live mode when any clearance override is set', async () => {
+  it('throws in production when any clearance override is set', async () => {
     const liveOverrideService = buildService((k) => {
-      if (k === 'PAYMENTS_PROVIDER') return 'stitch_live';
+      if (k === 'NODE_ENV') return 'production';
       if (k === 'CLEARANCE_OVERRIDE_HOURS_FREE') return '0.0083';
       return undefined;
     });
@@ -186,14 +186,14 @@ describe('ApprovalLedgerService.postApproval', () => {
         approverId: 'admin_1',
         approverRole: 'BUSINESS_ADMIN' as any,
       }),
-    ).rejects.toThrow(/Refusing to apply clearance override in live mode/);
+    ).rejects.toThrow(/Refusing to apply clearance override in production/);
     // Ledger write must NOT happen if the override check trips.
     expect(post).not.toHaveBeenCalled();
   });
 
-  it('allows clearance override in sandbox mode (uses the overridden value)', async () => {
+  it('allows clearance override in non-production (uses the overridden value)', async () => {
     const sandboxOverrideService = buildService((k) => {
-      if (k === 'PAYMENTS_PROVIDER') return 'stitch_sandbox';
+      if (k === 'NODE_ENV') return 'development';
       if (k === 'CLEARANCE_OVERRIDE_HOURS_FREE') return '0.0083';
       return undefined;
     });
@@ -214,9 +214,9 @@ describe('ApprovalLedgerService.postApproval', () => {
     expect(deltaMs).toBeLessThan(60 * 1000);
   });
 
-  it('uses canonical CLEARANCE_HOURS.FREE in live mode when no override is set', async () => {
+  it('uses canonical CLEARANCE_HOURS.FREE in production when no override is set', async () => {
     const liveNoOverrideService = buildService((k) => {
-      if (k === 'PAYMENTS_PROVIDER') return 'stitch_live';
+      if (k === 'NODE_ENV') return 'production';
       return undefined;
     });
 

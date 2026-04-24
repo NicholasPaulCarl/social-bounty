@@ -124,10 +124,10 @@ export class TradeSafePaymentsService {
     }
 
     // KYB gate — enforced when a live TradeSafe tenant is configured.
-    // Sandbox bypass permitted (env-gated).
-    const isLive =
-      this.config.get<string>('PAYMENTS_PROVIDER', 'tradesafe_sandbox') ===
-      'tradesafe_live';
+    // Mock mode (default when creds absent) bypasses the gate so dev/CI
+    // can exercise the funding flow without real KYB data. In production
+    // TRADESAFE_MOCK must be "false" before KYB is meaningfully enforced.
+    const isLive = this.config.get<string>('TRADESAFE_MOCK', 'true') === 'false';
     if (isLive) {
       const brand = await this.prisma.brand.findUnique({
         where: { id: bounty.brandId },
@@ -160,8 +160,8 @@ export class TradeSafePaymentsService {
 
     // Resolve platform AGENT token. Required for every TradeSafe transaction
     // per ADR 0011 §1. Not throwing if absent so the service can run against
-    // the mock adapter in dev — but when live, PAYMENTS_PROVIDER=tradesafe_live
-    // operators must have `TRADESAFE_AGENT_TOKEN` configured.
+    // the mock adapter in dev — but when live (TRADESAFE_MOCK=false) operators
+    // must have `TRADESAFE_AGENT_TOKEN` configured.
     const agentToken = this.config.get<string>('TRADESAFE_AGENT_TOKEN', '');
 
     const reference = bountyId; // TradeSafe echoes this back on webhooks.

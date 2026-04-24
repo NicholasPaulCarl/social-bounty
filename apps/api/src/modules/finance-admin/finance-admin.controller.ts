@@ -102,7 +102,7 @@ export class FinanceAdminController {
   }
 
   @Get('payouts')
-  @Audited('FINANCE_PAYOUTS_LIST', 'StitchPayout')
+  @Audited('FINANCE_PAYOUTS_LIST', 'Payout')
   async payouts(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -193,7 +193,7 @@ export class FinanceAdminController {
   /**
    * DEV-ONLY. Seeds a fully-cleared hunter_net_payable position for a user so
    * the payout pipeline can be smoke-tested without brand-funding + approval.
-   * Gated to PAYMENTS_PROVIDER != 'stitch_live' in the service.
+   * Gated on NODE_ENV !== 'production' in the service.
    */
   @Post('dev/seed-payable')
   @Audited('DEV_SEED_PAYABLE', 'User')

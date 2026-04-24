@@ -16,10 +16,10 @@ describe('FinanceAdminService.devSeedPayable', () => {
   let post: jest.Mock;
   let service: FinanceAdminService;
 
-  function makeService(provider: string): FinanceAdminService {
+  function makeService(nodeEnv: string): FinanceAdminService {
     const config = {
       get: jest.fn((key: string, fallback?: unknown) =>
-        key === 'PAYMENTS_PROVIDER' ? provider : fallback,
+        key === 'NODE_ENV' ? nodeEnv : fallback,
       ),
     } as unknown as ConfigService;
     return new FinanceAdminService(prisma as PrismaService, ledger as LedgerService, config);
@@ -33,7 +33,7 @@ describe('FinanceAdminService.devSeedPayable', () => {
     };
     post = jest.fn().mockResolvedValue({ transactionGroupId: 'grp_dev_1', idempotent: false });
     ledger = { postTransactionGroup: post };
-    service = makeService('stitch_sandbox');
+    service = makeService('development');
   });
 
   it('seeds a balanced hunter_net_payable group for a SUPER_ADMIN in sandbox', async () => {
@@ -56,8 +56,8 @@ describe('FinanceAdminService.devSeedPayable', () => {
     expect(credit.clearanceReleaseAt.getTime()).toBeLessThan(Date.now());
   });
 
-  it('refuses when PAYMENTS_PROVIDER=stitch_live', async () => {
-    service = makeService('stitch_live');
+  it('refuses when NODE_ENV=production', async () => {
+    service = makeService('production');
     await expect(
       service.devSeedPayable(
         { userId: 'hunter_1', faceValueCents: 50_000n },

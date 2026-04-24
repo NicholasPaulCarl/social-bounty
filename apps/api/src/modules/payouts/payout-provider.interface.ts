@@ -1,15 +1,14 @@
-// Provider-agnostic payout interface (ADR 0008, ADR 0009).
+// Provider-agnostic payout interface (ADR 0008, ADR 0009, ADR 0011).
 //
-// StitchPayoutAdapter and TradeSafePayoutAdapter both implement this. The
-// `PayoutProviderFactory` picks the concrete implementation from the
-// `PAYOUT_PROVIDER` env flag so the rest of the payout pipeline (ledger legs,
-// scheduler, retry policy) is provider-unaware.
+// Single-rail cutover (2026-04-24): only `TradeSafePayoutAdapter` implements
+// this. `StitchPayoutAdapter` was deleted along with the Stitch module.
+// `PayoutProviderFactory` resolves directly to the TradeSafe adapter
+// (mock mode when creds absent).
 //
-// This is a scaffolding interface — no call site consumes it yet. The 8
-// `TRADESAFE MIGRATION (ADR 0008)` markers in `payouts.service.ts`,
-// `beneficiary.service.ts`, and `stitch.client.ts` are the future callers.
-// They remain pointing at the Stitch code until the provider-agnostic payout
-// workstream lands (ADR 0010).
+// Outbound payout flow is Phase 4 — `PayoutsService` is currently a stub
+// throwing `NotImplementedException` until the TradeSafe-native payout
+// table + submission-approval trigger land. The interface itself stays
+// as the contract for that future work.
 
 export interface CreateBeneficiaryInput {
   accountHolderName: string;

@@ -57,14 +57,13 @@ export class ReconciliationService {
    *  2. No duplicate (referenceId, actionType) pairs with >1 group.
    *  3. Reserve vs bounty consistency: sum(brand_reserve) per bounty == faceValueCents.
    *  4. Missing legs: every LedgerTransactionGroup has >= 2 LedgerEntry rows.
-   *  5. Status consistency: Bounty.paymentStatus=PAID <=> stitch_payment_settled
+   *  5. Status consistency: Bounty.paymentStatus=PAID <=> BOUNTY_FUNDED_VIA_TRADESAFE
    *     group; Submission.status=APPROVED <=> submission_approved group.
    *  6. Wallet projection drift: cached Wallet.balance (Rand) vs ledger projection
    *     (sum hunter_available credits − debits) per user.
-   *  7. Payouts vs ledger: StitchPaymentLink.status=SETTLED requires a
-   *     matching stitch_payment_settled group; StitchPayout.status=SETTLED
-   *     requires a matching {stitch,tradesafe}_payout_settled group, selected
-   *     by StitchPayout.provider (R32 — per-rail coverage, ADR 0009 §3).
+   *  7. Payouts vs ledger (inbound only, single-rail): TradeSafeTransaction
+   *     in FUNDS_RECEIVED state requires a matching BOUNTY_FUNDED_VIA_TRADESAFE
+   *     group. Outbound payout anti-joins land with Phase 4.
    *
    * All checks are read-only — they never move money — and are therefore
    * Kill-Switch-safe regardless of switch state.
@@ -342,8 +341,8 @@ export class ReconciliationService {
    *
    * Cross-table invariants between business state and the ledger:
    *
-   *   (a) Bounty.paymentStatus='PAID' ⇔ a `stitch_payment_settled` group
-   *       exists for one of the bounty's StitchPaymentLink.stitchPaymentId
+   *   (a) Bounty.paymentStatus='PAID' ⇔ a `BOUNTY_FUNDED_VIA_TRADESAFE` group
+   *       exists for one of the bounty's TradeSafeTransaction.tradeSafeTransactionId
    *       values. Both directions raise a `warning` (not critical — a
    *       transient lag between webhook and DB write can produce the same
    *       symptom; the KB-confidence loop catches recurrence).
@@ -356,9 +355,10 @@ export class ReconciliationService {
   private async checkStatusConsistency(): Promise<ReconciliationFinding[]> {
     const findings: ReconciliationFinding[] = [];
 
-    // (a1) PAID bounty without any stitch_payment_settled group.
-    // Match via StitchPaymentLink.stitchPaymentId (the canonical referenceId
-    // for stitch_payment_settled per BrandFundingHandler).
+    // (a1) PAID bounty without any BOUNTY_FUNDED_VIA_TRADESAFE ledger group.
+    // Match via TradeSafeTransaction.tradeSafeTransactionId — canonical
+    // referenceId written by TradeSafeWebhookHandler.handleFundsReceived
+    // (ADR 0011 single-rail cutover, 2026-04-24).
     const paidWithoutGroup = await this.prisma.$queryRaw<
       { id: string }[]
     >`
@@ -367,12 +367,11 @@ export class ReconciliationService {
        WHERE b."paymentStatus" = 'PAID'::"PaymentStatus"
          AND NOT EXISTS (
            SELECT 1
-             FROM stitch_payment_links spl
+             FROM tradesafe_transactions t
              JOIN ledger_transaction_groups g
-               ON g."referenceId" = spl."stitchPaymentId"
-              AND g."actionType"  = 'stitch_payment_settled'
-            WHERE spl."bountyId" = b.id
-              AND spl."stitchPaymentId" IS NOT NULL
+               ON g."referenceId" = t."tradeSafeTransactionId"
+              AND g."actionType"  = 'BOUNTY_FUNDED_VIA_TRADESAFE'
+            WHERE t."bountyId" = b.id
          )
     `;
     for (const r of paidWithoutGroup) {
@@ -382,25 +381,25 @@ export class ReconciliationService {
         system: 'ledger',
         errorCode: `status-mismatch:bounty:${r.id}`,
         severity: 'warning',
-        title: `Bounty ${r.id} marked PAID but no stitch_payment_settled ledger group exists`,
+        title: `Bounty ${r.id} marked PAID but no BOUNTY_FUNDED_VIA_TRADESAFE ledger group exists`,
         detail: { bountyId: r.id, direction: 'bounty-without-group' },
       });
     }
 
-    // (a2) stitch_payment_settled group without a corresponding PAID bounty.
+    // (a2) BOUNTY_FUNDED_VIA_TRADESAFE group without a corresponding PAID bounty.
     const groupWithoutPaid = await this.prisma.$queryRaw<
       { groupId: string; referenceId: string; bountyId: string | null }[]
     >`
-      SELECT g.id           AS "groupId",
-             g."referenceId" AS "referenceId",
-             spl."bountyId"  AS "bountyId"
+      SELECT g.id              AS "groupId",
+             g."referenceId"   AS "referenceId",
+             t."bountyId"      AS "bountyId"
         FROM ledger_transaction_groups g
-        LEFT JOIN stitch_payment_links spl
-          ON spl."stitchPaymentId" = g."referenceId"
+        LEFT JOIN tradesafe_transactions t
+          ON t."tradeSafeTransactionId" = g."referenceId"
         LEFT JOIN bounties b
-          ON b.id = spl."bountyId"
-       WHERE g."actionType" = 'stitch_payment_settled'
-         AND (spl.id IS NULL OR b."paymentStatus" <> 'PAID'::"PaymentStatus")
+          ON b.id = t."bountyId"
+       WHERE g."actionType" = 'BOUNTY_FUNDED_VIA_TRADESAFE'
+         AND (t.id IS NULL OR b."paymentStatus" <> 'PAID'::"PaymentStatus")
     `;
     for (const r of groupWithoutPaid) {
       const bountyKey = r.bountyId ?? r.referenceId;
@@ -410,10 +409,10 @@ export class ReconciliationService {
         system: 'ledger',
         errorCode: `status-mismatch:bounty:${bountyKey}`,
         severity: 'warning',
-        title: `stitch_payment_settled group ${r.groupId} has no PAID bounty match`,
+        title: `BOUNTY_FUNDED_VIA_TRADESAFE group ${r.groupId} has no PAID bounty match`,
         detail: {
           transactionGroupId: r.groupId,
-          stitchPaymentId: r.referenceId,
+          tradeSafeTransactionId: r.referenceId,
           bountyId: r.bountyId,
           direction: 'group-without-bounty',
         },
@@ -567,37 +566,23 @@ export class ReconciliationService {
   }
 
   /**
-   * Check (7) — Payouts vs ledger (R32).
+   * Check (7) — Payments vs ledger (inbound only, post-ADR-0011).
    *
-   * For every terminal "money moved" row on an outbound / inbound provider,
+   * For every terminal "money arrived" row on the TradeSafe inbound rail,
    * a corresponding ledger group MUST exist:
    *
-   *   StitchPaymentLink.status = SETTLED  ⇒ stitch_payment_settled group
-   *     keyed on `stitchPaymentId`.
-   *   StitchPayout(provider=STITCH, status=SETTLED)     ⇒ stitch_payout_settled
-   *     group keyed on `stitchPayoutId`.
-   *   StitchPayout(provider=TRADESAFE, status=SETTLED)  ⇒ tradesafe_payout_settled
-   *     group keyed on `stitchPayoutId`.
+   *   TradeSafeTransaction.state = FUNDS_RECEIVED  ⇒ BOUNTY_FUNDED_VIA_TRADESAFE
+   *     group, keyed on `tradeSafeTransactionId`.
    *
-   * Both payout arms query the same `stitch_payouts` physical table (the
-   * Option-B rename in ADR 0009 §3 is deferred) but filter on the `provider`
-   * discriminator added by R32. The `TRADESAFE_PAYOUT_SETTLED` action-type is
-   * reserved in `@social-bounty/shared` but no writer emits it yet — R34
-   * wires the handler. Until then the TradeSafe anti-join is empty because
-   * no row has `provider=TRADESAFE` (`PAYOUTS_ENABLED=false`).
+   * The outbound payout anti-join arms were deleted in the 2026-04-24
+   * single-rail cutover along with the `stitch_payouts` table. They'll be
+   * rebuilt against the TradeSafe-native payout table when Phase 4
+   * (submission approval → auto-payout) ships.
    *
-   * NOTE: the spec text uses the phrase "status='PAID'" but the Prisma enums
-   * (`StitchPaymentLinkStatus`, `StitchPayoutStatus`) do not include PAID;
-   * the terminal settlement state is `SETTLED` in both. We use SETTLED to
-   * match the actual schema and runtime values written by
-   * BrandFundingHandler / PayoutsService.
+   * Severity: critical — provider confirmed money arrived but the ledger
+   * has no record (the canonical "money is missing from books" case).
    *
-   * Severity: critical — provider confirmed money moved but the ledger has
-   * no record (the canonical "money is missing from books" case).
-   *
-   * Big-O: O(L + P₁ + P₂) — three index-driven anti-joins with no per-row
-   * work. The new `stitch_payouts_provider_status_idx` (R32 migration)
-   * keeps each payout arm sub-linear on row count.
+   * Big-O: O(T) — one index-driven anti-join over `tradesafe_transactions`.
    */
   private async checkPayoutsVsLedger(): Promise<ReconciliationFinding[]> {
     const findings: ReconciliationFinding[] = [];

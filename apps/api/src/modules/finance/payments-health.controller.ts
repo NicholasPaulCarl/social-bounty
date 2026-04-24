@@ -40,7 +40,11 @@ export class PaymentsHealthController {
 
   @Get()
   async get(): Promise<PaymentsHealthResponse> {
-    const provider = this.config.get<string>('PAYMENTS_PROVIDER', 'tradesafe');
+    // Single-rail architecture (ADR 0011) — TradeSafe is the only payments
+    // provider. The field stays in the health response for UI back-compat
+    // and to flag mock-vs-live explicitly.
+    const mockMode = this.config.get<string>('TRADESAFE_MOCK', 'true') === 'true';
+    const provider = mockMode ? 'tradesafe_mock' : 'tradesafe_live';
 
     const [probe, lastWebhook, killSwitchRow] = await Promise.all([
       this.tradeSafe.probe(),

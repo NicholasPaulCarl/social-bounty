@@ -574,7 +574,7 @@ export class SubmissionVisibilityScheduler {
     }
 
     // Audit-log the trigger regardless of refund success — the human
-    // operator needs the trail of "we tried" even when Stitch errored.
+    // operator needs the trail of "we tried" even when the refund call errored.
     await this.auditService
       .log({
         actorId: systemActorId,
