@@ -239,7 +239,7 @@ need** to partition the sweep today. The one structural risk
 
 Batch 11A landed the four remaining reconciliation checks
 (`checkMissingLegs`, `checkStatusConsistency`,
-`checkWalletProjectionDrift`, `checkStitchVsLedger`). They are all
+`checkWalletProjectionDrift`, `checkStitchVsLedger` — historical name, renamed to `checkPayoutsVsLedger` 2026-04-18). They are all
 **single round-trip set-based scans** that compose with the existing checks
 in `ReconciliationService.run()`. No N+1 loops, no per-row aggregates.
 Big-O and an analytical projection follow; a re-run of `npm run
@@ -249,9 +249,9 @@ bench:recon` against a freshly-seeded DB is deferred to the next batch
 | Check | Big-O | Round-trips | Indexes used | Notes |
 | --- | --- | ---: | --- | --- |
 | `checkMissingLegs` | O(G + E) | 1 | `ledger_entries_transactionGroupId_idx` | LEFT JOIN + GROUP BY g.id; HAVING COUNT < 2. Same shape as `checkGroupBalance`'s GROUP BY (16 ms at 100 k entries in §3) — projected <30 ms at G=25 k / E=100 k. |
-| `checkStatusConsistency` | O(B + S + G) | 4 | `bounties_paymentStatus_idx`, `submissions_status_idx`, `ledger_transaction_groups_referenceId_actionType_uniq`, `stitch_payment_links_bountyId_idx` | Four anti-joins (PAID-without-group, group-without-PAID, APPROVED-without-group, group-without-APPROVED). Postgres uses the unique `(referenceId, actionType)` index for the EXISTS lookups. Projected ~80 ms total at B=10 k / S=20 k / G=25 k. |
+| `checkStatusConsistency` | O(B + S + G) | 4 | `bounties_paymentStatus_idx`, `submissions_status_idx`, `ledger_transaction_groups_referenceId_actionType_uniq`, `stitch_payment_links_bountyId_idx` | Four anti-joins (PAID-without-group, group-without-PAID, APPROVED-without-group, group-without-APPROVED). Postgres uses the unique `(referenceId, actionType)` index for the EXISTS lookups. Projected ~80 ms total at B=10 k / S=20 k / G=25 k. | <!-- historical -->
 | `checkWalletProjectionDrift` | O(U + E_h) | 1 | `wallets_userId_uniq`, `ledger_entries_userId_account_status_idx` | Single CTE: GROUP BY userId on `hunter_available` COMPLETED entries, FULL OUTER JOIN against wallets. Projected ~50 ms at U=50 k wallets and E_h=200 k hunter entries. |
-| `checkStitchVsLedger` | O(L + P) | 2 | `stitch_payment_links_status_idx`, `stitch_payouts_status_nextRetryAt_idx`, `ledger_transaction_groups_referenceId_actionType_uniq` | Two index-driven anti-joins (one per Stitch artefact type). <20 ms for any plausible L+P. |
+| `checkStitchVsLedger` | O(L + P) | 2 | `stitch_payment_links_status_idx`, `stitch_payouts_status_nextRetryAt_idx`, `ledger_transaction_groups_referenceId_actionType_uniq` | Two index-driven anti-joins (one per Stitch artefact type). <20 ms for any plausible L+P. | <!-- historical -->
 
 ### 7.1 Updated end-to-end projection (all 7 checks)
 
@@ -266,7 +266,7 @@ current pre-launch state):
 | `checkMissingLegs` | ~30 ms |
 | `checkStatusConsistency` | ~80 ms |
 | `checkWalletProjectionDrift` | ~50 ms |
-| `checkStitchVsLedger` | <20 ms |
+| `checkStitchVsLedger` (historical name) | <20 ms |
 | **Total `run()` end-to-end** | **~400 ms** |
 
 That is well within the 15-min cron envelope.
@@ -293,7 +293,7 @@ any new check is added.
 ### 7.3 Original "what this benchmark does NOT cover" — historical note
 
 Prior to batch 11A, this section listed `missingLegs`,
-`statusConsistency`, `walletProjectionDrift`, and `stitchVsLedger` as
+`statusConsistency`, `walletProjectionDrift`, and `stitchVsLedger` as <!-- historical -->
 missing. They are now implemented and analytically covered above. To
 produce *measured* numbers for them, expose each as a public method on
 `ReconciliationService` and add a timer to `runBench` in

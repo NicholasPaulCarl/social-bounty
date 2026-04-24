@@ -10,17 +10,17 @@
 See also: `docs/architecture/sitemap.md`, `claude.md` §4.9 Plan Snapshot, `md-files/payment-gateway.md`.
 
 ## Purpose
-Manage the user's subscription tier (FREE vs PRO). Surfaces a tier comparison for FREE users, plus current-plan state + cancel/reactivate for PRO. Live upgrade goes through Stitch hosted card-consent (`initiateUpgrade` → `authorizationUrl` redirect).
+Manage the user's subscription tier (FREE vs PRO). Surfaces a tier comparison for FREE users, plus current-plan state + cancel/reactivate for PRO. Live upgrade goes through Stitch hosted card-consent (`initiateUpgrade` → `authorizationUrl` redirect). <!-- historical -->
 
 ## Entry & exit
 - **Reached from:** Settings nav, notifications (e.g. `SUBSCRIPTION_EXPIRING`), profile completion nudges.
-- **Links out to:** Stitch hosted card-consent URL (external redirect via `window.location.href`). Returns to `/settings/subscription?upgrade=return` after consent.
+- **Links out to:** Stitch hosted card-consent URL (external redirect via `window.location.href`). Returns to `/settings/subscription?upgrade=return` after consent. <!-- historical -->
 
 ## Data
 - **React Query hooks:** `useSubscription()`, `useSubscribe()`, `useInitiateUpgrade()`, `useCancelSubscription()`, `useReactivateSubscription()`, `useSubscriptionPayments({ page, limit })`, `useAuth()`, `useToast()`, `usePagination(10)`, `useQueryClient()`, `useSearchParams()`.
-- **API endpoints called:** `GET /subscription`, `POST /subscription/upgrade` (→ Stitch URL), `POST /subscription` (legacy fallback), `POST /subscription/cancel`, `POST /subscription/reactivate`, `GET /subscription/payments?page=…`.
+- **API endpoints called:** `GET /subscription`, `POST /subscription/upgrade` (→ Stitch URL), `POST /subscription` (legacy fallback), `POST /subscription/cancel`, `POST /subscription/reactivate`, `GET /subscription/payments?page=…`. <!-- historical -->
 - **URL params:** None.
-- **Search params:** `upgrade=return` (post-Stitch return signal).
+- **Search params:** `upgrade=return` (post-Stitch return signal). <!-- historical -->
 
 ## UI structure
 - `PageHeader` + breadcrumb (`Settings > Subscription`).
@@ -41,7 +41,7 @@ Manage the user's subscription tier (FREE vs PRO). Surfaces a tier comparison fo
 ## Primary actions
 | Label | Action | Destination / Effect |
 |-------|--------|----------------------|
-| Upgrade | Opens ConfirmAction → `initiateUpgrade.mutate(PRO)` → `window.location.href = data.authorizationUrl` | Stitch hosted card consent |
+| Upgrade | Opens ConfirmAction → `initiateUpgrade.mutate(PRO)` → `window.location.href = data.authorizationUrl` | Stitch hosted card consent | <!-- historical -->
 | Cancel | Opens ConfirmAction → `cancel.mutate()` | Flags `cancelAtPeriodEnd` |
 | Reactivate | `reactivate.mutate()` | Clears cancellation |
 | View/Hide history | Toggles `showPayments` | Shows DataTable |

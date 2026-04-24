@@ -7,10 +7,10 @@
 **Nav entry:** Sidebar Settings → Payouts.
 **Layout:** `apps/web/src/app/(participant)/layout.tsx`.
 
-See also: `docs/architecture/sitemap.md`, `claude.md` §4 Financial Non-Negotiables, `.claude/skills/DevStitchPayments/SKILL.md` (SA bank list source), `md-files/payment-gateway.md`.
+See also: `docs/architecture/sitemap.md`, `claude.md` §4 Financial Non-Negotiables, `docs/adr/0011-tradesafe-unified-rail.md` (canonical payment spec). (The historical `DevStitchPayments` skill is no longer the SA bank list source post-cutover.)
 
 ## Purpose
-Capture/upsert the hunter's banking details (Stitch beneficiary) that payouts will settle into, and display payout history with retry-state indicators.
+Capture/upsert the hunter's banking details (Stitch beneficiary) that payouts will settle into, and display payout history with retry-state indicators. <!-- historical -->
 
 ## Entry & exit
 - **Reached from:** Sidebar Settings nav.
@@ -31,7 +31,7 @@ Capture/upsert the hunter's banking details (Stitch beneficiary) that payouts wi
   - Save button (disabled unless all fields valid).
 - Payout history Card:
   - Header row with "Refresh" (RefreshCw icon) that calls `payouts.refetch()`.
-  - DataTable (paginator, 20 rows): Status (colored `Tag` via `PAYOUT_STATUS_SEVERITY`), Amount (mono), Initiated, Last attempt, Attempts, Last error (truncated + hover tooltip), Stitch payout ID (mono, truncated).
+  - DataTable (paginator, 20 rows): Status (colored `Tag` via `PAYOUT_STATUS_SEVERITY`), Amount (mono), Initiated, Last attempt, Attempts, Last error (truncated + hover tooltip), Stitch payout ID (mono, truncated). <!-- historical -->
 
 ## States
 - **Loading:** `LoadingState type="table" rows={4} columns={6}`.
@@ -50,7 +50,7 @@ Capture/upsert the hunter's banking details (Stitch beneficiary) that payouts wi
 - **Kill switch + `PAYOUTS_ENABLED`:** outbound payouts are currently inert (`PAYOUTS_ENABLED=false` until TradeSafe live — ADR 0008/0009); the form saves the beneficiary regardless so it's ready once flipped.
 - Validation: name >= 2 chars, bank selected, account number `\d{6,20}`, type set.
 - Payouts run every 10 minutes against cleared earnings.
-- SA banks hard-coded list from `.claude/skills/DevStitchPayments/SKILL.md`.
+- SA banks list is historical — originally sourced from `.claude/skills/DevStitchPayments/SKILL.md`; post-cutover aligns with TradeSafe's `UniversalBranchCode` lookup.
 - Account type options: CURRENT (Cheque) / SAVINGS.
 
 ## Edge cases

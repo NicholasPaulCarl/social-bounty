@@ -24,7 +24,7 @@ Reconciliation findings and recurring issues across the platform. Each row is a 
 ## UI structure
 - `PageHeader` with title "Exceptions", subtitle "Reconciliation findings and recurring issues". Action: Refresh.
 - Filter `<Card>`: two controls — severity `Dropdown` (all / info / warning / critical) and resolved `SelectButton` (all / open / resolved). Right-aligned "Showing X of Y" counter.
-- Results `<Card>` wrapping a paginated `<DataTable>` (25/page), stripedRows.
+- Results `<Card>` wrapping a paginated `<DataTable>` (25/page), stripedRows. <!-- historical -->
 - Columns: Severity (colour-coded Tag via `SEVERITY_MAP`: critical=danger, warning=warning, info=info), Category, Title, Hits (`occurrences` count), Status (Tag — resolved=success, open=warning), First seen (mono datetime), Last seen (mono datetime).
 
 ## States
@@ -49,7 +49,7 @@ Reference CLAUDE.md §4 Financial Non-Negotiables:
 - Kill switch: read-only surface. A finding may **auto-trip** the kill switch (Critical financial-impact) — the Overview page banner and reconciliation-result message call that out. This surface reflects that finding as a row.
 
 Page-specific:
-- Surfaces **all 7 reconciliation checks**' findings (group balance, duplicate detection, missing legs, status consistency, wallet-projection drift, payouts-vs-ledger — formerly Stitch-vs-ledger per R32, reserve-vs-bounty) indirectly via `category` strings that map back to the check names. The same table also holds non-reconciliation recurrences (webhook failures, post-visibility scheduler issues, OAuth issues, etc.) because the KB table is shared.
+- Surfaces **all 7 reconciliation checks**' findings (group balance, duplicate detection, missing legs, status consistency, wallet-projection drift, payouts-vs-ledger — formerly Stitch-vs-ledger per R32, reserve-vs-bounty) indirectly via `category` strings that map back to the check names. The same table also holds non-reconciliation recurrences (webhook failures, post-visibility scheduler issues, OAuth issues, etc.) because the KB table is shared. <!-- historical -->
 - Displays **live** state; polls 30 s.
 - No write operations. Resolution happens via:
   - The reconciliation engine auto-resolving on re-run (when the root cause clears)

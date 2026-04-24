@@ -25,7 +25,7 @@ Refund-request queue across all three scenarios — pre-approval, post-approval,
 
 ## UI structure
 - `PageHeader` with title "Refunds", subtitle "Pre-approval, post-approval, and post-payout refund requests". Actions: Download CSV, Refresh.
-- Single `<Card>` wrapping a 20-row paginated `<DataTable>`, stripedRows.
+- Single `<Card>` wrapping a 20-row paginated `<DataTable>`, stripedRows. <!-- historical -->
 - Columns: Scenario (formatted enum — BEFORE_APPROVAL / AFTER_APPROVAL / AFTER_PAYOUT), State (colour-coded Tag via `STATE_SEVERITY`: REQUESTED=info, APPROVED=warning, PROCESSING=warning, COMPLETED=success, FAILED=danger, REVERSED=warning), Bounty link (truncated id), Amount (mono cents), Reason (free text), Created (mono datetime), Actions.
 - "Approve" button shown only when `state === 'REQUESTED' && scenario === 'BEFORE_APPROVAL'` → opens `<ConfirmAction>` dialog.
 
@@ -40,7 +40,7 @@ Refund-request queue across all three scenarios — pre-approval, post-approval,
 |-------|--------|----------------------|
 | Download CSV | GET `/admin/finance/exports/refunds.csv` | `saveBlob(csvFilename('refunds'))` |
 | Refresh | `refetch()` | Re-query refunds |
-| Approve (per-row, BEFORE_APPROVAL only) | POST `/refunds/{id}/approve-before` | Calls Stitch to process; webhook writes compensating ledger entries on settlement |
+| Approve (per-row, BEFORE_APPROVAL only) | POST `/refunds/{id}/approve-before` | Calls Stitch to process; webhook writes compensating ledger entries on settlement | <!-- historical -->
 | Bounty link | `Link` | `/admin/bounties/{bountyId}` |
 
 ## Business rules
@@ -49,15 +49,15 @@ Reference CLAUDE.md §4 Financial Non-Negotiables:
 - Integer minor units, append-only ledger
 - AuditLog required for every mutation — approve writes `REFUND_APPROVED` AuditLog; later webhook writes the compensating group
 - Plan snapshot per transaction (tier not re-priced) — refund uses the snapshot from the original funding group
-- Global 3.5% fee independent of tier admin fee — Stitch returns the 3.5% to `global_fee_revenue` via compensating entries (refund policy: gateway fee may or may not be recoverable depending on Stitch)
-- Kill switch: refund-approval **honours** the kill switch — compensating writes bypass per ADR 0006, but the **outbound** Stitch refund call is wrapped in the kill-switch check (fail-closed: a stuck refund is better than an unrecoverable one).
+- Global 3.5% fee independent of tier admin fee — Stitch returns the 3.5% to `global_fee_revenue` via compensating entries (refund policy: gateway fee may or may not be recoverable depending on Stitch) <!-- historical -->
+- Kill switch: refund-approval **honours** the kill switch — compensating writes bypass per ADR 0006, but the **outbound** Stitch refund call is wrapped in the kill-switch check (fail-closed: a stuck refund is better than an unrecoverable one). <!-- historical -->
 
 Page-specific:
 - No direct reconciliation check, but refunds are **compensating entries** (ADR 0006) — they're the approved path for post-facto correction. The reconciliation run surfaces any refund whose compensating group didn't land (Exceptions page).
 - Displays **live** state per row; polling is not enabled.
 - Write operations:
   - `approve-before` → mutates `Refund.state` REQUESTED → APPROVED + AuditLog
-  - Compensating ledger write happens async on Stitch webhook
+  - Compensating ledger write happens async on Stitch webhook <!-- historical -->
 
 ## Edge cases
 - Refund in REQUESTED but scenario != BEFORE_APPROVAL — no Approve button (AFTER_APPROVAL / AFTER_PAYOUT flow auto-created and auto-processed by the system, e.g. Phase 2A visibility-failure refunds from ADR 0010).

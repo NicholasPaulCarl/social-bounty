@@ -17,7 +17,7 @@ Cross-references: `docs/deployment/deployment-plan.md`, `docs/INCIDENT-RESPONSE.
 | 0.1 | Hard Rule #4: 100% test pass on `main` | QA / DevOps | Paste-ready output of `npm test --workspaces` showing `api X/X, web Y/Y, 100% green` |
 | 0.2 | Hard Rule #3: every admin action + status change writes `AuditLog` | Backend / QA | Grep confirmation that all new admin controllers are `@Audited(...)` decorated; see `finance-admin.controller.ts` for the pattern |
 | 0.3 | RBAC applied on every new endpoint | Backend / QA | `*.controller.rbac.spec.ts` matrix green; no SUPER_ADMIN-only service method called from a non-admin controller |
-| 0.4 | Stitch Live credentials in prod env | DevOps | `PAYMENTS_PROVIDER=stitch_live`, `STITCH_CLIENT_ID` and `_SECRET` set, `STITCH_WEBHOOK_SECRET` set (Svix verification) |
+| 0.4 | Stitch Live credentials in prod env | DevOps | `PAYMENTS_PROVIDER=stitch_live`, `STITCH_CLIENT_ID` and `_SECRET` set, `STITCH_WEBHOOK_SECRET` set (Svix verification) | <!-- historical -->
 | 0.5 | `BENEFICIARY_ENC_KEY` set and ≥32 chars IF `PAYOUTS_ENABLED=true` | DevOps / Security | Env validation throws at boot if missing — don't disable the check |
 | 0.6 | Outbound payouts gate | Team Lead | EITHER `PAYOUTS_ENABLED=false` (MVP default — see §9 "Accepted gaps") OR TradeSafe live creds signed off (R24 closed) |
 | 0.7 | Financial Kill Switch is set to `false` (inactive) at launch | Ops | `SystemSetting` row `financial.kill_switch.active = 'false'`; ADR 0006 applies |
@@ -32,7 +32,7 @@ If any row above is unchecked, **do not flip the launch DNS**.
 
 - [ ] Full Postgres backup taken within 1h of cutover (ADR 0003 in scope here too — platform custody only).
 - [ ] Latest migration `20260418000000_add_visibility_recheck` applied — confirm via `SELECT COUNT(*) FROM _prisma_migrations` matches the migrations directory.
-- [ ] Seed: super admin only. Do **NOT** run dev-only seeds (`kb-context.ts` is fine; `devSeedPayable` is dev-only per ADR 0006 and refuses to run when `PAYMENTS_PROVIDER=stitch_live` — verify by reading `finance-admin.service.ts:231`).
+- [ ] Seed: super admin only. Do **NOT** run dev-only seeds (`kb-context.ts` is fine; `devSeedPayable` is dev-only per ADR 0006 and refuses to run when `PAYMENTS_PROVIDER=stitch_live` — verify by reading `finance-admin.service.ts:231`). <!-- historical -->
 - [ ] Zero-row check: `SELECT COUNT(*) FROM ledger_entries` should be 0 before first real transaction. Any pre-existing rows indicate a dev-leak into the prod DB.
 - [ ] `BACKUP-STRATEGY.md` retention + restore runbook reviewed in the last 90d.
 
@@ -45,15 +45,15 @@ Every one of these MUST resolve at boot or `env.validation.ts` throws and the ap
 - [ ] `DATABASE_URL` (pooled connection)
 - [ ] `DIRECT_URL` (migration runner connection — Supabase requires both)
 - [ ] `JWT_SECRET` (≥32 chars, unique, NOT the dev default)
-- [ ] `REDIS_URL` (Stitch token cache + webhook replay guard)
+- [ ] `REDIS_URL` (Stitch token cache + webhook replay guard) <!-- historical -->
 
-**Stitch (inbound — LIVE):**
-- [ ] `PAYMENTS_PROVIDER=stitch_live`
-- [ ] `STITCH_CLIENT_ID`, `STITCH_CLIENT_SECRET`
-- [ ] `STITCH_API_BASE=https://express.stitch.money` — same URL for sandbox and live; credentials differentiate the mode. The default in `stitch.client.ts:100` is this URL, and `PAYMENTS_PROVIDER` is what switches sandbox vs live. Don't invent an `api.stitch.money` URL — it will 404.
-- [ ] `STITCH_REDIRECT_URL` (prod FQDN)
-- [ ] `STITCH_WEBHOOK_SECRET` (Svix verification; wrong value silently rejects all webhooks)
-- [ ] `STITCH_SYSTEM_ACTOR_ID` (UUID of a dedicated system user; used by the visibility scheduler's auto-refund path per ADR 0010)
+**Stitch (inbound — LIVE):** <!-- historical -->
+- [ ] `PAYMENTS_PROVIDER=stitch_live` <!-- historical -->
+- [ ] `STITCH_CLIENT_ID`, `STITCH_CLIENT_SECRET` <!-- historical -->
+- [ ] `STITCH_API_BASE=https://express.stitch.money` — same URL for sandbox and live; credentials differentiate the mode. The default in `stitch.client.ts:100` is this URL, and `PAYMENTS_PROVIDER` is what switches sandbox vs live. Don't invent an `api.stitch.money` URL — it will 404. <!-- historical -->
+- [ ] `STITCH_REDIRECT_URL` (prod FQDN) <!-- historical -->
+- [ ] `STITCH_WEBHOOK_SECRET` (Svix verification; wrong value silently rejects all webhooks) <!-- historical -->
+- [ ] `STITCH_SYSTEM_ACTOR_ID` (UUID of a dedicated system user; used by the visibility scheduler's auto-refund path per ADR 0010) <!-- historical -->
 
 **Outbound rail (per §0.6 above):**
 - [ ] If launching with outbound disabled: `PAYOUTS_ENABLED=false`. Confirm no `PAYOUT_PROVIDER` flag flips this.
@@ -76,7 +76,7 @@ Every one of these MUST resolve at boot or `env.validation.ts` throws and the ap
 - [ ] CSP header set (see `next.config.js` — review before flipping DNS).
 - [ ] Rate limiting: `ThrottlerModule` configured with production limits (not dev defaults). OTP endpoints especially — 3 requests / 10 min per IP is roughly the right order of magnitude.
 - [ ] Password-auth: **see `docs/reviews/2026-04-15-team-lead-audit-batch-13.md`** — MVP runs OTP-only; password flow is roadmap. If this is a hard commercial requirement for launch, it's a blocker.
-- [ ] Webhook endpoints: Svix HMAC-SHA256 verification on Stitch + TradeSafe webhooks. Skew ≤5 minutes. Confirm prod `STITCH_WEBHOOK_SECRET` matches what you registered in the Stitch dashboard.
+- [ ] Webhook endpoints: Svix HMAC-SHA256 verification on Stitch + TradeSafe webhooks. Skew ≤5 minutes. Confirm prod `STITCH_WEBHOOK_SECRET` matches what you registered in the Stitch dashboard. <!-- historical -->
 - [ ] POPI/GDPR: user self-service export + deletion paths exist. If the commercial target region has different requirements, flag.
 - [ ] `docs/adr/0010-auto-refund-on-visibility-failure.md` reviewed by Team Lead. The visibility scheduler can auto-refund without a human in the loop; confirm this is commercially acceptable, or toggle `MAX_VISIBILITY_RESCRAPES_PER_BOUNTY` to 0 effectively disabling the cron path until you've watched a week of failures in staging.
 
@@ -92,7 +92,7 @@ These gates come directly from `claude.md` §4 "Financial Non-Negotiables". Ever
 - [ ] **Compensating-entry bypass:** per ADR 0006, ONLY `FinanceAdminService.postOverride` and `devSeedPayable` may set the `PostTransactionGroupInput` kill-switch bypass flag. The pre-commit hook `scripts/check-kill-switch-bypass.sh` enforces this — confirm it runs in CI too.
 - [ ] **Global fee independence:** 3.5% platform fee in `global_fee_revenue` ledger account, separate from tier admin fee. Spot-check a sample transaction.
 - [ ] **Reconciliation engine:** scheduled 15-min cron on prod. Dashboard at `/admin/finance/insights` loads. Kill switch wired.
-- [ ] **ADR 0010 specific:** the visibility scheduler's auto-refund path requires a system user with `STITCH_SYSTEM_ACTOR_ID` set — confirm that user exists in prod DB and has the right role.
+- [ ] **ADR 0010 specific:** the visibility scheduler's auto-refund path requires a system user with `STITCH_SYSTEM_ACTOR_ID` set — confirm that user exists in prod DB and has the right role. <!-- historical -->
 - [ ] **Kill switch read path is fail-closed:** `LedgerService.isKillSwitchActive()` errors on transient DB blips bias toward active. `submission-visibility.scheduler.ts` calls it with `.catch(true)` — verify other consumers do too or add the same guard.
 
 ## 5. Observability & incident response
@@ -111,7 +111,7 @@ These gates come directly from `claude.md` §4 "Financial Non-Negotiables". Ever
     - Flip the kill switch
     - Manually post a compensating entry via `/admin/finance/overrides`
     - Read the reconciliation dashboard
-    - Rotate the Stitch webhook secret (implies a rolling deploy window since in-flight webhooks will fail verification)
+    - Rotate the Stitch webhook secret (implies a rolling deploy window since in-flight webhooks will fail verification) <!-- historical -->
 
 ## 6. Deployment pipeline
 
@@ -127,8 +127,8 @@ These gates come directly from `claude.md` §4 "Financial Non-Negotiables". Ever
 - [ ] Brand KYB flow tested end-to-end with a real brand (not the dev seed).
 - [ ] Hunter self-service account-close flow functional. POPI/GDPR-style delete-my-account should purge PII from `users`, `user_social_handles`, `submission_url_scrapes.scrapeResult` (contains caption + tagged usernames per ADR 0010's PII note), wallets, and trigger a final reconciliation of any in-flight balance.
 - [ ] Subscription tier pricing in `SUBSCRIPTION_CONSTANTS` matches the public pricing page.
-- [ ] Commercial agreement with Stitch is signed and in effect on launch day.
-- [ ] Insurance / chargeback reserve — understand the Stitch dispute process (see `md-files/payment-gateway.md`), and ensure the platform custody account has enough liquidity to cover disputes that land after approval but before clearance.
+- [ ] Commercial agreement with Stitch is signed and in effect on launch day. <!-- historical -->
+- [ ] Insurance / chargeback reserve — understand the Stitch dispute process (see `md-files/payment-gateway.md`), and ensure the platform custody account has enough liquidity to cover disputes that land after approval but before clearance. <!-- historical -->
 
 ## 8. Launch-day procedures
 
@@ -145,8 +145,8 @@ These gates come directly from `claude.md` §4 "Financial Non-Negotiables". Ever
 **T+0:**
 - [ ] DNS cutover OR flip env var to prod.
 - [ ] Tail logs for 10 minutes continuous. Expect ≤0 ERROR lines in that window.
-- [ ] First real transaction: a Team Lead funds a 1 ZAR test bounty through Stitch. Confirm:
-    - Stitch hosted checkout loads
+- [ ] First real transaction: a Team Lead funds a 1 ZAR test bounty through Stitch. Confirm: <!-- historical -->
+    - Stitch hosted checkout loads <!-- historical -->
     - Payment-settled webhook arrives and is `processed` (check `webhook_events` table)
     - Ledger reconciles (0 drift in the Reconciliation dashboard 15 min later)
     - AuditLog row exists
@@ -157,7 +157,7 @@ These gates come directly from `claude.md` §4 "Financial Non-Negotiables". Ever
 **T+24h:**
 - [ ] Reconciliation engine: no `critical` findings in the last 24h.
 - [ ] KB dashboard: no new recurrences under `ledger-imbalance`.
-- [ ] Stitch dashboard: inbound webhook success rate ≥99%.
+- [ ] Stitch dashboard: inbound webhook success rate ≥99%. <!-- historical -->
 - [ ] Apify dashboard: actor-run count matches submission count roughly 1:1 (accounting for cost guard skips).
 
 **T+7d:**
@@ -184,7 +184,7 @@ These are explicitly out of scope per existing ADRs and reviews. The checklist f
 1. Immediately flip the kill switch via `/admin/finance` (audit-logged).
 2. Check `webhook_events` for the failed event; check `ledger_entries` for any partial write.
 3. If a ledger entry landed for the failed transaction: post a compensating entry via `/admin/finance/overrides` (reason ≥10 chars, typed confirmation word per Hard Rule #6).
-4. Restore the Stitch webhook secret if it was rotated.
+4. Restore the Stitch webhook secret if it was rotated. <!-- historical -->
 5. If the issue is code: roll back the deploy. The DB state does NOT roll back — the compensating-entry pattern above is the only way to correct the ledger.
 
 **If reconciliation surfaces a critical finding:**

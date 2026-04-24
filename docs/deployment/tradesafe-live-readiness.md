@@ -9,7 +9,7 @@
 
 ## 1. Executive summary
 
-TradeSafe is the **outbound hunter-payout rail** for Social Bounty (per [ADR 0008](../adr/0008-tradesafe-for-hunter-payouts.md)). Stitch Express remains the inbound rail for brand bounty funding; TradeSafe disburses those funds to hunters from platform custody. The integration is currently **scaffolded, not live**: adapter, webhook controller, env-var slots, module wiring and 1 235 passing tests exist, but every call path is gated by `PAYOUTS_ENABLED=false` and `TradeSafeClient` defaults to mock mode until creds are configured (`apps/api/src/modules/tradesafe/tradesafe.client.ts:41-65`). Flipping to live is blocked on **R24** — TradeSafe commercial onboarding (merchant agreement, KYB, API credentials) — and on a one-time cryptographic setup (`BENEFICIARY_ENC_KEY`) that must be generated and vaulted before `PAYOUTS_ENABLED=true` can ever be set, or the app will refuse to boot (`apps/api/src/modules/payouts/beneficiary.service.ts:41-45`).
+TradeSafe is the **outbound hunter-payout rail** for Social Bounty (per [ADR 0008](../adr/0008-tradesafe-for-hunter-payouts.md)). Stitch Express remains the inbound rail for brand bounty funding; TradeSafe disburses those funds to hunters from platform custody. The integration is currently **scaffolded, not live**: adapter, webhook controller, env-var slots, module wiring and 1 235 passing tests exist, but every call path is gated by `PAYOUTS_ENABLED=false` and `TradeSafeClient` defaults to mock mode until creds are configured (`apps/api/src/modules/tradesafe/tradesafe.client.ts:41-65`). Flipping to live is blocked on **R24** — TradeSafe commercial onboarding (merchant agreement, KYB, API credentials) — and on a one-time cryptographic setup (`BENEFICIARY_ENC_KEY`) that must be generated and vaulted before `PAYOUTS_ENABLED=true` can ever be set, or the app will refuse to boot (`apps/api/src/modules/payouts/beneficiary.service.ts:41-45`). <!-- historical -->
 
 This document is a pre-flight checklist for that flip. It is not an implementation plan — ADR 0010 covers the endpoint catalogue once sandbox credentials land. Every blocker flagged here is actionable; items that cannot be verified from code alone are marked **VERIFY WITH TRADESAFE**.
 
@@ -27,7 +27,7 @@ Engineering is unblocked the moment every row below is signed off. Until then, `
 | 2.4 | Dedicated beneficiary encryption key generated (≥32 chars random, AES-256 key material, NOT derived from `JWT_SECRET`) — see §5 below | DevOps / Security | `BENEFICIARY_ENC_KEY` vault entry + rotation runbook entry acknowledging "first-generation — never to be rotated silently" |
 | 2.5 | TradeSafe dashboard access for ≥2 team members (active directory groups or equivalent) — no single-person dependency | Commercial / IT | TradeSafe-side admin invite + screenshot of member list |
 | 2.6 | SLA + incident escalation contacts documented (24/7 phone, out-of-hours email, severity matrix) | Commercial / DevOps | Added to `docs/INCIDENT-RESPONSE.md` + on-call runbook |
-| 2.7 | Bank account verification: confirm the ZAR business account that receives platform-held escrow residue matches the Stitch inbound receiving account | Commercial / Finance | Bank confirmation letter + TradeSafe-side settlement account screenshot |
+| 2.7 | Bank account verification: confirm the ZAR business account that receives platform-held escrow residue matches the Stitch inbound receiving account | Commercial / Finance | Bank confirmation letter + TradeSafe-side settlement account screenshot | <!-- historical -->
 | 2.8 | Multi-recipient payout API shape confirmed against adapter expectations | Backend / Commercial | See §11 — walk every open question from ADR 0009 §8 to resolution |
 | 2.9 | Ledger account audit: confirm `tradesafe_escrow` account is added or explicitly declined in ADR 0010 (ADR 0009 §7 flags this as a clearance-policy decision) | Architect / Finance | ADR 0010 "Accepted" + migration adding the `LedgerAccount` enum value if in scope |
 
@@ -43,7 +43,7 @@ Each question below must resolve to either **(a)** "answered, cite TradeSafe doc
 | 8.2 | Full TradeSafe API reference documentation | Open — no sandbox docs on file | Backend |
 | 8.3 | Per-transaction vs batch release semantics (affects scheduler loop shape) | Open — affects `PayoutsService.runBatch` / `retryBatch` — `apps/api/src/modules/payouts/payouts.service.ts:65-137, 271-323` | Backend |
 | 8.4 | Dispute-resolution flow interaction with `SubmissionStatus` state machine | Open — no design in code today | Backend + Architect |
-| 8.5 | Reporting / settlements endpoint for reconciliation matching | Open — reconciliation `checkStitchVsLedger` currently only scans Stitch tables (`apps/api/src/modules/reconciliation/reconciliation.service.ts:590-660`). TradeSafe-specific check missing — see §11 | Backend |
+| 8.5 | Reporting / settlements endpoint for reconciliation matching | Open — reconciliation `checkStitchVsLedger` currently only scans Stitch tables (`apps/api/src/modules/reconciliation/reconciliation.service.ts:590-660`). TradeSafe-specific check missing — see §11 | Backend | <!-- historical -->
 | 8.6 | Sandbox credential terms (lifetime, test bank details) | Open — R24 dependency | Commercial |
 | 8.7 | Fee model (per-transaction, monthly minimum, interaction with 3.5% global fee) | Open — possible schema addition (`providerFeeCents` column) | Finance + Backend |
 | 8.8 | Webhook delivery guarantees + signature scheme (Svix vs proprietary HMAC) | Partially answered in code: `TradeSafeWebhookController` assumes Svix-compatible headers (`apps/api/src/modules/webhooks/tradesafe-webhook.controller.ts:62-89`). **VERIFY WITH TRADESAFE** — if proprietary HMAC, a sibling verifier module is required before the controller can be trusted | Backend |
@@ -56,7 +56,7 @@ All values must be configured in the prod secret manager and unique per environm
 
 | Variable | Required for live? | Validated in `env.validation.ts` | Where it flows | Gotcha |
 |---|---|---|---|---|
-| `PAYOUT_PROVIDER` | Yes — set to `tradesafe` | Yes, line 80-82 (`PayoutProvider` enum: `stitch \| tradesafe \| mock`) | `PayoutProviderFactory` constructor, `apps/api/src/modules/payouts/payout-provider.factory.ts:33-48` | Default is `stitch` — selecting `tradesafe` here does NOT enable payouts; `PAYOUTS_ENABLED` is a separate gate (factory comment lines 24-27). Unknown values throw at boot. |
+| `PAYOUT_PROVIDER` | Yes — set to `tradesafe` | Yes, line 80-82 (`PayoutProvider` enum: `stitch \| tradesafe \| mock`) | `PayoutProviderFactory` constructor, `apps/api/src/modules/payouts/payout-provider.factory.ts:33-48` | Default is `stitch` — selecting `tradesafe` here does NOT enable payouts; `PAYOUTS_ENABLED` is a separate gate (factory comment lines 24-27). Unknown values throw at boot. | <!-- historical -->
 | `PAYOUTS_ENABLED` | Yes — `true` | Yes, line 132-134 (`@IsBooleanString`) | `PayoutsScheduler.enabled()`, `ClearanceScheduler` (line 17), `ExpiredBountyScheduler` (line 27), `BeneficiaryService` constructor (line 39) | Default `false`. **No code path auto-flips this** (verified §7). Must be a deliberate env change + deploy. |
 | `TRADESAFE_API_BASE` | Yes | Yes, line 85-86 (`@IsUrl`) | `TradeSafeClient` constructor, `apps/api/src/modules/tradesafe/tradesafe.client.ts:45-48` | Defaults to `https://api.tradesafe.co.za` in code. **VERIFY WITH TRADESAFE** — confirm the live and sandbox URLs; ADR 0009 §8 flags this is currently speculative (R24 in batch 10 audit report). Do NOT guess. |
 | `TRADESAFE_CLIENT_ID` | Yes | Yes, line 88-90 (`@IsOptional @IsString`) | `TradeSafeClient` constructor line 49 | Optional in validation (so dev envs don't need it), but the client's mock-mode guard (lines 51-59) switches to live mode only when both CLIENT_ID + CLIENT_SECRET are set AND `TRADESAFE_MOCK != 'true'`. |
@@ -67,7 +67,7 @@ All values must be configured in the prod secret manager and unique per environm
 | `TRADESAFE_SUCCESS_URL` | Yes (per ADR 0009 §4) | Yes, `env.validation.ts` lines 108-110 | `TradeSafeCallbackController.callback` — 302 target on successful beneficiary-link handoff | Closed 2026-04-18 via R35 commit `7d3629d`. |
 | `TRADESAFE_FAILURE_URL` | Yes (per ADR 0009 §4) | Yes, `env.validation.ts` lines 112-114 | `TradeSafeCallbackController.callback` — 302 target on invalid state / missing code / provider `error` param | Closed 2026-04-18 via R35 commit `7d3629d`. |
 | `BENEFICIARY_ENC_KEY` | Yes — **≥32 chars** when `PAYOUTS_ENABLED=true` | Yes, line 170-176 (`@ValidateIf + @MinLength(32)`) PLUS defence-in-depth throw in `BeneficiaryService` constructor line 41-45 | `BeneficiaryService` constructor | Security-critical. See §5 below for the full treatment. **Flipping `PAYOUTS_ENABLED=true` without this key crashes the app at NestJS module init — this is intentional.** |
-| `STITCH_SYSTEM_ACTOR_ID` | Yes (inherited) | Yes, line 153-155 | `PayoutsService.systemActorId()`, `ReconciliationService.systemActorId()`, `RefundsService` (via `user.sub` for audit logging) | UUID of a real `users` table row. Audit-log FK enforces. Already required pre-TradeSafe — nothing changes. |
+| `STITCH_SYSTEM_ACTOR_ID` | Yes (inherited) | Yes, line 153-155 | `PayoutsService.systemActorId()`, `ReconciliationService.systemActorId()`, `RefundsService` (via `user.sub` for audit logging) | UUID of a real `users` table row. Audit-log FK enforces. Already required pre-TradeSafe — nothing changes. | <!-- historical -->
 
 ### 3.1 Gap summary (§3 items flagged "NO — gap")
 
@@ -117,12 +117,12 @@ Verifier: `SvixVerifier.verify`, `apps/api/src/modules/webhooks/svix.verifier.ts
 
 ### 4.4 Minimum event subscription
 
-**R34 closed 2026-04-18** — `WebhookRouterService.dispatch` now routes three `tradesafe.*` event types to handler methods in `TradeSafeWebhookHandler` (`apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`). Full 5-test matrix lands per CLAUDE.md §5 across all three (happy path, retry idempotent, partial rollback, webhook replay, concurrent writer). Legs mirror the Stitch equivalents exactly — only the `actionType` discriminator differs so reconciliation and audit can tell which provider moved the money.
+**R34 closed 2026-04-18** — `WebhookRouterService.dispatch` now routes three `tradesafe.*` event types to handler methods in `TradeSafeWebhookHandler` (`apps/api/src/modules/tradesafe/tradesafe-webhook.handler.ts`). Full 5-test matrix lands per CLAUDE.md §5 across all three (happy path, retry idempotent, partial rollback, webhook replay, concurrent writer). Legs mirror the Stitch equivalents exactly — only the `actionType` discriminator differs so reconciliation and audit can tell which provider moved the money. <!-- historical -->
 
 | Event family | Status | Handler | Ledger effect |
 |---|---|---|---|
-| `tradesafe.beneficiary.linked` | **Wired (R34)** | `TradeSafeWebhookHandler.onBeneficiaryLinked` | None — pre-financial. Updates `StitchBeneficiary.verifiedAt` + AuditLog + optional `stitchBeneficiaryId` upgrade from `local:<userId>` fallback. |
-| `tradesafe.payout.settled` | **Wired (R34)** | `TradeSafeWebhookHandler.onPayoutSettled` | `payout_in_transit` → `hunter_paid`, `actionType=tradesafe_payout_settled`. Flips `StitchPayout.status=SETTLED` after ledger commit. |
+| `tradesafe.beneficiary.linked` | **Wired (R34)** | `TradeSafeWebhookHandler.onBeneficiaryLinked` | None — pre-financial. Updates `StitchBeneficiary.verifiedAt` + AuditLog + optional `stitchBeneficiaryId` upgrade from `local:<userId>` fallback. | <!-- historical -->
+| `tradesafe.payout.settled` | **Wired (R34)** | `TradeSafeWebhookHandler.onPayoutSettled` | `payout_in_transit` → `hunter_paid`, `actionType=tradesafe_payout_settled`. Flips `StitchPayout.status=SETTLED` after ledger commit. | <!-- historical -->
 | `tradesafe.payout.failed` | **Wired (R34)** | `TradeSafeWebhookHandler.onPayoutFailed` | `payout_in_transit` → `hunter_available` (forward event, NOT ADR 0006 bypass), `actionType=tradesafe_payout_failed`. Bumps attempts/2^N backoff, RETRY_PENDING at attempts ≥ 3. |
 | `tradesafe.payout.created` | Unwired (speculative) | — | Logging only; kept in scope for ADR 0010 to decide whether to store at all. |
 | `tradesafe.payout.escrow_held` | Unwired (speculative) | — | May open a `tradesafe_escrow` account per ADR 0009 §7 — finance-policy decision, deferred to ADR 0010. |
@@ -145,7 +145,7 @@ Every event that mutates the ledger maps to an idempotency-safe handler path wit
 
 ## 5. `BENEFICIARY_ENC_KEY` — generation & storage
 
-This key encrypts hunter bank-account numbers on `stitch_beneficiaries.accountNumberEnc` with AES-256-GCM (`apps/api/src/modules/payouts/beneficiary.service.ts:7, 57, 121-137`). A compromise of this key compromises every stored bank account; treat it at the same level as the database master key.
+This key encrypts hunter bank-account numbers on `stitch_beneficiaries.accountNumberEnc` with AES-256-GCM (`apps/api/src/modules/payouts/beneficiary.service.ts:7, 57, 121-137`). A compromise of this key compromises every stored bank account; treat it at the same level as the database master key. <!-- historical -->
 
 ### 5.1 Generation
 
@@ -159,7 +159,7 @@ openssl rand -hex 32
 openssl rand -base64 48
 ```
 
-Either format satisfies the `@MinLength(32)` validation. Internally `BeneficiaryService` runs `scryptSync(secret, 'stitch-beneficiary', 32)` to stretch to exactly 32 bytes for AES-256 (`beneficiary.service.ts:57`), so the input length only has to be ≥32 chars of entropy.
+Either format satisfies the `@MinLength(32)` validation. Internally `BeneficiaryService` runs `scryptSync(secret, 'stitch-beneficiary', 32)` to stretch to exactly 32 bytes for AES-256 (`beneficiary.service.ts:57`), so the input length only has to be ≥32 chars of entropy. <!-- historical -->
 
 ### 5.2 What NOT to do
 
@@ -171,7 +171,7 @@ Either format satisfies the `@MinLength(32)` validation. Internally `Beneficiary
 
 ### 5.3 Rotation procedure — this is a data-migration event
 
-Because `BENEFICIARY_ENC_KEY` encrypts data at rest, rotating it is NOT a simple env swap. Every existing row in `stitch_beneficiaries.accountNumberEnc` was encrypted with the old key; swapping to a new key immediately breaks every `decryptAccountNumber` call (`beneficiary.service.ts:117-137`).
+Because `BENEFICIARY_ENC_KEY` encrypts data at rest, rotating it is NOT a simple env swap. Every existing row in `stitch_beneficiaries.accountNumberEnc` was encrypted with the old key; swapping to a new key immediately breaks every `decryptAccountNumber` call (`beneficiary.service.ts:117-137`). <!-- historical -->
 
 **Preferred policy: the first-time-generated key is kept forever** unless a documented compromise occurs.
 
@@ -179,7 +179,7 @@ Because `BENEFICIARY_ENC_KEY` encrypts data at rest, rotating it is NOT a simple
 
 1. Generate the new key (as in §5.1). Do not deploy it yet.
 2. Deploy a migration task that:
-   - Reads every `stitch_beneficiaries` row.
+   - Reads every `stitch_beneficiaries` row. <!-- historical -->
    - Decrypts with the old key.
    - Re-encrypts with the new key.
    - Updates the row inside a transaction.
@@ -209,7 +209,7 @@ A one-shot dev-side migration tool does not exist today; writing it is out of sc
 - `PAYOUT_PROVIDER=tradesafe`.
 - `PAYOUTS_ENABLED=false` initially — flip last.
 - All four `TRADESAFE_*` creds + `BENEFICIARY_ENC_KEY` in the prod secret manager.
-- `STITCH_SYSTEM_ACTOR_ID` already provisioned and corresponds to a real `users` row (pre-existing for Stitch; reused here).
+- `STITCH_SYSTEM_ACTOR_ID` already provisioned and corresponds to a real `users` row (pre-existing for Stitch; reused here). <!-- historical -->
 - Database backup taken within the hour (go-live checklist §1).
 
 ### 6.2 The sequence
@@ -219,21 +219,21 @@ A one-shot dev-side migration tool does not exist today; writing it is out of sc
 3. **Verify encryption at rest.** From a read-only prod DB shell:
    ```sql
    SELECT id, "accountNumberEnc"
-     FROM stitch_beneficiaries
+     FROM stitch_beneficiaries <!-- historical -->
     ORDER BY "createdAt" DESC
     LIMIT 1;
    ```
    (Schema name is `accountNumberEnc`, not `encrypted_payload` — the Prisma column lives in `packages/prisma/schema.prisma:1424`.) Output MUST look like three hex strings joined with colons (`<iv_hex>:<tag_hex>:<data_hex>`), NOT like digits. If it looks like a plain account number, abort immediately and investigate.
-4. **Fund a 1 ZAR test bounty via Stitch.** Confirm inbound path still works (existing flow, not TradeSafe). Bounty transitions to `paymentStatus=PAID`, `StitchPaymentLink.status=SETTLED`, ledger group `stitch_payment_settled` exists.
+4. **Fund a 1 ZAR test bounty via Stitch.** Confirm inbound path still works (existing flow, not TradeSafe). Bounty transitions to `paymentStatus=PAID`, `StitchPaymentLink.status=SETTLED`, ledger group `stitch_payment_settled` exists. <!-- historical -->
 5. **Approve a submission against that bounty.** Ledger posts `brand_reserve → hunter_pending → hunter_net_payable`. Hunter sees balance in Pending.
 6. **Wait for clearance.** On the Free plan this is 48 hours (Pro: 0). **Shortcut for the smoke test:** set `CLEARANCE_OVERRIDE_HOURS_FREE=0.0083` (≈30s) as a DEV-only one-time deploy — the env var is already wired (`env.validation.ts:107-111`) and respected by `ClearanceService`. Use this ONLY in a controlled window and revert the override immediately after the test — leaving it in prod would eliminate the chargeback buffer permanently. (If `ClearanceService` respects the override in staging but not prod, fall back to the 48h wait — correctness over convenience.) Once clearance elapses, `ClearanceScheduler` moves `hunter_net_payable → hunter_available`.
 7. **Flip `PAYOUTS_ENABLED=true`** + rolling-deploy API containers. Watch the `BeneficiaryService` constructor log line — if the env wire is wrong the app will throw at boot (intentional).
-8. **Wait for `PayoutsScheduler.execute`** (every 10 minutes, `payouts.scheduler.ts:19`). Confirm a row appears in `stitch_payouts` with `status=CREATED` → `INITIATED`.
+8. **Wait for `PayoutsScheduler.execute`** (every 10 minutes, `payouts.scheduler.ts:19`). Confirm a row appears in `stitch_payouts` with `status=CREATED` → `INITIATED`. <!-- historical -->
 9. **Verify TradeSafe received the payout.** Cross-check on the TradeSafe dashboard: the payout should appear in the outbound queue.
-10. **Webhook arrives.** `POST /api/v1/webhooks/tradesafe` hits the controller; Svix verification passes; `WebhookEvent` row lands with `provider='TRADESAFE'`; router dispatches to `TradeSafeWebhookHandler.onPayoutSettled` (R34 wired 2026-04-18). Handler posts `payout_in_transit → hunter_paid` with `actionType=tradesafe_payout_settled` and flips `StitchPayout.status=SETTLED`. If the smoke test hits an unknown event name (`TODO(R34)` items), the router logs "no handler wired for tradesafe event …" — confirm which event TradeSafe actually emits and patch the arm before continuing.
+10. **Webhook arrives.** `POST /api/v1/webhooks/tradesafe` hits the controller; Svix verification passes; `WebhookEvent` row lands with `provider='TRADESAFE'`; router dispatches to `TradeSafeWebhookHandler.onPayoutSettled` (R34 wired 2026-04-18). Handler posts `payout_in_transit → hunter_paid` with `actionType=tradesafe_payout_settled` and flips `StitchPayout.status=SETTLED`. If the smoke test hits an unknown event name (`TODO(R34)` items), the router logs "no handler wired for tradesafe event …" — confirm which event TradeSafe actually emits and patch the arm before continuing. <!-- historical -->
 11. **Hunter's bank account receives the R~1** (minus TradeSafe fees — see 8.7 above). Real-money confirmation: ask the hunter to screenshot the SMS / bank-statement entry.
 12. **Ledger verification.** Confirm the `tradesafe_payout_settled` ledger group exists, balances, and references the TradeSafe payout id. Verify the `payout_in_transit → hunter_paid` double-entry.
-13. **Reconciliation dashboard.** The next 15-min recon tick should show zero critical findings. If it trips a `stitch-ledger-gap` (because the legacy check scans only Stitch-named tables — see §9 + §11), expect this until the TradeSafe reconciliation check lands.
+13. **Reconciliation dashboard.** The next 15-min recon tick should show zero critical findings. If it trips a `stitch-ledger-gap` (because the legacy check scans only Stitch-named tables — see §9 + §11), expect this until the TradeSafe reconciliation check lands. <!-- historical -->
 14. **Refund path for the test money.** Post a compensating entry via `/admin/finance/overrides` (not a production refund — just returning the 1 ZAR to the brand so the books tie out) with reason "TradeSafe live smoke test — refund to brand".
 15. **Flip `PAYOUTS_ENABLED=false` again** if additional smoke-run iterations are needed, or keep it on if all 14 steps above are clean.
 
@@ -262,7 +262,7 @@ ADR 0009 §10 "Rollout plan" — Phase 3 — explicitly documents: `PAYOUTS_ENAB
 
 ### 7.2 Flood risk when flipped on after a period being off
 
-Yes — if the flag is off for a period and clearance has been accumulating, the first `PayoutsScheduler.execute` tick after the flip will walk `eligibleBeneficiaries` (up to `batchSize=100` per call) and initiate payouts for everyone whose `hunter_available` balance exceeds `STITCH_MIN_PAYOUT_CENTS`. With 10-minute cron cadence and a 100-per-tick cap, the ramp is ~600 payouts/hour worst-case.
+Yes — if the flag is off for a period and clearance has been accumulating, the first `PayoutsScheduler.execute` tick after the flip will walk `eligibleBeneficiaries` (up to `batchSize=100` per call) and initiate payouts for everyone whose `hunter_available` balance exceeds `STITCH_MIN_PAYOUT_CENTS`. With 10-minute cron cadence and a 100-per-tick cap, the ramp is ~600 payouts/hour worst-case. <!-- historical -->
 
 **Mitigations if the build-up is large:**
 - Temporarily lower `batchSize` by editing the scheduler's `runBatch()` call — not an env var today, would need a small PR.
@@ -288,7 +288,7 @@ Two independent gates on the outbound rail:
 ### 8.2 Financial Kill Switch (`SystemSetting.financial.kill_switch.active`)
 
 - Blocks **all ledger writes** via `LedgerService.postTransactionGroup` unless `allowDuringKillSwitch=true` is set on the call.
-- Only two call sites use the bypass (ADR 0006 §"Scope"): `FinanceAdminService.postOverride` and `devSeedPayable` (dev-only, refuses to run under `stitch_live`).
+- Only two call sites use the bypass (ADR 0006 §"Scope"): `FinanceAdminService.postOverride` and `devSeedPayable` (dev-only, refuses to run under `stitch_live`). <!-- historical -->
 - Auto-activated by `ReconciliationService.run` on any `critical` finding (`reconciliation.service.ts:99-144`).
 - Manually activated / released via the Finance admin dashboard.
 
@@ -298,7 +298,7 @@ Two independent gates on the outbound rail:
 |---|---|---|
 | `false` | `false` | Current MVP default. Inbound works, ledger writes work, no outbound disbursement. |
 | `true` | `false` | Live payouts. TradeSafe adapter active. |
-| `true` | `true` | **TradeSafe would accept the payout, but the ledger refuses the `payout_initiated` group.** `PayoutsService.initiatePayout` at `payouts.service.ts:143-266` posts a ledger group BEFORE calling `stitch.createPayout` — the ledger post throws a `KillSwitchActiveError` and the scheduler marks the attempt failed. Money stays in `hunter_available`. Correct behaviour. |
+| `true` | `true` | **TradeSafe would accept the payout, but the ledger refuses the `payout_initiated` group.** `PayoutsService.initiatePayout` at `payouts.service.ts:143-266` posts a ledger group BEFORE calling `stitch.createPayout` — the ledger post throws a `KillSwitchActiveError` and the scheduler marks the attempt failed. Money stays in `hunter_available`. Correct behaviour. | <!-- historical -->
 | `false` | `true` | Nothing moves. Belt-and-braces. |
 
 ### 8.4 ADR 0010 auto-refund interaction
@@ -306,9 +306,9 @@ Two independent gates on the outbound rail:
 `ADR 0010` (Auto-Refund on PostVisibility Failure) triggers `RefundService.requestAfterApproval` after two consecutive visibility failures. The refund path at `apps/api/src/modules/refunds/refunds.service.ts:149-289`:
 
 - Posts a **compensating** ledger group (`actionType: 'refund_processed'`, reversing earnings split and returning funds to `brand_reserve`) — this is one of the scenarios ADR 0006 covers.
-- Calls `this.stitch.createRefund(settledLink.stitchPaymentId, faceValue, ...)` at line 271 to reverse the ORIGINAL Stitch INBOUND payment.
+- Calls `this.stitch.createRefund(settledLink.stitchPaymentId, faceValue, ...)` at line 271 to reverse the ORIGINAL Stitch INBOUND payment. <!-- historical -->
 
-**Critical observation:** the refund path does NOT call TradeSafe. It reverses the inbound Stitch payment at source. TradeSafe is never involved in auto-refunds for submissions where the hunter hasn't been paid yet. This is the correct model — TradeSafe is only invoked for outbound hunter payouts, not for brand-side reversal. Verify this chain end-to-end in the smoke test (§6) by deliberately triggering a visibility-failure scenario once the live path is stable.
+**Critical observation:** the refund path does NOT call TradeSafe. It reverses the inbound Stitch payment at source. TradeSafe is never involved in auto-refunds for submissions where the hunter hasn't been paid yet. This is the correct model — TradeSafe is only invoked for outbound hunter payouts, not for brand-side reversal. Verify this chain end-to-end in the smoke test (§6) by deliberately triggering a visibility-failure scenario once the live path is stable. <!-- historical -->
 
 **Exception:** if the hunter has ALREADY been paid (`submission.payout?.paidAt` exists — line 161), `requestAfterApproval` throws `BadRequestException('Submission has been paid out; use after-payout endpoint')`. The after-payout refund path (not read in detail here) would need TradeSafe-side coordination to recall disbursed funds — which TradeSafe typically does NOT support. This is a finance-policy boundary: once TradeSafe has released to the hunter's bank, the platform cannot claw it back automatically. Manual recovery only. **Flag this as a commercial-terms question for TradeSafe: what is the recall window, if any?**
 
@@ -324,11 +324,11 @@ Minimum alert surface at go-live. Integrate with Sentry (existing `SENTRY_DSN`) 
 
 | Metric | Threshold | Evidence path | Notes |
 |---|---|---|---|
-| Payout success rate (settled / total) | Warning <95%, Critical <90% rolling 24h | `stitch_payouts.status` counts (table is provider-generic per ADR 0009 §3 Option B; name may change) | Gaming this metric requires webhook arrival — if webhooks are stalled the numerator stays artificially low. Pair with 9.3. |
-| Payout latency (created → settled) | Warning p95 >24h, Critical >48h | `stitch_payouts.createdAt` vs `SETTLED` status timestamp | TradeSafe SLA here is **VERIFY WITH TRADESAFE** — depends on escrow dwell time and disbursement cadence. |
+| Payout success rate (settled / total) | Warning <95%, Critical <90% rolling 24h | `stitch_payouts.status` counts (table is provider-generic per ADR 0009 §3 Option B; name may change) | Gaming this metric requires webhook arrival — if webhooks are stalled the numerator stays artificially low. Pair with 9.3. | <!-- historical -->
+| Payout latency (created → settled) | Warning p95 >24h, Critical >48h | `stitch_payouts.createdAt` vs `SETTLED` status timestamp | TradeSafe SLA here is **VERIFY WITH TRADESAFE** — depends on escrow dwell time and disbursement cadence. | <!-- historical -->
 | Beneficiary-link OAuth completion rate | Warning <85% | `audit_logs` rows with `action='TRADESAFE_BENEFICIARY_LINK_CALLBACK'` vs initiate-side counter (not yet wired — ADR 0010) | Route implemented 2026-04-18 (R33, commit `440346a`). Initiate counter + comparison query land with ADR 0010 once the initiate endpoint + state issuance are specified. |
 | Webhook success rate | Warning <99%, Critical <97% | `webhook_events` where `provider='TRADESAFE'` — `processed=true` / total | Replay guard adds `duplicate=true` rows that should not count as failures. |
-| Reconciliation `tradesafe-vs-ledger` gap | Any row surfaced → critical alert | **MISSING — reconciliation gap** — see §11 | Currently `ReconciliationService.checkStitchVsLedger` (`reconciliation.service.ts:590-660`) scans only `stitch_payment_links` + `stitch_payouts`. A TradeSafe-named equivalent (or, if Option B lands, a provider-aware rewrite) MUST be in place before go-live. This is a blocker. |
+| Reconciliation `tradesafe-vs-ledger` gap | Any row surfaced → critical alert | **MISSING — reconciliation gap** — see §11 | Currently `ReconciliationService.checkStitchVsLedger` (`reconciliation.service.ts:590-660`) scans only `stitch_payment_links` + `stitch_payouts`. A TradeSafe-named equivalent (or, if Option B lands, a provider-aware rewrite) MUST be in place before go-live. This is a blocker. | <!-- historical -->
 | TradeSafe API 5xx rate | Warning >1%, Critical >5% | `TradeSafeClient.fetchWithRetry` already retries 5xx — surface via Sentry breadcrumb | Pair with payout failure-rate alert. |
 | `TradeSafeClient` token cache misses | Informational — spike >10× baseline | Redis key `tradesafe:token:v1` — `TTL` observability | A sustained miss rate indicates OAuth credential rotation or upstream token-endpoint degradation. |
 
@@ -375,7 +375,7 @@ The following items are **live blockers** for cutover. Every one must be closed 
 
 **Gap.** Adapter's call shape (`TradeSafeClient.initiatePayout` at `tradesafe.client.ts:134-159`) posts to `/api/v1/payouts` with `{amount, beneficiaryId, merchantReference}`. ADR 0009 §8-2 marks the endpoint path + request shape as speculative; the adapter comment explicitly says "concrete endpoint paths and request/response shapes are stubs until ADR 0010 lands (post-sandbox)" (`tradesafe.client.ts:26-27`). **Action:** walk every TradeSafe endpoint the adapter expects against sandbox. Open question #8.3 (per-transaction vs batch) changes scheduler shape — a batch semantic breaks the current per-user loop in `PayoutsService.runBatch` at lines 65-137.
 
-### 11.3 "Peach Payments" references — cosmetic only, must stay dead
+### 11.3 "Peach Payments" references — cosmetic only, must stay dead <!-- historical -->
 
 **Verified.** No live-code references to Peach exist. Grep `md-files/`, `apps/api/`, `apps/web/` for "Peach" confirms all hits are in (a) ADRs 0007/0008 documenting the supersession or (b) historical comments pointing at "TRADESAFE MIGRATION (ADR 0008)" markers (`payouts.service.ts` lines 61-63, 139-142, 268-270, 325-327, 374-376, etc., `beneficiary.service.ts:60-64`). ADR 0008 supersedes ADR 0007. No action needed — mentioned only so the §0.6 gate in the go-live checklist is not mistakenly interpreted as requiring Peach.
 
@@ -385,12 +385,12 @@ The following items are **live blockers** for cutover. Every one must be closed 
 
 ### 11.5 Reconciliation coverage for TradeSafe — blocker
 
-**Gap.** `ReconciliationService.checkStitchVsLedger` (`reconciliation.service.ts:590-660`) scans ONLY `stitch_payment_links` (inbound) and `stitch_payouts` (outbound). Both queries use `FROM stitch_payouts sp WHERE sp.status = 'SETTLED'` and match against `actionType = 'stitch_payout_settled'`. When TradeSafe is live and the outbound path writes through the TradeSafe adapter, the ledger `actionType` will differ (ADR 0010 names it, likely `tradesafe_payout_settled` or a provider-agnostic `payout_settled`), and either:
+**Gap.** `ReconciliationService.checkStitchVsLedger` (`reconciliation.service.ts:590-660`) scans ONLY `stitch_payment_links` (inbound) and `stitch_payouts` (outbound). Both queries use `FROM stitch_payouts sp WHERE sp.status = 'SETTLED'` and match against `actionType = 'stitch_payout_settled'`. When TradeSafe is live and the outbound path writes through the TradeSafe adapter, the ledger `actionType` will differ (ADR 0010 names it, likely `tradesafe_payout_settled` or a provider-agnostic `payout_settled`), and either: <!-- historical -->
 
-- The same `stitch_payouts` table is reused with a `provider` discriminator (ADR 0009 §3 Option B — recommended but not yet migrated), OR
+- The same `stitch_payouts` table is reused with a `provider` discriminator (ADR 0009 §3 Option B — recommended but not yet migrated), OR <!-- historical -->
 - A new `tradesafe_payouts` table exists (Option A).
 
-Either way, `checkStitchVsLedger` needs a TradeSafe arm OR a provider-agnostic rewrite. **Without this check, a SETTLED TradeSafe payout with no ledger group would not raise a critical finding — which is the canonical "money missing from books" case. This is a blocker for go-live.** Action owner: Backend + Architect, in the PR that implements ADR 0010.
+Either way, the reconciliation check (historical name `checkStitchVsLedger`, renamed to `checkPayoutsVsLedger` 2026-04-18) needs a TradeSafe arm OR a provider-agnostic rewrite. **Without this check, a SETTLED TradeSafe payout with no ledger group would not raise a critical finding — which is the canonical "money missing from books" case. This is a blocker for go-live.** Action owner: Backend + Architect, in the PR that implements ADR 0010.
 
 ### 11.6 Webhook router TradeSafe dispatch arms
 
@@ -405,7 +405,7 @@ Residual work (blocked on TradeSafe sandbox docs, not engineering): verify event
 - `@Public()` — no `JwtAuthGuard`; the hunter's browser lands here from TradeSafe without our bearer token.
 - Validates `code` + `state` query params. State runs through `isValidStateParam` (length 8..512, `[A-Za-z0-9._:\-=+/]+` only) to reject URL / script / control-char tampering shapes.
 - Persists the callback payload to `webhook_events` with `provider='TRADESAFE'`, `externalEventId=<state>`, distinct `eventType='tradesafe.beneficiary_link_callback'`. Replay via `UNIQUE(provider, externalEventId)` short-circuits to success with no duplicate AuditLog.
-- Writes an `AuditLog` row with `action='TRADESAFE_BENEFICIARY_LINK_CALLBACK'`. Actor is `STITCH_SYSTEM_ACTOR_ID` — ADR 0010 will upgrade this to the real hunter user id once the state → userId lookup lands.
+- Writes an `AuditLog` row with `action='TRADESAFE_BENEFICIARY_LINK_CALLBACK'`. Actor is `STITCH_SYSTEM_ACTOR_ID` — ADR 0010 will upgrade this to the real hunter user id once the state → userId lookup lands. <!-- historical -->
 - 302 to `TRADESAFE_SUCCESS_URL` on happy path / replay; to `TRADESAFE_FAILURE_URL` on invalid state / missing code / provider `error` param / DB error.
 - NOT kill-switch-gated (hunter mid-flow; blocking the redirect strands them). NOT routed through `WebhookRouterService` (this is an OAuth return leg, not an async webhook).
 - Defence-in-depth: if `TRADESAFE_SUCCESS_URL` / `TRADESAFE_FAILURE_URL` are unset at request time (should be impossible after R35), throws `InternalServerErrorException` rather than 302-ing to "undefined".
@@ -426,7 +426,7 @@ Pre-flip smoke test (§6.2 step 2) can now exercise the route end-to-end against
 |---|---|---|---|---|---|
 | R24 | TradeSafe live creds + commercial onboarding — external blocker | **High** | **Open** — no change since batch 10 audit | Commercial | §2 rows 2.1–2.4 signed + ADR 0010 accepted |
 | R31 **(new)** | Webhook signing scheme unverified | Medium | **Open** | Backend | §11.1 resolved against TradeSafe docs |
-| R32 **(new)** | `checkStitchVsLedger` does not cover TradeSafe payouts (reconciliation gap) | **High** | **Open** — blocker | Backend + Architect | §11.5 resolved in ADR 0010 implementation PR; fault-injection test added |
+| R32 **(new)** | `checkStitchVsLedger` (historical name) does not cover TradeSafe payouts (reconciliation gap) | **High** | **Open** — blocker | Backend + Architect | §11.5 resolved in ADR 0010 implementation PR; fault-injection test added |
 | R33 **(new)** | `/api/v1/auth/tradesafe/callback` not implemented | Medium | **Closed 2026-04-18** — commits `440346a` + `04d3c31` (`TradeSafeCallbackController` + module registration). End-to-end smoke on sandbox pending per §6 step 2; `VERIFY_WITH_TRADESAFE` callouts remain for signature scheme + state-param scheme (future TradeSafe-OAuth ADR). | Backend | Route implemented; smoke-test against sandbox + future ADR pins the signature / state-param scheme |
 | R34 **(new)** | `WebhookRouterService` has no `tradesafe.*` dispatch arms | **High** | **Closed 2026-04-18** — router arms + `TradeSafeWebhookHandler` with full 5-test matrix. Residual: verify event-name strings against sandbox (`TODO(R34)` markers in source). | Backend | §11.6 closed |
 | R35 **(new)** | TradeSafe env vars (`TRADESAFE_OAUTH_REDIRECT_URL` / `_SUCCESS_URL` / `_FAILURE_URL`) not boot-validated | Low | **Closed 2026-04-18** — commit `7d3629d` (validation + `.env.example`) | Backend | — |
@@ -458,10 +458,10 @@ Six signatures minimum. ADR 0010 must be in `Accepted` state before any of them 
 
 - `docs/adr/0008-tradesafe-for-hunter-payouts.md` — decision that TradeSafe is the outbound rail
 - `docs/adr/0009-tradesafe-integration-skeleton.md` — schema direction + env-var contract + open questions
-- `docs/adr/0010-auto-refund-on-visibility-failure.md` — ADR 0010 (auto-refund path — reverses Stitch inbound, NOT TradeSafe outbound)
+- `docs/adr/0010-auto-refund-on-visibility-failure.md` — ADR 0010 (auto-refund path — reverses Stitch inbound, NOT TradeSafe outbound) <!-- historical -->
 - `docs/adr/0006-compensating-entries-bypass-kill-switch.md` — kill-switch bypass scope
 - `docs/adr/0005-ledger-idempotency-via-header-table.md` — `UNIQUE(referenceId, actionType)` idempotency
-- `docs/STITCH-IMPLEMENTATION-STATUS.md` — implementation log; see "Out of scope per ADR 0008" section
+- `docs/STITCH-IMPLEMENTATION-STATUS.md` — implementation log; see "Out of scope per ADR 0008" section <!-- historical -->
 - `docs/deployment/go-live-checklist.md` — §0.6 outbound-rail gate, §4 financial readiness
 - `docs/deployment/deployment-plan.md` — containers, migrations, rollback
 - `claude.md` §4 Financial Non-Negotiables, §"Open risks" (R24)

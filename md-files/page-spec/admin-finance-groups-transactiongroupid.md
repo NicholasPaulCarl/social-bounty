@@ -33,7 +33,7 @@ Full transaction-group drill-down: header metadata, all ledger entries (debits +
 - Group header `<Card>`:
   - 4-up responsive grid: Reference ID (mono, break-all), Action (Tag), Created (mono datetime), + optional description row below.
 - Ledger entries `<Card title="Ledger entries">`:
-  - `<DataTable>` stripedRows. Columns: Account (mono xs), Type (Tag — DEBIT=danger, CREDIT=success), Amount (mono cents), External reference (mono xs or `—`), Links (stacked mini-links for user / brand / bounty / submission — all 8-char id slices).
+  - `<DataTable>` stripedRows. Columns: Account (mono xs), Type (Tag — DEBIT=danger, CREDIT=success), Amount (mono cents), External reference (mono xs or `—`), Links (stacked mini-links for user / brand / bounty / submission — all 8-char id slices). <!-- historical -->
 - Audit log `<Card title="Audit log">`:
   - If `auditLog === null`: "No audit log entry for this transaction group."
   - Otherwise a 3-up grid: Actor (id or `system`, with role chip), Action (plain label), When (mono datetime). Optional Reason block. Two `<JsonBlock>`s: "Before" and "After" state. JsonBlock collapses at > 400 chars with Expand/Collapse button.

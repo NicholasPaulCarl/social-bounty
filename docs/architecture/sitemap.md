@@ -6,7 +6,7 @@ Canonical map of every page in `apps/web/src/app/` and every HTTP endpoint expos
 
 **Nav column legend.** `✓` = reachable from `navigation.ts`. `→` = deep-link only, reached from another page (expected). `○` = orphan / unreachable, flag for review.
 
-**API prefix.** Every controller path is served under the global `/api/v1` prefix set in [`apps/api/src/main.ts:72`](../../apps/api/src/main.ts). Svix-verified webhooks (`POST /api/v1/webhooks/stitch`, `POST /api/v1/webhooks/tradesafe`) use `@Public()` by design — signature verification replaces JWT auth.
+**API prefix.** Every controller path is served under the global `/api/v1` prefix set in [`apps/api/src/main.ts:72`](../../apps/api/src/main.ts). Svix-verified webhooks (`POST /api/v1/webhooks/stitch`, `POST /api/v1/webhooks/tradesafe`) use `@Public()` by design — signature verification replaces JWT auth. <!-- historical -->
 
 ---
 
@@ -70,7 +70,7 @@ Routes outside `AuthGuard`. Marketing layout is `(marketing)/layout.tsx`; auth s
 | `/business/dashboard` | Brand dashboard (active bounties, pending reviews) | ✓ | `business/dashboard/page.tsx` |
 | `/business/bounties` | Manage brand's bounties | ✓ | `business/bounties/page.tsx` |
 | `/business/bounties/new` | Create-bounty form | → | `business/bounties/new/page.tsx` |
-| `/business/bounties/funded` | Stitch hosted-checkout return page (funding status poll) | → | `business/bounties/funded/page.tsx` |
+| `/business/bounties/funded` | Stitch hosted-checkout return page (funding status poll) | → | `business/bounties/funded/page.tsx` | <!-- historical -->
 | `/business/bounties/[id]` | Bounty detail / edit-or-go-live | → | `business/bounties/[id]/page.tsx` |
 | `/business/bounties/[id]/edit` | Edit draft bounty | → | `business/bounties/[id]/edit/page.tsx` |
 | `/business/bounties/[id]/submissions` | Submissions for a single bounty | → | `business/bounties/[id]/submissions/page.tsx` |
@@ -128,7 +128,7 @@ Routes outside `AuthGuard`. Marketing layout is `(marketing)/layout.tsx`; auth s
 | `/admin/finance/groups/[transactionGroupId]` | Ledger transaction-group drill-down | → | `admin/finance/groups/[transactionGroupId]/page.tsx` |
 | `/admin/audit-logs` | Platform audit log | ✓ | `admin/audit-logs/page.tsx` |
 | `/admin/audit-logs/[id]` | Single audit entry | → | `admin/audit-logs/[id]/page.tsx` |
-| `/admin/payments-health` | Stitch token probe, last webhook | ✓ | `admin/payments-health/page.tsx` |
+| `/admin/payments-health` | Stitch token probe, last webhook | ✓ | `admin/payments-health/page.tsx` | <!-- historical -->
 | `/admin/troubleshooting` | System health + recent errors | ✓ | `admin/troubleshooting/page.tsx` |
 | `/admin/settings` | Global toggles (signups, submissions) | ✓ | `admin/settings/page.tsx` |
 | `/admin/component-library` | Design-system reference (atoms / molecules / organisms) | ✓ | `admin/component-library/page.tsx` |
@@ -152,7 +152,7 @@ None found. Every href in `navigation.ts` resolves to an existing `page.tsx`. Ve
 ### Orphan / out-of-nav observations
 
 - `/create-brand` — reached via signup flow and profile CTAs, not in any nav section. Expected (it's a one-time flow).
-- `/business/bounties/funded` — Stitch hosted-checkout return URL. Not in nav by design (external redirect target only).
+- `/business/bounties/funded` — Stitch hosted-checkout return URL. Not in nav by design (external redirect target only). <!-- historical -->
 - `/admin/finance/payouts`, `/admin/finance/subscriptions` — present but not in the Finance sub-nav; reached from Earnings & Payouts / Subscription drill-downs.
 - All `/profile` variants (`/profile`, `/business/profile`, `/admin/profile`) coexist intentionally — each role's own profile page uses role-appropriate chrome.
 
@@ -327,7 +327,7 @@ Controller-level `@Roles(SUPER_ADMIN)` on all three.
 
 | Method | Path | Guard(s) | Purpose |
 |--------|------|---------|---------|
-| GET | `/api/v1/admin/payments-health` | SUPER_ADMIN | Stitch token probe, last webhook, creds hashes |
+| GET | `/api/v1/admin/payments-health` | SUPER_ADMIN | Stitch token probe, last webhook, creds hashes | <!-- historical -->
 
 ### health (`health.controller.ts`)
 
@@ -363,10 +363,10 @@ Controller-level `@Roles(SUPER_ADMIN)` on all three.
 
 | Method | Path | Guard(s) | Purpose |
 |--------|------|---------|---------|
-| POST | `/api/v1/bounties/:bountyId/fund` | BUSINESS_ADMIN, SUPER_ADMIN, audited | Kick off Stitch hosted checkout |
+| POST | `/api/v1/bounties/:bountyId/fund` | BUSINESS_ADMIN, SUPER_ADMIN, audited | Kick off Stitch hosted checkout | <!-- historical -->
 | GET | `/api/v1/payments/funding-status` | BUSINESS_ADMIN, SUPER_ADMIN | Poll funding status post-redirect |
-| POST | `/api/v1/bounties/:bountyId/payment-intent` | BUSINESS_ADMIN, SUPER_ADMIN | Legacy Stripe payment intent |
-| POST | `/api/v1/webhooks/stripe` | `@Public`, Stripe-signature-verified | Legacy Stripe webhook |
+| POST | `/api/v1/bounties/:bountyId/payment-intent` | BUSINESS_ADMIN, SUPER_ADMIN | Legacy Stripe payment intent | <!-- historical -->
+| POST | `/api/v1/webhooks/stripe` | `@Public`, Stripe-signature-verified | Legacy Stripe webhook | <!-- historical -->
 
 ### payouts (`payouts.controller.ts`)
 
@@ -460,14 +460,14 @@ Controller-level `@Roles(SUPER_ADMIN)` on all three.
 | PATCH | `/api/v1/admin/withdrawals/:id/complete` | SUPER_ADMIN | Complete + proof URL |
 | PATCH | `/api/v1/admin/withdrawals/:id/fail` | SUPER_ADMIN | Fail + reason |
 
-### webhooks (`stitch-webhook.controller.ts`, `tradesafe-webhook.controller.ts`)
+### webhooks (`stitch-webhook.controller.ts`, `tradesafe-webhook.controller.ts`) <!-- historical -->
 
 Public endpoints, but authenticated by Svix HMAC-SHA256 signature per CLAUDE.md financial rules (not unprotected).
 
 | Method | Path | Guard(s) | Purpose |
 |--------|------|---------|---------|
-| POST | `/api/v1/webhooks/stitch` | `@Public`, Svix-verified | Stitch event ingest |
-| POST | `/api/v1/webhooks/stitch/replay/:eventId` | SUPER_ADMIN, audited, non-live only | Dev replay stored event |
+| POST | `/api/v1/webhooks/stitch` | `@Public`, Svix-verified | Stitch event ingest | <!-- historical -->
+| POST | `/api/v1/webhooks/stitch/replay/:eventId` | SUPER_ADMIN, audited, non-live only | Dev replay stored event | <!-- historical -->
 | POST | `/api/v1/webhooks/tradesafe` | `@Public`, Svix-verified | TradeSafe event ingest (ADR 0009) |
 
 ---
@@ -481,7 +481,7 @@ Public endpoints, but authenticated by Svix HMAC-SHA256 signature per CLAUDE.md 
   - Business admin surface: **23**
   - Super admin surface: **36**
   - Role-ambiguous (`/brands/*`, `/hunters/*`): **4**
-- **Deep-link-only pages** (reachable only from another page, not in any nav): **~50** — mostly detail pages (`[id]`), edit/create sub-pages, and the Stitch return page.
+- **Deep-link-only pages** (reachable only from another page, not in any nav): **~50** — mostly detail pages (`[id]`), edit/create sub-pages, and the Stitch return page. <!-- historical -->
 - **Orphan pages** (page exists, not in nav, not deep-linked from elsewhere): **0** confirmed. `/create-brand` and `/business/bounties/funded` are intentional out-of-nav entries.
 - **Broken nav references**: **0**. Every href in `navigation.ts` resolves to an existing `page.tsx`.
 - **API endpoints**: **175** HTTP handlers across **28** controller files. Prefix: `/api/v1`.

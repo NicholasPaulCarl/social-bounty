@@ -28,7 +28,7 @@ Rollup view of hunter-side ledger account totals across the payout pipeline: Pen
   2. `hunter_net_payable` — "Net payable (in clearance)"
   3. `hunter_clearing` — "Clearing (held / clawback)"
   4. `hunter_available` — "Available (eligible for payout)"
-  5. `payout_in_transit` — "In transit (sent to Stitch)"
+  5. `payout_in_transit` — "In transit (sent to Stitch)" <!-- historical -->
   6. `hunter_paid` — "Paid (settled to bank)"
 - Columns: Account (mono), What it means (label), Total cents (mono, `formatCents`).
 
@@ -54,7 +54,7 @@ Reference CLAUDE.md §4 Financial Non-Negotiables:
 
 Page-specific:
 - Supports reconciliation check **#5 wallet-projection drift** — the wallet read-model (ADR 0002) should sum to these totals; a mismatch is flagged on Exceptions.
-- Also informs **#6 payouts-vs-ledger** — `payout_in_transit` should equal the sum of `StitchPayout.INITIATED` rows in cents (verifiable by joining `/admin/finance/payouts`).
+- Also informs **#6 payouts-vs-ledger** — `payout_in_transit` should equal the sum of `StitchPayout.INITIATED` rows in cents (verifiable by joining `/admin/finance/payouts`). <!-- historical -->
 - Displays **live** balances; no paused view.
 - No write operations from this surface.
 

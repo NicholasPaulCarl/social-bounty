@@ -51,7 +51,7 @@ Canonical pricing page for both Hunter and Brand tiers. Shows tier cards, a full
 
 ## Business rules
 - **Canonical tier pricing**: the numbers on this page must stay aligned with `md-files/payment-gateway.md` and the fee-snapshot logic in `md-files/financial-architecture.md`. Hunter pro = R350/mo / 10% commission; Brand pro = R950/mo / 5% admin fee; global 3.5% platform fee is separate and handled in the ledger per `CLAUDE.md §4` rule 10.
-- FAQ #6 states "We accept all major credit and debit cards via Stripe" — **stale copy**: the live provider is Stitch Express (per the HEAD banner), Stripe is legacy.
+- FAQ #6 states "We accept all major credit and debit cards via Stripe" — **stale copy**: the live provider is Stitch Express (per the HEAD banner), Stripe is legacy. <!-- historical -->
 - "Same-day payouts" for Pro Hunters needs to square with the 3-day T+3 clearance path (same open question as `/join/hunter`).
 
 ## Edge cases
@@ -67,7 +67,7 @@ No colocated tests.
 - Design-system classes: `card card-feature`, `eyebrow`, `gradient-text`, `badge badge-brand`, `btn btn-primary`, `btn btn-secondary`, `font-mono tabular-nums`
 
 ## Open questions / TODOs
-- **FAQ copy is stale** — mentions Stripe. Should be "Stitch Express". See `CLAUDE.md` Tech Stack block.
+- **FAQ copy is stale** — mentions Stripe. Should be "Stitch Express". See `CLAUDE.md` Tech Stack block. <!-- historical -->
 - "Same-day payouts" — needs spec confirmation; T+3 clearance is the default rule.
 - No deep-linkable FAQ anchors — add `id={faq.id}` + scroll-to-hash if customers link to specific questions.
 - Currency is ZAR only ("R350/mo") — if international expansion happens, this and `join-hunter` / `join-business` will need i18n.

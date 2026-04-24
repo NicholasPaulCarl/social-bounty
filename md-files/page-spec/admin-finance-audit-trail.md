@@ -23,7 +23,7 @@ Filtered view of the `AuditLog` table limited to finance-relevant actions: refun
 
 ## UI structure
 - `PageHeader` with title "Finance audit trail", subtitle "Refund, payout, override, kill-switch, funding, and approval actions". Action: Refresh.
-- Single `<Card>` wrapping a paginated `<DataTable>` (25/page), stripedRows.
+- Single `<Card>` wrapping a paginated `<DataTable>` (25/page), stripedRows. <!-- historical -->
 - Columns: When (mono datetime), Action (Tag — plain — the action name e.g. `REFUND_APPROVED`, `PAYOUT_RETRIED`, `OVERRIDE_POSTED`, `KILL_SWITCH_TOGGLED`), Entity type (free text), Entity ID (mono xs), Actor (truncated 8-char user id), Reason (text or `—`).
 
 ## States

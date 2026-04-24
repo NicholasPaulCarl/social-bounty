@@ -669,7 +669,7 @@ After a submission is APPROVED, a 48-hour verification deadline begins.
 
 ---
 
-## 9. Stripe Payment Flow
+## 9. Stripe Payment Flow <!-- historical -->
 
 ### 9.1 Payment During Publish
 
@@ -681,10 +681,10 @@ Payment is collected from the business when a bounty transitions from DRAFT to L
 3. The dialog shows:
    - Total reward amount (sum of all reward lines)
    - Currency
-   - Stripe Elements payment form (card input)
+   - Stripe Elements payment form (card input) <!-- historical -->
 4. Business enters card details and clicks "Pay & Publish".
 5. On successful payment:
-   - Stripe PaymentIntent is created and confirmed.
+   - Stripe PaymentIntent is created and confirmed. <!-- historical -->
    - `paymentStatus` is set to `PAID`.
    - Bounty status transitions to `LIVE`.
    - Success toast: "Payment successful. Bounty is now live!"

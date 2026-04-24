@@ -8,7 +8,7 @@
 **Layout:** `apps/web/src/app/admin/layout.tsx` → `apps/web/src/app/admin/finance/layout.tsx`
 
 ## Purpose
-Platform-wide list of `StitchPayout` rows — every hunter payout with status, amount, attempts, last error, and next retry time. SA can retry FAILED or RETRY_PENDING rows. Because `PAYOUTS_ENABLED=false` in the current MVP, retry is logged as an intent but moves no funds (explicit `<Message>` banner at the top).
+Platform-wide list of `StitchPayout` rows — every hunter payout with status, amount, attempts, last error, and next retry time. SA can retry FAILED or RETRY_PENDING rows. Because `PAYOUTS_ENABLED=false` in the current MVP, retry is logged as an intent but moves no funds (explicit `<Message>` banner at the top). <!-- historical -->
 
 ## Entry & exit
 - **Reached from:** Direct URL / `/admin/finance/earnings-payouts` (deep-link, no explicit anchor in the current UI).
@@ -23,7 +23,7 @@ Platform-wide list of `StitchPayout` rows — every hunter payout with status, a
 - **Search params:** none (pagination is stored in React state, not URL)
 
 ## UI structure
-- `PageHeader` with title "Payouts", subtitle "All hunter payouts platform-wide (StitchPayout)". Action: Refresh.
+- `PageHeader` with title "Payouts", subtitle "All hunter payouts platform-wide (StitchPayout)". Action: Refresh. <!-- historical -->
 - Info `<Message>` banner: "Hunter payouts to TradeSafe are pending (ADR 0009). `PAYOUTS_ENABLED` is currently false; retry will log an intent but no funds will move."
 - `<Card>` wrapping a lazy-loaded `<DataTable>` (25 rows/page), server-paginated via `totalRecords` + `first` + `onPage`.
 - Columns: Status (colour-coded Tag — SETTLED=success, INITIATED/CREATED=info, FAILED=danger, RETRY_PENDING=warning, CANCELLED=null), Amount (mono cents per currency), Hunter (name + email stacked), Attempts, Last error (truncated 60 chars, danger tone, title-tooltip), Next retry (mono datetime), Created (mono datetime), Retry CTA.
@@ -51,7 +51,7 @@ Reference CLAUDE.md §4 Financial Non-Negotiables:
 - Kill switch: Retry **honours** the kill switch — if active, the payout will not actually dispatch (adapter gates via `PAYOUTS_ENABLED=false` in addition per ADR 0008/0009). Per ADR 0006 only compensating entries (Overrides) bypass the switch.
 
 Page-specific:
-- Surfaces reconciliation check **#6: payouts-vs-ledger** via the wire-level `StitchPayout.status` column. Any divergence between `INITIATED`/`SETTLED` rows and `payout_in_transit`/`hunter_paid` ledger balances is flagged on Exceptions. The `R32` closure (CLAUDE.md 2026-04-18) generalised this check to cover TradeSafe via the new `StitchPayout.provider` column (default `STITCH`).
+- Surfaces reconciliation check **#6: payouts-vs-ledger** via the wire-level `StitchPayout.status` column. Any divergence between `INITIATED`/`SETTLED` rows and `payout_in_transit`/`hunter_paid` ledger balances is flagged on Exceptions. The `R32` closure (CLAUDE.md 2026-04-18) generalised this check to cover TradeSafe via the new `StitchPayout.provider` column (default `STITCH`). <!-- historical -->
 - Displays **live** status per row — polling is not enabled (manual Refresh).
 - Write operations: Retry → AuditLog; no ledger mutation on retry itself (ledger writes happen on the subsequent webhook).
 
@@ -76,7 +76,7 @@ Integration-only convention per finance-pages; no colocated `page.test.tsx`. Bac
 - `docs/adr/0008-tradesafe-for-hunter-payouts.md`, `docs/adr/0009-tradesafe-integration-skeleton.md`
 
 ## Open questions / TODOs
-- No provider column shown (STITCH vs TRADESAFE discriminator from R32) — operators can't filter by rail yet.
+- No provider column shown (STITCH vs TRADESAFE discriminator from R32) — operators can't filter by rail yet. <!-- historical -->
 - R24 (TradeSafe creds — external blocker) and R37 (multi-recipient payout shape) still open; page will need amendment post-go-live.
 - Sitemap notes this page is deep-link; no explicit "Payouts" CTA from Earnings & Payouts currently — minor navigation gap.
 - `PAYOUTS_ENABLED` gate duplicated in copy + backend — ensure banner is removed once flipped.

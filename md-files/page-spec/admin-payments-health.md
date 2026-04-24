@@ -7,10 +7,10 @@
 **Nav entry:** System → Payments Health
 **Layout:** `apps/web/src/app/admin/layout.tsx`
 
-**Refs:** `docs/architecture/sitemap.md`, `md-files/payment-gateway.md` (canonical Stitch spec), `docs/STITCH-IMPLEMENTATION-STATUS.md`, `docs/adr/0005-ledger-idempotency-via-header-table.md`, `docs/adr/0006-compensating-entries-bypass-kill-switch.md`, `docs/deployment/stitch-express-live-readiness.md`, CLAUDE.md (kill switch is `SystemSetting.financial.kill_switch.active`).
+**Refs:** `docs/architecture/sitemap.md`, `md-files/payment-gateway.md` (canonical Stitch spec), `docs/STITCH-IMPLEMENTATION-STATUS.md`, `docs/adr/0005-ledger-idempotency-via-header-table.md`, `docs/adr/0006-compensating-entries-bypass-kill-switch.md`, `docs/deployment/stitch-express-live-readiness.md`, CLAUDE.md (kill switch is `SystemSetting.financial.kill_switch.active`). <!-- historical -->
 
 ## Purpose
-Operator dashboard for the Stitch Express integration: provider flag, token probe, kill-switch state, last-received webhook, and config-fingerprint drift detection across environments.
+Operator dashboard for the Stitch Express integration: provider flag, token probe, kill-switch state, last-received webhook, and config-fingerprint drift detection across environments. <!-- historical -->
 
 ## Entry & exit
 - **Reached from:** admin sidebar → Payments Health.
@@ -23,11 +23,11 @@ Operator dashboard for the Stitch Express integration: provider flag, token prob
 - **Search params:** none.
 
 ## UI structure
-- `PageHeader` title "Payments health" + subtitle "Stitch Express connectivity, webhook status, and kill switch" + "Refresh" button (RefreshCw icon).
+- `PageHeader` title "Payments health" + subtitle "Stitch Express connectivity, webhook status, and kill switch" + "Refresh" button (RefreshCw icon). <!-- historical -->
 - Active-kill-switch banner — red `<Message severity="error">` at top when `data.killSwitch.active === true`, text includes reason if present, ends with "All outbound payouts are halted."
-- 3-card row: Provider (`data.paymentsProvider` Tag — `stitch_live` success / `stitch_sandbox` warning / else danger) + copy "PAYMENTS_PROVIDER env flag. `stitch_live` is production."; Stitch Token Probe (OK/FAIL Tag + latency ms + error copy if set); Financial Kill Switch (ACTIVE danger / `off` success + reason).
-- "Last Stitch Webhook" card — 2-col grid: event type, received-at timestamp, status Tag, Svix external event id (font-mono, break-all). Empty: "No webhook events received yet."
-- "Config Fingerprints" card — first-12-char SHA-256 of each secret (STITCH_CLIENT_ID, STITCH_CLIENT_SECRET, STITCH_WEBHOOK_SECRET) with subtitle "Mismatches across environments are a config-drift red flag."
+- 3-card row: Provider (`data.paymentsProvider` Tag — `stitch_live` success / `stitch_sandbox` warning / else danger) + copy "PAYMENTS_PROVIDER env flag. `stitch_live` is production."; Stitch Token Probe (OK/FAIL Tag + latency ms + error copy if set); Financial Kill Switch (ACTIVE danger / `off` success + reason). <!-- historical -->
+- "Last Stitch Webhook" card — 2-col grid: event type, received-at timestamp, status Tag, Svix external event id (font-mono, break-all). Empty: "No webhook events received yet." <!-- historical -->
+- "Config Fingerprints" card — first-12-char SHA-256 of each secret (STITCH_CLIENT_ID, STITCH_CLIENT_SECRET, STITCH_WEBHOOK_SECRET) with subtitle "Mismatches across environments are a config-drift red flag." <!-- historical -->
 
 ## States
 - **Loading:** `LoadingState type="cards-grid" cards={4}`.
@@ -49,9 +49,9 @@ Operator dashboard for the Stitch Express integration: provider flag, token prob
 
 ## Edge cases
 - Kill switch active — banner is sticky + danger severity; ACTIVE chip on card.
-- Token probe fail — inline red copy below Tag with `data.stitchTokenProbe.error`.
+- Token probe fail — inline red copy below Tag with `data.stitchTokenProbe.error`. <!-- historical -->
 - `data.lastWebhook` null (fresh env / no events ever) — card shows fallback copy.
-- Provider flag `stitch_live` production-only; sandbox staging; `mock`/absent returns danger Tag.
+- Provider flag `stitch_live` production-only; sandbox staging; `mock`/absent returns danger Tag. <!-- historical -->
 - Config fingerprints render opaque 12-char strings; mismatch signal only makes sense with cross-env comparison.
 
 ## Tests
@@ -60,7 +60,7 @@ Integration-only (backend controller has unit tests for the probe path).
 ## Related files
 - `apps/web/src/hooks/useAdmin.ts` — `usePaymentsHealth`.
 - `apps/api/src/modules/admin/payments-health.controller.ts`.
-- `apps/api/src/modules/stitch/stitch-auth.service.ts` — token probe source.
+- `apps/api/src/modules/stitch/stitch-auth.service.ts` — token probe source. <!-- historical -->
 - `apps/api/src/modules/ledger/ledger.service.ts` — `isKillSwitchActive()` source.
 
 ## Open questions / TODOs
