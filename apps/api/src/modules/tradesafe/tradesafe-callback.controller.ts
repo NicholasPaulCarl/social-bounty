@@ -254,7 +254,7 @@ export function isValidStateParam(state: unknown): state is string {
   // Length bounds: reject empty + oversized tokens.
   if (state.length < 8 || state.length > 512) return false;
   // Reject obvious URL / script / control-char shapes.
-  if (/[\s<>\"\'\\]/.test(state)) return false;
+  if (/[\s<>"'\\]/.test(state)) return false;
   if (/^(javascript|data|vbscript|file):/i.test(state)) return false;
   if (/^https?:\/\//i.test(state)) return false;
   // Accept: alphanum, dash, underscore, dot, colon, equals, plus, slash
