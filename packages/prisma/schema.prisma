@@ -431,18 +431,6 @@ enum KybStatus {
   REJECTED
 }
 
-enum MarketingChannel {
-  EMAIL
-  SMS
-  WHATSAPP
-}
-
-enum MarketingConsentSource {
-  SIGNUP_FORM_V1
-  SETTINGS_PAGE
-  IMPORT_BACKFILL
-}
-
 // ─────────────────────────────────────
 // Models
 // ─────────────────────────────────────
@@ -508,34 +496,11 @@ model User {
   refundsRequested        Refund[]                  @relation("RefundRequester")
   refundsApproved         Refund[]                  @relation("RefundApprover")
   refundsDualApproved     Refund[]                  @relation("RefundDualApprover")
-  marketingConsents       MarketingConsent[]
 
   @@index([email])
   @@index([role])
   @@index([status])
   @@map("users")
-}
-
-model MarketingConsent {
-  id          String                 @id @default(uuid())
-  userId      String
-  channel     MarketingChannel
-  granted     Boolean
-  grantedAt   DateTime?
-  revokedAt   DateTime?
-  source      MarketingConsentSource
-  textVersion String
-  textHash    String
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @updatedAt
-
-  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, channel])
-  @@index([userId])
-  @@map("marketing_consents")
 }
 
 model RefreshTokenAudit {
