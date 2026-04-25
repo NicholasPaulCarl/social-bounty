@@ -1,7 +1,7 @@
-# Graph Report - relaxed-sammet-f4af0b  (2026-04-24)
+# Graph Report - awesome-antonelli-8f1eec  (2026-04-25)
 
 ## Corpus Check
-- 527 files · ~619,056 words
+- 527 files · ~619,249 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary

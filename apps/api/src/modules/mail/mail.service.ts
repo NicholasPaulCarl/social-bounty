@@ -137,6 +137,49 @@ export class MailService implements OnModuleInit {
 
   onModuleInit() {
     this.loadTemplates();
+    this.verifySmtpConnection();
+  }
+
+  /**
+   * Probe the SMTP transport at boot so misconfiguration fails loudly in
+   * deploy logs instead of silently on the first send. We log instead of
+   * throwing because:
+   *   - dev environments routinely run without SMTP (the Mailpit default
+   *     is fine); crashing boot would block local work.
+   *   - in prod, OTP sends are fire-and-forget (auth.service.ts:123) so
+   *     a silent SMTP failure surfaces as "users never receive the OTP",
+   *     which is exactly the failure mode we want a loud signal for.
+   *
+   * Verification is async and non-blocking — we don't await it in
+   * `onModuleInit` so a slow SMTP host can't delay app boot. The verify
+   * call itself has a built-in 10s timeout in nodemailer's defaults.
+   */
+  private verifySmtpConnection(): void {
+    const host = this.config.get<string>('SMTP_HOST', 'localhost');
+    const port = this.config.get<number>('SMTP_PORT', 1025);
+    const hasAuth = Boolean(this.config.get('SMTP_USER'));
+
+    this.transporter
+      .verify()
+      .then(() => {
+        this.logger.log({
+          message: 'SMTP transport verified at boot',
+          host,
+          port,
+          authenticated: hasAuth,
+        });
+      })
+      .catch((error) => {
+        this.logger.error({
+          message:
+            'SMTP transport verification FAILED at boot — emails will not send. ' +
+            'Check SMTP_HOST / SMTP_PORT / SMTP_USER / SMTP_PASS env vars.',
+          host,
+          port,
+          authenticated: hasAuth,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      });
   }
 
   // ── Template Loading ──────────────────────────────────
