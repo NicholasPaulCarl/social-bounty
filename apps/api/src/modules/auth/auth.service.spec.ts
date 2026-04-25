@@ -46,24 +46,14 @@ describe('AuthService', () => {
   let tradeSafeTokenService: { ensureToken: jest.Mock };
 
   beforeEach(async () => {
-    // Default $transaction mock runs the callback with a tx object that exposes
-    // every model touched by signupWithOtp's standard + brand flows. Specific
-    // tests can override this to inspect tx-internal calls.
+    // Default $transaction mock runs the callback with a tx object exposing the
+    // models the brand-signup branch touches (User + Brand + BrandMember).
+    // The standard-signup branch no longer uses $transaction.
     const $transaction = jest.fn().mockImplementation(async (fn: (tx: unknown) => unknown) => {
       return fn({
         user: prisma.user,
         brand: { create: jest.fn().mockResolvedValue({ id: 'brand-1' }) },
         brandMember: { create: jest.fn().mockResolvedValue({}) },
-        marketingConsent: {
-          upsert: jest.fn().mockImplementation(async ({ where }: { where: { userId_channel: { userId: string; channel: string } } }) => ({
-            id: `mc-${where.userId_channel.channel.toLowerCase()}`,
-            channel: where.userId_channel.channel,
-            source: 'SIGNUP_FORM_V1',
-            textVersion: 'v1',
-            textHash: 'mockhash',
-            ipAddress: null,
-          })),
-        },
       });
     });
     prisma = {
@@ -190,7 +180,6 @@ describe('AuthService', () => {
       firstName: 'New',
       lastName: 'User',
       contactNumber: '+27821234567',
-      marketingConsent: { email: false, sms: false },
       termsAccepted: true as const,
       ipAddress: '127.0.0.1',
       userAgent: 'jest',
@@ -502,7 +491,6 @@ describe('AuthService', () => {
             user: { create: jest.fn().mockResolvedValue(brandUser) },
             brand: { create: jest.fn().mockResolvedValue({ id: 'brand-1' }) },
             brandMember: { create: jest.fn().mockResolvedValue({}) },
-            marketingConsent: { upsert: jest.fn().mockResolvedValue({}) },
           });
         });
 
@@ -812,15 +800,12 @@ describe('AuthService', () => {
     });
   });
 
-  // ── signupWithOtp - consent + ToS persistence ─────────────
+  // ── signupWithOtp - ToS acceptance ────────────────────────
 
-  describe('signupWithOtp - consent + ToS persistence', () => {
+  describe('signupWithOtp - ToS acceptance', () => {
     let auditLog: jest.Mock;
 
     function getAuditService() {
-      // The injected AuditService mock is captured via the test module on the
-      // service. We exposed it as `useValue: { log: jest.fn() }` in beforeEach,
-      // so reach back through the service instance to grab the same reference.
       return (service as unknown as { auditService: { log: jest.Mock } }).auditService;
     }
 
@@ -874,40 +859,13 @@ describe('AuthService', () => {
       );
     });
 
-    it('writes one MarketingConsent row + audit per granted channel (both true)', async () => {
-      await service.signupWithOtp(
-        signupOpts({ marketingConsent: { email: true, sms: true } }),
-      );
+    it('writes no marketing_consent_granted audit rows (service-comms repositioning)', async () => {
+      await service.signupWithOtp(signupOpts());
 
-      const grantedAudits = auditLog.mock.calls.filter(
+      const marketingCalls = auditLog.mock.calls.filter(
         (call) => call[0].action === 'user.marketing_consent_granted',
       );
-      expect(grantedAudits).toHaveLength(2);
-      const channels = grantedAudits.map((c) => c[0].afterState.channel).sort();
-      expect(channels).toEqual(['EMAIL', 'SMS']);
-    });
-
-    it('writes zero MarketingConsent rows when both channels are false', async () => {
-      await service.signupWithOtp(
-        signupOpts({ marketingConsent: { email: false, sms: false } }),
-      );
-
-      const grantedAudits = auditLog.mock.calls.filter(
-        (call) => call[0].action === 'user.marketing_consent_granted',
-      );
-      expect(grantedAudits).toHaveLength(0);
-    });
-
-    it('writes only the SMS row when only SMS is granted', async () => {
-      await service.signupWithOtp(
-        signupOpts({ marketingConsent: { email: false, sms: true } }),
-      );
-
-      const grantedAudits = auditLog.mock.calls.filter(
-        (call) => call[0].action === 'user.marketing_consent_granted',
-      );
-      expect(grantedAudits).toHaveLength(1);
-      expect(grantedAudits[0][0].afterState.channel).toBe('SMS');
+      expect(marketingCalls).toHaveLength(0);
     });
   });
 

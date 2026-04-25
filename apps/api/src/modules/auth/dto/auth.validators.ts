@@ -10,20 +10,10 @@ import {
   Length,
   MinLength,
   ValidateIf,
-  ValidateNested,
   Equals,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { OtpChannel } from '@social-bounty/shared';
 import { IsValidPhoneE164 } from '../../../common/validators/phone-number.validator';
-
-export class MarketingConsentDto {
-  @IsBoolean()
-  email!: boolean;
-
-  @IsBoolean()
-  sms!: boolean;
-}
 
 export class RequestOtpDto {
   @IsEmail()
@@ -93,13 +83,8 @@ export class SignupWithOtpDto {
   @IsValidPhoneE164({ region: 'ZA' })
   contactNumber!: string;
 
-  // POPIA §69 + Brevo carrier requirement: explicit, channel-separated consent.
-  // Object must be present; individual booleans may be false.
-  @ValidateNested()
-  @Type(() => MarketingConsentDto)
-  marketingConsent!: MarketingConsentDto;
-
-  // ToS / Privacy Policy acceptance — required.
+  // ToS / Privacy Policy acceptance — required. SMS + email are classified
+  // as service communications; no separate marketing consent is collected here.
   @IsBoolean()
   @Equals(true, { message: 'You must accept the Terms of Service and Privacy Policy to create an account.' })
   termsAccepted!: true;

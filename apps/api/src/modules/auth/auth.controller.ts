@@ -106,7 +106,6 @@ export class AuthController {
       registerAsBrand: dto.registerAsBrand,
       brandName: dto.brandName,
       brandContactEmail: dto.brandContactEmail,
-      marketingConsent: dto.marketingConsent,
       termsAccepted: dto.termsAccepted,
       ipAddress: req.ip,
       userAgent: req.get('user-agent') ?? null,
