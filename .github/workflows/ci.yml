@@ -134,7 +134,7 @@ jobs:
         run: npm run db:generate
 
       - name: Run database migrations
-        run: npx prisma migrate deploy --schema=packages/prisma/schema.prisma
+        run: npm run migrate:deploy --workspace=packages/prisma
         env:
           DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_test
 
@@ -202,7 +202,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run database migrations
-        run: npx prisma migrate deploy --schema=packages/prisma/schema.prisma
+        run: npm run migrate:deploy --workspace=packages/prisma
         env:
           DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
 
