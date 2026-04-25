@@ -47,7 +47,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@nestjs/cli": "^10.4.0",
-    "@nestjs/schematics": "^10.2.0",
+    "@nestjs/schematics": "^11.1.0",
     "@nestjs/testing": "^10.4.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.0",
