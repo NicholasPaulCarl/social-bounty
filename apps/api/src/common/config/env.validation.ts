@@ -1,12 +1,16 @@
 import { plainToInstance } from 'class-transformer';
 import {
   IsBooleanString,
+  IsBoolean,
   IsEnum,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   IsUrl,
+  Matches,
+  MaxLength,
   MinLength,
   Min,
   ValidateIf,
@@ -217,6 +221,32 @@ class EnvironmentVariables {
   @IsInt()
   @Min(1000)
   APIFY_ACTOR_TIMEOUT_MS?: number;
+
+  // ────────────────────────────────────────────────────────────────
+  // SMS (Brevo Transactional SMS — Wave 1C, 2026-04-25).
+  // SMS_ENABLED gates all SMS sends. When true, BREVO_API_KEY and
+  // BREVO_SMS_SENDER are required. BREVO_SMS_DEFAULT_REGION is
+  // optional (defaults to 'ZA' at the reading site).
+  // ────────────────────────────────────────────────────────────────
+  @IsOptional()
+  @IsBoolean()
+  SMS_ENABLED?: boolean;
+
+  @ValidateIf((o) => o.SMS_ENABLED === true || o.SMS_ENABLED === 'true')
+  @IsString()
+  @IsNotEmpty()
+  BREVO_API_KEY?: string;
+
+  @ValidateIf((o) => o.SMS_ENABLED === true || o.SMS_ENABLED === 'true')
+  @IsString()
+  @MinLength(1)
+  @MaxLength(11)
+  @Matches(/^[A-Za-z0-9]+$/, { message: 'BREVO_SMS_SENDER must be 1-11 alphanumeric chars' })
+  BREVO_SMS_SENDER?: string;
+
+  @IsOptional()
+  @IsString()
+  BREVO_SMS_DEFAULT_REGION?: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

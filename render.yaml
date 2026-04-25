@@ -152,6 +152,18 @@ services:
       - key: CORS_ORIGIN
         value: https://www.socialbounty.cash,https://socialbounty.cash,https://app.socialbounty.cash
 
+      # SMS (Brevo Transactional SMS — Wave 1C). Set SMS_ENABLED to "true"
+      # and paste BREVO_API_KEY + BREVO_SMS_SENDER in the Render UI to
+      # activate OTP delivery via SMS.
+      - key: SMS_ENABLED
+        value: "false"
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_SMS_SENDER
+        sync: false
+      - key: BREVO_SMS_DEFAULT_REGION
+        value: "ZA"
+
   - type: web
     name: social-bounty-web
     runtime: docker
