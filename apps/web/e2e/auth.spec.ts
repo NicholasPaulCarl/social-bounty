@@ -96,35 +96,26 @@ test.describe('Auth — signup page', () => {
     await expect(page.locator('input[type="email"], #email')).toBeVisible();
   });
 
-  test('renders Email + SMS + Terms checkboxes, all unchecked by default', async ({ page }) => {
+  test('renders ToS checkbox unchecked by default + no marketing checkboxes', async ({ page }) => {
     await page.goto('/signup');
 
-    const emailBox = page.locator('input#consentEmail');
-    const smsBox = page.locator('input#consentSms');
+    // Only one consent checkbox: Terms of Service / Privacy Policy.
     const termsBox = page.locator('input#termsAccepted');
-
-    await expect(emailBox).toBeVisible();
-    await expect(smsBox).toBeVisible();
     await expect(termsBox).toBeVisible();
-
-    expect(await emailBox.isChecked()).toBe(false);
-    expect(await smsBox.isChecked()).toBe(false);
     expect(await termsBox.isChecked()).toBe(false);
+
+    // Marketing-consent boxes from the previous design must not exist.
+    await expect(page.locator('input#consentEmail')).toHaveCount(0);
+    await expect(page.locator('input#consentSms')).toHaveCount(0);
   });
 
-  test('SMS opt-in shows the carrier-mandated disclosure text', async ({ page }) => {
+  test('shows service-communications notice with no-sale-no-share statement', async ({ page }) => {
     await page.goto('/signup');
 
-    // Brevo / toll-free carrier require this exact disclosure to be visible
-    // alongside the SMS opt-in checkbox.
-    await expect(
-      page.getByText(/Reply STOP to opt out/, { exact: false })
-    ).toBeVisible();
-    await expect(
-      page.getByText(/will not be sold or shared with third parties/, {
-        exact: false,
-      })
-    ).toBeVisible();
+    const notice = page.locator('[data-testid="service-comms-notice"]');
+    await expect(notice).toBeVisible();
+    await expect(notice).toContainText(/log you in and send essential system notifications/i);
+    await expect(notice).toContainText(/will not be sold or shared for marketing purposes/i);
   });
 
   test('Continue button stays disabled until ToS box is ticked', async ({ page }) => {

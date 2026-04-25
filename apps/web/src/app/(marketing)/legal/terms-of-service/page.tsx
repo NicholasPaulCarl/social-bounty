@@ -75,14 +75,15 @@ export default function TermsOfServicePage() {
           >
             {LEGAL_ENTITY.emails.legal}
           </a>
-          . Marketing communications by email and SMS are governed separately under{' '}
+          . SMS and email are used for service communications only — see{' '}
           <Link
-            href="/legal/privacy-policy#direct-marketing"
+            href="/legal/privacy-policy#service-communications"
             className="text-pink-600 hover:text-pink-700 font-medium"
           >
-            Privacy Policy §Direct marketing (POPIA §69)
-          </Link>
-          .
+            Privacy Policy §Service communications
+          </Link>{' '}
+          for what those channels are used for. We do not send optional marketing
+          communications without first asking for your specific consent.
         </p>
         <p className="mb-4">
           We may amend these Terms from time to time. Material changes — changes that affect your

@@ -7,7 +7,6 @@ import { InputSwitch } from 'primereact/inputswitch';
 import { Checkbox } from 'primereact/checkbox';
 import { AlertCircle, ArrowRight, Loader2, Phone, UserPlus } from 'lucide-react';
 import { isValidPhoneNumber } from 'libphonenumber-js';
-import { MARKETING_CONSENT_LABELS } from '@social-bounty/shared';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
@@ -22,8 +21,6 @@ export default function SignupPage() {
     registerAsBrand: false,
     brandName: '',
     brandContactEmail: '',
-    consentEmail: false,
-    consentSms: false,
     termsAccepted: false,
   });
   const [otp, setOtp] = useState('');
@@ -98,10 +95,6 @@ export default function SignupPage() {
         firstName: form.firstName,
         lastName: form.lastName,
         contactNumber: form.contactNumber.trim(),
-        marketingConsent: {
-          email: form.consentEmail,
-          sms: form.consentSms,
-        },
         termsAccepted: true,
         ...(form.registerAsBrand
           ? {
@@ -301,42 +294,18 @@ export default function SignupPage() {
             </div>
           )}
 
-          {/* Communications opt-in (POPIA §69 + Brevo carrier requirement). */}
+          {/* Service-communications notice + ToS acceptance. */}
           <div className="space-y-3 pt-2">
-            <label
-              htmlFor="consentEmail"
-              className="flex items-start gap-3 cursor-pointer text-sm text-text-secondary normal-case tracking-normal font-normal"
+            <p
+              data-testid="service-comms-notice"
+              className="text-xs text-text-muted leading-relaxed"
             >
-              <Checkbox
-                inputId="consentEmail"
-                checked={form.consentEmail}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, consentEmail: !!e.checked }))
-                }
-                className="mt-0.5 flex-none"
-              />
-              <span>{MARKETING_CONSENT_LABELS.EMAIL.label}</span>
-            </label>
-
-            <label
-              htmlFor="consentSms"
-              className="flex items-start gap-3 cursor-pointer text-sm text-text-secondary normal-case tracking-normal font-normal"
-            >
-              <Checkbox
-                inputId="consentSms"
-                checked={form.consentSms}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, consentSms: !!e.checked }))
-                }
-                className="mt-0.5 flex-none"
-              />
-              <span>
-                {MARKETING_CONSENT_LABELS.SMS.label}
-                <span className="block mt-1 text-xs text-text-muted">
-                  {MARKETING_CONSENT_LABELS.SMS.disclosure}
-                </span>
-              </span>
-            </label>
+              We use SMS and email to log you in and send essential system
+              notifications about your account, bounties, and payouts. These
+              messages are necessary to operate your account and are free to
+              receive. Your mobile information will not be sold or shared for
+              marketing purposes.
+            </p>
 
             <label
               htmlFor="termsAccepted"

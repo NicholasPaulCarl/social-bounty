@@ -1,6 +1,11 @@
-// One-off: capture the signup form with all three checkboxes unchecked + the
-// SMS carrier disclosure visible. Output is committed to docs/compliance/ as
-// the Brevo opt-in evidence file.
+// One-off: capture the signup form showing the service-communications notice
+// + required ToS checkbox unchecked + disabled Continue button. Output is
+// committed to docs/compliance/ as the Brevo evidence file.
+//
+// SMS + email are positioned as service communications (not direct marketing)
+// per the post-2026-04-25 repositioning, so there are no per-channel opt-in
+// checkboxes — the notice paragraph plus the no-sale-no-share statement
+// satisfy the carrier disclosure expectations for transactional senders.
 //
 // Usage: node scripts/capture-brevo-evidence.js
 // Requires: web-preview server running on http://localhost:3010
@@ -21,9 +26,9 @@ const OUT = path.resolve(
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 800, height: 1100 } });
   await page.goto(URL, { waitUntil: 'networkidle' });
-  // Give the React tree a beat to settle (custom checkboxes hydrate after first paint).
-  await page.waitForSelector('input#consentEmail');
-  await page.waitForSelector('input#consentSms');
+  // Give the React tree a beat to settle (PrimeReact Checkbox hydrates after
+  // first paint; service-comms notice is server-rendered).
+  await page.waitForSelector('[data-testid="service-comms-notice"]');
   await page.waitForSelector('input#termsAccepted');
   await page.screenshot({ path: OUT, fullPage: true });
   console.log(`wrote ${OUT}`);
