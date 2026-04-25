@@ -60,9 +60,29 @@ export default function TermsOfServicePage() {
         <p className="mb-4">
           These Terms are a written agreement concluded electronically under section 22 of the
           Electronic Communications and Transactions Act 25 of 2002 (<strong className="font-semibold text-slate-900">ECTA</strong>).
-          Acceptance may be indicated by any conduct that reasonably shows your intention to be
-          bound, including clicking an "I agree" control, completing account signup, or using the
-          Platform after these Terms have been published.
+          You accept these Terms by ticking the acceptance checkbox on the signup form and creating
+          an account — that step is required, so your acceptance is an active choice rather than
+          something that quietly applies by default.
+        </p>
+        <p className="mb-4">
+          When you tick the acceptance checkbox, we record the date, the IP address you ticked
+          from, and the version of these Terms that was live at that moment. The current version
+          number and effective date are shown at the top of this page. You can request a copy of
+          your acceptance record at any time via{' '}
+          <a
+            href={`mailto:${LEGAL_ENTITY.emails.legal}`}
+            className="text-pink-600 hover:text-pink-700 font-medium"
+          >
+            {LEGAL_ENTITY.emails.legal}
+          </a>
+          . Marketing communications by email and SMS are governed separately under{' '}
+          <Link
+            href="/legal/privacy-policy#direct-marketing"
+            className="text-pink-600 hover:text-pink-700 font-medium"
+          >
+            Privacy Policy §Direct marketing (POPIA §69)
+          </Link>
+          .
         </p>
         <p className="mb-4">
           We may amend these Terms from time to time. Material changes — changes that affect your

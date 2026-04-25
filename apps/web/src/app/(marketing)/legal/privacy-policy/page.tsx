@@ -13,6 +13,7 @@ const TOC = [
   { id: 'who-we-are', label: 'Who we are' },
   { id: 'what-we-collect', label: 'What we collect' },
   { id: 'how-we-use', label: 'How we use it' },
+  { id: 'direct-marketing', label: 'Direct marketing (POPIA §69)' },
   { id: 'who-we-share-with', label: 'Who we share it with' },
   { id: 'cross-border-transfer', label: 'Cross-border transfer' },
   { id: 'retention', label: 'How long we keep it' },
@@ -309,8 +310,104 @@ export default function PrivacyPolicyPage() {
           >
             Cookie Policy
           </Link>
-          ) and any optional marketing communications. You can withdraw consent at any time without
-          affecting the lawfulness of what we did before.
+          ) and optional marketing communications by email and SMS — see{' '}
+          <a href="#direct-marketing" className="text-pink-600 hover:text-pink-700 font-medium">
+            Direct marketing (POPIA §69)
+          </a>{' '}
+          below. You can withdraw consent at any time without affecting the lawfulness of what we
+          did before.
+        </p>
+      </section>
+
+      <section id="direct-marketing">
+        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+          Direct marketing communications (POPIA §69)
+        </h2>
+        <p className="mb-4">
+          Direct marketing — sending you commercial messages to promote our service or third-party
+          offers — is governed by section 69 of POPIA. The rule is simple: we may only send direct
+          marketing by electronic communication if you have given specific, voluntary consent or if
+          you are an existing customer receiving messages about similar services. We do not buy
+          marketing lists, we do not pretext, and we do not opt you in by default.
+        </p>
+
+        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+          Channels we use
+        </h3>
+        <p className="mb-4">
+          At signup you choose which marketing channels we may use. Each is independent — ticking
+          SMS does not enrol you in email, and vice versa. Today we send marketing by:
+        </p>
+        <ul className="list-disc pl-6 mb-4 space-y-2">
+          <li>
+            <strong>Email</strong> — product updates, bounty alerts, and offers.
+          </li>
+          <li>
+            <strong>SMS</strong> — short text alerts to your registered mobile number.
+          </li>
+        </ul>
+        <p className="mb-4">
+          We do not currently send marketing by WhatsApp, instant messaging, or voice call. If we
+          add a new channel, we will ask you again — your existing consents do not roll over to
+          channels you did not opt into.
+        </p>
+
+        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+          Who sends the messages
+        </h3>
+        <p className="mb-4">
+          Our email and SMS are dispatched through{' '}
+          <strong className="font-semibold text-slate-900">Brevo (Sendinblue SAS)</strong>, a French
+          operator under POPIA sections 20 and 21. Brevo receives the minimum data needed to deliver
+          each message: your name, the email address or mobile number, and the message body. Brevo
+          does not use this data for its own purposes. SMS routed through international toll-free
+          carriers may transit third-party infrastructure to reach your handset.
+        </p>
+
+        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+          How to opt out
+        </h3>
+        <ul className="list-disc pl-6 mb-4 space-y-2">
+          <li>
+            <strong>Email</strong> — every marketing email contains an unsubscribe link. Click it
+            and your email-marketing flag is cleared immediately.
+          </li>
+          <li>
+            <strong>SMS</strong> — reply <strong>STOP</strong> to any marketing SMS to be removed,
+            or <strong>HELP</strong> for assistance. Message frequency may vary. Standard message
+            and data rates may apply. Your mobile information will not be sold or shared with third
+            parties for promotional or marketing purposes.
+          </li>
+          <li>
+            <strong>All channels at once</strong> — email{' '}
+            <a
+              href={`mailto:${LEGAL_ENTITY.emails.privacy}`}
+              className="text-pink-600 hover:text-pink-700 font-medium"
+            >
+              {LEGAL_ENTITY.emails.privacy}
+            </a>{' '}
+            and we will withdraw all your marketing consents within seven days. You will continue
+            to receive transactional messages — login codes, payout confirmations, dispute notices
+            — because those are necessary to operate your account and are not direct marketing
+            under section 69.
+          </li>
+        </ul>
+
+        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+          Your record of consent
+        </h3>
+        <p className="mb-4">
+          When you tick a marketing checkbox at signup, we record the date, the version of the
+          consent text shown to you, and the IP address from which you ticked it. This is how we
+          prove your consent if you or the Information Regulator ever ask. You can request a copy
+          of your consent record at any time via{' '}
+          <a
+            href={`mailto:${LEGAL_ENTITY.emails.privacy}`}
+            className="text-pink-600 hover:text-pink-700 font-medium"
+          >
+            {LEGAL_ENTITY.emails.privacy}
+          </a>
+          .
         </p>
       </section>
 
@@ -357,12 +454,18 @@ export default function PrivacyPolicyPage() {
         </p>
 
         <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
-          Transactional email provider
+          Email and SMS provider — Brevo (Sendinblue SAS)
         </h3>
         <p className="mb-4">
-          We use a transactional email service to send account emails (verification, password
-          reset, payout confirmation, dispute notifications). It receives your name and email
-          address to deliver the message.
+          Brevo (Sendinblue SAS) dispatches both our transactional messages — verification codes,
+          payout confirmations, dispute notifications — and any marketing emails or SMS you have
+          opted into. Brevo receives your name, email address, and (for SMS) mobile number, plus
+          the message body. They act as our operator under POPIA sections 20 and 21 and may not
+          use the data for their own purposes. See{' '}
+          <a href="#direct-marketing" className="text-pink-600 hover:text-pink-700 font-medium">
+            Direct marketing (POPIA §69)
+          </a>{' '}
+          for the specifics on when each channel is used and how to opt out.
         </p>
 
         <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
