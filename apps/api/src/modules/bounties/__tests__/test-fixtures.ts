@@ -150,7 +150,6 @@ export function baseBountyRecord(overrides: Record<string, unknown> = {}) {
     visibilityAcknowledged: false,
     payoutMetrics: null,
     paymentStatus: 'UNPAID',
-    stripePaymentIntentId: null,
     ...overrides,
   };
 }

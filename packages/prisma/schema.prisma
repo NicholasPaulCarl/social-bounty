@@ -595,7 +595,6 @@ model Bounty {
   structuredEligibility  Json?
   visibilityAcknowledged Boolean             @default(false)
   payoutMetrics          Json?
-  stripePaymentIntentId  String?
   paymentStatus          PaymentStatus       @default(UNPAID)
   payoutMethod           PayoutMethod?
   accessType             BountyAccessType    @default(PUBLIC)
