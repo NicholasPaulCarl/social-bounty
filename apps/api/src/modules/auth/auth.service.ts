@@ -12,7 +12,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { ModuleRef } from '@nestjs/core';
-import { randomInt, timingSafeEqual } from 'crypto';
+import { createHash, randomInt, timingSafeEqual } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import {
   UserRole,
@@ -21,6 +21,10 @@ import {
   BrandStatus,
   OTP_RULES,
   OtpChannel,
+  AUDIT_ACTIONS,
+  ENTITY_TYPES,
+  LEGAL_VERSION,
+  TERMS_ACCEPTANCE_STATEMENT,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
@@ -31,6 +35,13 @@ import { AuditService } from '../audit/audit.service';
 import { SmsService } from '../sms/sms.service';
 import { TradeSafeGraphQLClient } from '../tradesafe/tradesafe-graphql.client';
 import { TradeSafeTokenService } from '../tradesafe/tradesafe-token.service';
+
+// SHA-256 over an NFC-normalized UTF-8 string. Locks User.termsAcceptedTextHash
+// to the exact wording the user agreed to (Unicode normalization keeps
+// cross-platform hashes stable).
+function sha256Nfc(text: string): string {
+  return createHash('sha256').update(Buffer.from(text.normalize('NFC'), 'utf8')).digest('hex');
+}
 
 @Injectable()
 export class AuthService {
@@ -319,17 +330,33 @@ export class AuthService {
     };
   }
 
-  async signupWithOtp(
-    email: string,
-    otp: string,
-    firstName: string,
-    lastName: string,
-    contactNumber: string,
-    interests?: string[],
-    registerAsBrand?: boolean,
-    brandName?: string,
-    brandContactEmail?: string,
-  ) {
+  async signupWithOtp(opts: {
+    email: string;
+    otp: string;
+    firstName: string;
+    lastName: string;
+    contactNumber: string;
+    interests?: string[];
+    registerAsBrand?: boolean;
+    brandName?: string;
+    brandContactEmail?: string;
+    termsAccepted: true;
+    ipAddress?: string | null;
+    userAgent?: string | null;
+  }) {
+    const {
+      email,
+      otp,
+      firstName,
+      lastName,
+      contactNumber,
+      interests,
+      registerAsBrand,
+      brandName,
+      brandContactEmail,
+      ipAddress,
+      userAgent,
+    } = opts;
     const normalizedEmail = email.toLowerCase().trim();
 
     // Validate OTP
@@ -377,8 +404,13 @@ export class AuthService {
 
     const role = registerAsBrand ? UserRole.BUSINESS_ADMIN : UserRole.PARTICIPANT;
 
+    // Compute hashes outside the tx so the work isn't repeated under retry.
+    const termsStatement = TERMS_ACCEPTANCE_STATEMENT(LEGAL_VERSION);
+    const termsAcceptedTextHash = sha256Nfc(termsStatement);
+    const termsAcceptedAt = new Date();
+
     if (registerAsBrand) {
-      // Create user + brand + membership in a transaction
+      // Create user + brand + membership in one transaction
       const result = await this.prisma.$transaction(async (tx) => {
         const user = await tx.user.create({
           data: {
@@ -390,6 +422,11 @@ export class AuthService {
             emailVerified: true,
             phoneNumber: contactNumber,
             phoneVerified: false,
+            termsAcceptedVersion: LEGAL_VERSION,
+            termsAcceptedAt,
+            termsAcceptedTextHash,
+            termsAcceptedIp: ipAddress ?? null,
+            termsAcceptedUserAgent: userAgent ?? null,
             ...(interests && interests.length > 0 ? { interests } : {}),
           },
         });
@@ -436,6 +473,20 @@ export class AuthService {
         afterState: { userId: result.user.id, hasPhone: true },
       });
 
+      this.auditService.log({
+        actorId: result.user.id,
+        actorRole: result.user.role as UserRole,
+        action: AUDIT_ACTIONS.USER_TERMS_ACCEPTED,
+        entityType: ENTITY_TYPES.USER,
+        entityId: result.user.id,
+        afterState: {
+          version: LEGAL_VERSION,
+          textHash: termsAcceptedTextHash,
+          ipAddress: ipAddress ?? null,
+          userAgent: userAgent ?? null,
+        },
+      });
+
       return {
         ...tokens,
         user: {
@@ -462,6 +513,11 @@ export class AuthService {
         emailVerified: true,
         phoneNumber: contactNumber,
         phoneVerified: false,
+        termsAcceptedVersion: LEGAL_VERSION,
+        termsAcceptedAt,
+        termsAcceptedTextHash,
+        termsAcceptedIp: ipAddress ?? null,
+        termsAcceptedUserAgent: userAgent ?? null,
         ...(interests && interests.length > 0 ? { interests } : {}),
       },
     });
@@ -487,6 +543,20 @@ export class AuthService {
       entityType: 'User',
       entityId: user.id,
       afterState: { userId: user.id, hasPhone: true },
+    });
+
+    this.auditService.log({
+      actorId: user.id,
+      actorRole: user.role as UserRole,
+      action: AUDIT_ACTIONS.USER_TERMS_ACCEPTED,
+      entityType: ENTITY_TYPES.USER,
+      entityId: user.id,
+      afterState: {
+        version: LEGAL_VERSION,
+        textHash: termsAcceptedTextHash,
+        ipAddress: ipAddress ?? null,
+        userAgent: userAgent ?? null,
+      },
     });
 
     return {

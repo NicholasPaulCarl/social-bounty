@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { InputText } from 'primereact/inputtext';
 import { InputSwitch } from 'primereact/inputswitch';
+import { Checkbox } from 'primereact/checkbox';
 import { AlertCircle, ArrowRight, Loader2, Phone, UserPlus } from 'lucide-react';
 import { isValidPhoneNumber } from 'libphonenumber-js';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,6 +21,7 @@ export default function SignupPage() {
     registerAsBrand: false,
     brandName: '',
     brandContactEmail: '',
+    termsAccepted: false,
   });
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'details' | 'otp'>('details');
@@ -93,6 +95,7 @@ export default function SignupPage() {
         firstName: form.firstName,
         lastName: form.lastName,
         contactNumber: form.contactNumber.trim(),
+        termsAccepted: true,
         ...(form.registerAsBrand
           ? {
               registerAsBrand: true,
@@ -291,9 +294,49 @@ export default function SignupPage() {
             </div>
           )}
 
+          {/* Service-communications notice + ToS acceptance. */}
+          <div className="space-y-3 pt-2">
+            <p
+              data-testid="service-comms-notice"
+              className="text-xs text-text-muted leading-relaxed"
+            >
+              We use SMS and email to log you in and send essential system
+              notifications about your account, bounties, and payouts. These
+              messages are necessary to operate your account and are free to
+              receive. Your mobile information will not be sold or shared for
+              marketing purposes.
+            </p>
+
+            <label
+              htmlFor="termsAccepted"
+              className="flex items-start gap-3 cursor-pointer text-sm text-text-secondary normal-case tracking-normal font-normal"
+            >
+              <Checkbox
+                inputId="termsAccepted"
+                checked={form.termsAccepted}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, termsAccepted: !!e.checked }))
+                }
+                className="mt-0.5 flex-none"
+                required
+              />
+              <span>
+                I accept the{' '}
+                <Link href="/legal/terms-of-service" target="_blank" className="text-pink-600 hover:text-pink-700 font-medium">
+                  Terms of Service
+                </Link>{' '}
+                and{' '}
+                <Link href="/legal/privacy-policy" target="_blank" className="text-pink-600 hover:text-pink-700 font-medium">
+                  Privacy Policy
+                </Link>
+                .
+              </span>
+            </label>
+          </div>
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !form.termsAccepted}
             className="btn btn-primary btn-lg w-full rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
@@ -303,6 +346,11 @@ export default function SignupPage() {
             )}
             Continue
           </button>
+          {!form.termsAccepted && (
+            <p className="text-xs text-text-muted text-center">
+              Please accept the Terms of Service and Privacy Policy to continue.
+            </p>
+          )}
         </form>
       ) : (
         <form onSubmit={handleSignup} className="space-y-5">

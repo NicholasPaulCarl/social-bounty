@@ -13,6 +13,7 @@ const TOC = [
   { id: 'who-we-are', label: 'Who we are' },
   { id: 'what-we-collect', label: 'What we collect' },
   { id: 'how-we-use', label: 'How we use it' },
+  { id: 'service-communications', label: 'Service communications' },
   { id: 'who-we-share-with', label: 'Who we share it with' },
   { id: 'cross-border-transfer', label: 'Cross-border transfer' },
   { id: 'retention', label: 'How long we keep it' },
@@ -309,8 +310,63 @@ export default function PrivacyPolicyPage() {
           >
             Cookie Policy
           </Link>
-          ) and any optional marketing communications. You can withdraw consent at any time without
-          affecting the lawfulness of what we did before.
+          ). We do not currently send optional marketing communications — see{' '}
+          <a
+            href="#service-communications"
+            className="text-pink-600 hover:text-pink-700 font-medium"
+          >
+            Service communications
+          </a>{' '}
+          below for what we do send. You can withdraw consent at any time without affecting the
+          lawfulness of what we did before.
+        </p>
+      </section>
+
+      <section id="service-communications">
+        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+          Service communications
+        </h2>
+        <p className="mb-4">
+          We use SMS and email to log you in and send essential system notifications about your
+          account, bounties, and payouts. These messages are necessary to operate your account —
+          examples include verification codes, payout confirmations, dispute notices, submission
+          status updates, and individualised bounty alerts about work you have applied for or
+          submitted. They are not direct marketing under section 69 of POPIA, and we do not
+          collect a separate marketing-consent box for them at signup.
+        </p>
+        <p className="mb-4">
+          Both rails are dispatched through{' '}
+          <strong className="font-semibold text-slate-900">Brevo (Sendinblue SAS)</strong>, a French
+          operator under POPIA sections 20 and 21. Brevo receives the minimum data needed to
+          deliver each message: your name, the email address or mobile number, and the message
+          body. Brevo does not use this data for its own purposes.
+        </p>
+        <p className="mb-4">
+          <strong className="font-semibold text-slate-900">No charge to receive.</strong> The cost
+          of sending SMS is borne by us; you do not incur a charge for receiving them on a standard
+          South African mobile plan. Roaming or non-standard plans may apply their own rules.
+        </p>
+        <p className="mb-4">
+          <strong className="font-semibold text-slate-900">No marketing without consent.</strong>{' '}
+          We will not use SMS or email to send you optional product offers, third-party
+          promotions, or bulk marketing campaigns unless we first ask for your specific consent
+          under section 69 of POPIA. If we ever introduce that, it will be a separate, voluntary
+          opt-in surface — your service messages will not be conditional on accepting marketing.
+        </p>
+        <p className="mb-4">
+          <strong className="font-semibold text-slate-900">No sale or sharing for marketing.</strong>{' '}
+          Your mobile information will not be sold or shared with third parties for promotional or
+          marketing purposes.
+        </p>
+        <p className="mb-4">
+          If you have any concerns about a message you have received from us, email{' '}
+          <a
+            href={`mailto:${LEGAL_ENTITY.emails.privacy}`}
+            className="text-pink-600 hover:text-pink-700 font-medium"
+          >
+            {LEGAL_ENTITY.emails.privacy}
+          </a>
+          . You can stop receiving service communications by closing your account.
         </p>
       </section>
 
@@ -357,12 +413,21 @@ export default function PrivacyPolicyPage() {
         </p>
 
         <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
-          Transactional email provider
+          Email and SMS provider — Brevo (Sendinblue SAS)
         </h3>
         <p className="mb-4">
-          We use a transactional email service to send account emails (verification, password
-          reset, payout confirmation, dispute notifications). It receives your name and email
-          address to deliver the message.
+          Brevo (Sendinblue SAS) dispatches our service communications — verification codes,
+          payout confirmations, dispute notifications, and individualised bounty alerts. Brevo
+          receives your name, email address, and (for SMS) mobile number, plus the message body.
+          They act as our operator under POPIA sections 20 and 21 and may not use the data for
+          their own purposes. See{' '}
+          <a
+            href="#service-communications"
+            className="text-pink-600 hover:text-pink-700 font-medium"
+          >
+            Service communications
+          </a>{' '}
+          for the full description of what these channels are used for.
         </p>
 
         <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">

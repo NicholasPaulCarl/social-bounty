@@ -120,6 +120,7 @@ export const AUDIT_ACTIONS = {
   KB_INEFFECTIVE_FIX_FLAGGED: 'KB_INEFFECTIVE_FIX_FLAGGED',
   TRADESAFE_TOKEN_CREATED: 'tradesafe.token_created',
   BOUNTY_FUNDED_VIA_TRADESAFE: 'bounty.funded_via_tradesafe',
+  USER_TERMS_ACCEPTED: 'user.terms_accepted',
 } as const;
 
 export const ENTITY_TYPES = {

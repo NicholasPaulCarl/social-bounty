@@ -10,6 +10,7 @@ import {
   Length,
   MinLength,
   ValidateIf,
+  Equals,
 } from 'class-validator';
 import { OtpChannel } from '@social-bounty/shared';
 import { IsValidPhoneE164 } from '../../../common/validators/phone-number.validator';
@@ -81,6 +82,12 @@ export class SignupWithOtpDto {
   @IsString()
   @IsValidPhoneE164({ region: 'ZA' })
   contactNumber!: string;
+
+  // ToS / Privacy Policy acceptance — required. SMS + email are classified
+  // as service communications; no separate marketing consent is collected here.
+  @IsBoolean()
+  @Equals(true, { message: 'You must accept the Terms of Service and Privacy Policy to create an account.' })
+  termsAccepted!: true;
 }
 
 export class SwitchBrandDto {

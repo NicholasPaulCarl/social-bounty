@@ -90,22 +90,26 @@ export class AuthController {
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async signup(
     @Body() dto: SignupWithOtpDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
     if (!(await this.settingsService.isSignupEnabled())) {
       throw new BadRequestException('Signups are currently disabled');
     }
-    const result = await this.authService.signupWithOtp(
-      dto.email,
-      dto.otp,
-      dto.firstName,
-      dto.lastName,
-      dto.contactNumber,
-      dto.interests,
-      dto.registerAsBrand,
-      dto.brandName,
-      dto.brandContactEmail,
-    );
+    const result = await this.authService.signupWithOtp({
+      email: dto.email,
+      otp: dto.otp,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      contactNumber: dto.contactNumber,
+      interests: dto.interests,
+      registerAsBrand: dto.registerAsBrand,
+      brandName: dto.brandName,
+      brandContactEmail: dto.brandContactEmail,
+      termsAccepted: dto.termsAccepted,
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent') ?? null,
+    });
     setRefreshCookie(res, result.refreshToken);
     const { refreshToken: _, ...response } = result;
     return response;

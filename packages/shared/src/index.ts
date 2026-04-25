@@ -114,6 +114,13 @@ export type {
   JwtPayload,
 } from './dto/auth.dto';
 
+// Legal versioning + ToS acceptance statement
+export {
+  LEGAL_VERSION,
+  LEGAL_EFFECTIVE_DATE,
+  TERMS_ACCEPTANCE_STATEMENT,
+} from './legal-version';
+
 // User DTOs
 export type {
   UserBrandInfo,

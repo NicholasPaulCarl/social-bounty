@@ -453,6 +453,14 @@ model User {
   // fire-and-forget, or blocking from the bounty-funding path in Phase 3).
   // See ADR 0011 (TradeSafe unified rail) + md-files/payment-gateway.md.
   tradeSafeTokenId  String?    @unique
+  // Terms of Service / Privacy Policy acceptance — stamped at signup. Versioned
+  // against LEGAL_VERSION (packages/shared/src/legal-version.ts). Hash is over
+  // the NFC-normalized acceptance statement so we can prove what was accepted.
+  termsAcceptedVersion   String?
+  termsAcceptedAt        DateTime?
+  termsAcceptedTextHash  String?
+  termsAcceptedIp        String?
+  termsAcceptedUserAgent String?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 

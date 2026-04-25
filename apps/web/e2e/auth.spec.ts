@@ -95,4 +95,36 @@ test.describe('Auth — signup page', () => {
     // Email field present
     await expect(page.locator('input[type="email"], #email')).toBeVisible();
   });
+
+  test('renders ToS checkbox unchecked by default + no marketing checkboxes', async ({ page }) => {
+    await page.goto('/signup');
+
+    // Only one consent checkbox: Terms of Service / Privacy Policy.
+    const termsBox = page.locator('input#termsAccepted');
+    await expect(termsBox).toBeVisible();
+    expect(await termsBox.isChecked()).toBe(false);
+
+    // Marketing-consent boxes from the previous design must not exist.
+    await expect(page.locator('input#consentEmail')).toHaveCount(0);
+    await expect(page.locator('input#consentSms')).toHaveCount(0);
+  });
+
+  test('shows service-communications notice with no-sale-no-share statement', async ({ page }) => {
+    await page.goto('/signup');
+
+    const notice = page.locator('[data-testid="service-comms-notice"]');
+    await expect(notice).toBeVisible();
+    await expect(notice).toContainText(/log you in and send essential system notifications/i);
+    await expect(notice).toContainText(/will not be sold or shared for marketing purposes/i);
+  });
+
+  test('Continue button stays disabled until ToS box is ticked', async ({ page }) => {
+    await page.goto('/signup');
+
+    const cta = page.getByRole('button', { name: /continue/i });
+    await expect(cta).toBeDisabled();
+
+    await page.locator('input#termsAccepted').check();
+    await expect(cta).toBeEnabled();
+  });
 });

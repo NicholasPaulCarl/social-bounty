@@ -37,6 +37,12 @@ export interface SignupWithOtpRequest {
   registerAsBrand?: boolean;
   brandName?: string;
   brandContactEmail?: string;
+  // Required ToS + Privacy Policy acceptance. Backend rejects anything but `true`.
+  // SMS + email are classified as service communications (POPIA-exempt
+  // transactional channel) — no separate marketing consent is collected at
+  // signup. If/when optional marketing is introduced it will be a separate
+  // consent surface under POPIA §69.
+  termsAccepted: true;
 }
 
 // POST /auth/switch-brand
