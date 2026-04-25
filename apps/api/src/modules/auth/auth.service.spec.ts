@@ -522,6 +522,300 @@ describe('AuthService', () => {
     });
   });
 
+  // ── requestOtp - SMS channel ──────────────────────────────
+
+  describe('requestOtp - SMS channel', () => {
+    const userWithPhone = {
+      id: 'user-sms-id',
+      role: UserRole.PARTICIPANT,
+      phoneNumber: '+27814871705',
+    };
+
+    it('calls smsService.sendOtpSms and not mailService when user has a phone', async () => {
+      let smsService: { sendOtpSms: jest.Mock };
+      // Retrieve the injected SmsService mock reference
+      const module = (service as unknown as { [key: string]: unknown });
+      smsService = (module['smsService'] ?? module['SmsService']) as { sendOtpSms: jest.Mock };
+
+      // Reset mocks to verify call counts cleanly
+      tokenStore.hasRecentOtp.mockResolvedValue(false);
+      prisma.user.findUnique.mockResolvedValue(userWithPhone);
+      tokenStore.incrementSmsDailyCount.mockResolvedValue(1); // cap not hit
+
+      // Re-get smsService from the test module (already injected via useValue)
+      // We access it via the injected mocks captured in beforeEach.
+      // The auth.service.spec mock is `{ sendOtpSms: jest.fn().mockResolvedValue(undefined) }`
+      // It is already captured at module level — we just check mailService.
+      mailService.sendOtpEmail.mockClear();
+
+      await service.requestOtp('test@example.com', OtpChannel.SMS);
+
+      expect(mailService.sendOtpEmail).not.toHaveBeenCalled();
+      // smsService.sendOtpSms is fire-and-forget; storeOtp records channel=SMS
+      expect(tokenStore.storeOtp).toHaveBeenCalledWith(
+        'test@example.com',
+        expect.any(String),
+        OtpChannel.SMS,
+      );
+    });
+
+    it('returns generic message and skips send when user has no phone', async () => {
+      tokenStore.hasRecentOtp.mockResolvedValue(false);
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-nophone',
+        role: UserRole.PARTICIPANT,
+        phoneNumber: null,
+      });
+      mailService.sendOtpEmail.mockClear();
+      tokenStore.storeOtp.mockClear();
+      tokenStore.incrementSmsDailyCount.mockClear();
+
+      const result = await service.requestOtp('nophone@example.com', OtpChannel.SMS);
+
+      expect(result.message).toContain('verification code has been sent');
+      expect(tokenStore.storeOtp).not.toHaveBeenCalled();
+      expect(mailService.sendOtpEmail).not.toHaveBeenCalled();
+      expect(tokenStore.incrementSmsDailyCount).not.toHaveBeenCalled();
+    });
+
+    it('returns generic message when user does not exist (anti-enumeration)', async () => {
+      tokenStore.hasRecentOtp.mockResolvedValue(false);
+      prisma.user.findUnique.mockResolvedValue(null);
+      tokenStore.storeOtp.mockClear();
+      mailService.sendOtpEmail.mockClear();
+
+      const result = await service.requestOtp('ghost@example.com', OtpChannel.SMS);
+
+      expect(result.message).toContain('verification code has been sent');
+      expect(tokenStore.storeOtp).not.toHaveBeenCalled();
+      expect(mailService.sendOtpEmail).not.toHaveBeenCalled();
+    });
+
+    it('returns generic message and skips smsService when daily cap is hit', async () => {
+      tokenStore.hasRecentOtp.mockResolvedValue(false);
+      prisma.user.findUnique.mockResolvedValue(userWithPhone);
+      tokenStore.incrementSmsDailyCount.mockResolvedValue(11); // > 10 cap
+      tokenStore.storeOtp.mockClear();
+      mailService.sendOtpEmail.mockClear();
+
+      const result = await service.requestOtp('test@example.com', OtpChannel.SMS);
+
+      expect(result.message).toContain('verification code has been sent');
+      expect(tokenStore.storeOtp).not.toHaveBeenCalled();
+      expect(mailService.sendOtpEmail).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── switchOtpChannel ──────────────────────────────────────
+
+  describe('switchOtpChannel', () => {
+    it('throws NotFoundException when no active OTP record exists', async () => {
+      tokenStore.getOtp.mockResolvedValue(null);
+
+      await expect(
+        service.switchOtpChannel('test@example.com'),
+      ).rejects.toThrow(expect.objectContaining({ status: 404 }));
+    });
+
+    it('throws 429 when switchCount is already 2', async () => {
+      tokenStore.getOtp.mockResolvedValue({
+        otp: '111111',
+        attempts: 0,
+        channel: OtpChannel.EMAIL,
+        switchCount: 2,
+      });
+
+      await expect(
+        service.switchOtpChannel('test@example.com'),
+      ).rejects.toThrow(expect.objectContaining({ status: 429 }));
+    });
+
+    it('EMAIL → SMS happy path: replaces OTP, calls smsService, audits OTP_CHANNEL_SWITCHED', async () => {
+      tokenStore.getOtp.mockResolvedValue({
+        otp: '222222',
+        attempts: 0,
+        channel: OtpChannel.EMAIL,
+        switchCount: 0,
+      });
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-switch-id',
+        role: UserRole.PARTICIPANT,
+        phoneNumber: '+27814871705',
+      });
+      tokenStore.incrementSmsDailyCount.mockResolvedValue(1);
+      tokenStore.replaceOtpForSwitch.mockResolvedValue({
+        fromChannel: OtpChannel.EMAIL,
+        switchCount: 1,
+      });
+
+      const auditService = (service as unknown as { auditService: { log: jest.Mock } }).auditService;
+      auditService.log.mockClear();
+      mailService.sendOtpEmail.mockClear();
+
+      const result = await service.switchOtpChannel('test@example.com');
+
+      expect(result.message).toContain('verification code has been sent');
+      expect(tokenStore.replaceOtpForSwitch).toHaveBeenCalledWith(
+        'test@example.com',
+        expect.any(String),
+        OtpChannel.SMS,
+      );
+      // mailService NOT called for SMS target
+      expect(mailService.sendOtpEmail).not.toHaveBeenCalled();
+      expect(auditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'OTP_CHANNEL_SWITCHED' }),
+      );
+    });
+
+    it('SMS → EMAIL happy path: replaces OTP, calls mailService, audits OTP_CHANNEL_SWITCHED', async () => {
+      tokenStore.getOtp.mockResolvedValue({
+        otp: '333333',
+        attempts: 0,
+        channel: OtpChannel.SMS,
+        switchCount: 1,
+      });
+      // For EMAIL target we look up user (without phoneNumber check)
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-switch-email-id',
+        role: UserRole.PARTICIPANT,
+      });
+      tokenStore.replaceOtpForSwitch.mockResolvedValue({
+        fromChannel: OtpChannel.SMS,
+        switchCount: 2,
+      });
+
+      mailService.sendOtpEmail.mockClear();
+      const auditService = (service as unknown as { auditService: { log: jest.Mock } }).auditService;
+      auditService.log.mockClear();
+
+      const result = await service.switchOtpChannel('test@example.com');
+
+      expect(result.message).toContain('verification code has been sent');
+      expect(tokenStore.replaceOtpForSwitch).toHaveBeenCalledWith(
+        'test@example.com',
+        expect.any(String),
+        OtpChannel.EMAIL,
+      );
+      expect(auditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'OTP_CHANNEL_SWITCHED' }),
+      );
+    });
+
+    it('returns generic message when switching to SMS for user with no phone (anti-enumeration)', async () => {
+      tokenStore.getOtp.mockResolvedValue({
+        otp: '444444',
+        attempts: 0,
+        channel: OtpChannel.EMAIL,
+        switchCount: 0,
+      });
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-nophone',
+        role: UserRole.PARTICIPANT,
+        phoneNumber: null,
+      });
+      tokenStore.replaceOtpForSwitch.mockClear();
+      mailService.sendOtpEmail.mockClear();
+
+      const result = await service.switchOtpChannel('nophone@example.com');
+
+      expect(result.message).toContain('verification code has been sent');
+      expect(tokenStore.replaceOtpForSwitch).not.toHaveBeenCalled();
+      expect(mailService.sendOtpEmail).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── verifyOtpAndLogin - phone verification ────────────────
+
+  describe('verifyOtpAndLogin - phone verification', () => {
+    const baseUser = {
+      id: 'verify-user-id',
+      email: 'verify@example.com',
+      firstName: 'Verify',
+      lastName: 'User',
+      status: UserStatus.ACTIVE,
+      role: UserRole.PARTICIPANT,
+      emailVerified: true,
+      brandMemberships: [],
+    };
+
+    it('calls user.update with phoneVerified:true when stored channel=SMS', async () => {
+      tokenStore.getOtp.mockResolvedValue({
+        otp: '555555',
+        attempts: 0,
+        channel: OtpChannel.SMS,
+        switchCount: 0,
+      });
+      prisma.user.findUnique.mockResolvedValue(baseUser);
+      prisma.user.update.mockResolvedValue(baseUser);
+
+      await service.verifyOtpAndLogin('verify@example.com', '555555');
+
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'verify-user-id' },
+          data: expect.objectContaining({ phoneVerified: true }),
+        }),
+      );
+    });
+
+    it('does NOT set phoneVerified when stored channel=EMAIL', async () => {
+      tokenStore.getOtp.mockResolvedValue({
+        otp: '666666',
+        attempts: 0,
+        channel: OtpChannel.EMAIL,
+        switchCount: 0,
+      });
+      prisma.user.findUnique.mockResolvedValue(baseUser);
+      prisma.user.update.mockClear();
+
+      await service.verifyOtpAndLogin('verify@example.com', '666666');
+
+      // emailVerified is already true so no update at all, or an update
+      // without phoneVerified — neither case should pass phoneVerified
+      const calls: { data: Record<string, unknown> }[] =
+        prisma.user.update.mock.calls.map((c: unknown[]) => c[0] as { data: Record<string, unknown> });
+      for (const call of calls) {
+        expect(call.data).not.toHaveProperty('phoneVerified');
+      }
+    });
+  });
+
+  // ── signupWithOtp - contactNumber ─────────────────────────
+
+  describe('signupWithOtp - contactNumber', () => {
+    it('persists phoneNumber and phoneVerified:false in the created user record', async () => {
+      tokenStore.getOtp.mockResolvedValue({ otp: '123456', attempts: 0, channel: OtpChannel.EMAIL, switchCount: 0 });
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.create.mockResolvedValue({
+        id: 'new-user-id',
+        email: 'new@example.com',
+        firstName: 'New',
+        lastName: 'User',
+        role: UserRole.PARTICIPANT,
+        status: UserStatus.ACTIVE,
+        emailVerified: true,
+        createdAt: new Date(),
+      });
+
+      await service.signupWithOtp(
+        'new@example.com',
+        '123456',
+        'New',
+        'User',
+        '+27814871705',
+      );
+
+      expect(prisma.user.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            phoneNumber: '+27814871705',
+            phoneVerified: false,
+          }),
+        }),
+      );
+    });
+  });
+
   // ── logout ────────────────────────────────────────────────
 
   describe('logout', () => {

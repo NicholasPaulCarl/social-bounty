@@ -11,6 +11,8 @@ import { RedisService } from '../../redis/redis.service';
 import { ApifyService } from '../../apify/apify.service';
 import { TradeSafeGraphQLClient } from '../../tradesafe/tradesafe-graphql.client';
 import { TradeSafeTokenService } from '../../tradesafe/tradesafe-token.service';
+import { AuditService } from '../../audit/audit.service';
+import { SmsService } from '../../sms/sms.service';
 import { UserRole, UserStatus } from '@social-bounty/shared';
 
 /**
@@ -99,6 +101,8 @@ describe('AuthService — Refresh Token Race Condition', () => {
           },
         },
         { provide: MailService, useValue: { sendOtpEmail: jest.fn() } },
+        { provide: SmsService, useValue: { sendOtpSms: jest.fn().mockResolvedValue(undefined) } },
+        { provide: AuditService, useValue: { log: jest.fn().mockResolvedValue(undefined) } },
         { provide: TokenStoreService, useValue: tokenStore },
         {
           provide: RedisService,

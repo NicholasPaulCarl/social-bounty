@@ -1,8 +1,8 @@
 # Incident Response Playbook — Social Bounty
 
-**Version:** 1.1
+**Version:** 1.2
 **Owner:** Engineering Lead
-**Last Updated:** 2026-04-18
+**Last Updated:** 2026-04-25
 **Review Cycle:** Quarterly
 
 > **IMPORTANT — pre-launch:** this playbook contains contact placeholders written as `<TO BE FILLED — ...>`. Every one MUST be filled with real contact details before prod cutover. The go-live checklist (`docs/deployment/go-live-checklist.md` §7) gates this.
@@ -21,6 +21,7 @@
    - [5.3 Account Compromise](#53-account-compromise)
    - [5.4 Dependency Vulnerability](#54-dependency-vulnerability)
    - [5.5 Financial Kill Switch (Payment Incidents)](#55-financial-kill-switch-payment-incidents)
+   - [5.6 SMS Rail Outage](#56-sms-rail-outage)
 6. [Communication Templates](#6-communication-templates)
 7. [Post-Incident Review Template](#7-post-incident-review-template)
 
@@ -62,7 +63,8 @@ All contacts are placeholders. Replace with real names and channels before going
 | Security Lead | [Security Lead Name] | Slack #security / Mobile | [Security Lead Email] | Any suspected breach, account compromise, or CVE exploitation |
 | Product Lead | [Product Lead Name] | Slack DM | [Product Lead Email] | SEV-1/SEV-2; any user-facing impact lasting >1 hour |
 | Legal Counsel | [Legal Counsel Name/Firm] | [Phone] | [Email] | Any confirmed data breach (GDPR/POPIA notification obligations) |
-| Payment Processor Support (Stitch Express) | <TO BE FILLED — Stitch account manager name> | <TO BE FILLED — Stitch support email + out-of-hours phone> | <TO BE FILLED — Stitch merchant dashboard URL (https://express.stitch.money)> | Any payment processing failure, settlement webhook failure, or Stitch API outage | <!-- historical -->
+| Payment Processor Support (TradeSafe) | <TO BE FILLED — TradeSafe account manager name> | <TO BE FILLED — TradeSafe support email> | <TO BE FILLED — TradeSafe merchant dashboard URL> | Any payment processing failure, escrow webhook failure, or TradeSafe API outage |
+| SMS Provider Support (Brevo) | Brevo support contact: [TBD — register a primary contact in Brevo dashboard before launch] | https://app.brevo.com/ → Help | <TO BE FILLED — Brevo support email/phone> | Any SMS delivery failure spike, sender-ID rejection, or Brevo API outage (see §5.6) |
 | Infrastructure / Hosting Support | [Hosting Provider] | [Support Ticket URL] | [Emergency Phone] | Infrastructure-level outages |
 
 **Incident Commander:** The first senior engineer to acknowledge a SEV-1 or SEV-2 becomes the Incident Commander (IC) until explicitly handed off. The IC coordinates response, owns communication, and makes containment decisions.
@@ -272,6 +274,57 @@ The Financial Kill Switch is the platform's ledger-write circuit breaker. Flip i
 - Do NOT attempt to SQL-edit ledger rows. Append-only (Non-Negotiable #5). Corrections = compensating entries only.
 - Do NOT restart the API thinking the switch is just a cache. It's persisted in `SystemSetting.financial.kill_switch.active`; a restart changes nothing.
 - Do NOT leave the switch active longer than the investigation requires — the ADR 0010 auto-refund queue and other scheduled jobs queue up.
+
+---
+
+### 5.6 SMS Rail Outage
+
+**Symptom:** Users report not receiving SMS OTP codes. May present as support tickets ("I never got my code"), failed logins, or a spike in "Try Email instead" clicks. Distinct from a general auth outage — email-OTP continues to work throughout.
+
+**Severity guide:** SEV-3 (partial degradation, workaround exists via email) unless >25% of auth attempts are SMS-only with no email fallback, in which case escalate to SEV-2.
+
+#### First Check
+
+1. Open the Brevo dashboard at `https://app.brevo.com/` → SMS → Statistics. Look for a failed-delivery spike in the last 1–2 hours.
+   - **Delivery failures from Brevo:** Brevo accepted the send (HTTP 201) but the telco rejected delivery. Likely a ZA alphanumeric sender-ID rejection. Contact Brevo support; see the escalation contact in §3.
+   - **HTTP errors from Brevo:** Brevo is returning 4xx/5xx. Check API key validity in Render environment vars. If the key is valid, check Brevo's status page (`https://status.brevo.com/`).
+   - **No sends in logs:** `SMS_ENABLED` may have been accidentally flipped or the API process is not routing to `SmsService`. Check boot logs for `SMS rail enabled` / `SMS rail disabled` message.
+
+2. Check Render API logs (`social-bounty-api` → Logs) for `SmsService` error lines. The service logs structured error output including the Brevo HTTP status and response body.
+
+3. Confirm the per-phone daily cap has not been globally exhausted: check Redis key pattern `sms:daily:*`. A single phone cap (10/day) is expected; if hundreds of distinct keys are at cap, investigate for an abuse pattern.
+
+#### Kill Switch — Flip `SMS_ENABLED=false`
+
+1. In Render dashboard → `social-bounty-api` service → Environment → set `SMS_ENABLED=false`.
+2. Render auto-redeploys; takes approximately 2 minutes.
+3. After deploy, verify boot logs show `SMS rail disabled — SMS_ENABLED=false`.
+
+**Post-flip behaviour:** The channel toggle still renders in the login UI — users can select SMS, but the request returns the standard generic "if an account exists, a code has been sent" message without any SMS going out (same anti-enumeration shape as the email path). Users see no error; they naturally click "Try Email instead." There is **no data integrity impact** — no ledger, no financial state, no session data is affected.
+
+#### Recovery
+
+1. Once Brevo is healthy (delivery stats normal, no HTTP errors), flip `SMS_ENABLED=true` in Render.
+2. Confirm the next boot log contains: `SMS rail enabled — Brevo, sender=<sender>`.
+3. Send a test OTP to a known phone number and confirm delivery within 30 seconds.
+4. Update the incident in `#incidents` with time-to-recovery and root cause.
+
+#### Per-Phone Cap Exhausted
+
+A single user phone hitting the 10-SMS daily cap returns the silent generic message — they cannot distinguish cap exhaustion from a successful send. This is by design (abuse-surface reduction).
+
+- **Normal resolution:** wait for the Redis TTL to expire (24h from the first SMS in the window).
+- **Manual reset (support escalation):** `redis-cli DEL sms:daily:<e164Phone>` — replace `<e164Phone>` with the E.164 number (e.g. `+27821234567`). Only do this for a confirmed legitimate user via a support ticket; this resets their cap to 0.
+
+#### Cost Monitoring
+
+Every SMS costs approximately 10.2 Brevo credits for South African delivery. The `usedCredits` field is returned in the Brevo API response and logged by `SmsService`. Monitor credit balance in the Brevo dashboard. Suggested thresholds:
+- **Warning:** credit balance below 200 (approximately 20 SMS remaining).
+- **Refill trigger:** at 10% of purchased credit volume, or enable Brevo's auto-replenish in the billing settings.
+
+**Related:**
+- ADR 0012 — Multi-channel OTP rail design, failure-mode table, and per-phone cap rationale.
+- `CLAUDE.md` §SMS_ENABLED — kill switch documentation.
 
 ---
 
