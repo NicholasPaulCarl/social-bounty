@@ -95,4 +95,45 @@ test.describe('Auth — signup page', () => {
     // Email field present
     await expect(page.locator('input[type="email"], #email')).toBeVisible();
   });
+
+  test('renders Email + SMS + Terms checkboxes, all unchecked by default', async ({ page }) => {
+    await page.goto('/signup');
+
+    const emailBox = page.locator('input#consentEmail');
+    const smsBox = page.locator('input#consentSms');
+    const termsBox = page.locator('input#termsAccepted');
+
+    await expect(emailBox).toBeVisible();
+    await expect(smsBox).toBeVisible();
+    await expect(termsBox).toBeVisible();
+
+    expect(await emailBox.isChecked()).toBe(false);
+    expect(await smsBox.isChecked()).toBe(false);
+    expect(await termsBox.isChecked()).toBe(false);
+  });
+
+  test('SMS opt-in shows the carrier-mandated disclosure text', async ({ page }) => {
+    await page.goto('/signup');
+
+    // Brevo / toll-free carrier require this exact disclosure to be visible
+    // alongside the SMS opt-in checkbox.
+    await expect(
+      page.getByText(/Reply STOP to opt out/, { exact: false })
+    ).toBeVisible();
+    await expect(
+      page.getByText(/will not be sold or shared with third parties/, {
+        exact: false,
+      })
+    ).toBeVisible();
+  });
+
+  test('Continue button stays disabled until ToS box is ticked', async ({ page }) => {
+    await page.goto('/signup');
+
+    const cta = page.getByRole('button', { name: /continue/i });
+    await expect(cta).toBeDisabled();
+
+    await page.locator('input#termsAccepted').check();
+    await expect(cta).toBeEnabled();
+  });
 });
