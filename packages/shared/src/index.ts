@@ -112,20 +112,14 @@ export type {
   RefreshTokenRequest,
   RefreshTokenResponse,
   JwtPayload,
-  MarketingConsentInput,
 } from './dto/auth.dto';
 
-// Legal versioning + marketing-consent labels
-export { LEGAL_VERSION, LEGAL_EFFECTIVE_DATE } from './legal-version';
+// Legal versioning + ToS acceptance statement
 export {
-  MARKETING_CONSENT_VERSION,
-  MARKETING_CONSENT_LABELS,
+  LEGAL_VERSION,
+  LEGAL_EFFECTIVE_DATE,
   TERMS_ACCEPTANCE_STATEMENT,
-} from './marketing-consent';
-export type {
-  MarketingConsentLabel,
-  MarketingConsentChannelKey,
-} from './marketing-consent';
+} from './legal-version';
 
 // User DTOs
 export type {

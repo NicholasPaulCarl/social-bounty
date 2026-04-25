@@ -120,8 +120,6 @@ export const AUDIT_ACTIONS = {
   KB_INEFFECTIVE_FIX_FLAGGED: 'KB_INEFFECTIVE_FIX_FLAGGED',
   TRADESAFE_TOKEN_CREATED: 'tradesafe.token_created',
   BOUNTY_FUNDED_VIA_TRADESAFE: 'bounty.funded_via_tradesafe',
-  USER_MARKETING_CONSENT_GRANTED: 'user.marketing_consent_granted',
-  USER_MARKETING_CONSENT_REVOKED: 'user.marketing_consent_revoked',
   USER_TERMS_ACCEPTED: 'user.terms_accepted',
 } as const;
 
@@ -136,7 +134,6 @@ export const ENTITY_TYPES = {
   WALLET: 'Wallet',
   WITHDRAWAL: 'Withdrawal',
   SUBSCRIPTION: 'Subscription',
-  MARKETING_CONSENT: 'MarketingConsent',
 } as const;
 
 export const CHANNEL_POST_FORMATS: Record<SocialChannel, PostFormat[]> = {
