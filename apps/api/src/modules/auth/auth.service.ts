@@ -12,7 +12,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { ModuleRef } from '@nestjs/core';
-import { randomInt, timingSafeEqual } from 'crypto';
+import { createHash, randomInt, timingSafeEqual } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import {
   UserRole,
@@ -21,7 +21,15 @@ import {
   BrandStatus,
   OTP_RULES,
   OtpChannel,
+  AUDIT_ACTIONS,
+  ENTITY_TYPES,
+  LEGAL_VERSION,
+  MARKETING_CONSENT_LABELS,
+  MARKETING_CONSENT_VERSION,
+  TERMS_ACCEPTANCE_STATEMENT,
+  type MarketingConsentInput,
 } from '@social-bounty/shared';
+import { MarketingChannel, MarketingConsentSource } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { MailService } from '../mail/mail.service';
@@ -31,6 +39,78 @@ import { AuditService } from '../audit/audit.service';
 import { SmsService } from '../sms/sms.service';
 import { TradeSafeGraphQLClient } from '../tradesafe/tradesafe-graphql.client';
 import { TradeSafeTokenService } from '../tradesafe/tradesafe-token.service';
+
+// SHA-256 over an NFC-normalized UTF-8 string. Used to lock the textHash on
+// MarketingConsent + User.termsAcceptedTextHash to the exact wording the user
+// agreed to (Unicode normalization keeps cross-platform hashes stable).
+function sha256Nfc(text: string): string {
+  return createHash('sha256').update(Buffer.from(text.normalize('NFC'), 'utf8')).digest('hex');
+}
+
+// Map the wire-shape boolean object to the DB enum keys for the channels the
+// user actively granted. Channels with `false` produce no row — absence is the
+// implicit "no" so we never store a "user said no" record.
+function grantedMarketingChannels(input: MarketingConsentInput): MarketingChannel[] {
+  const out: MarketingChannel[] = [];
+  if (input.email === true) out.push(MarketingChannel.EMAIL);
+  if (input.sms === true) out.push(MarketingChannel.SMS);
+  return out;
+}
+
+// Upsert a MarketingConsent row per granted channel inside the caller's tx.
+// Returns the persisted rows so the caller can write a matching AuditLog per row.
+async function persistMarketingConsents(
+  tx: Parameters<Parameters<PrismaService['$transaction']>[0]>[0],
+  args: {
+    userId: string;
+    channels: MarketingChannel[];
+    ipAddress?: string | null;
+    userAgent?: string | null;
+  },
+) {
+  const rows: Array<{
+    id: string;
+    channel: MarketingChannel;
+    source: MarketingConsentSource;
+    textVersion: string;
+    textHash: string;
+    ipAddress: string | null;
+  }> = [];
+  const now = new Date();
+  for (const channel of args.channels) {
+    const labelKey = channel === MarketingChannel.EMAIL ? 'EMAIL' : 'SMS';
+    const labelEntry = MARKETING_CONSENT_LABELS[labelKey];
+    const fullText = labelEntry.label + (labelEntry.disclosure ?? '');
+    const textHash = sha256Nfc(fullText);
+    const row = await tx.marketingConsent.upsert({
+      where: { userId_channel: { userId: args.userId, channel } },
+      create: {
+        userId: args.userId,
+        channel,
+        granted: true,
+        grantedAt: now,
+        source: MarketingConsentSource.SIGNUP_FORM_V1,
+        textVersion: MARKETING_CONSENT_VERSION,
+        textHash,
+        ipAddress: args.ipAddress ?? null,
+        userAgent: args.userAgent ?? null,
+      },
+      update: {
+        granted: true,
+        grantedAt: now,
+        revokedAt: null,
+        source: MarketingConsentSource.SIGNUP_FORM_V1,
+        textVersion: MARKETING_CONSENT_VERSION,
+        textHash,
+        ipAddress: args.ipAddress ?? null,
+        userAgent: args.userAgent ?? null,
+      },
+      select: { id: true, channel: true, source: true, textVersion: true, textHash: true, ipAddress: true },
+    });
+    rows.push(row);
+  }
+  return rows;
+}
 
 @Injectable()
 export class AuthService {
@@ -319,17 +399,35 @@ export class AuthService {
     };
   }
 
-  async signupWithOtp(
-    email: string,
-    otp: string,
-    firstName: string,
-    lastName: string,
-    contactNumber: string,
-    interests?: string[],
-    registerAsBrand?: boolean,
-    brandName?: string,
-    brandContactEmail?: string,
-  ) {
+  async signupWithOtp(opts: {
+    email: string;
+    otp: string;
+    firstName: string;
+    lastName: string;
+    contactNumber: string;
+    interests?: string[];
+    registerAsBrand?: boolean;
+    brandName?: string;
+    brandContactEmail?: string;
+    marketingConsent: MarketingConsentInput;
+    termsAccepted: true;
+    ipAddress?: string | null;
+    userAgent?: string | null;
+  }) {
+    const {
+      email,
+      otp,
+      firstName,
+      lastName,
+      contactNumber,
+      interests,
+      registerAsBrand,
+      brandName,
+      brandContactEmail,
+      marketingConsent,
+      ipAddress,
+      userAgent,
+    } = opts;
     const normalizedEmail = email.toLowerCase().trim();
 
     // Validate OTP
@@ -377,8 +475,14 @@ export class AuthService {
 
     const role = registerAsBrand ? UserRole.BUSINESS_ADMIN : UserRole.PARTICIPANT;
 
+    // Compute hashes outside the tx so the work isn't repeated under retry.
+    const termsStatement = TERMS_ACCEPTANCE_STATEMENT(LEGAL_VERSION);
+    const termsAcceptedTextHash = sha256Nfc(termsStatement);
+    const termsAcceptedAt = new Date();
+    const grantedChannels = grantedMarketingChannels(marketingConsent);
+
     if (registerAsBrand) {
-      // Create user + brand + membership in a transaction
+      // Create user + brand + membership + consent rows in one transaction
       const result = await this.prisma.$transaction(async (tx) => {
         const user = await tx.user.create({
           data: {
@@ -390,6 +494,11 @@ export class AuthService {
             emailVerified: true,
             phoneNumber: contactNumber,
             phoneVerified: false,
+            termsAcceptedVersion: LEGAL_VERSION,
+            termsAcceptedAt,
+            termsAcceptedTextHash,
+            termsAcceptedIp: ipAddress ?? null,
+            termsAcceptedUserAgent: userAgent ?? null,
             ...(interests && interests.length > 0 ? { interests } : {}),
           },
         });
@@ -410,7 +519,14 @@ export class AuthService {
           },
         });
 
-        return { user, brandId: brand.id };
+        const consentRows = await persistMarketingConsents(tx, {
+          userId: user.id,
+          channels: grantedChannels,
+          ipAddress,
+          userAgent,
+        });
+
+        return { user, brandId: brand.id, consentRows };
       });
 
       const tokens = await this.generateTokens(
@@ -436,6 +552,37 @@ export class AuthService {
         afterState: { userId: result.user.id, hasPhone: true },
       });
 
+      this.auditService.log({
+        actorId: result.user.id,
+        actorRole: result.user.role as UserRole,
+        action: AUDIT_ACTIONS.USER_TERMS_ACCEPTED,
+        entityType: ENTITY_TYPES.USER,
+        entityId: result.user.id,
+        afterState: {
+          version: LEGAL_VERSION,
+          textHash: termsAcceptedTextHash,
+          ipAddress: ipAddress ?? null,
+          userAgent: userAgent ?? null,
+        },
+      });
+
+      for (const row of result.consentRows) {
+        this.auditService.log({
+          actorId: result.user.id,
+          actorRole: result.user.role as UserRole,
+          action: AUDIT_ACTIONS.USER_MARKETING_CONSENT_GRANTED,
+          entityType: ENTITY_TYPES.MARKETING_CONSENT,
+          entityId: row.id,
+          afterState: {
+            channel: row.channel,
+            source: row.source,
+            textVersion: row.textVersion,
+            textHash: row.textHash,
+            ipAddress: row.ipAddress,
+          },
+        });
+      }
+
       return {
         ...tokens,
         user: {
@@ -452,19 +599,36 @@ export class AuthService {
     }
 
     // Standard participant signup
-    const user = await this.prisma.user.create({
-      data: {
-        email: normalizedEmail,
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        role,
-        status: UserStatus.ACTIVE,
-        emailVerified: true,
-        phoneNumber: contactNumber,
-        phoneVerified: false,
-        ...(interests && interests.length > 0 ? { interests } : {}),
-      },
+    const standardResult = await this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: normalizedEmail,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          role,
+          status: UserStatus.ACTIVE,
+          emailVerified: true,
+          phoneNumber: contactNumber,
+          phoneVerified: false,
+          termsAcceptedVersion: LEGAL_VERSION,
+          termsAcceptedAt,
+          termsAcceptedTextHash,
+          termsAcceptedIp: ipAddress ?? null,
+          termsAcceptedUserAgent: userAgent ?? null,
+          ...(interests && interests.length > 0 ? { interests } : {}),
+        },
+      });
+
+      const consentRows = await persistMarketingConsents(tx, {
+        userId: user.id,
+        channels: grantedChannels,
+        ipAddress,
+        userAgent,
+      });
+
+      return { user, consentRows };
     });
+    const user = standardResult.user;
 
     const tokens = await this.generateTokens(
       user.id,
@@ -488,6 +652,37 @@ export class AuthService {
       entityId: user.id,
       afterState: { userId: user.id, hasPhone: true },
     });
+
+    this.auditService.log({
+      actorId: user.id,
+      actorRole: user.role as UserRole,
+      action: AUDIT_ACTIONS.USER_TERMS_ACCEPTED,
+      entityType: ENTITY_TYPES.USER,
+      entityId: user.id,
+      afterState: {
+        version: LEGAL_VERSION,
+        textHash: termsAcceptedTextHash,
+        ipAddress: ipAddress ?? null,
+        userAgent: userAgent ?? null,
+      },
+    });
+
+    for (const row of standardResult.consentRows) {
+      this.auditService.log({
+        actorId: user.id,
+        actorRole: user.role as UserRole,
+        action: AUDIT_ACTIONS.USER_MARKETING_CONSENT_GRANTED,
+        entityType: ENTITY_TYPES.MARKETING_CONSENT,
+        entityId: row.id,
+        afterState: {
+          channel: row.channel,
+          source: row.source,
+          textVersion: row.textVersion,
+          textHash: row.textHash,
+          ipAddress: row.ipAddress,
+        },
+      });
+    }
 
     return {
       ...tokens,

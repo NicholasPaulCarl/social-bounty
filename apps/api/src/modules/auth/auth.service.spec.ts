@@ -24,6 +24,7 @@ describe('AuthService', () => {
   let service: AuthService;
   let prisma: {
     user: { findUnique: jest.Mock; create: jest.Mock; update: jest.Mock };
+    $transaction: jest.Mock;
   };
   let jwtService: { sign: jest.Mock; verify: jest.Mock };
   let mailService: { sendOtpEmail: jest.Mock };
@@ -45,13 +46,34 @@ describe('AuthService', () => {
   let tradeSafeTokenService: { ensureToken: jest.Mock };
 
   beforeEach(async () => {
+    // Default $transaction mock runs the callback with a tx object that exposes
+    // every model touched by signupWithOtp's standard + brand flows. Specific
+    // tests can override this to inspect tx-internal calls.
+    const $transaction = jest.fn().mockImplementation(async (fn: (tx: unknown) => unknown) => {
+      return fn({
+        user: prisma.user,
+        brand: { create: jest.fn().mockResolvedValue({ id: 'brand-1' }) },
+        brandMember: { create: jest.fn().mockResolvedValue({}) },
+        marketingConsent: {
+          upsert: jest.fn().mockImplementation(async ({ where }: { where: { userId_channel: { userId: string; channel: string } } }) => ({
+            id: `mc-${where.userId_channel.channel.toLowerCase()}`,
+            channel: where.userId_channel.channel,
+            source: 'SIGNUP_FORM_V1',
+            textVersion: 'v1',
+            textHash: 'mockhash',
+            ipAddress: null,
+          })),
+        },
+      });
+    });
     prisma = {
       user: {
         findUnique: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
       },
-    };
+      $transaction,
+    } as typeof prisma & { $transaction: jest.Mock };
 
     jwtService = {
       sign: jest.fn().mockReturnValue('mock-token'),
@@ -157,6 +179,23 @@ describe('AuthService', () => {
   // (like TradeSafe token provisioning) can be observed in assertions.
   async function flushImmediates(): Promise<void> {
     await new Promise((resolve) => setImmediate(resolve));
+  }
+
+  // Helper: build a SignupWithOtp options object with sensible defaults so
+  // tests only need to override the bits they care about.
+  function signupOpts(overrides: Partial<Parameters<AuthService['signupWithOtp']>[0]> = {}) {
+    return {
+      email: 'new@example.com',
+      otp: '123456',
+      firstName: 'New',
+      lastName: 'User',
+      contactNumber: '+27821234567',
+      marketingConsent: { email: false, sms: false },
+      termsAccepted: true as const,
+      ipAddress: '127.0.0.1',
+      userAgent: 'jest',
+      ...overrides,
+    };
   }
 
   // ── requestOtp ───────────────────────────────────────────
@@ -310,13 +349,7 @@ describe('AuthService', () => {
         createdAt: new Date(),
       });
 
-      const result = await service.signupWithOtp(
-        'new@example.com',
-        '123456',
-        'New',
-        'User',
-        '+27821234567',
-      );
+      const result = await service.signupWithOtp(signupOpts());
 
       expect(result.accessToken).toBe('mock-token');
       expect(result.user.email).toBe('new@example.com');
@@ -330,7 +363,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue({ id: 'existing' });
 
       await expect(
-        service.signupWithOtp('existing@example.com', '123456', 'Test', 'User', '+27821234567'),
+        service.signupWithOtp(signupOpts({ email: 'existing@example.com', firstName: 'Test' })),
       ).rejects.toThrow(ConflictException);
     });
 
@@ -339,7 +372,7 @@ describe('AuthService', () => {
       tokenStore.incrementOtpAttempts.mockResolvedValue(1);
 
       await expect(
-        service.signupWithOtp('new@example.com', '999999', 'New', 'User', '+27821234567'),
+        service.signupWithOtp(signupOpts({ otp: '999999' })),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -347,7 +380,7 @@ describe('AuthService', () => {
       tokenStore.getOtp.mockResolvedValue(null);
 
       await expect(
-        service.signupWithOtp('new@example.com', '123456', 'New', 'User', '+27821234567'),
+        service.signupWithOtp(signupOpts()),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -365,14 +398,7 @@ describe('AuthService', () => {
         createdAt: new Date(),
       });
 
-      await service.signupWithOtp(
-        'new@example.com',
-        '123456',
-        'New',
-        'User',
-        '+27821234567',
-        ['Fitness & Wellness'],
-      );
+      await service.signupWithOtp(signupOpts({ interests: ['Fitness & Wellness'] }));
 
       expect(prisma.user.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -406,13 +432,7 @@ describe('AuthService', () => {
       it('skips the TradeSafe token call in mock mode', async () => {
         tradeSafeGraphQLClient.isMockMode.mockReturnValue(true);
 
-        const result = await service.signupWithOtp(
-          'new@example.com',
-          '123456',
-          'New',
-          'User',
-          '+27821234567',
-        );
+        const result = await service.signupWithOtp(signupOpts());
 
         await flushImmediates();
 
@@ -434,13 +454,7 @@ describe('AuthService', () => {
             }),
         );
 
-        const result = await service.signupWithOtp(
-          'new@example.com',
-          '123456',
-          'New',
-          'User',
-          '+27821234567',
-        );
+        const result = await service.signupWithOtp(signupOpts());
 
         // Response returned while ensureToken is still pending — proof of
         // non-blocking dispatch.
@@ -463,13 +477,7 @@ describe('AuthService', () => {
           new Error('TradeSafe sandbox is down'),
         );
 
-        const result = await service.signupWithOtp(
-          'new@example.com',
-          '123456',
-          'New',
-          'User',
-          '+27821234567',
-        );
+        const result = await service.signupWithOtp(signupOpts());
 
         // Response is still a successful signup.
         expect(result.accessToken).toBe('mock-token');
@@ -489,28 +497,24 @@ describe('AuthService', () => {
           id: 'brand-user-id',
           role: UserRole.BUSINESS_ADMIN,
         };
-        (prisma as unknown as { $transaction?: jest.Mock }).$transaction = jest
-          .fn()
-          .mockImplementation(async (fn: (tx: unknown) => unknown) => {
-            return fn({
-              user: { create: jest.fn().mockResolvedValue(brandUser) },
-              brand: {
-                create: jest.fn().mockResolvedValue({ id: 'brand-1' }),
-              },
-              brandMember: { create: jest.fn().mockResolvedValue({}) },
-            });
+        prisma.$transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => {
+          return fn({
+            user: { create: jest.fn().mockResolvedValue(brandUser) },
+            brand: { create: jest.fn().mockResolvedValue({ id: 'brand-1' }) },
+            brandMember: { create: jest.fn().mockResolvedValue({}) },
+            marketingConsent: { upsert: jest.fn().mockResolvedValue({}) },
           });
+        });
 
         const result = await service.signupWithOtp(
-          'brand@example.com',
-          '123456',
-          'Brand',
-          'Admin',
-          '+27821234567',
-          undefined,
-          true,
-          'Brand Co',
-          'contact@brand.co',
+          signupOpts({
+            email: 'brand@example.com',
+            firstName: 'Brand',
+            lastName: 'Admin',
+            registerAsBrand: true,
+            brandName: 'Brand Co',
+            brandContactEmail: 'contact@brand.co',
+          }),
         );
 
         expect(result.user.role).toBe(UserRole.BUSINESS_ADMIN);
@@ -795,13 +799,7 @@ describe('AuthService', () => {
         createdAt: new Date(),
       });
 
-      await service.signupWithOtp(
-        'new@example.com',
-        '123456',
-        'New',
-        'User',
-        '+27814871705',
-      );
+      await service.signupWithOtp(signupOpts({ contactNumber: '+27814871705' }));
 
       expect(prisma.user.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -811,6 +809,105 @@ describe('AuthService', () => {
           }),
         }),
       );
+    });
+  });
+
+  // ── signupWithOtp - consent + ToS persistence ─────────────
+
+  describe('signupWithOtp - consent + ToS persistence', () => {
+    let auditLog: jest.Mock;
+
+    function getAuditService() {
+      // The injected AuditService mock is captured via the test module on the
+      // service. We exposed it as `useValue: { log: jest.fn() }` in beforeEach,
+      // so reach back through the service instance to grab the same reference.
+      return (service as unknown as { auditService: { log: jest.Mock } }).auditService;
+    }
+
+    beforeEach(() => {
+      tokenStore.getOtp.mockResolvedValue({ otp: '123456', attempts: 0, channel: OtpChannel.EMAIL, switchCount: 0 });
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.create.mockResolvedValue({
+        id: 'new-user-id',
+        email: 'new@example.com',
+        firstName: 'New',
+        lastName: 'User',
+        role: UserRole.PARTICIPANT,
+        status: UserStatus.ACTIVE,
+        emailVerified: true,
+        createdAt: new Date(),
+      });
+      auditLog = getAuditService().log;
+      auditLog.mockClear();
+    });
+
+    it('stamps termsAccepted* columns + writes user.terms_accepted audit row', async () => {
+      await service.signupWithOtp(signupOpts());
+
+      expect(prisma.user.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            termsAcceptedVersion: expect.any(String),
+            termsAcceptedAt: expect.any(Date),
+            termsAcceptedTextHash: expect.any(String),
+            termsAcceptedIp: '127.0.0.1',
+            termsAcceptedUserAgent: 'jest',
+          }),
+        }),
+      );
+
+      const termsCalls = auditLog.mock.calls.filter(
+        (call) => call[0].action === 'user.terms_accepted',
+      );
+      expect(termsCalls).toHaveLength(1);
+      expect(termsCalls[0][0]).toEqual(
+        expect.objectContaining({
+          actorId: 'new-user-id',
+          entityType: 'User',
+          entityId: 'new-user-id',
+          afterState: expect.objectContaining({
+            version: expect.any(String),
+            textHash: expect.any(String),
+            ipAddress: '127.0.0.1',
+          }),
+        }),
+      );
+    });
+
+    it('writes one MarketingConsent row + audit per granted channel (both true)', async () => {
+      await service.signupWithOtp(
+        signupOpts({ marketingConsent: { email: true, sms: true } }),
+      );
+
+      const grantedAudits = auditLog.mock.calls.filter(
+        (call) => call[0].action === 'user.marketing_consent_granted',
+      );
+      expect(grantedAudits).toHaveLength(2);
+      const channels = grantedAudits.map((c) => c[0].afterState.channel).sort();
+      expect(channels).toEqual(['EMAIL', 'SMS']);
+    });
+
+    it('writes zero MarketingConsent rows when both channels are false', async () => {
+      await service.signupWithOtp(
+        signupOpts({ marketingConsent: { email: false, sms: false } }),
+      );
+
+      const grantedAudits = auditLog.mock.calls.filter(
+        (call) => call[0].action === 'user.marketing_consent_granted',
+      );
+      expect(grantedAudits).toHaveLength(0);
+    });
+
+    it('writes only the SMS row when only SMS is granted', async () => {
+      await service.signupWithOtp(
+        signupOpts({ marketingConsent: { email: false, sms: true } }),
+      );
+
+      const grantedAudits = auditLog.mock.calls.filter(
+        (call) => call[0].action === 'user.marketing_consent_granted',
+      );
+      expect(grantedAudits).toHaveLength(1);
+      expect(grantedAudits[0][0].afterState.channel).toBe('SMS');
     });
   });
 
