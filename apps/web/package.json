@@ -12,7 +12,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.9.0",
+    "@hookform/resolvers": "^5.2.2",
     "@social-bounty/shared": "*",
     "@tanstack/react-query": "^5.100.4",
     "libphonenumber-js": "^1.12.42",
