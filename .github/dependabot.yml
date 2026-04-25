@@ -9,6 +9,69 @@ updates:
       - "dependencies"
     commit-message:
       prefix: "chore(deps):"
+    # Bundle minor + patch bumps into a few weekly group PRs to avoid the
+    # whack-a-mole of one-PR-per-package. Major bumps fall through to the
+    # ignore list below (and so are dropped, not grouped).
+    groups:
+      dev-tools:
+        patterns:
+          - "@types/*"
+          - "ts-*"
+          - "@playwright/*"
+          - "eslint*"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "postcss"
+          - "autoprefixer"
+          - "tailwindcss"
+          - "jest"
+          - "@nestjs/cli"
+          - "@nestjs/schematics"
+          - "@nestjs/testing"
+          - "typescript"
+        update-types: ["minor", "patch"]
+      api-runtime:
+        patterns:
+          - "@nestjs/common"
+          - "@nestjs/config"
+          - "@nestjs/core"
+          - "@nestjs/jwt"
+          - "@nestjs/passport"
+          - "@nestjs/platform-express"
+          - "@nestjs/schedule"
+          - "@nestjs/throttler"
+          - "@prisma/client"
+          - "prisma"
+          - "ioredis"
+          - "nodemailer"
+          - "passport*"
+          - "rxjs"
+          - "class-*"
+          - "reflect-metadata"
+          - "helmet"
+          - "cookie-parser"
+          - "handlebars"
+          - "libphonenumber-js"
+          - "multer"
+          - "sanitize-html"
+          - "uuid"
+          - "apify-client"
+        update-types: ["minor", "patch"]
+      web-runtime:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@hookform/*"
+          - "react-hook-form"
+          - "react-easy-crop"
+          - "@tanstack/*"
+          - "primereact"
+          - "primeicons"
+          - "lucide-react"
+          - "zod"
+          - "@vercel/*"
+        update-types: ["minor", "patch"]
     # Defer major-version bumps for frameworks until coordinated upgrade workstreams.
     # Lift on a per-family basis when ready. See closed PRs #25, #26, #29, #32.
     ignore:
