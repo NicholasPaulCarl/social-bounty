@@ -22,8 +22,17 @@ export interface PayoutNotificationEmailData {
   currency: string;
 }
 
-/** Data required for bounty-published emails */
+/**
+ * Data required for the "your bounty is live" transactional email.
+ * Sent to each brand admin (BrandMember) whose own bounty just transitioned
+ * DRAFT → LIVE — either automatically via the TradeSafe FUNDS_RECEIVED
+ * webhook or via a manual super-admin status flip. Per INCIDENT-RESPONSE.md
+ * §5.7 this stays addressed to the recipient about an account-state change
+ * they (or the system on their behalf) caused; it is not broadcast and is
+ * not direct marketing.
+ */
 export interface BountyPublishedEmailData {
+  firstName: string;
   bountyTitle: string;
   shortDescription: string;
   rewardValue: string;
@@ -357,7 +366,7 @@ export class MailService implements OnModuleInit {
     to: string,
     data: BountyPublishedEmailData,
   ): Promise<void> {
-    const subject = `New bounty live: "${data.bountyTitle}" - Social Bounty`;
+    const subject = `Your bounty is live: "${data.bountyTitle}" - Social Bounty`;
 
     const contentHtml = this.bountyPublishedTemplate(data);
     const html = this.renderWithLayout(contentHtml, subject);

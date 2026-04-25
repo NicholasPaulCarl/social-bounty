@@ -261,3 +261,20 @@ export function createMockPrisma() {
 export function createMockAuditService() {
   return { log: jest.fn() };
 }
+
+/**
+ * Stubbed MailService for BountiesService tests. The bounty-published email
+ * dispatch is fire-and-forget after the audit-log write, so tests don't
+ * usually assert on it; this stub keeps it from throwing during DI.
+ */
+export function createMockMailService() {
+  return {
+    sendBountyPublishedEmail: jest.fn().mockResolvedValue(undefined),
+    sendOtpEmail: jest.fn().mockResolvedValue(undefined),
+    sendSubmissionStatusEmail: jest.fn().mockResolvedValue(undefined),
+    sendPayoutNotificationEmail: jest.fn().mockResolvedValue(undefined),
+    sendPostRemovedBrandEmail: jest.fn().mockResolvedValue(undefined),
+    sendPostRemovedHunterEmail: jest.fn().mockResolvedValue(undefined),
+    sendPostVisibilityWarningHunterEmail: jest.fn().mockResolvedValue(undefined),
+  };
+}

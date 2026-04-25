@@ -7,6 +7,7 @@ import {
 import { AUDIT_ACTIONS } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService } from '../ledger/ledger.service';
+import { MailService } from '../mail/mail.service';
 import { TradeSafeWebhookHandler } from './tradesafe-webhook.handler';
 
 /**
@@ -52,6 +53,12 @@ describe('TradeSafeWebhookHandler.handleFundsReceived (ADR 0011 Phase 3)', () =>
       tradeSafeTransaction: {
         findUnique: jest.fn().mockResolvedValue(txn),
       },
+      // Returns null for the bounty-published email dispatch lookup; the
+      // helper short-circuits on null and the fire-and-forget call is
+      // outside the assertion surface for these tests.
+      bounty: {
+        findUnique: jest.fn().mockResolvedValue(null),
+      },
       $transaction:
         overrides.$transaction ??
         jest.fn().mockImplementation(async (fn: any) => {
@@ -75,7 +82,16 @@ describe('TradeSafeWebhookHandler.handleFundsReceived (ADR 0011 Phase 3)', () =>
       get: jest.fn((key: string) => (key === 'SYSTEM_ACTOR_ID' ? 'sys-actor' : '')),
     } as unknown as ConfigService;
 
-    const handler = new TradeSafeWebhookHandler(prisma, ledger, config);
+    // Stubbed MailService — bounty-published email dispatch is fire-and-forget
+    // after the tx commits; tests don't assert on email content here, only
+    // that the dispatch path is wired correctly. Suppress dispatch in this
+    // test file by stubbing prisma.bounty.findUnique on the dispatch helper
+    // path (returns null → no recipients lookup → no-op).
+    const mailService = {
+      sendBountyPublishedEmail: jest.fn().mockResolvedValue(undefined),
+    } as unknown as MailService;
+
+    const handler = new TradeSafeWebhookHandler(prisma, ledger, config, mailService);
     return {
       handler,
       prisma,
@@ -83,6 +99,7 @@ describe('TradeSafeWebhookHandler.handleFundsReceived (ADR 0011 Phase 3)', () =>
       postTransactionGroupMock,
       bountyUpdateMock,
       tradeSafeTransactionUpdateMock,
+      mailService,
     };
   }
 
@@ -195,5 +212,77 @@ describe('TradeSafeWebhookHandler.handleFundsReceived (ADR 0011 Phase 3)', () =>
     expect(b.status).toBe('fulfilled');
     // Two calls to postTransactionGroup, both produced the same group id.
     expect(calls.length).toBe(2);
+  });
+
+  // ── bounty-published email dispatch (INCIDENT-RESPONSE.md §5.7) ─────
+
+  it('dispatches a "your bounty is live" email per brand admin on DRAFT → LIVE', async () => {
+    const { handler, prisma, mailService } = buildHandler();
+    // Two-admin brand — every member should be emailed.
+    (prisma.bounty.findUnique as jest.Mock).mockResolvedValue({
+      id: 'bounty-1',
+      title: 'Promote new sneaker drop',
+      shortDescription: 'Post a styled photo wearing the new model.',
+      currency: 'ZAR',
+      faceValueCents: 10000n,
+      brand: {
+        members: [
+          { user: { id: 'u-1', email: 'owner@brand.example', firstName: 'Alex' } },
+          { user: { id: 'u-2', email: 'member@brand.example', firstName: 'Jordan' } },
+        ],
+      },
+    });
+
+    await handler.handleFundsReceived(payload);
+    // Fire-and-forget — flush the microtask + I/O queue once.
+    await new Promise((resolve) => setImmediate(resolve));
+
+    const sendBountyPublishedEmail = mailService.sendBountyPublishedEmail as jest.Mock;
+    expect(sendBountyPublishedEmail).toHaveBeenCalledTimes(2);
+    expect(sendBountyPublishedEmail).toHaveBeenCalledWith(
+      'owner@brand.example',
+      expect.objectContaining({
+        firstName: 'Alex',
+        bountyTitle: 'Promote new sneaker drop',
+        rewardValue: '100.00',
+        currency: 'ZAR',
+      }),
+    );
+    expect(sendBountyPublishedEmail).toHaveBeenCalledWith(
+      'member@brand.example',
+      expect.objectContaining({ firstName: 'Jordan' }),
+    );
+  });
+
+  it('does NOT dispatch the bounty-published email on a webhook replay (bounty already LIVE)', async () => {
+    // Same scenario as the "retry idempotent" test, but specifically asserts
+    // the no-double-email property — pre-tx state is LIVE, so the dispatch
+    // path is skipped entirely.
+    const { handler, mailService } = buildHandler({
+      txn: {
+        id: 'txn-row-1',
+        tradeSafeTransactionId: 'tradesafe-txn-1',
+        bountyId: 'bounty-1',
+        totalValueCents: 12075n,
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-1',
+          currency: 'ZAR',
+          status: BountyStatus.LIVE, // already flipped
+          paymentStatus: PaymentStatus.PAID,
+          faceValueCents: 10000n,
+          brandAdminFeeRateBps: 1500,
+          globalFeeRateBps: 350,
+        },
+      },
+      postTransactionGroup: jest
+        .fn()
+        .mockResolvedValue({ transactionGroupId: 'g-1', idempotent: true }),
+    });
+
+    await handler.handleFundsReceived(payload);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(mailService.sendBountyPublishedEmail).not.toHaveBeenCalled();
   });
 });

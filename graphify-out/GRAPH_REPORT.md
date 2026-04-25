@@ -1,11 +1,11 @@
 # Graph Report - social-bounty  (2026-04-25)
 
 ## Corpus Check
-- 535 files · ~637,865 words
+- 537 files · ~638,641 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2388 nodes · 4314 edges · 62 communities detected
+- 2390 nodes · 4314 edges · 62 communities detected
 - Extraction: 59% EXTRACTED · 41% INFERRED · 0% AMBIGUOUS · INFERRED: 1758 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
@@ -69,9 +69,9 @@
 - [[_COMMUNITY_Community 106|Community 106]]
 - [[_COMMUNITY_Community 107|Community 107]]
 - [[_COMMUNITY_Community 108|Community 108]]
-- [[_COMMUNITY_Community 205|Community 205]]
-- [[_COMMUNITY_Community 206|Community 206]]
 - [[_COMMUNITY_Community 207|Community 207]]
+- [[_COMMUNITY_Community 208|Community 208]]
+- [[_COMMUNITY_Community 209|Community 209]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `Social Bounty MVP` - 28 edges
@@ -344,15 +344,15 @@ Nodes (1): WebhooksModule
 Cohesion: 1.0
 Nodes (1): ApifyModule
 
-### Community 205 - "Community 205"
+### Community 207 - "Community 207"
 Cohesion: 1.0
 Nodes (1): Double-entry ledger (CLAUDE.md §4.1)
 
-### Community 206 - "Community 206"
+### Community 208 - "Community 208"
 Cohesion: 1.0
 Nodes (1): UNIQUE(referenceId, actionType) idempotency
 
-### Community 207 - "Community 207"
+### Community 209 - "Community 209"
 Cohesion: 1.0
 Nodes (1): QA Known Issues and Checks
 
@@ -395,22 +395,22 @@ Nodes (1): QA Known Issues and Checks
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 108`** (2 nodes): `ApifyModule`, `apify.module.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 205`** (1 nodes): `Double-entry ledger (CLAUDE.md §4.1)`
+- **Thin community `Community 207`** (1 nodes): `Double-entry ledger (CLAUDE.md §4.1)`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 206`** (1 nodes): `UNIQUE(referenceId, actionType) idempotency`
+- **Thin community `Community 208`** (1 nodes): `UNIQUE(referenceId, actionType) idempotency`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 207`** (1 nodes): `QA Known Issues and Checks`
+- **Thin community `Community 209`** (1 nodes): `QA Known Issues and Checks`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `handleSubmit()` connect `Community 4` to `Community 0`, `Community 5`, `Community 14`, `Community 16`, `Community 21`?**
-  _High betweenness centrality (0.083) - this node is a cross-community bridge._
+  _High betweenness centrality (0.077) - this node is a cross-community bridge._
 - **Why does `Browse Bounties page` connect `Community 1` to `Community 2`, `Community 4`, `Community 5`, `Community 14`?**
-  _High betweenness centrality (0.056) - this node is a cross-community bridge._
+  _High betweenness centrality (0.052) - this node is a cross-community bridge._
 - **Why does `Brand Directory page` connect `Community 1` to `Community 24`, `Community 2`, `Community 4`?**
-  _High betweenness centrality (0.039) - this node is a cross-community bridge._
+  _High betweenness centrality (0.037) - this node is a cross-community bridge._
 - **Are the 26 inferred relationships involving `Social Bounty MVP` (e.g. with `claude.md` and `Participant`) actually correct?**
   _`Social Bounty MVP` has 26 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 26 inferred relationships involving `risk:R18` (e.g. with `concept:StitchExpress` and `concept:TradeSafe`) actually correct?**
