@@ -1,18 +1,24 @@
 import { apiClient } from './client';
+import { OtpChannel } from '@social-bounty/shared';
 import type {
   RequestOtpRequest,
   VerifyOtpRequest,
   SignupWithOtpRequest,
+  SwitchOtpChannelRequest,
   LoginResponse,
   RefreshTokenResponse,
   SwitchBrandRequest,
 } from '@social-bounty/shared';
+
+export { OtpChannel };
 
 export const authApi = {
   requestOtp: (data: RequestOtpRequest) =>
     apiClient.post<{ message: string }>('/auth/request-otp', data),
   verifyOtp: (data: VerifyOtpRequest) =>
     apiClient.post<LoginResponse>('/auth/verify-otp', data),
+  switchOtpChannel: (data: SwitchOtpChannelRequest) =>
+    apiClient.post<{ message: string }>('/auth/switch-otp-channel', data),
   signup: (data: SignupWithOtpRequest) =>
     apiClient.post<LoginResponse>('/auth/signup', data),
   logout: () => apiClient.post('/auth/logout', {}),

@@ -14,9 +14,11 @@ import { MailService } from '../mail/mail.service';
 import { TokenStoreService } from './token-store.service';
 import { RedisService } from '../redis/redis.service';
 import { ApifyService } from '../apify/apify.service';
+import { AuditService } from '../audit/audit.service';
+import { SmsService } from '../sms/sms.service';
 import { TradeSafeGraphQLClient } from '../tradesafe/tradesafe-graphql.client';
 import { TradeSafeTokenService } from '../tradesafe/tradesafe-token.service';
-import { UserRole, UserStatus, OTP_RULES } from '@social-bounty/shared';
+import { UserRole, UserStatus, OTP_RULES, OtpChannel } from '@social-bounty/shared';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -36,6 +38,8 @@ describe('AuthService', () => {
     getRefreshToken: jest.Mock;
     deleteRefreshToken: jest.Mock;
     invalidateAllUserTokens: jest.Mock;
+    incrementSmsDailyCount: jest.Mock;
+    replaceOtpForSwitch: jest.Mock;
   };
   let tradeSafeGraphQLClient: { isMockMode: jest.Mock };
   let tradeSafeTokenService: { ensureToken: jest.Mock };
@@ -69,6 +73,8 @@ describe('AuthService', () => {
       getRefreshToken: jest.fn().mockResolvedValue(null),
       deleteRefreshToken: jest.fn().mockResolvedValue(undefined),
       invalidateAllUserTokens: jest.fn().mockResolvedValue(undefined),
+      incrementSmsDailyCount: jest.fn().mockResolvedValue(1),
+      replaceOtpForSwitch: jest.fn().mockResolvedValue({ fromChannel: OtpChannel.EMAIL, switchCount: 1 }),
     };
 
     tradeSafeGraphQLClient = {
@@ -120,6 +126,14 @@ describe('AuthService', () => {
           },
         },
         {
+          provide: AuditService,
+          useValue: { log: jest.fn() },
+        },
+        {
+          provide: SmsService,
+          useValue: { sendOtpSms: jest.fn().mockResolvedValue(undefined) },
+        },
+        {
           provide: ModuleRef,
           useValue: {
             // AuthService calls `moduleRef.get(Service, { strict: false })`
@@ -155,6 +169,7 @@ describe('AuthService', () => {
       expect(tokenStore.storeOtp).toHaveBeenCalledWith(
         'test@example.com',
         expect.any(String),
+        OtpChannel.EMAIL,
       );
       expect(tokenStore.setOtpCooldown).toHaveBeenCalledWith('test@example.com');
       expect(mailService.sendOtpEmail).toHaveBeenCalledWith(
@@ -179,6 +194,7 @@ describe('AuthService', () => {
       expect(tokenStore.storeOtp).toHaveBeenCalledWith(
         'test@example.com',
         expect.any(String),
+        OtpChannel.EMAIL,
       );
     });
   });
@@ -299,6 +315,7 @@ describe('AuthService', () => {
         '123456',
         'New',
         'User',
+        '+27821234567',
       );
 
       expect(result.accessToken).toBe('mock-token');
@@ -313,7 +330,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue({ id: 'existing' });
 
       await expect(
-        service.signupWithOtp('existing@example.com', '123456', 'Test', 'User'),
+        service.signupWithOtp('existing@example.com', '123456', 'Test', 'User', '+27821234567'),
       ).rejects.toThrow(ConflictException);
     });
 
@@ -322,7 +339,7 @@ describe('AuthService', () => {
       tokenStore.incrementOtpAttempts.mockResolvedValue(1);
 
       await expect(
-        service.signupWithOtp('new@example.com', '999999', 'New', 'User'),
+        service.signupWithOtp('new@example.com', '999999', 'New', 'User', '+27821234567'),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -330,7 +347,7 @@ describe('AuthService', () => {
       tokenStore.getOtp.mockResolvedValue(null);
 
       await expect(
-        service.signupWithOtp('new@example.com', '123456', 'New', 'User'),
+        service.signupWithOtp('new@example.com', '123456', 'New', 'User', '+27821234567'),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -353,6 +370,7 @@ describe('AuthService', () => {
         '123456',
         'New',
         'User',
+        '+27821234567',
         ['Fitness & Wellness'],
       );
 
@@ -393,6 +411,7 @@ describe('AuthService', () => {
           '123456',
           'New',
           'User',
+          '+27821234567',
         );
 
         await flushImmediates();
@@ -420,6 +439,7 @@ describe('AuthService', () => {
           '123456',
           'New',
           'User',
+          '+27821234567',
         );
 
         // Response returned while ensureToken is still pending — proof of
@@ -448,6 +468,7 @@ describe('AuthService', () => {
           '123456',
           'New',
           'User',
+          '+27821234567',
         );
 
         // Response is still a successful signup.
@@ -485,6 +506,7 @@ describe('AuthService', () => {
           '123456',
           'Brand',
           'Admin',
+          '+27821234567',
           undefined,
           true,
           'Brand Co',

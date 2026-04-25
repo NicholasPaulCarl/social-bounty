@@ -4,7 +4,10 @@ import {
   UnauthorizedException,
   ConflictException,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -17,18 +20,23 @@ import {
   BrandMemberRole,
   BrandStatus,
   OTP_RULES,
+  OtpChannel,
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { MailService } from '../mail/mail.service';
 import { TokenStoreService } from './token-store.service';
 import { ApifyService } from '../apify/apify.service';
+import { AuditService } from '../audit/audit.service';
+import { SmsService } from '../sms/sms.service';
 import { TradeSafeGraphQLClient } from '../tradesafe/tradesafe-graphql.client';
 import { TradeSafeTokenService } from '../tradesafe/tradesafe-token.service';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+
+  private static readonly SMS_DAILY_CAP = 10;
 
   constructor(
     private prisma: PrismaService,
@@ -38,6 +46,8 @@ export class AuthService {
     private mailService: MailService,
     private tokenStore: TokenStoreService,
     private apify: ApifyService,
+    private auditService: AuditService,
+    private smsService: SmsService,
     private moduleRef: ModuleRef,
   ) {}
 
@@ -100,36 +110,83 @@ export class AuthService {
     });
   }
 
-  async requestOtp(email: string) {
+  async requestOtp(
+    email: string,
+    channel: OtpChannel = OtpChannel.EMAIL,
+    ipAddress?: string,
+  ) {
     const normalizedEmail = email.toLowerCase().trim();
+    const genericMessage = 'If an account with that email exists, a verification code has been sent.';
 
     // Check cooldown to prevent spam
     const hasCooldown = await this.tokenStore.hasRecentOtp(normalizedEmail);
     if (hasCooldown) {
       // Always return generic message to prevent email enumeration
-      return {
-        message: 'If an account with that email exists, a verification code has been sent.',
-      };
+      return { message: genericMessage };
+    }
+
+    // Resolve phone number for SMS channel (needed for cap + send)
+    let phoneNumber: string | null = null;
+    let user: { id: string; role: UserRole } | null = null;
+    if (channel === OtpChannel.SMS) {
+      const found = await this.prisma.user.findUnique({
+        where: { email: normalizedEmail },
+        select: { id: true, role: true, phoneNumber: true },
+      });
+      if (!found || !found.phoneNumber) {
+        // Anti-enumeration: still set cooldown and return generic message
+        await this.tokenStore.setOtpCooldown(normalizedEmail);
+        return { message: genericMessage };
+      }
+      user = { id: found.id, role: found.role as UserRole };
+      phoneNumber = found.phoneNumber;
+
+      // Enforce per-phone daily SMS cap
+      const dailyCount = await this.tokenStore.incrementSmsDailyCount(phoneNumber);
+      if (dailyCount > AuthService.SMS_DAILY_CAP) {
+        this.logger.warn(
+          `sms-daily-cap-hit { phone: ${phoneNumber.slice(0, 4)}*** }`,
+        );
+        await this.tokenStore.setOtpCooldown(normalizedEmail);
+        return { message: genericMessage };
+      }
     }
 
     // Generate 6-digit OTP
     const otp = String(randomInt(100000, 999999));
 
-    // Store OTP in Redis
-    await this.tokenStore.storeOtp(normalizedEmail, otp);
+    // Store OTP in Redis with channel info
+    await this.tokenStore.storeOtp(normalizedEmail, otp, channel);
     await this.tokenStore.setOtpCooldown(normalizedEmail);
 
-    // Send OTP email (fire-and-forget to prevent email enumeration via timing)
-    this.mailService.sendOtpEmail(normalizedEmail, otp).catch((err) => {
-      this.logger.error(`Failed to send OTP email to ${normalizedEmail}:`, err);
-    });
+    // Fire-and-forget send on the appropriate channel (matches auth.service.ts:123 pattern)
+    if (channel === OtpChannel.SMS && phoneNumber) {
+      this.smsService.sendOtpSms(phoneNumber, otp).catch((err) => {
+        this.logger.error(`Failed to send OTP SMS to ${phoneNumber!.slice(0, 4)}***:`, err);
+      });
+    } else {
+      this.mailService.sendOtpEmail(normalizedEmail, otp).catch((err) => {
+        this.logger.error(`Failed to send OTP email to ${normalizedEmail}:`, err);
+      });
+    }
 
-    return {
-      message: 'If an account with that email exists, a verification code has been sent.',
-    };
+    // Audit log — skip when user is unknown (anonymous pre-signup flow)
+    if (user) {
+      this.auditService.log({
+        actorId: user.id,
+        actorRole: user.role as UserRole,
+        action: 'OTP_REQUESTED',
+        entityType: 'User',
+        entityId: user.id,
+        afterState: { channel },
+        ipAddress: ipAddress ?? null,
+      });
+    }
+
+    return { message: genericMessage };
   }
 
-  async verifyOtpAndLogin(email: string, otp: string) {
+  async verifyOtpAndLogin(email: string, otp: string, ipAddress?: string) {
     const normalizedEmail = email.toLowerCase().trim();
 
     const otpData = await this.tokenStore.getOtp(normalizedEmail);
@@ -186,13 +243,33 @@ export class AuthService {
       throw new ForbiddenException('Your account has been suspended');
     }
 
-    // Mark email as verified (OTP proves ownership)
+    // Mark email as verified (OTP proves ownership).
+    // If the OTP was delivered via SMS, also mark the phone as verified.
+    const verifiedChannel = otpData.channel ?? OtpChannel.EMAIL;
+    const updateData: Record<string, unknown> = {};
     if (!user.emailVerified) {
+      updateData.emailVerified = true;
+    }
+    if (verifiedChannel === OtpChannel.SMS) {
+      updateData.phoneVerified = true;
+    }
+    if (Object.keys(updateData).length > 0) {
       await this.prisma.user.update({
         where: { id: user.id },
-        data: { emailVerified: true },
+        data: updateData,
       });
     }
+
+    // Audit successful login
+    this.auditService.log({
+      actorId: user.id,
+      actorRole: user.role as UserRole,
+      action: 'OTP_VERIFIED_LOGIN',
+      entityType: 'User',
+      entityId: user.id,
+      afterState: { channel: verifiedChannel },
+      ipAddress: ipAddress ?? null,
+    });
 
     const brandId =
       user.brandMemberships.length > 0
@@ -247,6 +324,7 @@ export class AuthService {
     otp: string,
     firstName: string,
     lastName: string,
+    contactNumber: string,
     interests?: string[],
     registerAsBrand?: boolean,
     brandName?: string,
@@ -310,6 +388,8 @@ export class AuthService {
             role,
             status: UserStatus.ACTIVE,
             emailVerified: true,
+            phoneNumber: contactNumber,
+            phoneVerified: false,
             ...(interests && interests.length > 0 ? { interests } : {}),
           },
         });
@@ -347,6 +427,15 @@ export class AuthService {
       // tokenCreate latency. Signup response is never blocked on this.
       this.scheduleTradeSafeTokenProvisioning(result.user.id);
 
+      this.auditService.log({
+        actorId: result.user.id,
+        actorRole: result.user.role as UserRole,
+        action: 'SIGNUP_COMPLETED',
+        entityType: 'User',
+        entityId: result.user.id,
+        afterState: { userId: result.user.id, hasPhone: true },
+      });
+
       return {
         ...tokens,
         user: {
@@ -371,6 +460,8 @@ export class AuthService {
         role,
         status: UserStatus.ACTIVE,
         emailVerified: true,
+        phoneNumber: contactNumber,
+        phoneVerified: false,
         ...(interests && interests.length > 0 ? { interests } : {}),
       },
     });
@@ -389,6 +480,15 @@ export class AuthService {
     // captured later in Phase 2 hunter banking UX and pushed via tokenUpdate.
     this.scheduleTradeSafeTokenProvisioning(user.id);
 
+    this.auditService.log({
+      actorId: user.id,
+      actorRole: user.role as UserRole,
+      action: 'SIGNUP_COMPLETED',
+      entityType: 'User',
+      entityId: user.id,
+      afterState: { userId: user.id, hasPhone: true },
+    });
+
     return {
       ...tokens,
       user: {
@@ -402,6 +502,102 @@ export class AuthService {
         brandId: null,
       },
     };
+  }
+
+  async switchOtpChannel(
+    email: string,
+    ipAddress?: string,
+  ): Promise<{ message: string }> {
+    const normalizedEmail = email.toLowerCase().trim();
+    const genericMessage = 'If an account with that email exists, a verification code has been sent.';
+
+    const record = await this.tokenStore.getOtp(normalizedEmail);
+    if (!record) {
+      throw new NotFoundException('No active OTP session. Please request a new code.');
+    }
+
+    if (record.switchCount >= 2) {
+      throw new HttpException(
+        'Too many channel switches. Please request a new code.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    const newChannel =
+      record.channel === OtpChannel.SMS ? OtpChannel.EMAIL : OtpChannel.SMS;
+
+    // Resolve phone for SMS target
+    let phoneNumber: string | null = null;
+    let userId: string | null = null;
+    let userRole: UserRole = UserRole.PARTICIPANT;
+    if (newChannel === OtpChannel.SMS) {
+      const found = await this.prisma.user.findUnique({
+        where: { email: normalizedEmail },
+        select: { id: true, role: true, phoneNumber: true },
+      });
+      if (!found || !found.phoneNumber) {
+        // Anti-enumeration: silently return generic message
+        return { message: genericMessage };
+      }
+      userId = found.id;
+      userRole = found.role as UserRole;
+      phoneNumber = found.phoneNumber;
+
+      // Enforce daily SMS cap
+      const dailyCount = await this.tokenStore.incrementSmsDailyCount(phoneNumber);
+      if (dailyCount > AuthService.SMS_DAILY_CAP) {
+        this.logger.warn(
+          `sms-daily-cap-hit on channel-switch { phone: ${phoneNumber.slice(0, 4)}*** }`,
+        );
+        return { message: genericMessage };
+      }
+    } else {
+      const found = await this.prisma.user.findUnique({
+        where: { email: normalizedEmail },
+        select: { id: true, role: true },
+      });
+      if (found) {
+        userId = found.id;
+        userRole = found.role as UserRole;
+      }
+    }
+
+    // Generate fresh OTP and replace the Redis record
+    const newOtp = String(randomInt(100000, 999999));
+    const { fromChannel, switchCount } = await this.tokenStore.replaceOtpForSwitch(
+      normalizedEmail,
+      newOtp,
+      newChannel,
+    );
+
+    // Fire-and-forget send on new channel
+    if (newChannel === OtpChannel.SMS && phoneNumber) {
+      this.smsService.sendOtpSms(phoneNumber, newOtp).catch((err) => {
+        this.logger.error(
+          `Failed to send switch OTP SMS to ${phoneNumber!.slice(0, 4)}***:`,
+          err,
+        );
+      });
+    } else {
+      this.mailService.sendOtpEmail(normalizedEmail, newOtp).catch((err) => {
+        this.logger.error(`Failed to send switch OTP email to ${normalizedEmail}:`, err);
+      });
+    }
+
+    // Audit log when user identity is known
+    if (userId) {
+      this.auditService.log({
+        actorId: userId,
+        actorRole: userRole as UserRole,
+        action: 'OTP_CHANNEL_SWITCHED',
+        entityType: 'User',
+        entityId: userId,
+        afterState: { fromChannel, toChannel: newChannel, switchCount },
+        ipAddress: ipAddress ?? null,
+      });
+    }
+
+    return { message: genericMessage };
   }
 
   async switchBrand(userId: string, brandId: string) {

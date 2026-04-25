@@ -6,14 +6,26 @@ import {
   IsBoolean,
   IsArray,
   IsUUID,
+  IsEnum,
   Length,
   MinLength,
   ValidateIf,
 } from 'class-validator';
+import { OtpChannel } from '@social-bounty/shared';
+import { IsValidPhoneE164 } from '../../../common/validators/phone-number.validator';
 
 export class RequestOtpDto {
   @IsEmail()
   @IsNotEmpty()
+  email!: string;
+
+  @IsOptional()
+  @IsEnum(OtpChannel)
+  channel?: OtpChannel;
+}
+
+export class SwitchOtpChannelDto {
+  @IsEmail()
   email!: string;
 }
 
@@ -65,6 +77,10 @@ export class SignupWithOtpDto {
   @IsEmail()
   @IsNotEmpty()
   brandContactEmail?: string;
+
+  @IsString()
+  @IsValidPhoneE164({ region: 'ZA' })
+  contactNumber!: string;
 }
 
 export class SwitchBrandDto {
