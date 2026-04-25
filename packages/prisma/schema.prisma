@@ -443,6 +443,8 @@ model User {
   role              UserRole   @default(PARTICIPANT)
   status            UserStatus @default(ACTIVE)
   emailVerified     Boolean    @default(false)
+  phoneNumber       String?    @unique
+  phoneVerified     Boolean    @default(false)
   bio               String?    @db.VarChar(500)
   profilePictureUrl String?
   interests         Json? // string array: ["Fitness & Wellness", "Food & Cooking", ...]

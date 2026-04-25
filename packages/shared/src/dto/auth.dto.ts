@@ -4,9 +4,15 @@ import { UserRole, UserStatus } from '../enums';
 // Auth DTOs
 // ─────────────────────────────────────
 
+export enum OtpChannel {
+  EMAIL = 'EMAIL',
+  SMS = 'SMS',
+}
+
 // POST /auth/request-otp
 export interface RequestOtpRequest {
   email: string;
+  channel?: OtpChannel;
 }
 
 // POST /auth/verify-otp
@@ -15,12 +21,18 @@ export interface VerifyOtpRequest {
   otp: string;
 }
 
+// POST /auth/switch-otp-channel
+export interface SwitchOtpChannelRequest {
+  email: string;
+}
+
 // POST /auth/signup
 export interface SignupWithOtpRequest {
   email: string;
   otp: string;
   firstName: string;
   lastName: string;
+  contactNumber: string;
   interests?: string[];
   registerAsBrand?: boolean;
   brandName?: string;

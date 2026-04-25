@@ -99,10 +99,12 @@ export {
 export type { LedgerAccountName, LedgerActionType } from './ledger';
 
 // Auth DTOs
+export { OtpChannel } from './dto/auth.dto';
 export type {
   RequestOtpRequest,
   VerifyOtpRequest,
   SignupWithOtpRequest,
+  SwitchOtpChannelRequest,
   SwitchBrandRequest,
   LoginUserResponse,
   LoginResponse,
