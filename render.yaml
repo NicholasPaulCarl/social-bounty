@@ -144,9 +144,13 @@ services:
       - key: SENTRY_DSN
         sync: false
 
-      # CORS — production web origin
+      # CORS — production web origins. The API parses this as a comma-
+      # separated list (apps/api/src/main.ts:64), so include every host
+      # the frontend can be reached at. `app.socialbounty.cash` is reserved
+      # for the future authenticated app subdomain — currently the
+      # marketing site + auth pages live at the apex and `www`.
       - key: CORS_ORIGIN
-        value: https://app.socialbounty.cash
+        value: https://www.socialbounty.cash,https://socialbounty.cash,https://app.socialbounty.cash
 
   - type: web
     name: social-bounty-web

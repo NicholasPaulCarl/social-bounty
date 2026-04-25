@@ -48,7 +48,20 @@ RUN npm run db:generate
 # Build the shared package (tsc).
 RUN npm run build:shared
 
-# Build the Next.js app.
+# CRITICAL: NEXT_PUBLIC_* env vars are baked into the Next.js bundle at
+# BUILD time, not read at runtime. Setting NEXT_PUBLIC_API_URL in
+# render.yaml's `envVars` block alone is too late — the bundle is already
+# compiled with the localhost fallback from `client.ts`.
+#
+# Pattern: declare as ARG (so future per-env builds can override via
+# Docker --build-arg or a CI matrix) with a sane production default.
+# The default matches the production API host wired up in render.yaml.
+ARG NEXT_PUBLIC_API_URL=https://api.socialbounty.cash/api/v1
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+# Build the Next.js app — NEXT_PUBLIC_API_URL is now in the env, so
+# `next build` will inline it everywhere `process.env.NEXT_PUBLIC_API_URL`
+# is referenced (notably apps/web/src/lib/api/client.ts).
 RUN npm run build:web
 
 # ════════════════════════════════════════════════════════════════════
