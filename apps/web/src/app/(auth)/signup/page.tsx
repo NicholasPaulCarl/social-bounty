@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { InputText } from 'primereact/inputtext';
 import { InputSwitch } from 'primereact/inputswitch';
-import { AlertCircle, ArrowRight, Loader2, UserPlus } from 'lucide-react';
+import { AlertCircle, ArrowRight, Loader2, Phone, UserPlus } from 'lucide-react';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
@@ -15,6 +16,7 @@ export default function SignupPage() {
     email: '',
     firstName: '',
     lastName: '',
+    contactNumber: '',
     registerAsBrand: false,
     brandName: '',
     brandContactEmail: '',
@@ -42,6 +44,11 @@ export default function SignupPage() {
 
     if (!form.firstName.trim()) errors.firstName = 'First name is required';
     if (!form.lastName.trim()) errors.lastName = 'Last name is required';
+    if (!form.contactNumber) {
+      errors.contactNumber = 'Phone number is required';
+    } else if (!isValidPhoneNumber(form.contactNumber, 'ZA')) {
+      errors.contactNumber = 'Enter a valid international phone number (e.g. +27 82 000 0000)';
+    }
     if (!form.email.trim()) errors.email = 'Email is required';
     if (form.registerAsBrand) {
       if (!form.brandName.trim()) errors.brandName = 'Brand name is required';
@@ -85,6 +92,7 @@ export default function SignupPage() {
         otp,
         firstName: form.firstName,
         lastName: form.lastName,
+        contactNumber: form.contactNumber.trim(),
         ...(form.registerAsBrand
           ? {
               registerAsBrand: true,
@@ -184,6 +192,26 @@ export default function SignupPage() {
                 <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.lastName}</small>
               )}
             </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="contactNumber"
+              className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
+            >
+              Phone number *
+            </label>
+            <InputText
+              id="contactNumber"
+              type="tel"
+              value={form.contactNumber}
+              onChange={(e) => updateField('contactNumber', e.target.value)}
+              className={`w-full ${fieldErrors.contactNumber ? 'p-invalid' : ''}`}
+              placeholder="+27 82 000 0000"
+            />
+            {fieldErrors.contactNumber && (
+              <small className="text-danger-600 text-xs mt-1 block">{fieldErrors.contactNumber}</small>
+            )}
           </div>
 
           <div>

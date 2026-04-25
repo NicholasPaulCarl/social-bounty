@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { InputText } from 'primereact/inputtext';
-import { AlertCircle, ArrowRight, Loader2, LogIn } from 'lucide-react';
+import { AlertCircle, ArrowRight, Loader2, LogIn, Mail, MessageSquare, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
+import { OtpChannel } from '@social-bounty/shared';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -16,6 +17,9 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [selectedChannel, setSelectedChannel] = useState<OtpChannel>(OtpChannel.EMAIL);
+  const [switchCount, setSwitchCount] = useState(0);
+  const [switchPending, setSwitchPending] = useState(false);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -29,7 +33,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await authApi.requestOtp({ email });
+      await authApi.requestOtp({ email, channel: selectedChannel });
       setStep('otp');
       setCooldown(60);
     } catch (err) {
@@ -81,7 +85,29 @@ export default function LoginPage() {
     setStep('email');
     setOtp('');
     setError('');
+    setSwitchCount(0);
+    setSelectedChannel(OtpChannel.EMAIL);
   };
+
+  async function handleChannelSwitch() {
+    setSwitchPending(true);
+    setError('');
+    try {
+      await authApi.switchOtpChannel({ email });
+      const newChannel = selectedChannel === OtpChannel.EMAIL ? OtpChannel.SMS : OtpChannel.EMAIL;
+      setSelectedChannel(newChannel);
+      setSwitchCount((n) => n + 1);
+      setCooldown(0);
+    } catch (err) {
+      if (err instanceof ApiError && err.statusCode === 429) {
+        setError('Too many channel switches — wait a minute and try again.');
+      } else {
+        setError("Couldn’t switch channel. Try again.");
+      }
+    } finally {
+      setSwitchPending(false);
+    }
+  }
 
   return (
     <div className="glass-card p-8 shadow-level-3 animate-fade-up">
@@ -117,6 +143,40 @@ export default function LoginPage() {
             />
           </div>
 
+          <div className="space-y-2">
+            <label className="text-sm text-slate-600 font-medium">
+              How should we send your code?
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedChannel(OtpChannel.EMAIL)}
+                className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 transition-colors ${
+                  selectedChannel === OtpChannel.EMAIL
+                    ? 'border-pink-600 bg-pink-50 text-pink-600'
+                    : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                }`}
+                aria-pressed={selectedChannel === OtpChannel.EMAIL}
+              >
+                <Mail className="h-4 w-4" />
+                <span>Email</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedChannel(OtpChannel.SMS)}
+                className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 transition-colors ${
+                  selectedChannel === OtpChannel.SMS
+                    ? 'border-pink-600 bg-pink-50 text-pink-600'
+                    : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                }`}
+                aria-pressed={selectedChannel === OtpChannel.SMS}
+              >
+                <MessageSquare className="h-4 w-4" />
+                <span>SMS</span>
+              </button>
+            </div>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -133,7 +193,9 @@ export default function LoginPage() {
       ) : (
         <form onSubmit={handleVerifyOtp} className="space-y-5">
           <p className="text-sm text-text-secondary text-center">
-            We sent a 6-digit code to <strong>{email}</strong>
+            {selectedChannel === OtpChannel.SMS
+              ? <>We sent a 6-digit code to your <strong>phone</strong></>
+              : <>We sent a 6-digit code to <strong>{email}</strong></>}
           </p>
 
           <div>
@@ -189,6 +251,20 @@ export default function LoginPage() {
               </button>
             )}
           </div>
+
+          {switchCount < 2 && (
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={handleChannelSwitch}
+                disabled={switchPending}
+                className="text-sm text-pink-600 hover:underline disabled:opacity-50"
+              >
+                <RefreshCw className="inline h-3 w-3 mr-1" />
+                Try {selectedChannel === OtpChannel.EMAIL ? 'SMS' : 'Email'} instead
+              </button>
+            </div>
+          )}
         </form>
       )}
 

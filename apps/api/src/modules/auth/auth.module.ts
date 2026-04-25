@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { TokenStoreService } from './token-store.service';
 import { ApifyModule } from '../apify/apify.module';
+import { SmsModule } from '../sms/sms.module';
 
 /**
  * NOTE: `TradeSafeModule` is intentionally NOT imported here. A compile-time
@@ -32,6 +33,7 @@ import { ApifyModule } from '../apify/apify.module';
       }),
     }),
     ApifyModule,
+    SmsModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, TokenStoreService],

@@ -20,6 +20,7 @@ import {
   VerifyOtpDto,
   SignupWithOtpDto,
   SwitchBrandDto,
+  SwitchOtpChannelDto,
   RequestEmailChangeDto,
   VerifyEmailChangeDto,
 } from './dto/auth.validators';
@@ -57,8 +58,16 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
-  async requestOtp(@Body() dto: RequestOtpDto) {
-    return this.authService.requestOtp(dto.email);
+  async requestOtp(@Body() dto: RequestOtpDto, @Req() req: Request) {
+    return this.authService.requestOtp(dto.email, dto.channel, req.ip);
+  }
+
+  @Post('switch-otp-channel')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  async switchOtpChannel(@Body() dto: SwitchOtpChannelDto, @Req() req: Request) {
+    return this.authService.switchOtpChannel(dto.email, req.ip);
   }
 
   @Post('verify-otp')
@@ -67,9 +76,10 @@ export class AuthController {
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   async verifyOtp(
     @Body() dto: VerifyOtpDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.verifyOtpAndLogin(dto.email, dto.otp);
+    const result = await this.authService.verifyOtpAndLogin(dto.email, dto.otp, req.ip);
     setRefreshCookie(res, result.refreshToken);
     const { refreshToken: _, ...response } = result;
     return response;
@@ -90,6 +100,7 @@ export class AuthController {
       dto.otp,
       dto.firstName,
       dto.lastName,
+      dto.contactNumber,
       dto.interests,
       dto.registerAsBrand,
       dto.brandName,
