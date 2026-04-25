@@ -9,3 +9,18 @@ updates:
       - "dependencies"
     commit-message:
       prefix: "chore(deps):"
+    # Defer major-version bumps for frameworks until coordinated upgrade workstreams.
+    # Lift on a per-family basis when ready. See closed PRs #25, #26, #29, #32.
+    ignore:
+      - dependency-name: "@nestjs/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-major"]
