@@ -431,6 +431,18 @@ enum KybStatus {
   REJECTED
 }
 
+enum MarketingChannel {
+  EMAIL
+  SMS
+  WHATSAPP
+}
+
+enum MarketingConsentSource {
+  SIGNUP_FORM_V1
+  SETTINGS_PAGE
+  IMPORT_BACKFILL
+}
+
 // ─────────────────────────────────────
 // Models
 // ─────────────────────────────────────
@@ -453,6 +465,14 @@ model User {
   // fire-and-forget, or blocking from the bounty-funding path in Phase 3).
   // See ADR 0011 (TradeSafe unified rail) + md-files/payment-gateway.md.
   tradeSafeTokenId  String?    @unique
+  // Terms of Service / Privacy Policy acceptance — stamped at signup. Versioned
+  // against LEGAL_VERSION (packages/shared/src/legal-version.ts). Hash is over
+  // the NFC-normalized acceptance statement so we can prove what was accepted.
+  termsAcceptedVersion   String?
+  termsAcceptedAt        DateTime?
+  termsAcceptedTextHash  String?
+  termsAcceptedIp        String?
+  termsAcceptedUserAgent String?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
@@ -488,11 +508,34 @@ model User {
   refundsRequested        Refund[]                  @relation("RefundRequester")
   refundsApproved         Refund[]                  @relation("RefundApprover")
   refundsDualApproved     Refund[]                  @relation("RefundDualApprover")
+  marketingConsents       MarketingConsent[]
 
   @@index([email])
   @@index([role])
   @@index([status])
   @@map("users")
+}
+
+model MarketingConsent {
+  id          String                 @id @default(uuid())
+  userId      String
+  channel     MarketingChannel
+  granted     Boolean
+  grantedAt   DateTime?
+  revokedAt   DateTime?
+  source      MarketingConsentSource
+  textVersion String
+  textHash    String
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channel])
+  @@index([userId])
+  @@map("marketing_consents")
 }
 
 model RefreshTokenAudit {
