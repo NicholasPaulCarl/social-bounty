@@ -22,6 +22,7 @@
    - [5.4 Dependency Vulnerability](#54-dependency-vulnerability)
    - [5.5 Financial Kill Switch (Payment Incidents)](#55-financial-kill-switch-payment-incidents)
    - [5.6 SMS Rail Outage](#56-sms-rail-outage)
+   - [5.7 Service-Communications Content Gate](#57-service-communications-content-gate)
 6. [Communication Templates](#6-communication-templates)
 7. [Post-Incident Review Template](#7-post-incident-review-template)
 
@@ -325,6 +326,47 @@ Every SMS costs approximately 10.2 Brevo credits for South African delivery. The
 **Related:**
 - ADR 0012 — Multi-channel OTP rail design, failure-mode table, and per-phone cap rationale.
 - `CLAUDE.md` §SMS_ENABLED — kill switch documentation.
+
+### 5.7 Service-Communications Content Gate
+
+**Why this exists.** As of the 2026-04-25 legal-opt-in branch, SMS and email are positioned in our Privacy Policy as **service communications** (POPIA-exempt transactional messages), not direct marketing. The signup form does not collect a marketing-consent checkbox, the carrier-mandated "Reply STOP" disclosure is not shown, and users cannot opt out of these messages without closing their account. That posture is only legally defensible while the *content* of every message stays on the service-comms side of POPIA §69.
+
+The moment a promotional message goes down this rail — a "20% off Pro" SMS, a "new bounties from your favourite brands" email, a third-party offer — those messages are **direct marketing under POPIA s1**, the no-opt-out posture becomes a §69 violation, and the no-marketing-consent claim in the Privacy Policy becomes a misrepresentation. The Information Regulator can fine for either.
+
+**The gate.**
+
+- Every email and SMS template that ships through `MailService` or `SmsService` must fit one of these allowed categories:
+  - Authentication (OTP codes, password-reset codes, login alerts).
+  - Account-state notifications (verification confirmations, status changes).
+  - Transaction confirmations (payout released, bounty funded, refund issued).
+  - Dispute and review communications (notice that a dispute was opened, reviewer's verdict).
+  - Submission-status updates that are individualised to the recipient ("your submission was approved", "your post failed visibility re-check") — *individualised* means the message is about something **this user did or owns**, not a broadcast.
+- The following are **not allowed** in these channels until a separate marketing-consent surface is shipped (with a working opt-out, ECTA s45, and POPIA s69 compliance):
+  - Promotional discounts, offers, or sales.
+  - Cross-sell or upsell pitches (Pro tier, paid features, etc.).
+  - Bulk announcements about new platform features unrelated to the recipient's account state.
+  - Bulk re-engagement campaigns ("we miss you", "haven't seen you in a while").
+  - Third-party content of any kind (sponsored brand promos, partner offers, affiliate links).
+  - Newsletter-style content rolling up multiple unrelated items.
+
+**Borderline cases.** A "weekly summary of your earnings" email *is* allowed if it only describes the recipient's own activity. A "new bounties matching your interests" email *is not* — that's marketing dressed up as a status update. A "your bounty is closing in 24h" notification *is* allowed if the recipient has applied for or submitted to that specific bounty; not allowed as a broadcast to all hunters with matching interests.
+
+**Review process.** Any change to a Handlebars template under `apps/api/src/modules/mail/templates/` or any new `MailService.send*` / `SmsService.send*` method must be flagged in the PR description as either (a) within the allowed categories above, or (b) a deliberate intent to introduce marketing — in which case the PR is paused and a separate workstream opens for the consent surface, ECTA s45 unsubscribe wiring, and the supporting Privacy Policy amendment. The reviewer should explicitly check for promotional language in the template body and call it out.
+
+**If the line was crossed in production.**
+
+1. Treat as **SEV-2** (regulatory exposure with documented user-trust impact).
+2. Stop further sends from the offending template immediately — comment out the call site, do not wait for a redeploy.
+3. Identify the recipient set: query the audit log for the `MailService` / `SmsService` call records and produce the list of affected users.
+4. Notify the Information Officer (currently the sole director — `privacy@socialbounty.cash` from `apps/web/src/content/legal/entity.ts`).
+5. Decide on remediation with the Information Officer:
+   - Was the message clearly marketing? — Apologise to recipients in writing, document the gap, and accelerate the marketing-consent surface workstream.
+   - Was it borderline? — Document the reasoning, update the allowed-categories list above with the new edge case clarified, and proceed.
+6. File a KB entry under `md-files/knowledge-base.md` with `category: 'compliance'` and `severity: 'high'` so the same template class doesn't slip through again.
+
+**Related:**
+- `apps/web/src/app/(marketing)/legal/privacy-policy/page.tsx` §Service communications — the public-facing claim this gate protects.
+- ADR forthcoming on the service-comms repositioning (see `legal-opt-in` branch history).
 
 ---
 
