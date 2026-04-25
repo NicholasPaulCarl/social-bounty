@@ -24,3 +24,22 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@types/react-dom"
         update-types: ["version-update:semver-major"]
+      # eslint 10 not yet supported by eslint-config-next; eslint-config-next 16 paired with Next 16.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint-config-next"
+        update-types: ["version-update:semver-major"]
+      # @hookform/resolvers 5.x: review form schema patterns first.
+      - dependency-name: "@hookform/resolvers"
+        update-types: ["version-update:semver-major"]
+      # Prisma 7 has known breaking changes (deprecated package.json#prisma config); coordinated upgrade.
+      - dependency-name: "prisma"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@prisma/client"
+        update-types: ["version-update:semver-major"]
+      # uuid 14 changed exports; needs sweep across import sites.
+      - dependency-name: "uuid"
+        update-types: ["version-update:semver-major"]
+      # @types/ioredis 5 paired with ioredis 5; skip until ioredis itself bumps.
+      - dependency-name: "@types/ioredis"
+        update-types: ["version-update:semver-major"]
