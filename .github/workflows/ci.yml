@@ -137,11 +137,13 @@ jobs:
         run: npm run migrate:deploy --workspace=packages/prisma
         env:
           DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_test
+          DIRECT_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_test
 
       - name: Run integration tests
         run: npx jest --config apps/api/test/jest-e2e.json --ci --forceExit || true
         env:
           DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_test
+          DIRECT_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_test
           JWT_SECRET: test-jwt-secret-for-ci-minimum-32-chars
           JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-ci-32chars
           JWT_ACCESS_EXPIRY: 15m
@@ -205,21 +207,25 @@ jobs:
         run: npm run migrate:deploy --workspace=packages/prisma
         env:
           DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
+          DIRECT_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
 
       - name: Seed test data
         run: npm run db:seed || true
         env:
           DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
+          DIRECT_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
 
       - name: Build applications
         run: npm run build:all
         env:
           DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
+          DIRECT_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
 
       - name: Run E2E tests
         run: npx playwright test --project=chromium || true
         env:
           DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
+          DIRECT_URL: postgresql://testuser:testpassword@localhost:5432/social_bounty_e2e
           JWT_SECRET: test-jwt-secret-for-ci-minimum-32-chars
           JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-ci-32chars
           CORS_ORIGIN: http://localhost:3000
