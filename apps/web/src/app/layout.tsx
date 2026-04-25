@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Providers } from './providers';
 
 // PrimeReact CSS - must be imported before Tailwind (globals.css)
@@ -48,8 +46,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} font-body antialiased bg-bg-abyss text-text-primary`}
       >
         <Providers>{children}</Providers>
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );
