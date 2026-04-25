@@ -13,6 +13,7 @@ import {
 } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerService } from '../ledger/ledger.service';
+import { MailService } from '../mail/mail.service';
 
 /**
  * TradeSafe webhook handler (ADR 0011 §5 — single-rail inbound).
@@ -43,6 +44,7 @@ export class TradeSafeWebhookHandler {
     private readonly prisma: PrismaService,
     private readonly ledger: LedgerService,
     private readonly config: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   /**
@@ -199,6 +201,88 @@ export class TradeSafeWebhookHandler {
 
     this.logger.log(
       `tradesafe.funds.received processed bounty=${bounty.id} tradesafeTxn=${transactionId}`,
+    );
+
+    // Fire-and-forget: notify each brand admin that their bounty went live.
+    // Guarded on the pre-tx state so a replay of the same callback (bounty
+    // already LIVE) does not re-mail. Per INCIDENT-RESPONSE.md §5.7 this is a
+    // transactional account-state notification — not direct marketing — so
+    // no consent gate applies.
+    if (bounty.status === BountyStatus.DRAFT) {
+      this.dispatchBountyPublishedEmails(bounty.id).catch((err) => {
+        this.logger.warn(
+          `bounty-published email dispatch failed for bounty=${bounty.id}: ${
+            err instanceof Error ? err.message : err
+          }`,
+        );
+      });
+    }
+  }
+
+  /**
+   * Look up every active member of the bounty's brand, then dispatch the
+   * "your bounty is live" email per member. Per-recipient failures are
+   * logged but never block other recipients (Promise.allSettled).
+   */
+  private async dispatchBountyPublishedEmails(bountyId: string): Promise<void> {
+    const bounty = await this.prisma.bounty.findUnique({
+      where: { id: bountyId },
+      select: {
+        id: true,
+        title: true,
+        shortDescription: true,
+        currency: true,
+        faceValueCents: true,
+        brand: {
+          select: {
+            members: {
+              select: {
+                user: {
+                  select: { id: true, email: true, firstName: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!bounty || !bounty.brand) return;
+
+    const recipients = bounty.brand.members
+      .map((m) => m.user)
+      .filter((u): u is { id: string; email: string; firstName: string } =>
+        Boolean(u && u.email),
+      );
+
+    if (recipients.length === 0) {
+      this.logger.warn(
+        `bounty-published: no brand-admin recipients found for bounty=${bountyId}`,
+      );
+      return;
+    }
+
+    const rewardValue = bounty.faceValueCents
+      ? (Number(bounty.faceValueCents) / 100).toFixed(2)
+      : '0.00';
+
+    await Promise.allSettled(
+      recipients.map((user) =>
+        this.mailService
+          .sendBountyPublishedEmail(user.email, {
+            firstName: user.firstName,
+            bountyTitle: bounty.title,
+            shortDescription: bounty.shortDescription ?? '',
+            rewardValue,
+            currency: bounty.currency,
+          })
+          .catch((err) => {
+            this.logger.warn(
+              `bounty-published email failed for user=${user.id}: ${
+                err instanceof Error ? err.message : err
+              }`,
+            );
+          }),
+      ),
     );
   }
 

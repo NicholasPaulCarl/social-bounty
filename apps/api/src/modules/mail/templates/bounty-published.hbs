@@ -1,9 +1,13 @@
 <h2 style="margin:0 0 16px;font-size:20px;color:#1a1a2e;">
-  New Bounty Live
+  Your bounty is live
 </h2>
 
 <p style="margin:0 0 16px;font-size:15px;color:#333333;line-height:1.6;">
-  A new bounty is now live and ready for submissions!
+  Hi {{firstName}},
+</p>
+
+<p style="margin:0 0 16px;font-size:15px;color:#333333;line-height:1.6;">
+  Your bounty <strong>"{{bountyTitle}}"</strong> is now live and accepting submissions. Funding has settled in escrow and hunters can apply or submit work right away.
 </p>
 
 <!-- Bounty Card -->
@@ -32,13 +36,13 @@
   <tr>
     <td style="background-color:#6c63ff;border-radius:6px;">
       <a href="{{bountyUrl}}" style="display:inline-block;padding:12px 24px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">
-        View Bounty
+        Manage bounty
       </a>
     </td>
   </tr>
 </table>
 {{/if}}
 
-<p style="margin:16px 0 0;font-size:13px;color:#999999;">
-  Get started by reviewing the bounty requirements and submitting your proof.
+<p style="margin:16px 0 0;font-size:13px;color:#666666;line-height:1.6;">
+  You'll receive a separate email each time a hunter submits proof or your bounty's status changes. You're getting this email because you are an admin of the brand that owns this bounty.
 </p>

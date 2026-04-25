@@ -4,6 +4,7 @@ import { BountiesService } from '../bounties.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../audit/audit.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
+import { MailService } from '../../mail/mail.service';
 import { BountyStatus, RewardType, Currency } from '@social-bounty/shared';
 import type { PayoutMetricsInput } from '@social-bounty/shared';
 import {
@@ -13,6 +14,7 @@ import {
   baseBountyRewardRecord,
   createMockPrisma,
   createMockAuditService,
+  createMockMailService,
 } from './test-fixtures';
 
 describe('BountiesService - Payout Metrics', () => {
@@ -30,6 +32,7 @@ describe('BountiesService - Payout Metrics', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: auditService },
         { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
+        { provide: MailService, useValue: createMockMailService() },
       ],
     }).compile();
 

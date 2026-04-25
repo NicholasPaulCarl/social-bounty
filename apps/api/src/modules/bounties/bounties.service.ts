@@ -41,6 +41,7 @@ import type {
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+import { MailService } from '../mail/mail.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 const LIVE_EDITABLE_FIELDS = new Set([
@@ -64,6 +65,7 @@ export class BountiesService {
     private prisma: PrismaService,
     private auditService: AuditService,
     private subscriptionsService: SubscriptionsService,
+    private mailService: MailService,
   ) {}
 
   // ── Validation helpers ─────────────────────────────────
@@ -1198,13 +1200,27 @@ export class BountiesService {
       ipAddress,
     });
 
-    // Log when a bounty goes live (audit trail, no mass email)
-    if (newStatus === BountyStatus.LIVE) {
+    // On a DRAFT → LIVE transition (manual super-admin or brand-admin flip),
+    // notify each brand admin transactionally that the bounty is now live.
+    // Guarded on the prior-state DRAFT so an out-of-band re-flip
+    // (PAUSED → LIVE) does not re-mail. Per INCIDENT-RESPONSE.md §5.7 this
+    // is an account-state notification — not direct marketing.
+    if (
+      newStatus === BountyStatus.LIVE &&
+      bounty.status === BountyStatus.DRAFT
+    ) {
       this.logger.log({
         message: 'Bounty published and now LIVE',
         bountyId: id,
         title: bounty.title,
         publishedBy: user.sub,
+      });
+      this.dispatchBountyPublishedEmails(id).catch((err) => {
+        this.logger.warn(
+          `bounty-published email dispatch failed for bounty=${id}: ${
+            err instanceof Error ? err.message : err
+          }`,
+        );
       });
     }
 
@@ -1213,6 +1229,75 @@ export class BountiesService {
       status: updated.status,
       updatedAt: updated.updatedAt.toISOString(),
     };
+  }
+
+  /**
+   * Look up every active member of the bounty's brand and dispatch the
+   * "your bounty is live" email per member. Per-recipient failures are
+   * logged but never block other recipients (Promise.allSettled). Mirrors
+   * the helper in TradeSafeWebhookHandler — kept local to each caller
+   * rather than centralised since the call sites are the only ones.
+   */
+  private async dispatchBountyPublishedEmails(bountyId: string): Promise<void> {
+    const bounty = await this.prisma.bounty.findUnique({
+      where: { id: bountyId },
+      select: {
+        id: true,
+        title: true,
+        shortDescription: true,
+        currency: true,
+        faceValueCents: true,
+        brand: {
+          select: {
+            members: {
+              select: {
+                user: {
+                  select: { id: true, email: true, firstName: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!bounty || !bounty.brand) return;
+
+    const recipients = bounty.brand.members
+      .map((m) => m.user)
+      .filter((u): u is { id: string; email: string; firstName: string } =>
+        Boolean(u && u.email),
+      );
+
+    if (recipients.length === 0) {
+      this.logger.warn(
+        `bounty-published: no brand-admin recipients found for bounty=${bountyId}`,
+      );
+      return;
+    }
+
+    const rewardValue = bounty.faceValueCents
+      ? (Number(bounty.faceValueCents) / 100).toFixed(2)
+      : '0.00';
+
+    await Promise.allSettled(
+      recipients.map((user) =>
+        this.mailService
+          .sendBountyPublishedEmail(user.email, {
+            firstName: user.firstName,
+            bountyTitle: bounty.title,
+            shortDescription: bounty.shortDescription ?? '',
+            rewardValue,
+            currency: bounty.currency,
+          })
+          .catch((err) => {
+            this.logger.warn(
+              `bounty-published email failed for user=${user.id}: ${
+                err instanceof Error ? err.message : err
+              }`,
+            );
+          }),
+      ),
+    );
   }
 
   // ── Acknowledge Visibility ─────────────────────────────

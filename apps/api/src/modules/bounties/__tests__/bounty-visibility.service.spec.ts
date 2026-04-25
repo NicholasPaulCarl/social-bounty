@@ -4,6 +4,7 @@ import { BountiesService } from '../bounties.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../audit/audit.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
+import { MailService } from '../../mail/mail.service';
 import {
   PostVisibilityRule,
   DurationUnit,
@@ -15,6 +16,7 @@ import {
   baseBountyRecord,
   createMockPrisma,
   createMockAuditService,
+  createMockMailService,
 } from './test-fixtures';
 
 describe('BountiesService - Post Visibility Validation', () => {
@@ -32,6 +34,7 @@ describe('BountiesService - Post Visibility Validation', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: auditService },
         { provide: SubscriptionsService, useValue: { getActiveTier: jest.fn().mockResolvedValue('FREE'), getActiveOrgTier: jest.fn().mockResolvedValue('FREE'), isFeatureEnabled: jest.fn().mockResolvedValue(false) } },
+        { provide: MailService, useValue: createMockMailService() },
       ],
     }).compile();
 
