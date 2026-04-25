@@ -532,10 +532,8 @@ describe('AuthService', () => {
     };
 
     it('calls smsService.sendOtpSms and not mailService when user has a phone', async () => {
-      let smsService: { sendOtpSms: jest.Mock };
-      // Retrieve the injected SmsService mock reference
       const module = (service as unknown as { [key: string]: unknown });
-      smsService = (module['smsService'] ?? module['SmsService']) as { sendOtpSms: jest.Mock };
+      const smsService = (module['smsService'] ?? module['SmsService']) as { sendOtpSms: jest.Mock };
 
       // Reset mocks to verify call counts cleanly
       tokenStore.hasRecentOtp.mockResolvedValue(false);
