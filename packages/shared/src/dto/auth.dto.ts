@@ -26,6 +26,15 @@ export interface SwitchOtpChannelRequest {
   email: string;
 }
 
+// Marketing channel opt-in choices captured at signup. Each boolean is the user's
+// active consent for that channel; absence/false means no row is written and no
+// marketing send-path will fire. POPIA §69 — consent must be specific, informed,
+// and freely given.
+export interface MarketingConsentInput {
+  email: boolean;
+  sms: boolean;
+}
+
 // POST /auth/signup
 export interface SignupWithOtpRequest {
   email: string;
@@ -37,6 +46,10 @@ export interface SignupWithOtpRequest {
   registerAsBrand?: boolean;
   brandName?: string;
   brandContactEmail?: string;
+  // Required ToS + Privacy Policy acceptance. Backend rejects anything but `true`.
+  termsAccepted: true;
+  // Required marketing-consent object. Individual channel booleans may be false.
+  marketingConsent: MarketingConsentInput;
 }
 
 // POST /auth/switch-brand

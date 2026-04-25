@@ -55,5 +55,7 @@ export const LEGAL_ENTITY = {
   },
 } as const;
 
-export const LEGAL_EFFECTIVE_DATE = '2026-04-24';
-export const LEGAL_VERSION = '1.0';
+// LEGAL_VERSION + LEGAL_EFFECTIVE_DATE live in @social-bounty/shared so the
+// API can read the same source-of-truth when stamping User.termsAcceptedVersion
+// at signup. Re-exported here so existing import sites keep working.
+export { LEGAL_VERSION, LEGAL_EFFECTIVE_DATE } from '@social-bounty/shared';
