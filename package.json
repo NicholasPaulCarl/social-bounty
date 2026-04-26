@@ -16,7 +16,7 @@
     "build:all": "npm run build:shared && npm run build:api && npm run build:web",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
-    "db:generate": "npm run generate --workspace=packages/prisma && rsync -a --delete packages/prisma/node_modules/.prisma/client/ apps/api/node_modules/.prisma/client/",
+    "db:generate": "npm run generate --workspace=packages/prisma && rm -rf apps/api/node_modules/.prisma/client && mkdir -p apps/api/node_modules/.prisma && cp -R packages/prisma/node_modules/.prisma/client apps/api/node_modules/.prisma/client",
     "db:migrate": "npm run migrate:dev --workspace=packages/prisma",
     "db:seed": "npm run seed --workspace=packages/prisma",
     "db:studio": "npm run studio --workspace=packages/prisma",
