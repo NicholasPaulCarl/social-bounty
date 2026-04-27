@@ -75,6 +75,12 @@ describe('KybDocumentsService', () => {
         create: jest.fn().mockResolvedValue(
           opts.createResult ?? {
             id: 'doc-1',
+            // brandId is required by `serialize` to compute the download
+            // URL — without it the serializer produces a malformed URL
+            // with `brands/undefined/...`. Cooldown 2026-04-27 added the
+            // explicit field; assertion on the URL shape lives in the
+            // happy-path test below.
+            brandId: 'brand-1',
             documentType: 'COR_14_3' as KybDocumentType,
             fileName: 'CIPC_14_3.pdf',
             fileUrl: '/tmp/uploads/kyb/abc.pdf',
@@ -120,9 +126,30 @@ describe('KybDocumentsService', () => {
         }),
       );
       expect(result.documentType).toBe('COR_14_3');
+      // 2026-04-27 cooldown — lock in the download-URL serializer shape.
+      // Was previously the on-disk path (broken in browsers); now the
+      // HTTP download endpoint route. Frontend `window.open(doc.fileUrl)`
+      // depends on this exact format.
+      expect(result.fileUrl).toBe(
+        '/api/v1/brands/brand-1/kyb/documents/doc-1/download',
+      );
       expect(audit.log).toHaveBeenCalledWith(
         expect.objectContaining({ action: 'kyb.document_uploaded' }),
       );
+    });
+
+    it('rejects expiresAt set to the past', async () => {
+      const { svc } = buildService();
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      await expect(
+        svc.uploadDocument(
+          brandId,
+          makeFile(),
+          'BANK_PROOF' as KybDocumentType,
+          businessAdmin,
+          yesterday,
+        ),
+      ).rejects.toThrow(/expiresAt must be in the future/);
     });
 
     it('RBAC — BUSINESS_ADMIN of another brand cannot upload', async () => {

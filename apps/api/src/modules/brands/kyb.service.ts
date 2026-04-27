@@ -25,10 +25,10 @@ import { TradeSafeGraphQLClient } from '../tradesafe/tradesafe-graphql.client';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
 /**
- * Submission payload accepted by `KybService.submit`. Wave 1 added
- * `tradeName`, `taxNumber`, and `orgType`. `documentsRef` survives as a
- * deprecated optional for backward-compat with mobile clients deployed
- * before the dedicated documents endpoint landed; the service ignores it.
+ * Submission payload accepted by `KybService.submit`. Wave 1 (R24
+ * pre-launch) added `tradeName`, `taxNumber`, and `orgType`. KYB
+ * documents live in the dedicated `kyb_documents` table via the
+ * documents endpoints — no free-text reference on the submission.
  */
 export interface KybSubmissionInput {
   registeredName: string;
@@ -38,10 +38,8 @@ export interface KybSubmissionInput {
   taxNumber?: string;
   country: string;
   contactEmail: string;
-  /** Required since Wave 1 — TradeSafe `tokenCreate` requires it for org parties. */
+  /** TradeSafe `tokenCreate` requires this for org parties. */
   orgType: KybOrgType;
-  /** @deprecated since Wave 1 — kept so older clients don't 400. */
-  documentsRef?: string;
 }
 
 @Injectable()

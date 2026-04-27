@@ -79,6 +79,17 @@ export class KybDocumentsService {
         `Notes too long — max ${KYB_DOCUMENT_LIMITS.NOTES_MAX} chars`,
       );
     }
+    // Guard against past-dated expiry — a document submitted as already
+    // expired is meaningless and would render with a "expired N days ago"
+    // warning the moment it lands. Either the brand admin made a mistake
+    // or they're being adversarial; either way reject loudly. We allow
+    // expiresAt === null (never expires, e.g. CIPC docs) and any future
+    // date.
+    if (expiresAt && expiresAt.getTime() <= Date.now()) {
+      throw new BadRequestException(
+        'expiresAt must be in the future — upload a fresh document instead',
+      );
+    }
 
     const brand = await this.prisma.brand.findUnique({ where: { id: brandId } });
     if (!brand) throw new NotFoundException('Brand not found');
@@ -94,8 +105,10 @@ export class KybDocumentsService {
         documentType,
         fileName: file.originalname,
         // The interceptor wrote to disk under uploads/kyb/{uuid}.{ext}.
-        // We store the on-disk path so the download path can validate +
-        // stream — same pattern as `BrandAsset.fileUrl`.
+        // We store the on-disk path on the row; the HTTP download URL
+        // is computed at serialization time by `buildDownloadUrl` and
+        // streamed by the `.../download` controller route. Same storage
+        // convention as `BrandAsset.fileUrl` + `FileUpload.fileUrl`.
         fileUrl: file.path,
         mimeType: file.mimetype,
         fileSize: file.size,

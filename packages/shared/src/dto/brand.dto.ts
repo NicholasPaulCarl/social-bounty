@@ -131,10 +131,9 @@ export interface BrandDetailResponse {
 
 // POST /brands/:brandId/kyb
 //
-// Wave 1 extends the prior submission shape. `documentsRef` is retained for
-// backward-compat with the previously-deployed mobile clients but is no
-// longer used by the service — KYB documents now live in the dedicated
-// `kyb_documents` table via the documents endpoints.
+// KYB submission shape. Documents live in the dedicated `kyb_documents`
+// table via the documents endpoints (`POST /brands/:brandId/kyb/documents`)
+// — no free-text reference field on the submission itself.
 export interface SubmitKybRequest {
   registeredName: string;
   /** Optional trade name (DBA / "trading as"). */
@@ -145,10 +144,8 @@ export interface SubmitKybRequest {
   taxNumber?: string;
   country: string;
   contactEmail: string;
-  /** Required since Wave 1 — TradeSafe `tokenCreate` rejects org parties without it. */
+  /** TradeSafe `tokenCreate` rejects org parties without it. */
   orgType: KybOrgType;
-  /** @deprecated since Wave 1 — kept for backward-compat with older clients. */
-  documentsRef?: string;
 }
 
 // POST /brands/:brandId/kyb/reject

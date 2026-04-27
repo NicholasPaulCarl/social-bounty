@@ -89,11 +89,6 @@ class SubmitKybDto {
 
   @IsEnum(KybOrgType)
   orgType!: KybOrgType;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(500)
-  documentsRef?: string;
 }
 
 class RejectKybDto {
