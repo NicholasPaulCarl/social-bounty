@@ -1,9 +1,24 @@
 # TradeSafe — Live Production Readiness Package
 
+> ⚠️ **Historical (pre-Phase-3 cutover).** This document was written when
+> TradeSafe was the *outbound-only* rail (ADR 0008/0009 era) and Stitch
+> Express was inbound. ADR 0011 (2026-04-24) collapsed both rails into
+> a single TradeSafe rail; the inbound flow now goes through
+> `TradeSafePaymentsService.createBountyFunding` + the GraphQL client
+> rather than the legacy REST `TradeSafeClient`. The classes referenced
+> by file:line below — `TradeSafeClient`, `TradeSafePayoutAdapter`,
+> `PayoutProviderFactory`, `payout-provider.interface.ts` — were
+> **deleted on 2026-04-27** (commit `6ef1595`); their pointers in this
+> doc are stale. The env-var matrix and operational lessons (token
+> caching, redacted logging, alert thresholds) remain useful as
+> reference material; the wiring details do not. Phase 4 outbound
+> payouts will go through `TradeSafeGraphQLClient` directly — see
+> ADR 0011 §5 + the canonical wiring in `apps/api/src/modules/tradesafe/`.
+
 **Owner:** Team Lead (approval gate) + Backend Lead + DevOps
-**Status:** Not ready — pending commercial onboarding (R24)
-**Last refreshed:** 2026-04-18
-**Reading order:** `docs/adr/0008-tradesafe-for-hunter-payouts.md` → `docs/adr/0009-tradesafe-integration-skeleton.md` → this document → `docs/deployment/go-live-checklist.md` §0.6.
+**Status:** Historical — pre-ADR-0011. Not the source of truth post-cutover.
+**Last refreshed:** 2026-04-18 (banner added 2026-04-27)
+**Canonical reference now:** [ADR 0011](../adr/0011-tradesafe-unified-rail.md) + `apps/api/src/modules/tradesafe/`.
 
 ---
 
