@@ -185,6 +185,15 @@ export type {
   SubmitKybRequest,
   RejectKybRequest,
   KybActionResponse,
+  // KYB Wave 1 — review queue, documents, full submission view
+  KybOrgType,
+  KybDocumentType,
+  UploadKybDocumentRequest,
+  KybDocumentResponse,
+  BrandKybSubmissionView,
+  BrandKybAuditLogEntry,
+  AdminKybQueueItem,
+  AdminKybQueueResponse,
 } from './dto/brand.dto';
 
 // Bounty DTOs

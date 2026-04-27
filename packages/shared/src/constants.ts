@@ -121,6 +121,19 @@ export const AUDIT_ACTIONS = {
   TRADESAFE_TOKEN_CREATED: 'tradesafe.token_created',
   BOUNTY_FUNDED_VIA_TRADESAFE: 'bounty.funded_via_tradesafe',
   USER_TERMS_ACCEPTED: 'user.terms_accepted',
+  KYB_SUBMIT: 'kyb.submit',
+  KYB_APPROVE: 'kyb.approve',
+  KYB_REJECT: 'kyb.reject',
+  KYB_DOCUMENT_UPLOADED: 'kyb.document_uploaded',
+  KYB_DOCUMENT_DELETED: 'kyb.document_deleted',
+  // Tagged when the post-approve TradeSafe `tokenCreate` succeeds and we
+  // persist the resulting `tradeSafeTokenId` on the brand row.
+  BRAND_TRADESAFE_TOKEN_CREATED: 'brand.tradesafe_token_created',
+  // Tagged when the post-approve TradeSafe `tokenCreate` fails. The brand
+  // is still APPROVED on our side — operators retry the token mint via a
+  // dedicated admin action (out of scope for Wave 1; documented in
+  // KybService.approve JSDoc).
+  BRAND_TRADESAFE_TOKEN_CREATE_FAILED: 'brand.tradesafe_token_create_failed',
 } as const;
 
 export const ENTITY_TYPES = {
