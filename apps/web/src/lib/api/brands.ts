@@ -15,6 +15,8 @@ import type {
   MyBrandListItem,
   SubmitKybRequest,
   KybActionResponse,
+  KybDocumentResponse,
+  KybDocumentType,
 } from '@social-bounty/shared';
 
 export const brandsApi = {
@@ -90,4 +92,28 @@ export const brandsApi = {
 
   rejectKyb: (brandId: string, reason: string): Promise<KybActionResponse> =>
     apiClient.post(`/brands/${brandId}/kyb/reject`, { reason }),
+
+  // KYB documents (Wave 1) — replaces the legacy free-text `documentsRef`.
+  listKybDocuments: (brandId: string): Promise<KybDocumentResponse[]> =>
+    apiClient.get(`/brands/${brandId}/kyb/documents`),
+
+  uploadKybDocument: (
+    brandId: string,
+    payload: {
+      file: File;
+      documentType: KybDocumentType;
+      expiresAt?: string;
+      notes?: string;
+    },
+  ): Promise<KybDocumentResponse> => {
+    const formData = new FormData();
+    formData.append('file', payload.file);
+    formData.append('documentType', payload.documentType);
+    if (payload.expiresAt) formData.append('expiresAt', payload.expiresAt);
+    if (payload.notes) formData.append('notes', payload.notes);
+    return apiClient.post(`/brands/${brandId}/kyb/documents`, formData);
+  },
+
+  deleteKybDocument: (brandId: string, documentId: string): Promise<MessageResponse> =>
+    apiClient.delete(`/brands/${brandId}/kyb/documents/${documentId}`),
 };
