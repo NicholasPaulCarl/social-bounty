@@ -79,6 +79,11 @@ export class TradeSafePaymentsService {
       include: {
         rewards: true,
         tradeSafeTransaction: true,
+        // Wave 1 — pull the brand's KYB-minted TradeSafe BUYER token so we
+        // can prefer it over the env-default. `select` keeps the payload
+        // small and avoids changing the existing kyb-status guard which
+        // does its own `findUnique`.
+        brand: { select: { tradeSafeTokenId: true } },
       },
     });
     if (!bounty || bounty.deletedAt) throw new NotFoundException('Bounty not found');
@@ -174,13 +179,24 @@ export class TradeSafePaymentsService {
     // Until Phase 2 token lifecycle lands, we create the transaction with a
     // placeholder SELLER party.
     //
-    // `||` not `??` here: `config.get('X', '')` returns the empty-string
-    // default when env unset, and `'' ?? agentToken` is `''` (nullish
-    // coalescing only fires on null/undefined). With `??`, an unset
-    // TRADESAFE_DEFAULT_BUYER_TOKEN would silently send an empty token to
-    // TradeSafe, producing a 400 in live mode. `||` correctly falls
-    // through on empty string.
+    // BUYER token resolution order (Wave 1, R24 pre-launch):
+    //   1. `bounty.brand.tradeSafeTokenId` — minted by `KybService.approve`
+    //      after a successful CIPC-evidenced KYB review. This is the only
+    //      production-correct token for a live brand, since TradeSafe ties
+    //      the party to real registration details.
+    //   2. `TRADESAFE_DEFAULT_BUYER_TOKEN` env — fallback for dev / pre-
+    //      approval flows where `TRADESAFE_MOCK=true` (the kyb gate above
+    //      short-circuits to allow funding without a real token).
+    //   3. `agentToken` — final safety net so we never send an empty token
+    //      to TradeSafe.
+    //
+    // `||` not `??` throughout: `config.get('X', '')` returns the empty
+    // string when env unset, and `'' ?? agentToken` is `''` (nullish
+    // coalescing only fires on null/undefined). `||` correctly falls
+    // through on empty string. The same trap applied to the prior
+    // version that this Wave 1 change widened, see commit 72d00b7.
     const buyerToken =
+      bounty.brand?.tradeSafeTokenId ||
       this.config.get<string>('TRADESAFE_DEFAULT_BUYER_TOKEN', '') ||
       agentToken;
     const sellerToken =
