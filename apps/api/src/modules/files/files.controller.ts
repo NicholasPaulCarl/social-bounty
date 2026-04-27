@@ -11,6 +11,7 @@ import { Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
 import { Roles, CurrentUser } from '../../common/decorators';
+import { buildContentDisposition } from '../../common/utils/content-disposition';
 import { UserRole } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { BountiesService } from '../bounties/bounties.service';
@@ -51,7 +52,7 @@ export class FilesController {
     res.setHeader('Content-Type', asset.mimeType);
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename="${asset.fileName}"`,
+      buildContentDisposition('attachment', asset.fileName),
     );
     fs.createReadStream(filePath).pipe(res);
   }
@@ -100,7 +101,7 @@ export class FilesController {
     res.setHeader('Content-Type', file.mimeType);
     res.setHeader(
       'Content-Disposition',
-      `inline; filename="${file.fileName}"`,
+      buildContentDisposition('inline', file.fileName),
     );
     fs.createReadStream(filePath).pipe(res);
   }
