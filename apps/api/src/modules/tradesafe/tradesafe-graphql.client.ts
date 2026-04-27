@@ -53,15 +53,15 @@ interface OAuthTokenResponse {
 /**
  * TradeSafe GraphQL client. Handles OAuth 2.0 Client Credentials
  * authentication, request retries (5xx), token caching, and mock-mode
- * short-circuiting. Higher-level mutation/query helpers (`tokenCreate`,
- * `transactionCreate`, `checkoutLink`, etc.) land in Phase 1b —
- * this class owns the transport layer only.
+ * short-circuiting. Owns transport + the typed mutation/query helpers
+ * (`tokenCreate`, `transactionCreate`, `checkoutLink`, `getTransaction`,
+ * `allocationStartDelivery`, `allocationAcceptDelivery`).
  *
- * ADR 0011 (upcoming) documents the pivot from REST + per-bounty Stitch
- * payment-links to TradeSafe-as-unified-rail. The REST stub at
- * {@link TradeSafeClient} stays in place until the inbound cutover
- * (Phase 3) and outbound cutover (Phase 4) replace its two live-code
- * consumers.
+ * ADR 0011 documents the pivot from REST + per-bounty Stitch payment-links
+ * to TradeSafe-as-unified-rail. This is the only TradeSafe client post-
+ * 2026-04-27 — the legacy REST `TradeSafeClient` (outbound payouts) was
+ * deleted along with its dormant adapter + factory now that
+ * `PayoutsService` stubs `NotImplementedException` until Phase 4.
  *
  * Auth reference: https://docs.tradesafe.co.za/api/authentication/
  * Token endpoint returns `expires_in: 1800` in practice (docs claim 3600);
