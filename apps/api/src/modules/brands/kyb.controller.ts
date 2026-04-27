@@ -288,4 +288,25 @@ export class KybController {
   ) {
     return this.kyb.getReview(brandId, user);
   }
+
+  /**
+   * Recovery endpoint for the rare APPROVED-but-tokenCreate-failed case.
+   * The approve flow's TradeSafe mint is best-effort (failures audit-log
+   * `BRAND_TRADESAFE_TOKEN_CREATE_FAILED` but don't roll back approval),
+   * so without this an operator would have to either (a) hand-edit the
+   * Brand row in the DB or (b) reject + resubmit + re-approve to retry
+   * — both worse than a proper retry endpoint.
+   *
+   * State guards live in the service: APPROVED-only, and only when
+   * `tradeSafeTokenId` is null. SUPER_ADMIN only.
+   */
+  @Post('admin/brands/:brandId/kyb/retry-token-mint')
+  @Roles(UserRole.SUPER_ADMIN)
+  @Audited('BRAND_TRADESAFE_TOKEN_CREATED', 'Brand')
+  async retryTokenMint(
+    @Param('brandId') brandId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.kyb.retryTradeSafeTokenMint(brandId, user);
+  }
 }

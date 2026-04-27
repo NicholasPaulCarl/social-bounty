@@ -367,6 +367,61 @@ export class KybService {
     };
   }
 
+  /**
+   * SUPER_ADMIN-only retry of the TradeSafe `tokenCreate` mint for a
+   * brand that's already KYB-APPROVED but has no `tradeSafeTokenId`. The
+   * approve-time mint is best-effort (failures audit-log but don't roll
+   * back the approval) — this endpoint is the deliberate, observable
+   * recovery path. Returns the freshly-minted token id.
+   *
+   * State guards:
+   *   - SUPER_ADMIN only (mints affect what TradeSafe sees as the BUYER
+   *     party for every future bounty funding, so we don't widen this).
+   *   - Brand must be APPROVED. If still PENDING/REJECTED/NOT_STARTED,
+   *     the right move is the normal approve flow, not retry.
+   *   - tradeSafeTokenId must currently be null. A second mint would
+   *     create a second TradeSafe party + leave the first orphan; if
+   *     the existing token is bad, an admin should reject + resubmit
+   *     + re-approve to reset the state.
+   *
+   * Errors propagate from `mintTradeSafeBrandToken` (the network call)
+   * — in mock mode there's no network, so this can only fail on the
+   * Prisma update. The caller (controller) translates exceptions into
+   * a 5xx; the brand stays APPROVED-without-token regardless, ready
+   * for another retry.
+   */
+  async retryTradeSafeTokenMint(
+    brandId: string,
+    approver: AuthenticatedUser,
+  ): Promise<{ tradeSafeTokenId: string }> {
+    if (approver.role !== UserRole.SUPER_ADMIN) {
+      throw new ForbiddenException('Only SUPER_ADMIN can retry TradeSafe token mint');
+    }
+    const brand = await this.prisma.brand.findUnique({ where: { id: brandId } });
+    if (!brand) throw new NotFoundException('Brand not found');
+    if (brand.kybStatus !== KybStatus.APPROVED) {
+      throw new BadRequestException(
+        `KYB is ${brand.kybStatus}; retry is only valid after APPROVED`,
+      );
+    }
+    if (brand.tradeSafeTokenId) {
+      throw new BadRequestException(
+        'Brand already has a TradeSafe token — reject + resubmit + re-approve to reset',
+      );
+    }
+
+    await this.mintTradeSafeBrandToken(brand, approver);
+
+    // Re-read to surface the freshly-written token id. Cheap second
+    // round-trip — preferable to relying on `mintTradeSafeBrandToken`'s
+    // internal contract.
+    const refreshed = await this.prisma.brand.findUnique({
+      where: { id: brandId },
+      select: { tradeSafeTokenId: true },
+    });
+    return { tradeSafeTokenId: refreshed?.tradeSafeTokenId ?? '' };
+  }
+
   // ─── helpers ────────────────────────────────────────────
 
   /**

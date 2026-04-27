@@ -542,4 +542,100 @@ describe('KybService', () => {
       ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
+
+  describe('retryTradeSafeTokenMint', () => {
+    it('mints + persists token when APPROVED and tradeSafeTokenId is null', async () => {
+      const { svc, prisma, audit } = buildService({
+        initialBrand: {
+          kybStatus: KybStatus.APPROVED,
+          tradeSafeTokenId: null,
+        },
+        // After mint, the re-read returns the fresh token id.
+        // buildService uses the same prisma.brand.findUnique mock for
+        // every call; we set the FIRST call to the bare brand row,
+        // and the LAST call (the post-mint refresh) to include the token.
+        // Mock mode synthesizes `mock-brand-token-${brandId}`.
+        isMockMode: true,
+      });
+      // Wire the second findUnique call (the post-mint refresh) to return
+      // the fresh token. The default mock returns the same row twice; we
+      // override the second resolution.
+      (prisma.brand.findUnique as jest.Mock)
+        .mockResolvedValueOnce({
+          id: brandId,
+          name: 'Acme',
+          contactEmail: 'kyb@acme.test',
+          kybStatus: KybStatus.APPROVED,
+          kybRegisteredName: null,
+          kybTradeName: null,
+          kybContactEmail: null,
+          kybOrgType: null,
+          kybRegistrationNumber: null,
+          kybTaxNumber: null,
+          tradeSafeTokenId: null,
+        })
+        .mockResolvedValueOnce({
+          tradeSafeTokenId: `mock-brand-token-${brandId}`,
+        });
+
+      const result = await svc.retryTradeSafeTokenMint(brandId, superAdmin);
+
+      expect(result.tradeSafeTokenId).toBe(`mock-brand-token-${brandId}`);
+      // mintTradeSafeBrandToken writes one update with the token id.
+      expect(prisma.brand.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: { tradeSafeTokenId: `mock-brand-token-${brandId}` },
+        }),
+      );
+      // Audit: BRAND_TRADESAFE_TOKEN_CREATED, same as approve-time success.
+      const auditCalls = (audit.log as jest.Mock).mock.calls.map(
+        (c) => c[0].action,
+      );
+      expect(auditCalls).toContain('brand.tradesafe_token_created');
+    });
+
+    it('rejects when KYB not yet APPROVED', async () => {
+      const { svc } = buildService({
+        initialBrand: {
+          kybStatus: KybStatus.PENDING,
+          tradeSafeTokenId: null,
+        },
+      });
+      await expect(
+        svc.retryTradeSafeTokenMint(brandId, superAdmin),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('rejects when brand already has a TradeSafe token (no clobber)', async () => {
+      const { svc } = buildService({
+        initialBrand: {
+          kybStatus: KybStatus.APPROVED,
+          tradeSafeTokenId: 'pre-existing-token-abc',
+        },
+      });
+      await expect(
+        svc.retryTradeSafeTokenMint(brandId, superAdmin),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('only SUPER_ADMIN can retry the mint', async () => {
+      const { svc } = buildService({
+        initialBrand: {
+          kybStatus: KybStatus.APPROVED,
+          tradeSafeTokenId: null,
+        },
+      });
+      await expect(
+        svc.retryTradeSafeTokenMint(brandId, businessAdmin),
+      ).rejects.toBeInstanceOf(ForbiddenException);
+    });
+
+    it('rejects when brand is missing', async () => {
+      const { svc, prisma } = buildService();
+      (prisma.brand.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      await expect(
+        svc.retryTradeSafeTokenMint('missing', superAdmin),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
 });
