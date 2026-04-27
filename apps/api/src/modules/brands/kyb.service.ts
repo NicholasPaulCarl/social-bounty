@@ -11,6 +11,7 @@ import {
   ENTITY_TYPES,
   UserRole,
   KybStatus as SharedKybStatus,
+  KybOrgType as SharedKybOrgType,
 } from '@social-bounty/shared';
 import type {
   AdminKybQueueResponse,
@@ -293,6 +294,9 @@ export class KybService {
         registeredName: b.kybRegisteredName,
         registrationNumber: b.kybRegistrationNumber,
         country: b.kybCountry,
+        // 2026-04-27 integration fix — orgType wasn't in the original
+        // queue mapper but the admin UI wants the badge column.
+        orgType: b.kybOrgType as SharedKybOrgType | null,
         documentCount: b._count.kybDocuments,
       })),
       meta: {

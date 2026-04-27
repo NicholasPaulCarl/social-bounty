@@ -243,6 +243,8 @@ export interface AdminKybQueueItem {
   registeredName: string | null;
   registrationNumber: string | null;
   country: string | null;
+  /** Org type as captured at submission. null if not set yet. Surfaces in the admin queue's "Org type" badge column. */
+  orgType: KybOrgType | null;
   documentCount: number;
 }
 

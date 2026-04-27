@@ -202,10 +202,64 @@ export class KybDocumentsService {
     return { message: 'Document deleted.' };
   }
 
+  /**
+   * Resolve a document for download. Used by the controller's
+   * `@Get(...documents/:id/download)` route which streams the file from
+   * disk. Storage convention in this codebase is that `fileUrl` on the
+   * row is the on-disk path (matching `BrandAsset` + `FileUpload`); the
+   * HTTP-visible download URL lives at the route, not on the row.
+   *
+   * RBAC: BUSINESS_ADMIN of the brand OR SUPER_ADMIN. Same matrix as
+   * listDocuments.
+   */
+  async getDocumentForDownload(
+    brandId: string,
+    documentId: string,
+    user: AuthenticatedUser,
+  ): Promise<{ diskPath: string; fileName: string; mimeType: string }> {
+    const doc = await this.prisma.kybDocument.findUnique({
+      where: { id: documentId },
+    });
+    if (!doc) throw new NotFoundException('Document not found');
+    // Path-traversal guard: reject documents where the URL doesn't match
+    // the brandId in the URL. Prevents an authorized BUSINESS_ADMIN of
+    // brand A from reading brand B's documents by guessing UUIDs.
+    if (doc.brandId !== brandId) {
+      throw new NotFoundException('Document not found');
+    }
+    const isMember =
+      user.role === UserRole.SUPER_ADMIN || user.brandId === doc.brandId;
+    if (!isMember) {
+      throw new ForbiddenException(
+        'Only brand members or SUPER_ADMIN can download KYB documents',
+      );
+    }
+    return {
+      diskPath: doc.fileUrl,
+      fileName: doc.fileName,
+      mimeType: doc.mimeType,
+    };
+  }
+
   // ─── helpers ────────────────────────────────────────────
+
+  /**
+   * Build the HTTP download URL for a KYB document. Shape mirrors
+   * `BrandAsset` / `FileUpload` (which use `/files/...` download routes):
+   * relative to the API origin, includes the global prefix `/api/v1`,
+   * and is dropped straight into `window.open(...)` by the frontend.
+   *
+   * Storage stays as the on-disk path on the row; the URL is computed
+   * here at serialization time so the download endpoint can RBAC-check
+   * + stream from disk on every fetch.
+   */
+  static buildDownloadUrl(brandId: string, documentId: string): string {
+    return `/api/v1/brands/${brandId}/kyb/documents/${documentId}/download`;
+  }
 
   private serialize(doc: {
     id: string;
+    brandId: string;
     documentType: KybDocumentType;
     fileName: string;
     fileUrl: string;
@@ -219,7 +273,11 @@ export class KybDocumentsService {
       id: doc.id,
       documentType: doc.documentType,
       fileName: doc.fileName,
-      fileUrl: doc.fileUrl,
+      // 2026-04-27 integration fix: was `doc.fileUrl` (the on-disk path),
+      // which the frontend's `window.open(doc.fileUrl)` could not actually
+      // open. Now we serialize the HTTP download endpoint URL — the
+      // download route streams the file from disk after RBAC checks.
+      fileUrl: KybDocumentsService.buildDownloadUrl(doc.brandId, doc.id),
       mimeType: doc.mimeType,
       fileSize: doc.fileSize,
       uploadedAt: doc.uploadedAt.toISOString(),

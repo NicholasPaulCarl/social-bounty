@@ -4,15 +4,18 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
   Query,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
@@ -224,6 +227,40 @@ export class KybController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.documents.listDocuments(brandId, user);
+  }
+
+  /**
+   * Stream a KYB document file from disk. RBAC matches list/upload — same
+   * brand membership or SUPER_ADMIN. The serializer hands this URL back
+   * as `KybDocumentResponse.fileUrl`, so frontend `window.open(doc.fileUrl)`
+   * lands here directly. Path-traversal guarded server-side via
+   * `path.resolve` + the `getDocumentForDownload` brandId-mismatch check.
+   */
+  @Get('brands/:brandId/kyb/documents/:documentId/download')
+  @Roles(UserRole.BUSINESS_ADMIN, UserRole.SUPER_ADMIN)
+  async downloadDocument(
+    @Param('brandId') brandId: string,
+    @Param('documentId') documentId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Res() res: Response,
+  ): Promise<void> {
+    const doc = await this.documents.getDocumentForDownload(
+      brandId,
+      documentId,
+      user,
+    );
+    const filePath = path.resolve(doc.diskPath);
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundException('File not found on disk');
+    }
+    res.setHeader('Content-Type', doc.mimeType);
+    // `inline` instead of `attachment` so PDFs / images render in the
+    // browser tab the admin opens for review (no forced download).
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="${doc.fileName}"`,
+    );
+    fs.createReadStream(filePath).pipe(res);
   }
 
   @Delete('brands/:brandId/kyb/documents/:documentId')
