@@ -1,7 +1,9 @@
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
-import { TradeSafeGraphQLClient } from './tradesafe-graphql.client';
-import { TradeSafeApiError } from './tradesafe.types';
+import {
+  TradeSafeApiError,
+  TradeSafeGraphQLClient,
+} from './tradesafe-graphql.client';
 import { toCents, toZar } from './tradesafe-graphql.operations';
 
 type FetchMock = jest.Mock<Promise<Response>, [string, RequestInit?]>;

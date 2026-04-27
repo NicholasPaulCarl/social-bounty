@@ -171,7 +171,8 @@ Exact count matches batch 10A notes and ADR 0009 (lines 23, 143, 165):
 
 **Scaffold comment (1)**: `apps/api/src/modules/payouts/payout-provider.interface.ts:9`
 — correctly notes all 8 callers remain pointed at Stitch until ADR 0010
-lands.
+lands. <!-- historical: payout-provider.interface.ts deleted 2026-04-27 (commit 6ef1595) along with the rest of the multi-rail tower; ADR 0011 made it single-rail. -->
+
 
 All 8 production markers still describe **future** work (ADR 0010
 provider-agnostic payout pipeline). None were closed by batch 10 — batch

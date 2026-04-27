@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
-import { TradeSafeApiError } from './tradesafe.types';
 import {
   ALLOCATION_ACCEPT_DELIVERY_MUTATION,
   ALLOCATION_START_DELIVERY_MUTATION,
@@ -48,6 +47,28 @@ interface OAuthTokenResponse {
   token_type: 'Bearer';
   expires_in: number;
   refresh_token?: string;
+}
+
+/**
+ * Canonical TradeSafe error class. Thrown by the GraphQL client (this file)
+ * on OAuth failures, malformed envelopes, GraphQL `errors[]` (HTTP 200 +
+ * payload errors — see line ~213), and 4xx HTTP responses from the auth
+ * endpoint.
+ *
+ * Lived in `tradesafe.types.ts` until 2026-04-27. Collapsed here as part of
+ * the post-Phase-3 cleanup — once the legacy outbound types went away there
+ * was no second occupant of the types file. The class moved without a
+ * behavioural change; only the import path updates.
+ */
+export class TradeSafeApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly body?: unknown,
+  ) {
+    super(message);
+    this.name = 'TradeSafeApiError';
+  }
 }
 
 /**

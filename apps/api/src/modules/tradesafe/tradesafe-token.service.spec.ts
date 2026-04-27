@@ -13,8 +13,10 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { UserRole } from '@social-bounty/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
-import { TradeSafeGraphQLClient } from './tradesafe-graphql.client';
-import { TradeSafeApiError } from './tradesafe.types';
+import {
+  TradeSafeApiError,
+  TradeSafeGraphQLClient,
+} from './tradesafe-graphql.client';
 import { TradeSafeTokenService } from './tradesafe-token.service';
 
 describe('TradeSafeTokenService', () => {

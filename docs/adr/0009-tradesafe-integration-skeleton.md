@@ -426,7 +426,8 @@ Three phases, gated, no concurrent work with existing Stitch inbound. <!-- histo
   - Day 1: Option B migration, `WebhookProvider.TRADESAFE` enum, env var
     wiring, config schema.
   - Day 2: TradeSafeClient service, OAuth callback route, webhook route
-    skeleton, signature verifier.
+    skeleton, signature verifier. <!-- historical: TradeSafeClient deleted 2026-04-27 (commit 6ef1595); GraphQL client took over. -->
+
   - Day 3: `BeneficiaryService` generalisation, the 8 `// TRADESAFE
     MIGRATION (ADR 0008):` sites updated, synthetic-id workaround removed.
   - Day 4: Payout scheduler extension (release-to-beneficiary step per

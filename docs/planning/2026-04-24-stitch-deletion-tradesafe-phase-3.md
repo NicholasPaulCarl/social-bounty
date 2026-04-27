@@ -72,7 +72,8 @@
 
 ### Non-goals (explicitly deferred)
 
-- **Phase 4 outbound cutover** — hooking submission approval into `allocationAcceptDelivery`. The TradeSafe payout adapter already exists (`payouts/tradesafe-payout.adapter.ts`) and the `payout-provider.factory.ts` can route outbound through it. Actual cutover (delete `stitch-payout.adapter.ts`, make TradeSafe the only adapter) happens in this session **as part of G1** (Stitch adapter deletion). The submission-approval → auto-release trigger wiring stays a future session.
+- **Phase 4 outbound cutover** — hooking submission approval into `allocationAcceptDelivery`. The TradeSafe payout adapter already exists (`payouts/tradesafe-payout.adapter.ts`) and the `payout-provider.factory.ts` can route outbound through it. Actual cutover (delete `stitch-payout.adapter.ts`, make TradeSafe the only adapter) happens in this session **as part of G1** (Stitch adapter deletion). The submission-approval → auto-release trigger wiring stays a future session. <!-- historical: tradesafe-payout.adapter.ts + payout-provider.factory.ts both deleted 2026-04-27 (commit 6ef1595); Phase 4 will wire through TradeSafeGraphQLClient directly. -->
+
 - **Reconciliation engine extensions** — the existing reconciliation service covers both rails per R32 (closed). No new checks needed; just drop Stitch-side ones.
 - **Dispute flow migration** — disputes module references Stitch for dispute evidence. Leave until disputes come up in a real flow.
 - **Real TradeSafe prod smoke test** — we ship the code; we cannot smoke-test without TradeSafe issuing prod OAuth creds (R24 still open). Mock-mode sandbox smoke is the acceptance bar for this session.
