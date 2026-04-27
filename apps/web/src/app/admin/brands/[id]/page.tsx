@@ -16,6 +16,7 @@ import { StatusBadge } from '@/components/common/StatusBadge';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatDate, formatDateTime, formatCurrency } from '@/lib/utils/format';
 import { Ban, Check } from 'lucide-react';
+import { KybSection } from './_components/KybSection';
 
 function BrandBountiesTab({ brandId }: { brandId: string }) {
   const router = useRouter();
@@ -158,6 +159,8 @@ export default function AdminBrandDetailPage() {
               </div>
             </div>
           </div>
+
+          <KybSection brandId={id} />
         </TabPanel>
 
         <TabPanel header="Bounties">
