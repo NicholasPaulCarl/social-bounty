@@ -42,6 +42,7 @@ export const queryKeys = {
     mine: () => [...queryKeys.brands.all, 'mine'] as const,
     publicList: (filters: BrandListParams) => [...queryKeys.brands.all, 'publicList', filters] as const,
     publicProfile: (idOrHandle: string) => [...queryKeys.brands.all, 'publicProfile', idOrHandle] as const,
+    kybDocuments: (id: string) => [...queryKeys.brands.all, id, 'kyb', 'documents'] as const,
   },
   admin: {
     users: (filters: AdminUserListParams) => ['admin', 'users', filters] as const,

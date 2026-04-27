@@ -9,6 +9,7 @@ import type {
   InviteMemberRequest,
   BrandListParams,
   SubmitKybRequest,
+  KybDocumentType,
 } from '@social-bounty/shared';
 import { authApi } from '@/lib/api/auth';
 
@@ -128,6 +129,51 @@ export function useRejectKyb(brandId: string) {
     mutationFn: (reason: string) => brandsApi.rejectKyb(brandId, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.brands.all });
+    },
+  });
+}
+
+// ─── KYB Documents (Wave 1) ─────────────────────────────────
+//
+// The KYB form delegates evidence capture to the dedicated documents
+// endpoint — `documentsRef` (free-text) is deprecated and ignored by
+// the service. Each upload writes a row + multer streams the file to
+// disk; deletes are gated to uploader-or-SUPER_ADMIN and rejected once
+// the brand is APPROVED (matching the backend state guard).
+
+export function useKybDocuments(brandId: string) {
+  return useQuery({
+    queryKey: queryKeys.brands.kybDocuments(brandId),
+    queryFn: () => brandsApi.listKybDocuments(brandId),
+    enabled: !!brandId,
+  });
+}
+
+export function useUploadKybDocument(brandId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      file: File;
+      documentType: KybDocumentType;
+      expiresAt?: string;
+      notes?: string;
+    }) => brandsApi.uploadKybDocument(brandId, payload),
+    onSuccess: () => {
+      // The brand-detail response carries `kybDocumentCount`, so the brand
+      // query needs invalidation alongside the document list.
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.kybDocuments(brandId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.detail(brandId) });
+    },
+  });
+}
+
+export function useDeleteKybDocument(brandId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (documentId: string) => brandsApi.deleteKybDocument(brandId, documentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.kybDocuments(brandId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.brands.detail(brandId) });
     },
   });
 }
