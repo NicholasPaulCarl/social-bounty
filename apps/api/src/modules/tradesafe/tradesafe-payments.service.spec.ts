@@ -261,4 +261,316 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
       svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' }),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
+
+  // ─── 2026-04-27 gap coverage — edges the previous 7-test set didn't pin ───
+  //
+  // Each of these maps to one specific guard in createBountyFunding(). Without
+  // the test, a refactor could silently relax the gate and we'd only catch it
+  // in production. The "guards" here directly enforce Financial Non-Negotiables
+  // §4 (#2 idempotency, #4 integer cents, #8 platform custody).
+
+  describe('createBountyFunding — additional guards', () => {
+    it('rejects soft-deleted bounty (deletedAt set) — 404 not 500', async () => {
+      const { svc } = buildService({
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-1',
+          title: 'Test',
+          shortDescription: 'Desc',
+          status: BountyStatus.DRAFT,
+          paymentStatus: PaymentStatus.UNPAID,
+          faceValueCents: null,
+          currency: 'ZAR',
+          // Critical: a soft-deleted bounty is recoverable from the DB but
+          // must not accept new payments. The guard at line 84 of the
+          // service checks `bounty.deletedAt`. Without this test, a future
+          // include/select refactor could drop the field and we'd silently
+          // start funding deleted bounties.
+          deletedAt: new Date('2026-04-20T00:00:00Z'),
+          rewards: [{ monetaryValue: { toString: () => '100.00' } }],
+          tradeSafeTransaction: null,
+        },
+      });
+      await expect(
+        svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('rejects when caller is BUSINESS_ADMIN of a different brand (RBAC)', async () => {
+      // Service caller is brand-1 (per fakeUser); bounty belongs to brand-2.
+      // Non-SUPER_ADMIN must not fund another brand's bounty.
+      const { svc } = buildService({
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-2', // ← mismatched
+          title: 'Other Brand Bounty',
+          shortDescription: 'Desc',
+          status: BountyStatus.DRAFT,
+          paymentStatus: PaymentStatus.UNPAID,
+          faceValueCents: null,
+          currency: 'ZAR',
+          deletedAt: null,
+          rewards: [{ monetaryValue: { toString: () => '100.00' } }],
+          tradeSafeTransaction: null,
+        },
+      });
+      await expect(
+        svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' }),
+      ).rejects.toBeInstanceOf(ForbiddenException);
+    });
+
+    it('SUPER_ADMIN can fund a bounty for any brand (RBAC bypass)', async () => {
+      const superAdmin = {
+        sub: 'admin-1',
+        email: 'admin@example.com',
+        role: UserRole.SUPER_ADMIN,
+        brandId: null,
+      } as unknown as AuthenticatedUser;
+
+      const { svc, graphql } = buildService({
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-2', // not the admin's brand — but admin is super
+          title: 'Brand 2 bounty',
+          shortDescription: 'Desc',
+          status: BountyStatus.DRAFT,
+          paymentStatus: PaymentStatus.UNPAID,
+          faceValueCents: null,
+          currency: 'ZAR',
+          deletedAt: null,
+          rewards: [{ monetaryValue: { toString: () => '100.00' } }],
+          tradeSafeTransaction: null,
+        },
+      });
+
+      const result = await svc.createBountyFunding('bounty-1', superAdmin, {
+        name: 'Brand 2',
+      });
+      expect(graphql.transactionCreate).toHaveBeenCalledTimes(1);
+      expect(result.transactionId).toBe('tradesafe-txn-1');
+    });
+
+    it('rejects already-PAID bounty (no double-fund)', async () => {
+      const { svc } = buildService({
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-1',
+          title: 'Test',
+          shortDescription: 'Desc',
+          // status is still DRAFT but paymentStatus already PAID — guards
+          // against a corrupted state where the bounty is somehow both
+          // DRAFT (status guard would pass) and PAID. The PaymentStatus
+          // check at line 91 catches it.
+          status: BountyStatus.DRAFT,
+          paymentStatus: PaymentStatus.PAID,
+          faceValueCents: 10000n,
+          currency: 'ZAR',
+          deletedAt: null,
+          rewards: [{ monetaryValue: { toString: () => '100.00' } }],
+          tradeSafeTransaction: null,
+        },
+      });
+      await expect(
+        svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('rejects bounty with zero face value (no positive reward)', async () => {
+      const { svc } = buildService({
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-1',
+          title: 'Free bounty',
+          shortDescription: 'Desc',
+          status: BountyStatus.DRAFT,
+          paymentStatus: PaymentStatus.UNPAID,
+          faceValueCents: null,
+          currency: 'ZAR',
+          deletedAt: null,
+          // Zero-value reward — service rejects before reaching TradeSafe.
+          // Without this, we'd transactionCreate with value=0, which
+          // TradeSafe would reject anyway, but at the cost of one
+          // unnecessary OAuth + GraphQL round-trip and a transaction row
+          // in an aborted state.
+          rewards: [{ monetaryValue: { toString: () => '0.00' } }],
+          tradeSafeTransaction: null,
+        },
+      });
+      await expect(
+        svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('sums multi-reward face value correctly (Financial Non-Negotiable #4: integer cents)', async () => {
+      // Three rewards: 100.00 + 50.50 + 0.01 = 150.51 ZAR = 15051 cents.
+      // Locks in computeFaceValueCents — a refactor that uses Number()
+      // instead of bigint would drift on the 0.01 case.
+      const { svc, graphql } = buildService({
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-1',
+          title: 'Multi-reward',
+          shortDescription: 'Desc',
+          status: BountyStatus.DRAFT,
+          paymentStatus: PaymentStatus.UNPAID,
+          faceValueCents: null,
+          currency: 'ZAR',
+          deletedAt: null,
+          rewards: [
+            { monetaryValue: { toString: () => '100.00' } },
+            { monetaryValue: { toString: () => '50.50' } },
+            { monetaryValue: { toString: () => '0.01' } },
+          ],
+          tradeSafeTransaction: null,
+        },
+      });
+
+      const result = await svc.createBountyFunding('bounty-1', fakeUser, {
+        name: 'Brand',
+      });
+
+      // 150.51 ZAR → 15051 cents face value (independent of fees).
+      expect(result.faceValueCents).toBe('15051');
+      // The single allocation passed to transactionCreate carries 150.51 ZAR
+      // (toZar conversion at the boundary).
+      const createCall = (graphql.transactionCreate as jest.Mock).mock
+        .calls[0][0];
+      expect(createCall.allocations).toHaveLength(1);
+      expect(createCall.allocations[0].value).toBeCloseTo(150.51, 2);
+    });
+
+    it('passes the bounty id as the TradeSafe `reference` (correlation key on webhooks)', async () => {
+      // Critical correlation identifier — TradeSafe echoes `reference` back
+      // on every transaction-state callback. If this drifts, webhook handlers
+      // cannot find the bounty by reference, only by transactionId. Real
+      // failure mode if the schema ever changes (e.g. someone adds a prefix).
+      const { svc, graphql } = buildService();
+      await svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' });
+
+      const createCall = (graphql.transactionCreate as jest.Mock).mock
+        .calls[0][0];
+      expect(createCall.reference).toBe('bounty-1');
+    });
+
+    it('passes BUYER + SELLER + AGENT parties (Financial Non-Negotiable #8: platform custody)', async () => {
+      const { svc, graphql } = buildService();
+      await svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' });
+
+      const createCall = (graphql.transactionCreate as jest.Mock).mock
+        .calls[0][0];
+      const roles = (createCall.parties as Array<{ role: string }>).map(
+        (p) => p.role,
+      );
+      // All three parties present. The platform's AGENT party is what makes
+      // "platform custody" real on TradeSafe — without it, funds would route
+      // brand → hunter directly, violating §4 #8.
+      expect(roles).toEqual(expect.arrayContaining(['BUYER', 'SELLER', 'AGENT']));
+    });
+
+    it('sets feeAllocation=BUYER (brand pays TradeSafe-side fees, not hunter)', async () => {
+      const { svc, graphql } = buildService();
+      await svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' });
+
+      const createCall = (graphql.transactionCreate as jest.Mock).mock
+        .calls[0][0];
+      // Locks in the commercial decision (ADR 0011 §8). If this flips to
+      // SELLER, hunters would lose money to TradeSafe fees on every
+      // bounty — a silent revenue redirect we must NOT do.
+      expect(createCall.feeAllocation).toBe('BUYER');
+    });
+
+    it('uses the configured TRADESAFE_INDUSTRY env, falling back to GENERAL_GOODS_SERVICES', async () => {
+      const { svc, graphql } = buildService();
+      await svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' });
+
+      const createCall = (graphql.transactionCreate as jest.Mock).mock
+        .calls[0][0];
+      expect(createCall.industry).toBe('GENERAL_GOODS_SERVICES');
+    });
+
+    it('persists totalValueCents = face + admin + global fees on the TradeSafeTransaction row', async () => {
+      const { svc, prisma } = buildService();
+      await svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' });
+
+      const txnCreateCall = (
+        prisma.tradeSafeTransaction.create as jest.Mock
+      ).mock.calls[0][0];
+      // Brand pays face value + admin fee + global fee. The row stores the
+      // total brand charge, which the funds-received handler later cross-
+      // checks against the rebuilt-from-snapshot ledger total.
+      expect(txnCreateCall.data.totalValueCents).toBeGreaterThan(10000n);
+      expect(txnCreateCall.data.bountyId).toBe('bounty-1');
+      expect(txnCreateCall.data.tradeSafeTransactionId).toBe('tradesafe-txn-1');
+      expect(txnCreateCall.data.checkoutUrl).toBe(
+        'https://checkout.tradesafe.test/abc',
+      );
+    });
+  });
+
+  describe('resolveFundingStatus', () => {
+    it('resolves by bountyId path', async () => {
+      const { svc } = buildService({
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-1',
+          title: 'Test',
+          shortDescription: 'Desc',
+          status: BountyStatus.LIVE,
+          paymentStatus: PaymentStatus.PAID,
+          faceValueCents: 10000n,
+          currency: 'ZAR',
+          deletedAt: null,
+          rewards: [{ monetaryValue: { toString: () => '100.00' } }],
+          tradeSafeTransaction: {
+            tradeSafeTransactionId: 'tradesafe-txn-1',
+            state: TradeSafeTransactionState.FUNDS_RECEIVED,
+            checkoutUrl: 'https://checkout.tradesafe.test/abc',
+            totalValueCents: 12075n,
+          },
+        },
+      });
+
+      const result = await svc.resolveFundingStatus(
+        { bountyId: 'bounty-1' },
+        fakeUser,
+      );
+
+      expect(result.bountyId).toBe('bounty-1');
+      expect(result.status).toBe(BountyStatus.LIVE);
+      expect(result.paymentStatus).toBe(PaymentStatus.PAID);
+      expect(result.tradeSafeTransactionState).toBe('FUNDS_RECEIVED');
+    });
+
+    it('rejects when neither bountyId nor tradeSafeTransactionId provided', async () => {
+      const { svc } = buildService();
+      await expect(
+        svc.resolveFundingStatus({}, fakeUser),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('enforces RBAC — non-SUPER_ADMIN of another brand gets ForbiddenException', async () => {
+      // The post-checkout return page calls this endpoint. RBAC must
+      // prevent leaking another brand's payment state. Without this guard,
+      // anyone with a bounty UUID could probe payment status across brands.
+      const { svc } = buildService({
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-2',
+          title: 'Test',
+          shortDescription: 'Desc',
+          status: BountyStatus.LIVE,
+          paymentStatus: PaymentStatus.PAID,
+          faceValueCents: 10000n,
+          currency: 'ZAR',
+          deletedAt: null,
+          rewards: [{ monetaryValue: { toString: () => '100.00' } }],
+          tradeSafeTransaction: null,
+        },
+      });
+
+      await expect(
+        svc.resolveFundingStatus({ bountyId: 'bounty-1' }, fakeUser),
+      ).rejects.toBeInstanceOf(ForbiddenException);
+    });
+  });
 });

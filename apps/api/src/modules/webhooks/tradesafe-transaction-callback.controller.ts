@@ -14,6 +14,7 @@ import { WebhookProvider } from '@prisma/client';
 import { Public } from '../../common/decorators';
 import { TradeSafeGraphQLClient } from '../tradesafe/tradesafe-graphql.client';
 import { TradeSafeTransactionCallbackHandler } from '../tradesafe/tradesafe-transaction-callback.handler';
+import { TradeSafeWebhookHandler } from '../tradesafe/tradesafe-webhook.handler';
 import { WebhookEventService } from './webhook-event.service';
 
 /**
@@ -68,6 +69,15 @@ export class TradeSafeTransactionCallbackController {
     private readonly events: WebhookEventService,
     private readonly graphql: TradeSafeGraphQLClient,
     private readonly handler: TradeSafeTransactionCallbackHandler,
+    // Phase 3 (ADR 0011) — state-specific dispatch into ledger-writing
+    // handlers. The audit handler above always runs (forensics on every
+    // state). The funds-received handler runs only when TradeSafe reports
+    // FUNDS_RECEIVED — it posts the canonical bounty-funded ledger group
+    // and flips the bounty DRAFT → LIVE. Without this wiring, the live
+    // route would receive callbacks but never advance the bounty: the
+    // exact failure mode the Phase 3 cutover left behind before
+    // 2026-04-27.
+    private readonly fundsReceivedHandler: TradeSafeWebhookHandler,
   ) {}
 
   @Public()
@@ -141,7 +151,25 @@ export class TradeSafeTransactionCallbackController {
     // standard webhook-replay tool; we mark it FAILED for observability.
     try {
       const transaction = await this.graphql.getTransaction(transactionId);
+      // Audit handler always runs — forensic record of every state TradeSafe
+      // reports for the transaction.
       await this.handler.handle(transaction);
+
+      // Phase 3 dispatch (ADR 0011 §5 inbound). Branch on the AUTHORITATIVE
+      // re-fetched state, not the body — the body is untrusted. Today only
+      // FUNDS_RECEIVED maps to a ledger-writing handler. Other states
+      // (CREATED, INITIATED, FUNDS_RELEASED, CANCELLED, REFUNDED, DISPUTE)
+      // are forensic-only until Phase 4 lands.
+      //
+      // Idempotency on the ledger side is anchored on
+      // `LedgerTransactionGroup.UNIQUE(referenceId=transactionId,
+      // actionType='BOUNTY_FUNDED_VIA_TRADESAFE')` — a duplicate webhook
+      // delivery that slips past the WebhookEvent guard above (e.g.
+      // operator replay) still no-ops on the ledger.
+      if (transaction?.state === 'FUNDS_RECEIVED') {
+        await this.fundsReceivedHandler.handleFundsReceived(payload);
+      }
+
       await this.events.markProcessed(event.id, {});
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

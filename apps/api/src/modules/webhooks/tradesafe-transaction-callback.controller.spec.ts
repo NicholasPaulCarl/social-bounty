@@ -11,6 +11,7 @@ import {
 import { WebhookEventService } from './webhook-event.service';
 import { TradeSafeGraphQLClient } from '../tradesafe/tradesafe-graphql.client';
 import { TradeSafeTransactionCallbackHandler } from '../tradesafe/tradesafe-transaction-callback.handler';
+import { TradeSafeWebhookHandler } from '../tradesafe/tradesafe-webhook.handler';
 import type { TransactionData } from '../tradesafe/tradesafe-graphql.operations';
 
 const SECRET = 'x'.repeat(32);
@@ -53,11 +54,17 @@ function makeController() {
     handle: handlerHandle,
   } as unknown as TradeSafeTransactionCallbackHandler;
 
+  const handleFundsReceived = jest.fn().mockResolvedValue(undefined);
+  const fundsReceivedHandler = {
+    handleFundsReceived,
+  } as unknown as TradeSafeWebhookHandler;
+
   const controller = new TradeSafeTransactionCallbackController(
     config,
     events,
     graphql,
     handler,
+    fundsReceivedHandler,
   );
   return {
     controller,
@@ -67,18 +74,22 @@ function makeController() {
     markFailed,
     getTransaction,
     handlerHandle,
+    handleFundsReceived,
   };
 }
 
-function makeTransaction(id = 'tx_abc'): TransactionData['transaction'] {
+function makeTransaction(
+  overrides: Partial<NonNullable<TransactionData['transaction']>> = {},
+): NonNullable<TransactionData['transaction']> {
   return {
-    id,
+    id: 'tx_abc',
     title: 'Bounty Funding',
     reference: 'BNT_123',
     state: 'FUNDS_RECEIVED',
     parties: [],
     allocations: [],
     deposits: [],
+    ...overrides,
   };
 }
 
@@ -285,11 +296,15 @@ describe('TradeSafeTransactionCallbackController', () => {
     const handler = {
       handle: jest.fn(),
     } as unknown as TradeSafeTransactionCallbackHandler;
+    const fundsReceivedHandler = {
+      handleFundsReceived: jest.fn(),
+    } as unknown as TradeSafeWebhookHandler;
     const controller = new TradeSafeTransactionCallbackController(
       config,
       events,
       graphql,
       handler,
+      fundsReceivedHandler,
     );
 
     await expect(controller.receive(SECRET, validBody)).rejects.toThrow(
@@ -316,6 +331,127 @@ describe('TradeSafeTransactionCallbackController', () => {
       BadRequestException,
     );
     expect(recordOrFetch).not.toHaveBeenCalled();
+  });
+
+  // ─── Phase 3 dispatch — state-specific ledger handlers (ADR 0011 §5) ───
+  //
+  // 2026-04-27: the Phase 3 cutover landed `TradeSafeWebhookHandler.handleFundsReceived`
+  // (posts the bounty-funded ledger group, flips DRAFT→LIVE) but did NOT
+  // wire it into the live route. This block locks the wiring in: when the
+  // canonical re-fetched state is FUNDS_RECEIVED, the controller MUST
+  // dispatch to the funds-received handler with the original payload.
+
+  describe('Phase 3 state dispatch', () => {
+    function setupForState(state: NonNullable<TransactionData['transaction']>['state']) {
+      const ctx = makeController();
+      ctx.recordOrFetch.mockResolvedValue({
+        event: {
+          id: 'evt_funds',
+          attempts: 0,
+          externalEventId: 'tx_abc',
+          provider: WebhookProvider.TRADESAFE,
+          status: WebhookStatus.RECEIVED,
+        },
+        isDuplicate: false,
+      });
+      ctx.getTransaction.mockResolvedValue(makeTransaction({ state }));
+      return ctx;
+    }
+
+    it('FUNDS_RECEIVED → calls handleFundsReceived with the raw body once', async () => {
+      const { controller, handlerHandle, handleFundsReceived, markProcessed } =
+        setupForState('FUNDS_RECEIVED');
+
+      const body = { id: 'tx_abc', reference: 'BNT_123', state: 'FUNDS_RECEIVED', balance: 0 };
+      await controller.receive(SECRET, body);
+
+      // Audit handler always runs.
+      expect(handlerHandle).toHaveBeenCalledTimes(1);
+      // Funds-received handler is called exactly once with the raw body so
+      // it can extract the transaction id via its own resolution path.
+      expect(handleFundsReceived).toHaveBeenCalledTimes(1);
+      expect(handleFundsReceived).toHaveBeenCalledWith(body);
+      // markProcessed only fires after both handlers complete.
+      expect(markProcessed).toHaveBeenCalledWith('evt_funds', {});
+    });
+
+    it('CREATED → audit only, handleFundsReceived NOT called (Phase 4 territory)', async () => {
+      const { controller, handlerHandle, handleFundsReceived } =
+        setupForState('CREATED');
+
+      await controller.receive(SECRET, validBody);
+
+      expect(handlerHandle).toHaveBeenCalledTimes(1);
+      expect(handleFundsReceived).not.toHaveBeenCalled();
+    });
+
+    it('INITIATED → audit only (no ledger handler wired pre-Phase-4)', async () => {
+      const { controller, handlerHandle, handleFundsReceived } =
+        setupForState('INITIATED');
+
+      await controller.receive(SECRET, validBody);
+
+      expect(handlerHandle).toHaveBeenCalledTimes(1);
+      expect(handleFundsReceived).not.toHaveBeenCalled();
+    });
+
+    it('CANCELLED → audit only (Phase 4 deferred)', async () => {
+      const { controller, handlerHandle, handleFundsReceived } =
+        setupForState('CANCELLED');
+
+      await controller.receive(SECRET, validBody);
+
+      expect(handlerHandle).toHaveBeenCalledTimes(1);
+      expect(handleFundsReceived).not.toHaveBeenCalled();
+    });
+
+    it('FUNDS_RECEIVED handler throws → controller throws + markFailed records the failure', async () => {
+      const {
+        controller,
+        handleFundsReceived,
+        markFailed,
+        markProcessed,
+      } = setupForState('FUNDS_RECEIVED');
+
+      handleFundsReceived.mockRejectedValueOnce(new Error('ledger post failed'));
+
+      await expect(controller.receive(SECRET, validBody)).rejects.toThrow(
+        'ledger post failed',
+      );
+
+      // Failure is recorded on the WebhookEvent so the operator can replay
+      // it through the admin tool. markProcessed must NOT fire — that would
+      // make it look like the dispatch succeeded.
+      expect(markFailed).toHaveBeenCalledWith('evt_funds', 'ledger post failed', 1);
+      expect(markProcessed).not.toHaveBeenCalled();
+    });
+
+    it('null transaction (TradeSafe returned no row) → no funds-received dispatch even if state body claimed it', async () => {
+      // Re-fetch returns null — simulates TradeSafe not having the row yet,
+      // or the row being deleted between callback and our re-fetch. We never
+      // trust the body's claimed state without the canonical re-fetched row.
+      const ctx = makeController();
+      ctx.recordOrFetch.mockResolvedValue({
+        event: {
+          id: 'evt_null',
+          attempts: 0,
+          externalEventId: 'tx_abc',
+          provider: WebhookProvider.TRADESAFE,
+          status: WebhookStatus.RECEIVED,
+        },
+        isDuplicate: false,
+      });
+      ctx.getTransaction.mockResolvedValue(null);
+
+      const body = { id: 'tx_abc', state: 'FUNDS_RECEIVED' };
+      await ctx.controller.receive(SECRET, body);
+
+      // The audit handler is still called with `null` (its own no-op guard
+      // handles that). The funds-received handler MUST NOT fire on a null
+      // re-fetch.
+      expect(ctx.handlerHandle).toHaveBeenCalledWith(null);
+      expect(ctx.handleFundsReceived).not.toHaveBeenCalled();
+    });
   });
 
   it('falls back to tradesafe.transaction.callback eventType when body has no state', async () => {
