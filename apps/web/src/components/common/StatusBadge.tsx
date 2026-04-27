@@ -17,7 +17,7 @@ import {
   Lock,
 } from 'lucide-react';
 
-type StatusType = 'bounty' | 'submission' | 'payout' | 'user' | 'brand' | 'role' | 'orgMemberRole' | 'dispute' | 'application' | 'invitation';
+type StatusType = 'bounty' | 'submission' | 'payout' | 'user' | 'brand' | 'role' | 'orgMemberRole' | 'dispute' | 'application' | 'invitation' | 'kyb';
 
 type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | null | undefined;
 
@@ -59,6 +59,12 @@ const STATUS_MAP: Record<string, Record<string, StatusConfig>> = {
   brand: {
     ACTIVE: { severity: 'success', className: 'bg-success-600/10 text-success-600 border border-success-600/30' },
     SUSPENDED: { severity: 'danger', className: 'bg-danger-600/10 text-danger-600 border border-danger-600/30' },
+  },
+  kyb: {
+    NOT_STARTED: { severity: null, className: 'bg-elevated text-text-muted border border-glass-border' },
+    PENDING: { severity: 'warning', icon: mkIcon(Clock), className: 'bg-warning-600/10 text-warning-600 border border-warning-600/30 animate-status-pulse' },
+    APPROVED: { severity: 'success', icon: mkIcon(CheckCircle2), className: 'bg-success-600/10 text-success-600 border border-success-600/30' },
+    REJECTED: { severity: 'danger', icon: mkIcon(XCircle), className: 'bg-danger-600/10 text-danger-600 border border-danger-600/30' },
   },
   role: {
     PARTICIPANT: { severity: 'info', className: 'bg-blue-600/10 text-blue-600 border border-blue-600/30' },

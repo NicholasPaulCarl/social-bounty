@@ -54,6 +54,9 @@ export const queryKeys = {
     systemHealth: ['admin', 'system-health'] as const,
     recentErrors: (filters: AdminRecentErrorsParams) => ['admin', 'recent-errors', filters] as const,
     settings: ['admin', 'settings'] as const,
+    pendingKyb: (params: { page?: number; limit?: number }) =>
+      ['admin', 'kyb', 'pending', params] as const,
+    kybReview: (brandId: string) => ['admin', 'kyb', 'review', brandId] as const,
   },
   disputes: {
     all: ['disputes'] as const,

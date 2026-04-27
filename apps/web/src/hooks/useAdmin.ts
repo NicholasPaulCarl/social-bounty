@@ -15,6 +15,7 @@ import type {
   AdminRecentErrorsParams,
   AdminUpdateSettingsRequest,
   BountyListParams,
+  RejectKybRequest,
 } from '@social-bounty/shared';
 
 // Dashboard
@@ -85,6 +86,45 @@ export function useUpdateBrandStatus(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.brandDetail(id) });
       queryClient.invalidateQueries({ queryKey: ['admin', 'organisations'] });
+    },
+  });
+}
+
+// KYB Review (SUPER_ADMIN)
+export function useAdminPendingKyb(params: { page?: number; limit?: number }) {
+  return useQuery({
+    queryKey: queryKeys.admin.pendingKyb(params),
+    queryFn: () => adminApi.listPendingKyb(params),
+  });
+}
+
+export function useAdminKybReview(brandId: string) {
+  return useQuery({
+    queryKey: queryKeys.admin.kybReview(brandId),
+    queryFn: () => adminApi.getKybReview(brandId),
+    enabled: !!brandId,
+  });
+}
+
+export function useApproveKyb(brandId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => adminApi.approveKyb(brandId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.kybReview(brandId) });
+      // The pending queue keys vary by params — invalidate the whole "kyb" admin namespace.
+      queryClient.invalidateQueries({ queryKey: ['admin', 'kyb', 'pending'] });
+    },
+  });
+}
+
+export function useRejectKyb(brandId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: RejectKybRequest) => adminApi.rejectKyb(brandId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.kybReview(brandId) });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'kyb', 'pending'] });
     },
   });
 }
