@@ -17,9 +17,21 @@
    available as an escape hatch for marketing + one-off surfaces. */
 @import './design-system/components.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind CSS v4 single-import — replaces the v3 trio
+   `@tailwind base; @tailwind components; @tailwind utilities;`. v4
+   needs the file to have explicit Tailwind awareness for `@apply` to
+   resolve utility-class names (see `.skip-link` rule below). */
+@import "tailwindcss";
+
+/* v4 config bridge — keeps the existing 367-line `tailwind.config.ts`
+   (theme.extend tokens, plugins, content globs) in play. v4
+   auto-discovers a config at the project root, but in this monorepo
+   the config lives at `apps/web/tailwind.config.ts`, not at the repo
+   root, so the explicit @config path is required. Without this,
+   custom utilities like `shadow-level-2` and the design-system colour
+   scales aren't available to `@apply` and `next build` errors with
+   "Cannot apply unknown utility class …". */
+@config "../../tailwind.config.ts";
 
 /* ─────────────────────────────────────────────
    1. PrimeReact theme-variable overrides
