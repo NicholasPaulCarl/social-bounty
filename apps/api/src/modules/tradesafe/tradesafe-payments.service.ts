@@ -172,12 +172,19 @@ export class TradeSafePaymentsService {
     // BUYER + SELLER are the brand and the hunter respectively; per ADR 0011
     // OQ-3, hunter SELLER token is captured just-in-time on first apply.
     // Until Phase 2 token lifecycle lands, we create the transaction with a
-    // placeholder SELLER party (or omit it if the graphql client allows).
+    // placeholder SELLER party.
+    //
+    // `||` not `??` here: `config.get('X', '')` returns the empty-string
+    // default when env unset, and `'' ?? agentToken` is `''` (nullish
+    // coalescing only fires on null/undefined). With `??`, an unset
+    // TRADESAFE_DEFAULT_BUYER_TOKEN would silently send an empty token to
+    // TradeSafe, producing a 400 in live mode. `||` correctly falls
+    // through on empty string.
     const buyerToken =
-      this.config.get<string>('TRADESAFE_DEFAULT_BUYER_TOKEN', '') ??
+      this.config.get<string>('TRADESAFE_DEFAULT_BUYER_TOKEN', '') ||
       agentToken;
     const sellerToken =
-      this.config.get<string>('TRADESAFE_ESCROW_PLACEHOLDER_TOKEN', '') ??
+      this.config.get<string>('TRADESAFE_ESCROW_PLACEHOLDER_TOKEN', '') ||
       agentToken;
 
     const txn = await this.graphql.transactionCreate({

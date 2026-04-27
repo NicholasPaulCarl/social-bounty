@@ -114,14 +114,32 @@ export class TradeSafeGraphQLClient {
     const cached = await this.redis.get(TOKEN_CACHE_KEY);
     if (cached) return cached;
 
-    const acquired = await this.redis.setNxEx(TOKEN_LOCK_KEY, '1', TOKEN_LOCK_TTL_SECONDS);
-    if (!acquired) {
-      // Peer is fetching; poll briefly then fall through.
+    // Stampede guard. We track lock ownership locally so the `finally`
+    // releases the lock only when WE acquired it — otherwise we'd blow
+    // away a peer's still-active lock on our way out.
+    let haveLock = await this.redis.setNxEx(
+      TOKEN_LOCK_KEY,
+      '1',
+      TOKEN_LOCK_TTL_SECONDS,
+    );
+    if (!haveLock) {
+      // Peer is fetching. Poll the cache briefly so we can pick up their
+      // token without making a parallel OAuth call.
       for (let i = 0; i < 10; i++) {
         await new Promise((r) => setTimeout(r, 100));
         const token = await this.redis.get(TOKEN_CACHE_KEY);
         if (token) return token;
       }
+      // Polling exhausted (peer's OAuth is slow >1s, or peer crashed
+      // without releasing the lock). Try once more to claim it ourselves.
+      // Worst case: peer is still alive and we make a second OAuth call —
+      // unchanged behaviour from pre-cooldown. Best case: peer crashed,
+      // we claim the lock, no thundering herd.
+      haveLock = await this.redis.setNxEx(
+        TOKEN_LOCK_KEY,
+        '1',
+        TOKEN_LOCK_TTL_SECONDS,
+      );
     }
 
     try {
@@ -153,7 +171,12 @@ export class TradeSafeGraphQLClient {
       await this.redis.set(TOKEN_CACHE_KEY, token, ttl);
       return token;
     } finally {
-      await this.redis.del(TOKEN_LOCK_KEY).catch(() => undefined);
+      // Only release the lock if WE acquired it — peers' locks are theirs
+      // to release. The lock has its own TTL (10s) as a safety net for
+      // crashed-mid-fetch peers.
+      if (haveLock) {
+        await this.redis.del(TOKEN_LOCK_KEY).catch(() => undefined);
+      }
     }
   }
 

@@ -34,6 +34,14 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
     tradeSafeTransactionResult: Record<string, unknown>;
     checkoutLinkResult: string;
     tradeSafeMock: string;
+    // 2026-04-27 cooldown: allow individual party-token envs to be
+    // simulated as unset (empty string) so we can exercise the
+    // agent-token fallback path. `null` means "treat as unset" (returns
+    // '' from config.get); a string returns that string; undefined uses
+    // the default 'buyer-token' / 'seller-token' / 'agent-token'.
+    defaultBuyerToken: string | null;
+    escrowPlaceholderToken: string | null;
+    agentToken: string | null;
   }> = {}) {
     const bounty = overrides.bounty === undefined
       ? {
@@ -82,13 +90,29 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
         ),
     } as unknown as PrismaService;
 
+    // Helper that simulates `ConfigService.get('X', '')` behaviour: when
+    // an env override is `null` we return the supplied fallback (typically
+    // ''); when it's a string we return that; when it's undefined we use
+    // the per-test default below.
+    const resolveEnv = (
+      override: string | null | undefined,
+      fallback: unknown,
+      defaultValue: string,
+    ): unknown => {
+      if (override === null) return fallback;
+      if (override === undefined) return defaultValue;
+      return override;
+    };
     const config = {
       get: jest.fn((key: string, fallback?: unknown) => {
         // Single-rail post ADR 0011: "live mode" = TRADESAFE_MOCK=false.
         if (key === 'TRADESAFE_MOCK') return overrides.tradeSafeMock ?? 'true';
-        if (key === 'TRADESAFE_AGENT_TOKEN') return 'agent-token';
-        if (key === 'TRADESAFE_DEFAULT_BUYER_TOKEN') return 'buyer-token';
-        if (key === 'TRADESAFE_ESCROW_PLACEHOLDER_TOKEN') return 'seller-token';
+        if (key === 'TRADESAFE_AGENT_TOKEN')
+          return resolveEnv(overrides.agentToken, fallback, 'agent-token');
+        if (key === 'TRADESAFE_DEFAULT_BUYER_TOKEN')
+          return resolveEnv(overrides.defaultBuyerToken, fallback, 'buyer-token');
+        if (key === 'TRADESAFE_ESCROW_PLACEHOLDER_TOKEN')
+          return resolveEnv(overrides.escrowPlaceholderToken, fallback, 'seller-token');
         if (key === 'TRADESAFE_INDUSTRY') return 'GENERAL_GOODS_SERVICES';
         return fallback;
       }),
@@ -477,6 +501,32 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
       // SELLER, hunters would lose money to TradeSafe fees on every
       // bounty — a silent revenue redirect we must NOT do.
       expect(createCall.feeAllocation).toBe('BUYER');
+    });
+
+    it('falls back to TRADESAFE_AGENT_TOKEN when TRADESAFE_DEFAULT_BUYER_TOKEN is unset (regression: `||` not `??`)', async () => {
+      // The previous code used `?? agentToken`, but `config.get('X', '')`
+      // returns '' (not undefined) so `?? ` never fired. An unset env
+      // would silently send an empty BUYER token to TradeSafe, producing
+      // a 400 in live mode. After the cooldown fix, the fallback works.
+      const { svc, graphql } = buildService({ defaultBuyerToken: null });
+      await svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' });
+
+      const createCall = (graphql.transactionCreate as jest.Mock).mock
+        .calls[0][0];
+      const buyer = (createCall.parties as Array<{ token: string; role: string }>)
+        .find((p) => p.role === 'BUYER');
+      expect(buyer?.token).toBe('agent-token');
+    });
+
+    it('falls back to TRADESAFE_AGENT_TOKEN when TRADESAFE_ESCROW_PLACEHOLDER_TOKEN is unset', async () => {
+      const { svc, graphql } = buildService({ escrowPlaceholderToken: null });
+      await svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' });
+
+      const createCall = (graphql.transactionCreate as jest.Mock).mock
+        .calls[0][0];
+      const seller = (createCall.parties as Array<{ token: string; role: string }>)
+        .find((p) => p.role === 'SELLER');
+      expect(seller?.token).toBe('agent-token');
     });
 
     it('uses the configured TRADESAFE_INDUSTRY env, falling back to GENERAL_GOODS_SERVICES', async () => {
