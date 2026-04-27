@@ -431,28 +431,59 @@ enum KybStatus {
   REJECTED
 }
 
+// Organisation classification for KYB / TradeSafe `tokenCreate`. Mirrors
+// TradeSafe's `OrganizationType` enum (see `tradesafe-graphql.operations.ts`).
+// Required field when calling tokenCreate with org details.
+enum KybOrgType {
+  PRIVATE
+  PUBLIC
+  NGO
+  GOVERNMENT
+  SOLE_PROPRIETOR
+}
+
+// KYB document classification. Mirrors the South African company-registration
+// document set TradeSafe expects during go-live + their `Service Agreement`
+// pre-flight (see `docs/deployment/tradesafe-live-readiness.md`).
+//
+//   COR_14_3 / COR_15_1   — CIPC company registration / disclosure cert
+//   BANK_PROOF            — bank confirmation letter (settlement banking AVS)
+//   ID_DOC                — authorised representative ID / passport
+//   LETTER_OF_AUTHORITY   — signed letter on company letterhead authorising
+//                           the named representative to act on the company's
+//                           behalf for the agreement.
+//   OTHER                 — anything else the operator needs to capture
+enum KybDocumentType {
+  COR_14_3
+  COR_15_1
+  BANK_PROOF
+  ID_DOC
+  LETTER_OF_AUTHORITY
+  OTHER
+}
+
 // ─────────────────────────────────────
 // Models
 // ─────────────────────────────────────
 
 model User {
-  id                String     @id @default(uuid())
-  email             String     @unique
-  firstName         String
-  lastName          String
-  role              UserRole   @default(PARTICIPANT)
-  status            UserStatus @default(ACTIVE)
-  emailVerified     Boolean    @default(false)
-  phoneNumber       String?    @unique
-  phoneVerified     Boolean    @default(false)
-  bio               String?    @db.VarChar(500)
-  profilePictureUrl String?
-  interests         Json? // string array: ["Fitness & Wellness", "Food & Cooking", ...]
+  id                     String     @id @default(uuid())
+  email                  String     @unique
+  firstName              String
+  lastName               String
+  role                   UserRole   @default(PARTICIPANT)
+  status                 UserStatus @default(ACTIVE)
+  emailVerified          Boolean    @default(false)
+  phoneNumber            String?    @unique
+  phoneVerified          Boolean    @default(false)
+  bio                    String?    @db.VarChar(500)
+  profilePictureUrl      String?
+  interests              Json? // string array: ["Fitness & Wellness", "Food & Cooking", ...]
   // TradeSafe party token (from `tokenCreate` mutation). Opaque string, one per
   // user. Set by TradeSafeTokenService.ensureToken on first need (signup hook
   // fire-and-forget, or blocking from the bounty-funding path in Phase 3).
   // See ADR 0011 (TradeSafe unified rail) + md-files/payment-gateway.md.
-  tradeSafeTokenId  String?    @unique
+  tradeSafeTokenId       String?    @unique
   // Terms of Service / Privacy Policy acceptance — stamped at signup. Versioned
   // against LEGAL_VERSION (packages/shared/src/legal-version.ts). Hash is over
   // the NFC-normalized acceptance statement so we can prove what was accepted.
@@ -461,8 +492,8 @@ model User {
   termsAcceptedTextHash  String?
   termsAcceptedIp        String?
   termsAcceptedUserAgent String?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
 
   // Relations
   refreshTokenAudits      RefreshTokenAudit[]
@@ -474,6 +505,7 @@ model User {
   auditLogs               AuditLog[]                @relation("AuditActor")
   fileUploads             FileUpload[]              @relation("FileUploader")
   brandAssets             BrandAsset[]              @relation("BrandAssetUploader")
+  kybDocumentsUploaded    KybDocument[]             @relation("KybDocumentUploader")
   filedDisputes           Dispute[]                 @relation("DisputeFiler")
   resolvedDisputes        Dispute[]                 @relation("DisputeResolver")
   assignedDisputes        Dispute[]                 @relation("DisputeAssignee")
@@ -520,36 +552,101 @@ model RefreshTokenAudit {
 }
 
 model Brand {
-  id               String      @id @default(uuid())
-  name             String
-  handle           String?     @unique
-  logo             String?
-  coverPhotoUrl    String?
-  contactEmail     String
-  bio              String?     @db.VarChar(500)
-  websiteUrl       String?
-  socialLinks      Json? // { instagram?, tiktok?, facebook?, x?, website? }
-  socialAnalytics  Json? // BrandSocialAnalyticsBlob — populated by ApifyService
-  targetInterests  Json? // string[] from HUNTER_INTERESTS
-  messagingEnabled Boolean     @default(true)
-  status           BrandStatus @default(ACTIVE)
-  kybStatus        KybStatus   @default(NOT_STARTED)
-  kybSubmittedAt   DateTime?
-  kybApprovedAt    DateTime?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  id                    String      @id @default(uuid())
+  name                  String
+  handle                String?     @unique
+  logo                  String?
+  coverPhotoUrl         String?
+  contactEmail          String
+  bio                   String?     @db.VarChar(500)
+  websiteUrl            String?
+  socialLinks           Json? // { instagram?, tiktok?, facebook?, x?, website? }
+  socialAnalytics       Json? // BrandSocialAnalyticsBlob — populated by ApifyService
+  targetInterests       Json? // string[] from HUNTER_INTERESTS
+  messagingEnabled      Boolean     @default(true)
+  status                BrandStatus @default(ACTIVE)
+  kybStatus             KybStatus   @default(NOT_STARTED)
+  kybSubmittedAt        DateTime?
+  kybApprovedAt         DateTime?
+  // KYB persistence (2026-04-27, R24 pre-launch hardening). Prior to this,
+  // the form payload from KybService.submit was captured to AuditLog only —
+  // re-opening the brand showed an empty form even after submission. These
+  // columns + the kyb_documents child rows are now the canonical store.
+  // ISO 3166-1 alpha-2 (e.g. "ZA"). Validated in the controller.
+  kybRegisteredName     String?
+  kybTradeName          String?
+  kybRegistrationNumber String?
+  kybVatNumber          String?
+  // Tax number is distinct from VAT (e.g. SA SARS income-tax number is mandatory
+  // on TradeSafe `tokenCreate` for org parties; VAT is optional unless registered).
+  kybTaxNumber          String?
+  kybCountry            String?
+  kybContactEmail       String?
+  kybOrgType            KybOrgType?
+  // Rejection reason persisted on the row (was AuditLog-only before) so the
+  // brand admin sees *why* their submission was rejected and can resubmit.
+  // 2000-char cap matches the financial-override reason cap (admin DTOs).
+  kybRejectionReason    String?     @db.VarChar(2000)
+  kybRejectedAt         DateTime?
+  // TradeSafe BUYER party token created on KYB approval (TradeSafeGraphQLClient.
+  // tokenCreate). Once set, TradeSafePaymentsService.createBountyFunding prefers
+  // this over the env-configured TRADESAFE_DEFAULT_BUYER_TOKEN. Mock mode
+  // synthesizes a `mock-brand-token-{brandId}` value. @unique because each
+  // TradeSafe token corresponds to exactly one party, so accidentally reusing
+  // a brand's token across other brands would conflate parties for TradeSafe.
+  tradeSafeTokenId      String?     @unique
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
 
   // Relations
   members       BrandMember[]
   bounties      Bounty[]
   subscription  Subscription? @relation("BrandSubscription")
   ledgerEntries LedgerEntry[]
+  kybDocuments  KybDocument[]
 
   @@index([status])
   @@index([handle])
+  // Index used by the SUPER_ADMIN KYB queue: list brands awaiting review,
+  // ordered by oldest-submitted first.
+  @@index([kybStatus, kybSubmittedAt])
   // DB table name preserved to avoid a table-rename migration; the TS model
   // name is what consumers see, but the underlying table stays "organisations".
   @@map("organisations")
+}
+
+// Documents uploaded as evidence for KYB review. Brand-scoped (NOT submission-
+// scoped — the existing `FileUpload` model is a different primitive that's
+// tied to bounty submissions and can't be reused without breaking its
+// invariants). Created during KYB submit; visible to BUSINESS_ADMINs of the
+// brand and to SUPER_ADMINs reviewing.
+//
+// `expiresAt` lets ops capture per-document expiry (bank confirmation
+// letters typically valid 3 months; passports per their stamped expiry;
+// CIPC docs effectively don't expire). The auto-revoke scheduler that
+// would mark the brand back to NOT_STARTED on expiry is post-MVP — the
+// column carries the data so admins can see and act manually.
+model KybDocument {
+  id           String          @id @default(uuid())
+  brandId      String          @map("organisationId")
+  documentType KybDocumentType
+  fileName     String
+  fileUrl      String
+  mimeType     String
+  fileSize     Int
+  uploadedById String
+  uploadedAt   DateTime        @default(now())
+  expiresAt    DateTime?
+  notes        String?         @db.VarChar(500)
+
+  // Relations
+  brand      Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  uploadedBy User  @relation("KybDocumentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@index([brandId])
+  @@index([uploadedById])
+  @@index([brandId, documentType])
+  @@map("kyb_documents")
 }
 
 model BrandMember {
