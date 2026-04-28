@@ -81,8 +81,8 @@ interface WizardShellProps {
  *      is gated by a PrimeReact ConfirmAction dialog.
  *
  * On the final step, the footer additionally renders the running
- * total-reward readout (mirrors the legacy FormSummaryFooter so brands
- * see the amount they're committing to before the Create click).
+ * total-reward readout so brands see the amount they're committing to
+ * before the Create click.
  */
 export function WizardShell({
   steps,
@@ -183,11 +183,11 @@ export function WizardShell({
 
       {/* Wizard footer — fixed at the viewport bottom on mobile and desktop
           so the action row is always reachable. On the final step we
-          surface the total-reward readout to mirror the legacy
-          FormSummaryFooter (Wave D may revise the total semantics).
-          Order is Discard · Back · Draft · Next/Create — destructive on
-          the far left so accidental thumb-taps on the right (the more
-          common gesture) hit Save/Next instead. */}
+          surface the total-reward readout (multiplied amount per ADR
+          0013) so brands see what they're escrowing. Order is Discard ·
+          Back · Draft · Next/Create — destructive on the far left so
+          accidental thumb-taps on the right (the more common gesture)
+          hit Save/Next instead. */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl border-t border-glass-border">
         <div className="max-w-4xl mx-auto px-3 sm:px-0 py-2 flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">

@@ -499,8 +499,8 @@ export function useCreateBountyForm(
   //   • totalRewardValue    = perClaimRewardValue × maxSubmissions
   //                         — what the brand actually escrows on TradeSafe.
   // Both are exported so RewardLinesSection can render the breakdown
-  // ("R100 per claim × 5 claims = R500 total") and FormSummaryFooter can
-  // surface the multiplied total prominently. When `maxSubmissions` is
+  // ("R100 per claim × 5 claims = R500 total") and the wizard footer
+  // surfaces the multiplied total prominently. When `maxSubmissions` is
   // null (brand hasn't filled the field yet) we fall back to ×1 so the
   // UI doesn't render NaN — the create-bounty backend gates funding on
   // `maxSubmissions != null` separately.

@@ -48,7 +48,7 @@ const FLOW_STEPS = [
     n: '01',
     Icon: Wallet,
     title: 'Brand funds the bounty',
-    body: 'Brand pays the reward plus fees at TradeSafe\u2019s hosted checkout. The funds leave the brand\u2019s account and settle into TradeSafe escrow \u2014 not into Social Bounty.',
+    body: 'Brand pays the per-claim reward \u00d7 number of claims, plus fees, at TradeSafe\u2019s hosted checkout. The funds leave the brand\u2019s account and settle into TradeSafe escrow \u2014 not into Social Bounty.',
   },
   {
     n: '02',
@@ -178,7 +178,11 @@ const FAQS = [
   },
   {
     q: 'How much does the brand pay on a R500 bounty?',
-    a: 'R500 reward + R75 brand admin fee (15%) + R25 transaction fee (5%) + R17.50 global platform fee (3.5%) = R617.50 at checkout. The hunter receives R500 minus 20% commission and 3.5% global platform fee = R382.50 net.',
+    a: 'On a single-claim R500 bounty: R500 reward + R75 brand admin fee (15%) + R25 transaction fee (5%) + R17.50 global platform fee (3.5%) = R617.50 at checkout. For multi-claim bounties, the per-claim total multiplies through — a 10-claim R500 bounty escrows R6,175 up front so all 10 approved hunters can be paid. Each hunter receives R500 minus 20% commission and 3.5% global platform fee = R382.50 net per approved submission.',
+  },
+  {
+    q: 'Why does the brand pay up front for every claim?',
+    a: 'TradeSafe escrows the full pot at funding time so each approved hunter is guaranteed payable. Reducing claim count after funding is not supported — to change capacity, the brand cancels the bounty (refund follows TradeSafe’s refund channel) and creates a new one. We made this trade-off for ledger integrity: every approved submission must have escrowed funds waiting.',
   },
   {
     q: 'When does the hunter get paid?',
@@ -274,11 +278,12 @@ export default function PaymentPage() {
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">Fee breakdown</p>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-text-primary">
-              Worked example on a R500 bounty.
+              Worked example on a single-claim R500 bounty.
             </h2>
             <p className="mt-4 text-base text-slate-600 max-w-xl mx-auto">
-              Current rates under our Free plan. Pro rates are coming soon and will be published here
-              before launch.
+              Current rates under our Free plan. Multi-claim bounties multiply this through &mdash;
+              a 5-claim bounty escrows 5&times; this total at checkout. Pro rates are coming soon
+              and will be published here before launch.
             </p>
           </FadeUp>
 
@@ -290,16 +295,19 @@ export default function PaymentPage() {
                 <h3 className="font-heading text-xl font-bold text-text-primary mb-6">At checkout</h3>
 
                 <dl className="space-y-3 mb-6">
-                  <FeeRow label="Reward (you set it)" amount="R500.00" note="face value" />
+                  <FeeRow label="Reward per claim" amount="R500.00" note="you set it" />
                   <FeeRow label="Brand admin fee" amount="R75.00" note="15%" />
                   <FeeRow label="Transaction fee" amount="R25.00" note="5%" />
                   <FeeRow label="Global platform fee" amount="R17.50" note="3.5%" />
                 </dl>
 
                 <div className="mt-auto pt-5 border-t-2 border-slate-900 flex items-center justify-between">
-                  <span className="font-heading font-bold text-text-primary">Total paid</span>
+                  <span className="font-heading font-bold text-text-primary">Per-claim total</span>
                   <span className="font-mono tabular-nums text-2xl font-bold text-text-primary">R617.50</span>
                 </div>
+                <p className="text-xs text-slate-500 mt-3">
+                  Multiply by your claim count at checkout: 5 claims = R3,087.50; 10 claims = R6,175.00.
+                </p>
               </div>
             </FadeUp>
 
@@ -310,15 +318,18 @@ export default function PaymentPage() {
                 <h3 className="font-heading text-xl font-bold text-text-primary mb-6">On approval</h3>
 
                 <dl className="space-y-3 mb-6">
-                  <FeeRow label="Reward" amount="R500.00" note="face value" />
+                  <FeeRow label="Reward per claim" amount="R500.00" note="face value" />
                   <FeeRow label="Hunter commission" amount="−R100.00" note="20%" negative />
                   <FeeRow label="Global platform fee" amount="−R17.50" note="3.5%" negative />
                 </dl>
 
                 <div className="mt-auto pt-5 border-t-2 border-pink-600 flex items-center justify-between">
-                  <span className="font-heading font-bold text-pink-700">Net payout</span>
+                  <span className="font-heading font-bold text-pink-700">Net per approval</span>
                   <span className="font-mono tabular-nums text-2xl font-bold text-pink-700">R382.50</span>
                 </div>
+                <p className="text-xs text-slate-500 mt-3">
+                  Each approved submission earns the hunter R382.50 — brands can approve up to the bounty&rsquo;s claim count.
+                </p>
               </div>
             </FadeUp>
           </div>
