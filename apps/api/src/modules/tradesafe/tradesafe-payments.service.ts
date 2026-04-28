@@ -144,8 +144,24 @@ export class TradeSafePaymentsService {
       }
     }
 
-    // Compute face value in cents from rewards.
-    const faceValueCents = this.computeFaceValueCents(bounty.rewards);
+    // Per ADR 0013 §2 — `maxSubmissions` is required at funding time so the
+    // multiplier in `computeFaceValueCents` has a defined operand. The
+    // frontend wizard (Wave B) gates the fund button on this field, but we
+    // re-assert at the API boundary because the service is also reachable
+    // via SUPER_ADMIN tools and direct API callers.
+    if (bounty.maxSubmissions == null || bounty.maxSubmissions <= 0) {
+      throw new BadRequestException(
+        'maxSubmissions is required before funding a bounty',
+      );
+    }
+
+    // Compute face value in cents from rewards × maxSubmissions (ADR 0013 §1).
+    // Pre-ADR-0013 this was sum(rewards) only — under-funded any bounty with
+    // `maxSubmissions > 1` because the brand_reserve hit zero on submission #2.
+    const faceValueCents = this.computeFaceValueCents(
+      bounty.rewards,
+      bounty.maxSubmissions,
+    );
     if (faceValueCents <= 0n) {
       throw new BadRequestException('Bounty has no positive reward value');
     }
@@ -309,16 +325,31 @@ export class TradeSafePaymentsService {
     };
   }
 
+  /**
+   * Multi-claim escrow formula (ADR 0013 §1):
+   *   faceValueCents = sum(rewards[i].monetaryValue) × maxSubmissions
+   *
+   * Pre-ADR-0013 the formula was `sum(rewards)` alone, which under-funded
+   * any bounty with `maxSubmissions > 1`. The brand_reserve would hit zero
+   * on submission #2, tripping `checkReserveVsBounty` reconciliation.
+   *
+   * `maxSubmissions` is a positive integer guarded by the caller; the
+   * `BigInt(maxSubmissions)` conversion preserves Financial Non-Negotiable
+   * #4 (integer minor units) — bigint multiplication accepts a number
+   * operand but using a bigint factor here is explicit, audit-friendly,
+   * and keeps the multiplication entirely inside bigint arithmetic.
+   */
   private computeFaceValueCents(
     rewards: { monetaryValue: { toString(): string } }[],
+    maxSubmissions: number,
   ): bigint {
-    let total = 0n;
+    let perClaim = 0n;
     for (const r of rewards) {
       const str = r.monetaryValue.toString();
       const [whole, frac = '00'] = str.split('.');
       const padded = (frac + '00').slice(0, 2);
-      total += BigInt(whole) * 100n + BigInt(padded);
+      perClaim += BigInt(whole) * 100n + BigInt(padded);
     }
-    return total;
+    return perClaim * BigInt(maxSubmissions);
   }
 }
