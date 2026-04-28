@@ -309,6 +309,8 @@ export function CreateBountyForm({
         isSavingDraft={isSavingDraft}
         currency={state.currency}
         totalRewardValue={totalRewardValue}
+        perClaimRewardValue={perClaimRewardValue}
+        maxSubmissions={state.maxSubmissions}
         isEditMode={!!initialBounty}
       >
         {/*

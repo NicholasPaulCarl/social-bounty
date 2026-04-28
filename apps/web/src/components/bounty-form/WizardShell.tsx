@@ -47,9 +47,14 @@ interface WizardShellProps {
   isSubmitting: boolean;
   isSavingDraft: boolean;
 
-  // Final-step summary readout (mirrors FormSummaryFooter)
+  // Final-step summary readout. `totalRewardValue` is the multiplied
+  // amount (= perClaim × maxSubmissions per ADR 0013); the breakdown
+  // subline is only rendered when `maxSubmissions > 1` so single-claim
+  // bounties stay tight.
   currency: Currency;
   totalRewardValue: number;
+  perClaimRewardValue: number;
+  maxSubmissions: number | null;
 
   /**
    * If true, the Discard confirmation copy adopts edit-mode wording
@@ -92,6 +97,8 @@ export function WizardShell({
   isSavingDraft,
   currency,
   totalRewardValue,
+  perClaimRewardValue,
+  maxSubmissions,
   isEditMode,
 }: WizardShellProps) {
   const [discardOpen, setDiscardOpen] = useState(false);
@@ -206,12 +213,22 @@ export function WizardShell({
           </div>
 
           {/* Final-step total readout — visible only on the last step so
-              non-final steps stay light. */}
+              non-final steps stay light. The breakdown subline appears
+              when maxSubmissions > 1 so brands see how the multiplied
+              total decomposes (per ADR 0013 §"Risks" #1: brand-facing
+              total inflation must be visibly explained). */}
           {isLastStep && (
-            <p className="hidden sm:block font-mono tabular-nums text-sm font-semibold text-success-600 leading-tight whitespace-nowrap">
-              <span className="text-text-muted text-xs font-normal mr-1">Total {currencySymbol}</span>
-              {totalRewardValue.toFixed(2)}
-            </p>
+            <div className="hidden sm:flex flex-col items-end leading-tight">
+              <p className="font-mono tabular-nums text-sm font-semibold text-success-600 whitespace-nowrap">
+                <span className="text-text-muted text-xs font-normal mr-1">Total {currencySymbol}</span>
+                {totalRewardValue.toFixed(2)}
+              </p>
+              {(maxSubmissions ?? 0) > 1 && (
+                <p className="font-mono tabular-nums text-[11px] text-text-muted whitespace-nowrap mt-0.5">
+                  {maxSubmissions} × {currencySymbol}{perClaimRewardValue.toFixed(2)}
+                </p>
+              )}
+            </div>
           )}
 
           <div className="flex items-center gap-2 shrink-0">
