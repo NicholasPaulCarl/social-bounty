@@ -18,13 +18,14 @@ import { ManageHero } from '@/components/features/bounty/ManageHero';
 import { BountyStatusPills } from '@/components/features/bounty/BountyStatusPills';
 import { BrowseFilterBar } from '@/components/features/bounty/BrowseFilterBar';
 import { ActiveFilterChips } from '@/components/features/bounty/ActiveFilterChips';
+import { QuickCreateGrid } from '@/components/features/bounty/QuickCreateGrid';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatEnumLabel } from '@/lib/utils/format';
 import { BountyStatus, PaymentStatus, type BountyListItem } from '@social-bounty/shared';
 
-const PAGE_LIMIT = 12;
+const PAGE_LIMIT = 25;
 
 /**
  * Manage Bounties page — `/business/bounties`.
@@ -33,12 +34,14 @@ const PAGE_LIMIT = 12;
  * language but tuned for the brand workflow:
  *
  *   gradient hero (Manage bounties · counts · view toggle · Create CTA)
+ *   → quick-create card grid (Blank / Social Exposure / Check-Ins /
+ *     Product Sales — each links to /business/bounties/new[?preset=…])
  *   → status pills (All · Draft · Live · Paused · Closed)
  *   → sticky filter bar (search · reward · sort · clear)
  *   → optional active-filter chips
  *   → results: skeleton → grid (manage card + actions footer) →
- *     list (DataTable) → empty
- *   → paginator
+ *     list (DataTable, ellipsis-menu per row) → empty
+ *   → paginator (25 per page)
  *
  * URL contract round-trips through `useManageFilters`: every filter is
  * shareable / bookmarkable / reload-safe at
@@ -194,6 +197,8 @@ function BusinessBountiesContent() {
         onViewChange={f.setView}
         onCreate={() => router.push('/business/bounties/new')}
       />
+
+      <QuickCreateGrid />
 
       <div className="mb-3 sm:mb-4">
         <BountyStatusPills value={f.filters.status} onChange={f.setStatus} />

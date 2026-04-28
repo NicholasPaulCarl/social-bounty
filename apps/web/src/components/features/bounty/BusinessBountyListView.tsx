@@ -5,7 +5,8 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { BountyStatus, RewardType, type BountyListItem } from '@social-bounty/shared';
 import { StatusDot } from './StatusDot';
-import { BountyManageActions, type ManageStatusAction } from './BountyManageActions';
+import type { ManageStatusAction } from './BountyManageActions';
+import { BountyManageRowMenu } from './BountyManageRowMenu';
 import { formatDate } from '@/lib/utils/format';
 import { formatRewardZAR } from '@/lib/utils/bounty-format';
 
@@ -115,7 +116,7 @@ export function BusinessBountyListView({
   const router = useRouter();
   const actionsBody = (row: BountyListItem) => (
     <div className="inline-flex items-center justify-end" style={{ width: '100%' }}>
-      <BountyManageActions
+      <BountyManageRowMenu
         bounty={row}
         onView={onView}
         onEdit={onEdit}
@@ -160,11 +161,11 @@ export function BusinessBountyListView({
         />
         <Column header="Created" body={createdBody} style={{ width: '110px' }} />
         <Column
-          header="Actions"
+          header=""
           body={actionsBody}
           headerClassName="text-right"
           bodyClassName="text-right"
-          style={{ width: '180px' }}
+          style={{ width: '64px' }}
         />
       </DataTable>
     </div>

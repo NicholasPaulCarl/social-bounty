@@ -4,6 +4,7 @@ import type { MouseEvent } from 'react';
 import { Pause, Pencil, Play, Trash2, Undo2, XCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { BountyStatus, type BountyListItem } from '@social-bounty/shared';
+import { getManageMenuPolicy } from './manage-menu-policy';
 
 /**
  * BountyManageActions — footer slot for `<BountyCard variant="manage">`.
@@ -83,6 +84,7 @@ export function BountyManageActions({
 }: BountyManageActionsProps) {
   const actions = getStatusActions(bounty.status);
   const showDelete = bounty.status === BountyStatus.DRAFT;
+  const { canEdit } = getManageMenuPolicy(bounty);
   const submissionLabel = bounty.submissionCount === 1 ? 'submission' : 'submissions';
 
   const stop = (handler: () => void) => (e: MouseEvent) => {
@@ -116,12 +118,14 @@ export function BountyManageActions({
 
       {/* Right — action icons */}
       <div className="inline-flex items-center" style={{ gap: 2 }}>
-        <IconButton
-          Icon={Pencil}
-          color="var(--text-secondary)"
-          tooltip="Edit"
-          onClick={stop(() => onEdit(bounty))}
-        />
+        {canEdit && (
+          <IconButton
+            Icon={Pencil}
+            color="var(--text-secondary)"
+            tooltip="Edit"
+            onClick={stop(() => onEdit(bounty))}
+          />
+        )}
         {actions.map((a) => (
           <IconButton
             key={a.status}
