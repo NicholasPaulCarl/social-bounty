@@ -167,7 +167,15 @@ export function validateFull(state: BountyFormState): Record<string, string> {
   }
 
   // --- Section 8: Max Submissions ---
-  if (state.maxSubmissions !== null && state.maxSubmissions < 1) {
+  // Required at full validation time per ADR 0013 §2 — the funding service
+  // (`tradesafe-payments.service.ts:147-151`) rejects null at the API
+  // boundary, and the wizard's "Create Bounty" flow goes straight into
+  // funding. Without this gate the brand sees a generic "couldn't start
+  // funding" toast instead of an inline form error. Draft mode does NOT
+  // enforce this — drafts can be saved with maxSubmissions still pending.
+  if (state.maxSubmissions == null) {
+    errors.maxSubmissions = 'Number of claims is required';
+  } else if (state.maxSubmissions < 1) {
     errors.maxSubmissions = 'Max submissions must be at least 1';
   }
 
@@ -245,14 +253,20 @@ export function getSectionErrors(sectionKey: string, errors: Record<string, stri
         k.startsWith('channel_'),
       );
     case 'bountyContent':
+      // `maxSubmissions` lives here because `MaxSubmissionsSection` renders
+      // on the wizard's step 3 (Claim & Rewards, owned by `bountyContent`).
+      // Bucketing it under `bountyRules` would have surfaced the error on
+      // step 1 or 2, which don't render the input — the brand would have
+      // seen "Number of claims is required" with no fixable field on the
+      // current step.
       return errorKeys.filter((k) =>
-        ['tagAccount', 'durationValue', 'durationUnit', 'rewards'].includes(k) ||
+        ['tagAccount', 'durationValue', 'durationUnit', 'rewards', 'maxSubmissions'].includes(k) ||
         k.startsWith('reward_'),
       );
     case 'bountyRules':
       return errorKeys.filter((k) =>
         ['minFollowers', 'minAccountAgeDays', 'locationRestriction', 'customRules',
-         'proofRequirements', 'maxSubmissions',
+         'proofRequirements',
          'minViews', 'minLikes', 'minComments'].includes(k) ||
         k.startsWith('customRule_'),
       );
