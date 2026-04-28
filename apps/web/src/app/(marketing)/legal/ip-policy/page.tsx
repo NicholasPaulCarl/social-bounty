@@ -36,13 +36,13 @@ export default function IpPolicyPage() {
       toc={TOC}
     >
       <section id="our-policy">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           1. Our policy
         </h2>
         <p className="mb-4">
           {LEGAL_ENTITY.registeredName} (registration number {LEGAL_ENTITY.cipcRegNumber}) respects
-          the intellectual property (<strong className="font-semibold text-slate-900">IP</strong>) rights of others and expects the
-          users of {LEGAL_ENTITY.domain} (the <strong className="font-semibold text-slate-900">Platform</strong>) to do the same. We
+          the intellectual property (<strong className="font-semibold text-text-primary">IP</strong>) rights of others and expects the
+          users of {LEGAL_ENTITY.domain} (the <strong className="font-semibold text-text-primary">Platform</strong>) to do the same. We
           remove content that is shown, through a valid notice and our own review,
           to infringe the IP rights of another person. We terminate the accounts
           of users who repeatedly infringe.
@@ -60,7 +60,7 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="scope">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           2. Scope and legal framework
         </h2>
         <p className="mb-4">
@@ -77,17 +77,17 @@ export default function IpPolicyPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            the <strong className="font-semibold text-slate-900">Copyright Act 98 of 1978</strong>, which confers and governs copyright
+            the <strong className="font-semibold text-text-primary">Copyright Act 98 of 1978</strong>, which confers and governs copyright
             in South Africa;
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Chapter XI of the Electronic Communications and Transactions Act 25 of 2002</strong>{' '}
-            (<strong className="font-semibold text-slate-900">ECTA</strong>), in particular sections 77 to 79, which describe the
+            <strong className="font-semibold text-text-primary">Chapter XI of the Electronic Communications and Transactions Act 25 of 2002</strong>{' '}
+            (<strong className="font-semibold text-text-primary">ECTA</strong>), in particular sections 77 to 79, which describe the
             take-down notice procedure and the limitations on service-provider
             liability that follow from complying with it;
           </li>
           <li>
-            the <strong className="font-semibold text-slate-900">Trade Marks Act 194 of 1993</strong>, for trade-mark claims; and
+            the <strong className="font-semibold text-text-primary">Trade Marks Act 194 of 1993</strong>, for trade-mark claims; and
           </li>
           <li>
             common-law principles of passing off, unlawful competition, and breach
@@ -101,7 +101,7 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="who-can-file">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           3. Who can file a notice
         </h2>
         <p className="mb-4">
@@ -123,7 +123,7 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="what-a-valid-notice-contains">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           4. What a valid notice contains
         </h2>
         <p className="mb-4">
@@ -133,24 +133,24 @@ export default function IpPolicyPage() {
         </p>
         <ol className="list-decimal pl-6 mb-4 space-y-2">
           <li>
-            <strong className="font-semibold text-slate-900">Your identity.</strong> Your full legal name, postal address, email
+            <strong className="font-semibold text-text-primary">Your identity.</strong> Your full legal name, postal address, email
             address, and a telephone number where we can reach you during business
             hours.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Signature.</strong> A written or digital signature. A typed full name
+            <strong className="font-semibold text-text-primary">Signature.</strong> A written or digital signature. A typed full name
             at the end of the notice is acceptable as an ordinary electronic
             signature in terms of section 13(1) of ECTA.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Identification of the work.</strong> A clear description of the copyrighted
+            <strong className="font-semibold text-text-primary">Identification of the work.</strong> A clear description of the copyrighted
             work or other IP that you say has been infringed — for example, "the
             photograph titled <em>Lightfall</em>, first published 14 June 2024 on my
             Instagram profile @example, a copy of which is attached". Attaching a
             copy (or providing a URL where the original can be seen) helps.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Identification of the infringing material and its location on the Platform.</strong>{' '}
+            <strong className="font-semibold text-text-primary">Identification of the infringing material and its location on the Platform.</strong>{' '}
             Enough information for us to find the material and understand why it
             infringes. Useful identifiers include the bounty ID, the submission
             ID, the URL of the relevant page on {LEGAL_ENTITY.domain}, or, where
@@ -158,18 +158,18 @@ export default function IpPolicyPage() {
             and the Platform artefact that embeds or stores it.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Statement of good-faith belief.</strong> A statement that you have a
+            <strong className="font-semibold text-text-primary">Statement of good-faith belief.</strong> A statement that you have a
             good-faith belief that the identified use is not authorised by the
             owner, its agent, or the law.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Statement of accuracy and authority.</strong> A statement that the
+            <strong className="font-semibold text-text-primary">Statement of accuracy and authority.</strong> A statement that the
             information in the notice is accurate and that, under penalty of
             perjury, you are the owner of the IP right in question or are
             authorised to act on the owner's behalf.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Contact for counter-notice correspondence.</strong> The email address you
+            <strong className="font-semibold text-text-primary">Contact for counter-notice correspondence.</strong> The email address you
             want us to use if the user whose content is being removed files a
             counter-notice.
           </li>
@@ -183,11 +183,11 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="how-to-submit">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           5. How to submit a notice
         </h2>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">Primary channel (email):</strong>{' '}
+          <strong className="font-semibold text-text-primary">Primary channel (email):</strong>{' '}
           <a
             href={`mailto:${LEGAL_ENTITY.emails.takedown}`}
             className="text-pink-600 hover:text-pink-700 font-medium"
@@ -198,12 +198,12 @@ export default function IpPolicyPage() {
           is routed correctly.
         </p>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">Postal alternative:</strong>{' '}
+          <strong className="font-semibold text-text-primary">Postal alternative:</strong>{' '}
           {LEGAL_ENTITY.registeredName}, attention of the Information Officer,{' '}
           {LEGAL_ENTITY.registeredAddress.formatted}.
         </p>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">Our timeline commitment.</strong> We aim to acknowledge receipt of
+          <strong className="font-semibold text-text-primary">Our timeline commitment.</strong> We aim to acknowledge receipt of
           every notice within two business days, complete an initial review within
           five business days, and act on a notice we have verified as valid —
           removing or disabling access to the identified material — within 48
@@ -213,7 +213,7 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="what-happens-next">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           6. What happens next
         </h2>
         <p className="mb-4">
@@ -222,25 +222,25 @@ export default function IpPolicyPage() {
         </p>
         <ol className="list-decimal pl-6 mb-4 space-y-2">
           <li>
-            <strong className="font-semibold text-slate-900">Validity check.</strong> We confirm that the notice contains the
+            <strong className="font-semibold text-text-primary">Validity check.</strong> We confirm that the notice contains the
             elements listed in section 4. Where something is missing or unclear,
             we ask for it.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Removal or disabling of access.</strong> Where the notice is valid on
+            <strong className="font-semibold text-text-primary">Removal or disabling of access.</strong> Where the notice is valid on
             its face, we remove or disable access to the identified material. We
             also preserve a copy of the material and its metadata as evidence in
             case the matter escalates.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Notice to the affected user.</strong> We notify the user who uploaded the
+            <strong className="font-semibold text-text-primary">Notice to the affected user.</strong> We notify the user who uploaded the
             material that we have acted on a take-down notice, provide them with a
             copy of your notice (with any personal-information redactions we are
             obliged to make under POPIA), and tell them how to file a
             counter-notice if they believe the removal was wrong.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Record keeping.</strong> We keep a record of the notice, our
+            <strong className="font-semibold text-text-primary">Record keeping.</strong> We keep a record of the notice, our
             verification, the action taken, and any subsequent correspondence, for
             the period required by our record-retention policy and in any event
             long enough to meet our obligations under POPIA and ECTA.
@@ -249,7 +249,7 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="counter-notice">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           7. Counter-notice
         </h2>
         <p className="mb-4">
@@ -298,7 +298,7 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="repeat-infringer">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           8. Repeat infringer policy
         </h2>
         <p className="mb-4">
@@ -321,7 +321,7 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="false-notices">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           9. False notices
         </h2>
         <p className="mb-4">
@@ -341,7 +341,7 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="trade-marks-and-other-ip">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           10. Trade marks and other IP
         </h2>
         <p className="mb-4">
@@ -367,7 +367,7 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="other-disputes">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           11. Other disputes (defamation, privacy, right of publicity)
         </h2>
         <p className="mb-4">
@@ -376,7 +376,7 @@ export default function IpPolicyPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Defamation</strong>, insult, or injurious falsehood about you — use our{' '}
+            <strong className="font-semibold text-text-primary">Defamation</strong>, insult, or injurious falsehood about you — use our{' '}
             <Link href="/legal/complaints" className="text-pink-600 hover:text-pink-700 font-medium">
               Complaints & Dispute Resolution
             </Link>{' '}
@@ -390,20 +390,20 @@ export default function IpPolicyPage() {
             .
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Privacy and personal-information concerns</strong> — contact our{' '}
+            <strong className="font-semibold text-text-primary">Privacy and personal-information concerns</strong> — contact our{' '}
             <Link href="/legal/information-officer" className="text-pink-600 hover:text-pink-700 font-medium">
               Information Officer
             </Link>
             .
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Right-of-publicity or personality-right claims</strong> (unauthorised
+            <strong className="font-semibold text-text-primary">Right-of-publicity or personality-right claims</strong> (unauthorised
             use of a person's name or image for commercial purposes) — either the
             complaints route above, or, where the content also implicates
             copyright or trade marks, this take-down procedure.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Content that breaches the Acceptable Use Policy</strong> (hate speech,
+            <strong className="font-semibold text-text-primary">Content that breaches the Acceptable Use Policy</strong> (hate speech,
             harassment, and similar) — see the reporting section of the{' '}
             <Link href="/legal/acceptable-use" className="text-pink-600 hover:text-pink-700 font-medium">
               Acceptable Use Policy
@@ -414,7 +414,7 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="limitations">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           12. Limitations
         </h2>
         <p className="mb-4">
@@ -439,11 +439,11 @@ export default function IpPolicyPage() {
       </section>
 
       <section id="contact">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           13. Contact
         </h2>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">IP take-down notices and counter-notices:</strong>{' '}
+          <strong className="font-semibold text-text-primary">IP take-down notices and counter-notices:</strong>{' '}
           <a
             href={`mailto:${LEGAL_ENTITY.emails.takedown}`}
             className="text-pink-600 hover:text-pink-700 font-medium"
@@ -453,7 +453,7 @@ export default function IpPolicyPage() {
           .
         </p>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">General legal enquiries:</strong>{' '}
+          <strong className="font-semibold text-text-primary">General legal enquiries:</strong>{' '}
           <a
             href={`mailto:${LEGAL_ENTITY.emails.legal}`}
             className="text-pink-600 hover:text-pink-700 font-medium"
@@ -463,7 +463,7 @@ export default function IpPolicyPage() {
           .
         </p>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">Postal address for notices:</strong>{' '}
+          <strong className="font-semibold text-text-primary">Postal address for notices:</strong>{' '}
           {LEGAL_ENTITY.registeredName}, attention of the Information Officer,{' '}
           {LEGAL_ENTITY.registeredAddress.formatted}.
         </p>

@@ -29,21 +29,37 @@ const REFRESH_COOKIE_NAME = 'sb_refresh_token';
 const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
 
 function setRefreshCookie(res: Response, token: string) {
-  res.cookie(REFRESH_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/api/v1/auth',
-    maxAge: REFRESH_COOKIE_MAX_AGE,
-  });
-}
-
-function clearRefreshCookie(res: Response) {
+  // Clear any legacy cookie set at the old restricted path so the browser
+  // doesn't send two cookies with the same name (the old one would be
+  // invalid and cause "Invalid refresh token" / token-theft detection).
   res.clearCookie(REFRESH_COOKIE_NAME, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/api/v1/auth',
+  });
+  res.cookie(REFRESH_COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: REFRESH_COOKIE_MAX_AGE,
+  });
+}
+
+function clearRefreshCookie(res: Response) {
+  // Clear at both paths to handle browsers that still have the legacy cookie.
+  res.clearCookie(REFRESH_COOKIE_NAME, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/api/v1/auth',
+  });
+  res.clearCookie(REFRESH_COOKIE_NAME, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
   });
 }
 

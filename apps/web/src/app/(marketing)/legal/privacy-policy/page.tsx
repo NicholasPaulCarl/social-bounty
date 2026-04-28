@@ -36,10 +36,10 @@ export default function PrivacyPolicyPage() {
       toc={TOC}
     >
       <section id="introduction">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">Introduction</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">Introduction</h2>
         <p className="mb-4">
           This Privacy Policy explains how{' '}
-          <strong className="font-semibold text-slate-900">{LEGAL_ENTITY.registeredName}</strong>{' '}
+          <strong className="font-semibold text-text-primary">{LEGAL_ENTITY.registeredName}</strong>{' '}
           (trading as {LEGAL_ENTITY.tradingName}) handles personal information about the people who
           use our platform at{' '}
           <a
@@ -104,35 +104,35 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="who-we-are">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">Who we are</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">Who we are</h2>
         <p className="mb-4">
           For POPIA purposes, Social Bounty is the{' '}
-          <strong className="font-semibold text-slate-900">responsible party</strong> — the entity
+          <strong className="font-semibold text-text-primary">responsible party</strong> — the entity
           that decides why and how your personal information is processed.
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Registered name:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Registered name:</strong>{' '}
             {LEGAL_ENTITY.registeredName}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">CIPC registration number:</strong>{' '}
+            <strong className="font-semibold text-text-primary">CIPC registration number:</strong>{' '}
             {LEGAL_ENTITY.cipcRegNumber}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Registered office / domicilium:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Registered office / domicilium:</strong>{' '}
             {LEGAL_ENTITY.registeredAddress.formatted}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Trading domain:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Trading domain:</strong>{' '}
             {LEGAL_ENTITY.domain}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Information Officer:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Information Officer:</strong>{' '}
             {LEGAL_ENTITY.informationOfficer.name} ({LEGAL_ENTITY.informationOfficer.role})
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Privacy contact:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Privacy contact:</strong>{' '}
             <a
               href={`mailto:${LEGAL_ENTITY.emails.privacy}`}
               className="text-pink-600 hover:text-pink-700 font-medium"
@@ -154,7 +154,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="what-we-collect">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Personal information we collect
         </h2>
         <p className="mb-4">
@@ -162,7 +162,7 @@ export default function PrivacyPolicyPage() {
           we collect it.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Account and authentication data
         </h3>
         <p className="mb-4">
@@ -172,19 +172,19 @@ export default function PrivacyPolicyPage() {
           your email by one-time code, we store the fact that verification happened and when.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Brand verification data (KYB)
         </h3>
         <p className="mb-4">
           If you operate as a brand, we collect information about your business: the CIPC
           registration number, registered name, trading name, VAT number (if registered), and the
           name and role of the person administering the brand account. This is a{' '}
-          <strong className="font-semibold text-slate-900">product-level</strong> KYB check — it is
+          <strong className="font-semibold text-text-primary">product-level</strong> KYB check — it is
           not the same as the statutory FICA due diligence, which our payment partner (TradeSafe
           Escrow) performs in its capacity as an accountable institution.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Hunter banking details (via TradeSafe)
         </h3>
         <p className="mb-4">
@@ -203,7 +203,7 @@ export default function PrivacyPolicyPage() {
           banking information.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Submission content
         </h3>
         <p className="mb-4">
@@ -213,7 +213,7 @@ export default function PrivacyPolicyPage() {
           authorised platform admins investigating disputes.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Apify-scraped social post data
         </h3>
         <p className="mb-4">
@@ -236,7 +236,7 @@ export default function PrivacyPolicyPage() {
           your submission for auditability.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Device, usage, and technical data
         </h3>
         <p className="mb-4">
@@ -246,7 +246,7 @@ export default function PrivacyPolicyPage() {
           detect abuse, and improve performance.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Communications with us
         </h3>
         <p className="mb-4">
@@ -256,7 +256,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="how-we-use">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           How we use your information
         </h2>
         <p className="mb-4">
@@ -265,7 +265,7 @@ export default function PrivacyPolicyPage() {
           bases.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Performance of a contract (section 11(1)(b))
         </h3>
         <p className="mb-4">
@@ -275,7 +275,7 @@ export default function PrivacyPolicyPage() {
           fees, issuing refunds, and maintaining the audit trail every financial transaction needs.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Compliance with a legal obligation (section 11(1)(c))
         </h3>
         <p className="mb-4">
@@ -285,7 +285,7 @@ export default function PrivacyPolicyPage() {
           process personal information to the extent necessary to meet those obligations.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Legitimate interests (section 11(1)(f))
         </h3>
         <p className="mb-4">
@@ -298,7 +298,7 @@ export default function PrivacyPolicyPage() {
           object to processing based on legitimate interest — see "Your POPIA rights" below.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Consent (section 11(1)(a))
         </h3>
         <p className="mb-4">
@@ -323,7 +323,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="service-communications">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Service communications
         </h2>
         <p className="mb-4">
@@ -336,25 +336,25 @@ export default function PrivacyPolicyPage() {
         </p>
         <p className="mb-4">
           Both rails are dispatched through{' '}
-          <strong className="font-semibold text-slate-900">Brevo (Sendinblue SAS)</strong>, a French
+          <strong className="font-semibold text-text-primary">Brevo (Sendinblue SAS)</strong>, a French
           operator under POPIA sections 20 and 21. Brevo receives the minimum data needed to
           deliver each message: your name, the email address or mobile number, and the message
           body. Brevo does not use this data for its own purposes.
         </p>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">No charge to receive.</strong> The cost
+          <strong className="font-semibold text-text-primary">No charge to receive.</strong> The cost
           of sending SMS is borne by us; you do not incur a charge for receiving them on a standard
           South African mobile plan. Roaming or non-standard plans may apply their own rules.
         </p>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">No marketing without consent.</strong>{' '}
+          <strong className="font-semibold text-text-primary">No marketing without consent.</strong>{' '}
           We will not use SMS or email to send you optional product offers, third-party
           promotions, or bulk marketing campaigns unless we first ask for your specific consent
           under section 69 of POPIA. If we ever introduce that, it will be a separate, voluntary
           opt-in surface — your service messages will not be conditional on accepting marketing.
         </p>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">No sale or sharing for marketing.</strong>{' '}
+          <strong className="font-semibold text-text-primary">No sale or sharing for marketing.</strong>{' '}
           Your mobile information will not be sold or shared with third parties for promotional or
           marketing purposes.
         </p>
@@ -371,7 +371,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="who-we-share-with">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Who we share your information with
         </h2>
         <p className="mb-4">
@@ -380,7 +380,7 @@ export default function PrivacyPolicyPage() {
           written agreement that meets the requirements of POPIA sections 20 and 21.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           TradeSafe Escrow (Pty) Ltd — payment and escrow partner
         </h3>
         <p className="mb-4">
@@ -392,7 +392,7 @@ export default function PrivacyPolicyPage() {
           party record. Banking details are captured by TradeSafe directly; we never see them.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Apify — social-post verification processor
         </h3>
         <p className="mb-4">
@@ -403,7 +403,7 @@ export default function PrivacyPolicyPage() {
           section 72.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Cloud hosting and infrastructure providers
         </h3>
         <p className="mb-4">
@@ -412,7 +412,7 @@ export default function PrivacyPolicyPage() {
           POPIA. They do not access your data for their own purposes.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Email and SMS provider — Brevo (Sendinblue SAS)
         </h3>
         <p className="mb-4">
@@ -430,7 +430,7 @@ export default function PrivacyPolicyPage() {
           for the full description of what these channels are used for.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Error monitoring
         </h3>
         <p className="mb-4">
@@ -439,7 +439,7 @@ export default function PrivacyPolicyPage() {
           sensitive fields before sending the error to the service.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Legal and regulatory disclosures
         </h3>
         <p className="mb-4">
@@ -449,7 +449,7 @@ export default function PrivacyPolicyPage() {
           warrant, or statutory demand).
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Business transfers
         </h3>
         <p className="mb-4">
@@ -461,7 +461,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="cross-border-transfer">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Cross-border transfer of personal information
         </h2>
         <p className="mb-4">
@@ -474,23 +474,23 @@ export default function PrivacyPolicyPage() {
         <p className="mb-4">The cross-border transfers we make are:</p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Apify</strong>{' '}
+            <strong className="font-semibold text-text-primary">Apify</strong>{' '}
             ({LEGAL_ENTITY.verificationProcessor.jurisdiction}): post URLs and scraped post data.
             We rely on our data-processing agreement with Apify and their compliance with the EU
             General Data Protection Regulation, which the Information Regulator has indicated
             offers comparable protection to POPIA.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Cloud hosting provider</strong>{' '}
+            <strong className="font-semibold text-text-primary">Cloud hosting provider</strong>{' '}
             (regions vary): encrypted database and file storage. We rely on the provider's data
             processing agreement and its ISO 27001 / SOC 2 certifications.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Transactional email provider</strong>:
+            <strong className="font-semibold text-text-primary">Transactional email provider</strong>:
             name and email address for message delivery.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Error monitoring service</strong>:
+            <strong className="font-semibold text-text-primary">Error monitoring service</strong>:
             request metadata and stack traces (with sensitive fields redacted).
           </li>
         </ul>
@@ -509,7 +509,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="retention">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           How long we keep your information
         </h2>
         <p className="mb-4">
@@ -518,7 +518,7 @@ export default function PrivacyPolicyPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Financial, ledger, and tax records:
             </strong>{' '}
             seven (7) years from the date of the transaction. This matches the requirement in
@@ -529,7 +529,7 @@ export default function PrivacyPolicyPage() {
             statutory period.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Account and profile data (after account closure):
             </strong>{' '}
             retained for ninety (90) days after you close your account, then anonymised or deleted
@@ -537,15 +537,15 @@ export default function PrivacyPolicyPage() {
             dispute or regulatory inquiry).
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Server logs:</strong> ninety (90)
+            <strong className="font-semibold text-text-primary">Server logs:</strong> ninety (90)
             days, after which they are automatically purged.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Support communications:</strong> two
+            <strong className="font-semibold text-text-primary">Support communications:</strong> two
             (2) years, so we can track recurring issues and honour any commitments we made.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Aggregated and anonymised data:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Aggregated and anonymised data:</strong>{' '}
             retained indefinitely. Once data has been fully anonymised it is no longer personal
             information and POPIA does not apply.
           </li>
@@ -553,7 +553,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="your-rights">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Your rights under POPIA
         </h2>
         <p className="mb-4">
@@ -563,7 +563,7 @@ export default function PrivacyPolicyPage() {
           POPIA regulation 3 read with section 24.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Right of access (section 23)
         </h3>
         <p className="mb-4">
@@ -572,7 +572,7 @@ export default function PrivacyPolicyPage() {
           use it for, who we share it with, and how long we keep it.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Right to correction or deletion (section 24)
         </h3>
         <p className="mb-4">
@@ -583,7 +583,7 @@ export default function PrivacyPolicyPage() {
           whatever we can.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Right to object (section 11(3))
         </h3>
         <p className="mb-4">
@@ -591,7 +591,7 @@ export default function PrivacyPolicyPage() {
           will stop unless we can show a lawful reason to continue.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Right to not be subject to automated decision-making (section 71)
         </h3>
         <p className="mb-4">
@@ -601,7 +601,7 @@ export default function PrivacyPolicyPage() {
           checks themselves are documented in the bounty rules you can see before you submit.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Right to complain to the Information Regulator
         </h3>
         <p className="mb-4">
@@ -652,7 +652,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="security">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           How we protect your information
         </h2>
         <p className="mb-4">
@@ -691,7 +691,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="children">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">Children</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">Children</h2>
         <p className="mb-4">
           Social Bounty is an 18+ platform. You must be at least 18 years old to register, create
           bounties, or submit work. We do not knowingly collect personal information from anyone
@@ -708,7 +708,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="changes">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Changes to this Privacy Policy
         </h2>
         <p className="mb-4">
@@ -726,22 +726,22 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="contact">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">Contact us</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">Contact us</h2>
         <p className="mb-4">
           For anything relating to your personal information or this policy, contact our
           Information Officer:
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Name:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Name:</strong>{' '}
             {LEGAL_ENTITY.informationOfficer.name}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Role:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Role:</strong>{' '}
             {LEGAL_ENTITY.informationOfficer.role}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Email:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Email:</strong>{' '}
             <a
               href={`mailto:${LEGAL_ENTITY.emails.privacy}`}
               className="text-pink-600 hover:text-pink-700 font-medium"
@@ -750,7 +750,7 @@ export default function PrivacyPolicyPage() {
             </a>
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Postal address:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Postal address:</strong>{' '}
             {LEGAL_ENTITY.registeredAddress.formatted}
           </li>
         </ul>

@@ -30,7 +30,7 @@ export default function CookiePolicyPage() {
       toc={TOC}
     >
       <section id="what-are-cookies">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           What are cookies?
         </h2>
         <p className="mb-4">
@@ -40,7 +40,7 @@ export default function CookiePolicyPage() {
         </p>
         <p className="mb-4">
           This policy explains what cookies{' '}
-          <strong className="font-semibold text-slate-900">{LEGAL_ENTITY.registeredName}</strong>{' '}
+          <strong className="font-semibold text-text-primary">{LEGAL_ENTITY.registeredName}</strong>{' '}
           (trading as {LEGAL_ENTITY.tradingName}) sets on {LEGAL_ENTITY.domain}, and what you can
           do about them. We also use a few cookie-like technologies such as local storage and
           session storage — for simplicity we call all of them "cookies" in this policy.
@@ -59,7 +59,7 @@ export default function CookiePolicyPage() {
       </section>
 
       <section id="cookies-we-use">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Cookies we use
         </h2>
         <p className="mb-4">
@@ -67,7 +67,7 @@ export default function CookiePolicyPage() {
           sell cookie data to anyone. The cookies we do use fall into two categories.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Essential cookies
         </h3>
         <p className="mb-4">
@@ -77,30 +77,30 @@ export default function CookiePolicyPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Authentication session cookies</strong>{' '}
+            <strong className="font-semibold text-text-primary">Authentication session cookies</strong>{' '}
             — identify your signed-in session and let us keep you logged in as you move between
             pages. Cleared when you sign out or when the session expires.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">CSRF-protection tokens</strong>{' '}
+            <strong className="font-semibold text-text-primary">CSRF-protection tokens</strong>{' '}
             — a cryptographic token paired with your session to stop malicious sites from
             submitting forms on your behalf. Standard security control.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Load-balancer and routing cookies
             </strong>{' '}
             — let our infrastructure route you back to the server that is already handling your
             session, so the platform stays fast and stable.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Preference cookies</strong>{' '}
+            <strong className="font-semibold text-text-primary">Preference cookies</strong>{' '}
             — remember UI choices such as your dashboard view density or the column order on a
             table.
           </li>
         </ul>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Analytics cookies
         </h3>
         <p className="mb-4">
@@ -111,7 +111,7 @@ export default function CookiePolicyPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Aggregate usage analytics</strong>{' '}
+            <strong className="font-semibold text-text-primary">Aggregate usage analytics</strong>{' '}
             — anonymised page views, click paths, and performance metrics. The analytics provider
             processes this data on our behalf as an operator under POPIA.
           </li>
@@ -119,7 +119,7 @@ export default function CookiePolicyPage() {
 
         <p className="mb-4">
           We do{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             not use advertising or retargeting cookies
           </strong>
           . We do not embed third-party advertising networks, and we do not share your data with
@@ -128,14 +128,14 @@ export default function CookiePolicyPage() {
       </section>
 
       <section id="your-choices">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Your choices
         </h2>
         <p className="mb-4">
           You can control cookies at the browser level and within the platform.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Browser controls
         </h3>
         <p className="mb-4">
@@ -146,7 +146,7 @@ export default function CookiePolicyPage() {
           able to stay signed in, and some forms will refuse to submit.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Platform-level controls
         </h3>
         <p className="mb-4">
@@ -155,7 +155,7 @@ export default function CookiePolicyPage() {
           at any time from the privacy settings in your account.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Consequences of turning off essential cookies
         </h3>
         <p className="mb-4">
@@ -167,7 +167,7 @@ export default function CookiePolicyPage() {
       </section>
 
       <section id="consent">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Consent and legal basis
         </h2>
         <p className="mb-4">
@@ -176,14 +176,14 @@ export default function CookiePolicyPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Essential cookies</strong>{' '}
+            <strong className="font-semibold text-text-primary">Essential cookies</strong>{' '}
             — we rely on the performance-of-contract basis (section 11(1)(b)) and our legitimate
             interest (section 11(1)(f)) in keeping the platform secure and available. These
             cookies are set without a separate consent step because they are necessary to provide
             the service you have asked for.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Analytics cookies</strong>{' '}
+            <strong className="font-semibold text-text-primary">Analytics cookies</strong>{' '}
             — we rely on your consent (section 11(1)(a)). You can withdraw consent at any time,
             either through your browser or through the platform's privacy settings. Withdrawal
             does not affect the lawfulness of analytics we ran before you withdrew.
@@ -192,7 +192,7 @@ export default function CookiePolicyPage() {
       </section>
 
       <section id="third-party">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Third-party cookies
         </h2>
         <p className="mb-4">
@@ -202,14 +202,14 @@ export default function CookiePolicyPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Analytics provider ([ANALYTICS_PROVIDER])
             </strong>{' '}
             — sets cookies to measure aggregate platform usage. Set only if you have consented to
             analytics cookies.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">TradeSafe Escrow (Pty) Ltd</strong>{' '}
+            <strong className="font-semibold text-text-primary">TradeSafe Escrow (Pty) Ltd</strong>{' '}
             — if you are redirected to TradeSafe's hosted checkout to fund a bounty or register
             banking details, TradeSafe will set its own cookies on its pages. Those cookies are
             governed by TradeSafe's own privacy notice; we do not control them.
@@ -228,7 +228,7 @@ export default function CookiePolicyPage() {
       </section>
 
       <section id="changes">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Changes to this Cookie Policy
         </h2>
         <p className="mb-4">
@@ -243,7 +243,7 @@ export default function CookiePolicyPage() {
       </section>
 
       <section id="contact">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Contact us
         </h2>
         <p className="mb-4">

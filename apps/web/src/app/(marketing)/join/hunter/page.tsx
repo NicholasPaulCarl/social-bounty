@@ -203,7 +203,7 @@ function PhoneMockup() {
    ───────────────────────────────────────────── */
 export default function JoinHunterPage() {
   return (
-    <div className="bg-white text-slate-900 font-body">
+    <div className="bg-white text-text-primary font-body">
 
       {/* ══════════════════════════════════════════
           HERO
@@ -219,7 +219,7 @@ export default function JoinHunterPage() {
               </FadeUp>
 
               <FadeUp delay={80}>
-                <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight tracking-tight mb-6">
+                <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary leading-tight tracking-tight mb-6">
                   Your internet time, finally worth <span className="gradient-text">something.</span>
                 </h1>
               </FadeUp>
@@ -259,7 +259,7 @@ export default function JoinHunterPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-16">
             <p className="eyebrow mb-3">The process</p>
-            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary">
               How it works.
             </h2>
           </FadeUp>
@@ -277,7 +277,7 @@ export default function JoinHunterPage() {
 
                   {/* Content */}
                   <div className={`flex-1 max-w-xl ${i % 2 === 1 ? 'md:text-right' : ''}`}>
-                    <h3 className="font-heading text-xl sm:text-2xl font-bold text-slate-900 mb-2">
+                    <h3 className="font-heading text-xl sm:text-2xl font-bold text-text-primary mb-2">
                       {step.title}
                     </h3>
                     <p className="text-slate-600 text-base leading-relaxed">{step.body}</p>
@@ -301,7 +301,7 @@ export default function JoinHunterPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-16">
             <p className="eyebrow mb-3">Why it works</p>
-            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary">
               Built for hunters, not influencers.
             </h2>
           </FadeUp>
@@ -313,7 +313,7 @@ export default function JoinHunterPage() {
                   <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-pink-600 mb-4">
                     <Icon size={20} strokeWidth={2} />
                   </div>
-                  <h3 className="font-heading text-lg font-bold text-slate-900 mb-2">{title}</h3>
+                  <h3 className="font-heading text-lg font-bold text-text-primary mb-2">{title}</h3>
                   <p className="text-slate-600 text-sm leading-relaxed">{body}</p>
                 </div>
               </FadeUp>
@@ -382,7 +382,7 @@ export default function JoinHunterPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">Plans</p>
-            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary">
               Free today. <span className="text-pink-600">Pro coming soon.</span>
             </h2>
             <p className="text-lg text-slate-600 mt-4 max-w-xl mx-auto">
@@ -394,8 +394,8 @@ export default function JoinHunterPage() {
             {/* Free */}
             <FadeUp delay={0}>
               <div className="h-full card card-feature">
-                <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Free Hunter</h3>
-                <p className="font-mono tabular-nums text-3xl font-bold text-slate-900 mt-4 mb-6">R0<span className="text-base font-normal text-slate-400">/month</span></p>
+                <h3 className="font-heading text-xl font-bold text-text-primary mb-1">Free Hunter</h3>
+                <p className="font-mono tabular-nums text-3xl font-bold text-text-primary mt-4 mb-6">R0<span className="text-base font-normal text-slate-400">/month</span></p>
                 <ul className="space-y-3 mb-6">
                   {[
                     '20% platform commission',
@@ -420,7 +420,7 @@ export default function JoinHunterPage() {
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 badge badge-neutral px-4 py-1 uppercase">
                   Coming soon
                 </div>
-                <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Pro Hunter</h3>
+                <h3 className="font-heading text-xl font-bold text-text-primary mb-1">Pro Hunter</h3>
                 <p className="text-sm text-slate-500 mt-4 mb-6">Pricing published before launch</p>
                 <ul className="space-y-3 mb-6">
                   {[
@@ -465,7 +465,7 @@ export default function JoinHunterPage() {
             <div className="w-16 h-16 rounded-xl bg-pink-100 flex items-center justify-center mx-auto mb-6">
               <Star size={28} strokeWidth={2} className="text-pink-600" fill="currentColor" />
             </div>
-            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary mb-4">
               The board&rsquo;s open. <span className="text-pink-600">Let&rsquo;s get you earning.</span>
             </h2>
             <p className="text-lg text-slate-600 mb-8">

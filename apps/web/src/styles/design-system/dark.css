@@ -1,0 +1,67 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Social Bounty — Dark mode
+   Opt in by adding   data-theme="dark"   to <html> or <body>,
+   or via system preference (uncomment @media block).
+   Keeps pink-600 as the brand anchor; flips slate scale & surfaces.
+   ═══════════════════════════════════════════════════════════════════ */
+
+[data-theme="dark"] {
+  /* Surfaces */
+  --bg-base:     #0a0e1a;
+  --bg-surface:  #111827;
+  --bg-elevated: #1a2233;
+  --bg-overlay:  rgba(0, 0, 0, 0.7);
+
+  /* Text */
+  --text-primary:   #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted:     #94a3b8;
+  --text-on-brand:  #ffffff;
+
+  /* Slate inverted (used for borders, dividers, subtle bg) */
+  --slate-50:  #1a2233;
+  --slate-100: #1f2937;
+  --slate-200: #334155;
+  --slate-300: #475569;
+  --slate-400: #64748b;
+  --slate-500: #94a3b8;
+  --slate-600: #cbd5e1;
+  --slate-700: #e2e8f0;
+  --slate-800: #f1f5f9;
+  --slate-900: #ffffff;
+
+  /* Status tints — bumped opacity so they read on dark */
+  --success-50:  rgba(34, 197, 94, 0.12);
+  --success-100: rgba(34, 197, 94, 0.18);
+  --success-700: #4ade80;
+
+  --warning-50:  rgba(245, 158, 11, 0.12);
+  --warning-100: rgba(245, 158, 11, 0.20);
+  --warning-700: #fbbf24;
+
+  --danger-50:   rgba(225, 29, 72, 0.12);
+  --danger-100:  rgba(225, 29, 72, 0.20);
+  --danger-700:  #fb7185;
+
+  --blue-50:  rgba(37, 99, 235, 0.12);
+  --blue-100: rgba(37, 99, 235, 0.20);
+  --blue-700: #60a5fa;
+
+  /* Pink stays the anchor — only tints adjusted */
+  --pink-50:  rgba(219, 39, 119, 0.10);
+  --pink-100: rgba(219, 39, 119, 0.18);
+  --pink-200: rgba(219, 39, 119, 0.30);
+
+  /* Shadows tuned for dark */
+  --shadow-level-1: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-level-2: 0 4px 8px rgba(0,0,0,0.4);
+  --shadow-level-3: 0 8px 24px rgba(0,0,0,0.5);
+  --shadow-level-4: 0 16px 48px rgba(0,0,0,0.55);
+}
+
+/* Optional: respect system preference */
+/*
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { … same tokens as above … }
+}
+*/

@@ -16,6 +16,8 @@
    remain the primary component library (Hard Rule #5); these are
    available as an escape hatch for marketing + one-off surfaces. */
 @import './design-system/components.css';
+@import './design-system/patterns.css';
+@import './design-system/dark.css';
 
 /* Tailwind CSS v4 single-import — replaces the v3 trio
    `@tailwind base; @tailwind components; @tailwind utilities;`. v4
@@ -135,7 +137,20 @@
    ───────────────────────────────────────────── */
 
 .sr-only-focusable:focus {
-  @apply not-sr-only absolute top-2 left-2 z-50 bg-white p-2 rounded shadow-level-2 text-text-primary;
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 50;
+  background: #ffffff;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  color: #0f172a;
+  box-shadow: var(--shadow-level-2);
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
 }
 
 /* ─────────────────────────────────────────────
@@ -375,7 +390,8 @@
   padding-right: 2.125rem !important;
 }
 
-.p-input-icon-left > i {
+.p-input-icon-left > i,
+.p-input-icon-left > svg {
   left: 0.875rem !important;
   top: 50% !important;
   margin-top: 0 !important;
@@ -384,9 +400,11 @@
   font-size: 0.8125rem !important;
   line-height: 1 !important;
   pointer-events: none !important;
+  position: absolute !important;
 }
 
-.p-input-icon-right > i {
+.p-input-icon-right > i,
+.p-input-icon-right > svg {
   right: 0.875rem !important;
   top: 50% !important;
   margin-top: 0 !important;
@@ -394,6 +412,15 @@
   color: #94a3b8 !important;
   font-size: 0.8125rem !important;
   line-height: 1 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+}
+
+.p-input-icon-left,
+.p-input-icon-right {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
 }
 
 .p-inputtext::placeholder {

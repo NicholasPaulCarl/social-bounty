@@ -151,12 +151,7 @@ export function AccessTypeSection({ accessType, selectedHunters, dispatch }: Acc
             </p>
 
             <div className="relative" ref={wrapperRef}>
-              <span className="p-input-icon-left w-full">
-                {isSearching ? (
-                  <Loader2 size={16} strokeWidth={2} className="animate-spin" />
-                ) : (
-                  <Search size={16} strokeWidth={2} />
-                )}
+              <span className="p-input-icon-right w-full">
                 <InputText
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -164,6 +159,11 @@ export function AccessTypeSection({ accessType, selectedHunters, dispatch }: Acc
                   placeholder="Search by name or handle..."
                   className="w-full"
                 />
+                {isSearching ? (
+                  <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+                ) : (
+                  <Search size={16} strokeWidth={2} />
+                )}
               </span>
 
               {/* Search results dropdown */}

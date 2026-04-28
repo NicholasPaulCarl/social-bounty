@@ -155,10 +155,7 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
               </div>
             ) : (
               <>
-                <span className="p-input-icon-left w-full">
-                  {isSearching
-                    ? <Loader2 size={16} strokeWidth={2} className="animate-spin" />
-                    : <Search size={16} strokeWidth={2} />}
+                <span className="p-input-icon-right w-full">
                   <InputText
                     value={recipientSearch}
                     onChange={(e) => {
@@ -170,6 +167,9 @@ export function NewConversationDialog({ visible, onHide, onCreated }: NewConvers
                     className="w-full"
                     aria-label="Search for recipient"
                   />
+                  {isSearching
+                    ? <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+                    : <Search size={16} strokeWidth={2} />}
                 </span>
                 {showDropdown && recipientSearch.length >= 2 && (
                   <div className="absolute z-50 top-full left-0 right-0 mt-1 glass-card border border-glass-border rounded-lg shadow-lg max-h-48 overflow-y-auto">

@@ -142,7 +142,7 @@ function HeroSection() {
           <div className="lg:col-span-3">
             <Reveal>
               <p className="eyebrow mb-4">The bounty board for the internet</p>
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-heading font-bold text-slate-900 leading-[1.05] tracking-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-heading font-bold text-text-primary leading-[1.05] tracking-tight">
                 Post a task.
                 <br />
                 <span className="gradient-text">
@@ -198,7 +198,7 @@ function HeroSection() {
                     <span className="text-xs text-slate-400">2h ago</span>
                   </div>
                   <p className="text-xs text-slate-400 font-medium mb-1">Fresh Roast Coffee</p>
-                  <h3 className="font-heading font-bold text-slate-900 text-sm leading-snug mb-3">
+                  <h3 className="font-heading font-bold text-text-primary text-sm leading-snug mb-3">
                     Instagram reel — summer coffee challenge
                   </h3>
                   <div className="flex items-center justify-between">
@@ -242,7 +242,7 @@ function HowItWorksSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal>
           <p className="eyebrow text-center mb-3">How it works</p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-slate-900 text-center">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-text-primary text-center">
             Three steps. Zero agencies.
           </h2>
         </Reveal>
@@ -258,7 +258,7 @@ function HowItWorksSection() {
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-3 font-mono tabular-nums font-bold text-[10px] text-pink-600 tracking-widest">
                   STEP {step.num}
                 </div>
-                <h3 className="text-xl font-heading font-bold text-slate-900 mb-3">{step.title}</h3>
+                <h3 className="text-xl font-heading font-bold text-text-primary mb-3">{step.title}</h3>
                 <p className="text-slate-600 leading-relaxed text-sm">{step.desc}</p>
               </div>
             </Reveal>
@@ -280,7 +280,7 @@ function DualSplitSection() {
           <Reveal>
             <div className="relative card card-feature card-interactive bg-pink-50 border-pink-100">
               <p className="eyebrow">For hunters</p>
-              <h3 className="mt-3 text-2xl sm:text-3xl font-heading font-bold text-slate-900">
+              <h3 className="mt-3 text-2xl sm:text-3xl font-heading font-bold text-text-primary">
                 Earn daily. No followers required.
               </h3>
               <ul className="mt-6 space-y-3">
@@ -310,7 +310,7 @@ function DualSplitSection() {
           <Reveal delay={150}>
             <div className="relative card card-feature card-interactive">
               <p className="eyebrow">For brands</p>
-              <h3 className="mt-3 text-2xl sm:text-3xl font-heading font-bold text-slate-900">
+              <h3 className="mt-3 text-2xl sm:text-3xl font-heading font-bold text-text-primary">
                 UGC without the agency.
               </h3>
               <ul className="mt-6 space-y-3">
@@ -400,7 +400,7 @@ function BountiesPreviewSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal>
           <p className="eyebrow text-center mb-3">Live now</p>
-          <h2 className="text-3xl sm:text-4xl font-heading font-bold text-slate-900 text-center mb-4">
+          <h2 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary text-center mb-4">
             Fresh bounties. Updated daily.
           </h2>
           <p className="text-center text-slate-500 mb-12">Real tasks from real brands — waiting for you right now.</p>
@@ -418,7 +418,7 @@ function BountiesPreviewSection() {
                   <span className="badge badge-neutral">{b.tag}</span>
                 </div>
                 <p className="text-[11px] text-slate-400 font-medium mb-1">{b.brand}</p>
-                <h3 className="font-heading font-bold text-slate-900 text-sm leading-snug mb-4 line-clamp-2">{b.task}</h3>
+                <h3 className="font-heading font-bold text-text-primary text-sm leading-snug mb-4 line-clamp-2">{b.task}</h3>
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                   <span className="text-xs text-slate-400">Reward</span>
                   <span className="font-mono tabular-nums font-bold text-pink-600 text-lg group-hover:scale-105 transition-transform">{b.reward}</span>
@@ -452,7 +452,7 @@ function TestimonialsSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal>
           <p className="eyebrow text-center mb-3">In their words</p>
-          <h2 className="text-3xl sm:text-4xl font-heading font-bold text-slate-900 text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary text-center mb-16">
             Don&apos;t take our word for it.
           </h2>
         </Reveal>
@@ -468,7 +468,7 @@ function TestimonialsSection() {
                     {t.name[0]}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">{t.name}</p>
+                    <p className="text-sm font-semibold text-text-primary">{t.name}</p>
                     <p className="text-xs text-slate-400">{t.role}</p>
                   </div>
                 </div>
