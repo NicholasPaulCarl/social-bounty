@@ -33,8 +33,8 @@ export const FILE_UPLOAD_LIMITS = {
 };
 
 export const BRAND_ASSET_LIMITS = {
-  MAX_FILES_PER_BOUNTY: 10,
-  MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
+  MAX_FILES_PER_BOUNTY: 5,
+  MAX_FILE_SIZE: 20 * 1024 * 1024, // 20MB
   ALLOWED_MIME_TYPES: [
     'image/jpeg',
     'image/png',

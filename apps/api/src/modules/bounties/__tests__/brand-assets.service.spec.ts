@@ -121,9 +121,9 @@ describe('BountiesService - Brand Assets', () => {
     it('should reject upload exceeding MAX_FILES_PER_BOUNTY', async () => {
       const bounty = baseBountyRecord({ status: BountyStatus.DRAFT });
       prisma.bounty.findUnique.mockResolvedValue(bounty);
-      prisma.brandAsset.count.mockResolvedValue(9); // 9 existing
+      prisma.brandAsset.count.mockResolvedValue(BRAND_ASSET_LIMITS.MAX_FILES_PER_BOUNTY - 1); // limit - 1 existing
 
-      // Try to add 2 more (9 + 2 = 11 > 10)
+      // Try to add 2 more (limit - 1 + 2 = limit + 1 > limit)
       await expect(
         service.uploadBrandAssets('bounty-1', mockBA, [mockFile(), mockFile()]),
       ).rejects.toThrow(BadRequestException);
@@ -132,12 +132,43 @@ describe('BountiesService - Brand Assets', () => {
     it('should allow upload up to exactly MAX_FILES_PER_BOUNTY', async () => {
       const bounty = baseBountyRecord({ status: BountyStatus.DRAFT });
       prisma.bounty.findUnique.mockResolvedValue(bounty);
-      prisma.brandAsset.count.mockResolvedValue(9); // 9 existing
+      prisma.brandAsset.count.mockResolvedValue(BRAND_ASSET_LIMITS.MAX_FILES_PER_BOUNTY - 1); // limit - 1 existing
 
       const file = mockFile();
       prisma.brandAsset.createManyAndReturn.mockResolvedValue([baseBrandAssetRecord()]);
 
-      // Add exactly 1 more (9 + 1 = 10 = limit)
+      // Add exactly 1 more (limit - 1 + 1 = limit)
+      const result = await service.uploadBrandAssets('bounty-1', mockBA, [file]);
+
+      expect(result).toHaveLength(1);
+    });
+
+    it('should reject upload when adding 6 to a fresh bounty (above 5-file cap)', async () => {
+      const bounty = baseBountyRecord({ status: BountyStatus.DRAFT });
+      prisma.bounty.findUnique.mockResolvedValue(bounty);
+      prisma.brandAsset.count.mockResolvedValue(0);
+
+      // 6 files at once exceeds the 5-file ceiling
+      const sixFiles = Array.from({ length: 6 }, (_, i) =>
+        mockFile({ originalname: `file-${i}.png` }),
+      );
+      await expect(
+        service.uploadBrandAssets('bounty-1', mockBA, sixFiles),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should accept a single file at exactly MAX_FILE_SIZE (20MB)', async () => {
+      const bounty = baseBountyRecord({ status: BountyStatus.DRAFT });
+      prisma.bounty.findUnique.mockResolvedValue(bounty);
+      prisma.brandAsset.count.mockResolvedValue(0);
+      prisma.brandAsset.createManyAndReturn.mockResolvedValue([baseBrandAssetRecord()]);
+
+      // Multer enforces fileSize at the framework boundary; service-level check
+      // doesn't re-validate file bytes. We assert the constant is the new ceiling
+      // so the wire contract is locked: 20 * 1024 * 1024 = 20971520 bytes.
+      expect(BRAND_ASSET_LIMITS.MAX_FILE_SIZE).toBe(20 * 1024 * 1024);
+
+      const file = mockFile({ size: BRAND_ASSET_LIMITS.MAX_FILE_SIZE });
       const result = await service.uploadBrandAssets('bounty-1', mockBA, [file]);
 
       expect(result).toHaveLength(1);
