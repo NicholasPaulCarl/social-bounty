@@ -152,6 +152,9 @@ export default function EditBountyPage() {
         initialBounty={bounty}
         onSubmit={handleSubmit}
         onSaveDraft={handleSaveDraft}
+        // Edit-mode discard returns to the detail page (the saved bounty
+        // remains untouched — discard only drops in-progress local edits).
+        onDiscard={() => router.push(`/business/bounties/${id}`)}
         isSubmitting={!isDraftSave && (updateBounty.isPending || isFunding)}
         isSavingDraft={isDraftSave && updateBounty.isPending}
         formError={formError}

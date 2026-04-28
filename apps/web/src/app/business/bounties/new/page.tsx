@@ -1,12 +1,13 @@
 'use client';
 
-import { useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRef, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCreateBounty } from '@/hooks/useBounties';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
 import { useBrand } from '@/hooks/useBrand';
 import { CreateBountyForm } from '@/components/bounty-form';
+import { getPresetFormState, isBountyPresetId } from '@/components/bounty-form/bounty-presets';
 import { Building2 } from 'lucide-react';
 import { bountyApi } from '@/lib/api/bounties';
 import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-checkout';
@@ -15,6 +16,7 @@ import { useState } from 'react';
 
 export default function CreateBountyPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const toast = useToast();
   const { user } = useAuth();
   const { data: org } = useBrand(user?.brandId || '');
@@ -26,6 +28,20 @@ export default function CreateBountyPage() {
   // button in its loading state across both steps.
   const [isFunding, setIsFunding] = useState(false);
   const stagedFilesRef = useRef<File[]>([]);
+
+  // Resolve the preset query param (?preset=blank|social-exposure|...)
+  // Computed once via useMemo so the partial form state is referentially
+  // stable across renders — useCreateBountyForm only consumes it in the
+  // reducer initializer (first render only), so the stability is mostly
+  // defensive. Wave A's bounty-presets.ts replaces the {} stub with real
+  // partial states.
+  const initialFormOverride = useMemo(() => {
+    const raw = searchParams?.get('preset');
+    if (!isBountyPresetId(raw)) return undefined;
+    if (raw === 'blank') return undefined;
+    const preset = getPresetFormState(raw);
+    return Object.keys(preset).length > 0 ? preset : undefined;
+  }, [searchParams]);
 
   const uploadStagedFiles = async (bountyId: string) => {
     if (stagedFilesRef.current.length > 0) {
@@ -115,6 +131,13 @@ export default function CreateBountyPage() {
     stagedFilesRef.current = files;
   };
 
+  // Discard for the new-bounty path: nothing's been persisted, so we
+  // just navigate back to the bounty hub. Edit mode wires onDiscard
+  // differently (back to detail page) — see /business/bounties/[id]/edit.
+  const handleDiscard = () => {
+    router.push('/business/bounties');
+  };
+
   return (
     <div className="animate-fade-up">
       <h1 className="text-2xl font-bold text-text-primary mb-6">Create new bounty</h1>
@@ -128,8 +151,10 @@ export default function CreateBountyPage() {
       )}
 
       <CreateBountyForm
+        initialFormOverride={initialFormOverride}
         onSubmit={handleSubmit as (data: unknown) => void}
         onSaveDraft={handleSaveDraft as (data: unknown) => void}
+        onDiscard={handleDiscard}
         isSubmitting={!isDraftSave && (createBounty.isPending || isFunding)}
         isSavingDraft={isDraftSave && createBounty.isPending}
         formError={formError}
