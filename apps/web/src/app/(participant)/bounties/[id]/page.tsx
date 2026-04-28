@@ -433,12 +433,45 @@ export default function BountyDetailPage() {
                     </div>
                   ))}
                   {bounty.totalRewardValue && (
-                    <div className="pt-3 border-t border-glass-border flex justify-between items-center gap-3">
-                      <span className="eyebrow !text-text-muted">Total</span>
-                      <span className="metric !text-xl text-success-600">
-                        {formatCurrency(bounty.totalRewardValue, bounty.currency)}
-                      </span>
-                    </div>
+                    <>
+                      {/*
+                        Per ADR 0013 §1, `bounty.totalRewardValue` is the
+                        full escrowed pool (`per-claim × maxSubmissions`).
+                        Hunters see the per-claim number first (it's what
+                        they personally earn) and the total below as
+                        secondary context — "this brand has committed
+                        R{total} across {N} claims".
+                      */}
+                      {bounty.maxSubmissions != null && bounty.maxSubmissions > 1 && (
+                        <div className="pt-3 border-t border-glass-border flex justify-between items-center gap-3">
+                          <span className="eyebrow !text-text-muted">Per claim</span>
+                          <span className="font-mono tabular-nums text-base font-medium text-text-secondary">
+                            {formatCurrency(
+                              bounty.rewards
+                                .reduce((s, r) => s + parseFloat(r.monetaryValue), 0)
+                                .toFixed(2),
+                              bounty.currency,
+                            )}
+                          </span>
+                        </div>
+                      )}
+                      <div
+                        className={
+                          bounty.maxSubmissions != null && bounty.maxSubmissions > 1
+                            ? 'flex justify-between items-center gap-3'
+                            : 'pt-3 border-t border-glass-border flex justify-between items-center gap-3'
+                        }
+                      >
+                        <span className="eyebrow !text-text-muted">
+                          {bounty.maxSubmissions != null && bounty.maxSubmissions > 1
+                            ? `Total (${bounty.maxSubmissions} claims)`
+                            : 'Total'}
+                        </span>
+                        <span className="metric !text-xl text-success-600">
+                          {formatCurrency(bounty.totalRewardValue, bounty.currency)}
+                        </span>
+                      </div>
+                    </>
                   )}
                 </>
               ) : (

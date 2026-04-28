@@ -432,6 +432,32 @@ export function buildCreateBountyRequest(
 }
 
 // ---------------------------------------------------------------------------
+// Pure helpers (exported for testing — see __tests__/useCreateBountyForm.test.ts)
+// ---------------------------------------------------------------------------
+
+/**
+ * Per ADR 0013 §1, the brand sees TWO numbers:
+ *   • per-claim = sum(rewards) — what one approved hunter earns;
+ *   • total     = per-claim × maxSubmissions — what's escrowed on TradeSafe.
+ *
+ * Falls back to ×1 when `maxSubmissions` is null so the UI renders without
+ * NaN before the brand fills the field. The funding service guards on
+ * `maxSubmissions != null` separately at the API boundary (ADR 0013 §2).
+ */
+export function computePerClaimRewardValue(
+  rewards: { monetaryValue: number }[],
+): number {
+  return rewards.reduce((sum, r) => sum + (r.monetaryValue || 0), 0);
+}
+
+export function computeTotalRewardValue(
+  rewards: { monetaryValue: number }[],
+  maxSubmissions: number | null,
+): number {
+  return computePerClaimRewardValue(rewards) * (maxSubmissions ?? 1);
+}
+
+// ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
 
@@ -468,9 +494,23 @@ export function useCreateBountyForm(
     initBountyFormState(init, initialBounty, initialFormOverride),
   );
 
-  const totalRewardValue = useMemo(
-    () => state.rewards.reduce((sum, r) => sum + (r.monetaryValue || 0), 0),
+  // Per ADR 0013 §1, the brand sees TWO numbers in the form:
+  //   • perClaimRewardValue = sum(rewards) — what one approved hunter earns.
+  //   • totalRewardValue    = perClaimRewardValue × maxSubmissions
+  //                         — what the brand actually escrows on TradeSafe.
+  // Both are exported so RewardLinesSection can render the breakdown
+  // ("R100 per claim × 5 claims = R500 total") and FormSummaryFooter can
+  // surface the multiplied total prominently. When `maxSubmissions` is
+  // null (brand hasn't filled the field yet) we fall back to ×1 so the
+  // UI doesn't render NaN — the create-bounty backend gates funding on
+  // `maxSubmissions != null` separately.
+  const perClaimRewardValue = useMemo(
+    () => computePerClaimRewardValue(state.rewards),
     [state.rewards],
+  );
+  const totalRewardValue = useMemo(
+    () => computeTotalRewardValue(state.rewards, state.maxSubmissions),
+    [state.rewards, state.maxSubmissions],
   );
 
   const validate = useCallback(
@@ -507,6 +547,7 @@ export function useCreateBountyForm(
   return {
     state,
     dispatch,
+    perClaimRewardValue,
     totalRewardValue,
     validate,
     handleBlur,

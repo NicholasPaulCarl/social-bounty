@@ -210,7 +210,7 @@ export function CreateBountyForm({
   const formRef = useRef<HTMLFormElement>(null);
   const [currentStep, setCurrentStep] = useState(0);
 
-  const { state, dispatch, totalRewardValue, validate, handleBlur, toRequest } = useCreateBountyForm(
+  const { state, dispatch, perClaimRewardValue, totalRewardValue, validate, handleBlur, toRequest } = useCreateBountyForm(
     initialBounty,
     initialFormOverride,
   );
@@ -644,7 +644,9 @@ export function CreateBountyForm({
                 <RewardLinesSection
                   rewards={state.rewards}
                   currency={state.currency}
+                  perClaimRewardValue={perClaimRewardValue}
                   totalRewardValue={totalRewardValue}
+                  maxSubmissions={state.maxSubmissions}
                   dispatch={dispatch}
                   errors={state.errors}
                   submitAttempted={state.submitAttempted}

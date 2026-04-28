@@ -1,4 +1,8 @@
-import { buildCreateBountyRequest } from '../useCreateBountyForm';
+import {
+  buildCreateBountyRequest,
+  computePerClaimRewardValue,
+  computeTotalRewardValue,
+} from '../useCreateBountyForm';
 import { INITIAL_FORM_STATE, type BountyFormState } from '../types';
 import {
   Currency,
@@ -596,5 +600,77 @@ describe('buildCreateBountyRequest', () => {
       const result = buildCreateBountyRequest(makeFilledState({ payoutMetrics: pm }), 'full');
       expect(result.payoutMetrics).toBeUndefined();
     });
+  });
+});
+
+// ============================================================================
+// ADR 0013 — multi-claim escrow display contract
+// ============================================================================
+//
+// `useCreateBountyForm` exposes BOTH `perClaimRewardValue` (the sum of reward
+// lines — what one approved hunter earns) and `totalRewardValue`
+// (per-claim × maxSubmissions — what's escrowed on TradeSafe). These tests
+// hit the pure helpers the hook delegates to so we can assert the formula
+// without spinning up a jsdom + RTL harness.
+//
+// Per ADR 0013 §1 + the dashboard creation brief §5 Step 4:
+//   "The displayed total committed bounty value must be:
+//    per-claim reward value * claim count."
+// Pre-ADR-0013 the form's `totalRewardValue` was JUST the sum of rewards;
+// the funded escrow was the same sum, which under-funded any
+// `maxSubmissions > 1` bounty. The split ensures UI and ledger agree.
+
+describe('computePerClaimRewardValue', () => {
+  it('returns 0 for an empty reward list', () => {
+    expect(computePerClaimRewardValue([])).toBe(0);
+  });
+
+  it('sums reward line monetaryValues', () => {
+    const rewards = [
+      { monetaryValue: 100 },
+      { monetaryValue: 50 },
+      { monetaryValue: 25 },
+    ];
+    expect(computePerClaimRewardValue(rewards)).toBe(175);
+  });
+
+  it('treats undefined monetaryValue as 0 (defensive — never NaN)', () => {
+    const rewards = [
+      { monetaryValue: 100 },
+      { monetaryValue: 0 },
+      { monetaryValue: undefined as unknown as number },
+    ];
+    expect(computePerClaimRewardValue(rewards)).toBe(100);
+  });
+});
+
+describe('computeTotalRewardValue (ADR 0013 §1 multiplier)', () => {
+  const rewards = [{ monetaryValue: 100 }];
+
+  it('multiplies per-claim by maxSubmissions', () => {
+    // The canonical example from the ADR: R100 reward × 5 claims = R500 total.
+    expect(computeTotalRewardValue(rewards, 5)).toBe(500);
+  });
+
+  it('multiplies multi-line per-claim by maxSubmissions', () => {
+    const multi = [{ monetaryValue: 100 }, { monetaryValue: 50 }];
+    // Per-claim = 150; total = 150 × 4 = 600.
+    expect(computeTotalRewardValue(multi, 4)).toBe(600);
+  });
+
+  it('falls back to ×1 when maxSubmissions is null', () => {
+    // The brand hasn't filled the field yet. UI must render the per-claim
+    // sum without NaN — the funding service rejects null maxSubmissions
+    // separately at the API boundary (ADR 0013 §2).
+    expect(computeTotalRewardValue(rewards, null)).toBe(100);
+  });
+
+  it('handles maxSubmissions = 1 as a no-op multiplier', () => {
+    // Single-claim bounty — total === per-claim.
+    expect(computeTotalRewardValue(rewards, 1)).toBe(100);
+  });
+
+  it('returns 0 when there are no rewards regardless of maxSubmissions', () => {
+    expect(computeTotalRewardValue([], 10)).toBe(0);
   });
 });

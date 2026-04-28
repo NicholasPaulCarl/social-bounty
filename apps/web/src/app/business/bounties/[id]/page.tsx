@@ -297,7 +297,27 @@ export default function BusinessBountyDetailPage() {
               {bounty.totalRewardValue && (
                 <div className="flex justify-end mt-3 pt-3 border-t border-glass-border">
                   <div className="text-right">
-                    <span className="eyebrow">Total</span>
+                    {/*
+                      Per ADR 0013 §1, `bounty.totalRewardValue` is now
+                      `sum(rewards) × maxSubmissions`. When a bounty
+                      supports multiple claims, surface the breakdown so
+                      brands aren't surprised by a "10×" multiplier on
+                      the headline number. perClaim is derived from the
+                      reward lines we just rendered above (single source
+                      of truth — the API and this calculation must agree).
+                    */}
+                    {bounty.maxSubmissions != null && bounty.maxSubmissions > 1 && (
+                      <p className="text-xs text-text-muted mb-1 font-mono tabular-nums">
+                        {bounty.maxSubmissions} ×{' '}
+                        {formatCurrency(
+                          bounty.rewards
+                            .reduce((s, r) => s + parseFloat(r.monetaryValue), 0)
+                            .toFixed(2),
+                          bounty.currency,
+                        )}
+                      </p>
+                    )}
+                    <span className="eyebrow">Total bounty value</span>
                     <p className="font-mono tabular-nums text-lg font-bold text-text-primary">
                       {formatCurrency(bounty.totalRewardValue, bounty.currency)}
                     </p>
