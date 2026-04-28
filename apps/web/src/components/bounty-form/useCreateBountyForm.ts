@@ -3,19 +3,15 @@
 import { useReducer, useCallback, useMemo } from 'react';
 import {
   PostVisibilityRule,
-  DurationUnit,
-  Currency,
   RewardType,
   ContentFormat,
   SocialChannel,
   PostFormat,
-  CHANNEL_POST_FORMATS,
   BountyAccessType,
 } from '@social-bounty/shared';
 import type {
   CreateBountyRequest,
   BountyDetailResponse,
-  RewardLineInput,
 } from '@social-bounty/shared';
 import type { BountyFormState, BountyFormAction } from './types';
 import { INITIAL_FORM_STATE } from './types';
