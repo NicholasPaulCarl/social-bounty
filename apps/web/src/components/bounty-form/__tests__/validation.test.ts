@@ -585,9 +585,15 @@ describe('getSectionErrors', () => {
     expect(getSectionErrors('bountyRules', errors)).toHaveLength(4);
   });
 
-  it('should return bountyRules schedule errors', () => {
+  it('should return bountyBasicInfo schedule errors', () => {
+    // Schedule (startDate / endDate) lives in Section 1 of the form
+    // (Wave B regrouped — was previously co-located with bountyRules
+    // in the section-key map even though the panel sat in Section 1).
+    // The wizard's Step 1 (Basics) blocks Next on schedule errors via
+    // this mapping.
     const errors = { endDate: 'invalid', startDate: 'invalid' };
-    expect(getSectionErrors('bountyRules', errors)).toHaveLength(2);
+    expect(getSectionErrors('bountyBasicInfo', errors)).toHaveLength(2);
+    expect(getSectionErrors('bountyRules', errors)).toHaveLength(0);
   });
 
   it('should return bountyRules payout metrics errors', () => {

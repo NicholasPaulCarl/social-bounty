@@ -4,8 +4,7 @@
  * Powers the Quick Create card grid on `/business/bounties`. Each preset
  * is a deterministic, client-side seed for the create-bounty form — the
  * card navigates to `/business/bounties/new?preset=<id>` and the create
- * page hands the partial state to the form via an initializer path
- * (Wave B owns wiring this through `CreateBountyForm` + `useCreateBountyForm`).
+ * page hands the partial state to the form via an initializer path.
  *
  * Presets express *intent*, not policy: they pre-tick channel/format
  * combinations the brand was likely already going to pick, but every
@@ -71,6 +70,15 @@ export const BOUNTY_PRESETS: readonly BountyPreset[] = [
     Icon: ShoppingBag,
   },
 ] as const;
+
+/**
+ * Convenience id list for callers that only need the union (e.g. the
+ * wizard page reading `?preset=<id>` from the URL). Kept in sync with
+ * `BOUNTY_PRESETS` order.
+ */
+export const BOUNTY_PRESET_IDS: readonly BountyPresetId[] = BOUNTY_PRESETS.map(
+  (p) => p.id,
+);
 
 /**
  * Whitelist for `?preset=...` query-param parsing on the create page.

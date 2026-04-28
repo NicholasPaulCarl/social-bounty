@@ -240,7 +240,8 @@ export function getSectionErrors(sectionKey: string, errors: Record<string, stri
   switch (sectionKey) {
     case 'bountyBasicInfo':
       return errorKeys.filter((k) =>
-        ['title', 'shortDescription', 'fullInstructions', 'channels'].includes(k) ||
+        ['title', 'shortDescription', 'fullInstructions', 'channels',
+         'startDate', 'endDate'].includes(k) ||
         k.startsWith('channel_'),
       );
     case 'bountyContent':
@@ -251,15 +252,75 @@ export function getSectionErrors(sectionKey: string, errors: Record<string, stri
     case 'bountyRules':
       return errorKeys.filter((k) =>
         ['minFollowers', 'minAccountAgeDays', 'locationRestriction', 'customRules',
-         'proofRequirements', 'maxSubmissions', 'startDate', 'endDate',
+         'proofRequirements', 'maxSubmissions',
          'minViews', 'minLikes', 'minComments'].includes(k) ||
         k.startsWith('customRule_'),
       );
+    case 'accessType':
+      return [];
     case 'brandAssets':
       return [];
     default:
       return [];
   }
+}
+
+// ---------------------------------------------------------------------------
+// Wizard step validation
+// ---------------------------------------------------------------------------
+
+/**
+ * Wizard step → section-key mapping. A step "owns" the section keys it
+ * gates on Next-click. The mapping mirrors the per-step field layout
+ * documented in the brief (§5 Bounty Creation Flow Scope) and the
+ * `wizard-step-fields.md` decision log.
+ *
+ * Step 0 = Basics, 1 = Instructions & Metrics, 2 = Access & Requirements,
+ * 3 = Claim & Rewards, 4 = Document Share.
+ *
+ * `bountyBasicInfo` covers title/shortDescription/channels/instructions/
+ * schedule (everything in section 1 except payoutMetrics, which moves
+ * to step 1). `bountyRules` covers payoutMetrics + customRules in step
+ * 1; eligibility + engagement + postVisibility + maxSubmissions in step
+ * 2 + 3. The current `getSectionErrors` returns ALL bountyRules errors
+ * for either step that owns part of the section, which is acceptable
+ * for forward-block: a later step can't "lap" an earlier one.
+ */
+export const WIZARD_STEP_SECTIONS: ReadonlyArray<ReadonlyArray<string>> = [
+  ['bountyBasicInfo'],
+  ['bountyRules'], // payoutMetrics + customRules sub-fields
+  ['bountyRules', 'accessType'], // eligibility + engagement + visibility
+  ['bountyContent'], // rewards + max submissions
+  ['brandAssets'],
+] as const;
+
+export const WIZARD_STEP_COUNT = WIZARD_STEP_SECTIONS.length;
+
+/**
+ * Run a step-scoped validation pass. Returns the subset of `validateFull`
+ * errors that belong to the given step's owned section keys. Forward
+ * navigation is blocked when this returns a non-empty object.
+ *
+ * Step indices are 0-based: 0 = Basics, ..., 4 = Document Share.
+ *
+ * Note: this re-runs `validateFull` and filters — that keeps the rule
+ * set as a single source of truth (no parallel validator to drift). The
+ * cost is one full state pass per Next click, which is negligible.
+ */
+export function validateStep(stepIdx: number, state: BountyFormState): Record<string, string> {
+  const fullErrors = validateFull(state);
+  const ownedSections = WIZARD_STEP_SECTIONS[stepIdx] || [];
+  const ownedErrorKeys = new Set<string>();
+  for (const sectionKey of ownedSections) {
+    for (const key of getSectionErrors(sectionKey, fullErrors)) {
+      ownedErrorKeys.add(key);
+    }
+  }
+  const stepErrors: Record<string, string> = {};
+  for (const key of ownedErrorKeys) {
+    stepErrors[key] = fullErrors[key];
+  }
+  return stepErrors;
 }
 
 export function isSectionComplete(sectionKey: string, state: BountyFormState): boolean {

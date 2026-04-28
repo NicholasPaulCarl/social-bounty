@@ -180,5 +180,6 @@ export const SECTIONS = [
   { number: 1, title: 'Bounty Information', icon: 'pi-file-edit', key: 'bountyBasicInfo' },
   { number: 2, title: 'Bounty Content', icon: 'pi-sliders-h', key: 'bountyContent' },
   { number: 3, title: 'Bounty Rules', icon: 'pi-shield', key: 'bountyRules' },
-  { number: 4, title: 'Brand Assets', icon: 'pi-images', key: 'brandAssets' },
+  { number: 4, title: 'Access Type', icon: 'pi-lock', key: 'accessType' },
+  { number: 5, title: 'Brand Assets', icon: 'pi-images', key: 'brandAssets' },
 ] as const;

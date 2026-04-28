@@ -435,13 +435,38 @@ export function buildCreateBountyRequest(
 // Hook
 // ---------------------------------------------------------------------------
 
-export function useCreateBountyForm(initialBounty?: BountyDetailResponse) {
-  const [state, dispatch] = useReducer(formReducer, INITIAL_FORM_STATE, (init) => {
-    if (initialBounty) {
-      return formReducer(init, { type: 'LOAD_BOUNTY', payload: initialBounty });
-    }
-    return init;
-  });
+/**
+ * Pure reducer initializer (exported for unit testability). The hook
+ * runs this exactly once at mount via React's `useReducer(reducer,
+ * initialArg, init)` contract. Edit mode (`initialBounty`) trumps the
+ * preset (`initialFormOverride`) when both are provided — preset is
+ * ignored to keep stale `?preset=...` query params from clobbering an
+ * existing draft when the brand reloads the edit page.
+ */
+export function initBountyFormState(
+  base: BountyFormState,
+  initialBounty?: BountyDetailResponse,
+  initialFormOverride?: Partial<BountyFormState>,
+): BountyFormState {
+  if (initialBounty) {
+    return formReducer(base, { type: 'LOAD_BOUNTY', payload: initialBounty });
+  }
+  if (initialFormOverride) {
+    return { ...base, ...initialFormOverride };
+  }
+  return base;
+}
+
+export function useCreateBountyForm(
+  initialBounty?: BountyDetailResponse,
+  initialFormOverride?: Partial<BountyFormState>,
+) {
+  // The init arg is a closure over the props captured at mount; React
+  // runs it exactly once for the lifetime of the component, so the
+  // preset can never re-apply on top of in-progress user edits.
+  const [state, dispatch] = useReducer(formReducer, INITIAL_FORM_STATE, (init) =>
+    initBountyFormState(init, initialBounty, initialFormOverride),
+  );
 
   const totalRewardValue = useMemo(
     () => state.rewards.reduce((sum, r) => sum + (r.monetaryValue || 0), 0),
