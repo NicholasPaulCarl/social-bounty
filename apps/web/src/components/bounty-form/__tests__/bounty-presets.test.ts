@@ -31,6 +31,36 @@ describe('BOUNTY_PRESETS registry', () => {
       expect(preset.Icon).toBeDefined();
     }
   });
+
+  it('blank preset has no platforms field (or empty array)', () => {
+    const blank = BOUNTY_PRESETS.find((p) => p.id === 'blank')!;
+    expect(blank.platforms == null || blank.platforms.length === 0).toBe(true);
+  });
+
+  it('social-exposure preset platforms are Instagram, Facebook, TikTok', () => {
+    const preset = BOUNTY_PRESETS.find((p) => p.id === 'social-exposure')!;
+    expect(preset.platforms).toEqual([
+      SocialChannel.INSTAGRAM,
+      SocialChannel.FACEBOOK,
+      SocialChannel.TIKTOK,
+    ]);
+  });
+
+  it('check-ins preset platforms are Facebook, Instagram', () => {
+    const preset = BOUNTY_PRESETS.find((p) => p.id === 'check-ins')!;
+    expect(preset.platforms).toEqual([
+      SocialChannel.FACEBOOK,
+      SocialChannel.INSTAGRAM,
+    ]);
+  });
+
+  it('product-sales preset platforms are Instagram, TikTok', () => {
+    const preset = BOUNTY_PRESETS.find((p) => p.id === 'product-sales')!;
+    expect(preset.platforms).toEqual([
+      SocialChannel.INSTAGRAM,
+      SocialChannel.TIKTOK,
+    ]);
+  });
 });
 
 describe('isBountyPresetId guard', () => {

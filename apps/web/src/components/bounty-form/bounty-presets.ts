@@ -37,6 +37,14 @@ export interface BountyPreset {
   label: string;
   description: string;
   Icon: LucideIcon;
+  /**
+   * Platform channels this preset will pre-select. Used by `QuickCreateGrid`
+   * to render small icon chips beneath the card description so brands can
+   * see at a glance which platforms will be ticked. Omitted on `blank` (no
+   * pre-selection). Does NOT drive the form state — `getPresetFormState` is
+   * the source of truth for channel/format seeds.
+   */
+  platforms?: SocialChannel[];
 }
 
 /**
@@ -56,18 +64,21 @@ export const BOUNTY_PRESETS: readonly BountyPreset[] = [
     label: 'Social Exposure',
     description: 'Reach campaign across Instagram, Facebook, and TikTok.',
     Icon: Megaphone,
+    platforms: [SocialChannel.INSTAGRAM, SocialChannel.FACEBOOK, SocialChannel.TIKTOK],
   },
   {
     id: 'check-ins',
     label: 'Check-Ins',
     description: 'Drive visits with location check-ins on Facebook and Instagram.',
     Icon: MapPin,
+    platforms: [SocialChannel.FACEBOOK, SocialChannel.INSTAGRAM],
   },
   {
     id: 'product-sales',
     label: 'Product Sales',
     description: 'Promote a product with reels, posts, and TikTok video.',
     Icon: ShoppingBag,
+    platforms: [SocialChannel.INSTAGRAM, SocialChannel.TIKTOK],
   },
 ] as const;
 
