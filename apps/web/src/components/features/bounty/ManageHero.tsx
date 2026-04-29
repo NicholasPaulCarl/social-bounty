@@ -1,22 +1,16 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { LayoutGrid, List, Plus } from 'lucide-react';
-import type { ViewMode } from '@/hooks/useBrowseFilters';
+import { Plus } from 'lucide-react';
 
 /**
- * ManageHero — title + meta strip + view toggle + create CTA on
- * `/business/bounties`. Sibling of `BrowseHero`, sharing the gradient-word
- * + meta-strip + view-toggle visual language but tuned for the brand
- * surface:
+ * ManageHero — title + meta strip + Create CTA on `/business/bounties`.
  *
  *  - Title gradient word is "Manage" (one gradient per view — Hard Rule).
  *  - Meta strip carries optional per-status counts (`live` / `draft` /
  *    `paused` / `closed`); each clause drops silently when its count is
  *    null / 0 so the UI never lies about a "0".
- *  - The CTA on the right is "Create bounty" (alongside the view toggle).
- *  - View toggle is desktop-only; mobile collapses both views to a single
- *    column anyway.
+ *  - The CTA on the right is "Create bounty".
  */
 
 export interface ManageStatusCounts {
@@ -36,16 +30,12 @@ interface ManageHeroProps {
   statusCounts?: ManageStatusCounts;
   /** Optional trailing nodes appended to the meta strip (e.g. summary blurb). */
   extraMeta?: ReactNode;
-  viewMode: ViewMode;
-  onViewChange: (mode: ViewMode) => void;
   onCreate: () => void;
 }
 
 export function ManageHero({
   statusCounts,
   extraMeta,
-  viewMode,
-  onViewChange,
   onCreate,
 }: ManageHeroProps) {
   const c = statusCounts ?? {};
@@ -110,50 +100,8 @@ export function ManageHero({
         </div>
       </div>
 
-      {/* Right-hand cluster: view toggle + Create CTA */}
+      {/* Right-hand cluster: Create CTA */}
       <div className="flex items-center gap-3">
-        {/* Desktop view toggle */}
-        <div
-          className="hidden sm:inline-flex"
-          role="group"
-          aria-label="View mode"
-          style={{
-            background: 'var(--bg-elevated)',
-            borderRadius: 10,
-            padding: 3,
-          }}
-        >
-          {(['grid', 'list'] as const).map((m) => {
-            const active = viewMode === m;
-            const Icon = m === 'grid' ? LayoutGrid : List;
-            return (
-              <button
-                key={m}
-                type="button"
-                onClick={() => onViewChange(m)}
-                aria-pressed={active}
-                className="cursor-pointer transition-all"
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: active ? 'var(--bg-surface)' : 'transparent',
-                  color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  fontWeight: 600,
-                  fontSize: 13,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  boxShadow: active ? 'var(--shadow-level-1)' : 'none',
-                }}
-              >
-                <Icon size={14} strokeWidth={2} aria-hidden="true" />
-                {m === 'grid' ? 'Grid' : 'List'}
-              </button>
-            );
-          })}
-        </div>
-
         <button
           type="button"
           onClick={onCreate}

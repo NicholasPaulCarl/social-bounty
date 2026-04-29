@@ -10,7 +10,6 @@ import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
 import { bountyApi } from '@/lib/api/bounties';
 import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-checkout';
-import { BountyManageCard } from '@/components/features/bounty/BountyManageCard';
 import { BountyCardSkeleton } from '@/components/features/bounty/BountyCardSkeleton';
 import { BusinessBountyListView } from '@/components/features/bounty/BusinessBountyListView';
 import { BountyManageActions, type ManageStatusAction } from '@/components/features/bounty/BountyManageActions';
@@ -33,14 +32,13 @@ const PAGE_LIMIT = 25;
  * Sibling of the hunter `/bounties` Browse page, sharing the visual
  * language but tuned for the brand workflow:
  *
- *   gradient hero (Manage bounties · counts · view toggle · Create CTA)
+ *   gradient hero (Manage bounties · counts · Create CTA)
  *   → quick-create card grid (Blank / Social Exposure / Check-Ins /
  *     Product Sales — each links to /business/bounties/new[?preset=…])
  *   → status pills (All · Draft · Live · Paused · Closed)
  *   → sticky filter bar (search · reward · sort · clear)
  *   → optional active-filter chips
- *   → results: skeleton → grid (manage card + actions footer) →
- *     list (DataTable, ellipsis-menu per row) → empty
+ *   → results: skeleton → list (DataTable, ellipsis-menu per row) → empty
  *   → paginator (25 per page)
  *
  * URL contract round-trips through `useManageFilters`: every filter is
@@ -95,7 +93,6 @@ function BusinessBountiesContent() {
   const bounties: BountyListItem[] = data?.data ?? [];
   const totalForFilter = data?.meta.total ?? 0;
   const hasActiveFilters = f.activeChips.length > 0;
-  const isGrid = f.filters.view === 'grid';
 
   // ── Action handlers ────────────────────────────────────────────────────
 
@@ -235,8 +232,6 @@ function BusinessBountiesContent() {
       <ManageHero
         statusCounts={f.filters.status === 'all' ? statusCounts : undefined}
         extraMeta={filteredLabel}
-        viewMode={f.filters.view}
-        onViewChange={f.setView}
         onCreate={() => router.push('/business/bounties/new')}
       />
 
@@ -269,13 +264,7 @@ function BusinessBountiesContent() {
 
       <div className="pb-7 pt-4 sm:pt-5">
         {isLoading && (
-          <div
-            className={
-              isGrid
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
-                : 'grid grid-cols-1 gap-3'
-            }
-          >
+          <div className="grid grid-cols-1 gap-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <BountyCardSkeleton key={i} />
             ))}
@@ -320,37 +309,15 @@ function BusinessBountiesContent() {
 
         {!isLoading && !error && bounties.length > 0 && (
           <>
-            {isGrid ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {bounties.map((bounty) => (
-                  <BountyManageCard
-                    key={bounty.id}
-                    bounty={bounty}
-                    footer={
-                      <BountyManageActions
-                        bounty={bounty}
-                        onView={handleView}
-                        onEdit={handleEdit}
-                        onStatusChange={handleStatusActionTap}
-                        onDelete={handleDeleteTap}
-                        onDuplicate={handleDuplicate}
-                        paymentLoading={paymentBountyId === bounty.id}
-                      />
-                    }
-                  />
-                ))}
-              </div>
-            ) : (
-              <BusinessBountyListView
-                bounties={bounties}
-                onView={handleView}
-                onEdit={handleEdit}
-                onStatusChange={handleStatusActionTap}
-                onDelete={handleDeleteTap}
-                onDuplicate={handleDuplicate}
-                paymentBountyId={paymentBountyId}
-              />
-            )}
+            <BusinessBountyListView
+              bounties={bounties}
+              onView={handleView}
+              onEdit={handleEdit}
+              onStatusChange={handleStatusActionTap}
+              onDelete={handleDeleteTap}
+              onDuplicate={handleDuplicate}
+              paymentBountyId={paymentBountyId}
+            />
 
             {totalForFilter > PAGE_LIMIT && (
               <div className="mt-5 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">

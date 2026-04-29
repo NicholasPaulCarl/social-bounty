@@ -39,7 +39,7 @@ const DEFAULT_FILTERS: ManageFilters = {
   status: 'all',
   rewardType: 'all',
   sortBy: 'newest',
-  view: 'grid',
+  view: 'list',
   page: 1,
 };
 
@@ -118,7 +118,7 @@ function readFromUrl(params: URLSearchParams): ManageFilters {
     status: isValidStatus(status) ? status : 'all',
     rewardType: isValidReward(reward) ? reward : 'all',
     sortBy: isValidSort(sort) ? sort : 'newest',
-    view: isValidView(view) ? view : 'grid',
+    view: isValidView(view) ? view : 'list',
     page: Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1,
   };
 }
