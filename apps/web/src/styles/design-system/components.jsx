@@ -14,11 +14,32 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 const cx = (...xs) => xs.filter(Boolean).join(" ");
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled]):not([type="hidden"])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(", ");
+
+function getFocusableElements(container) {
+  return Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR));
+}
+
+function useStableId(prefix) {
+  const idRef = React.useRef(null);
+  if (!idRef.current) {
+    idRef.current = `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+  return idRef.current;
+}
 
 /* ── Button ──────────────────────────────────────────────────────── */
 function Button({ variant = "primary", size = "md", icon, iconRight, children, className, ...rest }) {
   return (
     <button
+      type="button"
       className={cx("btn", `btn-${variant}`, size !== "md" && `btn-${size}`, className)}
       {...rest}
     >
@@ -43,7 +64,7 @@ function FilterChip({ children, onRemove, className, ...rest }) {
     <span className={cx("filter-chip", className)} {...rest}>
       {children}
       {onRemove && (
-        <button onClick={onRemove} aria-label="Remove filter">✕</button>
+        <button type="button" onClick={onRemove} aria-label="Remove filter">✕</button>
       )}
     </span>
   );
@@ -129,12 +150,13 @@ function VerifBadge({ state = "pending", label }) {
 /* ── Segmented control ───────────────────────────────────────────── */
 function Segmented({ options = [], value, onChange }) {
   return (
-    <div className="segmented" role="tablist">
+    <div className="segmented" role="group" aria-label="Options">
       {options.map(opt => {
         const v = typeof opt === "string" ? opt : opt.value;
         const label = typeof opt === "string" ? opt : opt.label;
         return (
           <button
+            type="button"
             key={v}
             aria-pressed={value === v}
             onClick={() => onChange?.(v)}
@@ -165,16 +187,84 @@ function Stepper({ steps = [], current = 0 }) {
 
 /* ── Modal (controlled) ──────────────────────────────────────────── */
 function Modal({ open, onClose, title, subtitle, children, footer, danger = false }) {
+  const dialogRef = React.useRef(null);
+  const previousFocusRef = React.useRef(null);
+  const titleId = useStableId("sb-modal-title");
+  const subtitleId = useStableId("sb-modal-subtitle");
+
+  React.useEffect(() => {
+    if (!open || typeof document === "undefined") return undefined;
+
+    previousFocusRef.current = document.activeElement;
+    const dialog = dialogRef.current;
+    if (!dialog) return undefined;
+
+    const focusable = getFocusableElements(dialog);
+    const initialTarget = focusable[0] || dialog;
+    initialTarget.focus();
+
+    return () => {
+      const previousFocus = previousFocusRef.current;
+      if (previousFocus && typeof previousFocus.focus === "function") {
+        previousFocus.focus();
+      }
+    };
+  }, [open]);
+
+  function handleKeyDown(event) {
+    if (event.key === "Escape") {
+      event.stopPropagation();
+      onClose?.();
+      return;
+    }
+
+    if (event.key !== "Tab") return;
+
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const focusable = getFocusableElements(dialog);
+    if (focusable.length === 0) {
+      event.preventDefault();
+      dialog.focus();
+      return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+      return;
+    }
+
+    if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   if (!open) return null;
   return (
     <div className="scrim" onClick={onClose}>
-      <div className={cx("modal", danger && "modal-danger")} onClick={e => e.stopPropagation()}>
+      <div
+        ref={dialogRef}
+        className={cx("modal", danger && "modal-danger")}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={subtitle ? subtitleId : undefined}
+        tabIndex={-1}
+        onKeyDown={handleKeyDown}
+        onClick={e => e.stopPropagation()}
+      >
         <div className="modal-head">
           <div>
-            <h3>{title}</h3>
-            {subtitle && <p>{subtitle}</p>}
+            <h3 id={titleId}>{title}</h3>
+            {subtitle && <p id={subtitleId}>{subtitle}</p>}
           </div>
-          <button className="modal-close" aria-label="Close" onClick={onClose}>
+          <button type="button" className="modal-close" aria-label="Close" onClick={onClose}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
@@ -187,8 +277,14 @@ function Modal({ open, onClose, title, subtitle, children, footer, danger = fals
 
 /* ── Toast ───────────────────────────────────────────────────────── */
 function Toast({ tone = "info", title, body, action }) {
+  const urgent = tone === "danger" || tone === "error";
   return (
-    <div className={cx("toast", `toast-${tone}`)}>
+    <div
+      className={cx("toast", `toast-${tone}`)}
+      role={urgent ? "alert" : "status"}
+      aria-live={urgent ? "assertive" : "polite"}
+      aria-atomic="true"
+    >
       <div className="toast-body">
         {title && <div className="toast-title">{title}</div>}
         {body && <div className="toast-text">{body}</div>}

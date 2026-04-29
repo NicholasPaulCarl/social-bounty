@@ -203,7 +203,7 @@ export default function CookiePolicyPage() {
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
             <strong className="font-semibold text-text-primary">
-              Analytics provider ([ANALYTICS_PROVIDER])
+              Analytics provider
             </strong>{' '}
             — sets cookies to measure aggregate platform usage. Set only if you have consented to
             analytics cookies.

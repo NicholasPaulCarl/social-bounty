@@ -7,7 +7,8 @@
 
 [data-theme="dark"] {
   /* Surfaces */
-  --bg-base:     #0a0e1a;
+  --bg-abyss:    #0a0e1a;
+  --bg-base:     var(--bg-abyss);
   --bg-surface:  #111827;
   --bg-elevated: #1a2233;
   --bg-overlay:  rgba(0, 0, 0, 0.7);

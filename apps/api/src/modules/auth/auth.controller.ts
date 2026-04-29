@@ -26,41 +26,37 @@ import {
 } from './dto/auth.validators';
 
 const REFRESH_COOKIE_NAME = 'sb_refresh_token';
+const REFRESH_COOKIE_PATH = '/api/v1/auth';
 const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+const LEGACY_REFRESH_COOKIE_PATHS = ['/', REFRESH_COOKIE_PATH] as const;
+
+function refreshCookieOptions(path: (typeof LEGACY_REFRESH_COOKIE_PATHS)[number]) {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    path,
+  };
+}
+
+function clearRefreshCookiePaths(res: Response) {
+  for (const path of LEGACY_REFRESH_COOKIE_PATHS) {
+    res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions(path));
+  }
+}
 
 function setRefreshCookie(res: Response, token: string) {
-  // Clear any legacy cookie set at the old restricted path so the browser
-  // doesn't send two cookies with the same name (the old one would be
-  // invalid and cause "Invalid refresh token" / token-theft detection).
-  res.clearCookie(REFRESH_COOKIE_NAME, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/api/v1/auth',
-  });
+  // Keep the refresh token scoped to auth endpoints while clearing any
+  // short-lived root-path variant that may have been set on preview deployments.
+  clearRefreshCookiePaths(res);
   res.cookie(REFRESH_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
+    ...refreshCookieOptions(REFRESH_COOKIE_PATH),
     maxAge: REFRESH_COOKIE_MAX_AGE,
   });
 }
 
 function clearRefreshCookie(res: Response) {
-  // Clear at both paths to handle browsers that still have the legacy cookie.
-  res.clearCookie(REFRESH_COOKIE_NAME, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/api/v1/auth',
-  });
-  res.clearCookie(REFRESH_COOKIE_NAME, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-  });
+  clearRefreshCookiePaths(res);
 }
 
 @Controller('auth')
