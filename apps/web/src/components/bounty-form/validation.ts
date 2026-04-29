@@ -372,7 +372,8 @@ export function bountyRulesHasContent(state: BountyFormState): boolean {
     elig.minFollowers !== null && elig.minFollowers !== undefined ||
     elig.publicProfile === true ||
     (elig.minAccountAgeDays !== null && elig.minAccountAgeDays !== undefined) ||
-    !!elig.locationRestriction ||
+    // 'South Africa' is the hard-locked default — only count it as user-content if they somehow deviate
+    (!!elig.locationRestriction && elig.locationRestriction !== 'South Africa') ||
     (elig.noCompetingBrandDays !== null && elig.noCompetingBrandDays !== undefined) ||
     (elig.customRules ? elig.customRules.length > 0 : false) ||
     !!eng.tagAccount ||

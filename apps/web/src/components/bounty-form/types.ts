@@ -146,7 +146,7 @@ export const INITIAL_FORM_STATE: BountyFormState = {
     minFollowers: null,
     publicProfile: false,
     minAccountAgeDays: null,
-    locationRestriction: null,
+    locationRestriction: 'South Africa',
     noCompetingBrandDays: null,
     customRules: [],
   },

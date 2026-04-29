@@ -353,10 +353,13 @@ export function buildCreateBountyRequest(
     (r) => (r.rewardType === RewardType.CASH || r.name.trim()) && r.monetaryValue > 0,
   );
 
+  // 'South Africa' is the hard-locked location default — always serialised but
+  // not treated as user-set eligibility for the hasEligibility gate.
   const hasEligibility = state.structuredEligibility.minFollowers !== null ||
     state.structuredEligibility.publicProfile ||
     state.structuredEligibility.minAccountAgeDays !== null ||
-    state.structuredEligibility.locationRestriction !== null ||
+    (state.structuredEligibility.locationRestriction !== null &&
+      state.structuredEligibility.locationRestriction !== 'South Africa') ||
     state.structuredEligibility.noCompetingBrandDays !== null ||
     (state.structuredEligibility.customRules && state.structuredEligibility.customRules.length > 0);
 

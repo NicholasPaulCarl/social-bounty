@@ -448,6 +448,10 @@ describe('validateFull', () => {
     expect(errors.minAccountAgeDays).toBeDefined();
   });
 
+  it('INITIAL_FORM_STATE seeds locationRestriction to South Africa', () => {
+    expect(INITIAL_FORM_STATE.structuredEligibility.locationRestriction).toBe('South Africa');
+  });
+
   it('should fail with locationRestriction exceeding 200 chars', () => {
     const errors = validateFull(makeState({
       ...fullyValidState,
