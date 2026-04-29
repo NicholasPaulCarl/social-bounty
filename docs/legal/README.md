@@ -65,7 +65,6 @@ These appear inline in each draft but collect them here too so nothing falls thr
 - **Retention window inconsistency** — Terms cites 5y (Tax Administration Act §29); Privacy Policy cites 7y. Pick one.
 - **Auto-refund mechanic under CPA** — whether §§55–57 "quality of service" implied warranty affects the 2-failure threshold for auto-refund (ADR 0010).
 - **`abuse@socialbounty.cash` mailbox** referenced in Acceptable Use Policy §6 — not yet provisioned.
-- **`[ANALYTICS_PROVIDER]` placeholder** in Cookie Policy — pending vendor decision.
 - **Complaints SLAs** (14-day commercial, 7-day auto-refund review) — confirm deliverable at launch headcount.
 - **`penalty of perjury`** phrasing in IP Policy §4 — US-flavoured; SA practice uses "declaration made knowing it to be false".
 - **CGSO membership** — currently declared "not a member"; confirm posture before publication.

@@ -158,8 +158,7 @@ export default function InvitationsPage() {
             placeholder="Platform"
           />
           <div className="flex-1 flex gap-3">
-            <span className="p-input-icon-left flex-1">
-              <AtSign size={16} strokeWidth={2} />
+            <span className="p-input-icon-right flex-1">
               <InputText
                 value={handle}
                 onChange={(e) => setHandle(e.target.value)}
@@ -167,6 +166,7 @@ export default function InvitationsPage() {
                 placeholder="username"
                 className="w-full"
               />
+              <AtSign size={16} strokeWidth={2} />
             </span>
             <Button
               label="Send invite"

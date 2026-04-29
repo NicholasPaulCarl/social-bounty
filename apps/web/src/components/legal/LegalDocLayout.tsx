@@ -46,7 +46,7 @@ export function LegalDocLayout({
               </Link>
             </li>
             <ChevronRight className="h-4 w-4 text-slate-300" aria-hidden />
-            <li className="text-slate-900 font-medium" aria-current="page">
+            <li className="text-text-primary font-medium" aria-current="page">
               {title}
             </li>
           </ol>
@@ -58,7 +58,7 @@ export function LegalDocLayout({
               <p className="text-xs font-semibold uppercase tracking-wider text-pink-600 mb-3">
                 {category}
               </p>
-              <h1 className="text-3xl sm:text-4xl font-heading font-bold text-slate-900 mb-3">
+              <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-3">
                 {title}
               </h1>
               <p className="text-sm text-slate-500">

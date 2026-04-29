@@ -30,7 +30,7 @@ export default function InformationOfficerPage() {
       toc={TOC}
     >
       <section id="information-officer">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Who our Information Officer is
         </h2>
         <p className="mb-4">
@@ -46,15 +46,15 @@ export default function InformationOfficerPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Name:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Name:</strong>{' '}
             {LEGAL_ENTITY.informationOfficer.name}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Role:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Role:</strong>{' '}
             {LEGAL_ENTITY.informationOfficer.role}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Email:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Email:</strong>{' '}
             <a
               href={`mailto:${LEGAL_ENTITY.informationOfficer.email}`}
               className="text-pink-600 hover:text-pink-700 font-medium"
@@ -63,7 +63,7 @@ export default function InformationOfficerPage() {
             </a>
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Postal address:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Postal address:</strong>{' '}
             {LEGAL_ENTITY.registeredAddress.formatted}
           </li>
         </ul>
@@ -82,7 +82,7 @@ export default function InformationOfficerPage() {
       </section>
 
       <section id="your-rights-summary">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Your rights at a glance
         </h2>
         <p className="mb-4">
@@ -90,7 +90,7 @@ export default function InformationOfficerPage() {
           party holds about you. Here they are in plain English.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           The right to know (section 18)
         </h3>
         <p className="mb-4">
@@ -106,7 +106,7 @@ export default function InformationOfficerPage() {
           uses the platform.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           The right of access (section 23)
         </h3>
         <p className="mb-4">
@@ -115,7 +115,7 @@ export default function InformationOfficerPage() {
           it, who we share it with, and how long we keep it.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           The right to correction and deletion (section 24)
         </h3>
         <p className="mb-4">
@@ -126,7 +126,7 @@ export default function InformationOfficerPage() {
           so a deletion request may be partially fulfilled rather than all-or-nothing.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           The right to data portability (section 25)
         </h3>
         <p className="mb-4">
@@ -136,7 +136,7 @@ export default function InformationOfficerPage() {
           supplied to us directly.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           The right to object (section 11(3))
         </h3>
         <p className="mb-4">
@@ -144,7 +144,7 @@ export default function InformationOfficerPage() {
           stop unless we have a lawful ground to continue that overrides the objection.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           The right not to be subject to automated decision-making (section 71)
         </h3>
         <p className="mb-4">
@@ -156,7 +156,7 @@ export default function InformationOfficerPage() {
           checks are set out in the bounty terms you see before you submit.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           The right to withdraw consent (section 11(2))
         </h3>
         <p className="mb-4">
@@ -165,7 +165,7 @@ export default function InformationOfficerPage() {
           lawfulness of processing we did before you withdrew.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           The right to complain (section 74)
         </h3>
         <p className="mb-4">
@@ -175,7 +175,7 @@ export default function InformationOfficerPage() {
       </section>
 
       <section id="how-to-request">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           How to make a request
         </h2>
         <p className="mb-4">
@@ -190,7 +190,7 @@ export default function InformationOfficerPage() {
           identify you and understand what you are asking for.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Email template
         </h3>
         <div className="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm text-slate-800 whitespace-pre-wrap">{`To: ${LEGAL_ENTITY.emails.dataSubjectRights}
@@ -215,7 +215,7 @@ Thank you.
 
 [Your name]`}</div>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Information we need to verify your identity
         </h3>
         <p className="mb-4">
@@ -227,7 +227,7 @@ Thank you.
           avoid releasing your data to the wrong person.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Our response time
         </h3>
         <p className="mb-4">
@@ -237,7 +237,7 @@ Thank you.
           to.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Requests on behalf of someone else
         </h3>
         <p className="mb-4">
@@ -248,7 +248,7 @@ Thank you.
       </section>
 
       <section id="fees">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">Fees</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">Fees</h2>
         <p className="mb-4">
           Your first access, correction, deletion, or portability request in any twelve-month
           period is free. For additional requests, or for requests that are manifestly excessive
@@ -273,7 +273,7 @@ Thank you.
       </section>
 
       <section id="refusal-and-appeal">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           When we may refuse, and what to do if we do
         </h2>
         <p className="mb-4">
@@ -317,7 +317,7 @@ Thank you.
       </section>
 
       <section id="ir-complaint">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Complain to the Information Regulator
         </h2>
         <p className="mb-4">
@@ -327,11 +327,11 @@ Thank you.
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Regulator:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Regulator:</strong>{' '}
             {LEGAL_ENTITY.informationRegulator.name}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Website:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Website:</strong>{' '}
             <a
               href={LEGAL_ENTITY.informationRegulator.url}
               className="text-pink-600 hover:text-pink-700 font-medium"
@@ -340,7 +340,7 @@ Thank you.
             </a>
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Email:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Email:</strong>{' '}
             <a
               href={`mailto:${LEGAL_ENTITY.informationRegulator.email}`}
               className="text-pink-600 hover:text-pink-700 font-medium"
@@ -365,7 +365,7 @@ Thank you.
       </section>
 
       <section id="related-documents">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Related documents
         </h2>
         <ul className="list-disc pl-6 mb-4 space-y-1">

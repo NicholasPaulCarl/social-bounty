@@ -58,7 +58,7 @@ export function LegalTableOfContentsDesktop({ items }: TocProps) {
                   'block py-1.5 pl-3 border-l-2 transition-colors',
                   isActive
                     ? 'border-pink-600 text-pink-600 font-medium'
-                    : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300',
+                    : 'border-transparent text-slate-600 hover:text-text-primary hover:border-slate-300',
                 ].join(' ')}
                 aria-current={isActive ? 'location' : undefined}
               >
@@ -77,7 +77,7 @@ export function LegalTableOfContentsMobile({ items }: TocProps) {
 
   return (
     <details className="mb-8 rounded-xl border border-slate-200 bg-slate-50">
-      <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-slate-900 flex items-center justify-between">
+      <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-text-primary flex items-center justify-between">
         <span>On this page</span>
         <span className="text-slate-400 text-xs">{items.length} sections</span>
       </summary>

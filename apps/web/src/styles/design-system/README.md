@@ -14,11 +14,15 @@ The system for a creator-economy product that pays creators per verified click/c
 |---|---|
 | `colors_and_type.css` | All design tokens (colors, type, radii, shadows, motion) + base typography styles |
 | `components.css` | Buttons, cards, inputs, badges, chips, avatars, tables, toasts, progress, shell-nav primitives |
+| `patterns.css` | Empty states, skeletons, spinners, modals, drawers, tooltips, popovers, table chrome, KPI tiles, activity feeds, receipts, steppers, verification badges, bottom nav, charts |
+| `dark.css` | Dark-mode token overrides via `[data-theme="dark"]` |
+| `tokens.json` | Design Tokens Community Group format for tool sync (Figma Tokens, Style Dictionary) |
+| `components.jsx` | Thin React wrapper components over CSS classes (Button, Badge, Card, KPI, Modal, Toast, etc.) |
 | `assets/logo-wordmark.png` | The primary wordmark |
 | `previews/` | One HTML preview per foundation group (type / colors / spacing / components / brand / shell-navigation) |
 | `SKILL.md` | The short reference I load when I'm building with this system |
 
-Always `<link>` `colors_and_type.css` **before** `components.css`.
+Always `<link>` `colors_and_type.css` **before** `components.css` **before** `patterns.css`.
 
 ---
 
@@ -104,7 +108,7 @@ Three pillars, full detail in `previews/brand.html`:
 
 1. **Receipts-first.** Lead with the number. Dollars, clicks, hours. If we can't show a number, we probably shouldn't say it.
 2. **Friendly, not fake.** Contractions, second person, sentence-case. No product emoji. No "woohoo." We're in on the joke, not the butt of it.
-3. **Short &gt; clever.** If a button label is over three words, cut one. If a heading is over ten, rewrite.
+3. **Short > clever.** If a button label is over three words, cut one. If a heading is over ten, rewrite.
 
 Sample: **"You posted. It landed. Here's your $62."** — *not* "Unlock the power of authentic creator partnerships."
 
@@ -120,17 +124,18 @@ Sample: **"You posted. It landed. Here's your $62."** — *not* "Unlock the powe
 
 ---
 
-## IMPLEMENTATION STATUS (2026-04-19)
+## IMPLEMENTATION STATUS (2026-04-27)
 
-### Done ✅
-- Token layer (`colors_and_type.css`, `components.css`) imported globally — tokens available everywhere.
+### Done
+- Token layer (`colors_and_type.css`, `components.css`, `patterns.css`, `dark.css`) imported globally — tokens available everywhere.
 - Tailwind config re-exports canonical scales (`pink-*`, `blue-*`, `slate-*`, `reward-*`).
-- Legacy accent-* aliases codemoded to canonical names (90 files, commit `2431945`).
-- **All pages migrated** (branch `ui-ds-apply`, merged to main 2026-04-18): PrimeIcons replaced with Lucide across all three surfaces (marketing/auth, participant, business + admin). `grep -r "pi pi-" apps/web/src --include="*.tsx" | wc -l` → 0. Standalone blue removed from non-info surfaces. Off-spec Tailwind primitives eliminated. Metrics in mono. Eyebrow on stat sections. Card radii normalised. One gradient per view.
-- **`EmptyState.tsx` icon API** (commit `7dce09d`, 2026-04-19) — migrated from `icon?:string` (PrimeIcons suffix) to `Icon?:LucideIcon` / `CtaIcon?:LucideIcon`. Updated 27 call-sites. `grep -r "pi pi-" apps/web/src --include="*.tsx" | wc -l` → 0 globally.
-- **Shell Navigation applied** (2026-04-19) — `apps/web/src/components/layout/AppSidebar.tsx` + `AppHeader.tsx` + `BrandSelector.tsx` migrated to the new Shell Navigation handoff (conventional tone). Adds: grouped nav sections, 3px pink-600 active rail, pink-100 count pips (danger-600 when `urgent: true`), desktop 72px collapsed rail with dot badges, gradient `S` logo mark, ⌘K search hint, workspace switcher popover with verified `BadgeCheck`. Preview at `previews/shell-navigation.html`.
+- All pages migrated: PrimeIcons replaced with Lucide, standalone blue removed, off-spec Tailwind primitives eliminated, metrics in mono, eyebrow on stat sections, card radii normalised, one gradient per view.
+- Shell Navigation applied — grouped nav sections, active-state rail, count pips, collapsed rail with dot badges, workspace switcher.
+- Page header font standardization — `PageHeaderTitle` matches hero heading size (`clamp(26px, 4vw, 36px)`).
+- Marketing headings use canonical `text-text-primary` token (dark-mode ready).
+- Search icons on right side across all filter/search surfaces.
+- Sidebar tooltips on hover when collapsed.
 
 ### Deferred
-- **Dark-mode token layer** — `prefers-color-scheme: dark` overrides for `--slate-*` surfaces and `--bg-*` variables. Nice-to-have; not in MVP scope.
-- **Custom icon commission** — social brand glyphs (Instagram, Facebook, TikTok) are absent from Lucide 1.8 per trademark policy. Current stand-ins: `Camera` → Instagram, `ThumbsUp` → Facebook, `Music2` → TikTok. Replace when the brand-icon commission lands.
-- **Additional component classes** — modals, nav drawers, empty states not yet in `components.css`. Add as patterns stabilise.
+- **Dark-mode activation** — tokens exist in `dark.css`, but no UI toggle or `prefers-color-scheme` wiring yet.
+- **Custom icon commission** — social brand glyphs (Instagram, Facebook, TikTok) absent from Lucide; using neutral stand-ins.

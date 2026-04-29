@@ -73,18 +73,18 @@ function ToolbarSearch({ config }: { config: NonNullable<ToolbarConfig['search']
 
   return (
     <span className="relative w-full sm:w-auto inline-flex items-center">
-      <Search
-        size={16}
-        strokeWidth={2}
-        className="absolute left-3 text-slate-400 pointer-events-none"
-        aria-hidden="true"
-      />
       <InputText
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         placeholder={config.placeholder || 'Search'}
         aria-label={config.placeholder || 'Search'}
-        className="w-full sm:w-64 pl-9"
+        className="w-full sm:w-64 pr-9"
+      />
+      <Search
+        size={16}
+        strokeWidth={2}
+        className="absolute right-3 text-slate-400 pointer-events-none"
+        aria-hidden="true"
       />
     </span>
   );

@@ -204,14 +204,14 @@ export default function PaymentPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="bg-white text-slate-900 font-body">
+    <div className="bg-white text-text-primary font-body">
 
       {/* ══ HERO ══ */}
       <section className="pt-16 pb-12 sm:pt-24 sm:pb-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <FadeUp>
             <p className="eyebrow mb-3">Payment</p>
-            <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight tracking-tight mb-6">
+            <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary leading-tight tracking-tight mb-6">
               Transparent payments. <span className="gradient-text">Held in escrow.</span>
             </h1>
             <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
@@ -244,7 +244,7 @@ export default function PaymentPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">How it flows</p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-text-primary">
               Four steps from deposit to payout.
             </h2>
           </FadeUp>
@@ -259,7 +259,7 @@ export default function PaymentPage() {
                     </div>
                     <span className="font-mono tabular-nums text-xs font-bold text-pink-600 tracking-widest">STEP {n}</span>
                   </div>
-                  <h3 className="font-heading text-lg font-bold text-slate-900 mb-2">{title}</h3>
+                  <h3 className="font-heading text-lg font-bold text-text-primary mb-2">{title}</h3>
                   <p className="text-sm text-slate-600 leading-relaxed">{body}</p>
                 </div>
               </FadeUp>
@@ -273,7 +273,7 @@ export default function PaymentPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">Fee breakdown</p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-text-primary">
               Worked example on a R500 bounty.
             </h2>
             <p className="mt-4 text-base text-slate-600 max-w-xl mx-auto">
@@ -287,7 +287,7 @@ export default function PaymentPage() {
             <FadeUp delay={0}>
               <div className="h-full card card-feature flex flex-col">
                 <p className="eyebrow mb-3">Brand pays</p>
-                <h3 className="font-heading text-xl font-bold text-slate-900 mb-6">At checkout</h3>
+                <h3 className="font-heading text-xl font-bold text-text-primary mb-6">At checkout</h3>
 
                 <dl className="space-y-3 mb-6">
                   <FeeRow label="Reward (you set it)" amount="R500.00" note="face value" />
@@ -297,8 +297,8 @@ export default function PaymentPage() {
                 </dl>
 
                 <div className="mt-auto pt-5 border-t-2 border-slate-900 flex items-center justify-between">
-                  <span className="font-heading font-bold text-slate-900">Total paid</span>
-                  <span className="font-mono tabular-nums text-2xl font-bold text-slate-900">R617.50</span>
+                  <span className="font-heading font-bold text-text-primary">Total paid</span>
+                  <span className="font-mono tabular-nums text-2xl font-bold text-text-primary">R617.50</span>
                 </div>
               </div>
             </FadeUp>
@@ -307,7 +307,7 @@ export default function PaymentPage() {
             <FadeUp delay={100}>
               <div className="h-full card card-feature flex flex-col border-2 border-pink-300 shadow-lg shadow-pink-100/50">
                 <p className="eyebrow mb-3" style={{ color: '#db2777' }}>Hunter earns</p>
-                <h3 className="font-heading text-xl font-bold text-slate-900 mb-6">On approval</h3>
+                <h3 className="font-heading text-xl font-bold text-text-primary mb-6">On approval</h3>
 
                 <dl className="space-y-3 mb-6">
                   <FeeRow label="Reward" amount="R500.00" note="face value" />
@@ -340,7 +340,7 @@ export default function PaymentPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">Why TradeSafe</p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-text-primary">
               Safer than a handshake. Cleaner than a wallet.
             </h2>
           </FadeUp>
@@ -353,7 +353,7 @@ export default function PaymentPage() {
                     <Icon size={22} strokeWidth={2} />
                   </div>
                   <div>
-                    <h3 className="font-heading text-lg font-bold text-slate-900 mb-2">{title}</h3>
+                    <h3 className="font-heading text-lg font-bold text-text-primary mb-2">{title}</h3>
                     <p className="text-slate-600 text-sm leading-relaxed">{body}</p>
                   </div>
                 </div>
@@ -383,7 +383,7 @@ export default function PaymentPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">Payment methods</p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-text-primary">
               Pay however you like.
             </h2>
             <p className="mt-4 text-base text-slate-600 max-w-xl mx-auto">
@@ -397,7 +397,7 @@ export default function PaymentPage() {
               <FadeUp key={label} delay={i * 50}>
                 <div className="h-full rounded-xl border border-slate-200 p-5 hover:border-pink-200 transition-colors">
                   <Icon size={20} strokeWidth={2} className="text-pink-600 mb-3" />
-                  <p className="font-heading font-bold text-slate-900 text-sm mb-1">{label}</p>
+                  <p className="font-heading font-bold text-text-primary text-sm mb-1">{label}</p>
                   <p className="text-xs text-slate-500 leading-relaxed">{body}</p>
                 </div>
               </FadeUp>
@@ -417,7 +417,7 @@ export default function PaymentPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">Subscriptions</p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-text-primary">
               Pro tiers are <span className="text-pink-600">coming soon.</span>
             </h2>
             <p className="mt-4 text-base text-slate-600 max-w-xl mx-auto">
@@ -434,7 +434,7 @@ export default function PaymentPage() {
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 badge badge-neutral px-4 py-1 uppercase">
                   Coming soon
                 </div>
-                <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Pro Hunter</h3>
+                <h3 className="font-heading text-xl font-bold text-text-primary mb-1">Pro Hunter</h3>
                 <p className="text-sm text-slate-500 mb-6">For serious earners</p>
 
                 <ul className="space-y-3 mb-8 flex-1">
@@ -470,7 +470,7 @@ export default function PaymentPage() {
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 badge badge-neutral px-4 py-1 uppercase">
                   Coming soon
                 </div>
-                <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Pro Brand</h3>
+                <h3 className="font-heading text-xl font-bold text-text-primary mb-1">Pro Brand</h3>
                 <p className="text-sm text-slate-500 mb-6">For brands that post regularly</p>
 
                 <ul className="space-y-3 mb-8 flex-1">
@@ -513,7 +513,7 @@ export default function PaymentPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">Important terms</p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-text-primary">
               The short version.
             </h2>
             <p className="mt-4 text-base text-slate-600 max-w-xl mx-auto">
@@ -526,7 +526,7 @@ export default function PaymentPage() {
             {IMPORTANT_TERMS.map(({ title, body }, i) => (
               <FadeUp key={title} delay={i * 50}>
                 <div className="h-full card">
-                  <h3 className="font-heading text-base font-bold text-slate-900 mb-2">{title}</h3>
+                  <h3 className="font-heading text-base font-bold text-text-primary mb-2">{title}</h3>
                   <p className="text-sm text-slate-600 leading-relaxed">{body}</p>
                 </div>
               </FadeUp>
@@ -576,7 +576,7 @@ export default function PaymentPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">Questions</p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-text-primary">
               Frequently asked questions
             </h2>
           </FadeUp>
@@ -590,7 +590,7 @@ export default function PaymentPage() {
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                     aria-expanded={openFaq === i}
                   >
-                    <span className="font-heading font-semibold text-slate-900 text-sm sm:text-base pr-4">{faq.q}</span>
+                    <span className="font-heading font-semibold text-text-primary text-sm sm:text-base pr-4">{faq.q}</span>
                     <Plus
                       size={18}
                       strokeWidth={2}
@@ -650,7 +650,7 @@ function FeeRow({ label, amount, note, negative = false }: { label: string; amou
         <dt className="text-sm font-medium text-slate-700">{label}</dt>
         {note && <dd className="text-xs text-slate-400 mt-0.5">{note}</dd>}
       </div>
-      <dd className={`font-mono tabular-nums text-base font-semibold ${negative ? 'text-rose-600' : 'text-slate-900'}`}>{amount}</dd>
+      <dd className={`font-mono tabular-nums text-base font-semibold ${negative ? 'text-rose-600' : 'text-text-primary'}`}>{amount}</dd>
     </div>
   );
 }

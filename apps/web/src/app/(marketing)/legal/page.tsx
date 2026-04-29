@@ -128,7 +128,7 @@ export default function LegalHubPage() {
           <p className="text-xs font-semibold uppercase tracking-wider text-pink-600 mb-3">
             Legal
           </p>
-          <h1 className="text-4xl sm:text-5xl font-heading font-bold text-slate-900 mb-4">
+          <h1 className="text-4xl sm:text-5xl font-heading font-bold text-text-primary mb-4">
             Policies & agreements
           </h1>
           <p className="text-slate-600 leading-relaxed">
@@ -161,7 +161,7 @@ export default function LegalHubPage() {
                 <div>
                   <h2
                     id={`category-${id}`}
-                    className="text-2xl font-heading font-semibold text-slate-900"
+                    className="text-2xl font-heading font-semibold text-text-primary"
                   >
                     {title}
                   </h2>
@@ -176,7 +176,7 @@ export default function LegalHubPage() {
                       className="group block h-full rounded-xl border border-slate-200 bg-white p-5 transition-all hover:border-pink-300 hover:shadow-sm"
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
-                        <h3 className="text-base font-heading font-semibold text-slate-900 group-hover:text-pink-600 transition-colors">
+                        <h3 className="text-base font-heading font-semibold text-text-primary group-hover:text-pink-600 transition-colors">
                           {doc.title}
                         </h3>
                         <ChevronRight

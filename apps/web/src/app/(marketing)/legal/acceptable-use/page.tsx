@@ -32,17 +32,17 @@ export default function AcceptableUsePage() {
       toc={TOC}
     >
       <section id="scope">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           1. Scope
         </h2>
         <p className="mb-4">
-          This Acceptable Use Policy (<strong className="font-semibold text-slate-900">AUP</strong>) forms part of the{' '}
+          This Acceptable Use Policy (<strong className="font-semibold text-text-primary">AUP</strong>) forms part of the{' '}
           <Link href="/legal/terms-of-service" className="text-pink-600 hover:text-pink-700 font-medium">
             Terms of Service
           </Link>{' '}
           of {LEGAL_ENTITY.registeredName} (registration number {LEGAL_ENTITY.cipcRegNumber}, the{' '}
-          <strong className="font-semibold text-slate-900">Platform</strong>, <strong className="font-semibold text-slate-900">we</strong>,{' '}
-          <strong className="font-semibold text-slate-900">us</strong>, or <strong className="font-semibold text-slate-900">Social Bounty</strong>). It applies
+          <strong className="font-semibold text-text-primary">Platform</strong>, <strong className="font-semibold text-text-primary">we</strong>,{' '}
+          <strong className="font-semibold text-text-primary">us</strong>, or <strong className="font-semibold text-text-primary">Social Bounty</strong>). It applies
           to every person who accesses or uses {LEGAL_ENTITY.domain}, whether as a brand,
           a hunter (participant), a visitor, an administrator, or any other role.
         </p>
@@ -61,7 +61,7 @@ export default function AcceptableUsePage() {
       </section>
 
       <section id="general-principles">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           2. General principles
         </h2>
         <p className="mb-4">
@@ -71,16 +71,16 @@ export default function AcceptableUsePage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Act in good faith.</strong> Be honest with the brands, hunters, and
+            <strong className="font-semibold text-text-primary">Act in good faith.</strong> Be honest with the brands, hunters, and
             Platform team you interact with. Do not try to game the system.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Respect other people.</strong> Treat fellow users, third parties who
+            <strong className="font-semibold text-text-primary">Respect other people.</strong> Treat fellow users, third parties who
             appear in your content, and the Platform team with basic dignity. No
             harassment, no abuse, no bullying.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Follow the law.</strong> Obey South African law, the law of any
+            <strong className="font-semibold text-text-primary">Follow the law.</strong> Obey South African law, the law of any
             jurisdiction that applies to you, and the terms of service of any
             third-party platform (Instagram, TikTok, Facebook, X, etc.) that your
             content appears on.
@@ -93,7 +93,7 @@ export default function AcceptableUsePage() {
       </section>
 
       <section id="prohibited-content">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           3. Prohibited content
         </h2>
         <p className="mb-4">
@@ -102,7 +102,7 @@ export default function AcceptableUsePage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-2">
           <li>
-            <strong className="font-semibold text-slate-900">Is unlawful under South African law</strong> or the law of any
+            <strong className="font-semibold text-text-primary">Is unlawful under South African law</strong> or the law of any
             jurisdiction where the content is produced, hosted, or likely to be
             viewed, including content that breaches the Films and Publications Act
             65 of 1996, the Cybercrimes Act 19 of 2020, or any statute regulating
@@ -110,7 +110,7 @@ export default function AcceptableUsePage() {
             services.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Infringes intellectual property rights</strong> of any third party, including
+            <strong className="font-semibold text-text-primary">Infringes intellectual property rights</strong> of any third party, including
             copyright, trade marks, trade-dress, trade secrets, performers' rights,
             or rights in confidential information. See our{' '}
             <Link href="/legal/ip-policy" className="text-pink-600 hover:text-pink-700 font-medium">
@@ -119,7 +119,7 @@ export default function AcceptableUsePage() {
             for how we handle infringement reports.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Constitutes child sexual abuse material (CSAM)</strong> in any form, or
+            <strong className="font-semibold text-text-primary">Constitutes child sexual abuse material (CSAM)</strong> in any form, or
             sexualises anyone under the age of 18. We operate a zero-tolerance
             stance: such content will be removed immediately, the offending account
             terminated, and the matter reported to the South African Police Service
@@ -127,7 +127,7 @@ export default function AcceptableUsePage() {
             Publications Act and the Cybercrimes Act.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Is hate speech.</strong> Content that advocates hatred based on race,
+            <strong className="font-semibold text-text-primary">Is hate speech.</strong> Content that advocates hatred based on race,
             ethnicity, gender, religion, sexual orientation, disability, HIV status,
             or any other ground protected under section 9 of the Constitution, and
             that constitutes incitement to cause harm, is prohibited. We apply the
@@ -136,35 +136,35 @@ export default function AcceptableUsePage() {
             Court authority.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Harasses, bullies, intimidates, or threatens</strong> any person, including
+            <strong className="font-semibold text-text-primary">Harasses, bullies, intimidates, or threatens</strong> any person, including
             sustained campaigns, pile-on behaviour, or targeted content intended to
             humiliate.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Doxxes or exposes personal information</strong> of another person
+            <strong className="font-semibold text-text-primary">Doxxes or exposes personal information</strong> of another person
             (including home or work address, private phone number, ID or passport
             number, financial account details, or real name where the person uses a
             pseudonym) without their informed consent and a lawful basis.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Contains malware, phishing links, or malicious code</strong>, including
+            <strong className="font-semibold text-text-primary">Contains malware, phishing links, or malicious code</strong>, including
             keyloggers, credential harvesters, cryptominers, or URLs that redirect
             to any of the above.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Makes misleading brand or product claims</strong>, including unsubstantiated
+            <strong className="font-semibold text-text-primary">Makes misleading brand or product claims</strong>, including unsubstantiated
             health, financial, performance, or endorsement claims. Brands are
             responsible for the factual accuracy of their briefs; hunters are
             responsible for executing briefs honestly.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Depicts a deepfake or synthetic impersonation</strong> of a real, identifiable
+            <strong className="font-semibold text-text-primary">Depicts a deepfake or synthetic impersonation</strong> of a real, identifiable
             person without their prior written consent. Satire that is clearly
             labelled and does not seek to deceive may be permitted at our
             discretion.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Breaches the terms of service of the target social platform.</strong> A
+            <strong className="font-semibold text-text-primary">Breaches the terms of service of the target social platform.</strong> A
             bounty brief must be lawful and permissible on the platform where it
             will be published. If Instagram, TikTok, Facebook, or X would remove
             the content under their policies, we treat it as unfit for the Platform.
@@ -173,7 +173,7 @@ export default function AcceptableUsePage() {
       </section>
 
       <section id="prohibited-behaviour">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           4. Prohibited behaviour
         </h2>
         <p className="mb-4">
@@ -182,59 +182,59 @@ export default function AcceptableUsePage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-2">
           <li>
-            <strong className="font-semibold text-slate-900">Sybil and multi-account fraud.</strong> Creating multiple accounts to
+            <strong className="font-semibold text-text-primary">Sybil and multi-account fraud.</strong> Creating multiple accounts to
             increase submission limits, circumvent suspensions, manipulate
             reputation, or otherwise evade Platform controls.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Metric manipulation.</strong> Buying, selling, exchanging, or otherwise
+            <strong className="font-semibold text-text-primary">Metric manipulation.</strong> Buying, selling, exchanging, or otherwise
             inflating likes, views, comments, followers, or other engagement. Use
             of bots, click farms, or automated engagement services to satisfy
             bounty metric thresholds.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Impersonation.</strong> Pretending to be a brand, another hunter, a member
+            <strong className="font-semibold text-text-primary">Impersonation.</strong> Pretending to be a brand, another hunter, a member
             of the Platform team, or a public figure. Creating accounts that
             imitate an existing account's name or branding in a manner likely to
             deceive.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Collusion.</strong> Coordinating with a brand reviewer, another hunter, or
+            <strong className="font-semibold text-text-primary">Collusion.</strong> Coordinating with a brand reviewer, another hunter, or
             a Platform team member to manipulate approvals, reviews, or payouts.
             Offering or accepting side payments to influence a review decision.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Scraping or unauthorised data extraction.</strong> Using crawlers, automated
+            <strong className="font-semibold text-text-primary">Scraping or unauthorised data extraction.</strong> Using crawlers, automated
             harvesters, or scripted access to extract data from the Platform beyond
             what our public API and product interfaces permit.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Unauthorised access attempts.</strong> Trying to access any account,
+            <strong className="font-semibold text-text-primary">Unauthorised access attempts.</strong> Trying to access any account,
             system, or data you are not authorised to access, including probing for
             vulnerabilities without prior written authorisation. This includes
             conduct that would breach sections 2, 3, 5, 6, or 7 of the Cybercrimes
             Act 19 of 2020.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Reverse engineering.</strong> Decompiling, disassembling, or otherwise
+            <strong className="font-semibold text-text-primary">Reverse engineering.</strong> Decompiling, disassembling, or otherwise
             attempting to derive source code from the Platform except to the
             extent expressly permitted by law.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Denial of service.</strong> Conduct intended to degrade, disrupt, or
+            <strong className="font-semibold text-text-primary">Denial of service.</strong> Conduct intended to degrade, disrupt, or
             overload the Platform, including volumetric attacks, application-layer
             flooding, or deliberate abuse of expensive endpoints.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Rate-limit evasion.</strong> Rotating IPs, spoofing headers, or otherwise
+            <strong className="font-semibold text-text-primary">Rate-limit evasion.</strong> Rotating IPs, spoofing headers, or otherwise
             circumventing Platform rate limits or anti-abuse measures.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Purchasing engagement.</strong> Paying for fake followers, comments, or
+            <strong className="font-semibold text-text-primary">Purchasing engagement.</strong> Paying for fake followers, comments, or
             other engagement on accounts used to satisfy bounty requirements.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Using non-consenting third parties.</strong> Featuring identifiable people
+            <strong className="font-semibold text-text-primary">Using non-consenting third parties.</strong> Featuring identifiable people
             in bounty content (friends, family, minors, bystanders, strangers
             filmed in public) without having obtained the lawful consent or
             release appropriate to the jurisdiction and the use. Minors require a
@@ -244,7 +244,7 @@ export default function AcceptableUsePage() {
       </section>
 
       <section id="platform-only">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           5. Authenticity of submissions
         </h2>
         <p className="mb-4">
@@ -287,7 +287,7 @@ export default function AcceptableUsePage() {
       </section>
 
       <section id="reporting">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           6. Reporting a violation
         </h2>
         <p className="mb-4">
@@ -296,7 +296,7 @@ export default function AcceptableUsePage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">General abuse reports:</strong>{' '}
+            <strong className="font-semibold text-text-primary">General abuse reports:</strong>{' '}
             <a
               href={`mailto:abuse@${LEGAL_ENTITY.domain}`}
               className="text-pink-600 hover:text-pink-700 font-medium"
@@ -313,14 +313,14 @@ export default function AcceptableUsePage() {
             with the subject line "Abuse report".
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Intellectual property infringement:</strong> follow our{' '}
+            <strong className="font-semibold text-text-primary">Intellectual property infringement:</strong> follow our{' '}
             <Link href="/legal/ip-policy" className="text-pink-600 hover:text-pink-700 font-medium">
               IP & Copyright Takedown Policy
             </Link>
             .
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Structured complaints (including CPA-protected rights):</strong>{' '}
+            <strong className="font-semibold text-text-primary">Structured complaints (including CPA-protected rights):</strong>{' '}
             see{' '}
             <Link href="/legal/complaints" className="text-pink-600 hover:text-pink-700 font-medium">
               Complaints & Dispute Resolution
@@ -328,7 +328,7 @@ export default function AcceptableUsePage() {
             .
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">CSAM or imminent physical-harm threats:</strong> also report
+            <strong className="font-semibold text-text-primary">CSAM or imminent physical-harm threats:</strong> also report
             directly to the South African Police Service (10111) and, where
             appropriate, to the Film and Publication Board. We will cooperate with
             valid law-enforcement process.
@@ -343,7 +343,7 @@ export default function AcceptableUsePage() {
       </section>
 
       <section id="enforcement">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           7. Enforcement
         </h2>
         <p className="mb-4">
@@ -353,29 +353,29 @@ export default function AcceptableUsePage() {
         </p>
         <ol className="list-decimal pl-6 mb-4 space-y-2">
           <li>
-            <strong className="font-semibold text-slate-900">Warning.</strong> For a first or low-severity breach we may issue a
+            <strong className="font-semibold text-text-primary">Warning.</strong> For a first or low-severity breach we may issue a
             written warning explaining what is wrong and asking you to correct it
             within a defined timeframe.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Temporary suspension.</strong> We may suspend your account for a defined
+            <strong className="font-semibold text-text-primary">Temporary suspension.</strong> We may suspend your account for a defined
             period. Pending submissions may be put on hold; pending rewards may be
             held in escrow until the suspension is lifted.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Termination.</strong> For severe or repeated breaches, or a single breach
+            <strong className="font-semibold text-text-primary">Termination.</strong> For severe or repeated breaches, or a single breach
             that creates material risk (CSAM, fraud, malware, a serious security
             event), we may terminate your account.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Forfeiture of pending rewards.</strong> Where a submission was obtained
+            <strong className="font-semibold text-text-primary">Forfeiture of pending rewards.</strong> Where a submission was obtained
             through fraud, bot engagement, plagiarised or infringing content, or
             other material breach, rewards associated with that submission may be
             forfeited or reversed. Financial penalties and any deduction rights are
             set out in the Terms of Service.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Audit trail.</strong> Every enforcement decision is logged. The audit
+            <strong className="font-semibold text-text-primary">Audit trail.</strong> Every enforcement decision is logged. The audit
             trail records who took the decision, when, why, and what material was
             considered. You may request a copy of the record concerning your own
             account through our{' '}
@@ -388,7 +388,7 @@ export default function AcceptableUsePage() {
       </section>
 
       <section id="appeals">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           8. Appeals
         </h2>
         <p className="mb-4">
@@ -413,7 +413,7 @@ export default function AcceptableUsePage() {
       </section>
 
       <section id="law-enforcement">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           9. Law enforcement cooperation
         </h2>
         <p className="mb-4">
@@ -440,7 +440,7 @@ export default function AcceptableUsePage() {
       </section>
 
       <section id="related">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           10. Related documents
         </h2>
         <ul className="list-disc pl-6 mb-4 space-y-1">

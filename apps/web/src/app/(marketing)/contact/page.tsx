@@ -200,7 +200,7 @@ export default function ContactPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={hero.ref} style={hero.style} className="max-w-2xl">
             <p className="eyebrow mb-3">Contact</p>
-            <h1 className="text-4xl font-heading font-bold text-slate-900 mb-4">
+            <h1 className="text-4xl font-heading font-bold text-text-primary mb-4">
               Let&apos;s talk.
             </h1>
             <p className="text-lg text-slate-600 font-body leading-relaxed">
@@ -225,7 +225,7 @@ export default function ContactPage() {
                     {card.icon}
                   </div>
                   <div>
-                    <h3 className="text-lg font-heading font-semibold text-slate-900 mb-2">
+                    <h3 className="text-lg font-heading font-semibold text-text-primary mb-2">
                       {card.title}
                     </h3>
                     <p className="text-sm text-slate-600 font-body leading-relaxed">{card.body}</p>
@@ -252,7 +252,7 @@ export default function ContactPage() {
           <div ref={formRef}>
             <div ref={form.ref} style={form.style} className="max-w-xl mx-auto">
               <p className="eyebrow text-center mb-3">Send a message</p>
-              <h2 className="text-2xl font-heading font-bold text-slate-900 mb-2 text-center">
+              <h2 className="text-2xl font-heading font-bold text-text-primary mb-2 text-center">
                 Send us a message
               </h2>
               <p className="text-sm text-slate-500 font-body text-center mb-10">
@@ -274,7 +274,7 @@ export default function ContactPage() {
                     <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mx-auto mb-4">
                       <Check size={28} strokeWidth={2.5} className="text-pink-600" aria-hidden="true" />
                     </div>
-                    <h3 className="text-xl font-heading font-semibold text-slate-900 mb-3">
+                    <h3 className="text-xl font-heading font-semibold text-text-primary mb-3">
                       Sent. We&apos;ll be in touch within 24 hours.
                     </h3>
                     <p className="text-sm text-slate-600 font-body mb-6">
@@ -415,7 +415,7 @@ export default function ContactPage() {
               {/* Left: Contact details */}
               <div>
                 <p className="eyebrow mb-3">Direct lines</p>
-                <h2 className="text-xl font-heading font-bold text-slate-900 mb-6">
+                <h2 className="text-xl font-heading font-bold text-text-primary mb-6">
                   Reach us directly
                 </h2>
 
@@ -485,7 +485,7 @@ export default function ContactPage() {
               {/* Right: FAQ */}
               <div>
                 <p className="eyebrow mb-3">Common questions</p>
-                <h2 className="text-xl font-heading font-bold text-slate-900 mb-6">
+                <h2 className="text-xl font-heading font-bold text-text-primary mb-6">
                   Common questions
                 </h2>
                 <div className="space-y-3">

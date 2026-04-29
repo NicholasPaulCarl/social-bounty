@@ -172,7 +172,7 @@ export default function BrandKybPage() {
       )}
 
       {canSubmit && (
-        <Card title="Submit KYB Details">
+        <Card title="Submit KYB Details" className="p-4 sm:p-6">
           {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
 
           <form onSubmit={handleSubmit} className="space-y-6">

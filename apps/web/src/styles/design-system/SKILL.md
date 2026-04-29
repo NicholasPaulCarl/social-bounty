@@ -7,6 +7,8 @@ A creator-economy product. Pays creators per verified click on brand "bounties."
 ```html
 <link rel="stylesheet" href="colors_and_type.css" />
 <link rel="stylesheet" href="components.css" />
+<link rel="stylesheet" href="patterns.css" />
+<link rel="stylesheet" href="dark.css" />
 <!-- fonts: Inter, Space Grotesk, JetBrains Mono (imported from colors_and_type.css) -->
 ```
 
@@ -32,12 +34,36 @@ A creator-economy product. Pays creators per verified click on brand "bounties."
 - `.btn` + `.btn-primary | -secondary | -ghost | -danger | -success | -cta`, sizes `-sm -md -lg -xl`.
   - Primary = pink pill-ish (8px radius). CTA = full-pill gradient, marketing only.
 - `.card` (default 16px radius, 24px padding) · `.card-interactive` (hover lift) · `.card-feature` (24px radius, 32px padding).
-- `.input` / `.textarea` / `.select` — pink focus ring (`--focus-ring-form`), `.input-error` for invalid.
+  - **Bounty cards** — 6 canonical states: Live · Ending-soon · Claimed/in-progress · Paid-out · Rejected · Invite-only. Status badge top-right, avatar top-left, reward pill bottom-left, meta bottom-right.
+  - **Hunter cards** — 3 canonical variants: Top hunter (Pro, 3-metric strip) · New hunter (Invite CTA) · Leaderboard (pink-tinted, rank medallion + big earned number).
+- `.input` / `.textarea` / `.select` — pink focus ring (`--focus-ring-form`), `.input-error` for invalid. Search inputs wrap in `.input-group` with a 14px `.input-icon` prefix.
 - `.badge` (read-only) vs `.chip` (interactive). Statuses: `-brand -success -warning -danger -info -neutral -reward`.
 - `.avatar` with `-sm -lg -xl`. `.avatar-group` overlaps with white ring.
 - `.toast` + status modifiers; 4px left accent, level-3 shadow.
 - `.progress` — pink→blue gradient bar.
-- `.table` — slim borders, uppercase label headers, tabular-num cells.
+- `.table` — slim borders, uppercase label headers, tabular-num cells. Three canonical table views:
+  - **Bounties** (participant) — avatar · title+sub · category · status · reward · ends · action
+  - **Hunters** (brand directory) — rank · hunter · interests · tier · bounties · clicks · approval · earned · invite
+  - **Submissions** (brand review queue) — checkbox · time · hunter · bounty · verification · status · reward · approve/reject
+
+## Patterns (on `patterns.css`)
+
+- `.empty` — empty-state placeholder with `.empty-illus`, `.empty-title`, `.empty-body`.
+- `.skeleton` — shimmer placeholders (`.skeleton-line`, `.skeleton-circle`, `.skeleton-rect`).
+- `.spinner` — loading spinner with `-sm -lg` sizes, `.spinner-on-pink` for brand bg.
+- `.modal` / `.drawer` — dialog/drawer with `.modal-head`, `.modal-body`, `.modal-foot`.
+- `.tooltip` / `.popover` — dark tooltips, light popovers with `.popover-help-trigger`.
+- `.kpi` — stat tiles with `.kpi-label`, `.kpi-value`, `.kpi-delta-up/down`, `.kpi-feature` gradient variant.
+- `.feed` — activity timeline with `.feed-dot`, `.feed-body`, `.feed-time`.
+- `.receipt` — payout receipt layout.
+- `.stepper` — wizard progress with `.stepper-step.is-current`, `.is-done`.
+- `.verif` — verification badges (`.verif-verified`, `.verif-scraping`, `.verif-pending`, `.verif-removed`).
+- `.bottom-nav` — mobile bottom navigation bar.
+- `.bar-chart` / `.funnel` — minimal chart scaffolds.
+
+## Dark mode (on `dark.css`)
+
+Opt in with `data-theme="dark"` on `<html>` or `<body>`. Flips slate scale, surfaces, text, shadows. Pink-600 stays the brand anchor.
 
 ## Spacing/radii/shadows
 
