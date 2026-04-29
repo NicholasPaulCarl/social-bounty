@@ -30,7 +30,16 @@ import type {
   BountyListParams,
   BountyDetailResponse,
   SubmissionDetailResponse,
+  AdminKybQueueResponse,
+  BrandKybSubmissionView,
+  KybActionResponse,
+  RejectKybRequest,
 } from '@social-bounty/shared';
+
+interface AdminKybQueueParams {
+  page?: number;
+  limit?: number;
+}
 
 export const adminApi = {
   // Dashboard
@@ -59,6 +68,19 @@ export const adminApi = {
 
   updateBrandStatus: (id: string, data: AdminUpdateBrandStatusRequest): Promise<AdminUpdateBrandStatusResponse> =>
     apiClient.patch(`/admin/brands/${id}/status`, data),
+
+  // KYB Review (SUPER_ADMIN only)
+  listPendingKyb: (params: AdminKybQueueParams): Promise<AdminKybQueueResponse> =>
+    apiClient.get('/admin/brands/kyb', params as Record<string, unknown>),
+
+  getKybReview: (brandId: string): Promise<BrandKybSubmissionView> =>
+    apiClient.get(`/admin/brands/${brandId}/kyb/review`),
+
+  approveKyb: (brandId: string): Promise<KybActionResponse> =>
+    apiClient.post(`/brands/${brandId}/kyb/approve`, {}),
+
+  rejectKyb: (brandId: string, data: RejectKybRequest): Promise<KybActionResponse> =>
+    apiClient.post(`/brands/${brandId}/kyb/reject`, data),
 
   // Bounties
   listBounties: (params: BountyListParams): Promise<PaginatedResponse<BountyListItem>> =>

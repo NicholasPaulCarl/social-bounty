@@ -1,6 +1,32 @@
 import { BrandStatus, BrandMemberRole, KybStatus, UserStatus } from '../enums';
 
 // ─────────────────────────────────────
+// KYB-related shared types
+// ─────────────────────────────────────
+
+// Mirrors the Prisma `KybOrgType` enum + TradeSafe's `OrganizationType`. Kept
+// as a TS string-union (not an enum) so the enum stays single-source-of-truth
+// in `packages/prisma/schema.prisma` — this just gives the API DTOs a
+// well-typed shape without a Prisma import in shared types.
+export type KybOrgType =
+  | 'PRIVATE'
+  | 'PUBLIC'
+  | 'NGO'
+  | 'GOVERNMENT'
+  | 'SOLE_PROPRIETOR';
+
+// Mirrors Prisma `KybDocumentType`. The South African company-registration
+// document set TradeSafe expects during go-live (see `docs/deployment/
+// tradesafe-live-readiness.md`).
+export type KybDocumentType =
+  | 'COR_14_3'
+  | 'COR_15_1'
+  | 'BANK_PROOF'
+  | 'ID_DOC'
+  | 'LETTER_OF_AUTHORITY'
+  | 'OTHER';
+
+// ─────────────────────────────────────
 // Brand DTOs
 // ─────────────────────────────────────
 
@@ -78,6 +104,25 @@ export interface BrandDetailResponse {
   kybStatus: KybStatus;
   kybSubmittedAt: string | null;
   kybApprovedAt: string | null;
+  // KYB-persisted fields (Wave 1, R24 pre-launch). All nullable — the brand
+  // form repopulates from these when re-opening after submit/reject. Frontend
+  // agents (1B/1C) consume this DTO to render the KYB review screens.
+  kybRegisteredName: string | null;
+  kybTradeName: string | null;
+  kybRegistrationNumber: string | null;
+  kybVatNumber: string | null;
+  kybTaxNumber: string | null;
+  kybCountry: string | null;
+  kybContactEmail: string | null;
+  kybOrgType: KybOrgType | null;
+  kybRejectionReason: string | null;
+  kybRejectedAt: string | null;
+  // Count of uploaded KYB documents (used to show a badge on the brand profile
+  // and to gate the "you must upload at least one document" hint on the form).
+  kybDocumentCount: number;
+  // Set after the post-approve TradeSafe `tokenCreate` lands. Useful to show
+  // an admin-only "TradeSafe linked" badge; frontend never inspects the value.
+  tradeSafeTokenId: string | null;
   memberCount: number;
   bountyCount: number;
   createdAt: string;
@@ -85,13 +130,22 @@ export interface BrandDetailResponse {
 }
 
 // POST /brands/:brandId/kyb
+//
+// KYB submission shape. Documents live in the dedicated `kyb_documents`
+// table via the documents endpoints (`POST /brands/:brandId/kyb/documents`)
+// — no free-text reference field on the submission itself.
 export interface SubmitKybRequest {
   registeredName: string;
+  /** Optional trade name (DBA / "trading as"). */
+  tradeName?: string;
   registrationNumber: string;
   vatNumber?: string;
+  /** Required for SA tax compliance + TradeSafe `tokenCreate`. */
+  taxNumber?: string;
   country: string;
   contactEmail: string;
-  documentsRef?: string;
+  /** TradeSafe `tokenCreate` rejects org parties without it. */
+  orgType: KybOrgType;
 }
 
 // POST /brands/:brandId/kyb/reject
@@ -105,6 +159,100 @@ export interface KybActionResponse {
   kybStatus: KybStatus;
   kybSubmittedAt: string | null;
   kybApprovedAt: string | null;
+}
+
+// ─── KYB documents (Wave 1) ──────────
+
+// POST /brands/:brandId/kyb/documents (multipart/form-data)
+//
+// The actual file payload travels in the `file` form field; this type
+// describes the JSON-encoded sibling fields sent alongside.
+export interface UploadKybDocumentRequest {
+  documentType: KybDocumentType;
+  /** ISO 8601 string. Optional — bank letters expire, ID docs expire, CIPC docs effectively don't. */
+  expiresAt?: string;
+  /** Free-text annotation surface for ops. 500 char cap. */
+  notes?: string;
+}
+
+export interface KybDocumentResponse {
+  id: string;
+  documentType: KybDocumentType;
+  fileName: string;
+  /** Resolves to a streaming/download URL. */
+  fileUrl: string;
+  mimeType: string;
+  fileSize: number;
+  uploadedAt: string;
+  expiresAt: string | null;
+  notes: string | null;
+}
+
+// GET /admin/brands/:brandId/kyb/review (SUPER_ADMIN only)
+//
+// Full review payload — everything the admin needs to make an
+// approve/reject decision in one round-trip.
+export interface BrandKybSubmissionView {
+  brandId: string;
+  brandName: string;
+  brandHandle: string | null;
+  kybStatus: KybStatus;
+  kybSubmittedAt: string | null;
+  kybApprovedAt: string | null;
+  kybRejectedAt: string | null;
+  kybRejectionReason: string | null;
+  // Submitted fields (mirror Brand row).
+  registeredName: string | null;
+  tradeName: string | null;
+  registrationNumber: string | null;
+  vatNumber: string | null;
+  taxNumber: string | null;
+  country: string | null;
+  contactEmail: string | null;
+  orgType: KybOrgType | null;
+  // Uploaded evidence.
+  documents: KybDocumentResponse[];
+  // KYB-related audit log slice (last 50). Filtered server-side by
+  // `entityType='Brand' AND entityId=brandId AND action LIKE 'kyb.%'`.
+  recentAuditLog: BrandKybAuditLogEntry[];
+  // Once set, the post-approve TradeSafe link is alive.
+  tradeSafeTokenId: string | null;
+}
+
+export interface BrandKybAuditLogEntry {
+  id: string;
+  action: string;
+  actorId: string;
+  actorRole: string;
+  reason: string | null;
+  createdAt: string;
+  beforeState: Record<string, unknown> | null;
+  afterState: Record<string, unknown> | null;
+}
+
+// GET /admin/brands/kyb (SUPER_ADMIN only) — paginated review queue
+export interface AdminKybQueueItem {
+  brandId: string;
+  brandName: string;
+  brandHandle: string | null;
+  kybStatus: KybStatus;
+  kybSubmittedAt: string | null;
+  registeredName: string | null;
+  registrationNumber: string | null;
+  country: string | null;
+  /** Org type as captured at submission. null if not set yet. Surfaces in the admin queue's "Org type" badge column. */
+  orgType: KybOrgType | null;
+  documentCount: number;
+}
+
+export interface AdminKybQueueResponse {
+  data: AdminKybQueueItem[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 // PATCH /brands/:id

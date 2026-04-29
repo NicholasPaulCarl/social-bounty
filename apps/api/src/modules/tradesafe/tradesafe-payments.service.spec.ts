@@ -42,6 +42,9 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
     defaultBuyerToken: string | null;
     escrowPlaceholderToken: string | null;
     agentToken: string | null;
+    // Wave 1 (KYB hardening) — when set, surfaces in `bounty.brand.tradeSafeTokenId`
+    // so the BUYER token resolution path can be exercised end-to-end.
+    brandTradeSafeTokenId: string | null;
   }> = {}) {
     const bounty = overrides.bounty === undefined
       ? {
@@ -56,6 +59,15 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
           deletedAt: null,
           rewards: [{ monetaryValue: { toString: () => '100.00' } }],
           tradeSafeTransaction: null,
+          // Wave 1 — bounty includes brand.tradeSafeTokenId via the new
+          // include in `tradesafe-payments.service.ts:findUnique`. Default
+          // is null (legacy behaviour, falls back to env-default BUYER token).
+          brand: {
+            tradeSafeTokenId:
+              overrides.brandTradeSafeTokenId === undefined
+                ? null
+                : overrides.brandTradeSafeTokenId,
+          },
         }
       : overrides.bounty;
 
@@ -501,6 +513,39 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
       // SELLER, hunters would lose money to TradeSafe fees on every
       // bounty — a silent revenue redirect we must NOT do.
       expect(createCall.feeAllocation).toBe('BUYER');
+    });
+
+    it('Wave 1 — prefers `bounty.brand.tradeSafeTokenId` over env-default BUYER token when set', async () => {
+      // The Wave 1 KYB hardening change: once a brand has been KYB-approved,
+      // the post-approve `tokenCreate` lands a real BUYER token on the
+      // brand row. From that point forward, all bounty funding for this
+      // brand routes through TradeSafe with the brand-specific party
+      // token rather than the platform default. This locks down the
+      // commercial decision.
+      const { svc, graphql } = buildService({
+        brandTradeSafeTokenId: 'kyb-minted-brand-token-xyz',
+      });
+      await svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' });
+
+      const createCall = (graphql.transactionCreate as jest.Mock).mock
+        .calls[0][0];
+      const buyer = (createCall.parties as Array<{ token: string; role: string }>)
+        .find((p) => p.role === 'BUYER');
+      expect(buyer?.token).toBe('kyb-minted-brand-token-xyz');
+    });
+
+    it('Wave 1 — falls back to env default BUYER token when brand.tradeSafeTokenId is null', async () => {
+      // Legacy / pre-KYB behaviour: brand has not been KYB-approved yet,
+      // so no brand-specific BUYER token. We fall through to the env
+      // default. Combined with `TRADESAFE_MOCK=true` (the default in
+      // these tests), this is the dev/CI path.
+      const { svc, graphql } = buildService({ brandTradeSafeTokenId: null });
+      await svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' });
+      const createCall = (graphql.transactionCreate as jest.Mock).mock
+        .calls[0][0];
+      const buyer = (createCall.parties as Array<{ token: string; role: string }>)
+        .find((p) => p.role === 'BUYER');
+      expect(buyer?.token).toBe('buyer-token');
     });
 
     it('falls back to TRADESAFE_AGENT_TOKEN when TRADESAFE_DEFAULT_BUYER_TOKEN is unset (regression: `||` not `??`)', async () => {

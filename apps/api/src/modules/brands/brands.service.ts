@@ -129,7 +129,9 @@ export class BrandsService {
       where: { id: brandId },
       include: {
         _count: {
-          select: { members: true, bounties: true },
+          // Wave 1 — surfaces a doc count badge on the KYB form so the
+          // brand admin sees how many evidence files are already on file.
+          select: { members: true, bounties: true, kybDocuments: true },
         },
       },
     });
@@ -161,6 +163,21 @@ export class BrandsService {
       kybStatus: org.kybStatus,
       kybSubmittedAt: org.kybSubmittedAt ? org.kybSubmittedAt.toISOString() : null,
       kybApprovedAt: org.kybApprovedAt ? org.kybApprovedAt.toISOString() : null,
+      // KYB-persisted fields (Wave 1) — frontend re-uses these to repopulate
+      // the form on resubmit and to show "you submitted on X" / rejection
+      // reason banners.
+      kybRegisteredName: org.kybRegisteredName,
+      kybTradeName: org.kybTradeName,
+      kybRegistrationNumber: org.kybRegistrationNumber,
+      kybVatNumber: org.kybVatNumber,
+      kybTaxNumber: org.kybTaxNumber,
+      kybCountry: org.kybCountry,
+      kybContactEmail: org.kybContactEmail,
+      kybOrgType: org.kybOrgType,
+      kybRejectionReason: org.kybRejectionReason,
+      kybRejectedAt: org.kybRejectedAt ? org.kybRejectedAt.toISOString() : null,
+      kybDocumentCount: org._count.kybDocuments,
+      tradeSafeTokenId: org.tradeSafeTokenId,
       memberCount: org._count.members,
       bountyCount: org._count.bounties,
       createdAt: org.createdAt.toISOString(),

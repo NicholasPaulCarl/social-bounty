@@ -42,6 +42,7 @@ export const queryKeys = {
     mine: () => [...queryKeys.brands.all, 'mine'] as const,
     publicList: (filters: BrandListParams) => [...queryKeys.brands.all, 'publicList', filters] as const,
     publicProfile: (idOrHandle: string) => [...queryKeys.brands.all, 'publicProfile', idOrHandle] as const,
+    kybDocuments: (id: string) => [...queryKeys.brands.all, id, 'kyb', 'documents'] as const,
   },
   admin: {
     users: (filters: AdminUserListParams) => ['admin', 'users', filters] as const,
@@ -54,6 +55,9 @@ export const queryKeys = {
     systemHealth: ['admin', 'system-health'] as const,
     recentErrors: (filters: AdminRecentErrorsParams) => ['admin', 'recent-errors', filters] as const,
     settings: ['admin', 'settings'] as const,
+    pendingKyb: (params: { page?: number; limit?: number }) =>
+      ['admin', 'kyb', 'pending', params] as const,
+    kybReview: (brandId: string) => ['admin', 'kyb', 'review', brandId] as const,
   },
   disputes: {
     all: ['disputes'] as const,

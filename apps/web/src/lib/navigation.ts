@@ -2,7 +2,7 @@ import { UserRole } from '@social-bounty/shared';
 import {
   Inbox, Compass, Building2, FolderCheck, Flag, Wallet, Star, UserCircle,
   LayoutDashboard, Megaphone, ClipboardCheck, Users, IdCard, DollarSign,
-  Circle, Zap, Server, Settings, Palette, Banknote, History, CreditCard,
+  Circle, Zap, Server, Settings, Palette, Banknote, History, CreditCard, ShieldCheck,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -84,6 +84,7 @@ const adminSections: NavSection[] = [
       { label: 'Dashboard', Icon: LayoutDashboard, href: '/admin/dashboard' },
       { label: 'Users', Icon: Users, href: '/admin/users' },
       { label: 'Brands', Icon: Building2, href: '/admin/brands' },
+      { label: 'KYB Review', Icon: ShieldCheck, href: '/admin/brands/kyb', urgent: true },
       { label: 'Bounties', Icon: Megaphone, href: '/admin/bounties' },
       { label: 'Submissions', Icon: FolderCheck, href: '/admin/submissions' },
       { label: 'Hunters', Icon: Users, href: '/hunters' },
