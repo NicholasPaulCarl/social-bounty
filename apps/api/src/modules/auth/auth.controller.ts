@@ -71,7 +71,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async requestOtp(@Body() dto: RequestOtpDto, @Req() req: Request) {
-    return this.authService.requestOtp(dto.email, dto.channel, req.ip);
+    return this.authService.requestOtp(
+      { email: dto.email, phoneNumber: dto.phoneNumber },
+      dto.channel,
+      req.ip,
+    );
   }
 
   @Post('switch-otp-channel')
@@ -79,7 +83,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   async switchOtpChannel(@Body() dto: SwitchOtpChannelDto, @Req() req: Request) {
-    return this.authService.switchOtpChannel(dto.email, req.ip);
+    return this.authService.switchOtpChannel(
+      { email: dto.email, phoneNumber: dto.phoneNumber },
+      req.ip,
+    );
   }
 
   @Post('verify-otp')
@@ -91,7 +98,11 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.verifyOtpAndLogin(dto.email, dto.otp, req.ip);
+    const result = await this.authService.verifyOtpAndLogin(
+      { email: dto.email, phoneNumber: dto.phoneNumber },
+      dto.otp,
+      req.ip,
+    );
     setRefreshCookie(res, result.refreshToken);
     const { refreshToken: _, ...response } = result;
     return response;

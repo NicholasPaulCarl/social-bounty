@@ -10,20 +10,26 @@ export enum OtpChannel {
 }
 
 // POST /auth/request-otp
+// Exactly one of `email` or `phoneNumber` must be provided.
 export interface RequestOtpRequest {
-  email: string;
+  email?: string;
+  phoneNumber?: string;
   channel?: OtpChannel;
 }
 
 // POST /auth/verify-otp
+// Exactly one of `email` or `phoneNumber` must be provided.
 export interface VerifyOtpRequest {
-  email: string;
+  email?: string;
+  phoneNumber?: string;
   otp: string;
 }
 
 // POST /auth/switch-otp-channel
+// Exactly one of `email` or `phoneNumber` must be provided.
 export interface SwitchOtpChannelRequest {
-  email: string;
+  email?: string;
+  phoneNumber?: string;
 }
 
 // POST /auth/signup

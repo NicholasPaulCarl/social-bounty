@@ -191,7 +191,7 @@ describe('AuthService', () => {
 
   describe('requestOtp', () => {
     it('should send OTP email and return generic message', async () => {
-      const result = await service.requestOtp('test@example.com');
+      const result = await service.requestOtp({ email: 'test@example.com' });
 
       expect(result.message).toContain('verification code has been sent');
       expect(tokenStore.storeOtp).toHaveBeenCalledWith(
@@ -209,7 +209,7 @@ describe('AuthService', () => {
     it('should return generic message without sending when cooldown is active', async () => {
       tokenStore.hasRecentOtp.mockResolvedValue(true);
 
-      const result = await service.requestOtp('test@example.com');
+      const result = await service.requestOtp({ email: 'test@example.com' });
 
       expect(result.message).toContain('verification code has been sent');
       expect(tokenStore.storeOtp).not.toHaveBeenCalled();
@@ -217,7 +217,7 @@ describe('AuthService', () => {
     });
 
     it('should normalize email to lowercase and trim', async () => {
-      await service.requestOtp('  Test@Example.COM  ');
+      await service.requestOtp({ email: '  Test@Example.COM  ' });
 
       expect(tokenStore.storeOtp).toHaveBeenCalledWith(
         'test@example.com',
@@ -245,7 +245,7 @@ describe('AuthService', () => {
       tokenStore.getOtp.mockResolvedValue({ otp: '123456', attempts: 0 });
       prisma.user.findUnique.mockResolvedValue(mockUser);
 
-      const result = await service.verifyOtpAndLogin('test@example.com', '123456');
+      const result = await service.verifyOtpAndLogin({ email: 'test@example.com' }, '123456');
 
       expect(result.accessToken).toBe('mock-token');
       expect(result.refreshToken).toBe('mock-token');
@@ -261,7 +261,7 @@ describe('AuthService', () => {
         emailVerified: false,
       });
 
-      await service.verifyOtpAndLogin('test@example.com', '123456');
+      await service.verifyOtpAndLogin({ email: 'test@example.com' }, '123456');
 
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: 'user-id' },
@@ -274,7 +274,7 @@ describe('AuthService', () => {
       tokenStore.incrementOtpAttempts.mockResolvedValue(1);
 
       await expect(
-        service.verifyOtpAndLogin('test@example.com', '999999'),
+        service.verifyOtpAndLogin({ email: 'test@example.com' }, '999999'),
       ).rejects.toThrow(BadRequestException);
       expect(tokenStore.incrementOtpAttempts).toHaveBeenCalledWith('test@example.com');
     });
@@ -283,7 +283,7 @@ describe('AuthService', () => {
       tokenStore.getOtp.mockResolvedValue(null);
 
       await expect(
-        service.verifyOtpAndLogin('test@example.com', '123456'),
+        service.verifyOtpAndLogin({ email: 'test@example.com' }, '123456'),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -294,7 +294,7 @@ describe('AuthService', () => {
       });
 
       await expect(
-        service.verifyOtpAndLogin('test@example.com', '123456'),
+        service.verifyOtpAndLogin({ email: 'test@example.com' }, '123456'),
       ).rejects.toThrow(ForbiddenException);
       expect(tokenStore.deleteOtp).toHaveBeenCalledWith('test@example.com');
     });
@@ -307,7 +307,7 @@ describe('AuthService', () => {
       });
 
       await expect(
-        service.verifyOtpAndLogin('test@example.com', '123456'),
+        service.verifyOtpAndLogin({ email: 'test@example.com' }, '123456'),
       ).rejects.toThrow(ForbiddenException);
     });
 
@@ -316,7 +316,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.verifyOtpAndLogin('test@example.com', '123456'),
+        service.verifyOtpAndLogin({ email: 'test@example.com' }, '123456'),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -538,7 +538,7 @@ describe('AuthService', () => {
       // It is already captured at module level — we just check mailService.
       mailService.sendOtpEmail.mockClear();
 
-      await service.requestOtp('test@example.com', OtpChannel.SMS);
+      await service.requestOtp({ email: 'test@example.com' }, OtpChannel.SMS);
 
       expect(mailService.sendOtpEmail).not.toHaveBeenCalled();
       // smsService.sendOtpSms is fire-and-forget; storeOtp records channel=SMS
@@ -560,7 +560,7 @@ describe('AuthService', () => {
       tokenStore.storeOtp.mockClear();
       tokenStore.incrementSmsDailyCount.mockClear();
 
-      const result = await service.requestOtp('nophone@example.com', OtpChannel.SMS);
+      const result = await service.requestOtp({ email: 'nophone@example.com' }, OtpChannel.SMS);
 
       expect(result.message).toContain('verification code has been sent');
       expect(tokenStore.storeOtp).not.toHaveBeenCalled();
@@ -574,7 +574,7 @@ describe('AuthService', () => {
       tokenStore.storeOtp.mockClear();
       mailService.sendOtpEmail.mockClear();
 
-      const result = await service.requestOtp('ghost@example.com', OtpChannel.SMS);
+      const result = await service.requestOtp({ email: 'ghost@example.com' }, OtpChannel.SMS);
 
       expect(result.message).toContain('verification code has been sent');
       expect(tokenStore.storeOtp).not.toHaveBeenCalled();
@@ -588,7 +588,7 @@ describe('AuthService', () => {
       tokenStore.storeOtp.mockClear();
       mailService.sendOtpEmail.mockClear();
 
-      const result = await service.requestOtp('test@example.com', OtpChannel.SMS);
+      const result = await service.requestOtp({ email: 'test@example.com' }, OtpChannel.SMS);
 
       expect(result.message).toContain('verification code has been sent');
       expect(tokenStore.storeOtp).not.toHaveBeenCalled();
@@ -603,7 +603,7 @@ describe('AuthService', () => {
       tokenStore.getOtp.mockResolvedValue(null);
 
       await expect(
-        service.switchOtpChannel('test@example.com'),
+        service.switchOtpChannel({ email: 'test@example.com' }),
       ).rejects.toThrow(expect.objectContaining({ status: 404 }));
     });
 
@@ -616,7 +616,7 @@ describe('AuthService', () => {
       });
 
       await expect(
-        service.switchOtpChannel('test@example.com'),
+        service.switchOtpChannel({ email: 'test@example.com' }),
       ).rejects.toThrow(expect.objectContaining({ status: 429 }));
     });
 
@@ -642,7 +642,7 @@ describe('AuthService', () => {
       auditService.log.mockClear();
       mailService.sendOtpEmail.mockClear();
 
-      const result = await service.switchOtpChannel('test@example.com');
+      const result = await service.switchOtpChannel({ email: 'test@example.com' });
 
       expect(result.message).toContain('verification code has been sent');
       expect(tokenStore.replaceOtpForSwitch).toHaveBeenCalledWith(
@@ -678,7 +678,7 @@ describe('AuthService', () => {
       const auditService = (service as unknown as { auditService: { log: jest.Mock } }).auditService;
       auditService.log.mockClear();
 
-      const result = await service.switchOtpChannel('test@example.com');
+      const result = await service.switchOtpChannel({ email: 'test@example.com' });
 
       expect(result.message).toContain('verification code has been sent');
       expect(tokenStore.replaceOtpForSwitch).toHaveBeenCalledWith(
@@ -706,7 +706,7 @@ describe('AuthService', () => {
       tokenStore.replaceOtpForSwitch.mockClear();
       mailService.sendOtpEmail.mockClear();
 
-      const result = await service.switchOtpChannel('nophone@example.com');
+      const result = await service.switchOtpChannel({ email: 'nophone@example.com' });
 
       expect(result.message).toContain('verification code has been sent');
       expect(tokenStore.replaceOtpForSwitch).not.toHaveBeenCalled();
@@ -738,7 +738,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue(baseUser);
       prisma.user.update.mockResolvedValue(baseUser);
 
-      await service.verifyOtpAndLogin('verify@example.com', '555555');
+      await service.verifyOtpAndLogin({ email: 'verify@example.com' }, '555555');
 
       expect(prisma.user.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -758,7 +758,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue(baseUser);
       prisma.user.update.mockClear();
 
-      await service.verifyOtpAndLogin('verify@example.com', '666666');
+      await service.verifyOtpAndLogin({ email: 'verify@example.com' }, '666666');
 
       // emailVerified is already true so no update at all, or an update
       // without phoneVerified — neither case should pass phoneVerified

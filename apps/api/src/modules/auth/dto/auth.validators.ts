@@ -16,9 +16,16 @@ import { OtpChannel } from '@social-bounty/shared';
 import { IsValidPhoneE164 } from '../../../common/validators/phone-number.validator';
 
 export class RequestOtpDto {
+  @ValidateIf((o) => !o.phoneNumber)
   @IsEmail()
   @IsNotEmpty()
-  email!: string;
+  email?: string;
+
+  @ValidateIf((o) => !o.email)
+  @IsString()
+  @IsNotEmpty()
+  @IsValidPhoneE164({ region: 'ZA' })
+  phoneNumber?: string;
 
   @IsOptional()
   @IsEnum(OtpChannel)
@@ -26,14 +33,29 @@ export class RequestOtpDto {
 }
 
 export class SwitchOtpChannelDto {
+  @ValidateIf((o) => !o.phoneNumber)
   @IsEmail()
-  email!: string;
+  @IsNotEmpty()
+  email?: string;
+
+  @ValidateIf((o) => !o.email)
+  @IsString()
+  @IsNotEmpty()
+  @IsValidPhoneE164({ region: 'ZA' })
+  phoneNumber?: string;
 }
 
 export class VerifyOtpDto {
+  @ValidateIf((o) => !o.phoneNumber)
   @IsEmail()
   @IsNotEmpty()
-  email!: string;
+  email?: string;
+
+  @ValidateIf((o) => !o.email)
+  @IsString()
+  @IsNotEmpty()
+  @IsValidPhoneE164({ region: 'ZA' })
+  phoneNumber?: string;
 
   @IsString()
   @Length(6, 6, { message: 'OTP must be exactly 6 digits' })

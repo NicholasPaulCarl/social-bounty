@@ -122,43 +122,60 @@ export class AuthService {
   }
 
   async requestOtp(
-    email: string,
+    identifier: { email?: string; phoneNumber?: string },
     channel: OtpChannel = OtpChannel.EMAIL,
     ipAddress?: string,
   ) {
-    const normalizedEmail = email.toLowerCase().trim();
-    const genericMessage = 'If an account with that email exists, a verification code has been sent.';
+    const normalizedEmail = identifier.email?.toLowerCase().trim();
+    const normalizedPhone = identifier.phoneNumber?.trim();
+    // The lookup key for Redis cooldown/OTP storage — email or phone
+    const lookupKey = normalizedEmail ?? normalizedPhone!;
+    const genericMessage = 'If an account exists, a verification code has been sent.';
 
     // Check cooldown to prevent spam
-    const hasCooldown = await this.tokenStore.hasRecentOtp(normalizedEmail);
+    const hasCooldown = await this.tokenStore.hasRecentOtp(lookupKey);
     if (hasCooldown) {
-      // Always return generic message to prevent email enumeration
       return { message: genericMessage };
     }
 
-    // Resolve phone number for SMS channel (needed for cap + send)
+    // Resolve user — by phone when phoneNumber provided, otherwise by email
     let phoneNumber: string | null = null;
     let user: { id: string; role: UserRole } | null = null;
-    if (channel === OtpChannel.SMS) {
+
+    if (normalizedPhone) {
+      // Phone-based login: look up user by phoneNumber
       const found = await this.prisma.user.findUnique({
-        where: { email: normalizedEmail },
+        where: { phoneNumber: normalizedPhone },
         select: { id: true, role: true, phoneNumber: true },
       });
-      if (!found || !found.phoneNumber) {
-        // Anti-enumeration: still set cooldown and return generic message
-        await this.tokenStore.setOtpCooldown(normalizedEmail);
+      if (!found) {
+        await this.tokenStore.setOtpCooldown(lookupKey);
         return { message: genericMessage };
       }
       user = { id: found.id, role: found.role as UserRole };
       phoneNumber = found.phoneNumber;
+    } else if (channel === OtpChannel.SMS) {
+      // Email-based identifier but SMS channel: resolve phone from user record
+      const found = await this.prisma.user.findUnique({
+        where: { email: normalizedEmail! },
+        select: { id: true, role: true, phoneNumber: true },
+      });
+      if (!found || !found.phoneNumber) {
+        await this.tokenStore.setOtpCooldown(lookupKey);
+        return { message: genericMessage };
+      }
+      user = { id: found.id, role: found.role as UserRole };
+      phoneNumber = found.phoneNumber;
+    }
 
-      // Enforce per-phone daily SMS cap
+    // Enforce per-phone daily SMS cap when sending via SMS
+    if (channel === OtpChannel.SMS && phoneNumber) {
       const dailyCount = await this.tokenStore.incrementSmsDailyCount(phoneNumber);
       if (dailyCount > AuthService.SMS_DAILY_CAP) {
         this.logger.warn(
           `sms-daily-cap-hit { phone: ${phoneNumber.slice(0, 4)}*** }`,
         );
-        await this.tokenStore.setOtpCooldown(normalizedEmail);
+        await this.tokenStore.setOtpCooldown(lookupKey);
         return { message: genericMessage };
       }
     }
@@ -167,15 +184,15 @@ export class AuthService {
     const otp = String(randomInt(100000, 999999));
 
     // Store OTP in Redis with channel info
-    await this.tokenStore.storeOtp(normalizedEmail, otp, channel);
-    await this.tokenStore.setOtpCooldown(normalizedEmail);
+    await this.tokenStore.storeOtp(lookupKey, otp, channel);
+    await this.tokenStore.setOtpCooldown(lookupKey);
 
-    // Fire-and-forget send on the appropriate channel (matches auth.service.ts:123 pattern)
+    // Fire-and-forget send on the appropriate channel
     if (channel === OtpChannel.SMS && phoneNumber) {
       this.smsService.sendOtpSms(phoneNumber, otp).catch((err) => {
         this.logger.error(`Failed to send OTP SMS to ${phoneNumber!.slice(0, 4)}***:`, err);
       });
-    } else {
+    } else if (normalizedEmail) {
       this.mailService.sendOtpEmail(normalizedEmail, otp).catch((err) => {
         this.logger.error(`Failed to send OTP email to ${normalizedEmail}:`, err);
       });
@@ -197,17 +214,23 @@ export class AuthService {
     return { message: genericMessage };
   }
 
-  async verifyOtpAndLogin(email: string, otp: string, ipAddress?: string) {
-    const normalizedEmail = email.toLowerCase().trim();
+  async verifyOtpAndLogin(
+    identifier: { email?: string; phoneNumber?: string },
+    otp: string,
+    ipAddress?: string,
+  ) {
+    const normalizedEmail = identifier.email?.toLowerCase().trim();
+    const normalizedPhone = identifier.phoneNumber?.trim();
+    const lookupKey = normalizedEmail ?? normalizedPhone!;
 
-    const otpData = await this.tokenStore.getOtp(normalizedEmail);
+    const otpData = await this.tokenStore.getOtp(lookupKey);
     if (!otpData) {
       throw new BadRequestException('Invalid or expired verification code');
     }
 
     // Check max attempts
     if (otpData.attempts >= OTP_RULES.MAX_ATTEMPTS) {
-      await this.tokenStore.deleteOtp(normalizedEmail);
+      await this.tokenStore.deleteOtp(lookupKey);
       throw new ForbiddenException(
         'Too many failed attempts. Please request a new code.',
       );
@@ -219,35 +242,45 @@ export class AuthService {
     const isValid = timingSafeEqual(otpBuffer, storedBuffer);
 
     if (!isValid) {
-      const attempts = await this.tokenStore.incrementOtpAttempts(normalizedEmail);
+      const attempts = await this.tokenStore.incrementOtpAttempts(lookupKey);
       const remaining = OTP_RULES.MAX_ATTEMPTS - attempts;
       if (remaining > 0) {
         throw new BadRequestException(
           `Invalid code. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`,
         );
       }
-      await this.tokenStore.deleteOtp(normalizedEmail);
+      await this.tokenStore.deleteOtp(lookupKey);
       throw new ForbiddenException(
         'Too many failed attempts. Please request a new code.',
       );
     }
 
     // OTP valid — clean up
-    await this.tokenStore.deleteOtp(normalizedEmail);
+    await this.tokenStore.deleteOtp(lookupKey);
 
-    // Look up user
-    const user = await this.prisma.user.findUnique({
-      where: { email: normalizedEmail },
-      include: {
-        brandMemberships: {
-          select: { brandId: true },
-          take: 1,
-        },
-      },
-    });
+    // Look up user — by phone or email
+    const user = normalizedPhone
+      ? await this.prisma.user.findUnique({
+          where: { phoneNumber: normalizedPhone },
+          include: {
+            brandMemberships: {
+              select: { brandId: true },
+              take: 1,
+            },
+          },
+        })
+      : await this.prisma.user.findUnique({
+          where: { email: normalizedEmail! },
+          include: {
+            brandMemberships: {
+              select: { brandId: true },
+              take: 1,
+            },
+          },
+        });
 
     if (!user) {
-      throw new BadRequestException('No account found with this email. Please sign up first.');
+      throw new BadRequestException('No account found. Please sign up first.');
     }
 
     if (user.status === UserStatus.SUSPENDED) {
@@ -575,13 +608,15 @@ export class AuthService {
   }
 
   async switchOtpChannel(
-    email: string,
+    identifier: { email?: string; phoneNumber?: string },
     ipAddress?: string,
   ): Promise<{ message: string }> {
-    const normalizedEmail = email.toLowerCase().trim();
-    const genericMessage = 'If an account with that email exists, a verification code has been sent.';
+    const normalizedEmail = identifier.email?.toLowerCase().trim();
+    const normalizedPhone = identifier.phoneNumber?.trim();
+    const lookupKey = normalizedEmail ?? normalizedPhone!;
+    const genericMessage = 'If an account exists, a verification code has been sent.';
 
-    const record = await this.tokenStore.getOtp(normalizedEmail);
+    const record = await this.tokenStore.getOtp(lookupKey);
     if (!record) {
       throw new NotFoundException('No active OTP session. Please request a new code.');
     }
@@ -596,24 +631,52 @@ export class AuthService {
     const newChannel =
       record.channel === OtpChannel.SMS ? OtpChannel.EMAIL : OtpChannel.SMS;
 
-    // Resolve phone for SMS target
+    // Resolve user for phone/email lookup and SMS target
     let phoneNumber: string | null = null;
+    let userEmail: string | null = normalizedEmail ?? null;
     let userId: string | null = null;
     let userRole: UserRole = UserRole.PARTICIPANT;
-    if (newChannel === OtpChannel.SMS) {
+
+    if (normalizedPhone) {
+      // Phone-based identifier: look up user by phone
       const found = await this.prisma.user.findUnique({
-        where: { email: normalizedEmail },
-        select: { id: true, role: true, phoneNumber: true },
+        where: { phoneNumber: normalizedPhone },
+        select: { id: true, role: true, phoneNumber: true, email: true },
       });
-      if (!found || !found.phoneNumber) {
-        // Anti-enumeration: silently return generic message
+      if (!found) {
         return { message: genericMessage };
       }
       userId = found.id;
       userRole = found.role as UserRole;
       phoneNumber = found.phoneNumber;
+      userEmail = found.email;
+    } else if (newChannel === OtpChannel.SMS) {
+      const found = await this.prisma.user.findUnique({
+        where: { email: normalizedEmail! },
+        select: { id: true, role: true, phoneNumber: true },
+      });
+      if (!found || !found.phoneNumber) {
+        return { message: genericMessage };
+      }
+      userId = found.id;
+      userRole = found.role as UserRole;
+      phoneNumber = found.phoneNumber;
+    } else {
+      // Switching to email — look up user for audit
+      if (normalizedEmail) {
+        const found = await this.prisma.user.findUnique({
+          where: { email: normalizedEmail },
+          select: { id: true, role: true },
+        });
+        if (found) {
+          userId = found.id;
+          userRole = found.role as UserRole;
+        }
+      }
+    }
 
-      // Enforce daily SMS cap
+    // Enforce daily SMS cap when switching to SMS
+    if (newChannel === OtpChannel.SMS && phoneNumber) {
       const dailyCount = await this.tokenStore.incrementSmsDailyCount(phoneNumber);
       if (dailyCount > AuthService.SMS_DAILY_CAP) {
         this.logger.warn(
@@ -621,21 +684,12 @@ export class AuthService {
         );
         return { message: genericMessage };
       }
-    } else {
-      const found = await this.prisma.user.findUnique({
-        where: { email: normalizedEmail },
-        select: { id: true, role: true },
-      });
-      if (found) {
-        userId = found.id;
-        userRole = found.role as UserRole;
-      }
     }
 
     // Generate fresh OTP and replace the Redis record
     const newOtp = String(randomInt(100000, 999999));
     const { fromChannel, switchCount } = await this.tokenStore.replaceOtpForSwitch(
-      normalizedEmail,
+      lookupKey,
       newOtp,
       newChannel,
     );
@@ -648,9 +702,9 @@ export class AuthService {
           err,
         );
       });
-    } else {
-      this.mailService.sendOtpEmail(normalizedEmail, newOtp).catch((err) => {
-        this.logger.error(`Failed to send switch OTP email to ${normalizedEmail}:`, err);
+    } else if (userEmail) {
+      this.mailService.sendOtpEmail(userEmail, newOtp).catch((err) => {
+        this.logger.error(`Failed to send switch OTP email to ${userEmail}:`, err);
       });
     }
 

@@ -12,6 +12,7 @@ import { OtpChannel } from '@social-bounty/shared';
 export default function LoginPage() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'email' | 'otp'>('email');
   const [error, setError] = useState('');
@@ -27,13 +28,19 @@ export default function LoginPage() {
     return () => clearTimeout(timer);
   }, [cooldown]);
 
+  const isSmsChannel = selectedChannel === OtpChannel.SMS;
+
+  const identifierPayload = isSmsChannel
+    ? { phoneNumber }
+    : { email };
+
   const handleRequestOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      await authApi.requestOtp({ email, channel: selectedChannel });
+      await authApi.requestOtp({ ...identifierPayload, channel: selectedChannel });
       setStep('otp');
       setCooldown(60);
     } catch (err) {
@@ -53,7 +60,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await authApi.verifyOtp({ email, otp });
+      const response = await authApi.verifyOtp({ ...identifierPayload, otp });
       login(response);
     } catch (err) {
       if (err instanceof ApiError) {
@@ -70,7 +77,7 @@ export default function LoginPage() {
     if (cooldown > 0) return;
     setError('');
     try {
-      await authApi.requestOtp({ email });
+      await authApi.requestOtp({ ...identifierPayload, channel: selectedChannel });
       setCooldown(60);
     } catch (err) {
       if (err instanceof ApiError) {
@@ -79,9 +86,9 @@ export default function LoginPage() {
         setError('Couldn\u2019t resend the code. Try again.');
       }
     }
-  }, [cooldown, email]);
+  }, [cooldown, email, phoneNumber, selectedChannel, identifierPayload]);
 
-  const handleChangeEmail = () => {
+  const handleChangeIdentifier = () => {
     setStep('email');
     setOtp('');
     setError('');
@@ -93,7 +100,7 @@ export default function LoginPage() {
     setSwitchPending(true);
     setError('');
     try {
-      await authApi.switchOtpChannel({ email });
+      await authApi.switchOtpChannel(identifierPayload);
       const newChannel = selectedChannel === OtpChannel.EMAIL ? OtpChannel.SMS : OtpChannel.EMAIL;
       setSelectedChannel(newChannel);
       setSwitchCount((n) => n + 1);
@@ -102,7 +109,7 @@ export default function LoginPage() {
       if (err instanceof ApiError && err.statusCode === 429) {
         setError('Too many channel switches — wait a minute and try again.');
       } else {
-        setError("Couldn’t switch channel. Try again.");
+        setError("Couldn't switch channel. Try again.");
       }
     } finally {
       setSwitchPending(false);
@@ -127,24 +134,36 @@ export default function LoginPage() {
         <form onSubmit={handleRequestOtp} className="space-y-5">
           <div>
             <label
-              htmlFor="email"
+              htmlFor="identifier"
               className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
             >
-              Email
+              {isSmsChannel ? 'Contact Number' : 'Email'}
             </label>
-            <InputText
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full"
-              placeholder="you@example.com"
-            />
+            {isSmsChannel ? (
+              <InputText
+                id="identifier"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                required
+                className="w-full"
+                placeholder="+27 81 234 5678"
+              />
+            ) : (
+              <InputText
+                id="identifier"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full"
+                placeholder="you@example.com"
+              />
+            )}
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm text-slate-600 font-medium">
+          <div>
+            <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
               How should we send your code?
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -182,19 +201,19 @@ export default function LoginPage() {
             disabled={loading}
             className="btn btn-primary btn-lg w-full rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
+            Continue
             {loading ? (
               <Loader2 size={18} strokeWidth={2} className="animate-spin" />
             ) : (
               <ArrowRight size={18} strokeWidth={2} />
             )}
-            Continue
           </button>
         </form>
       ) : (
         <form onSubmit={handleVerifyOtp} className="space-y-5">
           <p className="text-sm text-text-secondary text-center">
-            {selectedChannel === OtpChannel.SMS
-              ? <>We sent a 6-digit code to your <strong>phone</strong></>
+            {isSmsChannel
+              ? <>We sent a 6-digit code to <strong>{phoneNumber}</strong></>
               : <>We sent a 6-digit code to <strong>{email}</strong></>}
           </p>
 
@@ -234,10 +253,10 @@ export default function LoginPage() {
           <div className="flex items-center justify-between text-sm">
             <button
               type="button"
-              onClick={handleChangeEmail}
+              onClick={handleChangeIdentifier}
               className="text-pink-600 hover:text-pink-700 transition-colors duration-fast"
             >
-              Use a different email
+              {isSmsChannel ? 'Use a different number' : 'Use a different email'}
             </button>
             {cooldown > 0 ? (
               <span className="text-text-muted font-mono tabular-nums">Resend in {cooldown}s</span>
