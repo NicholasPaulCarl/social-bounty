@@ -707,3 +707,65 @@ describe('formReducer TOGGLE_FORMAT — auto-deactivate when last format uncheck
     expect(next.channels[SocialChannel.INSTAGRAM]).toEqual([PostFormat.STORY]);
   });
 });
+
+// ============================================================================
+// formReducer — REORDER_INSTRUCTION_STEP (Wave 1 Item C)
+// ============================================================================
+//
+// Drag-to-reorder instruction steps via HTML5 drag-and-drop.
+// Pure splice-based reorder: remove from `from`, insert at `to`.
+// No-ops when from === to or indices are out of range.
+
+describe('formReducer REORDER_INSTRUCTION_STEP', () => {
+  const stateWithSteps = makeState({
+    instructionSteps: ['Step A', 'Step B', 'Step C'],
+  });
+
+  it('moves a step forward (index 0 → 2)', () => {
+    const next = formReducer(stateWithSteps, {
+      type: 'REORDER_INSTRUCTION_STEP',
+      payload: { from: 0, to: 2 },
+    });
+    expect(next.instructionSteps).toEqual(['Step B', 'Step C', 'Step A']);
+  });
+
+  it('moves a step backward (index 2 → 0)', () => {
+    const next = formReducer(stateWithSteps, {
+      type: 'REORDER_INSTRUCTION_STEP',
+      payload: { from: 2, to: 0 },
+    });
+    expect(next.instructionSteps).toEqual(['Step C', 'Step A', 'Step B']);
+  });
+
+  it('is a no-op when from === to', () => {
+    const next = formReducer(stateWithSteps, {
+      type: 'REORDER_INSTRUCTION_STEP',
+      payload: { from: 1, to: 1 },
+    });
+    expect(next).toBe(stateWithSteps); // referential equality — state unchanged
+  });
+
+  it('is a no-op when from is out of range (negative)', () => {
+    const next = formReducer(stateWithSteps, {
+      type: 'REORDER_INSTRUCTION_STEP',
+      payload: { from: -1, to: 1 },
+    });
+    expect(next).toBe(stateWithSteps);
+  });
+
+  it('is a no-op when to is out of range (beyond last index)', () => {
+    const next = formReducer(stateWithSteps, {
+      type: 'REORDER_INSTRUCTION_STEP',
+      payload: { from: 0, to: 5 },
+    });
+    expect(next).toBe(stateWithSteps);
+  });
+
+  it('moves adjacent items (index 0 → 1)', () => {
+    const next = formReducer(stateWithSteps, {
+      type: 'REORDER_INSTRUCTION_STEP',
+      payload: { from: 0, to: 1 },
+    });
+    expect(next.instructionSteps).toEqual(['Step B', 'Step A', 'Step C']);
+  });
+});

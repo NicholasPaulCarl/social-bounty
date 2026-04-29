@@ -72,6 +72,7 @@ export type BountyFormAction =
   | { type: 'ADD_INSTRUCTION_STEP' }
   | { type: 'REMOVE_INSTRUCTION_STEP'; payload: number }
   | { type: 'UPDATE_INSTRUCTION_STEP'; payload: { index: number; value: string } }
+  | { type: 'REORDER_INSTRUCTION_STEP'; payload: { from: number; to: number } }
   | { type: 'TOGGLE_CHANNEL'; payload: { channel: string; formats: string[] } }
   | { type: 'TOGGLE_FORMAT'; payload: { channel: string; format: string } }
   // Section 2: Bounty Content
