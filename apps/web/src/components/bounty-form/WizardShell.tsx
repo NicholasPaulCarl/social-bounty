@@ -83,15 +83,17 @@ interface WizardShellProps {
  *
  *   1. A horizontally-scrolling step indicator (mobile-first; desktop
  *      pads the row). Each pill carries its 1-based number, label, and
- *      a "current"/"done" state. Numbers and labels are non-interactive
- *      — we don't expose direct step jumps because that would let the
- *      user skip per-step validation gates. Back/Next is the only path.
+ *      a "current"/"done" state. Pills are clickable — backward jumps
+ *      to any step are free; forward jumps are gated by the parent's
+ *      `onJumpToStep` (which re-runs `validateStep` on the current
+ *      step before allowing forward navigation), so per-step validation
+ *      gates still hold.
  *
  *   2. The active step's body via children.
  *
  *   3. A wizard footer with Back · Save Draft · Next (or Create on last
  *      step) · Discard. Save Draft is available at every step. Discard
- *      is gated by a PrimeReact ConfirmAction dialog.
+ *      opens a 3-button dialog (Keep editing · Save as draft · Discard).
  *
  * On the final step, the footer additionally renders the running
  * total-reward readout so brands see the amount they're committing to
