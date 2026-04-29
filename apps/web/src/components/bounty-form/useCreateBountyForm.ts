@@ -21,7 +21,7 @@ import { validateFull, validateDraft, validateField } from './validation';
 // Reducer
 // ---------------------------------------------------------------------------
 
-function formReducer(state: BountyFormState, action: BountyFormAction): BountyFormState {
+export function formReducer(state: BountyFormState, action: BountyFormAction): BountyFormState {
   switch (action.type) {
     // Section 1
     case 'SET_TITLE':
@@ -75,7 +75,14 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
       } else {
         formats.push(fmt);
       }
-      current[ch] = formats;
+      // Brief: "If all formats unchecked, platform deactivates."
+      // Mirror TOGGLE_CHANNEL's `delete current[ch]` pattern — an empty
+      // formats array means the channel is effectively off.
+      if (formats.length === 0) {
+        delete current[ch];
+      } else {
+        current[ch] = formats;
+      }
       return { ...state, channels: current };
     }
 

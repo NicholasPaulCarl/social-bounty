@@ -2,6 +2,7 @@ import {
   buildCreateBountyRequest,
   computePerClaimRewardValue,
   computeTotalRewardValue,
+  formReducer,
 } from '../useCreateBountyForm';
 import { INITIAL_FORM_STATE, type BountyFormState } from '../types';
 import {
@@ -672,5 +673,37 @@ describe('computeTotalRewardValue (ADR 0013 §1 multiplier)', () => {
 
   it('returns 0 when there are no rewards regardless of maxSubmissions', () => {
     expect(computeTotalRewardValue([], 10)).toBe(0);
+  });
+});
+
+// ============================================================================
+// formReducer — TOGGLE_FORMAT auto-deactivate (Wave 1 Item A)
+// ============================================================================
+//
+// Brief: "If all formats unchecked, platform deactivates."
+// The TOGGLE_FORMAT case must delete the channel key entirely when the last
+// format is removed, mirroring TOGGLE_CHANNEL's `delete current[ch]` pattern.
+
+describe('formReducer TOGGLE_FORMAT — auto-deactivate when last format unchecked', () => {
+  it('removes the channel key entirely when the last format is unchecked', () => {
+    const stateWithChannel = makeState({
+      channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
+    });
+    const next = formReducer(stateWithChannel, {
+      type: 'TOGGLE_FORMAT',
+      payload: { channel: SocialChannel.INSTAGRAM, format: PostFormat.REEL },
+    });
+    expect(next.channels[SocialChannel.INSTAGRAM]).toBeUndefined();
+  });
+
+  it('keeps the channel when at least one format remains', () => {
+    const stateWithTwo = makeState({
+      channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL, PostFormat.STORY] },
+    });
+    const next = formReducer(stateWithTwo, {
+      type: 'TOGGLE_FORMAT',
+      payload: { channel: SocialChannel.INSTAGRAM, format: PostFormat.REEL },
+    });
+    expect(next.channels[SocialChannel.INSTAGRAM]).toEqual([PostFormat.STORY]);
   });
 });
