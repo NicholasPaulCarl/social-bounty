@@ -9,6 +9,7 @@ import type { LucideIcon } from 'lucide-react';
 import { Currency, RewardType, BOUNTY_REWARD_LIMITS } from '@social-bounty/shared';
 import type { RewardLineInput } from '@social-bounty/shared';
 import type { BountyFormAction } from './types';
+import { RewardCalculator } from './RewardCalculator';
 
 const REWARD_TYPE_OPTIONS: { label: string; value: RewardType; Icon: LucideIcon; iconColor: string }[] = [
   { label: 'Cash', value: RewardType.CASH, Icon: Banknote, iconColor: 'text-success-600' },
@@ -64,68 +65,143 @@ export function RewardLinesSection({
     </div>
   );
 
+  const firstRewardType = rewards[0]?.rewardType ?? RewardType.CASH;
+
   return (
-    <>
-      <div className="flex items-center gap-3 mb-4">
-        <label className="text-sm font-medium text-text-primary">Currency</label>
-        <Dropdown
-          value={currency}
-          options={CURRENCY_OPTIONS}
-          onChange={(e) => dispatch({ type: 'SET_CURRENCY', payload: e.value })}
-          className="w-40"
-        />
-      </div>
-
-      <div className="mb-2">
-        <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1">
-          Rewards <span className="text-danger-600">*</span>
-        </label>
-        <p className="text-xs text-text-muted">
-          At least one reward with a value greater than zero is required.
-        </p>
-      </div>
-
-      {/* Desktop table layout */}
-      <div className="hidden md:block border border-glass-border rounded-lg overflow-hidden">
-        <div className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 bg-elevated border-b border-glass-border">
-          <span className="text-xs font-semibold text-text-secondary uppercase">Type</span>
-          <span className="text-xs font-semibold text-text-secondary uppercase">Name</span>
-          <span className="text-xs font-semibold text-text-secondary uppercase">Value ({currencySymbol})</span>
-          <span />
+    /*
+     * 2-column layout on lg+ (form left, sticky KPI sidebar right).
+     * Collapses to 1 column below lg — KPI panel stacks on top of the form
+     * inputs so mobile/tablet users see totals first then scroll to edit.
+     */
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
+      {/* ── Left col: form inputs ─────────────────────────────── */}
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <label className="text-sm font-medium text-text-primary">Currency</label>
+          <Dropdown
+            value={currency}
+            options={CURRENCY_OPTIONS}
+            onChange={(e) => dispatch({ type: 'SET_CURRENCY', payload: e.value })}
+            className="w-40"
+          />
         </div>
-        {rewards.map((reward, index) => {
-          const isCash = reward.rewardType === RewardType.CASH;
-          return (
-          <div
-            key={index}
-            className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 border-b border-glass-border last:border-b-0 items-center"
-          >
-            <Dropdown
-              value={reward.rewardType}
-              options={REWARD_TYPE_OPTIONS}
-              onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'rewardType', value: e.value } })}
-              itemTemplate={rewardTypeTemplate}
-              className="w-full"
-            />
-            {isCash ? (
-              <span className="text-xs text-text-muted italic">No description needed for cash</span>
-            ) : (
+
+        <div className="mb-2">
+          <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1">
+            Rewards <span className="text-danger-600">*</span>
+          </label>
+          <p className="text-xs text-text-muted">
+            At least one reward with a value greater than zero is required.
+          </p>
+        </div>
+
+        {/* Desktop table layout */}
+        <div className="hidden md:block border border-glass-border rounded-lg overflow-hidden">
+          <div className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 bg-elevated border-b border-glass-border">
+            <span className="text-xs font-semibold text-text-secondary uppercase">Type</span>
+            <span className="text-xs font-semibold text-text-secondary uppercase">Name</span>
+            <span className="text-xs font-semibold text-text-secondary uppercase">Value ({currencySymbol})</span>
+            <span />
+          </div>
+          {rewards.map((reward, index) => {
+            const isCash = reward.rewardType === RewardType.CASH;
+            return (
+            <div
+              key={index}
+              className="grid grid-cols-[10rem_1fr_9rem_3rem] gap-3 p-3 border-b border-glass-border last:border-b-0 items-center"
+            >
+              <Dropdown
+                value={reward.rewardType}
+                options={REWARD_TYPE_OPTIONS}
+                onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'rewardType', value: e.value } })}
+                itemTemplate={rewardTypeTemplate}
+                className="w-full"
+              />
+              {isCash ? (
+                <span className="text-xs text-text-muted italic">No description needed for cash</span>
+              ) : (
+                <div>
+                  <InputText
+                    value={reward.name}
+                    onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'name', value: e.target.value } })}
+                    className={`w-full ${submitAttempted && errors[`reward_${index}_name`] ? 'p-invalid' : ''}`}
+                    placeholder="e.g. 3-month gym membership"
+                  />
+                  {submitAttempted && errors[`reward_${index}_name`] && (
+                    <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                      <AlertCircle size={12} strokeWidth={2} />
+                      {errors[`reward_${index}_name`]}
+                    </small>
+                  )}
+                </div>
+              )}
               <div>
+                <InputNumber
+                  value={reward.monetaryValue || null}
+                  onValueChange={(e) =>
+                    dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'monetaryValue', value: e.value ?? 0 } })
+                  }
+                  mode="decimal"
+                  minFractionDigits={2}
+                  maxFractionDigits={2}
+                  min={0}
+                  className={`w-full ${submitAttempted && errors[`reward_${index}_value`] ? 'p-invalid' : ''}`}
+                  placeholder="0.00"
+                />
+                {submitAttempted && errors[`reward_${index}_value`] && (
+                  <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+                    <AlertCircle size={12} strokeWidth={2} />
+                    {errors[`reward_${index}_value`]}
+                  </small>
+                )}
+              </div>
+              {rewards.length > 1 && (
+                <Button
+                  icon={<Trash2 size={14} strokeWidth={2} />}
+                  text
+                  severity="danger"
+                  size="small"
+                  onClick={() => dispatch({ type: 'REMOVE_REWARD', payload: index })}
+                />
+              )}
+            </div>
+            );
+          })}
+        </div>
+
+        {/* Mobile card layout */}
+        <div className="md:hidden space-y-3">
+          {rewards.map((reward, index) => {
+            const isCash = reward.rewardType === RewardType.CASH;
+            return (
+            <div key={index} className="space-y-3 p-4 border border-glass-border rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-text-primary">Reward {index + 1}</span>
+                {rewards.length > 1 && (
+                  <Button
+                    icon={<Trash2 size={14} strokeWidth={2} />}
+                    text
+                    severity="danger"
+                    size="small"
+                    onClick={() => dispatch({ type: 'REMOVE_REWARD', payload: index })}
+                  />
+                )}
+              </div>
+              <Dropdown
+                value={reward.rewardType}
+                options={REWARD_TYPE_OPTIONS}
+                onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'rewardType', value: e.value } })}
+                itemTemplate={rewardTypeTemplate}
+                className="w-full"
+              />
+              {!isCash && (
                 <InputText
                   value={reward.name}
                   onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'name', value: e.target.value } })}
                   className={`w-full ${submitAttempted && errors[`reward_${index}_name`] ? 'p-invalid' : ''}`}
                   placeholder="e.g. 3-month gym membership"
                 />
-                {submitAttempted && errors[`reward_${index}_name`] && (
-                  <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-                    <AlertCircle size={12} strokeWidth={2} />
-                    {errors[`reward_${index}_name`]}
-                  </small>
-                )}
-              </div>
-            )}
-            <div>
+              )}
               <InputNumber
                 value={reward.monetaryValue || null}
                 onValueChange={(e) =>
@@ -138,125 +214,51 @@ export function RewardLinesSection({
                 className={`w-full ${submitAttempted && errors[`reward_${index}_value`] ? 'p-invalid' : ''}`}
                 placeholder="0.00"
               />
-              {submitAttempted && errors[`reward_${index}_value`] && (
-                <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-                  <AlertCircle size={12} strokeWidth={2} />
-                  {errors[`reward_${index}_value`]}
-                </small>
-              )}
             </div>
-            {rewards.length > 1 && (
-              <Button
-                icon={<Trash2 size={14} strokeWidth={2} />}
-                text
-                severity="danger"
-                size="small"
-                onClick={() => dispatch({ type: 'REMOVE_REWARD', payload: index })}
-              />
-            )}
-          </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      {/* Mobile card layout */}
-      <div className="md:hidden space-y-3">
-        {rewards.map((reward, index) => {
-          const isCash = reward.rewardType === RewardType.CASH;
-          return (
-          <div key={index} className="space-y-3 p-4 border border-glass-border rounded-lg">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-text-primary">Reward {index + 1}</span>
-              {rewards.length > 1 && (
-                <Button
-                  icon={<Trash2 size={14} strokeWidth={2} />}
-                  text
-                  severity="danger"
-                  size="small"
-                  onClick={() => dispatch({ type: 'REMOVE_REWARD', payload: index })}
-                />
-              )}
-            </div>
-            <Dropdown
-              value={reward.rewardType}
-              options={REWARD_TYPE_OPTIONS}
-              onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'rewardType', value: e.value } })}
-              itemTemplate={rewardTypeTemplate}
-              className="w-full"
-            />
-            {!isCash && (
-              <InputText
-                value={reward.name}
-                onChange={(e) => dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'name', value: e.target.value } })}
-                className={`w-full ${submitAttempted && errors[`reward_${index}_name`] ? 'p-invalid' : ''}`}
-                placeholder="e.g. 3-month gym membership"
-              />
-            )}
-            <InputNumber
-              value={reward.monetaryValue || null}
-              onValueChange={(e) =>
-                dispatch({ type: 'UPDATE_REWARD', payload: { index, field: 'monetaryValue', value: e.value ?? 0 } })
-              }
-              mode="decimal"
-              minFractionDigits={2}
-              maxFractionDigits={2}
-              min={0}
-              className={`w-full ${submitAttempted && errors[`reward_${index}_value`] ? 'p-invalid' : ''}`}
-              placeholder="0.00"
-            />
-          </div>
-          );
-        })}
-      </div>
-
-      {submitAttempted && errors.rewards && (
-        <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
-          <AlertCircle size={12} strokeWidth={2} />
-          {errors.rewards}
-        </small>
-      )}
-
-      <div className="flex items-center justify-between mt-3">
-        <Button
-          label="Add reward"
-          icon={<Plus size={14} strokeWidth={2} />}
-          outlined
-          size="small"
-          disabled={rewards.length >= BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES}
-          onClick={() => dispatch({ type: 'ADD_REWARD' })}
-        />
-        {rewards.length >= BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES && (
-          <small className="text-xs text-text-muted">Maximum {BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES} reward lines</small>
+        {submitAttempted && errors.rewards && (
+          <small className="text-xs text-danger-600 mt-1 flex items-center gap-1">
+            <AlertCircle size={12} strokeWidth={2} />
+            {errors.rewards}
+          </small>
         )}
+
+        <div className="flex items-center justify-between mt-3">
+          <Button
+            label="Add reward"
+            icon={<Plus size={14} strokeWidth={2} />}
+            outlined
+            size="small"
+            disabled={rewards.length >= BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES}
+            onClick={() => dispatch({ type: 'ADD_REWARD' })}
+          />
+          {rewards.length >= BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES && (
+            <small className="text-xs text-text-muted">Maximum {BOUNTY_REWARD_LIMITS.MAX_REWARD_LINES} reward lines</small>
+          )}
+        </div>
       </div>
 
+      {/* ── Right col: sticky KPI sidebar ─────────────────────── */}
       {/*
         Per ADR 0013 §1, the brand sees TWO numbers: per-claim (what one
         approved hunter earns) and total (what's escrowed on TradeSafe =
-        per-claim × claim count). Showing both defuses the "I added one
-        R100 reward, why is the total R1000?" surprise that the multiplier
-        introduces. When `maxSubmissions` isn't set yet, the multiplier
-        line is suppressed and only the per-claim sum is shown.
+        per-claim × claim count). RewardCalculator surfaces both prominently
+        and updates live as the brand changes per-claim value or claim count.
+        On mobile/tablet (<lg) this column collapses to the top of the grid
+        so the totals are visible without scrolling past the form.
       */}
-      <div className="flex justify-end mt-4">
-        <div className="text-right">
-          <span className="eyebrow">Per claim</span>
-          <p className="font-mono tabular-nums text-base font-medium text-text-secondary mt-0.5">
-            <span className="text-text-muted text-sm font-normal mr-1">{currencySymbol}</span>
-            {perClaimRewardValue.toFixed(2)}
-          </p>
-          {maxSubmissions != null && maxSubmissions > 1 && (
-            <p className="text-xs text-text-muted mt-1">
-              <span className="font-mono tabular-nums">×&nbsp;{maxSubmissions}</span> claim{maxSubmissions === 1 ? '' : 's'}
-            </p>
-          )}
-          <span className="eyebrow mt-2 block">Total bounty value</span>
-          <p className="font-mono tabular-nums text-lg font-bold text-text-primary mt-0.5">
-            <span className="text-text-muted text-base font-normal mr-1">{currencySymbol}</span>
-            {totalRewardValue.toFixed(2)}
-          </p>
-        </div>
+      <div className="lg:sticky lg:top-24 order-first lg:order-last">
+        <RewardCalculator
+          currency={currency}
+          perClaimRewardValue={perClaimRewardValue}
+          totalRewardValue={totalRewardValue}
+          maxSubmissions={maxSubmissions}
+          rewardType={firstRewardType}
+        />
       </div>
-    </>
+    </div>
   );
 }

@@ -10,14 +10,12 @@ import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
 import { bountyApi } from '@/lib/api/bounties';
 import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-checkout';
-import { BountyManageCard } from '@/components/features/bounty/BountyManageCard';
 import { BountyCardSkeleton } from '@/components/features/bounty/BountyCardSkeleton';
 import { BusinessBountyListView } from '@/components/features/bounty/BusinessBountyListView';
-import { BountyManageActions, type ManageStatusAction } from '@/components/features/bounty/BountyManageActions';
-import { ManageHero } from '@/components/features/bounty/ManageHero';
-import { BountyStatusPills } from '@/components/features/bounty/BountyStatusPills';
-import { BrowseFilterBar } from '@/components/features/bounty/BrowseFilterBar';
-import { ActiveFilterChips } from '@/components/features/bounty/ActiveFilterChips';
+import type { ManageStatusAction } from '@/components/features/bounty/BountyManageActions';
+import { BountyHubHeader } from '@/components/features/bounty/BountyHubHeader';
+import { BountyStatusSegmented } from '@/components/features/bounty/BountyStatusSegmented';
+import { BountyFilterRow } from '@/components/features/bounty/BountyFilterRow';
 import { QuickCreateGrid } from '@/components/features/bounty/QuickCreateGrid';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -33,23 +31,18 @@ const PAGE_LIMIT = 25;
  * Sibling of the hunter `/bounties` Browse page, sharing the visual
  * language but tuned for the brand workflow:
  *
- *   gradient hero (Manage bounties · counts · view toggle · Create CTA)
+ *   simple header (H1 Bounties · subtitle · "+ New bounty" CTA)
  *   → quick-create card grid (Blank / Social Exposure / Check-Ins /
  *     Product Sales — each links to /business/bounties/new[?preset=…])
- *   → status pills (All · Draft · Live · Paused · Closed)
- *   → sticky filter bar (search · reward · sort · clear)
- *   → optional active-filter chips
- *   → results: skeleton → grid (manage card + actions footer) →
- *     list (DataTable, ellipsis-menu per row) → empty
+ *   → "All bounties" eyebrow
+ *   → filter card: segmented status (All · Live · Drafts · Ended) +
+ *     search input + Filter button stub
+ *   → results: skeleton → list (DataTable, ellipsis-menu per row) → empty
  *   → paginator (25 per page)
  *
  * URL contract round-trips through `useManageFilters`: every filter is
  * shareable / bookmarkable / reload-safe at
  * `/business/bounties?status=DRAFT&rewardType=CASH&sortBy=reward-high&view=list`.
- *
- * Per-status counts are fired as four lightweight `limit:1` queries in
- * parallel; each shares the existing `useBounties` cache key so navigating
- * between status tabs reuses the data.
  */
 function BusinessBountiesContent() {
   const router = useRouter();
@@ -77,34 +70,15 @@ function BusinessBountiesContent() {
     search: f.filters.search || undefined,
   });
 
-  // Per-status counts — four lightweight queries running in parallel.
-  // React Query dedupes them by key so re-renders are cheap.
-  const live = useBounties({ page: 1, limit: 1, status: BountyStatus.LIVE });
-  const draft = useBounties({ page: 1, limit: 1, status: BountyStatus.DRAFT });
-  const paused = useBounties({ page: 1, limit: 1, status: BountyStatus.PAUSED });
-  const closed = useBounties({ page: 1, limit: 1, status: BountyStatus.CLOSED });
-
-  const statusCounts = {
-    live: live.data?.meta.total,
-    draft: draft.data?.meta.total,
-    paused: paused.data?.meta.total,
-    closed: closed.data?.meta.total,
-  };
-
   const deleteBounty = useDeleteBounty();
   const bounties: BountyListItem[] = data?.data ?? [];
   const totalForFilter = data?.meta.total ?? 0;
   const hasActiveFilters = f.activeChips.length > 0;
-  const isGrid = f.filters.view === 'grid';
 
   // ── Action handlers ────────────────────────────────────────────────────
 
   const refreshAll = () => {
     refetch();
-    live.refetch();
-    draft.refetch();
-    paused.refetch();
-    closed.refetch();
   };
 
   const handleView = (bounty: BountyListItem) =>
@@ -214,31 +188,9 @@ function BusinessBountiesContent() {
       .catch(() => toast.showError("Couldn't update status. Try again."));
   };
 
-  // ── Hero meta — single-clause when filtered, full breakdown on All ────
-  const filteredLabel = (() => {
-    if (f.filters.status === 'all') return null;
-    return (
-      <span>
-        <span
-          className="font-mono tabular-nums text-text-primary"
-          style={{ fontWeight: 600 }}
-        >
-          {totalForFilter}
-        </span>{' '}
-        {f.statusLabel[f.filters.status].toLowerCase()}
-      </span>
-    );
-  })();
-
   return (
     <>
-      <ManageHero
-        statusCounts={f.filters.status === 'all' ? statusCounts : undefined}
-        extraMeta={filteredLabel}
-        viewMode={f.filters.view}
-        onViewChange={f.setView}
-        onCreate={() => router.push('/business/bounties/new')}
-      />
+      <BountyHubHeader onCreate={() => router.push('/business/bounties/new')} />
 
       <QuickCreateGrid />
 
@@ -246,36 +198,36 @@ function BusinessBountiesContent() {
         All bounties
       </h2>
 
-      <div className="mb-3 sm:mb-4">
-        <BountyStatusPills value={f.filters.status} onChange={f.setStatus} />
-      </div>
-
-      <BrowseFilterBar
-        search={f.searchInput}
-        onSearchChange={f.setSearch}
-        rewardType={f.filters.rewardType}
-        onRewardTypeChange={f.setRewardType}
-        sortBy={f.filters.sortBy}
-        onSortByChange={f.setSortBy}
-        hasActiveFilters={hasActiveFilters}
-        onClearAll={f.clearAll}
-      />
-
-      {hasActiveFilters && (
-        <div className="pt-3 sm:pt-4">
-          <ActiveFilterChips chips={f.activeChips} onRemove={f.removeChip} />
+      {/* Filter card — status segmented + search + filter button in one surface */}
+      <div
+        className="mb-4 rounded-xl border border-slate-200 bg-surface px-4 py-3 sm:px-5"
+        style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <BountyStatusSegmented value={f.filters.status} onChange={f.setStatus} />
+          <span
+            className="font-mono tabular-nums text-text-muted"
+            style={{ fontSize: 12 }}
+            aria-live="polite"
+          >
+            {totalForFilter > 0 && (
+              <>
+                {totalForFilter}{' '}
+                {f.filters.status === 'all' ? 'total' : f.statusLabel[f.filters.status].toLowerCase()}
+              </>
+            )}
+          </span>
         </div>
-      )}
+
+        <BountyFilterRow
+          searchValue={f.searchInput}
+          onSearchChange={f.setSearch}
+        />
+      </div>
 
       <div className="pb-7 pt-4 sm:pt-5">
         {isLoading && (
-          <div
-            className={
-              isGrid
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
-                : 'grid grid-cols-1 gap-3'
-            }
-          >
+          <div className="grid grid-cols-1 gap-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <BountyCardSkeleton key={i} />
             ))}
@@ -320,37 +272,15 @@ function BusinessBountiesContent() {
 
         {!isLoading && !error && bounties.length > 0 && (
           <>
-            {isGrid ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {bounties.map((bounty) => (
-                  <BountyManageCard
-                    key={bounty.id}
-                    bounty={bounty}
-                    footer={
-                      <BountyManageActions
-                        bounty={bounty}
-                        onView={handleView}
-                        onEdit={handleEdit}
-                        onStatusChange={handleStatusActionTap}
-                        onDelete={handleDeleteTap}
-                        onDuplicate={handleDuplicate}
-                        paymentLoading={paymentBountyId === bounty.id}
-                      />
-                    }
-                  />
-                ))}
-              </div>
-            ) : (
-              <BusinessBountyListView
-                bounties={bounties}
-                onView={handleView}
-                onEdit={handleEdit}
-                onStatusChange={handleStatusActionTap}
-                onDelete={handleDeleteTap}
-                onDuplicate={handleDuplicate}
-                paymentBountyId={paymentBountyId}
-              />
-            )}
+            <BusinessBountyListView
+              bounties={bounties}
+              onView={handleView}
+              onEdit={handleEdit}
+              onStatusChange={handleStatusActionTap}
+              onDelete={handleDeleteTap}
+              onDuplicate={handleDuplicate}
+              paymentBountyId={paymentBountyId}
+            />
 
             {totalForFilter > PAGE_LIMIT && (
               <div className="mt-5 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">

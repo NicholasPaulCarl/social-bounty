@@ -43,6 +43,20 @@ export function formReducer(state: BountyFormState, action: BountyFormAction): B
           i === action.payload.index ? action.payload.value : s,
         ),
       };
+    case 'REORDER_INSTRUCTION_STEP': {
+      const { from, to } = action.payload;
+      if (
+        from === to ||
+        from < 0 ||
+        to < 0 ||
+        from >= state.instructionSteps.length ||
+        to >= state.instructionSteps.length
+      ) return state;
+      const next = [...state.instructionSteps];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return { ...state, instructionSteps: next };
+    }
 
     // Section 1 cont: Channels
     case 'TOGGLE_CHANNEL': {

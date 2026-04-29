@@ -7,7 +7,7 @@ import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Tag } from 'primereact/tag';
-import { FilePen, DollarSign, Shield, Lock, Images, Check, Pencil, X, Plus, AlertCircle, Video, Image as ImageIcon, Info } from 'lucide-react';
+import { FilePen, DollarSign, Shield, Lock, Images, Check, Pencil, X, Plus, AlertCircle, Video, Image as ImageIcon, Info, GripVertical } from 'lucide-react';
 import { FIELD_LIMITS, ContentFormat, BountyAccessType, SocialChannel } from '@social-bounty/shared';
 import type { BountyDetailResponse, CreateBountyRequest, UpdateBountyRequest } from '@social-bounty/shared';
 import { useCreateBountyForm } from './useCreateBountyForm';
@@ -80,6 +80,7 @@ function InstructionStepsBuilder({
   isLocked: boolean;
 }) {
   const [isEditing, setIsEditing] = useState(true);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
   const hasContent = steps.some((s) => s.trim());
 
   return (
@@ -111,7 +112,34 @@ function InstructionStepsBuilder({
         <>
           <div className="space-y-2">
             {steps.map((step, index) => (
-              <div key={index} className="flex items-start gap-2">
+              <div
+                key={index}
+                draggable={!isLocked && steps.length > 1}
+                onDragStart={() => setDragIdx(index)}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  if (dragIdx !== null && dragIdx !== index) {
+                    dispatch({ type: 'REORDER_INSTRUCTION_STEP', payload: { from: dragIdx, to: index } });
+                    setDragIdx(index);
+                  }
+                }}
+                onDragEnd={() => setDragIdx(null)}
+                className={[
+                  'flex items-start gap-2 rounded-lg transition-opacity',
+                  dragIdx === index ? 'opacity-50 border border-dashed border-pink-600/40' : '',
+                ].join(' ')}
+              >
+                {!isLocked && steps.length > 1 && (
+                  <div className="w-5 h-9 flex items-center justify-center shrink-0">
+                    <GripVertical
+                      size={14}
+                      className={[
+                        'text-text-muted shrink-0 select-none',
+                        dragIdx === index ? 'cursor-grabbing' : 'cursor-grab',
+                      ].join(' ')}
+                    />
+                  </div>
+                )}
                 <div className="w-7 h-9 flex items-center justify-center shrink-0">
                   <span className="w-6 h-6 rounded-full bg-pink-600/10 text-pink-600 text-xs font-bold flex items-center justify-center">
                     {index + 1}
