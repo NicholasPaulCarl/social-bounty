@@ -1,9 +1,10 @@
 'use client';
 
 import type { MouseEvent } from 'react';
-import { Pause, Pencil, Play, Trash2, Undo2, XCircle } from 'lucide-react';
+import { Copy, Pause, Pencil, Play, Trash2, Undo2, XCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { BountyStatus, type BountyListItem } from '@social-bounty/shared';
+import { getManageMenuPolicy } from './manage-menu-policy';
 
 /**
  * BountyManageActions — footer slot for `<BountyCard variant="manage">`.
@@ -41,6 +42,7 @@ interface BountyManageActionsProps {
   onEdit: (bounty: BountyListItem) => void;
   onStatusChange: (bounty: BountyListItem, action: ManageStatusAction) => void;
   onDelete: (bounty: BountyListItem) => void;
+  onDuplicate: (bounty: BountyListItem) => void;
   /** True while the publish-payment redirect is in-flight for this bounty. */
   paymentLoading?: boolean;
 }
@@ -79,10 +81,12 @@ export function BountyManageActions({
   onEdit,
   onStatusChange,
   onDelete,
+  onDuplicate,
   paymentLoading = false,
 }: BountyManageActionsProps) {
   const actions = getStatusActions(bounty.status);
   const showDelete = bounty.status === BountyStatus.DRAFT;
+  const { canEdit } = getManageMenuPolicy(bounty);
   const submissionLabel = bounty.submissionCount === 1 ? 'submission' : 'submissions';
 
   const stop = (handler: () => void) => (e: MouseEvent) => {
@@ -116,11 +120,19 @@ export function BountyManageActions({
 
       {/* Right — action icons */}
       <div className="inline-flex items-center" style={{ gap: 2 }}>
+        {canEdit && (
+          <IconButton
+            Icon={Pencil}
+            color="var(--text-secondary)"
+            tooltip="Edit"
+            onClick={stop(() => onEdit(bounty))}
+          />
+        )}
         <IconButton
-          Icon={Pencil}
+          Icon={Copy}
           color="var(--text-secondary)"
-          tooltip="Edit"
-          onClick={stop(() => onEdit(bounty))}
+          tooltip="Duplicate"
+          onClick={stop(() => onDuplicate(bounty))}
         />
         {actions.map((a) => (
           <IconButton

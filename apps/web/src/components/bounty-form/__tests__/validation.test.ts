@@ -49,7 +49,9 @@ describe('validateDraft', () => {
 });
 
 describe('validateFull', () => {
-  // Create a valid state for full validation (no category needed)
+  // Create a valid state for full validation (no category needed).
+  // `maxSubmissions` is required at full-validation time per ADR 0013 §2 —
+  // any state used as a "valid" baseline must set it to a positive int.
   const validState: Partial<BountyFormState> = {
     title: 'Test Bounty',
     shortDescription: 'A test bounty description',
@@ -57,6 +59,7 @@ describe('validateFull', () => {
     channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
     rewards: [{ rewardType: RewardType.CASH, name: 'Cash reward', monetaryValue: 100 }],
     proofRequirements: ['url'],
+    maxSubmissions: 1,
   };
 
   // Use valid channel formats that pass channelFormatErrors
@@ -395,12 +398,12 @@ describe('validateFull', () => {
     expect(errors.maxSubmissions).toBeDefined();
   });
 
-  it('should pass when maxSubmissions is null (unlimited)', () => {
+  it('should fail when maxSubmissions is null (required at full validation per ADR 0013 §2)', () => {
     const errors = validateFull(makeState({
       ...fullyValidState,
       maxSubmissions: null,
     }));
-    expect(errors.maxSubmissions).toBeUndefined();
+    expect(errors.maxSubmissions).toBe('Number of claims is required');
   });
 
   it('should pass when maxSubmissions is positive', () => {
@@ -443,6 +446,10 @@ describe('validateFull', () => {
       },
     }));
     expect(errors.minAccountAgeDays).toBeDefined();
+  });
+
+  it('INITIAL_FORM_STATE seeds locationRestriction to South Africa', () => {
+    expect(INITIAL_FORM_STATE.structuredEligibility.locationRestriction).toBe('South Africa');
   });
 
   it('should fail with locationRestriction exceeding 200 chars', () => {
@@ -570,7 +577,7 @@ describe('getSectionErrors', () => {
     expect(getSectionErrors('bountyBasicInfo', errors)).toHaveLength(2);
   });
 
-  it('should return bountyContent errors (rewards, tagAccount, duration)', () => {
+  it('should return bountyContent errors (rewards, tagAccount, duration, maxSubmissions)', () => {
     const errors = { rewards: 'required', reward_0_name: 'required', reward_1_value: 'required', tagAccount: 'invalid' };
     expect(getSectionErrors('bountyContent', errors)).toHaveLength(4);
   });
@@ -580,14 +587,30 @@ describe('getSectionErrors', () => {
     expect(getSectionErrors('bountyContent', errors)).toHaveLength(2);
   });
 
-  it('should return bountyRules errors (eligibility, proof, submissions, schedule, metrics)', () => {
-    const errors = { minFollowers: 'required', customRule_0: 'empty', proofRequirements: 'required', maxSubmissions: 'invalid' };
-    expect(getSectionErrors('bountyRules', errors)).toHaveLength(4);
+  it('should bucket maxSubmissions under bountyContent (renders on wizard step 3)', () => {
+    // Per the ADR 0013 step-ownership move: MaxSubmissionsSection lives
+    // in step 3 (Claim & Rewards, owned by bountyContent), so its error
+    // must surface on that step's panel — not on bountyRules where the
+    // pre-2026-04-28 mapping put it.
+    const errors = { maxSubmissions: 'invalid', minFollowers: 'required' };
+    expect(getSectionErrors('bountyContent', errors)).toEqual(['maxSubmissions']);
+    expect(getSectionErrors('bountyRules', errors)).toEqual(['minFollowers']);
   });
 
-  it('should return bountyRules schedule errors', () => {
+  it('should return bountyRules errors (eligibility, proof, metrics)', () => {
+    const errors = { minFollowers: 'required', customRule_0: 'empty', proofRequirements: 'required' };
+    expect(getSectionErrors('bountyRules', errors)).toHaveLength(3);
+  });
+
+  it('should return bountyBasicInfo schedule errors', () => {
+    // Schedule (startDate / endDate) lives in Section 1 of the form
+    // (Wave B regrouped — was previously co-located with bountyRules
+    // in the section-key map even though the panel sat in Section 1).
+    // The wizard's Step 1 (Basics) blocks Next on schedule errors via
+    // this mapping.
     const errors = { endDate: 'invalid', startDate: 'invalid' };
-    expect(getSectionErrors('bountyRules', errors)).toHaveLength(2);
+    expect(getSectionErrors('bountyBasicInfo', errors)).toHaveLength(2);
+    expect(getSectionErrors('bountyRules', errors)).toHaveLength(0);
   });
 
   it('should return bountyRules payout metrics errors', () => {

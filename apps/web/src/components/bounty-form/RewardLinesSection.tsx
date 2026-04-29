@@ -34,7 +34,12 @@ const CURRENCY_SYMBOLS: Record<Currency, string> = {
 interface RewardLinesSectionProps {
   rewards: RewardLineInput[];
   currency: Currency;
+  /** Sum of reward line monetary values — what one approved hunter earns. */
+  perClaimRewardValue: number;
+  /** Per ADR 0013 §1: `perClaimRewardValue × maxSubmissions`. */
   totalRewardValue: number;
+  /** Drives the "× N claims" multiplier label. Falls back to ×1 when null. */
+  maxSubmissions: number | null;
   dispatch: React.Dispatch<BountyFormAction>;
   errors: Record<string, string>;
   submitAttempted: boolean;
@@ -43,7 +48,9 @@ interface RewardLinesSectionProps {
 export function RewardLinesSection({
   rewards,
   currency,
+  perClaimRewardValue,
   totalRewardValue,
+  maxSubmissions,
   dispatch,
   errors,
   submitAttempted,
@@ -223,9 +230,27 @@ export function RewardLinesSection({
         )}
       </div>
 
+      {/*
+        Per ADR 0013 §1, the brand sees TWO numbers: per-claim (what one
+        approved hunter earns) and total (what's escrowed on TradeSafe =
+        per-claim × claim count). Showing both defuses the "I added one
+        R100 reward, why is the total R1000?" surprise that the multiplier
+        introduces. When `maxSubmissions` isn't set yet, the multiplier
+        line is suppressed and only the per-claim sum is shown.
+      */}
       <div className="flex justify-end mt-4">
         <div className="text-right">
-          <span className="eyebrow">Total reward value</span>
+          <span className="eyebrow">Per claim</span>
+          <p className="font-mono tabular-nums text-base font-medium text-text-secondary mt-0.5">
+            <span className="text-text-muted text-sm font-normal mr-1">{currencySymbol}</span>
+            {perClaimRewardValue.toFixed(2)}
+          </p>
+          {maxSubmissions != null && maxSubmissions > 1 && (
+            <p className="text-xs text-text-muted mt-1">
+              <span className="font-mono tabular-nums">×&nbsp;{maxSubmissions}</span> claim{maxSubmissions === 1 ? '' : 's'}
+            </p>
+          )}
+          <span className="eyebrow mt-2 block">Total bounty value</span>
           <p className="font-mono tabular-nums text-lg font-bold text-text-primary mt-0.5">
             <span className="text-text-muted text-base font-normal mr-1">{currencySymbol}</span>
             {totalRewardValue.toFixed(2)}

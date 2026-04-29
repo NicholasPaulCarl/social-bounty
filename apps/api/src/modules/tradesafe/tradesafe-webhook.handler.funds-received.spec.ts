@@ -25,6 +25,13 @@ describe('TradeSafeWebhookHandler.handleFundsReceived (ADR 0011 Phase 3)', () =>
     $transaction: jest.Mock;
     bountyUpdateMock: jest.Mock;
   }> = {}) {
+    // Per ADR 0013 §1: faceValueCents is `sum(rewards) × maxSubmissions`,
+    // computed at funding time and persisted on the Bounty row. The webhook
+    // handler reads the stored value and is therefore agnostic to the
+    // multiplier — the test fixtures for the 5-test webhook matrix carry an
+    // explicit `maxSubmissions: 1` so the row's `faceValueCents` of 10000n
+    // is internally consistent (R100 reward × 1 claim = R100 = 10000 cents).
+    // The multiplier-specific assertion is in its own test below this block.
     const bounty = {
       id: 'bounty-1',
       brandId: 'brand-1',
@@ -32,6 +39,7 @@ describe('TradeSafeWebhookHandler.handleFundsReceived (ADR 0011 Phase 3)', () =>
       status: BountyStatus.DRAFT,
       paymentStatus: PaymentStatus.PENDING,
       faceValueCents: 10000n,
+      maxSubmissions: 1,
       brandAdminFeeRateBps: 1500,
       globalFeeRateBps: 350,
     };
@@ -148,6 +156,7 @@ describe('TradeSafeWebhookHandler.handleFundsReceived (ADR 0011 Phase 3)', () =>
           status: BountyStatus.LIVE, // already flipped
           paymentStatus: PaymentStatus.PAID,
           faceValueCents: 10000n,
+          maxSubmissions: 1,
           brandAdminFeeRateBps: 1500,
           globalFeeRateBps: 350,
         },
@@ -188,6 +197,64 @@ describe('TradeSafeWebhookHandler.handleFundsReceived (ADR 0011 Phase 3)', () =>
     const { handler, postTransactionGroupMock } = buildHandler({ txn: null });
     await expect(handler.handleFundsReceived(payload)).resolves.toBeUndefined();
     expect(postTransactionGroupMock).not.toHaveBeenCalled();
+  });
+
+  // Per ADR 0013 §1 + §"Financial Non-Negotiable compliance" — when a bounty
+  // is funded with `maxSubmissions = 5` and `rewards = [{ monetaryValue:
+  // 100 }]`, the persisted `faceValueCents` is `100 × 100 × 5 = 50000n`.
+  // The webhook handler reads the stored value and posts a balanced ledger
+  // group at that scaled amount. This test pins the post-multiplier wire
+  // contract so a regression in `computeFaceValueCents` would surface
+  // here as an unbalanced group or incorrect debits.
+  it('multi-claim multiplier — faceValueCents = 50000n on 5×R100 bounty produces scaled ledger legs', async () => {
+    const { handler, postTransactionGroupMock } = buildHandler({
+      txn: {
+        id: 'txn-row-1',
+        tradeSafeTransactionId: 'tradesafe-txn-1',
+        bountyId: 'bounty-1',
+        // Brand-side total = face × (1 + adminBps + globalBps).
+        // 50000 × 1.185 = 59250
+        totalValueCents: 59250n,
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-1',
+          currency: 'ZAR',
+          status: BountyStatus.DRAFT,
+          paymentStatus: PaymentStatus.PENDING,
+          // R100 reward × 5 claims = R500 face value = 50000 cents.
+          faceValueCents: 50000n,
+          maxSubmissions: 5,
+          brandAdminFeeRateBps: 1500,
+          globalFeeRateBps: 350,
+        },
+      },
+    });
+    await handler.handleFundsReceived(payload);
+
+    expect(postTransactionGroupMock).toHaveBeenCalledTimes(1);
+    const call = postTransactionGroupMock.mock.calls[0][0];
+    // Double-entry still balances at the multiplied amount.
+    const debits = call.legs
+      .filter((l: any) => l.type === 'DEBIT')
+      .reduce((s: bigint, l: any) => s + l.amountCents, 0n);
+    const credits = call.legs
+      .filter((l: any) => l.type === 'CREDIT')
+      .reduce((s: bigint, l: any) => s + l.amountCents, 0n);
+    expect(debits).toBe(credits);
+    // The brand_reserve credit specifically reflects faceValueCents — this
+    // is what payouts later debit against. If the multiplier silently rolls
+    // back, this assertion fails first.
+    const reserveCredit = call.legs.find(
+      (l: any) => l.account === 'brand_reserve',
+    );
+    expect(reserveCredit.amountCents).toBe(50000n);
+    // brand_cash_received scales together: 50000 + 7500 (15% admin) + 1750
+    // (3.5% global) = 59250. Without this lock, the cash leg could drift
+    // independently and break reconciliation `checkReserveVsBounty`.
+    const cashDebit = call.legs.find(
+      (l: any) => l.account === 'brand_cash_received',
+    );
+    expect(cashDebit.amountCents).toBe(59250n);
   });
 
   it('concurrent writer — two handlers ran in parallel produce one group via ledger idempotency', async () => {
@@ -271,6 +338,7 @@ describe('TradeSafeWebhookHandler.handleFundsReceived (ADR 0011 Phase 3)', () =>
           status: BountyStatus.LIVE, // already flipped
           paymentStatus: PaymentStatus.PAID,
           faceValueCents: 10000n,
+          maxSubmissions: 1,
           brandAdminFeeRateBps: 1500,
           globalFeeRateBps: 350,
         },

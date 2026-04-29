@@ -18,13 +18,14 @@ import { ManageHero } from '@/components/features/bounty/ManageHero';
 import { BountyStatusPills } from '@/components/features/bounty/BountyStatusPills';
 import { BrowseFilterBar } from '@/components/features/bounty/BrowseFilterBar';
 import { ActiveFilterChips } from '@/components/features/bounty/ActiveFilterChips';
+import { QuickCreateGrid } from '@/components/features/bounty/QuickCreateGrid';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatEnumLabel } from '@/lib/utils/format';
-import { BountyStatus, PaymentStatus, type BountyListItem } from '@social-bounty/shared';
+import { BountyStatus, FIELD_LIMITS, PaymentStatus, type BountyListItem } from '@social-bounty/shared';
 
-const PAGE_LIMIT = 12;
+const PAGE_LIMIT = 25;
 
 /**
  * Manage Bounties page — `/business/bounties`.
@@ -33,12 +34,14 @@ const PAGE_LIMIT = 12;
  * language but tuned for the brand workflow:
  *
  *   gradient hero (Manage bounties · counts · view toggle · Create CTA)
+ *   → quick-create card grid (Blank / Social Exposure / Check-Ins /
+ *     Product Sales — each links to /business/bounties/new[?preset=…])
  *   → status pills (All · Draft · Live · Paused · Closed)
  *   → sticky filter bar (search · reward · sort · clear)
  *   → optional active-filter chips
  *   → results: skeleton → grid (manage card + actions footer) →
- *     list (DataTable) → empty
- *   → paginator
+ *     list (DataTable, ellipsis-menu per row) → empty
+ *   → paginator (25 per page)
  *
  * URL contract round-trips through `useManageFilters`: every filter is
  * shareable / bookmarkable / reload-safe at
@@ -114,6 +117,48 @@ function BusinessBountiesContent() {
     setStatusAction({ bounty, action });
 
   const handleDeleteTap = (bounty: BountyListItem) => setDeleteId(bounty.id);
+
+  const handleDuplicate = async (bounty: BountyListItem) => {
+    try {
+      const detail = await bountyApi.getById(bounty.id);
+      const prefix = 'Copy of ';
+      const maxLen = FIELD_LIMITS.BOUNTY_TITLE_MAX - prefix.length;
+      const title = prefix + detail.title.slice(0, maxLen);
+      const newBounty = await bountyApi.create({
+        title,
+        shortDescription: detail.shortDescription || undefined,
+        contentFormat: detail.contentFormat,
+        fullInstructions: detail.fullInstructions || undefined,
+        instructionSteps: detail.instructionSteps,
+        category: detail.category || undefined,
+        proofRequirements: detail.proofRequirements || undefined,
+        maxSubmissions: detail.maxSubmissions,
+        startDate: null,
+        endDate: detail.endDate,
+        channels: detail.channels ?? undefined,
+        rewards: detail.rewards.map((r) => ({
+          rewardType: r.rewardType,
+          name: r.name,
+          monetaryValue: parseFloat(r.monetaryValue),
+        })),
+        postVisibility: detail.postVisibility ?? undefined,
+        structuredEligibility: detail.structuredEligibility ?? undefined,
+        currency: detail.currency,
+        aiContentPermitted: detail.aiContentPermitted,
+        engagementRequirements: detail.engagementRequirements ?? undefined,
+        payoutMetrics: detail.payoutMetrics ?? undefined,
+        payoutMethod: detail.payoutMethod ?? undefined,
+        eligibilityRules: detail.eligibilityRules || undefined,
+        // Not carried over: invitations, selectedHunters, brand assets,
+        // submissions, status (implicitly DRAFT), paymentStatus.
+      });
+      toast.showSuccess('Bounty duplicated as draft.');
+      router.push(`/business/bounties/${newBounty.id}/edit`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Couldn't duplicate bounty. Try again.";
+      toast.showError(message);
+    }
+  };
 
   const handleDeleteConfirm = () => {
     if (!deleteId) return;
@@ -194,6 +239,12 @@ function BusinessBountiesContent() {
         onViewChange={f.setView}
         onCreate={() => router.push('/business/bounties/new')}
       />
+
+      <QuickCreateGrid />
+
+      <h2 className="mb-2 sm:mb-2.5 text-[10px] font-bold uppercase tracking-[0.10em] text-text-muted">
+        All bounties
+      </h2>
 
       <div className="mb-3 sm:mb-4">
         <BountyStatusPills value={f.filters.status} onChange={f.setStatus} />
@@ -282,6 +333,7 @@ function BusinessBountiesContent() {
                         onEdit={handleEdit}
                         onStatusChange={handleStatusActionTap}
                         onDelete={handleDeleteTap}
+                        onDuplicate={handleDuplicate}
                         paymentLoading={paymentBountyId === bounty.id}
                       />
                     }
@@ -295,6 +347,7 @@ function BusinessBountiesContent() {
                 onEdit={handleEdit}
                 onStatusChange={handleStatusActionTap}
                 onDelete={handleDeleteTap}
+                onDuplicate={handleDuplicate}
                 paymentBountyId={paymentBountyId}
               />
             )}

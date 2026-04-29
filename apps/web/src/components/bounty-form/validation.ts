@@ -167,7 +167,15 @@ export function validateFull(state: BountyFormState): Record<string, string> {
   }
 
   // --- Section 8: Max Submissions ---
-  if (state.maxSubmissions !== null && state.maxSubmissions < 1) {
+  // Required at full validation time per ADR 0013 §2 — the funding service
+  // (`tradesafe-payments.service.ts:147-151`) rejects null at the API
+  // boundary, and the wizard's "Create Bounty" flow goes straight into
+  // funding. Without this gate the brand sees a generic "couldn't start
+  // funding" toast instead of an inline form error. Draft mode does NOT
+  // enforce this — drafts can be saved with maxSubmissions still pending.
+  if (state.maxSubmissions == null) {
+    errors.maxSubmissions = 'Number of claims is required';
+  } else if (state.maxSubmissions < 1) {
     errors.maxSubmissions = 'Max submissions must be at least 1';
   }
 
@@ -240,26 +248,93 @@ export function getSectionErrors(sectionKey: string, errors: Record<string, stri
   switch (sectionKey) {
     case 'bountyBasicInfo':
       return errorKeys.filter((k) =>
-        ['title', 'shortDescription', 'fullInstructions', 'channels'].includes(k) ||
+        ['title', 'shortDescription', 'fullInstructions', 'channels',
+         'startDate', 'endDate'].includes(k) ||
         k.startsWith('channel_'),
       );
     case 'bountyContent':
+      // `maxSubmissions` lives here because `MaxSubmissionsSection` renders
+      // on the wizard's step 3 (Claim & Rewards, owned by `bountyContent`).
+      // Bucketing it under `bountyRules` would have surfaced the error on
+      // step 1 or 2, which don't render the input — the brand would have
+      // seen "Number of claims is required" with no fixable field on the
+      // current step.
       return errorKeys.filter((k) =>
-        ['tagAccount', 'durationValue', 'durationUnit', 'rewards'].includes(k) ||
+        ['tagAccount', 'durationValue', 'durationUnit', 'rewards', 'maxSubmissions'].includes(k) ||
         k.startsWith('reward_'),
       );
     case 'bountyRules':
       return errorKeys.filter((k) =>
         ['minFollowers', 'minAccountAgeDays', 'locationRestriction', 'customRules',
-         'proofRequirements', 'maxSubmissions', 'startDate', 'endDate',
+         'proofRequirements',
          'minViews', 'minLikes', 'minComments'].includes(k) ||
         k.startsWith('customRule_'),
       );
+    case 'accessType':
+      return [];
     case 'brandAssets':
       return [];
     default:
       return [];
   }
+}
+
+// ---------------------------------------------------------------------------
+// Wizard step validation
+// ---------------------------------------------------------------------------
+
+/**
+ * Wizard step → section-key mapping. A step "owns" the section keys it
+ * gates on Next-click. The mapping mirrors the per-step field layout
+ * documented in the brief (§5 Bounty Creation Flow Scope) and the
+ * `wizard-step-fields.md` decision log.
+ *
+ * Step 0 = Basics, 1 = Instructions & Metrics, 2 = Access & Requirements,
+ * 3 = Claim & Rewards, 4 = Document Share.
+ *
+ * `bountyBasicInfo` covers title/shortDescription/channels/instructions/
+ * schedule (everything in section 1 except payoutMetrics, which moves
+ * to step 1). `bountyRules` covers payoutMetrics + customRules in step
+ * 1; eligibility + engagement + postVisibility + maxSubmissions in step
+ * 2 + 3. The current `getSectionErrors` returns ALL bountyRules errors
+ * for either step that owns part of the section, which is acceptable
+ * for forward-block: a later step can't "lap" an earlier one.
+ */
+export const WIZARD_STEP_SECTIONS: ReadonlyArray<ReadonlyArray<string>> = [
+  ['bountyBasicInfo'],
+  ['bountyRules'], // payoutMetrics + customRules sub-fields
+  ['bountyRules', 'accessType'], // eligibility + engagement + visibility
+  ['bountyContent'], // rewards + max submissions
+  ['brandAssets'],
+] as const;
+
+export const WIZARD_STEP_COUNT = WIZARD_STEP_SECTIONS.length;
+
+/**
+ * Run a step-scoped validation pass. Returns the subset of `validateFull`
+ * errors that belong to the given step's owned section keys. Forward
+ * navigation is blocked when this returns a non-empty object.
+ *
+ * Step indices are 0-based: 0 = Basics, ..., 4 = Document Share.
+ *
+ * Note: this re-runs `validateFull` and filters — that keeps the rule
+ * set as a single source of truth (no parallel validator to drift). The
+ * cost is one full state pass per Next click, which is negligible.
+ */
+export function validateStep(stepIdx: number, state: BountyFormState): Record<string, string> {
+  const fullErrors = validateFull(state);
+  const ownedSections = WIZARD_STEP_SECTIONS[stepIdx] || [];
+  const ownedErrorKeys = new Set<string>();
+  for (const sectionKey of ownedSections) {
+    for (const key of getSectionErrors(sectionKey, fullErrors)) {
+      ownedErrorKeys.add(key);
+    }
+  }
+  const stepErrors: Record<string, string> = {};
+  for (const key of ownedErrorKeys) {
+    stepErrors[key] = fullErrors[key];
+  }
+  return stepErrors;
 }
 
 export function isSectionComplete(sectionKey: string, state: BountyFormState): boolean {
@@ -297,7 +372,8 @@ export function bountyRulesHasContent(state: BountyFormState): boolean {
     elig.minFollowers !== null && elig.minFollowers !== undefined ||
     elig.publicProfile === true ||
     (elig.minAccountAgeDays !== null && elig.minAccountAgeDays !== undefined) ||
-    !!elig.locationRestriction ||
+    // 'South Africa' is the hard-locked default — only count it as user-content if they somehow deviate
+    (!!elig.locationRestriction && elig.locationRestriction !== 'South Africa') ||
     (elig.noCompetingBrandDays !== null && elig.noCompetingBrandDays !== undefined) ||
     (elig.customRules ? elig.customRules.length > 0 : false) ||
     !!eng.tagAccount ||

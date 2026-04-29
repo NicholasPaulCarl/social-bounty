@@ -240,21 +240,20 @@ describe('BountiesService - Update Bounty', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('IS-10: should allow updating maxSubmissions on LIVE', async () => {
+    it('IS-10: should reject updating maxSubmissions on LIVE (ADR 0013 §3 — frozen post-funding)', async () => {
+      // Pre-ADR-0013, maxSubmissions was in LIVE_EDITABLE_FIELDS — but it's
+      // tied to the TradeSafe escrow formula `sum(rewards) × maxSubmissions`,
+      // so editing it post-funding creates immediate ledger drift. ADR 0013
+      // §3 freezes the field once `paymentStatus = PAID`. To change capacity
+      // on a funded bounty, brands use the existing pre-approval refund
+      // flow + recreate (ADR 0013 §4).
       prisma.bounty.findUnique.mockResolvedValue(
         baseBountyRecord({ status: BountyStatus.LIVE }),
       );
-      prisma.bounty.update.mockResolvedValue(
-        baseBountyRecord({
-          status: BountyStatus.LIVE,
-          maxSubmissions: 200,
-          ...updateIncludes,
-        }),
-      );
 
-      const result = await service.update('bounty-1', mockBA, { maxSubmissions: 200 });
-
-      expect(result).toBeDefined();
+      await expect(
+        service.update('bounty-1', mockBA, { maxSubmissions: 200 }),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should allow updating endDate on LIVE', async () => {

@@ -153,7 +153,7 @@ export function BrandAssetsSection({ bountyId, brandAssets, stagedFiles, dispatc
       )}
 
       <small className="text-xs text-text-muted block">
-        Accepted: JPEG, PNG, GIF, WebP, PDF. Max {formatBytes(BRAND_ASSET_LIMITS.MAX_FILE_SIZE)} per file.
+        Accepted: JPEG, PNG, GIF, WebP, PDF. Up to {BRAND_ASSET_LIMITS.MAX_FILES_PER_BOUNTY} files, {formatBytes(BRAND_ASSET_LIMITS.MAX_FILE_SIZE)} each.
       </small>
     </div>
   );

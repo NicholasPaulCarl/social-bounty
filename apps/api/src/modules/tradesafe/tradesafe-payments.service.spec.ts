@@ -46,6 +46,11 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
     // so the BUYER token resolution path can be exercised end-to-end.
     brandTradeSafeTokenId: string | null;
   }> = {}) {
+    // Per ADR 0013 §2 — `maxSubmissions` is required at funding time. The
+    // default fixture uses `maxSubmissions: 1` so the multiplier is a no-op
+    // and the existing 7-test assertions (faceValueCents='10000', etc.)
+    // continue to hold without modification. Tests that exercise the
+    // multiplier set their own `maxSubmissions` on the override.
     const bounty = overrides.bounty === undefined
       ? {
           id: 'bounty-1',
@@ -57,6 +62,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
           faceValueCents: null,
           currency: 'ZAR',
           deletedAt: null,
+          maxSubmissions: 1,
           rewards: [{ monetaryValue: { toString: () => '100.00' } }],
           tradeSafeTransaction: null,
           // Wave 1 — bounty includes brand.tradeSafeTokenId via the new
@@ -209,6 +215,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
         faceValueCents: 10000n,
         currency: 'ZAR',
         deletedAt: null,
+        maxSubmissions: 1,
         rewards: [{ monetaryValue: { toString: () => '100.00' } }],
         tradeSafeTransaction: {
           tradeSafeTransactionId: 'existing-txn-1',
@@ -239,6 +246,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
       faceValueCents: null,
       currency: 'ZAR',
       deletedAt: null,
+      maxSubmissions: 1,
       rewards: [{ monetaryValue: { toString: () => '100.00' } }],
       tradeSafeTransaction: null,
     };
@@ -289,6 +297,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
         faceValueCents: null,
         currency: 'ZAR',
         deletedAt: null,
+        maxSubmissions: 1,
         rewards: [{ monetaryValue: { toString: () => '100.00' } }],
         tradeSafeTransaction: null,
       },
@@ -323,6 +332,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
           // include/select refactor could drop the field and we'd silently
           // start funding deleted bounties.
           deletedAt: new Date('2026-04-20T00:00:00Z'),
+          maxSubmissions: 1,
           rewards: [{ monetaryValue: { toString: () => '100.00' } }],
           tradeSafeTransaction: null,
         },
@@ -346,6 +356,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
           faceValueCents: null,
           currency: 'ZAR',
           deletedAt: null,
+          maxSubmissions: 1,
           rewards: [{ monetaryValue: { toString: () => '100.00' } }],
           tradeSafeTransaction: null,
         },
@@ -374,6 +385,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
           faceValueCents: null,
           currency: 'ZAR',
           deletedAt: null,
+          maxSubmissions: 1,
           rewards: [{ monetaryValue: { toString: () => '100.00' } }],
           tradeSafeTransaction: null,
         },
@@ -402,6 +414,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
           faceValueCents: 10000n,
           currency: 'ZAR',
           deletedAt: null,
+          maxSubmissions: 1,
           rewards: [{ monetaryValue: { toString: () => '100.00' } }],
           tradeSafeTransaction: null,
         },
@@ -423,6 +436,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
           faceValueCents: null,
           currency: 'ZAR',
           deletedAt: null,
+          maxSubmissions: 1,
           // Zero-value reward — service rejects before reaching TradeSafe.
           // Without this, we'd transactionCreate with value=0, which
           // TradeSafe would reject anyway, but at the cost of one
@@ -452,6 +466,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
           faceValueCents: null,
           currency: 'ZAR',
           deletedAt: null,
+          maxSubmissions: 1,
           rewards: [
             { monetaryValue: { toString: () => '100.00' } },
             { monetaryValue: { toString: () => '50.50' } },
@@ -583,6 +598,107 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
       expect(createCall.industry).toBe('GENERAL_GOODS_SERVICES');
     });
 
+    // ─── ADR 0013 — multi-claim escrow multiplier ────────────────────────
+    //
+    // Per ADR 0013 §1, faceValueCents at funding is `sum(rewards) ×
+    // maxSubmissions`. Pre-ADR-0013 the formula was `sum(rewards)` alone,
+    // which under-funded any multi-claim bounty: with `maxSubmissions = 10`
+    // and `reward = R100`, brand_reserve held R100 and only the first
+    // approval could be paid — submission #2 onwards drove the reserve
+    // negative and tripped reconciliation `checkReserveVsBounty`.
+    //
+    // The two tests below pin the new contract:
+    //   (a) multiplier propagates through the result + the transactionCreate
+    //       allocation value;
+    //   (b) `maxSubmissions == null` is rejected at the API boundary, not
+    //       silently coerced.
+
+    it('multi-claim multiplier — maxSubmissions=3 × reward=R100 produces faceValueCents=30000', async () => {
+      const { svc, graphql } = buildService({
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-1',
+          title: 'Multi-claim',
+          shortDescription: 'Desc',
+          status: BountyStatus.DRAFT,
+          paymentStatus: PaymentStatus.UNPAID,
+          faceValueCents: null,
+          currency: 'ZAR',
+          deletedAt: null,
+          maxSubmissions: 3,
+          rewards: [{ monetaryValue: { toString: () => '100.00' } }],
+          tradeSafeTransaction: null,
+        },
+      });
+
+      const result = await svc.createBountyFunding('bounty-1', fakeUser, {
+        name: 'Brand',
+      });
+
+      // R100 × 3 claims = R300 face value = 30000 cents.
+      expect(result.faceValueCents).toBe('30000');
+
+      // The TradeSafe allocation also reflects the multiplied value — this
+      // is what eventually flows brand → escrow → hunter via
+      // `allocationStartDelivery` + `allocationAcceptDelivery`.
+      const createCall = (graphql.transactionCreate as jest.Mock).mock
+        .calls[0][0];
+      expect(createCall.allocations[0].value).toBeCloseTo(300, 2);
+    });
+
+    it('rejects funding when maxSubmissions is null (ADR 0013 §2 precondition)', async () => {
+      // Without this gate, `computeFaceValueCents` would multiply by `null`
+      // → `BigInt(null)` throws TypeError. We surface a 400 at the boundary
+      // instead so the brand-facing wizard can render a clear validation
+      // error rather than a 500 from deep in the service.
+      const { svc } = buildService({
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-1',
+          title: 'Test',
+          shortDescription: 'Desc',
+          status: BountyStatus.DRAFT,
+          paymentStatus: PaymentStatus.UNPAID,
+          faceValueCents: null,
+          currency: 'ZAR',
+          deletedAt: null,
+          // maxSubmissions deliberately null — should be rejected pre-fund.
+          maxSubmissions: null,
+          rewards: [{ monetaryValue: { toString: () => '100.00' } }],
+          tradeSafeTransaction: null,
+        },
+      });
+      await expect(
+        svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('rejects funding when maxSubmissions is zero (positive-integer guard)', async () => {
+      // Defence-in-depth: `BigInt(0)` would multiply face value to zero
+      // and trip the existing `<= 0n` reject lower down, but the pre-check
+      // gives a clearer error message and avoids running the multiplier
+      // on a malformed input.
+      const { svc } = buildService({
+        bounty: {
+          id: 'bounty-1',
+          brandId: 'brand-1',
+          title: 'Test',
+          shortDescription: 'Desc',
+          status: BountyStatus.DRAFT,
+          paymentStatus: PaymentStatus.UNPAID,
+          faceValueCents: null,
+          currency: 'ZAR',
+          deletedAt: null,
+          maxSubmissions: 0,
+          rewards: [{ monetaryValue: { toString: () => '100.00' } }],
+          tradeSafeTransaction: null,
+        },
+      });
+      await expect(
+        svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
     it('persists totalValueCents = face + admin + global fees on the TradeSafeTransaction row', async () => {
       const { svc, prisma } = buildService();
       await svc.createBountyFunding('bounty-1', fakeUser, { name: 'Brand' });
@@ -615,6 +731,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
           faceValueCents: 10000n,
           currency: 'ZAR',
           deletedAt: null,
+          maxSubmissions: 1,
           rewards: [{ monetaryValue: { toString: () => '100.00' } }],
           tradeSafeTransaction: {
             tradeSafeTransactionId: 'tradesafe-txn-1',
@@ -658,6 +775,7 @@ describe('TradeSafePaymentsService (ADR 0011 Phase 3 — inbound cutover)', () =
           faceValueCents: 10000n,
           currency: 'ZAR',
           deletedAt: null,
+          maxSubmissions: 1,
           rewards: [{ monetaryValue: { toString: () => '100.00' } }],
           tradeSafeTransaction: null,
         },

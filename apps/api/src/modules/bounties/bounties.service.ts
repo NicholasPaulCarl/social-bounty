@@ -44,10 +44,16 @@ import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { MailService } from '../mail/mail.service';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 
+// Per ADR 0013 §3 — `maxSubmissions` is FROZEN post-funding. Editing it on
+// a PAID bounty creates immediate ledger drift: reducing leaves over-funding
+// (reserve > faceValueCents recomputed), increasing leaves under-funding
+// (payouts will exceed reserve at the new cap). Either rotting the alert
+// signal or breaking payouts violates Financial Non-Negotiable #1
+// (double-entry) and #8 (platform custody). The remaining set are all
+// either non-financial or non-affecting on the escrow.
 const LIVE_EDITABLE_FIELDS = new Set([
   'eligibilityRules',
   'proofRequirements',
-  'maxSubmissions',
   'endDate',
 ]);
 
@@ -312,14 +318,27 @@ export class BountiesService {
     }));
   }
 
+  /**
+   * Per ADR 0013 §1, the display contract for `totalRewardValue` is the
+   * full committed bounty value: `sum(rewards) × maxSubmissions`. This
+   * matches the TradeSafe escrow formula in
+   * {@link TradeSafePaymentsService.computeFaceValueCents} so brand-facing
+   * UI and API responses agree on the funded amount.
+   *
+   * Falls back to ×1 when `maxSubmissions` is null (DRAFT bounties before
+   * the brand has filled the field) so the response shape stays stable
+   * and the UI displays the per-claim sum without NaN.
+   */
   private computeTotalRewardValue(
     rewards: Array<{ monetaryValue: { toString(): string } }>,
+    maxSubmissions?: number | null,
   ): string {
-    let total = 0;
+    let perClaim = 0;
     for (const r of rewards) {
-      total += parseFloat(r.monetaryValue.toString());
+      perClaim += parseFloat(r.monetaryValue.toString());
     }
-    return total.toFixed(2);
+    const multiplier = maxSubmissions != null && maxSubmissions > 0 ? maxSubmissions : 1;
+    return (perClaim * multiplier).toFixed(2);
   }
 
   // ── List ───────────────────────────────────────────────
@@ -476,7 +495,9 @@ export class BountiesService {
         channels: b.channels as Record<string, string[]> | null,
         currency: b.currency,
         totalRewardValue:
-          b.rewards.length > 0 ? this.computeTotalRewardValue(b.rewards) : null,
+          b.rewards.length > 0
+            ? this.computeTotalRewardValue(b.rewards, b.maxSubmissions)
+            : null,
         rewards: this.mapRewards(b.rewards),
         payoutMetrics: b.payoutMetrics as PayoutMetricsInput | null ?? null,
         paymentStatus: b.paymentStatus ?? PaymentStatus.UNPAID,
@@ -619,7 +640,7 @@ export class BountiesService {
       rewards: this.mapRewards(bounty.rewards),
       totalRewardValue:
         bounty.rewards.length > 0
-          ? this.computeTotalRewardValue(bounty.rewards)
+          ? this.computeTotalRewardValue(bounty.rewards, bounty.maxSubmissions)
           : null,
       payoutMetrics: bounty.payoutMetrics as PayoutMetricsInput | null ?? null,
       paymentStatus: bounty.paymentStatus ?? PaymentStatus.UNPAID,
@@ -857,7 +878,7 @@ export class BountiesService {
       visibilityAcknowledged: result.bounty.visibilityAcknowledged,
       rewards: this.mapRewards(result.rewards),
       totalRewardValue: result.rewards.length > 0
-        ? this.computeTotalRewardValue(result.rewards)
+        ? this.computeTotalRewardValue(result.rewards, result.bounty.maxSubmissions)
         : null,
       payoutMetrics: result.bounty.payoutMetrics as PayoutMetricsInput | null ?? null,
       paymentStatus: result.bounty.paymentStatus ?? PaymentStatus.UNPAID,
@@ -1100,7 +1121,9 @@ export class BountiesService {
       visibilityAcknowledged: updatedBounty.visibilityAcknowledged,
       rewards: this.mapRewards(rewards),
       totalRewardValue:
-        rewards.length > 0 ? this.computeTotalRewardValue(rewards) : null,
+        rewards.length > 0
+          ? this.computeTotalRewardValue(rewards, updatedBounty.maxSubmissions)
+          : null,
       payoutMetrics: updatedBounty.payoutMetrics as PayoutMetricsInput | null ?? null,
       paymentStatus: updatedBounty.paymentStatus ?? PaymentStatus.UNPAID,
       payoutMethod: updatedBounty.payoutMethod ?? null,

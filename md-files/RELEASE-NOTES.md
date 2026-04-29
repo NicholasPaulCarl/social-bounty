@@ -150,7 +150,7 @@ Business Admins create and manage bounties, review participant submissions, hand
 | **Payout Metrics** | Configure payout calculation metrics |
 | **Schedule** | Start date and end date |
 | **Max Submissions** | Limit the number of submissions accepted |
-| **Brand Assets** | Upload up to 10 files (10MB each) — logos, images, PDFs for participants to use |
+| **Brand Assets** | Upload up to 5 files (20MB each) — logos, images, PDFs for participants to use |
 
 ### 3.3 Bounty Status Workflow
 
@@ -387,7 +387,7 @@ All emails use branded HTML templates with retry logic (3 attempts with exponent
 | Context | Max Files | Max Size | Formats |
 |---------|-----------|----------|---------|
 | Submission Proof | 5 | 5 MB each | JPEG, PNG, GIF, WebP |
-| Brand Assets | 10 | 10 MB each | JPEG, PNG, GIF, WebP, PDF |
+| Brand Assets | 5 | 20 MB each | JPEG, PNG, GIF, WebP, PDF |
 | Brand Logo | 1 | 2 MB | Image formats |
 
 ---

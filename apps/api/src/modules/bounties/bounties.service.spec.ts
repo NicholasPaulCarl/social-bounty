@@ -639,16 +639,20 @@ describe('BountiesService', () => {
         service.update('bounty-1', mockBA, { title: 'New Title' }),
       ).rejects.toThrow(BadRequestException);
 
-      // Verify the error message tells users what CAN be edited
+      // Verify the error message tells users what CAN be edited.
+      // Per ADR 0013 §3, `maxSubmissions` is no longer in the editable
+      // set (escrow integrity); the remaining three fields are.
       try {
         await service.update('bounty-1', mockBA, { title: 'New Title' });
       } catch (e: any) {
         expect(e.message).toContain('LIVE bounties can only edit:');
         expect(e.message).toContain('eligibilityRules');
         expect(e.message).toContain('proofRequirements');
-        expect(e.message).toContain('maxSubmissions');
         expect(e.message).toContain('endDate');
         expect(e.message).toContain('title');
+        // Negative assertion locks ADR 0013 §3 — maxSubmissions MUST NOT
+        // be in the editable list.
+        expect(e.message).not.toMatch(/can only edit:[^.]*maxSubmissions/);
       }
     });
 
@@ -675,7 +679,11 @@ describe('BountiesService', () => {
       expect(result).toBeDefined();
     });
 
-    it('should allow editable fields on LIVE bounty (proofRequirements, maxSubmissions, endDate)', async () => {
+    it('should allow editable fields on LIVE bounty (proofRequirements, endDate)', async () => {
+      // Per ADR 0013 §3, `maxSubmissions` was REMOVED from the editable
+      // set — editing it post-funding creates immediate ledger drift
+      // (reserve over- or under-funded vs the recomputed face value).
+      // The remaining safe LIVE fields are exercised here.
       prisma.bounty.findUnique.mockResolvedValue({
         ...baseBounty,
         status: BountyStatus.LIVE,
@@ -684,7 +692,6 @@ describe('BountiesService', () => {
         ...baseBounty,
         status: BountyStatus.LIVE,
         proofRequirements: 'New proof',
-        maxSubmissions: 50,
         endDate: new Date('2026-04-01'),
         brand: { id: 'org-1', name: 'Test', logo: null },
         createdBy: { id: 'ba-id', firstName: 'Test', lastName: 'BA' },
@@ -695,9 +702,23 @@ describe('BountiesService', () => {
       const result = await service.update(
         'bounty-1',
         mockBA,
-        { proofRequirements: 'New proof', maxSubmissions: 50, endDate: '2026-04-01T00:00:00.000Z' },
+        { proofRequirements: 'New proof', endDate: '2026-04-01T00:00:00.000Z' },
       );
       expect(result).toBeDefined();
+    });
+
+    it('should reject editing maxSubmissions on LIVE bounty (ADR 0013 §3 — frozen post-funding)', async () => {
+      // Locks the new contract from ADR 0013 §3: changing capacity post-fund
+      // creates ledger drift. Brands wanting to change capacity must use
+      // the existing pre-approval refund flow + recreate (ADR 0013 §4).
+      prisma.bounty.findUnique.mockResolvedValue({
+        ...baseBounty,
+        status: BountyStatus.LIVE,
+      });
+
+      await expect(
+        service.update('bounty-1', mockBA, { maxSubmissions: 50 }),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should reject editing CLOSED bounty', async () => {

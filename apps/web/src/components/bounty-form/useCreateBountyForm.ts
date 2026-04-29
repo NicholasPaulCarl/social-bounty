@@ -3,19 +3,15 @@
 import { useReducer, useCallback, useMemo } from 'react';
 import {
   PostVisibilityRule,
-  DurationUnit,
-  Currency,
   RewardType,
   ContentFormat,
   SocialChannel,
   PostFormat,
-  CHANNEL_POST_FORMATS,
   BountyAccessType,
 } from '@social-bounty/shared';
 import type {
   CreateBountyRequest,
   BountyDetailResponse,
-  RewardLineInput,
 } from '@social-bounty/shared';
 import type { BountyFormState, BountyFormAction } from './types';
 import { INITIAL_FORM_STATE } from './types';
@@ -25,7 +21,7 @@ import { validateFull, validateDraft, validateField } from './validation';
 // Reducer
 // ---------------------------------------------------------------------------
 
-function formReducer(state: BountyFormState, action: BountyFormAction): BountyFormState {
+export function formReducer(state: BountyFormState, action: BountyFormAction): BountyFormState {
   switch (action.type) {
     // Section 1
     case 'SET_TITLE':
@@ -79,7 +75,14 @@ function formReducer(state: BountyFormState, action: BountyFormAction): BountyFo
       } else {
         formats.push(fmt);
       }
-      current[ch] = formats;
+      // Brief: "If all formats unchecked, platform deactivates."
+      // Mirror TOGGLE_CHANNEL's `delete current[ch]` pattern — an empty
+      // formats array means the channel is effectively off.
+      if (formats.length === 0) {
+        delete current[ch];
+      } else {
+        current[ch] = formats;
+      }
       return { ...state, channels: current };
     }
 
@@ -350,10 +353,13 @@ export function buildCreateBountyRequest(
     (r) => (r.rewardType === RewardType.CASH || r.name.trim()) && r.monetaryValue > 0,
   );
 
+  // 'South Africa' is the hard-locked location default — always serialised but
+  // not treated as user-set eligibility for the hasEligibility gate.
   const hasEligibility = state.structuredEligibility.minFollowers !== null ||
     state.structuredEligibility.publicProfile ||
     state.structuredEligibility.minAccountAgeDays !== null ||
-    state.structuredEligibility.locationRestriction !== null ||
+    (state.structuredEligibility.locationRestriction !== null &&
+      state.structuredEligibility.locationRestriction !== 'South Africa') ||
     state.structuredEligibility.noCompetingBrandDays !== null ||
     (state.structuredEligibility.customRules && state.structuredEligibility.customRules.length > 0);
 
@@ -432,20 +438,85 @@ export function buildCreateBountyRequest(
 }
 
 // ---------------------------------------------------------------------------
+// Pure helpers (exported for testing — see __tests__/useCreateBountyForm.test.ts)
+// ---------------------------------------------------------------------------
+
+/**
+ * Per ADR 0013 §1, the brand sees TWO numbers:
+ *   • per-claim = sum(rewards) — what one approved hunter earns;
+ *   • total     = per-claim × maxSubmissions — what's escrowed on TradeSafe.
+ *
+ * Falls back to ×1 when `maxSubmissions` is null so the UI renders without
+ * NaN before the brand fills the field. The funding service guards on
+ * `maxSubmissions != null` separately at the API boundary (ADR 0013 §2).
+ */
+export function computePerClaimRewardValue(
+  rewards: { monetaryValue: number }[],
+): number {
+  return rewards.reduce((sum, r) => sum + (r.monetaryValue || 0), 0);
+}
+
+export function computeTotalRewardValue(
+  rewards: { monetaryValue: number }[],
+  maxSubmissions: number | null,
+): number {
+  return computePerClaimRewardValue(rewards) * (maxSubmissions ?? 1);
+}
+
+// ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
 
-export function useCreateBountyForm(initialBounty?: BountyDetailResponse) {
-  const [state, dispatch] = useReducer(formReducer, INITIAL_FORM_STATE, (init) => {
-    if (initialBounty) {
-      return formReducer(init, { type: 'LOAD_BOUNTY', payload: initialBounty });
-    }
-    return init;
-  });
+/**
+ * Pure reducer initializer (exported for unit testability). The hook
+ * runs this exactly once at mount via React's `useReducer(reducer,
+ * initialArg, init)` contract. Edit mode (`initialBounty`) trumps the
+ * preset (`initialFormOverride`) when both are provided — preset is
+ * ignored to keep stale `?preset=...` query params from clobbering an
+ * existing draft when the brand reloads the edit page.
+ */
+export function initBountyFormState(
+  base: BountyFormState,
+  initialBounty?: BountyDetailResponse,
+  initialFormOverride?: Partial<BountyFormState>,
+): BountyFormState {
+  if (initialBounty) {
+    return formReducer(base, { type: 'LOAD_BOUNTY', payload: initialBounty });
+  }
+  if (initialFormOverride) {
+    return { ...base, ...initialFormOverride };
+  }
+  return base;
+}
 
-  const totalRewardValue = useMemo(
-    () => state.rewards.reduce((sum, r) => sum + (r.monetaryValue || 0), 0),
+export function useCreateBountyForm(
+  initialBounty?: BountyDetailResponse,
+  initialFormOverride?: Partial<BountyFormState>,
+) {
+  // The init arg is a closure over the props captured at mount; React
+  // runs it exactly once for the lifetime of the component, so the
+  // preset can never re-apply on top of in-progress user edits.
+  const [state, dispatch] = useReducer(formReducer, INITIAL_FORM_STATE, (init) =>
+    initBountyFormState(init, initialBounty, initialFormOverride),
+  );
+
+  // Per ADR 0013 §1, the brand sees TWO numbers in the form:
+  //   • perClaimRewardValue = sum(rewards) — what one approved hunter earns.
+  //   • totalRewardValue    = perClaimRewardValue × maxSubmissions
+  //                         — what the brand actually escrows on TradeSafe.
+  // Both are exported so RewardLinesSection can render the breakdown
+  // ("R100 per claim × 5 claims = R500 total") and the wizard footer
+  // surfaces the multiplied total prominently. When `maxSubmissions` is
+  // null (brand hasn't filled the field yet) we fall back to ×1 so the
+  // UI doesn't render NaN — the create-bounty backend gates funding on
+  // `maxSubmissions != null` separately.
+  const perClaimRewardValue = useMemo(
+    () => computePerClaimRewardValue(state.rewards),
     [state.rewards],
+  );
+  const totalRewardValue = useMemo(
+    () => computeTotalRewardValue(state.rewards, state.maxSubmissions),
+    [state.rewards, state.maxSubmissions],
   );
 
   const validate = useCallback(
@@ -482,6 +553,7 @@ export function useCreateBountyForm(initialBounty?: BountyDetailResponse) {
   return {
     state,
     dispatch,
+    perClaimRewardValue,
     totalRewardValue,
     validate,
     handleBlur,
