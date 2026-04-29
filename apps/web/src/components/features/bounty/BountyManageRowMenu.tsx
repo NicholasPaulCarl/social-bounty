@@ -35,8 +35,6 @@ import { getManageMenuPolicy } from './manage-menu-policy';
  * Close) still go through the parent's `ConfirmAction` dialogs; the
  * menu just emits the same handler calls `BountyManageActions` does.
  *
- * Keeps grid-mode untouched — the brief explicitly says the existing
- * `BountyManageCard` footer's compact icon row stays as-is.
  */
 
 const STATUS_COLOR: Record<ManageStatusAction['color'], string> = {

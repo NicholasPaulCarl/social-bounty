@@ -6,11 +6,10 @@ import type { StatusFilter } from '@/hooks/useManageFilters';
 /**
  * BountyStatusSegmented — segmented control for bounty status filter.
  *
- * Replaces `<BountyStatusPills>` for Wave 2 hub layout polish. The design
- * (hub.jsx:187-206) uses a single rounded container with 4 tabs rather
- * than 5 separate pill buttons. PAUSED is dropped from the visible filter
- * set to match the design — it remains valid via the URL (`?status=PAUSED`)
- * but is not surfaced in the UI.
+ * Single rounded container with 4 tabs (All / Live / Drafts / Ended).
+ * PAUSED is dropped from the visible filter set to match the design — it
+ * remains valid via the URL (`?status=PAUSED`) but is not surfaced in
+ * the UI.
  *
  * Mapping: All → 'all', Live → BountyStatus.LIVE,
  *          Drafts → BountyStatus.DRAFT, Ended → BountyStatus.CLOSED.

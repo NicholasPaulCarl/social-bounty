@@ -40,8 +40,7 @@ describe('BountyHubHeader — component contract', () => {
   });
 
   it('does not require statusCounts prop (no counts displayed)', () => {
-    // Unlike ManageHero, BountyHubHeader has no statusCounts prop.
-    // This test documents the intentional prop simplification.
+    // BountyHubHeader has no statusCounts prop — counts moved to the segmented filter row.
     interface BountyHubHeaderProps {
       onCreate: () => void;
     }

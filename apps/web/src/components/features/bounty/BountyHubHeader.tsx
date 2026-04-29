@@ -5,11 +5,10 @@ import { Plus } from 'lucide-react';
 /**
  * BountyHubHeader — simple page-head for `/business/bounties`.
  *
- * Replaces `<ManageHero>` for Wave 2 hub layout polish. The status counts
- * formerly shown in ManageHero are dropped here — they're redundant now
- * that the segmented status filter is visible directly below.
+ * H1 + subtitle + "+ New bounty" CTA, no per-status counts (the
+ * segmented status filter directly below makes them redundant).
  *
- * Design reference: hub.jsx:155-166 (H1 + subtitle + "+ New bounty" CTA).
+ * Design reference: hub.jsx:155-166.
  */
 
 interface BountyHubHeaderProps {
