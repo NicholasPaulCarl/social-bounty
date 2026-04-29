@@ -4,6 +4,7 @@ import { useRef, type MouseEvent } from 'react';
 import { Menu } from 'primereact/menu';
 import type { MenuItem } from 'primereact/menuitem';
 import {
+  Copy,
   Eye,
   ListChecks,
   Loader2,
@@ -51,6 +52,7 @@ interface BountyManageRowMenuProps {
   onEdit: (bounty: BountyListItem) => void;
   onStatusChange: (bounty: BountyListItem, action: ManageStatusAction) => void;
   onDelete: (bounty: BountyListItem) => void;
+  onDuplicate: (bounty: BountyListItem) => void;
   /** True while the publish-payment redirect is in-flight for this row. */
   paymentLoading?: boolean;
 }
@@ -78,6 +80,7 @@ export function BountyManageRowMenu({
   onEdit,
   onStatusChange,
   onDelete,
+  onDuplicate,
   paymentLoading = false,
 }: BountyManageRowMenuProps) {
   const menuRef = useRef<Menu>(null);
@@ -117,6 +120,15 @@ export function BountyManageRowMenu({
       command: () => onEdit(bounty),
     });
   }
+
+  // Duplicate — always available regardless of status.
+  items.push({
+    label: 'Duplicate',
+    icon: () => (
+      <MenuIcon Icon={Copy} color="var(--text-secondary)" />
+    ),
+    command: () => onDuplicate(bounty),
+  });
 
   if (statusActions.length > 0) {
     items.push({ separator: true });

@@ -39,6 +39,7 @@ interface BusinessBountyListViewProps {
   onEdit: (bounty: BountyListItem) => void;
   onStatusChange: (bounty: BountyListItem, action: ManageStatusAction) => void;
   onDelete: (bounty: BountyListItem) => void;
+  onDuplicate: (bounty: BountyListItem) => void;
   /** Bounty id currently in the publish-payment redirect. */
   paymentBountyId?: string | null;
 }
@@ -111,6 +112,7 @@ export function BusinessBountyListView({
   onEdit,
   onStatusChange,
   onDelete,
+  onDuplicate,
   paymentBountyId,
 }: BusinessBountyListViewProps) {
   const router = useRouter();
@@ -122,6 +124,7 @@ export function BusinessBountyListView({
         onEdit={onEdit}
         onStatusChange={onStatusChange}
         onDelete={onDelete}
+        onDuplicate={onDuplicate}
         paymentLoading={paymentBountyId === row.id}
       />
     </div>

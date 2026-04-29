@@ -1,7 +1,7 @@
 'use client';
 
 import type { MouseEvent } from 'react';
-import { Pause, Pencil, Play, Trash2, Undo2, XCircle } from 'lucide-react';
+import { Copy, Pause, Pencil, Play, Trash2, Undo2, XCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { BountyStatus, type BountyListItem } from '@social-bounty/shared';
 import { getManageMenuPolicy } from './manage-menu-policy';
@@ -42,6 +42,7 @@ interface BountyManageActionsProps {
   onEdit: (bounty: BountyListItem) => void;
   onStatusChange: (bounty: BountyListItem, action: ManageStatusAction) => void;
   onDelete: (bounty: BountyListItem) => void;
+  onDuplicate: (bounty: BountyListItem) => void;
   /** True while the publish-payment redirect is in-flight for this bounty. */
   paymentLoading?: boolean;
 }
@@ -80,6 +81,7 @@ export function BountyManageActions({
   onEdit,
   onStatusChange,
   onDelete,
+  onDuplicate,
   paymentLoading = false,
 }: BountyManageActionsProps) {
   const actions = getStatusActions(bounty.status);
@@ -126,6 +128,12 @@ export function BountyManageActions({
             onClick={stop(() => onEdit(bounty))}
           />
         )}
+        <IconButton
+          Icon={Copy}
+          color="var(--text-secondary)"
+          tooltip="Duplicate"
+          onClick={stop(() => onDuplicate(bounty))}
+        />
         {actions.map((a) => (
           <IconButton
             key={a.status}

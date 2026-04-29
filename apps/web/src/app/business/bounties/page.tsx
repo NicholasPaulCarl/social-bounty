@@ -23,7 +23,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmAction } from '@/components/common/ConfirmAction';
 import { formatEnumLabel } from '@/lib/utils/format';
-import { BountyStatus, PaymentStatus, type BountyListItem } from '@social-bounty/shared';
+import { BountyStatus, FIELD_LIMITS, PaymentStatus, type BountyListItem } from '@social-bounty/shared';
 
 const PAGE_LIMIT = 25;
 
@@ -117,6 +117,48 @@ function BusinessBountiesContent() {
     setStatusAction({ bounty, action });
 
   const handleDeleteTap = (bounty: BountyListItem) => setDeleteId(bounty.id);
+
+  const handleDuplicate = async (bounty: BountyListItem) => {
+    try {
+      const detail = await bountyApi.getById(bounty.id);
+      const prefix = 'Copy of ';
+      const maxLen = FIELD_LIMITS.BOUNTY_TITLE_MAX - prefix.length;
+      const title = prefix + detail.title.slice(0, maxLen);
+      const newBounty = await bountyApi.create({
+        title,
+        shortDescription: detail.shortDescription || undefined,
+        contentFormat: detail.contentFormat,
+        fullInstructions: detail.fullInstructions || undefined,
+        instructionSteps: detail.instructionSteps,
+        category: detail.category || undefined,
+        proofRequirements: detail.proofRequirements || undefined,
+        maxSubmissions: detail.maxSubmissions,
+        startDate: null,
+        endDate: detail.endDate,
+        channels: detail.channels ?? undefined,
+        rewards: detail.rewards.map((r) => ({
+          rewardType: r.rewardType,
+          name: r.name,
+          monetaryValue: parseFloat(r.monetaryValue),
+        })),
+        postVisibility: detail.postVisibility ?? undefined,
+        structuredEligibility: detail.structuredEligibility ?? undefined,
+        currency: detail.currency,
+        aiContentPermitted: detail.aiContentPermitted,
+        engagementRequirements: detail.engagementRequirements ?? undefined,
+        payoutMetrics: detail.payoutMetrics ?? undefined,
+        payoutMethod: detail.payoutMethod ?? undefined,
+        eligibilityRules: detail.eligibilityRules || undefined,
+        // Not carried over: invitations, selectedHunters, brand assets,
+        // submissions, status (implicitly DRAFT), paymentStatus.
+      });
+      toast.showSuccess('Bounty duplicated as draft.');
+      router.push(`/business/bounties/${newBounty.id}/edit`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Couldn't duplicate bounty. Try again.";
+      toast.showError(message);
+    }
+  };
 
   const handleDeleteConfirm = () => {
     if (!deleteId) return;
@@ -291,6 +333,7 @@ function BusinessBountiesContent() {
                         onEdit={handleEdit}
                         onStatusChange={handleStatusActionTap}
                         onDelete={handleDeleteTap}
+                        onDuplicate={handleDuplicate}
                         paymentLoading={paymentBountyId === bounty.id}
                       />
                     }
@@ -304,6 +347,7 @@ function BusinessBountiesContent() {
                 onEdit={handleEdit}
                 onStatusChange={handleStatusActionTap}
                 onDelete={handleDeleteTap}
+                onDuplicate={handleDuplicate}
                 paymentBountyId={paymentBountyId}
               />
             )}
