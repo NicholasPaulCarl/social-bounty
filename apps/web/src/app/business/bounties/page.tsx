@@ -200,6 +200,10 @@ function BusinessBountiesContent() {
 
       <QuickCreateGrid />
 
+      <h2 className="mb-2 sm:mb-2.5 text-[10px] font-bold uppercase tracking-[0.10em] text-text-muted">
+        All bounties
+      </h2>
+
       <div className="mb-3 sm:mb-4">
         <BountyStatusPills value={f.filters.status} onChange={f.setStatus} />
       </div>
