@@ -209,6 +209,7 @@ export function CreateBountyForm({
 }: CreateBountyFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
   const { state, dispatch, perClaimRewardValue, totalRewardValue, validate, handleBlur, toRequest } = useCreateBountyForm(
     initialBounty,
@@ -250,6 +251,8 @@ export function CreateBountyForm({
       }
       return;
     }
+    // Mark the current step as completed before advancing.
+    setCompletedSteps((prev) => (prev.includes(currentStep) ? prev : [...prev, currentStep]));
     setCurrentStep((s) => Math.min(s + 1, lastStepIdx));
     // Scroll to top of step so the brand sees the new step heading.
     if (formRef.current) {
@@ -263,6 +266,31 @@ export function CreateBountyForm({
       formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, []);
+
+  const handleJumpToStep = useCallback(
+    (targetIdx: number) => {
+      if (targetIdx === currentStep) return;
+      if (targetIdx < currentStep) {
+        // Backward jump — always free, no validation needed.
+        setCurrentStep(targetIdx);
+      } else {
+        // Forward jump — only allowed if the current step validates.
+        const stepErrors = validateStep(currentStep, state);
+        if (Object.keys(stepErrors).length > 0) {
+          dispatch({ type: 'SET_ERRORS', payload: { ...state.errors, ...stepErrors } });
+          dispatch({ type: 'SET_SUBMIT_ATTEMPTED' });
+          return;
+        }
+        // Mark current step completed when jumping forward.
+        setCompletedSteps((prev) => (prev.includes(currentStep) ? prev : [...prev, currentStep]));
+        setCurrentStep(targetIdx);
+      }
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    },
+    [currentStep, state, dispatch],
+  );
 
   const handleCreate = useCallback(() => {
     if (!validate('full')) {
@@ -300,6 +328,8 @@ export function CreateBountyForm({
       <WizardShell
         steps={WIZARD_STEPS}
         currentStep={currentStep}
+        completedSteps={completedSteps}
+        onJumpToStep={handleJumpToStep}
         onBack={handleBack}
         onNext={handleNext}
         onSaveDraft={handleDraft}

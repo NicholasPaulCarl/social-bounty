@@ -2,9 +2,9 @@
 
 import { useState, type ReactNode } from 'react';
 import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
 import { ChevronLeft, ChevronRight, Check, Trash2 } from 'lucide-react';
 import { Currency } from '@social-bounty/shared';
-import { ConfirmAction } from '@/components/common/ConfirmAction';
 
 const CURRENCY_SYMBOLS: Record<Currency, string> = {
   [Currency.ZAR]: 'R',
@@ -25,6 +25,19 @@ export interface WizardStepDescriptor {
 interface WizardShellProps {
   steps: ReadonlyArray<WizardStepDescriptor>;
   currentStep: number;
+  /**
+   * Set of step indices the user has validated and advanced through.
+   * Used to determine which pills in the step indicator are clickable
+   * for jump-back navigation.
+   */
+  completedSteps: ReadonlyArray<number>;
+  /**
+   * Called when the user clicks a step pill in the step indicator.
+   * The shell always emits the click; the parent handles the gating
+   * logic (backward jumps are free; forward jumps require currentStep
+   * validation to pass first).
+   */
+  onJumpToStep: (stepIdx: number) => void;
   /** Render-prop for the active step's body. Receives the step index. */
   children: ReactNode;
 
@@ -87,6 +100,8 @@ interface WizardShellProps {
 export function WizardShell({
   steps,
   currentStep,
+  completedSteps,
+  onJumpToStep,
   children,
   onBack,
   onNext,
@@ -108,6 +123,12 @@ export function WizardShell({
 
   const active = steps[currentStep];
   const handleDiscardClick = () => setDiscardOpen(true);
+
+  const handleSaveDraftAndClose = () => {
+    setDiscardOpen(false);
+    onSaveDraft();
+  };
+
   const handleDiscardConfirm = () => {
     setDiscardOpen(false);
     onDiscard();
@@ -116,27 +137,38 @@ export function WizardShell({
   return (
     <>
       {/* Step indicator — horizontally scrollable on mobile so labels never
-          truncate, padded centred on desktop. Pills are visual-only; we
-          intentionally don't expose direct jumps so per-step validation
-          gates remain enforced. */}
+          truncate, padded centred on desktop. Completed and current steps
+          are interactive buttons supporting jump-back navigation. Forward
+          jumps beyond currentStep are gated by the parent via onJumpToStep
+          (the parent validates the current step before allowing the move). */}
       <nav aria-label="Bounty creation steps" className="mb-6">
         <ol className="flex items-center gap-2 overflow-x-auto px-1 -mx-1 pb-2 sm:gap-3 sm:flex-wrap sm:overflow-visible">
           {steps.map((s, idx) => {
             const isActive = idx === currentStep;
-            const isDone = idx < currentStep;
+            const isDone = completedSteps.includes(idx);
+            // Clickable: current step, completed steps, and any already-visited
+            // step (idx <= currentStep). Unvisited forward steps are disabled —
+            // the user must advance via Next (which validates the current step).
+            const isClickable = idx <= currentStep || isDone;
             return (
               <li
                 key={s.label}
                 className="flex items-center gap-2 shrink-0"
                 aria-current={isActive ? 'step' : undefined}
               >
-                <div
+                <button
+                  type="button"
+                  onClick={() => onJumpToStep(idx)}
+                  disabled={!isClickable || isSubmitting || isSavingDraft}
+                  aria-label={`Go to step ${idx + 1}: ${s.label}`}
                   className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs sm:text-sm border transition-colors ${
                     isActive
                       ? 'border-pink-600 bg-pink-600/10 text-pink-600'
                       : isDone
-                        ? 'border-success-600/40 bg-success-600/10 text-success-600'
-                        : 'border-glass-border bg-surface text-text-muted'
+                        ? 'border-success-600/40 bg-success-600/10 text-success-600 hover:border-success-600/70 cursor-pointer'
+                        : isClickable
+                          ? 'border-glass-border bg-surface text-text-muted hover:border-pink-600/40 cursor-pointer'
+                          : 'border-glass-border bg-surface text-text-muted opacity-60 cursor-not-allowed'
                   }`}
                 >
                   <span
@@ -148,10 +180,10 @@ export function WizardShell({
                           : 'bg-bg-abyss text-text-muted'
                     }`}
                   >
-                    {isDone ? <Check size={12} strokeWidth={3} /> : idx + 1}
+                    {isDone && !isActive ? <Check size={12} strokeWidth={3} /> : idx + 1}
                   </span>
                   <span className="font-medium whitespace-nowrap">{s.label}</span>
-                </div>
+                </button>
                 {idx < steps.length - 1 && (
                   <span aria-hidden className="hidden sm:inline-block w-4 h-px bg-glass-border" />
                 )}
@@ -263,19 +295,45 @@ export function WizardShell({
         </div>
       </div>
 
-      <ConfirmAction
+      {/* 3-button discard dialog. Backdrop click closes (matches design
+          reference wizard.jsx:148-162). Button order: Keep editing ·
+          Save as draft · Discard — with destructive action last. */}
+      <Dialog
         visible={discardOpen}
         onHide={() => setDiscardOpen(false)}
-        title={isEditMode ? 'Discard changes?' : 'Discard this bounty?'}
-        message={
-          isEditMode
-            ? 'Unsaved edits will be lost. The saved draft will remain unchanged.'
-            : 'You have not saved this bounty yet. All entered details will be lost.'
+        header={isEditMode ? 'Discard changes?' : 'Discard this bounty?'}
+        modal
+        closable
+        dismissableMask
+        className="w-full max-w-lg"
+        footer={
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+            <Button
+              label="Keep editing"
+              outlined
+              onClick={() => setDiscardOpen(false)}
+            />
+            <Button
+              label="Save as draft"
+              outlined
+              severity="secondary"
+              onClick={handleSaveDraftAndClose}
+              loading={isSavingDraft}
+            />
+            <Button
+              label="Discard"
+              severity="danger"
+              onClick={handleDiscardConfirm}
+            />
+          </div>
         }
-        confirmLabel="Discard"
-        confirmSeverity="danger"
-        onConfirm={handleDiscardConfirm}
-      />
+      >
+        <p className="text-text-secondary">
+          {isEditMode
+            ? 'Unsaved edits will be lost. Save as a draft if you want to come back to your changes.'
+            : "Anything you've entered will be deleted. Save as a draft if you want to come back to it."}
+        </p>
+      </Dialog>
     </>
   );
 }
