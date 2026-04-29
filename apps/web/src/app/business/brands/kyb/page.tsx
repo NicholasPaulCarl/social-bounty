@@ -393,7 +393,10 @@ export default function BrandKybPage() {
 
       {/* Form — rendered for NOT_STARTED + REJECTED. */}
       {canSubmit && (
-        <Card title={status === KybStatus.REJECTED ? 'Update KYB details' : 'Submit KYB details'} className="mb-6">
+        <Card
+          title={status === KybStatus.REJECTED ? 'Update KYB details' : 'Submit KYB details'}
+          className="mb-6 p-4 sm:p-6"
+        >
           {formError && <Message severity="error" text={formError} className="w-full mb-4" />}
 
           <form onSubmit={handleSubmit} className="space-y-6">

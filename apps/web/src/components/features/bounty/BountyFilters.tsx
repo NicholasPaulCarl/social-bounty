@@ -70,8 +70,7 @@ export function BountyFilters({ filters, onChange, showStatusFilter = false }: B
 
   return (
     <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-      <span className="p-input-icon-left w-full sm:w-auto">
-        <Search size={16} strokeWidth={2} />
+      <span className="p-input-icon-right w-full sm:w-auto">
         <InputText
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
@@ -79,6 +78,7 @@ export function BountyFilters({ filters, onChange, showStatusFilter = false }: B
           aria-label="Search bounties by title"
           className="w-full sm:w-64"
         />
+        <Search size={16} strokeWidth={2} />
       </span>
 
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">

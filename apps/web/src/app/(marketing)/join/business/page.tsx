@@ -163,7 +163,7 @@ function DashboardMockup() {
         <div className="p-4 space-y-3">
           {/* Page heading */}
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-heading font-bold text-slate-900">New bounty</span>
+            <span className="text-xs font-heading font-bold text-text-primary">New bounty</span>
             <span className="badge badge-brand">Draft</span>
           </div>
 
@@ -205,7 +205,7 @@ function DashboardMockup() {
               { label: 'Approved', val: '31' },
             ].map((s) => (
               <div key={s.label} className="flex-1 bg-slate-50 rounded-lg px-2 py-2 text-center">
-                <p className="text-sm font-mono tabular-nums font-bold text-slate-900">{s.val}</p>
+                <p className="text-sm font-mono tabular-nums font-bold text-text-primary">{s.val}</p>
                 <p className="text-[9px] text-slate-500">{s.label}</p>
               </div>
             ))}
@@ -221,7 +221,7 @@ function DashboardMockup() {
    ───────────────────────────────────────────── */
 export default function JoinBusinessPage() {
   return (
-    <div className="bg-white text-slate-900 font-body">
+    <div className="bg-white text-text-primary font-body">
 
       {/* ══════════════════════════════════════════
           HERO
@@ -237,7 +237,7 @@ export default function JoinBusinessPage() {
               </FadeUp>
 
               <FadeUp delay={80}>
-                <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight tracking-tight mb-6">
+                <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary leading-tight tracking-tight mb-6">
                   UGC without <span className="gradient-text">the agency.</span>
                 </h1>
               </FadeUp>
@@ -277,7 +277,7 @@ export default function JoinBusinessPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-16">
             <p className="eyebrow mb-3">Why switch</p>
-            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary">
               Same results. Fraction of the cost.
             </h2>
           </FadeUp>
@@ -328,7 +328,7 @@ export default function JoinBusinessPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-16">
             <p className="eyebrow mb-3">The process</p>
-            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary">
               Three steps to your first UGC.
             </h2>
           </FadeUp>
@@ -347,7 +347,7 @@ export default function JoinBusinessPage() {
                     {step.n}
                   </div>
 
-                  <h3 className="font-heading text-xl font-bold text-slate-900 mb-2">{step.title}</h3>
+                  <h3 className="font-heading text-xl font-bold text-text-primary mb-2">{step.title}</h3>
                   <p className="text-slate-600 text-sm leading-relaxed">{step.body}</p>
                 </div>
               </FadeUp>
@@ -363,7 +363,7 @@ export default function JoinBusinessPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-16">
             <p className="eyebrow mb-3">Why brands choose us</p>
-            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary">
               Why brands choose the board.
             </h2>
           </FadeUp>
@@ -376,7 +376,7 @@ export default function JoinBusinessPage() {
                     <Icon size={24} strokeWidth={2} />
                   </div>
                   <div>
-                    <h3 className="font-heading text-lg font-bold text-slate-900 mb-2">{title}</h3>
+                    <h3 className="font-heading text-lg font-bold text-text-primary mb-2">{title}</h3>
                     <p className="text-slate-600 text-sm leading-relaxed">{body}</p>
                   </div>
                 </div>
@@ -436,7 +436,7 @@ export default function JoinBusinessPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeUp className="text-center mb-12">
             <p className="eyebrow mb-3">Plans</p>
-            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary">
               Start free. <span className="text-pink-600">Pro coming soon.</span>
             </h2>
             <p className="text-lg text-slate-600 mt-4 max-w-xl mx-auto">
@@ -448,8 +448,8 @@ export default function JoinBusinessPage() {
             {/* Free */}
             <FadeUp delay={0}>
               <div className="h-full card card-feature">
-                <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Free Brand</h3>
-                <p className="font-mono tabular-nums text-3xl font-bold text-slate-900 mt-4 mb-6">R0<span className="text-base font-normal text-slate-400">/month</span></p>
+                <h3 className="font-heading text-xl font-bold text-text-primary mb-1">Free Brand</h3>
+                <p className="font-mono tabular-nums text-3xl font-bold text-text-primary mt-4 mb-6">R0<span className="text-base font-normal text-slate-400">/month</span></p>
                 <ul className="space-y-3 mb-6">
                   {[
                     '15% admin fee per bounty',
@@ -474,7 +474,7 @@ export default function JoinBusinessPage() {
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 badge badge-neutral px-4 py-1 uppercase">
                   Coming soon
                 </div>
-                <h3 className="font-heading text-xl font-bold text-slate-900 mb-1">Pro Brand</h3>
+                <h3 className="font-heading text-xl font-bold text-text-primary mb-1">Pro Brand</h3>
                 <p className="text-sm text-slate-500 mt-4 mb-6">Pricing published before launch</p>
                 <ul className="space-y-3 mb-6">
                   {[
@@ -518,7 +518,7 @@ export default function JoinBusinessPage() {
             <div className="w-16 h-16 rounded-xl bg-pink-100 flex items-center justify-center mx-auto mb-6">
               <Star size={28} strokeWidth={2} className="text-pink-600" fill="currentColor" />
             </div>
-            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary mb-4">
               Hunters are waiting for <span className="text-pink-600">your first bounty.</span>
             </h2>
             <p className="text-lg text-slate-600 mb-8">

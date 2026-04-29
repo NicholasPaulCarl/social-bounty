@@ -69,7 +69,7 @@ POPIA section 11 lets us process personal information on several lawful bases. F
 
 A small number of cookies on the platform are set by third-party services we rely on. Each is bound by a written operator agreement that meets the requirements of POPIA sections 20 and 21.
 
-- **Analytics provider ([ANALYTICS_PROVIDER])** — sets cookies to measure aggregate platform usage. Set only if you have consented to analytics cookies.
+- **Analytics provider** — sets cookies to measure aggregate platform usage. Set only if you have consented to analytics cookies.
 - **TradeSafe Escrow (Pty) Ltd** — if you are redirected to TradeSafe's hosted checkout to fund a bounty or register banking details, TradeSafe will set its own cookies on its pages. Those cookies are governed by TradeSafe's own privacy notice; we do not control them.
 
 For completeness, our payment partner's site and its cookie practice are at [https://www.tradesafe.co.za](https://www.tradesafe.co.za).

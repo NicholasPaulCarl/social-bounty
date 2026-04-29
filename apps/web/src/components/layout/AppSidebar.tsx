@@ -157,7 +157,6 @@ function NavItemRow({
       className={`${baseClasses} ${layoutClasses} ${activeClasses}`}
       aria-current={active ? 'page' : undefined}
       aria-label={collapsed ? item.label : undefined}
-      title={collapsed ? item.label : undefined}
     >
       {/* 3px active rail — desktop only, expanded only */}
       {active && !collapsed && (
@@ -179,6 +178,14 @@ function NavItemRow({
           </span>
           {badge > 0 && <CountPip count={badge} urgent={item.urgent} />}
         </>
+      )}
+      {collapsed && (
+        <span
+          className="absolute left-full ml-2 px-2 py-1 bg-slate-900 text-white text-xs rounded-md whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 z-50"
+          aria-hidden="true"
+        >
+          {item.label}
+        </span>
       )}
     </Link>
   );

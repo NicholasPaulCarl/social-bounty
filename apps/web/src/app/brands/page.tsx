@@ -133,14 +133,14 @@ export default function BrandsDirectoryPage() {
 
       {/* Search */}
       <div className="mb-5">
-        <span className="p-input-icon-left w-full sm:w-80">
-          <Search size={16} strokeWidth={2} />
+        <span className="p-input-icon-right w-full sm:w-80">
           <InputText
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search brands..."
             className="w-full"
           />
+          <Search size={16} strokeWidth={2} />
         </span>
       </div>
 

@@ -31,6 +31,7 @@ import {
 import { KybDocumentType, KybOrgType } from '@prisma/client';
 import { UserRole } from '@social-bounty/shared';
 import { Audited, CurrentUser, Roles } from '../../common/decorators';
+import { buildContentDisposition } from '../../common/utils/content-disposition';
 import { AuthenticatedUser } from '../auth/jwt.strategy';
 import { KybService } from './kyb.service';
 import { KYB_DOCUMENT_LIMITS, KybDocumentsService } from './kyb-documents.service';
@@ -251,9 +252,11 @@ export class KybController {
     res.setHeader('Content-Type', doc.mimeType);
     // `inline` instead of `attachment` so PDFs / images render in the
     // browser tab the admin opens for review (no forced download).
+    // RFC 5987/6266 helper handles UTF-8 + header-injection defence
+    // (see `apps/api/src/common/utils/content-disposition.ts`).
     res.setHeader(
       'Content-Disposition',
-      `inline; filename="${doc.fileName}"`,
+      buildContentDisposition('inline', doc.fileName),
     );
     fs.createReadStream(filePath).pipe(res);
   }

@@ -55,7 +55,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-body">
+    <div className="min-h-screen bg-white text-text-primary font-body">
       {/* ── Navigation ── */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 transition-all duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -79,7 +79,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             </div>
 
             <div className="hidden md:flex items-center gap-3">
-              <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+              <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-text-primary transition-colors">
                 Log in
               </Link>
               <Link

@@ -65,7 +65,7 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
         aria-hidden="true"
         style={{
           position: 'absolute',
-          left: 12,
+          right: 12,
           top: '50%',
           transform: 'translateY(-50%)',
           color: 'var(--text-muted)',
@@ -83,7 +83,7 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
         className="w-full bg-surface text-text-primary"
         style={{
           boxSizing: 'border-box',
-          padding: '9px 12px 9px 36px',
+          padding: '9px 36px 9px 12px',
           border: '1px solid var(--slate-200)',
           borderRadius: 8,
           fontSize: 13,

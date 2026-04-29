@@ -34,7 +34,7 @@ export default function EscrowTermsPage() {
       toc={TOC}
     >
       <section id="overview">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">1. Overview</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">1. Overview</h2>
         <p className="mb-4">
           These Payout & Escrow Terms describe how money moves through the Platform and supplement
           the main{' '}
@@ -56,72 +56,72 @@ export default function EscrowTermsPage() {
         </p>
         <p className="mb-4">
           The Platform uses a three-party escrow arrangement operated by{' '}
-          <strong className="font-semibold text-slate-900">TradeSafe Escrow (Pty) Ltd</strong>{' '}
-          (<strong className="font-semibold text-slate-900">TradeSafe</strong>), a registered South
+          <strong className="font-semibold text-text-primary">TradeSafe Escrow (Pty) Ltd</strong>{' '}
+          (<strong className="font-semibold text-text-primary">TradeSafe</strong>), a registered South
           African digital-escrow service:
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            The <strong className="font-semibold text-slate-900">brand</strong> that posts and funds
-            a bounty is the <strong className="font-semibold text-slate-900">BUYER</strong>.
+            The <strong className="font-semibold text-text-primary">brand</strong> that posts and funds
+            a bounty is the <strong className="font-semibold text-text-primary">BUYER</strong>.
           </li>
           <li>
-            The <strong className="font-semibold text-slate-900">hunter</strong> who claims the
+            The <strong className="font-semibold text-text-primary">hunter</strong> who claims the
             bounty, submits compliant proof, and receives a payout is the{' '}
-            <strong className="font-semibold text-slate-900">SELLER</strong>.
+            <strong className="font-semibold text-text-primary">SELLER</strong>.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">{LEGAL_ENTITY.registeredName}</strong>{' '}
-            acts as <strong className="font-semibold text-slate-900">AGENT</strong> on the
+            <strong className="font-semibold text-text-primary">{LEGAL_ENTITY.registeredName}</strong>{' '}
+            acts as <strong className="font-semibold text-text-primary">AGENT</strong> on the
             transaction — we instruct release from escrow when the brand approves the submission and
             are paid our fees through the same mechanism.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">TradeSafe</strong> is the escrow — it
+            <strong className="font-semibold text-text-primary">TradeSafe</strong> is the escrow — it
             holds the funds from deposit to release in its regulated escrow account.
           </li>
         </ul>
         <p className="mb-4">
-          Social Bounty does <strong className="font-semibold text-slate-900">not</strong> receive,
+          Social Bounty does <strong className="font-semibold text-text-primary">not</strong> receive,
           hold, or re-transmit bounty funds in its own bank account at any point. The funds sit in
           TradeSafe's escrow from deposit to release.
         </p>
       </section>
 
       <section id="not-banking-not-lending">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           2. Not banking, not lending, not investment
         </h2>
         <p className="mb-4">
           The service described in these Terms is a{' '}
-          <strong className="font-semibold text-slate-900">commercial escrow</strong> on a
+          <strong className="font-semibold text-text-primary">commercial escrow</strong> on a
           per-bounty basis. It is not any of the following, and nothing on the Platform should be
           read as offering any of the following:
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">It is not a deposit-taking service.</strong>{' '}
+            <strong className="font-semibold text-text-primary">It is not a deposit-taking service.</strong>{' '}
             {LEGAL_ENTITY.registeredName} is not a bank, is not registered as such under the Banks
             Act 94 of 1990, and does not hold balances on your behalf. You cannot deposit funds
             with us and cannot withdraw a "wallet balance" on demand — there is no wallet.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">It is not a credit or lending
+            <strong className="font-semibold text-text-primary">It is not a credit or lending
             service.</strong> No credit is extended by us to any participant. Nothing in these Terms
             constitutes a "credit agreement" for the purposes of the National Credit Act 34 of 2005
-            (<strong className="font-semibold text-slate-900">NCA</strong>).
+            (<strong className="font-semibold text-text-primary">NCA</strong>).
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               It is not a financial-advice or intermediary service.
             </strong>{' '}
             We do not give financial advice and we do not act as an intermediary in a financial
             product for purposes of the Financial Advisory and Intermediary Services Act 37 of 2002
-            (<strong className="font-semibold text-slate-900">FAIS</strong>). The Platform does not
+            (<strong className="font-semibold text-text-primary">FAIS</strong>). The Platform does not
             offer investment, savings, or yield features.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">It is not an investment scheme.</strong>{' '}
+            <strong className="font-semibold text-text-primary">It is not an investment scheme.</strong>{' '}
             Funding a bounty is payment for a specific promotional deliverable; it is not the
             purchase of a security and carries no expectation of return beyond the content described
             in the brief.
@@ -135,7 +135,7 @@ export default function EscrowTermsPage() {
       </section>
 
       <section id="flow">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           3. How funds move
         </h2>
         <p className="mb-4">The end-to-end flow for a single bounty is:</p>
@@ -149,7 +149,7 @@ export default function EscrowTermsPage() {
             payment and records it against the bounty's escrow transaction.
           </li>
           <li>
-            TradeSafe <strong className="font-semibold text-slate-900">holds the funds in escrow</strong>.
+            TradeSafe <strong className="font-semibold text-text-primary">holds the funds in escrow</strong>.
             Social Bounty receives confirmation of the deposit and flips the bounty to live; the
             bounty can now accept submissions.
           </li>
@@ -163,7 +163,7 @@ export default function EscrowTermsPage() {
             instruction.
           </li>
           <li>
-            TradeSafe <strong className="font-semibold text-slate-900">releases the hunter's net
+            TradeSafe <strong className="font-semibold text-text-primary">releases the hunter's net
             payout</strong> from escrow to the hunter's registered South African bank account,
             deducts the platform fees and pays them to Social Bounty, and marks the allocation as
             settled.
@@ -176,7 +176,7 @@ export default function EscrowTermsPage() {
       </section>
 
       <section id="payment-methods">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           4. Payment methods
         </h2>
         <p className="mb-4">
@@ -197,7 +197,7 @@ export default function EscrowTermsPage() {
           merchants; that is a matter between you and your issuer.
         </p>
         <p className="mb-4">
-          Outbound payouts to hunters are made by <strong className="font-semibold text-slate-900">EFT to
+          Outbound payouts to hunters are made by <strong className="font-semibold text-text-primary">EFT to
           a South African bank account</strong> registered on the hunter's TradeSafe SELLER token.
           We do not currently support payouts to mobile-money wallets, foreign bank accounts, or
           crypto wallets.
@@ -205,25 +205,25 @@ export default function EscrowTermsPage() {
       </section>
 
       <section id="fees-recap">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           5. Fees recap
         </h2>
         <p className="mb-4">Fees deducted from each bounty comprise:</p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            a <strong className="font-semibold text-slate-900">20% hunter commission</strong> (Free
+            a <strong className="font-semibold text-text-primary">20% hunter commission</strong> (Free
             plan), deducted from the reward before the hunter is paid;
           </li>
           <li>
-            a <strong className="font-semibold text-slate-900">15% brand admin fee</strong> (Free
+            a <strong className="font-semibold text-text-primary">15% brand admin fee</strong> (Free
             plan), added to the brand's checkout total;
           </li>
           <li>
-            a <strong className="font-semibold text-slate-900">5% transaction fee</strong>, added to
+            a <strong className="font-semibold text-text-primary">5% transaction fee</strong>, added to
             the brand's checkout total;
           </li>
           <li>
-            a <strong className="font-semibold text-slate-900">3.5% global platform fee</strong>,
+            a <strong className="font-semibold text-text-primary">3.5% global platform fee</strong>,
             charged separately on each side of the transaction.
           </li>
         </ul>
@@ -244,7 +244,7 @@ export default function EscrowTermsPage() {
       </section>
 
       <section id="clearance">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           6. Clearance & settlement
         </h2>
         <p className="mb-4">
@@ -253,19 +253,19 @@ export default function EscrowTermsPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Platform clearance</strong> — a hold
+            <strong className="font-semibold text-text-primary">Platform clearance</strong> — a hold
             we apply on the hunter's side, set by the hunter's plan, to absorb
             reversal-within-window scenarios (see clause 7). Current plan terms are published on
             the Platform and recorded on each transaction at the moment of approval. The plan in
             force at that moment is the one that applies, even if the hunter's plan changes later.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">TradeSafe settlement</strong> — the
+            <strong className="font-semibold text-text-primary">TradeSafe settlement</strong> — the
             time TradeSafe takes to move the funds from its escrow account to the hunter's bank.
             TradeSafe's own service-level commitments apply; in typical operation this is
             same-business-day after the release instruction. TradeSafe's settlement timings are
             controlled by TradeSafe and{' '}
-            <strong className="font-semibold text-slate-900">are not guaranteed by Social Bounty</strong>.
+            <strong className="font-semibold text-text-primary">are not guaranteed by Social Bounty</strong>.
           </li>
         </ul>
         <p className="mb-4">
@@ -276,7 +276,7 @@ export default function EscrowTermsPage() {
       </section>
 
       <section id="refunds-and-reversals">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           7. Refunds & reversals
         </h2>
         <p className="mb-4">
@@ -284,7 +284,7 @@ export default function EscrowTermsPage() {
           case we write an audit-log entry and (where you are affected) notify you by email with a
           short reason.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           7.1 Submission rejected before approval
         </h3>
         <p className="mb-4">
@@ -294,13 +294,13 @@ export default function EscrowTermsPage() {
           method. Refunds follow TradeSafe's refund channel for the original payment method and
           typically take two to seven business days to appear.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           7.2 Auto-refund on post removal
         </h3>
         <p className="mb-4">
           Where a bounty brief requires the hunter's post to remain publicly accessible for a set
           duration, our scheduler re-checks the post on a regular cadence. If{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             two consecutive re-checks at least six hours apart
           </strong>{' '}
           both find the post unreachable, and the failures are not attributable to a known
@@ -319,7 +319,7 @@ export default function EscrowTermsPage() {
           </Link>
           , and we reinstate the payout where the appeal is upheld.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           7.3 Dispute decided in the brand's favour
         </h3>
         <p className="mb-4">
@@ -327,18 +327,18 @@ export default function EscrowTermsPage() {
           release for that submission may be reversed by compensating entry and the funds returned
           to the brand.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           7.4 Financial Kill Switch
         </h3>
         <p className="mb-4">
           During a suspected financial-integrity incident a super-admin may activate the Platform's{' '}
-          <strong className="font-semibold text-slate-900">Financial Kill Switch</strong>, which
+          <strong className="font-semibold text-text-primary">Financial Kill Switch</strong>, which
           halts new payouts and new ledger postings while the underlying cause is investigated.
           Pending instructions to TradeSafe are held in the queue rather than cancelled. Once the
           incident is resolved, the queue is released. The Kill Switch is a last-resort control and
           is fully audit-logged.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           7.5 Super-admin correction
         </h3>
         <p className="mb-4">
@@ -351,7 +351,7 @@ export default function EscrowTermsPage() {
       </section>
 
       <section id="tradesafe-terms">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           8. TradeSafe's own terms
         </h2>
         <p className="mb-4">
@@ -377,7 +377,7 @@ export default function EscrowTermsPage() {
       </section>
 
       <section id="failures">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           9. Outages & retries
         </h2>
         <p className="mb-4">
@@ -388,7 +388,7 @@ export default function EscrowTermsPage() {
         </p>
         <p className="mb-4">
           For release instructions, our system is{' '}
-          <strong className="font-semibold text-slate-900">idempotent</strong>: a retried
+          <strong className="font-semibold text-text-primary">idempotent</strong>: a retried
           instruction will not cause a double release. The TradeSafe webhook replay protections and
           our own double-entry ledger prevent duplicate postings even if multiple retries reach
           TradeSafe.
@@ -400,9 +400,9 @@ export default function EscrowTermsPage() {
       </section>
 
       <section id="tax">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">10. Tax</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">10. Tax</h2>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">Hunters are responsible for their own
+          <strong className="font-semibold text-text-primary">Hunters are responsible for their own
           income tax.</strong> Payouts to a hunter are payments for services rendered; they are not
           employment income and we do not withhold PAYE or UIF. If you are unsure of your tax
           position, speak to a SARS-registered tax practitioner.
@@ -420,7 +420,7 @@ export default function EscrowTermsPage() {
           .
         </p>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">VAT.</strong>{' '}
+          <strong className="font-semibold text-text-primary">VAT.</strong>{' '}
           {LEGAL_ENTITY.registeredName} is not currently VAT-registered under the Value-Added Tax
           Act 89 of 1991, as our taxable supplies are below the R1 million compulsory-registration
           threshold. No VAT is charged on our fees and no VAT invoices are issued. If our turnover
@@ -428,8 +428,8 @@ export default function EscrowTermsPage() {
           at least 30 days' notice before adding VAT to any fee.
         </p>
         <p className="mb-4">
-          <strong className="font-semibold text-slate-900">Record retention.</strong> We retain
-          financial records for at least <strong className="font-semibold text-slate-900">five
+          <strong className="font-semibold text-text-primary">Record retention.</strong> We retain
+          financial records for at least <strong className="font-semibold text-text-primary">five
           years</strong> from the date of the transaction, in line with section 29 of the Tax
           Administration Act, and for longer where another law requires it. Deleting your account
           does not delete financial records within that window.
@@ -437,7 +437,7 @@ export default function EscrowTermsPage() {
       </section>
 
       <section id="contact">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">11. Contact</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">11. Contact</h2>
         <p className="mb-4">
           For questions about payouts, escrow, or any item in this document, email us at{' '}
           <a

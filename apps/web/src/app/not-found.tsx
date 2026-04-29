@@ -8,7 +8,7 @@ export default function NotFound() {
         <h1 className="text-8xl font-heading font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
           404
         </h1>
-        <h2 className="text-2xl font-heading font-bold text-primary mt-4">
+        <h2 className="text-2xl font-heading font-bold text-text-primary mt-4">
           Wrong Turn
         </h2>
         <p className="text-secondary mt-3 max-w-sm mx-auto">

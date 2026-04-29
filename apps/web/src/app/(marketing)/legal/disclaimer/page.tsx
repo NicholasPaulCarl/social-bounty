@@ -35,13 +35,13 @@ export default function DisclaimerPage() {
       toc={TOC}
     >
       <section id="role">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           1. Our role as a facilitator
         </h2>
         <p className="mb-4">
           {LEGAL_ENTITY.registeredName} (registration number {LEGAL_ENTITY.cipcRegNumber}) operates
           the Social Bounty platform at {LEGAL_ENTITY.domain}. We are a{' '}
-          <strong className="font-semibold text-slate-900">facilitator</strong>: we provide software that connects brands, who publish
+          <strong className="font-semibold text-text-primary">facilitator</strong>: we provide software that connects brands, who publish
           bounty briefs, with hunters, who deliver social-media content in exchange
           for a reward.
         </p>
@@ -64,7 +64,7 @@ export default function DisclaimerPage() {
       </section>
 
       <section id="no-warranty">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           2. No warranty
         </h2>
         <p className="mb-4">
@@ -82,7 +82,7 @@ export default function DisclaimerPage() {
           Nothing in this Disclaimer excludes or limits any right or protection you
           enjoy under a statute that cannot lawfully be excluded, including
           applicable rights under the Consumer Protection Act 68 of 2008 (the{' '}
-          <strong className="font-semibold text-slate-900">CPA</strong>) where the CPA applies to you. Our CPA position is
+          <strong className="font-semibold text-text-primary">CPA</strong>) where the CPA applies to you. Our CPA position is
           summarised in the{' '}
           <Link href="/legal/consumer-rights" className="text-pink-600 hover:text-pink-700 font-medium">
             Consumer Rights Notice
@@ -92,7 +92,7 @@ export default function DisclaimerPage() {
       </section>
 
       <section id="third-parties">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           3. Third-party providers
         </h2>
         <p className="mb-4">
@@ -101,7 +101,7 @@ export default function DisclaimerPage() {
           failure modes. We are not responsible for their performance beyond our
           reasonable procurement and oversight of them.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           TradeSafe (escrow)
         </h3>
         <p className="mb-4">
@@ -114,7 +114,7 @@ export default function DisclaimerPage() {
           help you engage with TradeSafe and provide such reasonable assistance as
           we can, but we do not underwrite TradeSafe's performance.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Apify (verification)
         </h3>
         <p className="mb-4">
@@ -128,7 +128,7 @@ export default function DisclaimerPage() {
           </a>{' '}
           below.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Hosting, mail, and other infrastructure
         </h3>
         <p className="mb-4">
@@ -142,7 +142,7 @@ export default function DisclaimerPage() {
           . Their service disruptions may cause Platform disruptions; we aim to
           restore service promptly but cannot eliminate this risk.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Social-media platforms
         </h3>
         <p className="mb-4">
@@ -155,7 +155,7 @@ export default function DisclaimerPage() {
       </section>
 
       <section id="verification-limits">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           4. Limits of automated verification
         </h2>
         <p className="mb-4">
@@ -207,13 +207,13 @@ export default function DisclaimerPage() {
       </section>
 
       <section id="not-financial-advice">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           5. Not financial advice (FAIS carve-out)
         </h2>
         <p className="mb-4">
-          Social Bounty is <strong className="font-semibold text-slate-900">not</strong> a financial services provider as contemplated
+          Social Bounty is <strong className="font-semibold text-text-primary">not</strong> a financial services provider as contemplated
           by the Financial Advisory and Intermediary Services Act 37 of 2002 (
-          <strong className="font-semibold text-slate-900">FAIS</strong>). We do not furnish financial advice, make recommendations
+          <strong className="font-semibold text-text-primary">FAIS</strong>). We do not furnish financial advice, make recommendations
           about financial products, or act as an intermediary in respect of any
           financial product listed in section 1 of FAIS.
         </p>
@@ -236,14 +236,14 @@ export default function DisclaimerPage() {
       </section>
 
       <section id="not-lending">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           6. Not a credit provider (NCA carve-out)
         </h2>
         <p className="mb-4">
           Social Bounty does not extend credit. We do not lend money, offer
           instalment plans, issue credit facilities, or otherwise provide credit
           agreements as contemplated by the National Credit Act 34 of 2005 (the{' '}
-          <strong className="font-semibold text-slate-900">NCA</strong>). Bounty payments flow from the brand, through escrow held by
+          <strong className="font-semibold text-text-primary">NCA</strong>). Bounty payments flow from the brand, through escrow held by
           TradeSafe, to the hunter. No party is lending to another through this
           arrangement.
         </p>
@@ -255,7 +255,7 @@ export default function DisclaimerPage() {
       </section>
 
       <section id="no-brokerage">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           7. Not an employment or talent agency
         </h2>
         <p className="mb-4">
@@ -275,7 +275,7 @@ export default function DisclaimerPage() {
       </section>
 
       <section id="external-links">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           8. External links
         </h2>
         <p className="mb-4">
@@ -289,7 +289,7 @@ export default function DisclaimerPage() {
       </section>
 
       <section id="user-submitted-content">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           9. User-submitted content
         </h2>
         <p className="mb-4">
@@ -310,12 +310,12 @@ export default function DisclaimerPage() {
           </Link>
           . To the extent we qualify for the intermediary limitations in Chapter
           XI of the Electronic Communications and Transactions Act 25 of 2002 (
-          <strong className="font-semibold text-slate-900">ECTA</strong>), we rely on them.
+          <strong className="font-semibold text-text-primary">ECTA</strong>), we rely on them.
         </p>
       </section>
 
       <section id="jurisdiction">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           10. Jurisdiction and cross-border use
         </h2>
         <p className="mb-4">
@@ -335,7 +335,7 @@ export default function DisclaimerPage() {
       </section>
 
       <section id="changes">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           11. Changes to the Platform
         </h2>
         <p className="mb-4">
@@ -352,7 +352,7 @@ export default function DisclaimerPage() {
       </section>
 
       <section id="contact">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           12. Contact
         </h2>
         <p className="mb-4">

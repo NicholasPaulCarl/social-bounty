@@ -34,10 +34,10 @@ export default function PaiaManualPage() {
       toc={TOC}
     >
       <section id="introduction">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">Introduction</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">Introduction</h2>
         <p className="mb-4">
           This is the manual of{' '}
-          <strong className="font-semibold text-slate-900">{LEGAL_ENTITY.registeredName}</strong>{' '}
+          <strong className="font-semibold text-text-primary">{LEGAL_ENTITY.registeredName}</strong>{' '}
           (trading as {LEGAL_ENTITY.tradingName}) published in compliance with section 51 of the
           Promotion of Access to Information Act 2 of 2000 (PAIA).
         </p>
@@ -72,46 +72,46 @@ export default function PaiaManualPage() {
       </section>
 
       <section id="particulars-of-body">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Particulars of the private body
         </h2>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Registered name:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Registered name:</strong>{' '}
             {LEGAL_ENTITY.registeredName}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Trading name:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Trading name:</strong>{' '}
             {LEGAL_ENTITY.tradingName}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Type of body:</strong> Private company
+            <strong className="font-semibold text-text-primary">Type of body:</strong> Private company
             incorporated under the Companies Act 71 of 2008
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">CIPC registration number:</strong>{' '}
+            <strong className="font-semibold text-text-primary">CIPC registration number:</strong>{' '}
             {LEGAL_ENTITY.cipcRegNumber}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Date of incorporation:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Date of incorporation:</strong>{' '}
             {LEGAL_ENTITY.incorporationDate}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Financial year-end:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Financial year-end:</strong>{' '}
             {LEGAL_ENTITY.financialYearEnd}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">VAT status:</strong>{' '}
+            <strong className="font-semibold text-text-primary">VAT status:</strong>{' '}
             {LEGAL_ENTITY.vatStatus}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Registered office / domicilium citandi et executandi:
             </strong>{' '}
             {LEGAL_ENTITY.registeredAddress.formatted}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Website:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Website:</strong>{' '}
             <a
               href={LEGAL_ENTITY.websiteUrl}
               className="text-pink-600 hover:text-pink-700 font-medium"
@@ -120,7 +120,7 @@ export default function PaiaManualPage() {
             </a>
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">General contact:</strong>{' '}
+            <strong className="font-semibold text-text-primary">General contact:</strong>{' '}
             <a
               href={`mailto:${LEGAL_ENTITY.emails.general}`}
               className="text-pink-600 hover:text-pink-700 font-medium"
@@ -132,7 +132,7 @@ export default function PaiaManualPage() {
       </section>
 
       <section id="information-officer">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Information Officer
         </h2>
         <p className="mb-4">
@@ -140,15 +140,15 @@ export default function PaiaManualPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Name:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Name:</strong>{' '}
             {LEGAL_ENTITY.informationOfficer.name}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Role:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Role:</strong>{' '}
             {LEGAL_ENTITY.informationOfficer.role}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Email:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Email:</strong>{' '}
             <a
               href={`mailto:${LEGAL_ENTITY.informationOfficer.email}`}
               className="text-pink-600 hover:text-pink-700 font-medium"
@@ -157,7 +157,7 @@ export default function PaiaManualPage() {
             </a>
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Postal address:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Postal address:</strong>{' '}
             {LEGAL_ENTITY.registeredAddress.formatted}
           </li>
         </ul>
@@ -176,7 +176,7 @@ export default function PaiaManualPage() {
       </section>
 
       <section id="records-held">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Records held by Social Bounty
         </h2>
         <p className="mb-4">
@@ -186,7 +186,7 @@ export default function PaiaManualPage() {
           still need to establish the requirement set by section 50 of PAIA.
         </p>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           User records
         </h3>
         <ul className="list-disc pl-6 mb-4 space-y-1">
@@ -196,7 +196,7 @@ export default function PaiaManualPage() {
           <li>Role assignments (Participant / Business Admin / Super Admin).</li>
         </ul>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Brand records
         </h3>
         <ul className="list-disc pl-6 mb-4 space-y-1">
@@ -206,7 +206,7 @@ export default function PaiaManualPage() {
           <li>Product-level KYB documentation supplied during brand onboarding.</li>
         </ul>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Bounty records
         </h3>
         <ul className="list-disc pl-6 mb-4 space-y-1">
@@ -215,7 +215,7 @@ export default function PaiaManualPage() {
           <li>Funding records linking the bounty to a TradeSafe transaction reference.</li>
         </ul>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Submission records
         </h3>
         <ul className="list-disc pl-6 mb-4 space-y-1">
@@ -225,7 +225,7 @@ export default function PaiaManualPage() {
           <li>Post-visibility check history and any auto-refund events.</li>
         </ul>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Financial and ledger records
         </h3>
         <ul className="list-disc pl-6 mb-4 space-y-1">
@@ -246,7 +246,7 @@ export default function PaiaManualPage() {
           <li>Refund and chargeback records.</li>
         </ul>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Audit logs
         </h3>
         <ul className="list-disc pl-6 mb-4 space-y-1">
@@ -255,7 +255,7 @@ export default function PaiaManualPage() {
           <li>Access to sensitive records by authorised staff.</li>
         </ul>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           System logs
         </h3>
         <ul className="list-disc pl-6 mb-4 space-y-1">
@@ -265,7 +265,7 @@ export default function PaiaManualPage() {
           <li>Webhook receipt and delivery logs.</li>
         </ul>
 
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Corporate and statutory records
         </h3>
         <ul className="list-disc pl-6 mb-4 space-y-1">
@@ -278,7 +278,7 @@ export default function PaiaManualPage() {
       </section>
 
       <section id="voluntary-disclosure">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Records voluntarily made available
         </h2>
         <p className="mb-4">
@@ -325,7 +325,7 @@ export default function PaiaManualPage() {
       </section>
 
       <section id="request-procedure">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           How to request a record
         </h2>
         <p className="mb-4">
@@ -377,7 +377,7 @@ export default function PaiaManualPage() {
       </section>
 
       <section id="fees">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">Fees</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">Fees</h2>
         <p className="mb-4">
           PAIA prescribes two kinds of fees. The rates below are the Regulations as they stood at
           the effective date of this manual; if the Regulations are updated, the current gazetted
@@ -385,14 +385,14 @@ export default function PaiaManualPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Request fee</strong>{' '}
+            <strong className="font-semibold text-text-primary">Request fee</strong>{' '}
             — a fixed fee payable when you submit the request, set by the Regulations. We will
             tell you the exact amount when we acknowledge your request. The request fee is not
             payable for a request made in terms of POPIA for a record of personal information
             about yourself.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Access fee</strong>{' '}
+            <strong className="font-semibold text-text-primary">Access fee</strong>{' '}
             — payable if the request is granted. It covers the reasonable cost of searching for,
             reproducing, and (if applicable) preparing the record. We will send you a written
             estimate before we start the work; if the access fee is likely to exceed the threshold
@@ -407,7 +407,7 @@ export default function PaiaManualPage() {
       </section>
 
       <section id="grounds-for-refusal">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Grounds for refusal
         </h2>
         <p className="mb-4">
@@ -416,52 +416,52 @@ export default function PaiaManualPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Protection of personal information about a third party
             </strong>{' '}
             (section 63) — we must refuse if disclosure would unreasonably disclose a third
             party's personal information.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Protection of commercial information about a third party
             </strong>{' '}
             (section 64) — for example, a brand's trade secrets, pricing, or commercial strategy.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Protection of our own commercial information
             </strong>{' '}
             (section 68) — trade secrets, financial, commercial, scientific, or technical
             information the disclosure of which would likely harm our competitive position.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Protection of confidential information
             </strong>{' '}
             (section 65) — information we received in confidence under an obligation to keep it
             confidential.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Protection of research information
             </strong>{' '}
             (section 69).
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Protection of the safety of individuals and property
             </strong>{' '}
             (section 66).
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Protection of records privileged from production in legal proceedings
             </strong>{' '}
             (section 67).
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Mandatory disclosure in the public interest
             </strong>{' '}
             (section 70) — even if a ground for refusal applies, access must still be granted if
@@ -475,7 +475,7 @@ export default function PaiaManualPage() {
       </section>
 
       <section id="internal-appeal">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Internal appeal
         </h2>
         <p className="mb-4">
@@ -499,7 +499,7 @@ export default function PaiaManualPage() {
       </section>
 
       <section id="ir-escalation">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Escalation to the Information Regulator
         </h2>
         <p className="mb-4">
@@ -508,11 +508,11 @@ export default function PaiaManualPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Regulator:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Regulator:</strong>{' '}
             {LEGAL_ENTITY.informationRegulator.name}
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Website:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Website:</strong>{' '}
             <a
               href={LEGAL_ENTITY.informationRegulator.url}
               className="text-pink-600 hover:text-pink-700 font-medium"
@@ -521,7 +521,7 @@ export default function PaiaManualPage() {
             </a>
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Complaints email:</strong>{' '}
+            <strong className="font-semibold text-text-primary">Complaints email:</strong>{' '}
             <a
               href={`mailto:${LEGAL_ENTITY.informationRegulator.email}`}
               className="text-pink-600 hover:text-pink-700 font-medium"
@@ -538,7 +538,7 @@ export default function PaiaManualPage() {
       </section>
 
       <section id="availability">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Availability of this manual
         </h2>
         <p className="mb-4">This manual is available:</p>

@@ -34,28 +34,28 @@ export default function ConsumerRightsPage() {
       toc={TOC}
     >
       <section id="introduction">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">Introduction</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">Introduction</h2>
         <p className="mb-4">
           This is a plain-English summary of your consumer rights when you use Social Bounty. It
           is written for the non-lawyer who wants to know, in real terms, what you are entitled to
           expect from us and what you can do if something goes wrong. It is not the whole of the
           law, and it does not replace the text of the{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             Consumer Protection Act 68 of 2008 (CPA)
           </strong>
           , the{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             Electronic Communications and Transactions Act 25 of 2002 (ECTA)
           </strong>{' '}
           or the{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             Protection of Personal Information Act 4 of 2013 (POPIA)
           </strong>
           . Where a right comes from a specific section, we cite it so you can look it up.
         </p>
         <p className="mb-4">
           Social Bounty is operated by{' '}
-          <strong className="font-semibold text-slate-900">{LEGAL_ENTITY.registeredName}</strong>{' '}
+          <strong className="font-semibold text-text-primary">{LEGAL_ENTITY.registeredName}</strong>{' '}
           (CIPC registration number {LEGAL_ENTITY.cipcRegNumber}), a South African private company
           with its registered address at {LEGAL_ENTITY.registeredAddress.formatted}. When this
           notice says "we", "us" or "Social Bounty", that is who we mean.
@@ -70,7 +70,7 @@ export default function ConsumerRightsPage() {
       </section>
 
       <section id="who-counts-as-a-consumer">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Who counts as a consumer
         </h2>
         <p className="mb-4">
@@ -78,12 +78,12 @@ export default function ConsumerRightsPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Hunters</strong> — you are a natural
+            <strong className="font-semibold text-text-primary">Hunters</strong> — you are a natural
             person (an individual human being) who signs up to complete bounties and earn payouts.
             The CPA always applies to you in your dealings with us.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Small-business brands and individual brand users
             </strong>{' '}
             — you are a natural person who funds bounties on the platform, or you are a juristic
@@ -100,13 +100,13 @@ export default function ConsumerRightsPage() {
         </p>
         <p className="mb-4">
           Throughout this notice, when we say{' '}
-          <strong className="font-semibold text-slate-900">"you"</strong> we mean whichever of
+          <strong className="font-semibold text-text-primary">"you"</strong> we mean whichever of
           these categories applies to you.
         </p>
       </section>
 
       <section id="right-to-fair-value-good-quality-safety">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           You have a right to fair value, good quality and safety
         </h2>
         <p className="mb-4">
@@ -135,14 +135,14 @@ export default function ConsumerRightsPage() {
         </ul>
         <p className="mb-4">
           We will not pretend to give you a "warranty" shorter than the statutory{' '}
-          <strong className="font-semibold text-slate-900">six months</strong> that section 56
+          <strong className="font-semibold text-text-primary">six months</strong> that section 56
           creates. If someone tries to sell you a clause that says otherwise on this platform,
           that clause is unenforceable.
         </p>
       </section>
 
       <section id="right-to-disclosure">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           You have a right to know what you are buying and what it costs
         </h2>
         <p className="mb-4">
@@ -185,7 +185,7 @@ export default function ConsumerRightsPage() {
       </section>
 
       <section id="right-to-fair-just-reasonable-terms">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           You have a right to fair, just and reasonable terms
         </h2>
         <p className="mb-4">
@@ -193,23 +193,23 @@ export default function ConsumerRightsPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Section 48</strong> makes it unlawful
+            <strong className="font-semibold text-text-primary">Section 48</strong> makes it unlawful
             for us to offer goods or services, or to enter into an agreement, on terms that are
             unfair, unreasonable or unjust. If a clause in our Terms does that, the clause is
             void.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Section 49</strong> requires terms
+            <strong className="font-semibold text-text-primary">Section 49</strong> requires terms
             that limit our liability, that create risk for you or that require you to waive a
             right to be drawn to your attention in plain, understandable language — not buried.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Section 50</strong> prohibits
+            <strong className="font-semibold text-text-primary">Section 50</strong> prohibits
             unconscionable conduct — using physical force, coercion, undue influence, pressure,
             duress, harassment or unfair tactics against you.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Section 51</strong> sets out terms
+            <strong className="font-semibold text-text-primary">Section 51</strong> sets out terms
             that can never appear in a consumer agreement. Among them: terms that ask you to waive
             any right you have under the CPA, that exempt us from liability for gross negligence,
             that assume facts about you which are not true, or that sign away the jurisdiction of
@@ -217,7 +217,7 @@ export default function ConsumerRightsPage() {
             something that looks like one, please tell us and we will correct it.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Section 52</strong> gives a court
+            <strong className="font-semibold text-text-primary">Section 52</strong> gives a court
             power to declare a term unconscionable, unjust or unreasonable and to refuse to
             enforce it. It also preserves your right to approach the National Consumer
             Commission directly — more on that below.
@@ -226,7 +226,7 @@ export default function ConsumerRightsPage() {
       </section>
 
       <section id="right-to-honest-dealing">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           You have a right to honest dealing
         </h2>
         <p className="mb-4">
@@ -255,7 +255,7 @@ export default function ConsumerRightsPage() {
       </section>
 
       <section id="right-to-accountability">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           You have a right to accountability from us
         </h2>
         <p className="mb-4">
@@ -287,14 +287,14 @@ export default function ConsumerRightsPage() {
       </section>
 
       <section id="right-to-be-heard">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           You have a right to be heard, and to escalate
         </h2>
         <p className="mb-4">
           Sections 69 to 76 of the CPA give you the right to complain and to have your complaint
           considered seriously, and they give you a specific escalation route to the National
           Consumer Commission (NCC) and the consumer tribunal. Importantly,{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             section 52 of the CPA means we cannot contract you out of that route
           </strong>
           . Even if you have agreed to an internal complaints process, or to arbitration, or to
@@ -308,7 +308,7 @@ export default function ConsumerRightsPage() {
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
             The{' '}
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               {LEGAL_ENTITY.nationalConsumerCommission.name}
             </strong>{' '}
             at{' '}
@@ -324,7 +324,7 @@ export default function ConsumerRightsPage() {
           </li>
           <li>
             The{' '}
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               {LEGAL_ENTITY.informationRegulator.name}
             </strong>{' '}
             at{' '}
@@ -368,32 +368,32 @@ export default function ConsumerRightsPage() {
       </section>
 
       <section id="cooling-off-position">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Cooling-off rights: what they are, and where they do not apply
         </h2>
         <p className="mb-4">
           South African law gives consumers a "cooling-off" right in two specific situations,
           and we want to be honest about which applies to Social Bounty.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           ECTA section 44 — the general 7-day rule
         </h3>
         <p className="mb-4">
           Section 44 of ECTA gives a consumer who bought goods or services through an electronic
           transaction the right to cancel, without reason and without penalty, within{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             seven (7) days of receiving the goods or concluding the services agreement
           </strong>
           , and to a refund within 30 days. That is a powerful right and we respect it. It is the
           default position for our subscription and platform-fee charges.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           The carve-out for services you asked us to start
         </h3>
         <p className="mb-4">
           Section 42(2)(a) of ECTA carves a specific exception out of the 7-day rule: where the
           service has already begun{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             with your express consent, and before the 7-day period is up
           </strong>
           , the cooling-off right does not apply to the portion of the service already rendered.
@@ -407,12 +407,12 @@ export default function ConsumerRightsPage() {
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
             For a bounty that has{' '}
-            <strong className="font-semibold text-slate-900">not yet gone live</strong>, you can
+            <strong className="font-semibold text-text-primary">not yet gone live</strong>, you can
             cancel and receive a full refund. That is your ECTA s44 right and we honour it.
           </li>
           <li>
             For a bounty that{' '}
-            <strong className="font-semibold text-slate-900">has gone live but has received
+            <strong className="font-semibold text-text-primary">has gone live but has received
             no submissions and no verification work has run</strong>, you can cancel and receive a
             full refund, net of any bank or payment-processor fee that is non-recoverable.
           </li>
@@ -434,7 +434,7 @@ export default function ConsumerRightsPage() {
       </section>
 
       <section id="how-to-exercise-your-rights">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           How to exercise your rights
         </h2>
         <p className="mb-4">
@@ -473,7 +473,7 @@ export default function ConsumerRightsPage() {
       </section>
 
       <section id="related-documents">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Related documents
         </h2>
         <ul className="list-disc pl-6 mb-4 space-y-1">

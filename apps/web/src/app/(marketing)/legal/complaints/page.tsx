@@ -35,7 +35,7 @@ export default function ComplaintsPage() {
       toc={TOC}
     >
       <section id="our-commitment">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Our commitment
         </h2>
         <p className="mb-4">
@@ -46,7 +46,7 @@ export default function ComplaintsPage() {
         </p>
         <p className="mb-4">
           Social Bounty is operated by{' '}
-          <strong className="font-semibold text-slate-900">{LEGAL_ENTITY.registeredName}</strong>{' '}
+          <strong className="font-semibold text-text-primary">{LEGAL_ENTITY.registeredName}</strong>{' '}
           (CIPC registration number {LEGAL_ENTITY.cipcRegNumber}). When this policy says "we" or
           "us", that is who we mean. When it says "you", we mean any hunter, brand user, visitor
           or applicant raising a complaint with us.
@@ -54,49 +54,49 @@ export default function ComplaintsPage() {
       </section>
 
       <section id="scope">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           What this policy covers
         </h2>
         <p className="mb-4">This policy covers complaints about:</p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Commercial matters</strong> — fees,
+            <strong className="font-semibold text-text-primary">Commercial matters</strong> — fees,
             charges, subscriptions, refunds, bounty funding, payouts, or anything about how money
             moves.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Personal information and privacy
             </strong>{' '}
             — how we collected, used, stored, shared, corrected or deleted your personal
             information under POPIA.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Service quality</strong> — the
+            <strong className="font-semibold text-text-primary">Service quality</strong> — the
             platform not working as described, submissions not verifying correctly, approval
             delays, broken notifications.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Platform conduct</strong> — how we
+            <strong className="font-semibold text-text-primary">Platform conduct</strong> — how we
             have moderated your content, enforced our Acceptable Use Policy, suspended or
             restricted your account, or otherwise exercised editorial or enforcement discretion.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Team conduct</strong> — how anyone
+            <strong className="font-semibold text-text-primary">Team conduct</strong> — how anyone
             at Social Bounty has treated you.
           </li>
         </ul>
         <p className="mb-4">This policy does not cover:</p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Criminal matters.</strong> If you
+            <strong className="font-semibold text-text-primary">Criminal matters.</strong> If you
             believe a crime has been committed (fraud, threats, harassment amounting to a
             criminal offence), report it to the South African Police Service (SAPS) directly.
             We will assist an SAPS investigation where we lawfully can, but we are not a
             substitute for one.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Disputes between a brand and a hunter that are unrelated to the platform.
             </strong>{' '}
             If you have a private disagreement with another user about something that happened
@@ -105,7 +105,7 @@ export default function ComplaintsPage() {
             policy and we will look at it.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Intellectual-property and copyright takedown notices.
             </strong>{' '}
             Those follow the specific procedure in our{' '}
@@ -122,7 +122,7 @@ export default function ComplaintsPage() {
       </section>
 
       <section id="how-to-complain">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           How to complain
         </h2>
         <p className="mb-4">
@@ -171,12 +171,12 @@ export default function ComplaintsPage() {
       </section>
 
       <section id="acknowledgement-sla">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Acknowledgement — within 3 business days
         </h2>
         <p className="mb-4">
           We commit to acknowledging every complaint{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             within 3 business days of receipt
           </strong>
           . The acknowledgement will include:
@@ -204,25 +204,25 @@ export default function ComplaintsPage() {
       </section>
 
       <section id="investigation-sla">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Investigation and response
         </h2>
         <p className="mb-4">We then investigate. Our response-time commitments are:</p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Commercial, service-quality and platform-conduct complaints:
             </strong>{' '}
             a substantive response, including any proposed resolution, within{' '}
-            <strong className="font-semibold text-slate-900">14 calendar days</strong> of your
+            <strong className="font-semibold text-text-primary">14 calendar days</strong> of your
             original message.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               POPIA data-subject rights requests:
             </strong>{' '}
             up to{' '}
-            <strong className="font-semibold text-slate-900">30 calendar days</strong>, as
+            <strong className="font-semibold text-text-primary">30 calendar days</strong>, as
             permitted by section 23(2) of POPIA. In many cases we will be faster, but we will
             not take longer without telling you in advance and explaining why.
           </li>
@@ -237,7 +237,7 @@ export default function ComplaintsPage() {
       </section>
 
       <section id="remedies">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Remedies we can offer
         </h2>
         <p className="mb-4">
@@ -246,7 +246,7 @@ export default function ComplaintsPage() {
         </p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
-            <strong className="font-semibold text-slate-900">Refund.</strong> Full or partial
+            <strong className="font-semibold text-text-primary">Refund.</strong> Full or partial
             reversal of a charge, a subscription fee, or a bounty-budget portion, in line with
             the rules set out in our{' '}
             <Link
@@ -258,13 +258,13 @@ export default function ComplaintsPage() {
             and the ECTA / CPA rights discussed there.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Resubmission.</strong> For hunters
+            <strong className="font-semibold text-text-primary">Resubmission.</strong> For hunters
             whose submission was rejected because of a verification failure that turned out to
             be a false positive, we can reopen the submission and let you resubmit the affected
             URLs without penalty.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-text-primary">
               Account reinstatement or review.
             </strong>{' '}
             If we have suspended or restricted your account and our review shows the action was
@@ -272,18 +272,18 @@ export default function ComplaintsPage() {
             correct any follow-on effects.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Correction.</strong> Fixing
+            <strong className="font-semibold text-text-primary">Correction.</strong> Fixing
             personal-information errors, updating public content we got wrong, or correcting a
             ledger entry.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Apology and explanation.</strong>{' '}
+            <strong className="font-semibold text-text-primary">Apology and explanation.</strong>{' '}
             Where we got something wrong but the loss is not financial — for example a
             communication failure or a usability bug that cost you time — a clear apology and a
             root-cause explanation is sometimes the fair remedy.
           </li>
           <li>
-            <strong className="font-semibold text-slate-900">Process improvement.</strong> For
+            <strong className="font-semibold text-text-primary">Process improvement.</strong> For
             the kind of complaint that reveals a structural problem (a misleading screen, a
             confusing fee disclosure, a policy that is not working as intended), we will change
             the underlying practice and tell you what we changed.
@@ -297,7 +297,7 @@ export default function ComplaintsPage() {
       </section>
 
       <section id="internal-escalation">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Internal escalation — if the first response does not resolve the issue
         </h2>
         <p className="mb-4">
@@ -314,20 +314,20 @@ export default function ComplaintsPage() {
       </section>
 
       <section id="external-escalation">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           External escalation — the rights we preserve for you
         </h2>
         <p className="mb-4">
           Whatever the outcome of our internal process, the following external channels remain
           available to you. We will cooperate with any of them.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           National Consumer Commission (consumer complaints)
         </h3>
         <p className="mb-4">
           For complaints about your rights under the Consumer Protection Act — unfair terms,
           pricing, refunds, service quality, misleading representations — you may approach the{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             {LEGAL_ENTITY.nationalConsumerCommission.name}
           </strong>{' '}
           at{' '}
@@ -342,13 +342,13 @@ export default function ComplaintsPage() {
           . Your right to do this is protected by section 52 of the CPA and cannot be contracted
           away.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Information Regulator (data-privacy complaints)
         </h3>
         <p className="mb-4">
           For complaints about how we have handled your personal information under POPIA, you
           may approach the{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             {LEGAL_ENTITY.informationRegulator.name}
           </strong>{' '}
           at{' '}
@@ -384,31 +384,31 @@ export default function ComplaintsPage() {
           page set out how to raise a POPIA issue with us directly first, but that step is not
           a precondition — you can approach the Regulator whenever you choose.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Consumer Goods and Services Ombud
         </h3>
         <p className="mb-4">
           Social Bounty is{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             not currently a participant in the Consumer Goods and Services Ombud (CGSO) scheme
           </strong>
           . We are reviewing membership and will update this page if that changes. In the
           meantime, the CGSO is not an available escalation route for complaints about our
           platform; the NCC is.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           Voluntary arbitration
         </h3>
         <p className="mb-4">
           Where both you and we agree in writing, a dispute can be referred to arbitration under
           the rules of the{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             Arbitration Foundation of Southern Africa (AFSA)
           </strong>
           . This is a voluntary alternative, not a requirement. Agreeing to arbitration does not
           take away your right to approach the NCC under CPA section 52.
         </p>
-        <h3 className="text-lg font-heading font-semibold text-slate-900 mt-6 mb-3">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mt-6 mb-3">
           The courts
         </h3>
         <p className="mb-4">
@@ -420,7 +420,7 @@ export default function ComplaintsPage() {
       </section>
 
       <section id="auto-refund-dispute">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           Contesting an auto-refund
         </h2>
         <p className="mb-4">
@@ -454,7 +454,7 @@ export default function ComplaintsPage() {
         </ul>
         <p className="mb-4">
           We commit to reviewing contested auto-refunds{' '}
-          <strong className="font-semibold text-slate-900">
+          <strong className="font-semibold text-text-primary">
             within 7 business days of receiving the information above
           </strong>
           . If the check was wrong, we reverse the refund and restore the payout. If we agree
@@ -469,7 +469,7 @@ export default function ComplaintsPage() {
       </section>
 
       <section id="no-waiver">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           No waiver of your statutory rights
         </h2>
         <p className="mb-4">
@@ -488,7 +488,7 @@ export default function ComplaintsPage() {
       </section>
 
       <section id="retaliation">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">
           No retaliation
         </h2>
         <p className="mb-4">
@@ -507,7 +507,7 @@ export default function ComplaintsPage() {
       </section>
 
       <section id="contact">
-        <h2 className="text-2xl font-heading font-semibold text-slate-900 mb-4">Contact</h2>
+        <h2 className="text-2xl font-heading font-semibold text-text-primary mb-4">Contact</h2>
         <p className="mb-4">Complaints and escalations:</p>
         <ul className="list-disc pl-6 mb-4 space-y-1">
           <li>
