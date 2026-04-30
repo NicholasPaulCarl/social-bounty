@@ -1,18 +1,18 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu } from 'primereact/menu';
-import type { MenuItem } from 'primereact/menuitem';
 import {
   ChevronsLeft, ChevronsRight, ChevronUp, X, Settings, LogOut,
-  Search, Bell,
+  Search, Bell, User,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadCount } from '@/hooks/useInbox';
 import { BrandSelector } from './BrandSelector';
+import { ConfirmAction } from '@/components/common/ConfirmAction';
 import type { NavItem, NavSection } from '@/lib/navigation';
 
 interface AppSidebarProps {
@@ -195,9 +195,38 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const userMenuRef = useRef<Menu>(null);
   const { data: unread } = useUnreadCount();
   const inboxUnreadCount = unread?.total ?? 0;
+
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [logoutConfirmVisible, setLogoutConfirmVisible] = useState(false);
+  const [menuPos, setMenuPos] = useState<{ bottom: number; left: number; width: number } | null>(null);
+  const userMenuBtnRef = useRef<HTMLButtonElement>(null);
+  const userMenuPanelRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on outside click or Escape
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (
+        userMenuPanelRef.current &&
+        !userMenuPanelRef.current.contains(e.target as Node) &&
+        userMenuBtnRef.current &&
+        !userMenuBtnRef.current.contains(e.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
+    }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setUserMenuOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [userMenuOpen]);
 
   const initials = user
     ? `${(user.firstName?.[0] || '').toUpperCase()}${(user.lastName?.[0] || '').toUpperCase()}`
@@ -213,27 +242,28 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
 
   const isBusiness = user?.role === 'BUSINESS_ADMIN';
 
-  const userMenuItems: MenuItem[] = [
-    {
-      label: 'Settings',
-      icon: () => <Settings size={16} strokeWidth={2} className="mr-2 shrink-0" />,
-      command: () => {
-        if (user?.role === 'SUPER_ADMIN') {
-          router.push('/admin/settings');
-        } else if (user?.role === 'BUSINESS_ADMIN') {
-          router.push('/business/profile');
-        } else {
-          router.push('/profile');
-        }
-      },
-    },
-    { separator: true },
-    {
-      label: 'Logout',
-      icon: () => <LogOut size={16} strokeWidth={2} className="mr-2 shrink-0" />,
-      command: () => logout(),
-    },
-  ];
+  const profileHref = user?.role === 'SUPER_ADMIN'
+    ? '/admin/profile'
+    : user?.role === 'BUSINESS_ADMIN'
+      ? '/business/profile'
+      : '/profile';
+
+  const settingsHref = user?.role === 'SUPER_ADMIN'
+    ? '/admin/settings'
+    : user?.role === 'BUSINESS_ADMIN'
+      ? '/business/profile'
+      : '/profile';
+
+  const handleUserMenuAction = useCallback((action: 'profile' | 'settings' | 'logout') => {
+    setUserMenuOpen(false);
+    if (action === 'profile') {
+      router.push(profileHref);
+    } else if (action === 'settings') {
+      router.push(settingsHref);
+    } else {
+      setLogoutConfirmVisible(true);
+    }
+  }, [router, profileHref, settingsHref]);
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + '/');
@@ -408,14 +438,28 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
           )}
 
           {user && (
-            <div className={collapsed ? 'px-0' : 'px-2'}>
-              <Menu model={userMenuItems} popup ref={userMenuRef} />
+            <div className={`relative ${collapsed ? 'px-0' : 'px-2'}`}>
+              {/* User menu popover — portaled to body so the sidebar's transform can't clip it */}
+
               <button
+                ref={userMenuBtnRef}
                 className={`flex items-center rounded-[10px] hover:bg-slate-100 transition-colors w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-600 focus-visible:ring-offset-2 ${
                   collapsed ? 'justify-center p-2' : 'gap-2.5 p-2'
                 }`}
-                onClick={(e) => userMenuRef.current?.toggle(e)}
+                onClick={() => {
+                  if (!userMenuOpen && userMenuBtnRef.current) {
+                    const rect = userMenuBtnRef.current.getBoundingClientRect();
+                    const sidebarRight = rect.left + (collapsed ? 72 : rect.width + 16);
+                    setMenuPos({
+                      bottom: window.innerHeight - rect.bottom,
+                      left: sidebarRight + 8,
+                      width: 208,
+                    });
+                  }
+                  setUserMenuOpen((v) => !v);
+                }}
                 aria-label="User menu"
+                aria-expanded={userMenuOpen}
               >
                 <div className="w-9 h-9 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center text-[13px] font-bold shrink-0">
                   {initials}
@@ -423,23 +467,82 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
                 {!collapsed && (
                   <>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-semibold text-text-primary truncate">
+                      <span className="block text-[13px] leading-tight font-medium text-text-primary truncate">
                         {fullName}
-                      </p>
-                      <p className="text-[11px] text-text-muted truncate">{roleLabel}</p>
+                      </span>
+                      <span className="block text-[13px] leading-tight font-medium text-text-muted truncate">{roleLabel}</span>
                     </div>
                     <ChevronUp
                       size={14}
                       strokeWidth={2}
-                      className="text-text-muted shrink-0"
+                      className={`text-text-muted shrink-0 transition-transform ${userMenuOpen ? '' : 'rotate-180'}`}
                     />
                   </>
                 )}
               </button>
             </div>
           )}
+
+          {/* Logout confirmation dialog */}
+          <ConfirmAction
+            visible={logoutConfirmVisible}
+            onHide={() => setLogoutConfirmVisible(false)}
+            title="Log out"
+            message="Are you sure you want to log out? You'll need to sign in again to access your account."
+            confirmLabel="Log out"
+            confirmSeverity="danger"
+            onConfirm={() => {
+              setLogoutConfirmVisible(false);
+              logout();
+            }}
+          />
         </div>
       </aside>
+
+      {/* Portal the user menu popover to document.body so the sidebar's
+          transform-based transition can't create a containing block that
+          clips or mis-positions the fixed popover. */}
+      {userMenuOpen && menuPos && typeof document !== 'undefined' && createPortal(
+        <div
+          ref={userMenuPanelRef}
+          className="fixed bg-white border border-slate-200 rounded-xl shadow-level-3 py-1 z-50 animate-fade-up"
+          style={{
+            bottom: menuPos.bottom,
+            left: menuPos.left,
+            width: menuPos.width,
+          }}
+        >
+          {/* Menu items */}
+          <div className="py-1">
+            <button
+              className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] text-text-primary hover:bg-slate-50 transition-colors"
+              onClick={() => handleUserMenuAction('profile')}
+            >
+              <User size={16} strokeWidth={2} className="text-text-muted shrink-0" />
+              Profile
+            </button>
+            <button
+              className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] text-text-primary hover:bg-slate-50 transition-colors"
+              onClick={() => handleUserMenuAction('settings')}
+            >
+              <Settings size={16} strokeWidth={2} className="text-text-muted shrink-0" />
+              Settings
+            </button>
+          </div>
+
+          {/* Logout — separated with subtle destructive styling */}
+          <div className="border-t border-slate-100 py-1">
+            <button
+              className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] text-danger-600 hover:bg-danger-600/5 transition-colors"
+              onClick={() => handleUserMenuAction('logout')}
+            >
+              <LogOut size={16} strokeWidth={2} className="shrink-0" />
+              Log out
+            </button>
+          </div>
+        </div>,
+        document.body,
+      )}
     </>
   );
 }
