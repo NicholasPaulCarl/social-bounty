@@ -339,12 +339,12 @@ export default function SignupPage() {
             disabled={loading || !form.termsAccepted}
             className="btn btn-primary btn-lg w-full rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
+            Continue
             {loading ? (
               <Loader2 size={18} strokeWidth={2} className="animate-spin" />
             ) : (
               <ArrowRight size={18} strokeWidth={2} />
             )}
-            Continue
           </button>
           {!form.termsAccepted && (
             <p className="text-xs text-text-muted text-center">

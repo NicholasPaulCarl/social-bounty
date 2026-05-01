@@ -12,6 +12,7 @@ import { OtpChannel } from '@social-bounty/shared';
 export default function LoginPage() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'email' | 'otp'>('email');
   const [error, setError] = useState('');
@@ -20,6 +21,10 @@ export default function LoginPage() {
   const [selectedChannel, setSelectedChannel] = useState<OtpChannel>(OtpChannel.EMAIL);
   const [switchCount, setSwitchCount] = useState(0);
   const [switchPending, setSwitchPending] = useState(false);
+  const [identifierMode, setIdentifierMode] = useState<'email' | 'phone'>('email');
+  const [sessionIdentifier, setSessionIdentifier] = useState<
+    { email?: string; phoneNumber?: string } | null
+  >(null);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -27,13 +32,22 @@ export default function LoginPage() {
     return () => clearTimeout(timer);
   }, [cooldown]);
 
+  const isSmsChannel = selectedChannel === OtpChannel.SMS;
+  const isPhoneIdentifier = identifierMode === 'phone';
+
+  const formIdentifierPayload = isPhoneIdentifier
+    ? { phoneNumber: phoneNumber.trim() }
+    : { email: email.trim() };
+  const otpSessionIdentifier = sessionIdentifier ?? formIdentifierPayload;
+
   const handleRequestOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      await authApi.requestOtp({ email, channel: selectedChannel });
+      await authApi.requestOtp({ ...formIdentifierPayload, channel: selectedChannel });
+      setSessionIdentifier(formIdentifierPayload);
       setStep('otp');
       setCooldown(60);
     } catch (err) {
@@ -53,7 +67,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await authApi.verifyOtp({ email, otp });
+      const response = await authApi.verifyOtp({ ...otpSessionIdentifier, otp });
       login(response);
     } catch (err) {
       if (err instanceof ApiError) {
@@ -70,7 +84,7 @@ export default function LoginPage() {
     if (cooldown > 0) return;
     setError('');
     try {
-      await authApi.requestOtp({ email });
+      await authApi.requestOtp({ ...otpSessionIdentifier, channel: selectedChannel });
       setCooldown(60);
     } catch (err) {
       if (err instanceof ApiError) {
@@ -79,21 +93,22 @@ export default function LoginPage() {
         setError('Couldn\u2019t resend the code. Try again.');
       }
     }
-  }, [cooldown, email]);
+  }, [cooldown, otpSessionIdentifier, selectedChannel]);
 
-  const handleChangeEmail = () => {
+  const handleChangeIdentifier = () => {
     setStep('email');
     setOtp('');
     setError('');
     setSwitchCount(0);
-    setSelectedChannel(OtpChannel.EMAIL);
+    setSessionIdentifier(null);
+    setSelectedChannel(isPhoneIdentifier ? OtpChannel.SMS : OtpChannel.EMAIL);
   };
 
   async function handleChannelSwitch() {
     setSwitchPending(true);
     setError('');
     try {
-      await authApi.switchOtpChannel({ email });
+      await authApi.switchOtpChannel(otpSessionIdentifier);
       const newChannel = selectedChannel === OtpChannel.EMAIL ? OtpChannel.SMS : OtpChannel.EMAIL;
       setSelectedChannel(newChannel);
       setSwitchCount((n) => n + 1);
@@ -102,7 +117,7 @@ export default function LoginPage() {
       if (err instanceof ApiError && err.statusCode === 429) {
         setError('Too many channel switches — wait a minute and try again.');
       } else {
-        setError("Couldn’t switch channel. Try again.");
+        setError("Couldn't switch channel. Try again.");
       }
     } finally {
       setSwitchPending(false);
@@ -127,49 +142,67 @@ export default function LoginPage() {
         <form onSubmit={handleRequestOtp} className="space-y-5">
           <div>
             <label
-              htmlFor="email"
+              htmlFor="identifier"
               className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5"
             >
-              Email
+              {isPhoneIdentifier ? 'Contact Number' : 'Email'}
             </label>
-            <InputText
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full"
-              placeholder="you@example.com"
-            />
+            {isPhoneIdentifier ? (
+              <InputText
+                id="identifier"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                required
+                className="w-full"
+                placeholder="+27 81 234 5678"
+              />
+            ) : (
+              <InputText
+                id="identifier"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full"
+                placeholder="you@example.com"
+              />
+            )}
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm text-slate-600 font-medium">
+          <div>
+            <label className="block text-text-muted text-xs uppercase tracking-wider font-medium mb-1.5">
               How should we send your code?
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => setSelectedChannel(OtpChannel.EMAIL)}
+                onClick={() => {
+                  setIdentifierMode('email');
+                  setSelectedChannel(OtpChannel.EMAIL);
+                }}
                 className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 transition-colors ${
-                  selectedChannel === OtpChannel.EMAIL
+                  identifierMode === 'email'
                     ? 'border-pink-600 bg-pink-50 text-pink-600'
                     : 'border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
-                aria-pressed={selectedChannel === OtpChannel.EMAIL}
+                aria-pressed={identifierMode === 'email'}
               >
                 <Mail className="h-4 w-4" />
                 <span>Email</span>
               </button>
               <button
                 type="button"
-                onClick={() => setSelectedChannel(OtpChannel.SMS)}
+                onClick={() => {
+                  setIdentifierMode('phone');
+                  setSelectedChannel(OtpChannel.SMS);
+                }}
                 className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 transition-colors ${
-                  selectedChannel === OtpChannel.SMS
+                  identifierMode === 'phone'
                     ? 'border-pink-600 bg-pink-50 text-pink-600'
                     : 'border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
-                aria-pressed={selectedChannel === OtpChannel.SMS}
+                aria-pressed={identifierMode === 'phone'}
               >
                 <MessageSquare className="h-4 w-4" />
                 <span>SMS</span>
@@ -182,20 +215,20 @@ export default function LoginPage() {
             disabled={loading}
             className="btn btn-primary btn-lg w-full rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
+            Continue
             {loading ? (
               <Loader2 size={18} strokeWidth={2} className="animate-spin" />
             ) : (
               <ArrowRight size={18} strokeWidth={2} />
             )}
-            Continue
           </button>
         </form>
       ) : (
         <form onSubmit={handleVerifyOtp} className="space-y-5">
           <p className="text-sm text-text-secondary text-center">
-            {selectedChannel === OtpChannel.SMS
-              ? <>We sent a 6-digit code to your <strong>phone</strong></>
-              : <>We sent a 6-digit code to <strong>{email}</strong></>}
+            {isSmsChannel
+              ? <>We sent a 6-digit code to <strong>{otpSessionIdentifier.phoneNumber || 'your phone'}</strong></>
+              : <>We sent a 6-digit code to <strong>{otpSessionIdentifier.email || 'your email'}</strong></>}
           </p>
 
           <div>
@@ -234,10 +267,10 @@ export default function LoginPage() {
           <div className="flex items-center justify-between text-sm">
             <button
               type="button"
-              onClick={handleChangeEmail}
+              onClick={handleChangeIdentifier}
               className="text-pink-600 hover:text-pink-700 transition-colors duration-fast"
             >
-              Use a different email
+              {isPhoneIdentifier ? 'Use a different number' : 'Use a different email'}
             </button>
             {cooldown > 0 ? (
               <span className="text-text-muted font-mono tabular-nums">Resend in {cooldown}s</span>
