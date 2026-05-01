@@ -1,0 +1,6 @@
+@import '../../web/src/styles/design-system/colors_and_type.css';
+@import '../../web/src/styles/design-system/components.css';
+@import '../../web/src/styles/design-system/patterns.css';
+@import '../../web/src/styles/design-system/dark.css';
+@import 'tailwindcss';
+@config '../tailwind.config.ts';

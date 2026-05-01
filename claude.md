@@ -66,6 +66,16 @@ social-bounty/
   scripts/          # CLI tools (kb-context.ts, bench-reconciliation.ts)
 ```
 
+## Design System Viewer
+
+A standalone Vite + React app at `apps/design-system/` for browsing all design system tokens, components, and patterns interactively. Dev-only — not deployed.
+
+```bash
+npm run dev:ds          # starts at http://localhost:5173
+```
+
+Sections: Colors, Typography, Spacing & Radii, Components (live instances with toggleable props), Patterns (tables, feeds, receipts, forms), Icons (Lucide reference grid). Includes a dark mode toggle. CSS is imported directly from `apps/web/src/styles/design-system/` — changes are reflected on refresh.
+
 ## Conventions
 
 - TypeScript strict mode everywhere

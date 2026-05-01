@@ -25,6 +25,7 @@
     "bench:recon": "cd apps/api && NODE_PATH=\"../../packages/prisma/node_modules:../../apps/api/node_modules:../../node_modules\" ts-node --transpile-only ../../scripts/bench-reconciliation.ci.ts",
     "bench:recon:run": "cd apps/api && NODE_PATH=\"../../packages/prisma/node_modules:../../apps/api/node_modules:../../node_modules\" ts-node --transpile-only ../../scripts/bench-reconciliation.ts",
     "test:scripts": "jest --config scripts/jest.config.js",
+    "dev:ds": "npm run dev --workspace=apps/design-system",
     "prepare": "husky && bash scripts/install-graphify-hook.sh"
   },
   "engines": {
