@@ -4,8 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "sync:components": "node scripts/sync-components.mjs",
+    "predev": "npm run sync:components",
     "dev": "vite",
+    "prebuild": "npm run sync:components",
     "build": "vite build",
+    "prepreview": "npm run sync:components",
     "preview": "vite preview"
   },
   "dependencies": {
