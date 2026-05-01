@@ -21,6 +21,8 @@ interface AppSidebarProps {
   onToggle?: () => void;
 }
 
+const USER_MENU_ID = 'app-sidebar-user-menu';
+
 /**
  * Count pip — small badge shown on nav items.
  * - Expanded: pill with the number (pink for normal, red for urgent).
@@ -204,6 +206,41 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
   const userMenuBtnRef = useRef<HTMLButtonElement>(null);
   const userMenuPanelRef = useRef<HTMLDivElement>(null);
 
+  const focusUserMenuButton = useCallback(() => {
+    window.requestAnimationFrame(() => {
+      userMenuBtnRef.current?.focus();
+    });
+  }, []);
+
+  const getUserMenuItems = useCallback(() => (
+    Array.from(
+      userMenuPanelRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]') ?? [],
+    )
+  ), []);
+
+  const setUserMenuPosition = useCallback(() => {
+    if (!userMenuBtnRef.current) return;
+    const rect = userMenuBtnRef.current.getBoundingClientRect();
+    const sidebarRight = rect.left + (collapsed ? 72 : rect.width + 16);
+    setMenuPos({
+      bottom: window.innerHeight - rect.bottom,
+      left: sidebarRight + 8,
+      width: 208,
+    });
+  }, [collapsed]);
+
+  const openUserMenu = useCallback(() => {
+    setUserMenuPosition();
+    setUserMenuOpen(true);
+  }, [setUserMenuPosition]);
+
+  const closeUserMenu = useCallback((restoreFocus = false) => {
+    setUserMenuOpen(false);
+    if (restoreFocus) {
+      focusUserMenuButton();
+    }
+  }, [focusUserMenuButton]);
+
   // Close menu on outside click or Escape
   useEffect(() => {
     if (!userMenuOpen) return;
@@ -214,11 +251,11 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
         userMenuBtnRef.current &&
         !userMenuBtnRef.current.contains(e.target as Node)
       ) {
-        setUserMenuOpen(false);
+        closeUserMenu();
       }
     }
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setUserMenuOpen(false);
+      if (e.key === 'Escape') closeUserMenu(true);
     }
     document.addEventListener('mousedown', handleClick);
     document.addEventListener('keydown', handleKey);
@@ -226,7 +263,19 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
       document.removeEventListener('mousedown', handleClick);
       document.removeEventListener('keydown', handleKey);
     };
-  }, [userMenuOpen]);
+  }, [closeUserMenu, userMenuOpen]);
+
+  useEffect(() => {
+    if (!userMenuOpen) return;
+
+    const menuItems = getUserMenuItems();
+    if (menuItems.length > 0) {
+      menuItems[0].focus();
+      return;
+    }
+
+    userMenuPanelRef.current?.focus();
+  }, [getUserMenuItems, userMenuOpen]);
 
   const initials = user
     ? `${(user.firstName?.[0] || '').toUpperCase()}${(user.lastName?.[0] || '').toUpperCase()}`
@@ -255,7 +304,7 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
       : '/profile';
 
   const handleUserMenuAction = useCallback((action: 'profile' | 'settings' | 'logout') => {
-    setUserMenuOpen(false);
+    closeUserMenu();
     if (action === 'profile') {
       router.push(profileHref);
     } else if (action === 'settings') {
@@ -263,7 +312,63 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
     } else {
       setLogoutConfirmVisible(true);
     }
-  }, [router, profileHref, settingsHref]);
+  }, [closeUserMenu, router, profileHref, settingsHref]);
+
+  const handleUserMenuKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    const menuItems = getUserMenuItems();
+    if (menuItems.length === 0) return;
+
+    const currentIndex = menuItems.findIndex((item) => item === document.activeElement);
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeUserMenu(true);
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % menuItems.length : 0;
+      menuItems[nextIndex].focus();
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      const previousIndex =
+        currentIndex >= 0 ? (currentIndex - 1 + menuItems.length) % menuItems.length : menuItems.length - 1;
+      menuItems[previousIndex].focus();
+      return;
+    }
+
+    if (event.key === 'Home') {
+      event.preventDefault();
+      menuItems[0].focus();
+      return;
+    }
+
+    if (event.key === 'End') {
+      event.preventDefault();
+      menuItems[menuItems.length - 1].focus();
+      return;
+    }
+
+    if (event.key !== 'Tab') return;
+
+    const firstItem = menuItems[0];
+    const lastItem = menuItems[menuItems.length - 1];
+
+    if (event.shiftKey && document.activeElement === firstItem) {
+      event.preventDefault();
+      lastItem.focus();
+      return;
+    }
+
+    if (!event.shiftKey && document.activeElement === lastItem) {
+      event.preventDefault();
+      firstItem.focus();
+    }
+  }, [closeUserMenu, getUserMenuItems]);
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + '/');
@@ -447,18 +552,30 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
                   collapsed ? 'justify-center p-2' : 'gap-2.5 p-2'
                 }`}
                 onClick={() => {
-                  if (!userMenuOpen && userMenuBtnRef.current) {
-                    const rect = userMenuBtnRef.current.getBoundingClientRect();
-                    const sidebarRight = rect.left + (collapsed ? 72 : rect.width + 16);
-                    setMenuPos({
-                      bottom: window.innerHeight - rect.bottom,
-                      left: sidebarRight + 8,
-                      width: 208,
-                    });
+                  if (userMenuOpen) {
+                    closeUserMenu();
+                    return;
                   }
-                  setUserMenuOpen((v) => !v);
+                  openUserMenu();
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    if (!userMenuOpen) {
+                      openUserMenu();
+                    }
+                  }
+
+                  if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    if (!userMenuOpen) {
+                      openUserMenu();
+                    }
+                  }
                 }}
                 aria-label="User menu"
+                aria-haspopup="menu"
+                aria-controls={USER_MENU_ID}
                 aria-expanded={userMenuOpen}
               >
                 <div className="w-9 h-9 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center text-[13px] font-bold shrink-0">
@@ -504,17 +621,23 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
           clips or mis-positions the fixed popover. */}
       {userMenuOpen && menuPos && typeof document !== 'undefined' && createPortal(
         <div
+          id={USER_MENU_ID}
           ref={userMenuPanelRef}
           className="fixed bg-white border border-slate-200 rounded-xl shadow-level-3 py-1 z-50 animate-fade-up"
+          role="menu"
+          aria-orientation="vertical"
+          tabIndex={-1}
           style={{
             bottom: menuPos.bottom,
             left: menuPos.left,
             width: menuPos.width,
           }}
+          onKeyDown={handleUserMenuKeyDown}
         >
           {/* Menu items */}
           <div className="py-1">
             <button
+              role="menuitem"
               className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] text-text-primary hover:bg-slate-50 transition-colors"
               onClick={() => handleUserMenuAction('profile')}
             >
@@ -522,6 +645,7 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
               Profile
             </button>
             <button
+              role="menuitem"
               className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] text-text-primary hover:bg-slate-50 transition-colors"
               onClick={() => handleUserMenuAction('settings')}
             >
@@ -533,6 +657,7 @@ export function AppSidebar({ navSections, collapsed = false, onToggle }: AppSide
           {/* Logout — separated with subtle destructive styling */}
           <div className="border-t border-slate-100 py-1">
             <button
+              role="menuitem"
               className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] text-danger-600 hover:bg-danger-600/5 transition-colors"
               onClick={() => handleUserMenuAction('logout')}
             >
