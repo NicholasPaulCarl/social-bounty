@@ -240,6 +240,9 @@ export function formReducer(state: BountyFormState, action: BountyFormAction): B
         },
       };
 
+    case 'SET_ADDITIONAL_RULE_IDS':
+      return { ...state, additionalRuleIds: action.payload };
+
     // Section 3: Proof Requirements (checkbox toggle)
     case 'TOGGLE_PROOF_REQUIREMENT': {
       const val = action.payload;
@@ -333,6 +336,7 @@ export function formReducer(state: BountyFormState, action: BountyFormAction): B
           customRules: [],
         },
         proofRequirements: b.proofRequirements ? b.proofRequirements.split(',').filter(Boolean) : [],
+        additionalRuleIds: [],
         maxSubmissions: b.maxSubmissions,
         startDate: b.startDate ? new Date(b.startDate) : null,
         endDate: b.endDate ? new Date(b.endDate) : null,
