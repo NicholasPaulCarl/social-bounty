@@ -140,13 +140,14 @@ export class AuthService {
 
     // Resolve user — by phone when phoneNumber provided, otherwise by email
     let phoneNumber: string | null = null;
+    let emailAddress: string | null = normalizedEmail ?? null;
     let user: { id: string; role: UserRole } | null = null;
 
     if (normalizedPhone) {
       // Phone-based login: look up user by phoneNumber
       const found = await this.prisma.user.findUnique({
         where: { phoneNumber: normalizedPhone },
-        select: { id: true, role: true, phoneNumber: true },
+        select: { id: true, role: true, phoneNumber: true, email: true },
       });
       if (!found) {
         await this.tokenStore.setOtpCooldown(lookupKey);
@@ -154,6 +155,7 @@ export class AuthService {
       }
       user = { id: found.id, role: found.role as UserRole };
       phoneNumber = found.phoneNumber;
+      emailAddress = found.email;
     } else if (channel === OtpChannel.SMS) {
       // Email-based identifier but SMS channel: resolve phone from user record
       const found = await this.prisma.user.findUnique({
@@ -166,6 +168,16 @@ export class AuthService {
       }
       user = { id: found.id, role: found.role as UserRole };
       phoneNumber = found.phoneNumber;
+    }
+
+    if (channel === OtpChannel.SMS && !phoneNumber) {
+      await this.tokenStore.setOtpCooldown(lookupKey);
+      return { message: genericMessage };
+    }
+
+    if (channel === OtpChannel.EMAIL && !emailAddress) {
+      await this.tokenStore.setOtpCooldown(lookupKey);
+      return { message: genericMessage };
     }
 
     // Enforce per-phone daily SMS cap when sending via SMS
@@ -192,9 +204,9 @@ export class AuthService {
       this.smsService.sendOtpSms(phoneNumber, otp).catch((err) => {
         this.logger.error(`Failed to send OTP SMS to ${phoneNumber!.slice(0, 4)}***:`, err);
       });
-    } else if (normalizedEmail) {
-      this.mailService.sendOtpEmail(normalizedEmail, otp).catch((err) => {
-        this.logger.error(`Failed to send OTP email to ${normalizedEmail}:`, err);
+    } else if (emailAddress) {
+      this.mailService.sendOtpEmail(emailAddress, otp).catch((err) => {
+        this.logger.error(`Failed to send OTP email to ${emailAddress}:`, err);
       });
     }
 

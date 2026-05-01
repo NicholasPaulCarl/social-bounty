@@ -225,6 +225,36 @@ describe('AuthService', () => {
         OtpChannel.EMAIL,
       );
     });
+
+    it('sends phone-based OTP requests over email when email delivery is requested', async () => {
+      const module = service as unknown as { smsService: { sendOtpSms: jest.Mock } };
+      module.smsService.sendOtpSms.mockClear();
+      tokenStore.storeOtp.mockClear();
+      mailService.sendOtpEmail.mockClear();
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-phone',
+        role: UserRole.PARTICIPANT,
+        phoneNumber: '+27821234567',
+        email: 'phone-user@example.com',
+      });
+
+      const result = await service.requestOtp(
+        { phoneNumber: '+27821234567' },
+        OtpChannel.EMAIL,
+      );
+
+      expect(result.message).toContain('verification code has been sent');
+      expect(tokenStore.storeOtp).toHaveBeenCalledWith(
+        '+27821234567',
+        expect.any(String),
+        OtpChannel.EMAIL,
+      );
+      expect(mailService.sendOtpEmail).toHaveBeenCalledWith(
+        'phone-user@example.com',
+        expect.any(String),
+      );
+      expect(module.smsService.sendOtpSms).not.toHaveBeenCalled();
+    });
   });
 
   // ── verifyOtpAndLogin ─────────────────────────────────────

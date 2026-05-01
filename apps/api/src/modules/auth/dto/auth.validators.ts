@@ -11,11 +11,34 @@ import {
   MinLength,
   ValidateIf,
   Equals,
+  Validate,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from 'class-validator';
 import { OtpChannel } from '@social-bounty/shared';
 import { IsValidPhoneE164 } from '../../../common/validators/phone-number.validator';
 
+@ValidatorConstraint({ name: 'exactlyOneIdentifier', async: false })
+class ExactlyOneIdentifierConstraint implements ValidatorConstraintInterface {
+  validate(_: unknown, args: ValidationArguments) {
+    const dto = args.object as { email?: string; phoneNumber?: string };
+    const hasEmail = typeof dto.email === 'string' && dto.email.trim().length > 0;
+    const hasPhoneNumber =
+      typeof dto.phoneNumber === 'string' && dto.phoneNumber.trim().length > 0;
+
+    return Number(hasEmail) + Number(hasPhoneNumber) === 1;
+  }
+
+  defaultMessage() {
+    return 'Provide exactly one of email or phoneNumber';
+  }
+}
+
 export class RequestOtpDto {
+  @Validate(ExactlyOneIdentifierConstraint)
+  private readonly _identifier!: never;
+
   @ValidateIf((o) => !o.phoneNumber)
   @IsEmail()
   @IsNotEmpty()
@@ -33,6 +56,9 @@ export class RequestOtpDto {
 }
 
 export class SwitchOtpChannelDto {
+  @Validate(ExactlyOneIdentifierConstraint)
+  private readonly _identifier!: never;
+
   @ValidateIf((o) => !o.phoneNumber)
   @IsEmail()
   @IsNotEmpty()
@@ -46,6 +72,9 @@ export class SwitchOtpChannelDto {
 }
 
 export class VerifyOtpDto {
+  @Validate(ExactlyOneIdentifierConstraint)
+  private readonly _identifier!: never;
+
   @ValidateIf((o) => !o.phoneNumber)
   @IsEmail()
   @IsNotEmpty()
