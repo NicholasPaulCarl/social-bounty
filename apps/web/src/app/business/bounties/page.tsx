@@ -3,7 +3,7 @@
 import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Paginator } from 'primereact/paginator';
-import { Inbox, Plus, Search, X } from 'lucide-react';
+import { Inbox, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useBounties, useDeleteBounty } from '@/hooks/useBounties';
 import { useManageFilters, mapManageSortToApi } from '@/hooks/useManageFilters';
 import { useToast } from '@/hooks/useToast';
@@ -15,7 +15,6 @@ import { BusinessBountyListView } from '@/components/features/bounty/BusinessBou
 import type { ManageStatusAction } from '@/components/features/bounty/BountyManageActions';
 import { BountyHubHeader } from '@/components/features/bounty/BountyHubHeader';
 import { BountyStatusSegmented } from '@/components/features/bounty/BountyStatusSegmented';
-import { BountyFilterRow } from '@/components/features/bounty/BountyFilterRow';
 import { QuickCreateGrid } from '@/components/features/bounty/QuickCreateGrid';
 import { ErrorState } from '@/components/common/ErrorState';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -194,84 +193,164 @@ function BusinessBountiesContent() {
 
       <QuickCreateGrid />
 
-      <h2 className="mb-2 sm:mb-2.5 text-[10px] font-bold uppercase tracking-[0.10em] text-text-muted">
-        All bounties
-      </h2>
-
-      {/* Filter card — status segmented + search + filter button in one surface */}
-      <div
-        className="mb-4 rounded-xl border border-slate-200 bg-surface px-4 py-3 sm:px-5"
-        style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
-      >
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <BountyStatusSegmented value={f.filters.status} onChange={f.setStatus} />
-          <span
-            className="font-mono tabular-nums text-text-muted"
-            style={{ fontSize: 12 }}
-            aria-live="polite"
-          >
-            {totalForFilter > 0 && (
-              <>
-                {totalForFilter}{' '}
-                {f.filters.status === 'all' ? 'total' : f.statusLabel[f.filters.status].toLowerCase()}
-              </>
-            )}
+      {/* Eyebrow row — "All bounties" label (pink) + "{N} of {M}" count (right, mono).
+          Hide row entirely when resolved to zero results (no awkward "0 of 0").
+          During loading, totalForFilter is 0 but isLoading is true — show label only. */}
+      {(isLoading || totalForFilter > 0) && (
+        <div
+          className="flex items-baseline justify-between"
+          style={{ marginTop: 32, marginBottom: 8 }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.10em] text-pink-600">
+            All bounties
           </span>
+          {totalForFilter > 0 && (
+            <span
+              className="font-mono tabular-nums text-text-muted"
+              style={{ fontSize: 12 }}
+              aria-live="polite"
+            >
+              {bounties.length + (f.filters.page - 1) * PAGE_LIMIT} of {totalForFilter}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Single list-card shell — toolbar + listview body + pagination footer */}
+      <div
+        className="bg-surface overflow-hidden"
+        style={{
+          border: '1px solid var(--slate-200)',
+          borderRadius: 'var(--radius-xl)',
+        }}
+      >
+        {/* Single-row toolbar */}
+        <div
+          className="flex flex-wrap items-center gap-3"
+          style={{
+            padding: '14px 16px',
+            borderBottom: '1px solid var(--slate-100)',
+          }}
+        >
+          {/* Search input */}
+          <div
+            className="relative flex-1 sm:flex-none"
+            style={{ minWidth: 0, maxWidth: 380 }}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: 10,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'var(--text-muted)',
+                display: 'inline-flex',
+                pointerEvents: 'none',
+              }}
+            >
+              <Search size={14} strokeWidth={2} />
+            </span>
+            <input
+              type="text"
+              value={f.searchInput}
+              onChange={(e) => f.setSearch(e.target.value)}
+              placeholder="Search by name or ID"
+              aria-label="Search bounties"
+              className="w-full bg-surface text-text-primary sm:w-80"
+              style={{
+                boxSizing: 'border-box',
+                padding: '7px 12px 7px 30px',
+                border: '1px solid var(--slate-200)',
+                borderRadius: 8,
+                fontSize: 13,
+                height: 36,
+                fontFamily: 'var(--font-body)',
+                outline: 'none',
+              }}
+            />
+          </div>
+
+          {/* Status segmented control */}
+          <BountyStatusSegmented value={f.filters.status} onChange={f.setStatus} />
+
+          {/* Spacer — pushes Filter button to the right */}
+          <div style={{ flex: 1 }} />
+
+          {/* Filter button — stub, no-op until filter panel designed */}
+          <button
+            type="button"
+            className="cursor-pointer inline-flex items-center gap-1.5 transition-all"
+            style={{
+              padding: '7px 12px',
+              border: '1px solid var(--slate-200)',
+              borderRadius: 8,
+              background: 'var(--bg-surface)',
+              color: 'var(--text-secondary)',
+              fontSize: 12,
+              fontWeight: 600,
+              height: 36,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+            aria-label="Open filters"
+          >
+            <SlidersHorizontal size={13} strokeWidth={2} aria-hidden="true" />
+            Filter
+          </button>
         </div>
 
-        <BountyFilterRow
-          searchValue={f.searchInput}
-          onSearchChange={f.setSearch}
-        />
-      </div>
+        {/* List body — loading / error / empty / data */}
+        <div className="py-0">
+          {isLoading && (
+            <div className="grid grid-cols-1 gap-3 px-4 py-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <BountyCardSkeleton key={i} />
+              ))}
+            </div>
+          )}
 
-      <div className="pb-7 pt-4 sm:pt-5">
-        {isLoading && (
-          <div className="grid grid-cols-1 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <BountyCardSkeleton key={i} />
-            ))}
-          </div>
-        )}
+          {!isLoading && error && (
+            <div className="px-4 py-6">
+              <ErrorState error={error as Error} onRetry={() => refreshAll()} />
+            </div>
+          )}
 
-        {!isLoading && error && (
-          <ErrorState error={error as Error} onRetry={() => refreshAll()} />
-        )}
+          {!isLoading && !error && bounties.length === 0 && (
+            <div className="px-4 py-8">
+              <EmptyState
+                Icon={hasActiveFilters || f.filters.status !== 'all' ? Search : Inbox}
+                title={
+                  hasActiveFilters || f.filters.status !== 'all'
+                    ? 'No bounties match'
+                    : 'No bounties yet'
+                }
+                message={
+                  hasActiveFilters || f.filters.status !== 'all'
+                    ? 'Try a wider status or different reward type.'
+                    : "Drop your first bounty and watch the Hunters roll in."
+                }
+                ctaLabel={
+                  hasActiveFilters || f.filters.status !== 'all'
+                    ? 'Clear filters'
+                    : 'Create bounty'
+                }
+                ctaAction={
+                  hasActiveFilters || f.filters.status !== 'all'
+                    ? () => {
+                        f.clearAll();
+                        if (f.filters.status !== 'all') f.setStatus('all');
+                      }
+                    : () => router.push('/business/bounties/new')
+                }
+                CtaIcon={
+                  hasActiveFilters || f.filters.status !== 'all' ? X : Plus
+                }
+              />
+            </div>
+          )}
 
-        {!isLoading && !error && bounties.length === 0 && (
-          <EmptyState
-            Icon={hasActiveFilters || f.filters.status !== 'all' ? Search : Inbox}
-            title={
-              hasActiveFilters || f.filters.status !== 'all'
-                ? 'No bounties match'
-                : 'No bounties yet'
-            }
-            message={
-              hasActiveFilters || f.filters.status !== 'all'
-                ? 'Try a wider status or different reward type.'
-                : "Drop your first bounty and watch the Hunters roll in."
-            }
-            ctaLabel={
-              hasActiveFilters || f.filters.status !== 'all'
-                ? 'Clear filters'
-                : 'Create bounty'
-            }
-            ctaAction={
-              hasActiveFilters || f.filters.status !== 'all'
-                ? () => {
-                    f.clearAll();
-                    if (f.filters.status !== 'all') f.setStatus('all');
-                  }
-                : () => router.push('/business/bounties/new')
-            }
-            CtaIcon={
-              hasActiveFilters || f.filters.status !== 'all' ? X : Plus
-            }
-          />
-        )}
-
-        {!isLoading && !error && bounties.length > 0 && (
-          <>
+          {!isLoading && !error && bounties.length > 0 && (
             <BusinessBountyListView
               bounties={bounties}
               onView={handleView}
@@ -281,30 +360,41 @@ function BusinessBountiesContent() {
               onDuplicate={handleDuplicate}
               paymentBountyId={paymentBountyId}
             />
+          )}
+        </div>
 
-            {totalForFilter > PAGE_LIMIT && (
-              <div className="mt-5 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
-                <span
-                  className="font-mono tabular-nums text-text-muted"
-                  style={{ fontSize: 12 }}
-                >
-                  {Math.min(
-                    bounties.length + (f.filters.page - 1) * PAGE_LIMIT,
-                    totalForFilter,
-                  )}{' '}
-                  of {totalForFilter} results
-                </span>
-                <Paginator
-                  first={(f.filters.page - 1) * PAGE_LIMIT}
-                  rows={PAGE_LIMIT}
-                  totalRecords={totalForFilter}
-                  onPageChange={(e) => f.setPage(e.page + 1)}
-                />
-              </div>
-            )}
-          </>
+        {/* Pagination footer band — only when there are multiple pages */}
+        {!isLoading && !error && totalForFilter > PAGE_LIMIT && (
+          <div
+            className="flex flex-wrap items-center justify-between gap-2"
+            style={{
+              padding: '12px 16px',
+              borderTop: '1px solid var(--slate-100)',
+            }}
+          >
+            <span
+              className="font-mono tabular-nums text-text-muted"
+              style={{ fontSize: 12 }}
+            >
+              Showing{' '}
+              {Math.min(
+                bounties.length + (f.filters.page - 1) * PAGE_LIMIT,
+                totalForFilter,
+              )}{' '}
+              of {totalForFilter} results
+            </span>
+            <Paginator
+              first={(f.filters.page - 1) * PAGE_LIMIT}
+              rows={PAGE_LIMIT}
+              totalRecords={totalForFilter}
+              onPageChange={(e) => f.setPage(e.page + 1)}
+            />
+          </div>
         )}
       </div>
+
+      {/* Bottom breathing room */}
+      <div className="pb-7" />
 
       <ConfirmAction
         visible={!!deleteId}
