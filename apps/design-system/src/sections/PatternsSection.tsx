@@ -102,9 +102,9 @@ export function PatternsSection() {
       </div>
 
       {/* Tooltip & Popover */}
-      <h4 className="text-lg font-heading font-semibold mb-4">Tooltip</h4>
+      <h4 className="text-lg font-heading font-semibold mb-4">Tooltip & Popover</h4>
       <div className="card p-6 mb-10">
-        <div className="flex gap-8 items-center">
+        <div className="flex gap-8 items-start flex-wrap">
           <div className="relative inline-block">
             <button className="btn btn-secondary">Hover me</button>
             <div className="tooltip tooltip-top" style={{ visibility: 'visible', opacity: 1 }}>
@@ -115,6 +115,13 @@ export function PatternsSection() {
             <button className="btn btn-secondary">Hover me</button>
             <div className="tooltip tooltip-bottom" style={{ visibility: 'visible', opacity: 1 }}>
               Tooltip on bottom
+            </div>
+          </div>
+          <div className="relative inline-block">
+            <button className="popover-help-trigger">?</button>
+            <div className="popover" style={{ visibility: 'visible', opacity: 1, position: 'relative', display: 'block' }}>
+              <div className="popover-title">What is escrow?</div>
+              <p style={{ fontSize: 13 }}>Funds are held securely by TradeSafe until you approve the submission.</p>
             </div>
           </div>
         </div>
@@ -179,6 +186,66 @@ export function PatternsSection() {
         <p className="body-sm">Content above</p>
         <div className="divider" />
         <p className="body-sm">Content below</p>
+      </div>
+
+      {/* Bulk Bar */}
+      <h4 className="text-lg font-heading font-semibold mb-4">Bulk Action Bar</h4>
+      <div className="card p-0 mb-10 overflow-hidden">
+        <div className="bulk-bar">
+          <span className="count">3 selected</span>
+          <span className="spacer" />
+          <button className="btn btn-sm btn-secondary">Export</button>
+          <button className="btn btn-sm btn-danger">Delete</button>
+        </div>
+      </div>
+
+      {/* Drawer */}
+      <h4 className="text-lg font-heading font-semibold mb-4">Drawer</h4>
+      <div className="card p-0 mb-10 overflow-hidden" style={{ position: 'relative', height: 300 }}>
+        <div className="drawer" style={{ position: 'absolute', transform: 'none', width: '100%', maxWidth: '100%' }}>
+          <div className="drawer-head">
+            <h3 style={{ margin: 0 }}>Submission Details</h3>
+            <button className="modal-close" aria-label="Close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <div className="drawer-body">
+            <p className="body-sm text-text-secondary">Drawer slides in from the right. Used for detail views without navigating away.</p>
+            <div className="divider" />
+            <div className="field">
+              <label>Status</label>
+              <span className="badge badge-success">Verified</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts */}
+      <h4 className="text-lg font-heading font-semibold mb-4">Bar Chart</h4>
+      <div className="card p-6 mb-10 max-w-md">
+        <div className="bar-chart" style={{ height: 120 }}>
+          {[80, 55, 90, 40, 70, 60, 95].map((h, i) => (
+            <div key={i} className={`bar ${i === 3 ? 'is-muted' : ''}`} style={{ height: `${h}%` }} />
+          ))}
+        </div>
+      </div>
+
+      <h4 className="text-lg font-heading font-semibold mb-4">Funnel Chart</h4>
+      <div className="card p-6 mb-10 max-w-md">
+        <div className="funnel">
+          {[
+            { label: 'Impressions', value: 12400, pct: 100 },
+            { label: 'Clicks', value: 3200, pct: 26 },
+            { label: 'Applications', value: 840, pct: 7 },
+            { label: 'Approved', value: 120, pct: 1 },
+          ].map((row) => (
+            <div key={row.label} className="funnel-row">
+              <span style={{ width: 100, fontSize: 13 }}>{row.label}</span>
+              <div className="funnel-bar" style={{ width: `${row.pct}%` }} />
+              <span className="funnel-pct">{row.pct}%</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Bottom Nav */}

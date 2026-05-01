@@ -24,12 +24,18 @@ function ButtonSection() {
         {(['primary', 'secondary', 'ghost', 'danger'] as const).map((v) => (
           <Button key={v} variant={v}>{v}</Button>
         ))}
+        <button className="btn btn-success">success</button>
       </div>
       <p className="eyebrow mb-3">Sizes</p>
       <div className="flex flex-wrap items-center gap-3 mb-6">
         {(['sm', 'md', 'lg'] as const).map((s) => (
           <Button key={s} size={s} variant="primary">Size {s}</Button>
         ))}
+        <button className="btn btn-primary btn-xl">Size xl</button>
+      </div>
+      <p className="eyebrow mb-3">CTA (gradient pill)</p>
+      <div className="flex flex-wrap gap-3 mb-6">
+        <button className="btn btn-cta">Get started free</button>
       </div>
       <p className="eyebrow mb-3">With Icons</p>
       <div className="flex flex-wrap gap-3">
@@ -44,10 +50,18 @@ function ButtonSection() {
 function BadgeSection() {
   return (
     <SectionCard title="Badge">
-      <div className="flex flex-wrap gap-3">
+      <p className="eyebrow mb-3">Tones</p>
+      <div className="flex flex-wrap gap-3 mb-6">
         {(['neutral', 'brand', 'success', 'warning', 'danger', 'info'] as const).map((t) => (
           <Badge key={t} tone={t}>{t}</Badge>
         ))}
+      </div>
+      <p className="eyebrow mb-3">Special variants</p>
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="badge badge-success"><span className="badge-dot" />Active</span>
+        <span className="badge badge-warning"><span className="badge-dot" />Pending</span>
+        <span className="badge badge-danger"><span className="badge-dot" />Failed</span>
+        <span className="badge badge-reward">R 500 earned</span>
       </div>
     </SectionCard>
   );
@@ -77,10 +91,29 @@ function FilterChipSection() {
   );
 }
 
+function ChipSection() {
+  const [selected, setSelected] = useState('Instagram');
+  return (
+    <SectionCard title="Chip (interactive selection)">
+      <div className="flex flex-wrap gap-2">
+        {['Instagram', 'TikTok', 'Facebook', 'YouTube'].map((c) => (
+          <button
+            key={c}
+            className={`chip ${selected === c ? 'chip-selected' : ''}`}
+            onClick={() => setSelected(c)}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+    </SectionCard>
+  );
+}
+
 function CardSection() {
   return (
     <SectionCard title="Card">
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-4 mb-4">
         <Card>
           <h5 className="font-heading font-semibold mb-2">Standard Card</h5>
           <p className="body-sm text-text-secondary">Default card with surface background and border.</p>
@@ -89,6 +122,16 @@ function CardSection() {
           <h5 className="font-heading font-semibold mb-2">Feature Card</h5>
           <p className="body-sm text-text-secondary">Elevated card for highlighted content.</p>
         </Card>
+      </div>
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="card card-interactive">
+          <h5 className="font-heading font-semibold mb-2">Interactive Card</h5>
+          <p className="body-sm text-text-secondary">Hover to see the lift effect.</p>
+        </div>
+        <div className="card card-compact">
+          <h5 className="font-heading font-semibold mb-2">Compact Card</h5>
+          <p className="body-sm text-text-secondary">Tighter padding for dense layouts.</p>
+        </div>
       </div>
     </SectionCard>
   );
@@ -279,6 +322,7 @@ export function ComponentsSection() {
       <h2 className="text-2xl font-heading font-bold mb-6">Components</h2>
       <ButtonSection />
       <BadgeSection />
+      <ChipSection />
       <FilterChipSection />
       <CardSection />
       <KPISection />

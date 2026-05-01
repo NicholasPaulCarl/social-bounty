@@ -3,6 +3,7 @@ import { ColorsSection } from './sections/ColorsSection';
 import { TypographySection } from './sections/TypographySection';
 import { SpacingSection } from './sections/SpacingSection';
 import { ComponentsSection } from './sections/ComponentsSection';
+import { AppSection } from './sections/AppSection';
 import { PatternsSection } from './sections/PatternsSection';
 import { IconsSection } from './sections/IconsSection';
 import { Sun, Moon } from 'lucide-react';
@@ -12,6 +13,7 @@ const NAV_ITEMS = [
   { id: 'typography', label: 'Typography' },
   { id: 'spacing', label: 'Spacing & Radii' },
   { id: 'components', label: 'Components' },
+  { id: 'app-components', label: 'App Components' },
   { id: 'patterns', label: 'Patterns' },
   { id: 'icons', label: 'Icons' },
 ];
@@ -89,6 +91,7 @@ export function App() {
         <TypographySection />
         <SpacingSection />
         <ComponentsSection />
+        <AppSection />
         <PatternsSection />
         <IconsSection />
       </main>
