@@ -220,8 +220,8 @@ function BusinessBountiesContent() {
       <div
         className="bg-surface overflow-hidden"
         style={{
-          border: '1px solid var(--slate-200, #e2e8f0)',
-          borderRadius: 16,
+          border: '1px solid var(--slate-200)',
+          borderRadius: 'var(--radius-xl)',
         }}
       >
         {/* Single-row toolbar */}
@@ -229,7 +229,7 @@ function BusinessBountiesContent() {
           className="flex flex-wrap items-center gap-3"
           style={{
             padding: '14px 16px',
-            borderBottom: '1px solid var(--slate-100, #f1f5f9)',
+            borderBottom: '1px solid var(--slate-100)',
           }}
         >
           {/* Search input */}
@@ -261,7 +261,7 @@ function BusinessBountiesContent() {
               style={{
                 boxSizing: 'border-box',
                 padding: '7px 12px 7px 30px',
-                border: '1px solid var(--slate-200, #e2e8f0)',
+                border: '1px solid var(--slate-200)',
                 borderRadius: 8,
                 fontSize: 13,
                 height: 36,
@@ -283,7 +283,7 @@ function BusinessBountiesContent() {
             className="cursor-pointer inline-flex items-center gap-1.5 transition-all"
             style={{
               padding: '7px 12px',
-              border: '1px solid var(--slate-200, #e2e8f0)',
+              border: '1px solid var(--slate-200)',
               borderRadius: 8,
               background: 'var(--bg-surface)',
               color: 'var(--text-secondary)',
@@ -369,7 +369,7 @@ function BusinessBountiesContent() {
             className="flex flex-wrap items-center justify-between gap-2"
             style={{
               padding: '12px 16px',
-              borderTop: '1px solid var(--slate-100, #f1f5f9)',
+              borderTop: '1px solid var(--slate-100)',
             }}
           >
             <span
