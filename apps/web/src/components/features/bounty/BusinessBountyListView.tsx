@@ -124,7 +124,7 @@ function rewardBody(row: BountyListItem) {
   return (
     <span
       className="font-mono tabular-nums font-medium"
-      style={{ fontSize: 13, color: 'var(--pink-600, #db2777)' }}
+      style={{ fontSize: 13, color: 'var(--text-primary)' }}
     >
       {text || '—'}
     </span>
@@ -228,13 +228,7 @@ export function BusinessBountyListView({
   );
 
   return (
-    <div
-      className="overflow-x-auto bg-surface"
-      style={{
-        border: '1px solid var(--slate-200)',
-        borderRadius: 12,
-      }}
-    >
+    <div className="overflow-x-auto bg-surface">
       <DataTable
         value={bounties}
         onRowClick={(e) => router.push(`/business/bounties/${(e.data as BountyListItem).id}`)}
