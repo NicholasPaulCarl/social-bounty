@@ -562,14 +562,25 @@ describe('validateField', () => {
 });
 
 describe('getSectionErrors', () => {
-  it('should return bountyBasicInfo errors', () => {
+  it('should return bountyBasicInfo errors (title, shortDescription)', () => {
     const errors = { title: 'required', shortDescription: 'required' };
     expect(getSectionErrors('bountyBasicInfo', errors)).toHaveLength(2);
   });
 
-  it('should return only bountyBasicInfo keys (includes channels)', () => {
-    const errors = { title: 'required', channels: 'required', proofRequirements: 'required' };
-    expect(getSectionErrors('bountyBasicInfo', errors)).toHaveLength(2);
+  it('should return only bountyBasicInfo keys (channels but NOT fullInstructions)', () => {
+    // fullInstructions moved to bountyRules in bounty-wizard-design-align
+    const errors = { title: 'required', channels: 'required', fullInstructions: 'required', proofRequirements: 'required' };
+    const basicInfoErrors = getSectionErrors('bountyBasicInfo', errors);
+    expect(basicInfoErrors).toHaveLength(2); // title + channels; fullInstructions goes to bountyRules
+    expect(basicInfoErrors).not.toContain('fullInstructions');
+  });
+
+  it('fullInstructions error buckets to bountyRules (step 1), NOT bountyBasicInfo (step 0)', () => {
+    // This is the key post-wizard-design-align invariant: instruction-step
+    // errors surface on the "Instructions & Metrics" step, not "Basics".
+    const errors = { fullInstructions: 'At least one instruction step is required' };
+    expect(getSectionErrors('bountyRules', errors)).toContain('fullInstructions');
+    expect(getSectionErrors('bountyBasicInfo', errors)).not.toContain('fullInstructions');
   });
 
   it('should return channel errors in bountyBasicInfo', () => {
@@ -628,11 +639,20 @@ describe('getSectionErrors', () => {
 });
 
 describe('isSectionComplete', () => {
-  it('should mark bountyBasicInfo as complete when all fields filled and channel selected', () => {
+  it('should mark bountyBasicInfo as complete when title + desc + channel filled (no instructions required — they moved to step 1)', () => {
     expect(isSectionComplete('bountyBasicInfo', makeState({
       title: 'Test',
       shortDescription: 'Desc',
-      fullInstructions: 'Instructions',
+      channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
+    }))).toBe(true);
+  });
+
+  it('should mark bountyBasicInfo complete even without instructions (instructions live on step 1 now)', () => {
+    expect(isSectionComplete('bountyBasicInfo', makeState({
+      title: 'Test',
+      shortDescription: 'Desc',
+      fullInstructions: '',
+      instructionSteps: [''],
       channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
     }))).toBe(true);
   });
@@ -645,7 +665,6 @@ describe('isSectionComplete', () => {
     expect(isSectionComplete('bountyBasicInfo', makeState({
       title: 'Test',
       shortDescription: 'Desc',
-      fullInstructions: 'Instructions',
       channels: {},
     }))).toBe(false);
   });
@@ -654,7 +673,6 @@ describe('isSectionComplete', () => {
     expect(isSectionComplete('bountyBasicInfo', makeState({
       title: '   ',
       shortDescription: 'Desc',
-      fullInstructions: 'Instructions',
       channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
     }))).toBe(false);
   });

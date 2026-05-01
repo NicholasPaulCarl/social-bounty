@@ -247,8 +247,11 @@ export function getSectionErrors(sectionKey: string, errors: Record<string, stri
   const errorKeys = Object.keys(errors);
   switch (sectionKey) {
     case 'bountyBasicInfo':
+      // Note: 'fullInstructions' (instruction-step errors) moved to step 1
+      // (bountyRules) in bounty-wizard-design-align — InstructionStepsBuilder
+      // now renders on Step 2 (Instructions & Metrics), not Step 0 (Basics).
       return errorKeys.filter((k) =>
-        ['title', 'shortDescription', 'fullInstructions', 'channels',
+        ['title', 'shortDescription', 'channels',
          'startDate', 'endDate'].includes(k) ||
         k.startsWith('channel_'),
       );
@@ -264,9 +267,11 @@ export function getSectionErrors(sectionKey: string, errors: Record<string, stri
         k.startsWith('reward_'),
       );
     case 'bountyRules':
+      // 'fullInstructions' added here because InstructionStepsBuilder moved
+      // to Step 2 (Instructions & Metrics) which owns bountyRules errors.
       return errorKeys.filter((k) =>
-        ['minFollowers', 'minAccountAgeDays', 'locationRestriction', 'customRules',
-         'proofRequirements',
+        ['fullInstructions', 'minFollowers', 'minAccountAgeDays', 'locationRestriction',
+         'customRules', 'proofRequirements',
          'minViews', 'minLikes', 'minComments'].includes(k) ||
         k.startsWith('customRule_'),
       );
@@ -292,13 +297,15 @@ export function getSectionErrors(sectionKey: string, errors: Record<string, stri
  * Step 0 = Basics, 1 = Instructions & Metrics, 2 = Access & Requirements,
  * 3 = Claim & Rewards, 4 = Document Share.
  *
- * `bountyBasicInfo` covers title/shortDescription/channels/instructions/
- * schedule (everything in section 1 except payoutMetrics, which moves
- * to step 1). `bountyRules` covers payoutMetrics + customRules in step
- * 1; eligibility + engagement + postVisibility + maxSubmissions in step
- * 2 + 3. The current `getSectionErrors` returns ALL bountyRules errors
- * for either step that owns part of the section, which is acceptable
- * for forward-block: a later step can't "lap" an earlier one.
+ * `bountyBasicInfo` covers title/shortDescription/channels/schedule
+ * (everything on Step 0). `bountyRules` covers fullInstructions
+ * (instruction steps) + payoutMetrics + customRules + eligibility on
+ * steps 1 + 2. Instructions moved from Step 0 to Step 1 in the
+ * bounty-wizard-design-align pass — `fullInstructions` error key now
+ * buckets under `bountyRules` (see getSectionErrors). The current
+ * `getSectionErrors` returns ALL bountyRules errors for either step
+ * that owns part of the section, which is acceptable for forward-block:
+ * a later step can't "lap" an earlier one.
  */
 export const WIZARD_STEP_SECTIONS: ReadonlyArray<ReadonlyArray<string>> = [
   ['bountyBasicInfo'],
@@ -340,8 +347,10 @@ export function validateStep(stepIdx: number, state: BountyFormState): Record<st
 export function isSectionComplete(sectionKey: string, state: BountyFormState): boolean {
   switch (sectionKey) {
     case 'bountyBasicInfo': {
-      const hasInstructions = state.instructionSteps.some((s) => s.trim()) || !!state.fullInstructions.trim();
-      return !!state.title.trim() && !!state.shortDescription.trim() && hasInstructions && hasChannelSelection(state);
+      // Instructions moved to step 1 (bountyRules section) in
+      // bounty-wizard-design-align — isSectionComplete for Basics only
+      // checks title, description, and channel selection.
+      return !!state.title.trim() && !!state.shortDescription.trim() && hasChannelSelection(state);
     }
     case 'bountyContent':
       // CASH rewards skip the name check — see validateFull for rationale.

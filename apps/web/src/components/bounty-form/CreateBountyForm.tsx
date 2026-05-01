@@ -16,13 +16,12 @@ import { ChannelSelectionSection } from './ChannelSelectionSection';
 import { PostVisibilitySection } from './PostVisibilitySection';
 import { RewardLinesSection } from './RewardLinesSection';
 import { EligibilityRulesSection } from './EligibilityRulesSection';
-import { CustomRulesSection } from './CustomRulesSection';
+import { AdditionalRulesGroup } from './AdditionalRulesGroup';
 import { MaxSubmissionsSection } from './MaxSubmissionsSection';
 import { ScheduleSection } from './ScheduleSection';
 import { PayoutMetricsSection } from './PayoutMetricsSection';
 import { BrandAssetsSection } from './BrandAssetsSection';
 import { AccessTypeSection } from './AccessTypeSection';
-import { AutoVerifyPreviewAccordion } from './AutoVerifyPreviewAccordion';
 import { getSectionErrors, isSectionComplete, bountyRulesHasContent, validateStep } from './validation';
 import { SECTIONS } from './types';
 import type { BountyFormState } from './types';
@@ -38,12 +37,12 @@ const WIZARD_STEPS: ReadonlyArray<WizardStepDescriptor> = [
   {
     label: 'Basics',
     title: 'Basics',
-    description: 'Name your bounty, pick the platforms, and write the instructions hunters will follow.',
+    description: 'Name your bounty, pick the platforms, and set the campaign format.',
   },
   {
     label: 'Instructions & Metrics',
     title: 'Instructions & Metrics',
-    description: 'Add the engagement metrics submissions must hit and any custom verification rules.',
+    description: 'Write the step-by-step instructions hunters will follow, set payout metrics, and add compliance rules.',
   },
   {
     label: 'Access & Requirements',
@@ -516,15 +515,6 @@ export function CreateBountyForm({
                   )}
                 </div>
 
-                {/* Instruction Steps Builder */}
-                <InstructionStepsBuilder
-                  steps={state.instructionSteps}
-                  dispatch={dispatch}
-                  errors={state.errors}
-                  submitAttempted={state.submitAttempted}
-                  isLocked={isLocked}
-                />
-
                 {/* AI-Generated Content toggle */}
                 <div className="flex items-center justify-between p-3 bg-elevated rounded-lg">
                   <div>
@@ -570,17 +560,25 @@ export function CreateBountyForm({
                 number={2}
                 title="Instructions & metrics"
                 Icon={Shield}
-                // Step 2 is metrics + custom rules — intentionally optional.
                 isComplete={isSectionComplete('bountyRules', state)}
                 hasError={state.submitAttempted && getSectionErrors('bountyRules', state.errors).length > 0}
-                optional
                 hasContent={
+                  state.instructionSteps.some((s) => s.trim()) ||
                   state.payoutMetrics.minViews !== null ||
                   state.payoutMetrics.minLikes !== null ||
                   state.payoutMetrics.minComments !== null ||
-                  ((state.structuredEligibility.customRules || []).filter((r) => r.trim()).length > 0)
+                  state.additionalRuleIds.length > 0
                 }
               >
+                {/* Instructions first — what hunters must do */}
+                <InstructionStepsBuilder
+                  steps={state.instructionSteps}
+                  dispatch={dispatch}
+                  errors={state.errors}
+                  submitAttempted={state.submitAttempted}
+                  isLocked={isLocked}
+                />
+
                 <PayoutMetricsSection
                   payoutMetrics={state.payoutMetrics}
                   dispatch={dispatch}
@@ -588,11 +586,9 @@ export function CreateBountyForm({
                   submitAttempted={state.submitAttempted}
                 />
 
-                <CustomRulesSection
-                  customRules={state.structuredEligibility.customRules || []}
-                  dispatch={dispatch}
-                  errors={state.errors}
-                  submitAttempted={state.submitAttempted}
+                <AdditionalRulesGroup
+                  selectedIds={state.additionalRuleIds}
+                  onChange={(ids) => dispatch({ type: 'SET_ADDITIONAL_RULE_IDS', payload: ids })}
                 />
               </SectionPanel>
             </div>
@@ -600,10 +596,33 @@ export function CreateBountyForm({
 
           {currentStep === 2 && (
             <>
-              <div data-section="bountyRules">
+              {/* Access type first — who can claim the bounty */}
+              <div data-section="accessType">
                 <SectionPanel
                   number={3}
-                  title="Access & requirements"
+                  title="Access type"
+                  Icon={Lock}
+                  isComplete={true}
+                  hasError={false}
+                  optional
+                  hasContent={
+                    state.accessType === BountyAccessType.CLOSED ||
+                    state.selectedHunters.length > 0
+                  }
+                >
+                  <AccessTypeSection
+                    accessType={state.accessType}
+                    selectedHunters={state.selectedHunters}
+                    dispatch={dispatch}
+                  />
+                </SectionPanel>
+              </div>
+
+              {/* Eligibility, engagement, and post visibility requirements */}
+              <div data-section="bountyRules">
+                <SectionPanel
+                  number={4}
+                  title="Hunter & post requirements"
                   Icon={Shield}
                   isComplete={isSectionComplete('bountyRules', state)}
                   hasError={state.submitAttempted && getSectionErrors('bountyRules', state.errors).length > 0}
@@ -647,39 +666,6 @@ export function CreateBountyForm({
                       />
                     </div>
                   </div>
-                </SectionPanel>
-              </div>
-
-              <AutoVerifyPreviewAccordion
-                input={{
-                  channels: Object.keys(state.channels).length > 0 ? state.channels : null,
-                  contentFormat: state.contentFormat,
-                  engagementRequirements: state.engagementRequirements,
-                  payoutMetrics: state.payoutMetrics,
-                  structuredEligibility: state.structuredEligibility,
-                }}
-              />
-
-              {/* Access Type panel — kept on Step 3 because it's about WHO
-                  can claim the bounty (eligibility/engagement neighbours). */}
-              <div data-section="accessType">
-                <SectionPanel
-                  number={4}
-                  title="Access type"
-                  Icon={Lock}
-                  isComplete={true}
-                  hasError={false}
-                  optional
-                  hasContent={
-                    state.accessType === BountyAccessType.CLOSED ||
-                    state.selectedHunters.length > 0
-                  }
-                >
-                  <AccessTypeSection
-                    accessType={state.accessType}
-                    selectedHunters={state.selectedHunters}
-                    dispatch={dispatch}
-                  />
                 </SectionPanel>
               </div>
             </>

@@ -71,7 +71,6 @@ describe('validateStep', () => {
       const state = makeState({
         title: '',
         shortDescription: 'desc',
-        instructionSteps: ['Do thing'],
         channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
       });
       const errs = validateStep(0, state);
@@ -82,18 +81,31 @@ describe('validateStep', () => {
       const state = makeState({
         title: 'My bounty',
         shortDescription: 'desc',
-        instructionSteps: ['Do thing'],
         channels: {},
       });
       const errs = validateStep(0, state);
       expect(errs.channels).toBeDefined();
     });
 
+    it('passes Next even when instructionSteps is empty (instructions gated on step 1 now)', () => {
+      // InstructionStepsBuilder moved to Step 1 (Instructions & Metrics) in
+      // bounty-wizard-design-align — step 0 does NOT gate on instruction errors.
+      const state = makeState({
+        title: 'My bounty',
+        shortDescription: 'desc',
+        instructionSteps: [''],
+        fullInstructions: '',
+        channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
+      });
+      const errs = validateStep(0, state);
+      expect(errs.fullInstructions).toBeUndefined();
+      expect(Object.keys(errs)).toHaveLength(0);
+    });
+
     it('passes Next when step 0 fields are complete', () => {
       const state = makeState({
         title: 'My bounty',
         shortDescription: 'desc',
-        instructionSteps: ['Do thing'],
         channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
         contentFormat: ContentFormat.VIDEO_ONLY,
       });
@@ -105,7 +117,6 @@ describe('validateStep', () => {
       const state = makeState({
         title: 'My bounty',
         shortDescription: 'desc',
-        instructionSteps: ['Do thing'],
         channels: { [SocialChannel.INSTAGRAM]: [PostFormat.REEL] },
         rewards: [{ rewardType: RewardType.PRODUCT, name: '', monetaryValue: 0 }],
       });
@@ -113,6 +124,38 @@ describe('validateStep', () => {
       // Reward errors belong to bountyContent (step 3), not step 0.
       expect(errs.rewards).toBeUndefined();
       expect(Object.keys(errs).filter((k) => k.startsWith('reward_'))).toHaveLength(0);
+    });
+  });
+
+  describe('step 1 — Instructions & Metrics', () => {
+    it('blocks Next when no instruction steps have content', () => {
+      // InstructionStepsBuilder is now on step 1 — instruction errors gate
+      // forward navigation here, not on step 0 (Basics).
+      const state = makeState({
+        instructionSteps: [''],
+        fullInstructions: '',
+      });
+      const errs = validateStep(1, state);
+      expect(errs.fullInstructions).toBeDefined();
+    });
+
+    it('passes Next when at least one instruction step has content', () => {
+      const state = makeState({
+        instructionSteps: ['Take a photo and post it'],
+        fullInstructions: '',
+        proofRequirements: ['url'],
+      });
+      const errs = validateStep(1, state);
+      expect(errs.fullInstructions).toBeUndefined();
+    });
+
+    it('additionalRuleIds has no validation — any selection (or empty) passes step 1', () => {
+      // Required rules are always implied; optional rules are user-toggleable.
+      // No minimum selection required.
+      const stateEmpty = makeState({ additionalRuleIds: [], instructionSteps: ['Do thing'] });
+      const stateSome = makeState({ additionalRuleIds: ['exclusive'], instructionSteps: ['Do thing'] });
+      expect(validateStep(1, stateEmpty).additionalRuleIds).toBeUndefined();
+      expect(validateStep(1, stateSome).additionalRuleIds).toBeUndefined();
     });
   });
 

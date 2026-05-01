@@ -39,6 +39,10 @@ export interface BountyFormState {
 
   // Section 3: Bounty Rules
   structuredEligibility: StructuredEligibilityInput;
+  /** IDs of selected OPTIONAL additional rules (see AdditionalRulesGroup + additional-rules-data.ts).
+   *  Required rules (ftc, no_competitor) are always implied and never stored here.
+   *  Added in bounty-wizard-design-align pass — replaces the freeform CustomRulesSection UI. */
+  additionalRuleIds: string[];
   proofRequirements: string[];
   maxSubmissions: number | null;
   startDate: Date | null;
@@ -97,6 +101,7 @@ export type BountyFormAction =
   | { type: 'ADD_CUSTOM_RULE' }
   | { type: 'REMOVE_CUSTOM_RULE'; payload: number }
   | { type: 'UPDATE_CUSTOM_RULE'; payload: { index: number; value: string } }
+  | { type: 'SET_ADDITIONAL_RULE_IDS'; payload: string[] }
   | { type: 'TOGGLE_PROOF_REQUIREMENT'; payload: string }
   | { type: 'SET_MAX_SUBMISSIONS'; payload: number | null }
   | { type: 'SET_START_DATE'; payload: Date | null }
@@ -151,6 +156,7 @@ export const INITIAL_FORM_STATE: BountyFormState = {
     noCompetingBrandDays: null,
     customRules: [],
   },
+  additionalRuleIds: [],
   // URL is always required per the inline notice on Section 1
   // ("Post links are required for all submissions") — seed it so the
   // validation passes and the form is submittable. Brands can add

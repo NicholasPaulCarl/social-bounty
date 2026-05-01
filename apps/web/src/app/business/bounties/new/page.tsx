@@ -2,13 +2,14 @@
 
 import { useRef, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useCreateBounty } from '@/hooks/useBounties';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
 import { useBrand } from '@/hooks/useBrand';
 import { CreateBountyForm } from '@/components/bounty-form';
-import { getPresetFormState, isBountyPresetId } from '@/components/bounty-form/bounty-presets';
-import { Building2 } from 'lucide-react';
+import { BOUNTY_PRESETS, getPresetFormState, isBountyPresetId } from '@/components/bounty-form/bounty-presets';
+import { Building2, ChevronRight } from 'lucide-react';
 import { bountyApi } from '@/lib/api/bounties';
 import { redirectToHostedCheckout } from '@/lib/utils/redirect-to-checkout';
 import type { CreateBountyRequest } from '@social-bounty/shared';
@@ -35,13 +36,23 @@ export default function CreateBountyPage() {
   // reducer initializer (first render only), so the stability is mostly
   // defensive. Wave A's bounty-presets.ts replaces the {} stub with real
   // partial states.
+  const presetRaw = searchParams?.get('preset');
   const initialFormOverride = useMemo(() => {
-    const raw = searchParams?.get('preset');
-    if (!isBountyPresetId(raw)) return undefined;
-    if (raw === 'blank') return undefined;
-    const preset = getPresetFormState(raw);
+    if (!isBountyPresetId(presetRaw)) return undefined;
+    if (presetRaw === 'blank') return undefined;
+    const preset = getPresetFormState(presetRaw);
     return Object.keys(preset).length > 0 ? preset : undefined;
-  }, [searchParams]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetRaw]);
+
+  // Derive the breadcrumb current-segment label.
+  // "blank" and unrecognised presets both show "New bounty".
+  // All other valid presets show "New: <preset.label>".
+  const currentCrumbLabel = useMemo(() => {
+    if (!isBountyPresetId(presetRaw) || presetRaw === 'blank') return 'New bounty';
+    const preset = BOUNTY_PRESETS.find((p) => p.id === presetRaw);
+    return preset ? `New: ${preset.label}` : 'New bounty';
+  }, [presetRaw]);
 
   const uploadStagedFiles = async (bountyId: string) => {
     if (stagedFilesRef.current.length > 0) {
@@ -140,6 +151,25 @@ export default function CreateBountyPage() {
 
   return (
     <div className="animate-fade-up">
+      <nav aria-label="Breadcrumb" className="mb-4 text-xs">
+        <ol className="flex items-center gap-1 text-slate-500">
+          <li>
+            <Link
+              href="/business/bounties"
+              className="text-pink-600 hover:underline transition-colors"
+            >
+              Bounties
+            </Link>
+          </li>
+          <li aria-hidden="true">
+            <ChevronRight size={12} className="text-slate-400" />
+          </li>
+          <li className="text-text-primary font-medium" aria-current="page">
+            {currentCrumbLabel}
+          </li>
+        </ol>
+      </nav>
+
       <h1 className="text-2xl font-bold text-text-primary mb-6">Create new bounty</h1>
 
       {org && (

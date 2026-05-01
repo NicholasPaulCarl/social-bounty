@@ -769,3 +769,44 @@ describe('formReducer REORDER_INSTRUCTION_STEP', () => {
     expect(next.instructionSteps).toEqual(['Step B', 'Step A', 'Step C']);
   });
 });
+
+describe('formReducer SET_ADDITIONAL_RULE_IDS — optional compliance rule selection', () => {
+  it('INITIAL_FORM_STATE has additionalRuleIds defaulting to empty array', () => {
+    expect(INITIAL_FORM_STATE.additionalRuleIds).toEqual([]);
+  });
+
+  it('sets the additionalRuleIds array with the dispatched payload', () => {
+    const next = formReducer(INITIAL_FORM_STATE, {
+      type: 'SET_ADDITIONAL_RULE_IDS',
+      payload: ['exclusive'],
+    });
+    expect(next.additionalRuleIds).toEqual(['exclusive']);
+  });
+
+  it('can set multiple optional rule IDs at once', () => {
+    const next = formReducer(INITIAL_FORM_STATE, {
+      type: 'SET_ADDITIONAL_RULE_IDS',
+      payload: ['exclusive', 'share_raw'],
+    });
+    expect(next.additionalRuleIds).toEqual(['exclusive', 'share_raw']);
+  });
+
+  it('can clear all optional rules by dispatching an empty array', () => {
+    const withRules = makeState({ additionalRuleIds: ['exclusive', 'share_raw'] });
+    const next = formReducer(withRules, {
+      type: 'SET_ADDITIONAL_RULE_IDS',
+      payload: [],
+    });
+    expect(next.additionalRuleIds).toEqual([]);
+  });
+
+  it('does not mutate other state fields when updating additionalRuleIds', () => {
+    const before = makeState({ title: 'Unchanged title', additionalRuleIds: [] });
+    const next = formReducer(before, {
+      type: 'SET_ADDITIONAL_RULE_IDS',
+      payload: ['exclusive'],
+    });
+    expect(next.title).toBe('Unchanged title');
+    expect(next.additionalRuleIds).toEqual(['exclusive']);
+  });
+});
